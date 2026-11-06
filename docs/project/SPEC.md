@@ -1,0 +1,141 @@
+# SPEC：查找與追蹤的功能規格
+
+返回 [README](README.md)。需求背景見 [PRD.md](PRD.md)，架構見 [SYSTEM_ARCH.md](SYSTEM_ARCH.md)。
+
+> **本文件的地位**：這是對外說明用的規格摘要。欄位名稱、錯誤碼與驗收測試以核心契約 [`docs/contracts/Q_CORE_SEARCH_TRACK_V1.md`](https://github.com/Polalalabear/amidst/pull/410) 為準（見 [§8](#8-介面契約)）。本文件的規則來自 [D126](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045)、#410 核心契約與現行程式實作。
+
+## 1. case1 查找
+
+### 1.1 輸入
+
+| 欄位 | 必填 | 型式 | 說明 |
+| --- | --- | --- | --- |
+| 時間範圍 | **是** | 選單（開始、結束），台灣時間 | 經宣告時鐘換成來源時間（[§4](#4-宣告時鐘台灣時間)） |
+| 地點 | 否 | 選單：區域 | 區域 ID 來自 region_graph，例如 r004 的 OUT_W、VEST_W、CORR_W、CORNER、CORR_N、R101、R102 |
+| 特徵 | 否 | 選單：物件類別（＋人物顏色） | 類別來自 `configs/q1q5/class_alias_v1.json`@`796cc17` 的 80 個 COCO 標籤（status `PROPOSED`）；顏色只能用在 `person` |
+
+D126：「先用選單。」自然語言輸入（Q3）不在 D126 的核心範圍內。
+
+### 1.2 驗證規則
+
+依據 [`Q_CORE_SEARCH_TRACK_V1.md`](https://github.com/Polalalabear/amidst/pull/410) §2.3，驗證由前端選單擋下，伺服器 API 同步進行全套驗證：
+
+| # | 規則 | 違反時（HTTP 422 或狀態） |
+| --- | --- | --- |
+| V1 | 時間範圍必填 | 前端擋下，伺服器回 422 `TIME_REQUIRED` |
+| V2 | 地點與特徵至少填一個 | 前端擋下，伺服器回 422 `LOCATION_OR_FEATURE_REQUIRED` |
+| V3 | 結束早於開始、跨午夜、無效字串或時區不符 | 422 `TIME_ORDER`、`TIME_CROSSES_MIDNIGHT`、`TIME_INVALID`、`TIME_ZONE_MISMATCH` |
+| V4 | 選定 run 沒有宣告時鐘 | `status: UNKNOWN`，reasons 帶 `CLOCK_MAPPING_MISSING`，不猜測日期 |
+| V5 | 時間範圍只有一部分有資料 | `PARTIAL`，列出沒涵蓋的時段；完全沒交集回 `OUT_OF_RANGE` |
+| V6 | 類別不在支援清單、顏色用在非人物，或未知區域／顏色 | 422 `UNSUPPORTED_CLASS`、`UNSUPPORTED_CONDITION`、`COLOR_UNKNOWN`、`REGION_UNKNOWN` |
+
+### 1.3 輸出
+
+- 時間範圍內拍到目標的**鏡頭畫面**（每台鏡頭的命中片段與代表畫面）。
+- **只給地點**：回傳 camera_graph 中 `covered_regions` 涵蓋該區域且 basis 為 `MANUAL_ON_STATIC_FRAME` 的鏡頭在該時段的畫面（鏡頭須存在於該 run 目錄中）。這只是「哪台鏡頭看得到那個區域」，**不代表**目標在那裡，結果物件標記 `target_observed: false`。
+- **只給特徵**：回傳 RT-DETR COCO 偵測索引在該時段有命中的鏡頭。
+- **兩者都給**：先用地點篩鏡頭，再用特徵篩命中。
+- 沒有命中的鏡頭列為「沒有命中」，畫面寫「不代表目標不存在」（#397 §E.2.2）。
+- 身分一律 `UNCONFIRMED`。
+
+## 2. case2 追蹤
+
+### 2.1 輸入
+
+| 欄位 | 必填 | 說明 |
+| --- | --- | --- |
+| 特徵 | **是** | 選單；目前 Q2 linker 支援人物（D126；非人物追蹤待 O3 擴充） |
+| 地點 | 否 | 縮小起點搜尋範圍 |
+| 時間 | 否 | **空著代表現在**（取前端回放時鐘之 `playback_now_us`，視窗區間 `[now − track_lookback_us, now)`，預設 60 s） |
+| 顯示方式 | 是（有預設） | 單畫面／多畫面 |
+
+### 2.2 輸出
+
+| 狀態 | 單畫面 | 多畫面 |
+| --- | --- | --- |
+| 有鏡頭看到目標 | 一直播該鏡頭；目標離開後換到另一個看得到的鏡頭 | 顯示所有找到目標的鏡頭，目前追蹤所在鏡頭加框、標「目前畫面」（#408） |
+| 沒有鏡頭看到目標（盲區） | 顯示俯視圖與物理預測曲線，標 `INFERRED`，信心一律 `LOW`（或 `UNKNOWN`） | 同左 |
+| 完全跟丟 | 停止切換，明確顯示跟丟（最後一段觀測結束到 `as_of_us` 為止沒有鏡頭再看到目標，判定為 `LOST`） | 同左 |
+
+「完全跟丟」依 #410 契約定義：最後一段觀測結束至 `as_of_us` 均無任何鏡頭看見目標即為 `LOST`，不依賴固定輪數或 W/R 參數。
+
+### 2.3 單畫面切鏡
+
+- 切鏡序列由連接器觀測到的 sightings 經純函式排出（[`Q_CORE_SEARCH_TRACK_V1.md`](https://github.com/Polalalabear/amidst/pull/410) §3.5、`core_query.single_view_sequence`），在重疊時優先保持目前鏡頭，離開後依觀測無縫接續。
+- 切鏡決策不依賴圖結構做候選裁決，圖未核准時 reasons 加 `GRAPH_NOT_APPROVED`。
+- 不得用劇本、情境卡、GT、渲染軌跡、可見性或深度模擬切鏡（[D124-1](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061)）。
+- 圖未核准時 fail-closed：B-05a live 停在 A＋GAP、不切鏡；B-05b 預錄在 5.15 s 切到 B（[D113](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6575688787)）。
+
+### 2.4 盲區：俯視圖與物理預測曲線
+
+- 俯視圖：**實線＝已觀測**（依時間軸上已發生的 ON_CAMERA 段連接鏡頭）；**虛線＝物理預測**，從最後鏡頭畫到候選鏡頭，旁標名次、時間窗與信心；圖例寫「虛線＝物理預測（示意，非實際路徑）」（`docs/contracts/DEMO_UI_SUPPORT_V1.md`@`796cc17` §7.1）。
+- 盲區信心：標記 `INFERRED`，對外標籤信心一律標 `LOW`（或 `UNKNOWN`）；底層物理預測模組之原始信心保留於 `model_confidence`（#410 §4.4）。
+- 物理預測模組 `src/amidst/q1q5/physical_prediction.py`@`796cc17` 是純函式：用目標在最後畫面的位置與方向，排序出口與候選鏡頭，推算時間窗；純純計算，不讀 GT、不調外部 API。
+- 物理預測路由目前回 503（`Q_RESOURCE_UNAVAILABLE`），接線維持 DEMO_UI_SUPPORT_V1 §6.4 fail-closed；盲區時前端顯示「預測不可用」（#410 §5）。
+
+## 3. 證據狀態
+
+Amidst 把所有推論與畫面標成四種狀態，**推論和觀測永遠不混在一起**（[`AGENTS.md`@`796cc17`](https://github.com/Polalalabear/amidst/blob/796cc176cd40bedbfe701b95192d3c8679755aa9/AGENTS.md) Shared rules）：
+
+| 狀態 | 意思 | 例子 |
+| --- | --- | --- |
+| `OBSERVED` | 偵測器在取樣畫面上實際看到 | 拍到紅衣服的人；B-05b 切到 B 的證據 `MATCH_STRONG` |
+| `INFERRED` | 由系統依規則或圖推出來的 | 切鏡決策；盲區時的物理預測曲線（D126），信心一律 `LOW`（或 `UNKNOWN`） |
+| `MISSING` | 應該有、卻沒有的資料 | 沒有 RGB 的鏡頭顯示 MISSING 虛線框，不重複畫面湊格數（#397 §E.2.2） |
+| `UNKNOWN` | 系統不知道 | 暫失後的位置；物理通行；未宣告的時鐘 |
+
+另有兩個固定不變的標示：身分一律 `UNCONFIRMED`；物理通行與碰撞一律 `UNKNOWN`（`DEMO_UI_SUPPORT_V1.md`@`796cc17` §7.1 第 6 點）。
+
+## 4. 宣告時鐘（台灣時間）
+
+- Blender 畫面沒有真實拍攝時刻。每個 run 有一份宣告的展示時鐘 `clock_mapping`：`mapping_kind=DECLARED_DEMO_CLOCK`、`timezone=Asia/Taipei`、`rate=1`（`Q1_Q2_FIRST_DEMO_V1.md`@`796cc17` §3.1）。
+- 換算：`wall = wall_origin + (source_us − t0_us)`。UI 要顯示「展示時鐘」，不得寫成實際拍攝時間。
+- 現有宣告：
+
+| run | 檔案 | wall_origin | 長度 |
+| --- | --- | --- | --- |
+| A4-1 `ctrl-lcorr-s1-a4-5fps-v1-r004` | `configs/q1q5/clocks/r004_a4_v1.json`@`796cc17` | 2026-11-01T14:00:00+08:00 | 50 s |
+| B4-1 | `configs/q1q5/clocks/r004_b4_v1.json`@`796cc17` | 2026-11-01T14:10:00+08:00（#397 §E.3.1） | 42 s |
+| P1 事件 | 該 run 的 `clock_mapping` | 2026-11-01 13:00 +08:00（#408 描述） | 8 s |
+
+- 畫格標籤（#408）：第一行 `<鏡頭> · 2026-11-01 14:00:12.40（UTC+8）`，系統模式第二行 `+12.40 s · DECLARED_DEMO_CLOCK`。找不到宣告就顯示 `UNKNOWN`，不假設日期，不用牆鐘、GT 或渲染時間（[D124-5](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061)）。
+- 同一事件的所有鏡頭共用一個 run 與 clock；不同 run 的牆鐘重疊不代表是同一段時間，不得跨 run 串接人物（契約 §3.1）。
+
+## 5. 倍速規則
+
+- 提供 1×／1.5×／2×（[D125-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620998251)）。
+- D126-4：只要前端顯示變快就好；實際達不到設定值時，**自動降到能達到的速度**，並在播放列顯示實際倍速。
+- 實作（#408 第四批）：播放列小字「設定 2× · 實際 1.4×」。解碼跟不上時播放等影格就緒才前進、不跳格；實際倍速在停滯時下降，跳轉或暫停時重新量測。
+- 標籤與演示時間**只由來源時間決定**，倍速不影響時間標示（#408 `speed.test.mjs`、`viewer.test.mjs`）。
+- 已知限制：B-05b 錄製受解碼限制，設定 2× 時實際只約 0.2×，但演示時間與來源時間無漂移（#408 第三批實測）。
+
+## 6. 畫面模式摘要
+
+| 模式 | 用在 | 規則 |
+| --- | --- | --- |
+| 查看 | 所有事件 | 所有畫面一次顯示（#408） |
+| 查找 | case1 | [§1](#1-case1-查找) |
+| 追蹤：單畫面 | case2 | [§2.3](#23-單畫面切鏡) |
+| 追蹤：多畫面 | case2 | [§2.2](#22-輸出) |
+| 盲區 | case2 | [§2.4](#24-盲區俯視圖與物理預測曲線) |
+| 系統／單純 | 疊加在上面任一模式 | 單純模式只留畫面與演示時間；證據不足時右上角顯示「證據不足」（運行手冊 §10@`796cc17`） |
+
+尚未支援的事件照實標示：A4-1／B4-1 的追蹤顯示「追蹤結果尚未產生 · UNKNOWN」，查找顯示「查找尚未支援（需 #118 索引）· UNKNOWN」（#408）。
+
+## 7. 輸出共通規則
+
+- 每個結果帶 source／run／clock／hash。
+- 「查無結果」只能對有資料、而且已推論的時段成立（`Q1_Q2_FIRST_DEMO_V1.md`@`796cc17` §3.3）。
+- 同一正規化請求的輸出 hash 必須相同（同上 §6.1 `origin` 列）。
+
+## 8. 介面契約
+
+| 契約 | 狀態 | 和兩個核心的關係 |
+| --- | --- | --- |
+| **[`docs/contracts/Q_CORE_SEARCH_TRACK_V1.md`](https://github.com/Polalalabear/amidst/pull/410)**（核心契約） | **PROPOSED**（PR [#410](https://github.com/Polalalabear/amidst/pull/410)，head `b1a619d`）；純模組與 API 接線由 [#443](https://github.com/Polalalabear/amidst/pull/443) 實作完成 | case1、case2 的欄位、錯誤碼與驗收測試以此為準 |
+| `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`@`796cc17` | 已核准事項依對應章節生效（D65～D82）；現行版在 `codex/q1q5-staging` | 時間對應 §3、偵測索引 §4、兩層圖 §5、Q1 §6、Q2／Q5 §8、GT 隔離 §9 |
+| `docs/contracts/DEMO_UI_SUPPORT_V1.md`@`796cc17` | PROPOSED | 鏡頭圖 API §2、物理預測 §6、俯視圖 UI §7 |
+| `docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md`@`796cc17` | D92 response v2 | Q2 回應格式 |
+| `docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md`@`796cc17` | PROPOSED | G4 圖核准收據 |
+| `docs/contracts/OFFICE_*`@`796cc17`（4 份） | 舊 Office 線，DRAFT／歷史 | 不描述 Q1–Q5，僅供參考 |
+| `docs/contracts/schemas/`、`examples/`@`796cc17` | — | JSON schema 與範例 |

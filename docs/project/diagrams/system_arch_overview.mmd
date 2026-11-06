@@ -1,0 +1,53 @@
+flowchart LR
+  subgraph OFF["離線：資料產生（Codex）"]
+    BL["Blender 場景與渲染<br/>r004：LOCAL producer<br/>P1：render_q1q5_dynamic_rgb.py"]
+    SB["safe bundle<br/>safe/media/&lt;camera&gt;/NNNNNN.png"]
+    GTP["gt_private/<br/>只給評分端"]
+    IDX["RT-DETR COCO 偵測索引<br/>detection_index.py"]
+    G["兩層圖<br/>region_graph + camera_graph"]
+    CLK["宣告時鐘<br/>configs/q1q5/clocks/"]
+    BL --> SB
+    BL --> GTP
+    SB --> IDX
+  end
+
+  subgraph BE["後端 API（Codex / #443）<br/>src/amidst/q1q5/api.py"]
+    CQ["核心查詢純模組<br/>core_query.py"]
+    Q1["Q1 查找 / q_core_search<br/>q1_search.py"]
+    Q2["Q2 linker / q_core_track<br/>linker.py + q5_controller.py"]
+    CAND["候選鏡頭 D28<br/>candidates.py"]
+    PP["物理預測<br/>physical_prediction.py<br/>路由目前 503 fail-closed"]
+    REC["錄製回放<br/>demo_launcher.py"]
+  end
+
+  subgraph FE["前端（Claude）"]
+    WB["frontend/workbench-v2<br/>core-search-track-model.mjs<br/>查看／查找／追蹤"]
+    EV["frontend/event-viewer<br/>複雜事件唯讀播放"]
+  end
+
+  subgraph LAUNCH["啟動與守門（跨平台）"]
+    RUN_MAC["start_all_demo.command<br/>macOS Bash"]
+    RUN_WIN["start_all_demo.ps1<br/>Windows PowerShell"]
+    GRD["check_architecture_guard.py<br/>架構守門 0 findings"]
+    CLONE["verify_clean_clone.py<br/>乾淨 clone 驗證 CLI"]
+  end
+
+  EVAL["評分端<br/>讀 GT，與決策分開"]
+
+  IDX --> Q1
+  G --> Q1
+  CLK --> Q1
+  IDX --> Q2
+  G --> CAND
+  CAND --> Q2
+  CQ --> Q1
+  CQ --> Q2
+  Q2 --> PP
+  G --> PP
+  Q1 --> WB
+  Q2 --> WB
+  PP --> WB
+  REC --> WB
+  SB --> EV
+  Q2 -->|"凍結輸出"| EVAL
+  GTP --> EVAL
