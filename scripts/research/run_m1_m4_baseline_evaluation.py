@@ -138,15 +138,15 @@ def generate_environment_manifest(
         "models": {
             "llm": {
                 "llm_name": "qwen3:1.7b-q4_K_M",
-                "llm_digest": "sha256:7368613235363a7177656e332d312e37622d71345f4b5f4d2d646967657374",
-                "ollama_version": "0.1.32",
+                "llm_digest": "UNKNOWN",
+                "ollama_version": "UNKNOWN",
                 "quant": "Q4_K_M",
                 "llm_loaded_size_gib": "UNKNOWN",
                 "llm_processor": "CPU",
             },
             "detector": {
                 "detector_name": "RT-DETR-R18-COCO-OFFICIAL",
-                "detector_weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+                "detector_weights_sha256": "UNKNOWN",
                 "detector_source_commit": "UNKNOWN",
             },
         },

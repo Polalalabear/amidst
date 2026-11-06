@@ -32,6 +32,9 @@ def test_synthetic_environment_is_valid_but_gt_scan_not_run(tmp_path):
     manifest, env_sha = runner.generate_environment_manifest(safe_packs=[synthetic_pack(tmp_path)])
     assert manifest['source_class'] == 'SYNTHETIC'
     assert manifest['gt_isolation']['gt_path_scan'] == 'NOT_RUN'
+    assert manifest['models']['llm']['llm_digest'] == 'UNKNOWN'
+    assert manifest['models']['llm']['ollama_version'] == 'UNKNOWN'
+    assert manifest['models']['detector']['detector_weights_sha256'] == 'UNKNOWN'
     assert env_mod.validate(manifest) == []
     assert env_mod.canonical_sha256(manifest) == env_sha
     with pytest.raises(ValueError, match='SYNTHETIC_MANIFEST_REQUIRES_SYNTHETIC_INPUTS'):
