@@ -1375,7 +1375,9 @@ test('normal controls use createQApi core routes and keep ungranted RGB missing'
     const runPicker=root.querySelector('#q-run');runPicker.value='1';runPicker.dispatchEvent({type:'change',target:runPicker});
     assert.equal(app.store.getState().coreSearchResponse,null);
     assert.equal(app.store.getState().coreTrackResponse,null);
-    assert.equal(root.querySelector('#q-core-class').options[0].value,'car');
+    assert.equal(root.querySelector('#q-core-class').options[0].value,'');
+    assert.equal(root.querySelector('#q-core-class').options[0].textContent,'不限類別');
+    assert.equal(root.querySelector('#q-core-class').options[1].value,'car');
     assert.equal(root.querySelector('#q-core-color').options[1].value,'blue');
     const regionSelect=root.querySelector('#q-core-region');
     for(let i=0;i<50&&regionSelect.disabled;i++)await new Promise(r=>setTimeout(r,5));
@@ -1385,8 +1387,10 @@ test('normal controls use createQApi core routes and keep ungranted RGB missing'
     root.querySelector('#q-core-start').value='13:00:00';root.querySelector('#q-core-end').value='13:00:01';
     root.querySelector('#q-core-search').click();await new Promise(r=>setTimeout(r,5));
     assert.deepEqual(calls.filter(c=>c.path==='/api/q_core_search').at(-1).body.region_ids,['SYNTHETIC_ROOM']);
+    assert.equal(calls.filter(c=>c.path==='/api/q_core_search').at(-1).body.feature,null);
     runPicker.value='0';runPicker.dispatchEvent({type:'change',target:runPicker});
-    assert.equal(root.querySelector('#q-core-class').options[0].value,'person');
+    assert.equal(root.querySelector('#q-core-class').options[0].value,'');
+    assert.equal(root.querySelector('#q-core-class').options[1].value,'person');
     routeState='MISMATCH';assert.equal((await api.coreSearch(calls.find(c=>c.path==='/api/q_core_search').body)).error.code,'CORE_RESPONSE_SCOPE');
     routeState='UNAVAILABLE';assert.equal((await api.coreSearch(calls.find(c=>c.path==='/api/q_core_search').body)).error.code,'Q_RESOURCE_UNAVAILABLE');
   }finally{app?.destroy();tearDownDoc();}

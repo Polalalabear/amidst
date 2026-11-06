@@ -187,7 +187,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const classes=$('#q-core-class'),colors=$('#q-core-color');
     classes.replaceChildren();colors.replaceChildren();renderCoreRegions(run);
     if(!run)return;
-    for(const label of run.supported_classes?.class_labels??[]){const option=document.createElement('option');option.value=label;option.textContent=label;classes.append(option);}
+    for(const label of ['',...(run.supported_classes?.class_labels??[])]){const option=document.createElement('option');option.value=label;option.textContent=label||'不限類別';classes.append(option);}
     for(const label of ['',...(run.supported_classes?.color_vocabulary?.labels??[])]){const option=document.createElement('option');option.value=label;option.textContent=label||'不限';colors.append(option);}
     verifyCoreRegions(run).catch(()=>{});
   }
