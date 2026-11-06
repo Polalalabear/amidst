@@ -1,5 +1,7 @@
 # W-A7 模型組合 M1～M4 與 Baseline 評估框架與合成治具分析報告
 
+> **2026-11-06 更正（PR #454 修補）**：以下為 2026-11-04 的合成治具歷史輸出，不是 #425 真實 Baseline/M1～M4 實驗結果。本文與所附 JSON 中的資料包 `ENGINEERING`、`gt_read=false`、`gt_path_scan=PASS`、GT 隔離 PASS、模型權重／RSS／Windows 驗證及效能守門 PASS 均未經本次逐 payload source pin、schema、symlink 與 GT 內容查驗，應讀作 **UNVERIFIED / NOT_RUN**；不得作為核准依據。`verify_safe_packs` 現已 fail closed，真實 evaluator 亦回報 NOT_RUN。原始表格數字僅合成 fixture。環境 JSON 的 canonical content SHA-256 為 `8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71`；該 JSON **檔案 bytes SHA-256** 為 `6c73a1d96e202779a71ce15b898fc3c64abbb6ef43ab44e92f8fd1ad7bc61b0e`。以下歷史清單不是現行驗證結果。
+
 - **對應任務**：Issue [#425](https://github.com/Polalalabear/amidst/issues/425)（`W-A7 研究：模型組合 M1～M4 與 baseline 執行與分析`）
 - **研究依據**：研究企劃 [#397](https://github.com/Polalalabear/amidst/pull/397)（含 §E 事件設計與 §1～§6 各模型定義）
 - **環境契約**：`amidst.experiment-env.v1`（`env_manifest_sha256`: `8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71`）

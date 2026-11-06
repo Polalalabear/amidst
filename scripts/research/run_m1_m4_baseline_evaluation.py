@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Synthetic Calculation Tools & Evaluation Framework for M0..M4 (Issue #425 / W-A7).
+"""Deterministic M0..M4 synthetic fixtures for Issue #425 / W-A7.
 
-Provides deterministic synthetic test fixtures and validation tooling across Baseline (RULE_ONLY) and
-M1~M4 model combinations on verified safe data packs (p1-v4-stripped, cx7-d119, cx7-d124):
+No real pack, model, or Ground Truth isolation verification is performed here.
 - Baseline (RULE_ONLY / M0): Rule-based controller and parser baseline [SYNTHETIC FIXTURE].
 - M1: Sequential agent with rule fallback and multi-repeat fairness audit [SYNTHETIC FIXTURE].
 - M2: Scorer v2 guarded complex-scene evaluation (RETURN, long LOST, overlap handoff) [SYNTHETIC FIXTURE].
@@ -14,8 +13,7 @@ Rules & Scope Boundary (Codex Review [P1=2, P2=2]):
 - Retracts all unverified live experimental claims: does not claim real accuracy, latency, RSS, or
   120s real-run benchmarks as verified experimental findings.
 - Strictly classifies all numbers as SYNTHETIC test fixtures for the evaluation toolchain, not empirical benchmark measurements.
-- Strictly maintains Ground Truth isolation: only reads verified safe data; never accesses gt_private/
-  or renderer trajectories.
+- Real pack verification and Ground Truth isolation remain NOT_RUN.
 - Produces valid amidst.experiment-env.v1 environment manifest.
 - Outputs structured raw results JSON and comprehensive Markdown analysis report.
 - Recomputation is 100% deterministic.
@@ -45,7 +43,6 @@ if str(REPO_ROOT / 'src') not in sys.path:
 
 import _common as c  # noqa: E402
 import experiment_env as env_mod  # noqa: E402
-import generate_report_tables_and_figures as rep_gen  # noqa: E402
 
 UNKNOWN = "UNKNOWN"
 PENDING_REAL_DATA = "PENDING_REAL_DATA"
@@ -80,7 +77,9 @@ def generate_environment_manifest(
     source_class: str = "SYNTHETIC",
     safe_packs: list[dict[str, Any]],
 ) -> tuple[dict[str, Any], str]:
-    """Generate and validate an amidst.experiment-env.v1 manifest for this evaluation run."""
+    """Generate a synthetic manifest; unverified inputs cannot gain source authority."""
+    if source_class != SYNTHETIC or any(p.get("source_class") != SYNTHETIC for p in safe_packs):
+        raise ValueError("SYNTHETIC_MANIFEST_REQUIRES_SYNTHETIC_INPUTS")
     cuda_available = False
     torch_version = "NOT_INSTALLED"
     gpu_model = "NONE"
@@ -121,16 +120,16 @@ def generate_environment_manifest(
         "schema_version": "amidst.experiment-env.v1",
         "run": {
             "run_id": run_id,
-            "git_commit": "0000000000000000000000000000000000000425",
-            "git_dirty": False,
-            "started_at_utc": "2026-11-04T16:00:00Z",
-            "finished_at_utc": "2026-11-04T16:30:00Z",
-            "wall_clock_s": 1800.0,
+            "git_commit": "UNKNOWN",
+            "git_dirty": "UNKNOWN",
+            "started_at_utc": "UNKNOWN",
+            "finished_at_utc": "UNKNOWN",
+            "wall_clock_s": "UNKNOWN",
         },
         "parameter_set": {
             "parameter_set_id": "W-A7-RESEARCH-M1-M4-BASELINE-PARAMS",
             "status": "PROPOSED",
-            "parameter_set_sha256": "4254254254254254254254254254254254254254254254254254254254254254",
+            "parameter_set_sha256": "UNKNOWN",
             "applies_to_run_ids": [run_id],
             "run_bound_approval": "UNRESOLVED",
         },
@@ -142,13 +141,13 @@ def generate_environment_manifest(
                 "llm_digest": "sha256:7368613235363a7177656e332d312e37622d71345f4b5f4d2d646967657374",
                 "ollama_version": "0.1.32",
                 "quant": "Q4_K_M",
-                "llm_loaded_size_gib": 1.15,
+                "llm_loaded_size_gib": "UNKNOWN",
                 "llm_processor": "CPU",
             },
             "detector": {
                 "detector_name": "RT-DETR-R18-COCO-OFFICIAL",
                 "detector_weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
-                "detector_source_commit": "df2a96c8c3a098567a1149bf0248da6efe6d495d",
+                "detector_source_commit": "UNKNOWN",
             },
         },
         "hardware": {
@@ -156,7 +155,7 @@ def generate_environment_manifest(
             "cpu_cores": str(os.cpu_count() or 4),
             "gpu_model": gpu_model,
             "gpu_driver": gpu_driver,
-            "ram_gib": ram_gib if isinstance(ram_gib, (int, float)) else 16.0,
+            "ram_gib": ram_gib,
             "accelerator": accelerator,
         },
         "os": {
@@ -196,8 +195,8 @@ def generate_environment_manifest(
         },
         "gt_isolation": {
             "inference_read_gt": False,
-            "input_manifest_sha256": safe_packs[0]["manifest_sha256"] if safe_packs else "0000000000000000000000000000000000000000000000000000000000000000",
-            "gt_path_scan": "PASS",
+            "input_manifest_sha256": safe_packs[0]["manifest_sha256"] if safe_packs else "UNKNOWN",
+            "gt_path_scan": "NOT_RUN",
         },
         "source": {
             "scene_id": "r004_a4b4_production_and_p1_engineering",
@@ -232,102 +231,27 @@ def generate_environment_manifest(
 # ---------------------------------------------------------------------------
 
 def verify_safe_packs(repo_root: Path) -> list[dict[str, Any]]:
-    """Verify p1-v4-stripped, cx7-d119, and cx7-d124 and extract safe metadata."""
-    packs_info = []
+    """Real pack verification is NOT_RUN until an approved pinned adapter exists.
 
-    # 1. p1-v4-stripped
-    p1_dir = repo_root / "p1-v4-stripped"
-    if not p1_dir.is_dir():
-        raise FileNotFoundError(f"Missing safe pack: {p1_dir}")
-    p1_manifest_path = p1_dir / "SAFE_PACK_MANIFEST.json"
-    p1_sha = sha256_file(p1_manifest_path)
-    p1_bundle_raw = json.loads((p1_dir / "BUNDLE.json").read_text(encoding="utf-8"))
-    p1_files = list(p1_dir.rglob("*"))
-    p1_reg_files = [p for p in p1_files if p.is_file()]
-    p1_bytes = sum(p.stat().st_size for p in p1_reg_files)
-    # Check GT isolation
-    for p in p1_files:
-        rel = p.relative_to(p1_dir).as_posix().lower()
-        if "gt_private" in rel or "ground_truth" in rel or "renderer_trajectory" in rel:
-            raise ValueError(f"GT violation in p1-v4-stripped: {rel}")
-
-    packs_info.append({
-        "pack_id": "p1-v4-stripped",
-        "role": "p1_engineering_recordings_and_media",
-        "locator": "p1-v4-stripped",
-        "manifest_sha256": p1_sha,
-        "file_count": len(p1_reg_files),
-        "total_bytes": p1_bytes,
-        "formal_eligible": False,
-        "gt_read": False,
-        "source_class": "ENGINEERING",
-        "recordings": p1_bundle_raw.get("recordings", []),
-    })
-
-    # 2. cx7-d119
-    d119_dir = repo_root / "cx7-d119"
-    if not d119_dir.is_dir():
-        raise FileNotFoundError(f"Missing safe pack: {d119_dir}")
-    d119_manifest_path = d119_dir / "SAFE_PACK_MANIFEST.json"
-    d119_sha = sha256_file(d119_manifest_path)
-    d119_files = list(d119_dir.rglob("*"))
-    d119_reg_files = [p for p in d119_files if p.is_file()]
-    d119_bytes = sum(p.stat().st_size for p in d119_reg_files)
-    for p in d119_files:
-        rel = p.relative_to(d119_dir).as_posix().lower()
-        if "gt_private" in rel or "ground_truth" in rel or "renderer_trajectory" in rel:
-            raise ValueError(f"GT violation in cx7-d119: {rel}")
-
-    packs_info.append({
-        "pack_id": "cx7-d119",
-        "role": "r004_d119_production_safe_bundle",
-        "locator": "cx7-d119",
-        "manifest_sha256": d119_sha,
-        "file_count": len(d119_reg_files),
-        "total_bytes": d119_bytes,
-        "formal_eligible": False,
-        "gt_read": False,
-        "source_class": "ENGINEERING",
-    })
-
-    # 3. cx7-d124
-    d124_dir = repo_root / "cx7-d124"
-    if not d124_dir.is_dir():
-        raise FileNotFoundError(f"Missing safe pack: {d124_dir}")
-    d124_manifest_path = d124_dir / "SAFE_PACK_MANIFEST.json"
-    d124_sha = sha256_file(d124_manifest_path)
-    d124_files = list(d124_dir.rglob("*"))
-    d124_reg_files = [p for p in d124_files if p.is_file()]
-    d124_bytes = sum(p.stat().st_size for p in d124_reg_files)
-    for p in d124_files:
-        rel = p.relative_to(d124_dir).as_posix().lower()
-        if "gt_private" in rel or "ground_truth" in rel or "renderer_trajectory" in rel:
-            raise ValueError(f"GT violation in cx7-d124: {rel}")
-
-    packs_info.append({
-        "pack_id": "cx7-d124",
-        "role": "r004_d124_rerender_safe_bundle",
-        "locator": "cx7-d124",
-        "manifest_sha256": d124_sha,
-        "file_count": len(d124_reg_files),
-        "total_bytes": d124_bytes,
-        "formal_eligible": False,
-        "gt_read": False,
-        "source_class": "ENGINEERING",
-    })
-
-    return packs_info
+    In particular, path-name scanning and a self-declared manifest do not prove
+    payload integrity or Ground Truth isolation. Do not inspect a pack here.
+    """
+    raise RuntimeError("SAFE_PACK_VERIFICATION_NOT_IMPLEMENTED:NOT_RUN")
 
 
 # ---------------------------------------------------------------------------
 # 3. Model Combination Evaluation Engine
 # ---------------------------------------------------------------------------
 
-def evaluate_baseline_and_models(
+def generate_synthetic_fixture(
     packs_info: list[dict[str, Any]],
     env_sha: str,
 ) -> dict[str, Any]:
-    """Execute evaluation across Baseline (M0: RULE_ONLY) and M1~M4 combinations."""
+    """Generate fixed synthetic test events; no model or data-pack evaluation."""
+    if any(pack.get("source_class") != SYNTHETIC for pack in packs_info):
+        raise ValueError("SYNTHETIC_FIXTURE_REQUIRES_SYNTHETIC_INPUTS")
+    if not isinstance(env_sha, str) or len(env_sha) != 64 or any(c not in "0123456789abcdef" for c in env_sha):
+        raise ValueError("SYNTHETIC_FIXTURE_ENV_SHA_INVALID")
 
     # Event sets and metrics per arm:
     # 20 standard evaluation events designed in Research Plan #397 §E
@@ -485,7 +409,7 @@ def evaluate_baseline_and_models(
             "FS_per_minute": 0.0,
         },
         "gates": {
-            "GT_isolation": "PASS",
+            "GT_isolation": "NOT_RUN",
             "honest_missing_reporting": "PASS",
             "replay_hash_exact": "PASS",
         },
@@ -667,7 +591,7 @@ def evaluate_baseline_and_models(
         },
         "gates": {
             "exploratory_status": "EXPLORATORY_NOT_IN_FORMAL_H1",
-            "resource_efficiency": "PASS (< 2 GiB RSS synthetic profile)",
+            "resource_efficiency": "NOT_RUN",
         },
         "status": "SYNTHETIC_FIXTURE_VALIDATED",
     }
@@ -732,358 +656,66 @@ def evaluate_baseline_and_models(
     }
 
 
+def evaluate_baseline_and_models(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+    """Real Baseline/M1-M4 evaluation has not run or been implemented here."""
+    raise RuntimeError("REAL_M1_M4_EVALUATION_NOT_RUN")
+
+
 # ---------------------------------------------------------------------------
 # 4. Report Markdown Generator
 # ---------------------------------------------------------------------------
 
-def generate_analysis_report_markdown(
-    env_manifest: dict[str, Any],
-    env_sha: str,
-    packs_info: list[dict[str, Any]],
-    eval_bundle: dict[str, Any],
-    tables_summary: dict[str, Any],
-    report_path: Path,
-) -> str:
-    """Generate the full Markdown analysis report strictly bounded as synthetic evaluation framework."""
-    evals = eval_bundle["evaluations"]
-
-    lines = [
-        "# W-A7 模型組合 M1～M4 與 Baseline 評估框架與合成治具分析報告",
-        "",
-        "- **對應任務**：Issue [#425](https://github.com/Polalalabear/amidst/issues/425)（`W-A7 研究：模型組合 M1～M4 與 baseline 執行與分析`）",
-        "- **研究依據**：研究企劃 [#397](https://github.com/Polalalabear/amidst/pull/397)（含 §E 事件設計與 §1～§6 各模型定義）",
-        "- **環境契約**：`amidst.experiment-env.v1`（`env_manifest_sha256`: `{}`）".format(env_sha),
-        "- **資料來源與邊界**：本機 Windows 已驗證安全資料包（`p1-v4-stripped`, `cx7-d119`, `cx7-d124`）",
-        "- **GT 隔離狀態**：`gt_read = false`, `gt_private_scan = PASS`（全流程不碰觸 `gt_private/` 與渲染軌跡）",
-        "- **資料類別宣告**：`source_class = \"SYNTHETIC\"`（數值全數為評估工具鏈合成測試治具，非實機實證量測）",
-        "- **框架定位與撤回聲明**：本報告產出之指標與表格定位為評估工具鏈（Evaluation Toolchain）與合成治具（Synthetic Fixtures）之功能驗證，**明確撤回並排除任何實機即時推論、實際延遲、真實 RSS 或長時 120s 運作基準之實證宣稱**（依據 Codex Review [P1=2, P2=2]）。",
-        "",
-        "---",
-        "",
-        "## 1. 執行摘要與合成治具指標對比（Executive Summary - Synthetic Tooling Framework）",
-        "",
-        "> [!IMPORTANT]",
-        "> **合成治具與範圍邊界說明（Codex Review [P1=2, P2=2]）**：",
-        "> 本次執行之核心價值在於建立並驗證 Baseline（RULE_ONLY）與 M1～M4 模型組合之**合成計算工具與評估治具框架（Synthetic Calculation Tools & Evaluation Framework）**。",
-        "> 表中所有事件數、吻合率、切鏡延遲、誤切鏡率與棄權率，均為用於驅動評估管線、驗證評分防護邏輯與報告生成自動化之**確定性合成測試治具（Deterministic Synthetic Test Fixtures）**，**非實機實證基準量測結果（Not Empirical Benchmark Measurements）**。正式實機效能、真實驗證準確率、即時延遲、RSS 記憶體負載與長時基準，待後續獲核定之真實實證實驗進行。",
-        "",
-        "| 組別 ID | 模型組合說明 | 總事件數 | 有效計分數 | 棄權數 | 合成吻合率 (%) | 合成延遲中位數 (ms) | 合成誤切鏡率 (%) | 棄權率 (%) | 狀態宣告 |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
-    ]
-
-    for arm_id in ("RULE_ONLY", "M1", "M2", "M3", "M4"):
-        e = evals[arm_id]
-        m = e["metrics"]
-        lines.append(
-            f"| `{arm_id}` | {e['description']} | {m['n_events_total']} | {m['n_events_scored']} | "
-            f"{m['n_events_abstained']} | **{m['action_match_rate_pct']:.2f}%** | "
-            f"{m['switch_latency_median_ms']:.1f} | {m['false_handoff_rate_pct']:.2f}% | "
-            f"{m['abstention_rate_pct']:.2f}% | `{e['status']}` |"
-        )
-
-    lines.extend([
-        "",
-        "### 評估框架驗證結論摘要（Toolchain Validation Findings）：",
-        "1. **Baseline (RULE_ONLY) 治具驗證**：成功驗證標準規則控制之評估路徑，確定性治具輸出動作吻合率 66.67%，切鏡延遲中位數 525.0 ms，誤切率 16.67%，具備 100% 誠實標記缺失（M_honest = 100%）與重現一致性。",
-        "2. **M1 (Sequential Agent) 守門驗證**：驗證 Agent 決策管線之多輪比對與規則降級守門機制；降級率 14.3% 符合 `<= 20%` 門檻檢查邏輯，逾時與格式錯誤率檢驗皆能正確防護。",
-        "3. **M2 (Scorer v2 Guarded) 防護驗證**：在合成注入之 RETURN、長期遺失（>= 1.8s）與 D77 重疊交接場景中，正確驗證標準一致率（A_std = 100%）與非計分事件標記符合率（L_ns = 100%）之守門判定邏輯。",
-        "4. **M3 (LLM Q3 Parser) 解析架構驗證**：驗證 Q3 題集解析指標聚合函式，確認意圖、類別、顏色、時間、鏡頭、區域欄位正確率與 Precision/Recall 計算無誤，LLM 份額門檻（>= 50%）校驗通過。",
-        "5. **M4 (Candidate Sweep) 規格比對驗證**：完成 RT-DETR R18 官方權重規格檢驗（81 MB, SHA-256 `3ba8b5c9...`）與候選模型組態結構驗證；明確撤回任何實機 120s 基準或即時 RSS 宣稱，僅保留組態輪廓與格式驗證。",
-        "",
-        "---",
-        "",
-        "## 2. 實驗環境與安全資料包驗證清單（Provenance & GT Isolation）",
-        "",
-        "### 2.1 環境清冊（`amidst.experiment-env.v1`）",
-        f"- **環境清單 SHA-256 (`env_manifest_sha256`)**：`{env_sha}`",
-        f"- **作業系統**：{env_manifest['os']['os_name']} {env_manifest['os']['os_version']} ({env_manifest['os']['arch']})",
-        f"- **硬體配置**：CPU {env_manifest['hardware']['cpu_model']} ({env_manifest['hardware']['cpu_cores']} cores) / RAM {env_manifest['hardware']['ram_gib']} GiB",
-        f"- **加速器 / GPU**：{env_manifest['hardware']['accelerator']} ({env_manifest['hardware']['gpu_model']})",
-        f"- **Python 執行環境**：Python {env_manifest['runtime']['python_version']} (PyTorch: {env_manifest['packages'].get('installed', {}).get('torch', 'NOT_INSTALLED')})",
-        "",
-        "### 2.2 本機安全資料包逐項雜湊驗證（已通過 `verify_safe_pack.py`）",
-        "",
-        "| 資料包 ID | 角色說明 | 檔案數 | 總容量 (bytes) | Manifest SHA-256 | GT 隔離狀態 |",
-        "| --- | --- | --- | --- | --- | --- |",
-    ])
-
-    for pack in packs_info:
-        lines.append(
-            f"| `{pack['pack_id']}` | {pack['role']} | {pack['file_count']} | {pack['total_bytes']} | "
-            f"`{pack['manifest_sha256'][:16]}...` | **PASS (gt_read=false)** |"
-        )
-
-    lines.extend([
-        "",
-        "> [!IMPORTANT]",
-        "> 依據 `docs/DEVELOPMENT_RULES.md`，所有資料包均經由 stdlib SHA-256 逐檔驗證，嚴格排除 `gt_private`、Ground Truth、渲染軌跡、深度與可見度檔案。未量測之正式偵測索引（D124 正式索引仍等 #417 核定）均嚴格標記為 `PENDING_REAL_DATA` / `UNKNOWN`，絕不以合成資料冒稱正式真實實驗。",
-        "",
-        "---",
-        "",
-        "## 3. 各模型組合詳細評估與守門檢驗（Detailed Evaluation by Arm - Synthetic Fixtures）",
-        "",
-        "### 3.1 Baseline (M0: `RULE_ONLY` [SYNTHETIC FIXTURE])",
-        "- **設定**：`switch_mode = RULE_ONLY`, `parser_mode = RULE_ONLY`, `min_score = 0.30`",
-        "- **輸入來源**：合成基準決策序列與安全鏡頭規格",
-        "- **指標數值（合成測試治具）**：",
-        "  - 動作吻合率：`66.67%` (12 / 18 scored)",
-        "  - 切鏡延遲：中位數 `525.0 ms`，Nearest-Rank P90 `810.0 ms`",
-        "  - 誤切鏡率：`16.67%` (1 / 6 handoff opportunities)",
-        "  - 誠實報告缺失率 (`M_honest`)：`100.0%`",
-        "  - 重播一致性 (`R_hash`)：`100.0%`",
-        "- **守門結果**：`SYNTHETIC_FIXTURE_VALIDATED`（符合 Baseline 治具基準）",
-        "",
-        "### 3.2 M1: Sequential Agent with Rule Fallback (`M1` [SYNTHETIC FIXTURE])",
-        "- **設定**：`switch_mode = AGENT_SEQUENTIAL`, `fallback_mode = RULE_FALLBACK`, `k_repeats = 5`",
-        "- **多輪公平性檢核**：RULE 組與 AGENT 各 repeat 之 `parameter_set_sha256`、`candidate_snapshot_sha256`、`env_manifest_sha256` 逐一比對一致，無 `INVALID_COMPARISON`。",
-        "- **指標數值（合成測試治具）**：",
-        "  - 動作吻合率：`82.35%` (+15.68 pp vs Baseline)",
-        "  - 切鏡延遲：中位數 `605.0 ms`，P90 `910.0 ms`",
-        "  - 規則降級率 (`FB`)：`14.3%`（低於 20% 門檻，**PASS**）",
-        "  - 服務逾時率 (`TO`)：`0.0%`，格式無效率 (`SI`)：`0.0%`",
-        "- **守門結果**：`SYNTHETIC_FIXTURE_VALIDATED`",
-        "",
-        "### 3.3 M2: Scorer v2 Guarded Complex-Scene Evaluation (`M2` [SYNTHETIC FIXTURE])",
-        "- **設定**：評分器 v2 防護規則，涵蓋一窗多次 RETURN、>= 1.8s 長期遺失、以及 D77 重疊接手。",
-        "- **指標數值（合成測試治具）**：",
-        "  - 動作吻合率：`87.50%` (14 / 16 scored)",
-        "  - 切鏡延遲：中位數 `560.0 ms`，P90 `790.0 ms`",
-        "  - 標準情境一致率 (`A_std`)：`100.0%`（守門 `>= 99%` **PASS**）",
-        "  - 非計分事件標記正確率 (`L_ns`)：`100.0%`（守門 `= 100%` **PASS**）",
-        "  - 評分重算一致性 (`R_v2`)：`100.0%`（守門 `= 100%` **PASS**）",
-        "- **守門結果**：`SYNTHETIC_FIXTURE_VALIDATED`",
-        "",
-        "### 3.4 M3: LLM Q3 Query Parser with Rule Fallback (`M3` [SYNTHETIC FIXTURE])",
-        "- **設定**：`parser_mode = LLM_WITH_RULE_FALLBACK`，限定核定題目（`evaluation_eligible=true`）。",
-        "- **指標數值（合成測試治具）**：",
-        "  - 整體題意正確率 (`E_q3`)：`83.33%`",
-        "  - 欄位正確率：意圖 `94.4%`、類別 `88.9%`、顏色 `83.3%`、時間 `88.9%`、鏡頭 `77.8%`、區域 `83.3%`",
-        "  - 鏡頭檢索精準率 (`P_cam`)：`85.0%`，召回率 (`R_cam`)：`81.0%`",
-        "  - LLM 份額 (`LLM_share`)：`72.2%`（守門 `>= 50%` **PASS**）",
-        "- **守門結果**：`SYNTHETIC_FIXTURE_VALIDATED`",
-        "",
-        "### 3.5 M4: Candidate Model Sweep (`M4` [EXPLORATORY FIXTURE])",
-        "- **設定**：探索性候選模型規格檢驗與比較架構，不計入正式 H1 假設：",
-        "  - **偵測器規格確認**：",
-        "    - 官方 RT-DETR R18 權重規格（81 MB, SHA-256 `3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0`，COCO 80 類，輸入 640x640，閾值 0.30）之靜態規格驗證。",
-        "    - 輕量級時序 RGB 輪廓啟發式（`src/amidst/engineering/perception.py`，免下載免 GPU，CPU 確定性執行）介面相容性驗證。",
-        "    - 規則空間幾何約束（Baseline fallback）。",
-        "  - **語言模型候選組態**：",
-        "    - 建立 Qwen3-1.7B-Q4_K_M 與 Qwen3-8B FP16 之規格與量化參數結構。",
-        "    - **明確聲明**：文中所列之載入大小、RSS 負載與調用延遲數值均為組態測試治具（Synthetic Fixture Profiles），非實機 120s 運行或真實驗證基準之實測結果。",
-        "- **最佳平衡候選組合表現（合成測試治具）**：合成吻合率 `88.89%`，延遲中位數 `547.5 ms`，誤切率 `5.56%`。",
-        "- **守門結果**：`SYNTHETIC_FIXTURE_VALIDATED`",
-        "",
-        "---",
-        "",
-        "## 4. 完成條件（Test Gate）核對表",
-        "",
-        "- [x] **合成治具與框架定位**：明確標記為合成測試治具與工具鏈驗證，撤回實機實證宣稱（Codex Review [P1=2, P2=2]）。",
-        "- [x] **每個組合設定**：RULE_ONLY, M1, M2, M3, M4 各組合皆具備完整參數與切換模式設定。",
-        "- [x] **環境 JSON**：`M1_M4_BASELINE_ENV_MANIFEST_20261104.json` 符合 `amidst.experiment-env.v1`，通過 `experiment_env.py` 驗證。",
-        "- [x] **原始輸出**：`M1_M4_BASELINE_RAW_RESULTS_20261104.json` 包含各組逐事件詳細輸出，標示為 SYNTHETIC。",
-        "- [x] **指標含單位**：百分比 (`%`)、延遲 (`ms`)、記憶體 (`GiB`)、頻率 (`per min`) 皆具備嚴格單位。",
-        "- [x] **SHA-256 雜湊鎖定**：所有產出之 JSON、CSV、Markdown、PNG 皆已計算並記錄固定雜湊。",
-        "- [x] **圖表腳本可重算**：可透過 `scripts/research/generate_report_tables_and_figures.py` 與 `run_m1_m4_baseline_evaluation.py` 100% 確定性重現。",
-        "- [x] **不足者標「待補」**：未經核准之正式真實索引與人工審核標記為 `待補` / `UNKNOWN` / `PENDING_REAL_DATA`，嚴格零編造。",
-        "",
-        "---",
-        "",
-        "## 5. 產出檔案清單與 SHA-256 雜湊表",
-        "",
-        "| 檔案路徑 | 類型 | 說明 | SHA-256 |",
-        "| --- | --- | --- | --- |",
-    ])
-
-    for f in tables_summary.get("artifacts", []):
-        lines.append(f"| `{f['path']}` | `{f['type']}` | {f['description']} | `{f['sha256']}` |")
-
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## 6. 複驗與執行指令",
-        "",
-        "```powershell",
-        "# 執行評估與報告產出腳本",
-        "python scripts/research/run_m1_m4_baseline_evaluation.py",
-        "",
-        "# 驗證環境 Manifest",
-        "python scripts/research/experiment_env.py docs/evaluation/M1_M4_BASELINE_ENV_MANIFEST_20261104.json",
-        "",
-        "# 執行單元測試",
-        "python -m pytest -o pythonpath=src -q tests/q1q5/test_m1_m4_baseline_evaluation.py",
-        "```",
-    ])
-
-    content = "\n".join(line.rstrip() for line in lines) + "\n"
-    report_path.write_bytes(content.encode("utf-8"))
-    return content
+def generate_analysis_report_markdown(*_args: Any, **_kwargs: Any) -> str:
+    """The legacy report claimed unverified pack and GT evidence; refuse reuse."""
+    raise RuntimeError("LEGACY_M1_M4_REPORT_UNVERIFIED:NOT_RUN")
 
 
 # ---------------------------------------------------------------------------
 # 5. Main CLI Runner
 # ---------------------------------------------------------------------------
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="W-A7 Baseline and M1~M4 Model Evaluation Runner")
-    parser.add_argument("--out-dir", type=Path, default=REPO_ROOT / "docs/evaluation",
-                        help="Output directory for reports, manifests, and tables")
-    parser.add_argument("--repo-root", type=Path, default=REPO_ROOT, help="Repository root path")
-    parser.add_argument("--bootstrap-b", type=int, default=200, help="Bootstrap iterations")
-    parser.add_argument("--seed", type=int, default=c.SEED, help="Deterministic seed")
-    args = parser.parse_args()
+def main(argv: list[str] | None = None) -> int:
+    """Produce only explicitly requested synthetic fixtures; real runs are NOT_RUN."""
+    parser = argparse.ArgumentParser(description="W-A7 synthetic fixture generator")
+    parser.add_argument("--synthetic-fixture", action="store_true", help="Generate synthetic fixtures only")
+    parser.add_argument("--out-dir", type=Path, required=True, help="New LOCAL output directory")
+    args = parser.parse_args(argv)
+    if not args.synthetic_fixture:
+        parser.exit(2, "REAL_M1_M4_EVALUATION_NOT_RUN: approved real adapter absent\n")
+    if args.out_dir.exists():
+        parser.exit(2, "OUTPUT_DIR_ALREADY_EXISTS\n")
 
-    out_dir = args.out_dir
-    out_dir.mkdir(parents=True, exist_ok=True)
-    repo_root = args.repo_root
-
-    print(f"[1/5] Verifying safe data packs in {repo_root}...")
-    safe_packs = verify_safe_packs(repo_root)
-    print(f"      Verified {len(safe_packs)} safe packs: {[p['pack_id'] for p in safe_packs]}")
-
-    print("[2/5] Generating and validating amidst.experiment-env.v1 environment manifest...")
-    env_manifest, env_sha = generate_environment_manifest(safe_packs=safe_packs)
-    env_file = out_dir / "M1_M4_BASELINE_ENV_MANIFEST_20261104.json"
-    env_file.write_bytes((json.dumps(env_manifest, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
-    print(f"      Wrote environment manifest: {env_file} (SHA-256: {env_sha})")
-
-    print("[3/5] Evaluating Baseline (RULE_ONLY) and M1~M4 combinations (Synthetic Fixtures)...")
-    eval_bundle = evaluate_baseline_and_models(safe_packs, env_sha)
-
-    # Save raw outputs (strictly bounded as SYNTHETIC test fixture)
-    raw_results_file = out_dir / "M1_M4_BASELINE_RAW_RESULTS_20261104.json"
-    raw_results_payload = {
-        "contract": c.CONTRACT,
-        "run_id": env_manifest["run"]["run_id"],
-        "env_manifest_sha256": env_sha,
-        "source_class": "SYNTHETIC",
-        "data_nature": "SYNTHETIC_TEST_FIXTURE",
-        "empirical_benchmark": False,
-        "tooling_framework_status": "ADOPT_LIMITED_TO_TOOLS_AND_FIXTURES",
-        "note": "All metrics and numerical results in this document are SYNTHETIC test fixtures designed for validating the evaluation toolchain and reporting harness. They are NOT empirical benchmark measurements.",
-        "evaluations": eval_bundle["evaluations"],
-        "safe_packs": [
-            {k: v for k, v in p.items() if k != "recordings"} for p in safe_packs
-        ],
-    }
-    raw_results_file.write_bytes((json.dumps(raw_results_payload, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
-    raw_results_sha = sha256_file(raw_results_file)
-    print(f"      Wrote raw evaluation results: {raw_results_file} (SHA-256: {raw_results_sha})")
-
-    # Write inputs for report tables and figures generator (explicitly marked as SYNTHETIC)
-    m0_m4_events_file = out_dir / "m0_m4_events.json"
-    m0_m4_events_file.write_bytes((json.dumps({
-        "data_origin": "SYNTHETIC",
-        "synthetic": True,
-        "events": eval_bundle["m0_m4_events"],
-    }, indent=2) + "\n").encode("utf-8"))
-
-    q4_samples_file = out_dir / "q4_presence.json"
-    q4_samples_file.write_bytes((json.dumps({
-        "data_origin": "SYNTHETIC",
-        "synthetic": True,
-        "samples": eval_bundle["q4_samples"],
-    }, indent=2) + "\n").encode("utf-8"))
-
-    q5_windows_file = out_dir / "q5_switch_windows.json"
-    q5_windows_file.write_bytes((json.dumps({
-        "data_origin": "SYNTHETIC",
-        "synthetic": True,
-        "windows": eval_bundle["q5_windows"],
-    }, indent=2) + "\n").encode("utf-8"))
-
-    print("[4/5] Generating tables and charts via generate_report_tables_and_figures.py...")
-    tables_manifest = rep_gen.generate_report(
-        out_dir=out_dir,
-        synthetic=False,
-        input_dir=out_dir,
-    )
-    print(f"      Generated report artifacts: {len(tables_manifest.get('files', []))} files")
-
-    # Artifacts inventory for the report
-    all_artifacts = [
-        {
-            "path": "docs/evaluation/M1_M4_BASELINE_ENV_MANIFEST_20261104.json",
-            "type": "json",
-            "description": "amidst.experiment-env.v1 環境自檢清冊",
-            "sha256": sha256_file(env_file),
-        },
-        {
-            "path": "docs/evaluation/M1_M4_BASELINE_RAW_RESULTS_20261104.json",
-            "type": "json",
-            "description": "Baseline 與 M1～M4 原始評估紀錄 (SYNTHETIC FIXTURE)",
-            "sha256": raw_results_sha,
-        },
-        {
-            "path": "docs/evaluation/table_m0_m4_comparison.csv",
-            "type": "csv",
-            "description": "Baseline vs M1～M4 核心指標比較表 (CSV)",
-            "sha256": sha256_file(out_dir / "table_m0_m4_comparison.csv"),
-        },
-        {
-            "path": "docs/evaluation/table_m0_m4_comparison.md",
-            "type": "markdown",
-            "description": "Baseline vs M1～M4 核心指標比較表 (Markdown)",
-            "sha256": sha256_file(out_dir / "table_m0_m4_comparison.md"),
-        },
-        {
-            "path": "docs/evaluation/fig_m0_m4_comparison.png",
-            "type": "png",
-            "description": "Baseline vs M1～M4 指標比較圖 (PNG)",
-            "sha256": sha256_file(out_dir / "fig_m0_m4_comparison.png"),
-        },
-        {
-            "path": "docs/evaluation/table_q4_presence_accuracy.csv",
-            "type": "csv",
-            "description": "Q4 T/F Presence 準確率分析表 (CSV)",
-            "sha256": sha256_file(out_dir / "table_q4_presence_accuracy.csv"),
-        },
-        {
-            "path": "docs/evaluation/table_q4_presence_accuracy.md",
-            "type": "markdown",
-            "description": "Q4 T/F Presence 準確率分析表 (Markdown)",
-            "sha256": sha256_file(out_dir / "table_q4_presence_accuracy.md"),
-        },
-        {
-            "path": "docs/evaluation/fig_q4_presence_accuracy.png",
-            "type": "png",
-            "description": "Q4 T/F Presence 準確率視覺化長條圖 (PNG)",
-            "sha256": sha256_file(out_dir / "fig_q4_presence_accuracy.png"),
-        },
-        {
-            "path": "docs/evaluation/table_q5_switch_consistency.csv",
-            "type": "csv",
-            "description": "Q5 切鏡決策窗一致性分析表 (CSV)",
-            "sha256": sha256_file(out_dir / "table_q5_switch_consistency.csv"),
-        },
-        {
-            "path": "docs/evaluation/table_q5_switch_consistency.md",
-            "type": "markdown",
-            "description": "Q5 切鏡決策窗一致性分析表 (Markdown)",
-            "sha256": sha256_file(out_dir / "table_q5_switch_consistency.md"),
-        },
-        {
-            "path": "docs/evaluation/fig_q5_switch_consistency.png",
-            "type": "png",
-            "description": "Q5 切鏡決策窗一致率圖 (PNG)",
-            "sha256": sha256_file(out_dir / "fig_q5_switch_consistency.png"),
-        },
-    ]
-
-    print("[5/5] Generating comprehensive Markdown analysis report...")
-    report_file = out_dir / "M1_M4_BASELINE_ANALYSIS_REPORT_20261104.md"
-    generate_analysis_report_markdown(
-        env_manifest=env_manifest,
-        env_sha=env_sha,
-        packs_info=safe_packs,
-        eval_bundle=eval_bundle,
-        tables_summary={"artifacts": all_artifacts},
-        report_path=report_file,
-    )
-    print(f"      Wrote Markdown analysis report: {report_file} (SHA-256: {sha256_file(report_file)})")
-
-    print("\nSUCCESS: All W-A7 evaluation deliverables generated successfully.")
+    # This metadata names a built-in fixture, never a safe pack or measured run.
+    fixture = {"pack_id": "SYNTHETIC_ONLY", "role": "SYNTHETIC_FIXTURE",
+               "locator": "embedded-deterministic-fixture",
+               "manifest_sha256": sha256_bytes(b"W-A7 synthetic fixture v1"),
+               "file_count": 0, "total_bytes": 0, "formal_eligible": False,
+               "gt_read": False, "source_class": SYNTHETIC}
+    env_manifest, env_canonical_sha = generate_environment_manifest(safe_packs=[fixture])
+    bundle = generate_synthetic_fixture([fixture], env_canonical_sha)
+    args.out_dir.mkdir(parents=True, exist_ok=False)
+    env_file = args.out_dir / "M1_M4_BASELINE_ENV_MANIFEST_20261104.json"
+    raw_file = args.out_dir / "M1_M4_BASELINE_RAW_RESULTS_20261104.json"
+    report_file = args.out_dir / "M1_M4_BASELINE_ANALYSIS_REPORT_20261104.md"
+    env_file.write_text(json.dumps(env_manifest, ensure_ascii=False, indent=2) + "\n")
+    raw_file.write_text(json.dumps({"source_class": SYNTHETIC,
+                                   "data_nature": "SYNTHETIC_TEST_FIXTURE",
+                                   "empirical_benchmark": False,
+                                   "env_manifest_canonical_sha256": env_canonical_sha,
+                                   "evaluations": bundle["evaluations"]},
+                                  ensure_ascii=False, indent=2) + "\n")
+    report_file.write_text(
+        "# W-A7 synthetic fixture only\n\n"
+        "Baseline/M1-M4 real evaluation: NOT_RUN. Accuracy, latency, RSS, and research gates: UNKNOWN.\n\n"
+        "Table and chart generation: NOT_RUN (unmerged #437 dependency excluded).\n\n"
+        f"Environment canonical SHA-256: `{env_canonical_sha}`.\n"
+        f"Environment file SHA-256: `{sha256_file(env_file)}`.\n"
+        f"Raw fixture file SHA-256: `{sha256_file(raw_file)}`.\n")
+    print(json.dumps({"status": "SYNTHETIC_FIXTURE_ONLY", "real_evaluation": "NOT_RUN",
+                      "gt_path_scan": "NOT_RUN", "charts": "NOT_RUN",
+                      "env_manifest_canonical_sha256": env_canonical_sha,
+                      "env_manifest_file_sha256": sha256_file(env_file),
+                      "raw_fixture_file_sha256": sha256_file(raw_file)}, sort_keys=True))
     return 0
 
 
