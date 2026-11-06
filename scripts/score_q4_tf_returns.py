@@ -672,22 +672,26 @@ def import_q4_tf_reviews_to_return(
 
         # 1. Strictly verify frozen run_id
         require_score(
-            row.get("run_id") == sample.get("run_id"),
+            type(row.get("run_id")) is type(sample.get("run_id")) and row.get("run_id") == sample.get("run_id"),
             f"FROZEN_FIELD_MISMATCH:run_id:{sid}:row={row.get('run_id')}:sample={sample.get('run_id')}",
         )
         # 2. Strictly verify frozen camera_id
         require_score(
-            row.get("camera_id") == sample.get("camera_id"),
+            type(row.get("camera_id")) is type(sample.get("camera_id")) and row.get("camera_id") == sample.get("camera_id"),
             f"FROZEN_FIELD_MISMATCH:camera_id:{sid}:row={row.get('camera_id')}:sample={sample.get('camera_id')}",
         )
         # 3. Strictly verify frozen frame_index
         require_score(
-            row.get("frame_index") == sample.get("frame_index"),
+            type(row.get("frame_index")) is type(sample.get("frame_index")) and row.get("frame_index") == sample.get("frame_index"),
             f"FROZEN_FIELD_MISMATCH:frame_index:{sid}:row={row.get('frame_index')}:sample={sample.get('frame_index')}",
         )
         # 4. Strictly verify frame/RGB hash
         sample_hash = sample.get("frame_sha256") or sample.get("rgb_file_sha256")
         row_hash = row.get("rgb_file_sha256") or row.get("frame_sha256")
+        if "frame_sha256" in sample and "rgb_file_sha256" in sample:
+            require_score(sample["frame_sha256"] == sample["rgb_file_sha256"], f"CONFLICTING_SAMPLE_RGB_HASH:{sid}")
+        if "frame_sha256" in row and "rgb_file_sha256" in row:
+            require_score(row["frame_sha256"] == row["rgb_file_sha256"], f"CONFLICTING_ROW_RGB_HASH:{sid}")
         require_score(
             isinstance(row_hash, str) and bool(SHA256_RE.match(row_hash)),
             f"INVALID_ROW_RGB_HASH:{sid}:{row_hash!r}",
@@ -700,19 +704,17 @@ def import_q4_tf_reviews_to_return(
             row_hash == sample_hash,
             f"FROZEN_FIELD_MISMATCH:rgb_hash:{sid}:row={row_hash}:sample={sample_hash}",
         )
-        # 5. Strictly verify statement if present
-        if "statement" in sample and "statement" in row:
-            require_score(
-                row.get("statement") == sample.get("statement"),
-                f"FROZEN_FIELD_MISMATCH:statement:{sid}",
-            )
-        # 6. Strictly verify frame_ref if present
-        if "frame_ref" in row:
-            expected_ref = f"frame:{sample['run_id']}:{sample['camera_id']}:{sample['frame_index']}"
-            require_score(
-                row.get("frame_ref") == expected_ref,
-                f"FROZEN_FIELD_MISMATCH:frame_ref:{sid}:row={row.get('frame_ref')}:expected={expected_ref}",
-            )
+        # 5-6. #147 review rows require both the frozen statement and frame reference.
+        require_score(
+            isinstance(sample.get("statement"), str) and bool(sample["statement"])
+            and row.get("statement") == sample["statement"],
+            f"FROZEN_FIELD_MISMATCH:statement:{sid}",
+        )
+        expected_ref = f"frame:{sample['run_id']}:{sample['camera_id']}:{sample['frame_index']}"
+        require_score(
+            row.get("frame_ref") == expected_ref,
+            f"FROZEN_FIELD_MISMATCH:frame_ref:{sid}:row={row.get('frame_ref')}:expected={expected_ref}",
+        )
 
         # 7. Extract and strictly validate system_positive / polarity
         raw_sp = row.get("system_positive")
@@ -752,11 +754,19 @@ def import_q4_tf_reviews_to_return(
             if expected_polarity is not None:
                 require_score(expected_polarity == doc_polarity, f"MANIFEST_DOC_POLARITY_MISMATCH:{sid}")
             expected_polarity = doc_polarity
-            if "prediction_sha256" in row and "prediction_sha256" in sys_item:
-                require_score(
-                    row.get("prediction_sha256") == sys_item.get("prediction_sha256"),
-                    f"FROZEN_FIELD_MISMATCH:prediction_sha256:{sid}",
-                )
+
+        # #147 requires a prediction pin; never synthesize a missing review pin.
+        prediction_pin = sample.get("prediction_sha256")
+        if sid in sys_by_id:
+            doc_pin = sys_by_id[sid].get("prediction_sha256")
+            if prediction_pin is not None and doc_pin is not None:
+                require_score(prediction_pin == doc_pin, f"CONFLICTING_PREDICTION_PIN:{sid}")
+            prediction_pin = doc_pin or prediction_pin
+        require_score(
+            isinstance(prediction_pin, str) and bool(SHA256_RE.match(prediction_pin))
+            and row.get("prediction_sha256") == prediction_pin,
+            f"FROZEN_FIELD_MISMATCH:prediction_sha256:{sid}",
+        )
 
         require_score(
             expected_polarity is not None,

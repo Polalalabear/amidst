@@ -890,3 +890,47 @@ def test_build_pack_restricted_to_target_presence_fail_closed(tmp_path: Path) ->
             synthetic=True,
             annotation_semantics="CLAIM_VERACITY",
         )
+
+
+@pytest.mark.parametrize(
+    "change,error",
+    [
+        ("missing_statement", "FROZEN_FIELD_MISMATCH:statement"),
+        ("missing_frame_ref", "FROZEN_FIELD_MISMATCH:frame_ref"),
+        ("missing_prediction_pin", "FROZEN_FIELD_MISMATCH:prediction_sha256"),
+        ("conflicting_row_hash", "CONFLICTING_ROW_RGB_HASH"),
+        ("conflicting_sample_hash", "CONFLICTING_SAMPLE_RGB_HASH"),
+        ("bool_frame_index", "FROZEN_FIELD_MISMATCH:frame_index"),
+    ],
+)
+def test_import_rejects_missing_or_conflicting_frozen_review_fields(tmp_path: Path, change: str, error: str) -> None:
+    """A #147 review row cannot be completed from the manifest after an omission."""
+    pack_dir = tmp_path / "frozen_review_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="frozen-probe", sample_count=4)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+    sys_by_id = {j["sample_id"]: j for j in claims["judgments"]}
+    rows = []
+    for sample in manifest["samples"]:
+        judgment = sys_by_id[sample["sample_id"]]
+        rows.append({
+            "schema_version": "q4-tf-review.v1", "sample_id": sample["sample_id"],
+            "run_id": sample["run_id"], "camera_id": sample["camera_id"],
+            "frame_index": sample["frame_index"], "rgb_file_sha256": sample["frame_sha256"],
+            "prediction_sha256": judgment["prediction_sha256"],
+            "system_positive": judgment["system_judgment"] == "PRESENT",
+            "frame_ref": f"frame:{sample['run_id']}:{sample['camera_id']}:{sample['frame_index']}",
+            "statement": sample["statement"], "answer": "T",
+        })
+    if change.startswith("missing_"):
+        rows[0].pop({"missing_statement": "statement", "missing_frame_ref": "frame_ref",
+                     "missing_prediction_pin": "prediction_sha256"}[change])
+    elif change == "conflicting_row_hash":
+        rows[0]["frame_sha256"] = "0" * 64
+    elif change == "conflicting_sample_hash":
+        manifest["samples"][0]["rgb_file_sha256"] = "0" * 64
+    else:
+        rows[1]["frame_index"] = True
+    with pytest.raises(ReturnScoreError, match=error):
+        import_q4_tf_reviews_to_return(rows, manifest, system_judgments_doc=claims,
+                                       annotator_id="synthetic_probe")
