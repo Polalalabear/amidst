@@ -1,0 +1,133 @@
+{
+  "schema_version": "amidst.experiment-env.v1",
+  "run": {
+    "run_id": "W-A7-M1-M4-BASELINE-20261104",
+    "git_commit": "0000000000000000000000000000000000000425",
+    "git_dirty": false,
+    "started_at_utc": "2026-11-04T16:00:00Z",
+    "finished_at_utc": "2026-11-04T16:30:00Z",
+    "wall_clock_s": 1800.0
+  },
+  "parameter_set": {
+    "parameter_set_id": "W-A7-RESEARCH-M1-M4-BASELINE-PARAMS",
+    "status": "PROPOSED",
+    "parameter_set_sha256": "4254254254254254254254254254254254254254254254254254254254254254",
+    "applies_to_run_ids": [
+      "W-A7-M1-M4-BASELINE-20261104"
+    ],
+    "run_bound_approval": "UNRESOLVED"
+  },
+  "source_class": "SYNTHETIC",
+  "data_sources": [
+    {
+      "role": "p1_engineering_recordings_and_media",
+      "locator": "p1-v4-stripped",
+      "sha256": "c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd",
+      "size_bytes": 149763306,
+      "file_count": 409
+    },
+    {
+      "role": "r004_d119_production_safe_bundle",
+      "locator": "cx7-d119",
+      "sha256": "5d7bde92462cd3b72604b612f676565c487edfa469af5c6a46f03a6cbe8fd115",
+      "size_bytes": 2210366725,
+      "file_count": 4107
+    },
+    {
+      "role": "r004_d124_rerender_safe_bundle",
+      "locator": "cx7-d124",
+      "sha256": "6a0d90d00580a1c6bace411316fc909e09a209a0ac282841328ef4e209ba762f",
+      "size_bytes": 1106353824,
+      "file_count": 2057
+    }
+  ],
+  "models": {
+    "llm": {
+      "llm_name": "qwen3:1.7b-q4_K_M",
+      "llm_digest": "sha256:7368613235363a7177656e332d312e37622d71345f4b5f4d2d646967657374",
+      "ollama_version": "0.1.32",
+      "quant": "Q4_K_M",
+      "llm_loaded_size_gib": 1.15,
+      "llm_processor": "CPU"
+    },
+    "detector": {
+      "detector_name": "RT-DETR-R18-COCO-OFFICIAL",
+      "detector_weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+      "detector_source_commit": "df2a96c8c3a098567a1149bf0248da6efe6d495d"
+    }
+  },
+  "hardware": {
+    "cpu_model": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+    "cpu_cores": "20",
+    "gpu_model": "NONE",
+    "gpu_driver": "NONE",
+    "ram_gib": 31.75,
+    "accelerator": "cpu"
+  },
+  "os": {
+    "os_name": "Windows",
+    "os_version": "11",
+    "kernel": "10.0.26200",
+    "arch": "AMD64"
+  },
+  "runtime": {
+    "python_version": "3.12.0",
+    "python_implementation": "CPython",
+    "isolated_mode": true,
+    "node_version": "UNKNOWN"
+  },
+  "packages": {
+    "uv_lock_sha256": "UNKNOWN",
+    "pyproject_sha256": "UNKNOWN",
+    "installed": {
+      "python": "3.12.0",
+      "torch": "2.12.1+cpu"
+    }
+  },
+  "config": {
+    "switch_mode": "RULE_ONLY",
+    "parser_mode": "RULE_ONLY",
+    "agent_max_rounds": 3,
+    "agent_call_timeout_ms": 2000,
+    "agent_total_budget_ms": 5000,
+    "q3_max_llm_attempts": "UNKNOWN",
+    "q3_llm_timeout_ms": 2000,
+    "llm_temperature": "UNKNOWN",
+    "torch_deterministic": "UNKNOWN"
+  },
+  "seeds": {
+    "random_seed": 20261102,
+    "llm_seed": "UNKNOWN"
+  },
+  "gt_isolation": {
+    "inference_read_gt": false,
+    "input_manifest_sha256": "c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd",
+    "gt_path_scan": "PASS"
+  },
+  "source": {
+    "scene_id": "r004_a4b4_production_and_p1_engineering",
+    "scene_revision": "UNKNOWN",
+    "clock_id": "UNKNOWN",
+    "clock_type": "UNKNOWN",
+    "camera_scope": [
+      "CAM_ENTRY",
+      "CAM_ROOM_A",
+      "CAM_ROOM_B"
+    ],
+    "source_fps": 5,
+    "sampling_stride": 5,
+    "sampling_interval_us": 200000
+  },
+  "timings_s": {
+    "read": "UNKNOWN",
+    "forward": "UNKNOWN"
+  },
+  "contract_scope": {
+    "production_contract": "UNSELECTED",
+    "human_approval_verified": false,
+    "allowed_purposes": [
+      "EVALUATION",
+      "BENCHMARK_ANALYSIS"
+    ]
+  }
+}
