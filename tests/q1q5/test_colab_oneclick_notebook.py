@@ -103,7 +103,7 @@ def test_api_key_check_never_prints_or_logs_secret_values(capsys):
     assert rep['secret_values_logged'] is False
 
 
-def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path):
+def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path, monkeypatch):
     # 1. Missing real pack falls back to SYNTHETIC and marks real_data_status UNKNOWN
     fallback = runner.verify_data_pack(
         pack_dir=tmp_path / 'nonexistent_wc5_pack',
@@ -141,12 +141,33 @@ def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path):
         expected_manifest_sha256=manifest_sha,
         allow_synthetic_fallback=False,
     )
-    assert verified['real_data_status'] == 'VERIFIED'
-    assert verified['active_data_mode'] == 'REAL_WC5_PACK'
-    assert verified['source_class'] == 'ENGINEERING'
+    assert verified['real_data_status'] == 'UNVERIFIED'
+    assert verified['active_data_mode'] == 'SYNTHETIC'
+    assert verified['source_class'] == 'SYNTHETIC'
     assert verified['sha256_verified'] is True
     assert verified['gt_path_scan'] == 'PASS'
-    assert verified['root_of_trust_verified'] is True
+    assert verified['root_of_trust_verified'] is False
+
+    # Only a repository-owned exact identity can grant engineering provenance.
+    manifest_doc['sources'] = {'manifest_sha256': 'a' * 64}
+    manifest_file.write_text(json.dumps(manifest_doc), encoding='utf-8')
+    manifest_sha = runner.sha256_file(manifest_file)
+    monkeypatch.setitem(runner.APPROVED_SAFE_PACK_ROOTS, 'wc5-safe-eval-v1', {
+        'manifest_sha256': manifest_sha,
+        'format': 'amidst.argon-safe-pack.v1',
+        'source_manifest_sha256': 'a' * 64,
+    })
+    approved = runner.verify_data_pack(pack_dir=valid_pack, expected_manifest_sha256=manifest_sha,
+                                       allow_synthetic_fallback=False)
+    assert approved['real_data_status'] == 'VERIFIED'
+    assert approved['source_class'] == 'ENGINEERING'
+    assert approved['root_of_trust_verified'] is True
+    manifest_doc['sources'] = {'manifest_sha256': 'b' * 64}
+    manifest_file.write_text(json.dumps(manifest_doc), encoding='utf-8')
+    with pytest.raises(ValueError, match='approved root of trust'):
+        runner.verify_data_pack(pack_dir=valid_pack, allow_synthetic_fallback=False)
+    manifest_doc['sources'] = {'manifest_sha256': 'a' * 64}
+    manifest_file.write_text(json.dumps(manifest_doc), encoding='utf-8')
 
     # 3. Corrupted file / SHA-256 mismatch is rejected
     sample_file.write_bytes(b'{"corrupted": true}\n')
@@ -234,7 +255,7 @@ def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path):
         )
 
     # 10. Manifest SHA mismatch against expected root of trust is rejected
-    with pytest.raises(ValueError, match=r'Manifest SHA-256 mismatch against approved root of trust'):
+    with pytest.raises(ValueError, match=r'Manifest SHA-256 mismatch against supplied integrity pin'):
         runner.verify_data_pack(
             pack_dir=valid_pack,
             expected_manifest_sha256='0' * 64,
@@ -270,9 +291,9 @@ def test_synthetic_results_never_upgraded_by_verified_dummy_pack(tmp_path):
         expected_manifest_sha256=dummy_manifest_sha,
         allow_synthetic_fallback=False,
     )
-    assert verified_pack['real_data_status'] == 'VERIFIED'
+    assert verified_pack['real_data_status'] == 'UNVERIFIED'
     assert verified_pack['sha256_verified'] is True
-    assert verified_pack['root_of_trust_verified'] is True
+    assert verified_pack['root_of_trust_verified'] is False
 
     # Even with a VERIFIED data pack on disk, export_analysis_bundle on fixtures remains SYNTHETIC and UNKNOWN
     env_rep = runner.inspect_environment(deterministic=True)
@@ -345,6 +366,9 @@ def test_checkpoint_resume_skips_completed_units_and_recomputes_on_config_change
 def test_export_and_notebook_cells_execute_end_to_end_on_synthetic(tmp_path, monkeypatch):
     monkeypatch.setenv('AMIDST_COLAB_WORKDIR', str(tmp_path / 'nb_workdir'))
     monkeypatch.setenv('AMIDST_WC5_SAFE_PACK_DIR', str(tmp_path / 'missing_wc5_pack'))
+    injected_key_check = runner.check_api_keys
+    monkeypatch.setattr(runner, 'check_api_keys',
+                        lambda: injected_key_check(env_mapping={}, userdata_getter=lambda _name: None))
 
     nb = _load_notebook()
     ns: dict[str, object] = {'__name__': '__main__'}
@@ -470,8 +494,15 @@ def test_arbitrary_synthetic_pack_with_self_calculated_hash_cannot_claim_verifie
     assert rep_no_fallback['active_data_mode'] == 'SYNTHETIC'
     assert rep_no_fallback['root_of_trust_verified'] is False
 
-    # 3. Supplying an explicit mismatched approved root of trust strictly raises ValueError
-    with pytest.raises(ValueError, match=r'Manifest SHA-256 mismatch against approved root of trust'):
+    # 3. Supplying the pack's own pin checks integrity without granting source authority.
+    own_pin = runner.sha256_file(arbitrary_pack / 'MANIFEST.json')
+    self_pinned = runner.verify_data_pack(pack_dir=arbitrary_pack,
+                                          expected_manifest_sha256=own_pin,
+                                          allow_synthetic_fallback=False)
+    assert self_pinned['real_data_status'] == 'UNVERIFIED'
+    assert self_pinned['source_class'] == 'SYNTHETIC'
+    assert self_pinned['root_of_trust_verified'] is False
+    with pytest.raises(ValueError, match=r'Manifest SHA-256 mismatch against supplied integrity pin'):
         runner.verify_data_pack(
             pack_dir=arbitrary_pack,
             expected_manifest_sha256='f' * 64,

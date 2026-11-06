@@ -386,14 +386,17 @@ APPROVED_SAFE_PACK_ROOTS: dict[str, dict[str, Any]] = {
     'p1-v4-stripped': {
         'manifest_sha256': 'c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd',
         'format': 'amidst.argon-safe-pack.v1',
+        'source_manifest_sha256': '6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7',
     },
     'cx7-d119': {
         'manifest_sha256': '5d7bde92462cd3b72604b612f676565c487edfa469af5c6a46f03a6cbe8fd115',
         'format': 'amidst.argon-safe-pack.v1',
+        'source_manifest_sha256': '60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82',
     },
     'cx7-d124': {
         'manifest_sha256': '6a0d90d00580a1c6bace411316fc909e09a209a0ac282841328ef4e209ba762f',
         'format': 'amidst.argon-safe-pack.v1',
+        'source_manifest_sha256': 'ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01',
     },
 }
 
@@ -565,7 +568,10 @@ def verify_data_pack(
             if expected_hashes is not None:
                 for k, v in expected_hashes.items():
                     if k != manifest_name:
-                        manifest_hashes[str(k)] = str(v)
+                        _validate_safe_relative_path(target_dir, str(k))
+                    if k != manifest_name and (k not in manifest_hashes or
+                                               str(v).lower() != manifest_hashes[k].lower()):
+                        raise ValueError(f'Expected file pin conflicts with owning manifest: {k}')
 
             if not manifest_hashes:
                 raise ValueError(f'Data pack directory {target_dir} manifest has no file entries')
@@ -586,38 +592,29 @@ def verify_data_pack(
                     'size_bytes': fpath.stat().st_size,
                 })
 
-            trusted_manifest_sha = (
+            expected_integrity_sha = (
                 expected_manifest_sha256
                 or approved_manifest_sha256
                 or os.environ.get('AMIDST_APPROVED_WC5_MANIFEST_SHA256')
                 or os.environ.get('AMIDST_APPROVED_MANIFEST_SHA256')
             )
-            if trusted_manifest_sha is None and expected_hashes and manifest_name in expected_hashes:
-                trusted_manifest_sha = expected_hashes[manifest_name]
+            if expected_integrity_sha is None and expected_hashes:
+                expected_integrity_sha = expected_hashes.get(manifest_name)
+            if expected_integrity_sha is not None and actual_manifest_sha256.lower() != str(expected_integrity_sha).lower():
+                raise ValueError('Manifest SHA-256 mismatch against supplied integrity pin')
 
-            if trusted_manifest_sha is None and pack_id and pack_id in APPROVED_SAFE_PACK_ROOTS:
-                trusted_manifest_sha = APPROVED_SAFE_PACK_ROOTS[pack_id].get('manifest_sha256')
-
-            if trusted_manifest_sha is not None:
-                if actual_manifest_sha256.lower() != trusted_manifest_sha.lower():
-                    raise ValueError(
-                        f'Manifest SHA-256 mismatch against approved root of trust: '
-                        f'expected {trusted_manifest_sha}, got {actual_manifest_sha256}'
-                    )
-                schema_ok = (
-                    (pack_format in ALLOWED_SAFE_PACK_FORMATS or pack_format.startswith('amidst.'))
-                    and bool(pack_id)
-                    and (sources is not None)
-                    and (gt_read is False)
-                )
-                if not schema_ok:
-                    raise ValueError(
-                        f'Safe pack manifest does not satisfy required schema/provenance fields: '
-                        f'format={pack_format!r}, pack_id={pack_id!r}, sources={sources!r}, gt_read={gt_read!r}'
-                    )
-                root_of_trust_verified = True
-            else:
-                root_of_trust_verified = False
+            owner = APPROVED_SAFE_PACK_ROOTS.get(pack_id)
+            if owner is not None and actual_manifest_sha256 != owner['manifest_sha256']:
+                raise ValueError('Manifest SHA-256 mismatch against approved root of trust')
+            root_of_trust_verified = bool(
+                owner is not None
+                and pack_format == owner['format']
+                and isinstance(sources, dict)
+                and sources.get('manifest_sha256') == owner['source_manifest_sha256']
+                and gt_read is False
+            )
+            if owner is not None and not root_of_trust_verified:
+                raise ValueError('Safe pack manifest does not match approved source identity')
 
             if not root_of_trust_verified:
                 return {
