@@ -28,7 +28,7 @@ def main():
     (root/'logs').mkdir(exist_ok=True)
     for service in services:
         if not status(service):
-            with (root/'logs'/('preview-'+service['name'].split()[0]+'.log')).open('ab') as log:
+            with (root/'logs'/('preview-'+service['name'].split()[0].replace('/', '-')+'.log')).open('ab') as log:
                 subprocess.Popen(service['command'],stdout=log,stderr=log,start_new_session=True,env={'PATH':os.defpath+':/opt/homebrew/bin','LANG':'zh_TW.UTF-8','PYTHONDONTWRITEBYTECODE':'1'})
             for _ in range(100):
                 if status(service):break
