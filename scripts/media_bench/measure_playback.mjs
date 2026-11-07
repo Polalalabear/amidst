@@ -20,6 +20,7 @@ try{
    if(options.only&&`${c.key}:${format}:${speed}`!==options.only)continue;
    await disk();
    const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+   await context.addInitScript(()=>performance.setResourceTimingBufferSize(20000));
    await context.addInitScript(probe,{kind:'viewer'});const page=await context.newPage();if(headful)await page.bringToFront();
    const errors=[];page.on('pageerror',e=>errors.push(String(e)));
    const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});

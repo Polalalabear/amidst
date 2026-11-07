@@ -52,6 +52,7 @@ def report(proxy_path,playback_path,legacy_path,headed_root,hidden_root,out):
             'latency_trials':all_trials,'sources':sources,
             'not_measured':['physical display fps','live detector-to-switch latency','manual first-pixel target appearance','A4/B4 integrated core switch latency'],
             'latency_origin':'recorded first matching observation at B frame 103 / source 5.15s; source selection is not physical ground truth'}
+    result['resource_timing_boundary']='27-case receipt used the default ResourceTiming buffer; http_* fields are first buffered entries, NOT total transfers. FPS/ElementTiming/decode observations are independent. Later script increases the buffer.'
     out.mkdir(exist_ok=False)
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n')
     lines=['# D133 Mac playback format and switch latency measurements','',
@@ -65,7 +66,8 @@ def report(proxy_path,playback_path,legacy_path,headed_root,hidden_root,out):
         native=statistics.mean(c['native_image_paint_fps'] for c in r['per_camera'].values())
         ready=statistics.mean(c['displayed_advances_fps'] for c in r['per_camera'].values())
         lines.append(f"|{r['case']}|{r['format']}|{r['speed']}x|{native:.3f}|{ready:.3f}|{r['actual_source_multiplier']:.3f}x|{r['decode_wait_p90_ms']:.3f}|")
-    lines+=['','decode() promise wait may include pending loading; it is not isolated decoder CPU time. Every original PNG retained its source byte pin. Its unsafe metadata was removed in memory before public PNG/codec decoding; the manifest preserves original and served hashes separately.','',
+    lines+=['','decode() promise wait may include pending loading; it is not isolated decoder CPU time. The 27-case raw receipt used the default ResourceTiming buffer, so its http_* fields cover only first buffered entries, not total transfer bytes. FPS/native image events are independent. Later script increases that buffer; this report does not relabel old executions.','',
+            'Every original PNG retained its source byte pin. Its unsafe metadata was removed in memory before public PNG/codec decoding; the manifest preserves original and served hashes separately.','',
             '## B-05b recorded workbench: supplementary 9-case matrix','',
             'Single active camera in the same clean #408 player. LOCAL adapter preserves authorization and source-pin checks, replaces only served image bytes/hash/content type, and adapts the hard-coded PNG Blob MIME in the served JS response. Source checkout files are unchanged. This is a codec experiment, not product proxy integration.','',
             '| Format | Setting | Native fps | Decoded-visible fps | Actual source speed | decode() wait P90 ms |',
