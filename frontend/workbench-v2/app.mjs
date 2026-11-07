@@ -23,6 +23,7 @@ import {buildCoreSearchRequest,buildCoreTrackRequest,ERROR_TEXT} from './core-se
 import {createBoundMediaResolver} from './core-media.mjs';
 
 export function playbackBounds(s) {
+  if(s.coreTrackResponse)return [s.coreTrackResponse.resolved_time?.source_range_us?.[0]??0,s.coreTrackResponse.as_of_us];
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
   if(s.selection?.kind==='Q1_SEGMENT')return s.selection.range_us;
   return [0,s.activeRun?.clock_mapping?.source_duration_us??0];
@@ -86,14 +87,15 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const cw=$('#core-search-wall-slot'),ct=$('#core-tracking-slot');
     if(cw)cw.hidden=!(s.coreSearchResponse||s.coreSearchWall);
     if(ct)ct.hidden=!(s.coreTrackResponse||s.coreTrackingView);
+    if(s.coreSearchResponse||s.coreTrackResponse){if($('#q1-slot'))$('#q1-slot').hidden=true;if($('#q2-slot'))$('#q2-slot').hidden=true;}
   };
   const unsubCoreSlots=store.subscribe(syncCoreSlots);syncCoreSlots();
   // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
   const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
   const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;
   // The wall follows the search phase: WALL shows the wall; SEARCHING and RESULT hide it (loading shows no camera frames; RESULT shows the hit wall or the tracking view).
-  const syncWall=p=>{if(!monitorRoom)return;const on=p.phase==='wall';monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
-  const unsyncWall=phase.subscribe(syncWall);syncWall(phase.getState());
+  const syncWall=p=>{if(!monitorRoom)return;const s=store.getState();const on=p.phase==='wall'&&!s.coreSearchResponse&&!s.coreTrackResponse;monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
+  const unsyncWall=phase.subscribe(syncWall);const unsyncCoreWall=store.subscribe(()=>syncWall(phase.getState()));syncWall(phase.getState());
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {
@@ -219,7 +221,11 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
         seek:tUs=>{store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs});}}));
     }catch{$('#q-review-slot').textContent='審核功能尚未準備好。';}
   };
+  let measuredCoreRate=null,coreRateSample=null;
+  const coreRate=document.createElement('span');coreRate.id='q-core-rate';coreRate.className='note';$('#q-play').after(coreRate);
   function renderTime(s) {
+    coreRate.hidden=!(s.coreTrackResponse&&s.activeRun?.source_kind==='SYNTHETIC');
+    coreRate.textContent=`設定 ${s.speed}× · 實際 ${measuredCoreRate===null?'UNKNOWN':measuredCoreRate.toFixed(2)+'×'}（合成時鐘）`;
     $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
     const stop=$('#q-stop');if(stop)stop.disabled=!api.activeJob?.();
@@ -228,7 +234,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
-  function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&previous!==null){const [start,end]=playbackBounds(s);const step=afterTick(advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry),{loop:wallSettings.get().loop,start,end});carry=step.carry;store.dispatch({type:'SET_T_US',tUs:step.tUs});if(step.pause)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
+  function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&s.coreTrackResponse&&s.activeRun?.source_kind==='SYNTHETIC'){if(!coreRateSample)coreRateSample={wall:now,source:s.tUs};else if(now-coreRateSample.wall>=300){const dt=s.tUs-coreRateSample.source;if(dt>=0)measuredCoreRate=dt/(1000*(now-coreRateSample.wall));coreRateSample={wall:now,source:s.tUs};}}else coreRateSample=null;if(s.playing&&previous!==null){const [start,end]=playbackBounds(s);const step=afterTick(advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry),{loop:wallSettings.get().loop,start,end});carry=step.carry;store.dispatch({type:'SET_T_US',tUs:step.tUs});if(step.pause)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
@@ -236,6 +242,6 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();unsubCoreSlots();unsubCoreMenus();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();unsubCoreSlots();unsubCoreMenus();detachPhase();unsyncWall();unsyncCoreWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();

@@ -159,7 +159,7 @@ function legacyReduce(state, action) {
 
 export function reduce(state,action) {
   if(['PLAY','PAUSE','TOGGLE_PLAY'].includes(action.type)&&(state.activeRun||state.q2)) {
-    const bounds=state.task==='q2'&&state.q2?[state.q2.timeline[0]?.range_us[0]??0,state.q2.timeline.at(-1)?.range_us[1]??0]:state.selection?.kind==='Q1_SEGMENT'?state.selection.range_us:[0,state.activeRun?.clock_mapping?.source_duration_us??0];
+    const bounds=state.coreTrackResponse?[state.coreTrackResponse.resolved_time?.source_range_us?.[0]??0,state.coreTrackResponse.as_of_us]:state.task==='q2'&&state.q2?[state.q2.timeline[0]?.range_us[0]??0,state.q2.timeline.at(-1)?.range_us[1]??0]:state.selection?.kind==='Q1_SEGMENT'?state.selection.range_us:[0,state.activeRun?.clock_mapping?.source_duration_us??0];
     const [start,end]=bounds;
     const playing=action.type==='PLAY'||action.type==='TOGGLE_PLAY'&&!state.playing;
     if(!end||(playing&&!canPlay(state)))return state;
