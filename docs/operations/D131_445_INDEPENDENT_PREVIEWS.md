@@ -4,7 +4,7 @@ This is a partial engineering delivery, not an integrated workbench. The user ex
 
 | Preview | URL | Source | Screenshot directory (LOCAL) |
 | --- | --- | --- | --- |
-| Two core screens, synthetic HTTP API fixture | http://127.0.0.1:8765/workbench-v2/ | #452 `088252833665a4bca9fcfbf31597b4bb296fb549` | `/private/tmp/d131-459-final-screenshots/` |
+| Two core screens, synthetic HTTP API fixture | http://127.0.0.1:8765/workbench-v2/ | #452 `088252833665a4bca9fcfbf31597b4bb296fb549` | `/private/tmp/d131-459-three-events-screenshots/` |
 | Actual D124 new A4-1 RGB | http://127.0.0.1:8770/?run=A4-1 | #442 `62a8979632d800e9ac6d23fc29789e56a11550bc` | `/private/tmp/amidst-d131-442-viewer/screenshots/` |
 | Actual D124 new B4-1 RGB | http://127.0.0.1:8770/?run=B4-1 | Same #442 source and pinned safe bundle | Same directory |
 | r005 static RGB, model boxes and human review form | http://127.0.0.1:8769/ | #447 `39b9c4323288cae8c52532277cdd6dc75b63a965`; #473 helper `df493522fa10308a8712316a8881879cddd981ac` | `/private/tmp/amidst-d131-464-review/screenshots/` |
@@ -40,7 +40,7 @@ The r005 page reads the six original static RGB files in place, without copying 
 ## Verification and remaining gates
 
 - #452: 415 Node tests passed; final no-allow architecture guard and diff check passed.
-- #459: real Mac Chrome/Playwright E2E passed 30 checks with zero page errors against exact #452 head. Ten synthetic screenshots remain LOCAL; a small synthetic-only contact sheet is attached to Draft #476. Windows/Linux/CI artifact upload and real-backend E2E remain NOT_RUN.
+- #459: real Mac Chrome/Playwright E2E passed 49 checks with zero page errors against exact #452 head. This includes source-menu selection and separate run/clock binding for SYNTHETIC_B05, SYNTHETIC_A4_1 and SYNTHETIC_B4_1 (two/three/two cameras). Sixteen synthetic screenshots remain LOCAL; a small synthetic-only contact sheet is attached to Draft #476. Windows/Linux/CI artifact upload and real-backend E2E remain NOT_RUN.
 - #442 viewing: both runs passed browser playback/screenshot checks. No model or renderer was run by this viewer.
 - r005 form: ten browser checks passed, including six images, no prefills, model-box toggle, UNKNOWN exclusion, draft persistence and DRAFT/NOT_EVALUATED export. QA-only answers are not a user approval.
 - #417: Draft #475 contains DEMO_DEFAULT actual-RGB index and camera-local RULE_ONLY results. Cross-camera association, formal parameters and full tracking-source integration remain pending.
