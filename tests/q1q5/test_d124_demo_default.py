@@ -92,3 +92,61 @@ def test_disk_gate(fixture, monkeypatch):
     run = demo.D124DemoRun(root, cfg)
     monkeypatch.setattr(demo.shutil, 'disk_usage', lambda _: SimpleNamespace(free=demo.MIN_FREE_BYTES-1))
     with pytest.raises(demo.DemoIndexError, match='LOW_DISK'): run.read_rgb('SYN_CAM', 0)
+
+
+def checker_module():
+    import importlib.util
+    p = Path(__file__).resolve().parents[2] / 'scripts/check_d124_demo_default.py'
+    spec = importlib.util.spec_from_file_location('_demo_checker_test', p)
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module
+
+
+def synthetic_tracking_input():
+    params = {'link_max_gap_us':600000, 'link_max_gap_samples':2, 'link_iou_min':0.3,
+        'link_center_dist_max_diag_ratio':0.5, 'link_min_score':0.4,
+        'link_color_rule':'NOT_NONE', 'link_ambiguity_margin':0.05}
+    cfg = {'run_id':'SYNTHETIC_RUN', 'clock_id':'SYNTHETIC_CLOCK', 'stride_samples':1,
+        'index_grid_origin_frame':0, 'parameters':[{'name':k,'value':v,'status':'DEMO_DEFAULT'} for k,v in params.items()]}
+    manifest = {'index_id':'detidx:r004:SYNTHETIC_RUN:0123456789abcdef',
+        'sampling':{'per_camera':[{'camera_id':'SYN_CAM'}]}}
+    rows = []
+    for i in [0,1]:
+        rows.append({'frame_ref':f'SYNTHETIC_FRAME_{i}','camera_id':'SYN_CAM','frame_index':i,
+            'timestamp_us':200000*i,'frame_state':'INFERRED', 'detections':[
+                {'observation_id':f'obs:0123456789abcdef:SYN_CAM:{i}:0', 'class_label':'person',
+                 'score':0.9,'bbox_xyxy_px':[0,0,20,40],'color':None}]})
+    return cfg,manifest,rows
+
+
+def test_demo_local_linker_does_not_claim_cross_camera_identity():
+    module=checker_module();cfg,manifest,rows=synthetic_tracking_input()
+    doc=module.local_rule_tracks(manifest,b'\n'.join(raw(r) for r in rows),cfg)
+    assert doc['formal_eligible'] is False
+    assert doc['cross_camera_association']=='NOT_EVALUATED'
+    assert doc['tracks'][0]['steps'][0]['state']=='PLAYING'
+
+
+def test_ambiguous_first_seed_is_unknown():
+    module=checker_module();cfg,manifest,rows=synthetic_tracking_input()
+    other={**rows[0]['detections'][0], 'observation_id':'obs:0123456789abcdef:SYN_CAM:0:1'}
+    rows[0]['detections'].append(other)
+    doc=module.local_rule_tracks(manifest,b'\n'.join(raw(r) for r in rows),cfg)
+    assert doc['tracks'][0]['status']=='UNKNOWN_AMBIGUOUS_SEED'
+    assert doc['tracks'][0]['seed'] is None
+
+
+def test_checker_rejects_changed_record_bytes(tmp_path):
+    module=checker_module();cfg,manifest,rows=synthetic_tracking_input()
+    record_raw=b'\n'.join(raw(r) for r in rows)
+    manifest.update(scene_id='SYNTHETIC',run_id=cfg['run_id'],clock_id=cfg['clock_id'],scene_revision='r004',
+        detector={'index_score_floor':0.3},records_file_sha256=demo.sha(record_raw))
+    cfg.update(scene_id='SYNTHETIC',scene_revision='r004',index_score_floor=0.3)
+    index_raw=raw(manifest)
+    receipt={'profile':'DEMO_DEFAULT','formal_eligible':False,'index_manifest_sha256':demo.sha(index_raw),
+        'records_file_sha256':demo.sha(record_raw)}
+    (tmp_path/'demo_default_receipt.json').write_bytes(raw(receipt))
+    (tmp_path/'detection_index.json').write_bytes(index_raw)
+    (tmp_path/'detection_index.records.jsonl').write_bytes(record_raw+b'\n')
+    with pytest.raises(demo.DemoIndexError,match='RECORDS_BYTE_PIN'):
+        module.read_bound(tmp_path,cfg)
