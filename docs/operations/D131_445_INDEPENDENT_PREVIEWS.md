@@ -46,3 +46,9 @@ The r005 page reads the six original static RGB files in place, without copying 
 - #417: Draft #475 contains DEMO_DEFAULT actual-RGB index and camera-local RULE_ONLY results. Cross-camera association, formal parameters and full tracking-source integration remain pending.
 
 The [pairwise merge-tree report](../engineering/D131_445_MERGE_TREE.md) records all seven exact heads: **21 pairs, 17 clean, four conflicts, zero command errors**. Proposed future order after Claude review and explicit merge authorization is #442 → #447 → #470 (issue #457) → #473 → #443 → #408 → #452. Pairwise clean trees do not prove the seven-way integrated runtime. Recompute against the real integration head before any future authorized merge.
+
+## Persistent LOCAL relocation (2026-11-07 follow-up)
+
+The user authorized copying these preview checkouts, screenshots, manifests and review page to `~/amidst-artifacts/d131-previews/`. The current launcher is `~/amidst-artifacts/d131-previews/start_previews.py`; use the existing Python executable. The code version above now accepts `--root` and defaults to that persistent directory. It verifies both source head and source directory so an older `/private/tmp` service is not silently accepted. Only this task's exact old processes may be restarted during relocation.
+
+The new `manifest.json` keeps original copy hashes and source paths alongside current paths/hashes; changed launcher/adapter/manifest bytes have separate new pins. Screenshot, HTML, model-result and checkout payload copies are byte checked. The original manifest is retained byte-for-byte under `receipts/`. No original RGB/model/Blender/dataset is copied or modified: services keep reading the previously pinned external originals. The user's submitted review JSON remains LOCAL DRAFT/NOT_EVALUATED and is not applied as coverage approval. New absolute paths and final manifest SHA are posted to #445 after verification.

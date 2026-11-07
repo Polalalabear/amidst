@@ -42,7 +42,7 @@ const server=http.createServer(async(req,res)=>{
  const u=new URL(req.url,`http://127.0.0.1:${port}`);
  if(staticFiles.has(u.pathname)){const [name,mime]=staticFiles.get(u.pathname);let b=await fs.readFile(path.join(repo,'frontend/event-viewer',name));if(name==='index.html')b=Buffer.from(b.toString().replace('<body>','<body><div style="background:#143b43;color:white;padding:10px 18px;font:14px system-ui">ACTUAL BLENDER RGB · #442 D124 新 run · 獨立唯讀查看，未整合查找／追蹤。A4 原點 2026-11-01 14:00、B4 原點 14:10（Asia/Taipei）。</div>'));return send(200,mime,b);}
  if(u.pathname==='/api/runs'){let requested='';try{const ref=new URL(req.headers.referer);if(ref.origin===`http://127.0.0.1:${port}`)requested=ref.searchParams.get('run');}catch{}const ordered=[...runs].sort((a,b)=>(a.key===requested?-1:b.key===requested?1:0));return send(200,'application/json',JSON.stringify(ordered));}
- if(u.pathname==='/health')return send(200,'application/json',JSON.stringify({head,source_manifest_sha256:manifestPin,verified_frames:checked,runs:runs.map(r=>r.runId)}));
+ if(u.pathname==='/health')return send(200,'application/json',JSON.stringify({head,source_checkout:repo,source_manifest_sha256:manifestPin,verified_frames:checked,runs:runs.map(r=>r.runId)}));
  const f=frames.get(u.pathname);if(!f)return send(404,'text/plain','not found');
  const b=await readPinned(f.filename,f.file_sha256);if(!inspectPng(b).ok)throw Error('PNG');return send(200,'image/png',b);
  }catch{return send(404,'text/plain','unavailable');}
