@@ -90,6 +90,11 @@ def report(proxy_path,playback_path,legacy_path,headed_root,hidden_root,out):
             '- Compression/format background: https://developer.chrome.com/docs/performance/insights/image-delivery','',
             'All raw samples/screenshots and proxy images stay LOCAL. Source/code/tool/manifest pins are in the receipts; committed JSON contains only engineering measurement summaries.']
     (out/'results.md').write_text('\n'.join(lines)+'\n')
+    plot_latency(all_trials,out)
+    print(json.dumps({'status':'COMPLETE','latency':groups,'storage':storage,'results_sha256':pin(out/'results.json')['sha256']},indent=2))
+
+
+def plot_latency(all_trials,out):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -103,9 +108,12 @@ def report(proxy_path,playback_path,legacy_path,headed_root,hidden_root,out):
         ax.set_title(title);ax.set_xlabel('Latency (ms)');ax.set_ylabel('Empirical CDF');ax.set_ylim(0,1.02);ax.grid(alpha=.25);ax.legend()
     fig.suptitle('Browser replay baselines — no live detector latency')
     fig.savefig(out/'latency_ecdf.svg',metadata={'Date':None});fig.savefig(out/'latency_ecdf.png',dpi=160)
-    print(json.dumps({'status':'COMPLETE','latency':groups,'storage':storage,'results_sha256':pin(out/'results.json')['sha256']},indent=2))
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--proxies',type=Path,required=True);p.add_argument('--playback',type=Path,required=True);p.add_argument('--legacy-playback',type=Path,required=True);p.add_argument('--headed',type=Path,required=True);p.add_argument('--hidden',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args()
-    report(a.proxies,a.playback,a.legacy_playback,a.headed,a.hidden,a.out)
+    p=argparse.ArgumentParser();p.add_argument('--proxies',type=Path);p.add_argument('--playback',type=Path);p.add_argument('--legacy-playback',type=Path);p.add_argument('--headed',type=Path);p.add_argument('--hidden',type=Path);p.add_argument('--curated',type=Path);p.add_argument('--out',type=Path,required=True);a=p.parse_args()
+    if a.curated:
+        a.out.mkdir(exist_ok=False);plot_latency(json.loads(a.curated.read_text())['latency_trials'],a.out)
+    else:
+        if not all([a.proxies,a.playback,a.legacy_playback,a.headed,a.hidden]):p.error('provide --curated or all five source inputs')
+        report(a.proxies,a.playback,a.legacy_playback,a.headed,a.hidden,a.out)

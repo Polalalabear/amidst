@@ -1,0 +1,2810 @@
+{
+  "scope": "LOCAL engineering browser measurements; no model, inference or research acceptance",
+  "source_head": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
+  "proxy_manifest_sha256": "48668dcfc5ca8282c1eeb8f057fd8d464cbd56db9232c7780f2f2e69202a6fab",
+  "browser": "156.0.8078.80",
+  "hardware": {
+    "platform": "darwin",
+    "release": "25.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "logical_cpus": 8,
+    "memory_bytes": 17179869184
+  },
+  "headful_playback": false,
+  "storage": {
+    "source_png_bytes": 1253126920,
+    "safe_png_playback_bytes": 1252961310,
+    "jpeg_bytes": 110611318,
+    "webp_bytes": 61637852
+  },
+  "playback_trials": [
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "png",
+      "speed": 1,
+      "wall_seconds": 7.9611999999985095,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 0.9985931769081908,
+      "expected_per_camera_fps": 20,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 19.971863538163817,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 19.945057012761037
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 19.971863538163817,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 19.945057012761037
+        }
+      },
+      "aggregate_displayed_advances_fps": 39.94372707632763,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 7.97189999999851,
+      "decode_calls": 316,
+      "decode_wait_p50_ms": 8.600000001490116,
+      "decode_wait_p90_ms": 12.899999998509884,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 33.19999999999982,
+      "http_requests": 245,
+      "http_bytes": 112649555,
+      "http_p90_ms": 21.5,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "jpeg",
+      "speed": 1,
+      "wall_seconds": 7.97270000000149,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 0.997152783874787,
+      "expected_per_camera_fps": 20,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 19.94305567749574,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 19.9133331663415
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 19.94305567749574,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 19.9133331663415
+        }
+      },
+      "aggregate_displayed_advances_fps": 39.88611135499148,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 7.98460000000149,
+      "decode_calls": 318,
+      "decode_wait_p50_ms": 3,
+      "decode_wait_p90_ms": 5.200000002980232,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.800000000000182,
+      "http_requests": 246,
+      "http_bytes": 7290212,
+      "http_p90_ms": 9.200000002980232,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "webp",
+      "speed": 1,
+      "wall_seconds": 7.939599999995529,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.0013098896675496,
+      "expected_per_camera_fps": 20,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 20.026197793350992,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 20.01082346427495
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 20.026197793350992,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 20.01082346427495
+        }
+      },
+      "aggregate_displayed_advances_fps": 40.052395586701984,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 7.945699999995529,
+      "decode_calls": 317,
+      "decode_wait_p50_ms": 4.5,
+      "decode_wait_p90_ms": 6.700000002980232,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.80000000000109,
+      "http_requests": 246,
+      "http_bytes": 2849646,
+      "http_p90_ms": 7,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "jpeg",
+      "speed": 1.5,
+      "wall_seconds": 6.426,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.2371615312791784,
+      "expected_per_camera_fps": 30,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.743230625583568,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.70862470862471
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.743230625583568,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.70862470862471
+        }
+      },
+      "aggregate_displayed_advances_fps": 49.486461251167135,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 6.435,
+      "decode_calls": 318,
+      "decode_wait_p50_ms": 2.7000000029802322,
+      "decode_wait_p90_ms": 4.700000002980232,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.800000000000182,
+      "http_requests": 246,
+      "http_bytes": 7290212,
+      "http_p90_ms": 5.700000002980232,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "webp",
+      "speed": 1.5,
+      "wall_seconds": 6.412099999998509,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.2398434210323994,
+      "expected_per_camera_fps": 30,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.79686842064799,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.780250607823223
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.79686842064799,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.780250607823223
+        }
+      },
+      "aggregate_displayed_advances_fps": 49.59373684129598,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 6.41639999999851,
+      "decode_calls": 318,
+      "decode_wait_p50_ms": 4.100000001490116,
+      "decode_wait_p90_ms": 6.100000001490116,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.800000000000182,
+      "http_requests": 246,
+      "http_bytes": 2849646,
+      "http_p90_ms": 4.100000001490116,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "png",
+      "speed": 1.5,
+      "wall_seconds": 6.46150000000447,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.2303644664543063,
+      "expected_per_camera_fps": 30,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.607289329086125,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.566228388654757
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.607289329086125,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.566228388654757
+        }
+      },
+      "aggregate_displayed_advances_fps": 49.21457865817225,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 6.47230000000447,
+      "decode_calls": 316,
+      "decode_wait_p50_ms": 6.5,
+      "decode_wait_p90_ms": 11.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 33.400000000000546,
+      "http_requests": 246,
+      "http_bytes": 113090363,
+      "http_p90_ms": 9.399999998509884,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "webp",
+      "speed": 2,
+      "wall_seconds": 6.42070000000149,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.23818275265908,
+      "expected_per_camera_fps": 40,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.763655053181598,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.740920548962613
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.763655053181598,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.740920548962613
+        }
+      },
+      "aggregate_displayed_advances_fps": 49.527310106363196,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 6.42660000000149,
+      "decode_calls": 318,
+      "decode_wait_p50_ms": 4.200000002980232,
+      "decode_wait_p90_ms": 6.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000273,
+      "raf_max_gap_ms": 16.800000000000182,
+      "http_requests": 246,
+      "http_bytes": 2849646,
+      "http_p90_ms": 6.700000002980232,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "png",
+      "speed": 2,
+      "wall_seconds": 6.42580000000149,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.2372000373491483,
+      "expected_per_camera_fps": 40,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.744000746982962,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.719764929022116
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.744000746982962,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.719764929022116
+        }
+      },
+      "aggregate_displayed_advances_fps": 49.488001493965925,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 6.4321000000014905,
+      "decode_calls": 318,
+      "decode_wait_p50_ms": 8.399999998509884,
+      "decode_wait_p90_ms": 11.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000273,
+      "raf_max_gap_ms": 33.30000000000018,
+      "http_requests": 246,
+      "http_bytes": 113090363,
+      "http_p90_ms": 13.600000001490116,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B-05b",
+      "source_kind": "SYNTHETIC",
+      "format": "jpeg",
+      "speed": 2,
+      "wall_seconds": 6.39289999999553,
+      "source_seconds": 7.95,
+      "actual_source_multiplier": 1.2435670822327205,
+      "expected_per_camera_fps": 40,
+      "per_camera": {
+        "A": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.87134164465441,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.85268143240713
+        },
+        "B": {
+          "unique_frames": 160,
+          "displayed_advances_fps": 24.87134164465441,
+          "native_painted_advances": 159,
+          "native_image_paint_fps": 24.85268143240713
+        }
+      },
+      "aggregate_displayed_advances_fps": 49.74268328930882,
+      "native_image_paint_events": 318,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 6.397699999995529,
+      "decode_calls": 317,
+      "decode_wait_p50_ms": 3,
+      "decode_wait_p90_ms": 4.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000273,
+      "raf_max_gap_ms": 16.800000000000182,
+      "http_requests": 246,
+      "http_bytes": 7290212,
+      "http_p90_ms": 17.200000002980232,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "jpeg",
+      "speed": 1,
+      "wall_seconds": 49.68189999999702,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 1.0023771232582286,
+      "expected_per_camera_fps": 5,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.011885616291143,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.010685437620285
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.011885616291143,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.010685437620285
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.011885616291143,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.010685437620285
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.011885616291143,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.010685437620285
+        }
+      },
+      "aggregate_displayed_advances_fps": 20.04754246516457,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 49.69379999999702,
+      "decode_calls": 996,
+      "decode_wait_p50_ms": 5.800000004470348,
+      "decode_wait_p90_ms": 9.899999998509884,
+      "raf_p90_gap_ms": 16.700000000004366,
+      "raf_max_gap_ms": 16.80000000000291,
+      "http_requests": 246,
+      "http_bytes": 12749977,
+      "http_p90_ms": 16.899999998509884,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "webp",
+      "speed": 1,
+      "wall_seconds": 49.67079999999404,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 1.0026011258124687,
+      "expected_per_camera_fps": 5,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.013005629062344,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0117645638059996
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.013005629062344,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0117645638059996
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.013005629062344,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0117645638059996
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.013005629062344,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0117645638059996
+        }
+      },
+      "aggregate_displayed_advances_fps": 20.052022516249377,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 49.68309999999404,
+      "decode_calls": 993,
+      "decode_wait_p50_ms": 10.399999998509884,
+      "decode_wait_p90_ms": 25.399999998509884,
+      "raf_p90_gap_ms": 16.700000000004366,
+      "raf_max_gap_ms": 33.40000000000009,
+      "http_requests": 246,
+      "http_bytes": 7901290,
+      "http_p90_ms": 24.700000002980232,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "png",
+      "speed": 1,
+      "wall_seconds": 49.65029999999702,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 1.00301508752219,
+      "expected_per_camera_fps": 5,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.0150754376109505,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0133084211504215
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.0150754376109505,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0133084211504215
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.0150754376109505,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0133084211504215
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 5.0150754376109505,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 5.0133084211504215
+        }
+      },
+      "aggregate_displayed_advances_fps": 20.060301750443802,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 49.66779999999702,
+      "decode_calls": 994,
+      "decode_wait_p50_ms": 15.5,
+      "decode_wait_p90_ms": 19.899999998509884,
+      "raf_p90_gap_ms": 16.700000000004366,
+      "raf_max_gap_ms": 66.70000000000437,
+      "http_requests": 246,
+      "http_bytes": 132775009,
+      "http_p90_ms": 72.89999999850988,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "webp",
+      "speed": 1.5,
+      "wall_seconds": 33.1199,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 1.5036277283445902,
+      "expected_per_camera_fps": 7.5,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.518138641722952,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.514258985424148
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.518138641722952,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.514258985424148
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.518138641722952,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.514258985424148
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.518138641722952,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.514258985424148
+        }
+      },
+      "aggregate_displayed_advances_fps": 30.072554566891807,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 33.137,
+      "decode_calls": 993,
+      "decode_wait_p50_ms": 11.100000001490116,
+      "decode_wait_p90_ms": 24.799999997019768,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 33.30000000000007,
+      "http_requests": 246,
+      "http_bytes": 7901290,
+      "http_p90_ms": 16.100000001490116,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "png",
+      "speed": 1.5,
+      "wall_seconds": 33.13599999999553,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 1.50289715113492,
+      "expected_per_camera_fps": 7.5,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.514485755674601,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.509907649249117
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.514485755674601,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.509907649249117
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.514485755674601,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.509907649249117
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.514485755674601,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.509907649249117
+        }
+      },
+      "aggregate_displayed_advances_fps": 30.057943022698403,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 33.15619999999553,
+      "decode_calls": 993,
+      "decode_wait_p50_ms": 17.600000001490116,
+      "decode_wait_p90_ms": 24.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 50.10000000000218,
+      "http_requests": 246,
+      "http_bytes": 132775009,
+      "http_p90_ms": 63.79999999701977,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "jpeg",
+      "speed": 1.5,
+      "wall_seconds": 33.11570000000298,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 1.5038184305328142,
+      "expected_per_camera_fps": 7.5,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.519092152664071,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.515914723042394
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.519092152664071,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.515914723042394
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.519092152664071,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.515914723042394
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 7.519092152664071,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 7.515914723042394
+        }
+      },
+      "aggregate_displayed_advances_fps": 30.076368610656285,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 33.12970000000298,
+      "decode_calls": 992,
+      "decode_wait_p50_ms": 7.800000004470348,
+      "decode_wait_p90_ms": 11.700000002980232,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 33.29999999999927,
+      "http_requests": 246,
+      "http_bytes": 12749977,
+      "http_p90_ms": 22.100000001490116,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "png",
+      "speed": 2,
+      "wall_seconds": 24.86979999999702,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 2.0024286484011116,
+      "expected_per_camera_fps": 10,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.012143242005559,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.004701004087455
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.012143242005559,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.004701004087455
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.012143242005559,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.004701004087455
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.012143242005559,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.004701004087455
+        }
+      },
+      "aggregate_displayed_advances_fps": 40.048572968022235,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 24.88829999999702,
+      "decode_calls": 993,
+      "decode_wait_p50_ms": 15.800000004470348,
+      "decode_wait_p90_ms": 25.200000002980232,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 66.70000000000073,
+      "http_requests": 246,
+      "http_bytes": 132775009,
+      "http_p90_ms": 54.70000000298023,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "jpeg",
+      "speed": 2,
+      "wall_seconds": 24.848999999998508,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 2.004104792949535,
+      "expected_per_camera_fps": 10,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.020523964747674,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.015526076569095
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.020523964747674,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.015526076569095
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.020523964747674,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.015526076569095
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.020523964747674,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.015526076569095
+        }
+      },
+      "aggregate_displayed_advances_fps": 40.0820958589907,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 24.86139999999851,
+      "decode_calls": 995,
+      "decode_wait_p50_ms": 7.5,
+      "decode_wait_p90_ms": 12,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 50,
+      "http_requests": 246,
+      "http_bytes": 12749977,
+      "http_p90_ms": 14.800000004470348,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "A4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "webp",
+      "speed": 2,
+      "wall_seconds": 24.87080000000149,
+      "source_seconds": 49.8,
+      "actual_source_multiplier": 2.0023481351623995,
+      "expected_per_camera_fps": 10,
+      "per_camera": {
+        "CAM_ENTRY": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.011740675812,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.005585447297289
+        },
+        "CAM_EXT_CAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.011740675812,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.005585447297289
+        },
+        "CAM_EXT_CLEAR": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.011740675812,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.005585447297289
+        },
+        "CAM_W1": {
+          "unique_frames": 250,
+          "displayed_advances_fps": 10.011740675812,
+          "native_painted_advances": 249,
+          "native_image_paint_fps": 10.005585447297289
+        }
+      },
+      "aggregate_displayed_advances_fps": 40.046962703248,
+      "native_image_paint_events": 996,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 24.88610000000149,
+      "decode_calls": 993,
+      "decode_wait_p50_ms": 8.899999998509884,
+      "decode_wait_p90_ms": 21.899999998509884,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.80000000000291,
+      "http_requests": 246,
+      "http_bytes": 7901290,
+      "http_p90_ms": 22.900000005960464,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "webp",
+      "speed": 1,
+      "wall_seconds": 41.66790000000298,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 1.003170306158866,
+      "expected_per_camera_fps": 5,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.01585153079433,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.013469200747105
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.01585153079433,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.013469200747105
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.01585153079433,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.013469200747105
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.01585153079433,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.013469200747105
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.01585153079433,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.013469200747105
+        }
+      },
+      "aggregate_displayed_advances_fps": 25.07925765397165,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 41.68770000000298,
+      "decode_calls": 1042,
+      "decode_wait_p50_ms": 15.899999998509884,
+      "decode_wait_p90_ms": 20.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 33.400000000001455,
+      "http_requests": 246,
+      "http_bytes": 6064134,
+      "http_p90_ms": 31,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "png",
+      "speed": 1,
+      "wall_seconds": 41.63730000000149,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 1.0039075540440543,
+      "expected_per_camera_fps": 5,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.019537770220272,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.016850857905322
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.019537770220272,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.016850857905322
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.019537770220272,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.016850857905322
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.019537770220272,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.016850857905322
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.019537770220272,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.016850857905322
+        }
+      },
+      "aggregate_displayed_advances_fps": 25.09768885110136,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 41.65960000000149,
+      "decode_calls": 1040,
+      "decode_wait_p50_ms": 15.199999995529652,
+      "decode_wait_p90_ms": 21.899999998509884,
+      "raf_p90_gap_ms": 16.700000000004366,
+      "raf_max_gap_ms": 100,
+      "http_requests": 246,
+      "http_bytes": 132674546,
+      "http_p90_ms": 103.39999999850988,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "jpeg",
+      "speed": 1,
+      "wall_seconds": 41.67249999999851,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 1.0030595716600035,
+      "expected_per_camera_fps": 5,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.015297858300018,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.01386609858862
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.015297858300018,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.01386609858862
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.015297858300018,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.01386609858862
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.015297858300018,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.01386609858862
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 5.015297858300018,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 5.01386609858862
+        }
+      },
+      "aggregate_displayed_advances_fps": 25.07648929150009,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 41.68439999999851,
+      "decode_calls": 1044,
+      "decode_wait_p50_ms": 8.399999998509884,
+      "decode_wait_p90_ms": 12.899999998509884,
+      "raf_p90_gap_ms": 16.700000000004366,
+      "raf_max_gap_ms": 16.80000000000291,
+      "http_requests": 246,
+      "http_bytes": 11615311,
+      "http_p90_ms": 23.200000002980232,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "png",
+      "speed": 1.5,
+      "wall_seconds": 27.79659999999851,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 1.503781037968753,
+      "expected_per_camera_fps": 7.5,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.518905189843766,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.512607881409035
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.518905189843766,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.512607881409035
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.518905189843766,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.512607881409035
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.518905189843766,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.512607881409035
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.518905189843766,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.512607881409035
+        }
+      },
+      "aggregate_displayed_advances_fps": 37.59452594921883,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 27.81989999999851,
+      "decode_calls": 1040,
+      "decode_wait_p50_ms": 16.299999997019768,
+      "decode_wait_p90_ms": 28.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 83.39999999999782,
+      "http_requests": 246,
+      "http_bytes": 132674546,
+      "http_p90_ms": 106.09999999403954,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "jpeg",
+      "speed": 1.5,
+      "wall_seconds": 27.78739999999553,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 1.504278917783122,
+      "expected_per_camera_fps": 7.5,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.52139458891561,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.518607654591337
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.52139458891561,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.518607654591337
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.52139458891561,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.518607654591337
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.52139458891561,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.518607654591337
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.52139458891561,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.518607654591337
+        }
+      },
+      "aggregate_displayed_advances_fps": 37.606972944578054,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 27.79769999999553,
+      "decode_calls": 1040,
+      "decode_wait_p50_ms": 8,
+      "decode_wait_p90_ms": 12.700000002980232,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.80000000000291,
+      "http_requests": 246,
+      "http_bytes": 11681585,
+      "http_p90_ms": 20.100000001490116,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "webp",
+      "speed": 1.5,
+      "wall_seconds": 27.786100000002982,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 1.5043492969504721,
+      "expected_per_camera_fps": 7.5,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.521746484752361,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.51698514945772
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.521746484752361,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.51698514945772
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.521746484752361,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.51698514945772
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.521746484752361,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.51698514945772
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 7.521746484752361,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 7.51698514945772
+        }
+      },
+      "aggregate_displayed_advances_fps": 37.60873242376181,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 27.80370000000298,
+      "decode_calls": 1040,
+      "decode_wait_p50_ms": 15.699999995529652,
+      "decode_wait_p90_ms": 20.899999998509884,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 33.30000000000018,
+      "http_requests": 246,
+      "http_bytes": 6064134,
+      "http_p90_ms": 30.899999998509884,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "jpeg",
+      "speed": 2,
+      "wall_seconds": 20.87349999999553,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 2.0025391046067478,
+      "expected_per_camera_fps": 10,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.01269552303374,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.008763654302319
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.01269552303374,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.008763654302319
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.01269552303374,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.008763654302319
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.01269552303374,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.008763654302319
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.01269552303374,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.008763654302319
+        }
+      },
+      "aggregate_displayed_advances_fps": 50.0634776151687,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 20.88169999999553,
+      "decode_calls": 1045,
+      "decode_wait_p50_ms": 8.399999998509884,
+      "decode_wait_p90_ms": 11.5,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.80000000000291,
+      "http_requests": 246,
+      "http_bytes": 11615311,
+      "http_p90_ms": 24.399999998509884,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "webp",
+      "speed": 2,
+      "wall_seconds": 20.88099999999702,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 2.0018198362150263,
+      "expected_per_camera_fps": 10,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.009099181075133,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.002728016733263
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.009099181075133,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.002728016733263
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.009099181075133,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.002728016733263
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.009099181075133,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.002728016733263
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.009099181075133,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.002728016733263
+        }
+      },
+      "aggregate_displayed_advances_fps": 50.04549590537566,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 20.89429999999702,
+      "decode_calls": 1043,
+      "decode_wait_p50_ms": 17.19999999552965,
+      "decode_wait_p90_ms": 21.600000001490116,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 16.80000000000291,
+      "http_requests": 246,
+      "http_bytes": 6064134,
+      "http_p90_ms": 25.5,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    },
+    {
+      "case": "B4-1",
+      "source_kind": "ACTUAL_BLENDER",
+      "format": "png",
+      "speed": 2,
+      "wall_seconds": 20.851200000001487,
+      "source_seconds": 41.8,
+      "actual_source_multiplier": 2.0046807857579907,
+      "expected_per_camera_fps": 10,
+      "per_camera": {
+        "CAM_BRANCH": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.023403928789953,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.017446653501077
+        },
+        "CAM_R101_IN": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.023403928789953,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.017446653501077
+        },
+        "CAM_W1": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.023403928789953,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.017446653501077
+        },
+        "CAM_W2": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.023403928789953,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.017446653501077
+        },
+        "CAM_WIDE": {
+          "unique_frames": 210,
+          "displayed_advances_fps": 10.023403928789953,
+          "native_painted_advances": 209,
+          "native_image_paint_fps": 10.017446653501077
+        }
+      },
+      "aggregate_displayed_advances_fps": 50.11701964394977,
+      "native_image_paint_events": 1045,
+      "native_last_frame_complete": true,
+      "native_wall_seconds": 20.86360000000149,
+      "decode_calls": 1040,
+      "decode_wait_p50_ms": 15.700000002980232,
+      "decode_wait_p90_ms": 21.80000000447035,
+      "raf_p90_gap_ms": 16.700000000000728,
+      "raf_max_gap_ms": 66.70000000000073,
+      "http_requests": 246,
+      "http_bytes": 132639794,
+      "http_p90_ms": 134.10000000149012,
+      "visibility_changes": [],
+      "page_errors": [],
+      "metric": "decoded-visible source frame promotions sampled at rAF; native image render events separately recorded; physical display fps NOT_MEASURED"
+    }
+  ],
+  "legacy_playback_trials": [
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "png",
+      "speed": 1,
+      "wall_seconds": 8.03579999999702,
+      "actual_source_multiplier": 0.9893227805573743,
+      "expected_fps": 20,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 19.78645561114749,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 19.742968895511268,
+      "decode_wait_p90_ms": 0.7999999970197678,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "jpeg",
+      "speed": 1,
+      "wall_seconds": 8.0225,
+      "actual_source_multiplier": 0.9909629167965097,
+      "expected_fps": 20,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 19.819258335930193,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 19.772922288691994,
+      "decode_wait_p90_ms": 0.8999999985098839,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "webp",
+      "speed": 1,
+      "wall_seconds": 8.01189999999851,
+      "actual_source_multiplier": 0.9922739924364355,
+      "expected_fps": 20,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 19.84547984872871,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 19.770955347480204,
+      "decode_wait_p90_ms": 0.8999999985098839,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "png",
+      "speed": 1.5,
+      "wall_seconds": 5.38789999999851,
+      "actual_source_multiplier": 1.4755284990445627,
+      "expected_fps": 30,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 29.51056998089125,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 29.329840807248495,
+      "decode_wait_p90_ms": 0.8000000044703484,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "jpeg",
+      "speed": 1.5,
+      "wall_seconds": 5.3675,
+      "actual_source_multiplier": 1.481136469492315,
+      "expected_fps": 30,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 29.6227293898463,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 29.445535019791173,
+      "decode_wait_p90_ms": 0.7999999970197678,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "webp",
+      "speed": 1.5,
+      "wall_seconds": 5.35989999999851,
+      "actual_source_multiplier": 1.4832366275494338,
+      "expected_fps": 30,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 29.664732550988674,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 29.484302853882436,
+      "decode_wait_p90_ms": 0.8000000044703484,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "png",
+      "speed": 2,
+      "wall_seconds": 4.05889999999851,
+      "actual_source_multiplier": 1.9586587499083294,
+      "expected_fps": 40,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 39.17317499816659,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 38.85535544095748,
+      "decode_wait_p90_ms": 0.8999999985098839,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "jpeg",
+      "speed": 2,
+      "wall_seconds": 4.03660000000149,
+      "actual_source_multiplier": 1.969479264727014,
+      "expected_fps": 40,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 39.38958529454028,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 39.07497972523206,
+      "decode_wait_p90_ms": 0.8000000044703484,
+      "page_errors": [],
+      "headful": false
+    },
+    {
+      "profile": "B-05b recorded workbench single view",
+      "format": "webp",
+      "speed": 2,
+      "wall_seconds": 4.02760000000149,
+      "actual_source_multiplier": 1.9738802264368505,
+      "expected_fps": 40,
+      "decoded_visible_frames": 159,
+      "decoded_visible_fps": 39.47760452873701,
+      "native_paint_frames": 159,
+      "native_last_frame_complete": true,
+      "native_image_paint_fps": 39.13460828473709,
+      "decode_wait_p90_ms": 0.8000000044703484,
+      "page_errors": [],
+      "headful": false
+    }
+  ],
+  "latency_groups": [
+    {
+      "mode": "HEADFUL_INTERRUPTED_SESSION",
+      "profile": "legacy",
+      "saved_trials": 30,
+      "timeouts": 0,
+      "page_errors": 0,
+      "decoded_visible": {
+        "n": 30,
+        "median_ms": 29.25,
+        "p90_ms": 31.100000001490116
+      },
+      "native_browser_paint": {
+        "n": 30,
+        "median_ms": 69.85000000149012,
+        "p90_ms": 74.20000000298023
+      }
+    },
+    {
+      "mode": "HEADFUL_INTERRUPTED_SESSION",
+      "profile": "core",
+      "saved_trials": 11,
+      "timeouts": 0,
+      "page_errors": 0,
+      "decoded_visible": {
+        "n": 11,
+        "median_ms": 15.199999995529652,
+        "p90_ms": 31.399999998509884
+      },
+      "native_browser_paint": {
+        "n": 0,
+        "median_ms": null,
+        "p90_ms": null
+      }
+    },
+    {
+      "mode": "HEADLESS_COMPLETE_SESSION",
+      "profile": "legacy",
+      "saved_trials": 30,
+      "timeouts": 0,
+      "page_errors": 0,
+      "decoded_visible": {
+        "n": 30,
+        "median_ms": 15.399999998509884,
+        "p90_ms": 16.799999997019768
+      },
+      "native_browser_paint": {
+        "n": 30,
+        "median_ms": 48.5,
+        "p90_ms": 51.399999998509884
+      }
+    },
+    {
+      "mode": "HEADLESS_COMPLETE_SESSION",
+      "profile": "core",
+      "saved_trials": 30,
+      "timeouts": 0,
+      "page_errors": 0,
+      "decoded_visible": {
+        "n": 30,
+        "median_ms": 15.200000002980232,
+        "p90_ms": 15.600000001490116
+      },
+      "native_browser_paint": {
+        "n": 0,
+        "median_ms": null,
+        "p90_ms": null
+      }
+    }
+  ],
+  "latency_trials": {
+    "HEADFUL_INTERRUPTED_SESSION": [
+      {
+        "kind": "legacy",
+        "repeat": 1,
+        "render_ready_latency_ms": 31.099999994039536,
+        "native_image_paint_latency_ms": 71.79999999701977
+      },
+      {
+        "kind": "legacy",
+        "repeat": 2,
+        "render_ready_latency_ms": 27.600000001490116,
+        "native_image_paint_latency_ms": 70.69999999552965
+      },
+      {
+        "kind": "legacy",
+        "repeat": 3,
+        "render_ready_latency_ms": 31.799999997019768,
+        "native_image_paint_latency_ms": 70
+      },
+      {
+        "kind": "legacy",
+        "repeat": 4,
+        "render_ready_latency_ms": 15.600000001490116,
+        "native_image_paint_latency_ms": 56.100000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 5,
+        "render_ready_latency_ms": 27.799999997019768,
+        "native_image_paint_latency_ms": 69.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 6,
+        "render_ready_latency_ms": 29.399999998509884,
+        "native_image_paint_latency_ms": 88.19999999552965
+      },
+      {
+        "kind": "legacy",
+        "repeat": 7,
+        "render_ready_latency_ms": 30,
+        "native_image_paint_latency_ms": 72.29999999701977
+      },
+      {
+        "kind": "legacy",
+        "repeat": 8,
+        "render_ready_latency_ms": 15.600000001490116,
+        "native_image_paint_latency_ms": 54.600000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 9,
+        "render_ready_latency_ms": 31.100000001490116,
+        "native_image_paint_latency_ms": 73
+      },
+      {
+        "kind": "legacy",
+        "repeat": 10,
+        "render_ready_latency_ms": 29.899999998509884,
+        "native_image_paint_latency_ms": 71.10000000149012
+      },
+      {
+        "kind": "legacy",
+        "repeat": 11,
+        "render_ready_latency_ms": 15.600000001490116,
+        "native_image_paint_latency_ms": 70.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 12,
+        "render_ready_latency_ms": 30.299999997019768,
+        "native_image_paint_latency_ms": 72
+      },
+      {
+        "kind": "legacy",
+        "repeat": 13,
+        "render_ready_latency_ms": 37.600000001490116,
+        "native_image_paint_latency_ms": 78.20000000298023
+      },
+      {
+        "kind": "legacy",
+        "repeat": 14,
+        "render_ready_latency_ms": 15.600000001490116,
+        "native_image_paint_latency_ms": 58.100000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 15,
+        "render_ready_latency_ms": 26.19999999552965,
+        "native_image_paint_latency_ms": 67.29999999701977
+      },
+      {
+        "kind": "legacy",
+        "repeat": 16,
+        "render_ready_latency_ms": 30.100000001490116,
+        "native_image_paint_latency_ms": 57.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 17,
+        "render_ready_latency_ms": 15.899999998509884,
+        "native_image_paint_latency_ms": 69.70000000298023
+      },
+      {
+        "kind": "legacy",
+        "repeat": 18,
+        "render_ready_latency_ms": 16.5,
+        "native_image_paint_latency_ms": 57.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 19,
+        "render_ready_latency_ms": 31.600000001490116,
+        "native_image_paint_latency_ms": 74.20000000298023
+      },
+      {
+        "kind": "legacy",
+        "repeat": 20,
+        "render_ready_latency_ms": 29.100000001490116,
+        "native_image_paint_latency_ms": 69.40000000596046
+      },
+      {
+        "kind": "legacy",
+        "repeat": 21,
+        "render_ready_latency_ms": 30.200000002980232,
+        "native_image_paint_latency_ms": 57.899999998509884
+      },
+      {
+        "kind": "legacy",
+        "repeat": 22,
+        "render_ready_latency_ms": 30.30000000447035,
+        "native_image_paint_latency_ms": 71.89999999850988
+      },
+      {
+        "kind": "legacy",
+        "repeat": 23,
+        "render_ready_latency_ms": 17.5,
+        "native_image_paint_latency_ms": 57.70000000298023
+      },
+      {
+        "kind": "legacy",
+        "repeat": 24,
+        "render_ready_latency_ms": 30.700000002980232,
+        "native_image_paint_latency_ms": 87.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 25,
+        "render_ready_latency_ms": 15.5,
+        "native_image_paint_latency_ms": 54.70000000298023
+      },
+      {
+        "kind": "legacy",
+        "repeat": 26,
+        "render_ready_latency_ms": 17.100000001490116,
+        "native_image_paint_latency_ms": 59
+      },
+      {
+        "kind": "legacy",
+        "repeat": 27,
+        "render_ready_latency_ms": 16.100000001490116,
+        "native_image_paint_latency_ms": 57
+      },
+      {
+        "kind": "legacy",
+        "repeat": 28,
+        "render_ready_latency_ms": 22.299999997019768,
+        "native_image_paint_latency_ms": 67.09999999403954
+      },
+      {
+        "kind": "legacy",
+        "repeat": 29,
+        "render_ready_latency_ms": 30.5,
+        "native_image_paint_latency_ms": 72.39999999850988
+      },
+      {
+        "kind": "legacy",
+        "repeat": 30,
+        "render_ready_latency_ms": 30.399999998509884,
+        "native_image_paint_latency_ms": 72.39999999850988
+      },
+      {
+        "kind": "core",
+        "repeat": 1,
+        "render_ready_latency_ms": 15.099999994039536,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 2,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 3,
+        "render_ready_latency_ms": 15,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 4,
+        "render_ready_latency_ms": 31.5,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 5,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 6,
+        "render_ready_latency_ms": 15.199999995529652,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 7,
+        "render_ready_latency_ms": 14.800000004470348,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 8,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 9,
+        "render_ready_latency_ms": 15.5,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 10,
+        "render_ready_latency_ms": 15.5,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 11,
+        "render_ready_latency_ms": 31.399999998509884,
+        "native_image_paint_latency_ms": null
+      }
+    ],
+    "HEADLESS_COMPLETE_SESSION": [
+      {
+        "kind": "legacy",
+        "repeat": 1,
+        "render_ready_latency_ms": 15.299999997019768,
+        "native_image_paint_latency_ms": 49.100000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 2,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": 51.80000000447035
+      },
+      {
+        "kind": "legacy",
+        "repeat": 3,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": 50.600000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 4,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": 51.600000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 5,
+        "render_ready_latency_ms": 15.5,
+        "native_image_paint_latency_ms": 49.099999994039536
+      },
+      {
+        "kind": "legacy",
+        "repeat": 6,
+        "render_ready_latency_ms": 15.199999995529652,
+        "native_image_paint_latency_ms": 31.799999997019768
+      },
+      {
+        "kind": "legacy",
+        "repeat": 7,
+        "render_ready_latency_ms": 15.300000004470348,
+        "native_image_paint_latency_ms": 48.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 8,
+        "render_ready_latency_ms": 16.799999997019768,
+        "native_image_paint_latency_ms": 51.399999998509884
+      },
+      {
+        "kind": "legacy",
+        "repeat": 9,
+        "render_ready_latency_ms": 15.200000002980232,
+        "native_image_paint_latency_ms": 33.29999999701977
+      },
+      {
+        "kind": "legacy",
+        "repeat": 10,
+        "render_ready_latency_ms": 16.200000002980232,
+        "native_image_paint_latency_ms": 48.79999999701977
+      },
+      {
+        "kind": "legacy",
+        "repeat": 11,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": 36.19999999552965
+      },
+      {
+        "kind": "legacy",
+        "repeat": 12,
+        "render_ready_latency_ms": 15.199999995529652,
+        "native_image_paint_latency_ms": 31.19999999552965
+      },
+      {
+        "kind": "legacy",
+        "repeat": 13,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": 48.899999998509884
+      },
+      {
+        "kind": "legacy",
+        "repeat": 14,
+        "render_ready_latency_ms": 14.799999997019768,
+        "native_image_paint_latency_ms": 50.19999999552965
+      },
+      {
+        "kind": "legacy",
+        "repeat": 15,
+        "render_ready_latency_ms": 15.799999997019768,
+        "native_image_paint_latency_ms": 48.399999998509884
+      },
+      {
+        "kind": "legacy",
+        "repeat": 16,
+        "render_ready_latency_ms": 15.100000001490116,
+        "native_image_paint_latency_ms": 36.100000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 17,
+        "render_ready_latency_ms": 15.600000001490116,
+        "native_image_paint_latency_ms": 51
+      },
+      {
+        "kind": "legacy",
+        "repeat": 18,
+        "render_ready_latency_ms": 17.100000001490116,
+        "native_image_paint_latency_ms": 34.100000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 19,
+        "render_ready_latency_ms": 16.399999998509884,
+        "native_image_paint_latency_ms": 48.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 20,
+        "render_ready_latency_ms": 30.599999994039536,
+        "native_image_paint_latency_ms": 52.099999994039536
+      },
+      {
+        "kind": "legacy",
+        "repeat": 21,
+        "render_ready_latency_ms": 16.799999997019768,
+        "native_image_paint_latency_ms": 47.899999998509884
+      },
+      {
+        "kind": "legacy",
+        "repeat": 22,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": 34.600000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 23,
+        "render_ready_latency_ms": 15.400000005960464,
+        "native_image_paint_latency_ms": 47.600000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 24,
+        "render_ready_latency_ms": 16.399999998509884,
+        "native_image_paint_latency_ms": 47.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 25,
+        "render_ready_latency_ms": 16.80000000447035,
+        "native_image_paint_latency_ms": 50
+      },
+      {
+        "kind": "legacy",
+        "repeat": 26,
+        "render_ready_latency_ms": 14.799999997019768,
+        "native_image_paint_latency_ms": 32.69999999552965
+      },
+      {
+        "kind": "legacy",
+        "repeat": 27,
+        "render_ready_latency_ms": 16.799999997019768,
+        "native_image_paint_latency_ms": 33.599999994039536
+      },
+      {
+        "kind": "legacy",
+        "repeat": 28,
+        "render_ready_latency_ms": 15.099999994039536,
+        "native_image_paint_latency_ms": 49.5
+      },
+      {
+        "kind": "legacy",
+        "repeat": 29,
+        "render_ready_latency_ms": 15,
+        "native_image_paint_latency_ms": 49.100000001490116
+      },
+      {
+        "kind": "legacy",
+        "repeat": 30,
+        "render_ready_latency_ms": 15.400000005960464,
+        "native_image_paint_latency_ms": 34.400000005960464
+      },
+      {
+        "kind": "core",
+        "repeat": 1,
+        "render_ready_latency_ms": 15.100000001490116,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 2,
+        "render_ready_latency_ms": 15.799999997019768,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 3,
+        "render_ready_latency_ms": 14.700000002980232,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 4,
+        "render_ready_latency_ms": 14.399999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 5,
+        "render_ready_latency_ms": 15.300000004470348,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 6,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 7,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 8,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 9,
+        "render_ready_latency_ms": 15.199999995529652,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 10,
+        "render_ready_latency_ms": 15.200000002980232,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 11,
+        "render_ready_latency_ms": 15.600000001490116,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 12,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 13,
+        "render_ready_latency_ms": 15.599999994039536,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 14,
+        "render_ready_latency_ms": 15.400000005960464,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 15,
+        "render_ready_latency_ms": 15.299999997019768,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 16,
+        "render_ready_latency_ms": 15.299999997019768,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 17,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 18,
+        "render_ready_latency_ms": 15.100000001490116,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 19,
+        "render_ready_latency_ms": 14.5,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 20,
+        "render_ready_latency_ms": 15.200000002980232,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 21,
+        "render_ready_latency_ms": 15.200000002980232,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 22,
+        "render_ready_latency_ms": 15.200000002980232,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 23,
+        "render_ready_latency_ms": 14.899999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 24,
+        "render_ready_latency_ms": 15.199999995529652,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 25,
+        "render_ready_latency_ms": 15.799999997019768,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 26,
+        "render_ready_latency_ms": 14.799999997019768,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 27,
+        "render_ready_latency_ms": 14.400000005960464,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 28,
+        "render_ready_latency_ms": 16.100000001490116,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 29,
+        "render_ready_latency_ms": 15.399999998509884,
+        "native_image_paint_latency_ms": null
+      },
+      {
+        "kind": "core",
+        "repeat": 30,
+        "render_ready_latency_ms": 14.399999998509884,
+        "native_image_paint_latency_ms": null
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-playback-proxies-v2/manifest.json",
+      "bytes": 1848970,
+      "sha256": "48668dcfc5ca8282c1eeb8f057fd8d464cbd56db9232c7780f2f2e69202a6fab"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-playback-measurements/summary.json",
+      "bytes": 49363,
+      "sha256": "90afa53a546ddcc77063173d0124fa9aa7ecaf02355f215c2aeab952f40c18a1"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-workbench-measurements/summary.json",
+      "bytes": 5306,
+      "sha256": "d6e7d4e26c900680ebb22e4dd8d0a934be87a3421ea2843104879c2c00121c66"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-01.json",
+      "bytes": 3605,
+      "sha256": "067065b630e668089deb2500d10487927b39e8d3f555433a91d8469e771ea81b"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-02.json",
+      "bytes": 2994,
+      "sha256": "7c29b2730a3a959f593a6d1e231aa277938d7173ae63709e865f1c28baf1a1e2"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-03.json",
+      "bytes": 2756,
+      "sha256": "51933f46b3579a3532c86c7574ef58cbde732d9d728d3e99c4d25c9cdee8b690"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-04.json",
+      "bytes": 2745,
+      "sha256": "288b34eae06f7b08791c6e70f653c89bfea202d6ce40023acd2aac8e87ac2d88"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-05.json",
+      "bytes": 3023,
+      "sha256": "e06f97009775eb6dea94cac0b4f5ba443aea7b0dd29c7b70493c82449ec6c2cb"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-06.json",
+      "bytes": 3491,
+      "sha256": "e9d1d509689ce2dd24a447207388653dbf3ee37459b7bb0affa2d083ba274ef1"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-07.json",
+      "bytes": 2881,
+      "sha256": "53fdbda72d0bab4bfe965923814e9646afa526216d4efbb269bc7a54c7d69975"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-08.json",
+      "bytes": 2729,
+      "sha256": "e5564ed675dfe1357faf5d9fcfb0fb489c139bae411185f8bb91071ce7b99060"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-09.json",
+      "bytes": 2756,
+      "sha256": "57e1b3ccf93ca7255b38880ea8b1423fb201f091efd7fe277091af59156f632a"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-10.json",
+      "bytes": 3294,
+      "sha256": "3408cda2f9e08ea344a75463f6cdf75c4a241eb07995291c00c14f4e4b0b5bc6"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-11.json",
+      "bytes": 2984,
+      "sha256": "6025f862d79bd7edff13935022e96525eb231423df728b3ec3a336f7c01c03a6"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-12.json",
+      "bytes": 3022,
+      "sha256": "7f89cb268dfa5e8d708be4bc2073d7faf39aa86e7563dfef2594f6533a9612af"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-13.json",
+      "bytes": 3310,
+      "sha256": "6f2aa16ad598964fbbb61dbb71f3e1d335c2ce0ee08dc9956af4772d20724f7a"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-14.json",
+      "bytes": 3034,
+      "sha256": "d4a435ec0dcb91ce53a5e26c9b26abd2e79b38874f07089ffd826f7f61cc9a82"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-15.json",
+      "bytes": 3313,
+      "sha256": "3b74ad68e1d995ff2daa63c2f7898bdaf7ee043d141affc0cb01cace16c2f47b"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-16.json",
+      "bytes": 2710,
+      "sha256": "1ccff99ef497178b628981e7ad21f1ea2e99e304cae5e64cd1ba0b069751965a"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-17.json",
+      "bytes": 3009,
+      "sha256": "6b21b9a725517e646a720594c7cc93a4214458bfc438630be37d28050e8ac2c2"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-18.json",
+      "bytes": 2971,
+      "sha256": "4338cf528f52955beb8c212f39af2eea4604d2e8a3257f9a09d460ffbece1ffe"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-19.json",
+      "bytes": 3275,
+      "sha256": "d3ac5ffb12cbb72f315cda8b7a12efc39ec48473094cefdedeb6995e87ee5e36"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-20.json",
+      "bytes": 3007,
+      "sha256": "196f72546b901327e4e59860338009dedd1134df0cd8cc78f96e10cf1029264f"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-21.json",
+      "bytes": 3031,
+      "sha256": "b4cb7a61848d7fe92f4c4130e163112f457ece04f31b28befd8aa58c60da7bbc"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-22.json",
+      "bytes": 2768,
+      "sha256": "003133ed58ed43eddf60f2fb734c615db233b24ccf022ac4f1cc05ea75b90608"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-23.json",
+      "bytes": 2757,
+      "sha256": "b19a6197ce39ad2ab1bd3e752f4b81d4732bfbcf3c42b9d6a3792b8c5b9cb463"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-24.json",
+      "bytes": 2338,
+      "sha256": "47122ef6ad8d7831bbbed82314f3ba4cda1474af7ff0e6ff7de3ce8439409db2"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-25.json",
+      "bytes": 2751,
+      "sha256": "9a7cccc21ba73b9e2395ee4e1cffdaf15766fb8e87ed2bc05549ddeb0c9e5cef"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-26.json",
+      "bytes": 3019,
+      "sha256": "f28b490ec67cd21c7bdec1fc2835a6e54693f253213c9684503c5104011d988c"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-27.json",
+      "bytes": 2749,
+      "sha256": "5d0e83ab5c7e343acf98836c4ee466a9b2ced77590476967215921ca4a1bcab9"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-28.json",
+      "bytes": 3060,
+      "sha256": "eba20baca102ba37f7c3760b122e6489b2f0d0001ccc92b1ea9fdb134b775e00"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-29.json",
+      "bytes": 3055,
+      "sha256": "823a14a53fc0d73c9b83122035d0cb62929e498491a5c15af5c437abca3fb5ac"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/legacy-30.json",
+      "bytes": 2993,
+      "sha256": "0ed235bfee17e2d409dc9622988dd7fe353efc80f11ac41b1444e2a3863c09db"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-01.json",
+      "bytes": 2542,
+      "sha256": "61ae1cf1f3c798443d66517d5d69c66a8661d5aba57c22380d273a5df2af9c85"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-02.json",
+      "bytes": 2286,
+      "sha256": "4e382cf3f990314b4f8d66721022c2c3ee913fc180c2c5665a47668c33c03ef6"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-03.json",
+      "bytes": 2270,
+      "sha256": "8c4b3100e7d1dfdad3dbaa228e352abab2ce75a505efd3826ac54faebf00f6cc"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-04.json",
+      "bytes": 2526,
+      "sha256": "10a582c4a4377768d040b33119b1215ea563c4692a5f53d5794d0ee38fc79788"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-05.json",
+      "bytes": 2324,
+      "sha256": "150abdebfe162bce48292c60d84a0af24d3ee30654d1906e6a06f2b75bec5922"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-06.json",
+      "bytes": 2256,
+      "sha256": "2aae30f871461f159290481092e514da8338a40a228f4f80829df72d2320dc57"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-07.json",
+      "bytes": 2296,
+      "sha256": "ccf0e21172bb92eee4a372487e2c8882f64e836892940d5d61aba17b1aa3439b"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-08.json",
+      "bytes": 2294,
+      "sha256": "a428d1a5a88344181dba3d93ee81dd49c76b7268c92392582cc16b2deb54eb49"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-09.json",
+      "bytes": 2240,
+      "sha256": "1e9a96dfc6140c659fb49c28d78242b96079260e018bf309d3f614f825e90fe2"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-10.json",
+      "bytes": 2243,
+      "sha256": "865f175ae45cd3cf58138cd41605542ba3bfd1eecaae50d4db5f6418635fc797"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-baseline/core-11.json",
+      "bytes": 2549,
+      "sha256": "a9058c242eee347659e4d4453fd8999b5d6f4a7886bc1d1be2a2dca00d6ff1c1"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-01.json",
+      "bytes": 3244,
+      "sha256": "c7ba0dd1576e067a34089951dc5c1035c54b5834847a9d9940ffc2eb5c947cd9"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-02.json",
+      "bytes": 3502,
+      "sha256": "4d1dbc0a910a691eff195f185065b8f71691f0b7bd2d3254162cec88e956f12e"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-03.json",
+      "bytes": 3498,
+      "sha256": "8741868e17e615e18c16c958188954144b10bd02e448930285201a64b792995d"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-04.json",
+      "bytes": 3787,
+      "sha256": "4d8c136f37eda381150fc47895401730c1971accc5193cf7737c87f316a96d8d"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-05.json",
+      "bytes": 3224,
+      "sha256": "1c0c4344c68ef6fabe4c00c8f3961daea462fea58e602840c51e2ea939684669"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-06.json",
+      "bytes": 3578,
+      "sha256": "efa7139597a32bd88a742687426c7281ed376a1d5e087b3d3388a710f5523144"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-07.json",
+      "bytes": 3458,
+      "sha256": "0bf90b1f7d407154b1fb0f8f3e33eee843b0fbcfed477e0347fea4fa6367e670"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-08.json",
+      "bytes": 3223,
+      "sha256": "57c750872ed165f565a03158ed0eba5c5750e7802fbb9d541f55fbf5a31eef96"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-09.json",
+      "bytes": 3040,
+      "sha256": "55df445fae6cbb9d9b3be0f44b563936d796396477f48288e0eade73fb26dfa3"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-10.json",
+      "bytes": 3036,
+      "sha256": "415e35ec96b3ff203eb85d6334d7831abd18270d09cee482a5ea530435710cc7"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-11.json",
+      "bytes": 3305,
+      "sha256": "56d707ca6c88d29c2a10342e56fc57d266c85abbf60b446624b3721233030fed"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-12.json",
+      "bytes": 2753,
+      "sha256": "94e4fbdc600b9d4988e2eafb144880f749d8facfbfb8c73ab5be069c13e50d0f"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-13.json",
+      "bytes": 2991,
+      "sha256": "64ead892bffba7f295d6ac847f93c972da6c42071e9cd0c0effaeeccb0001077"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-14.json",
+      "bytes": 3090,
+      "sha256": "b42c116435dd0a3ea707062c5cca33098a378f195bda3e35780c98eece4b31ec"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-15.json",
+      "bytes": 3048,
+      "sha256": "6171c579d3adf1bf314fb4796e0fda2a02a32a082305f0c588ace4ab0f148d94"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-16.json",
+      "bytes": 3017,
+      "sha256": "8169a12e11f199a88431602ca546e9da7a376561dbd0a88ab23c015f897dbce6"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-17.json",
+      "bytes": 3253,
+      "sha256": "726bd514de9ebcd4f757ddda46bad5e1ae6fad49092908fafe8f603805af31a4"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-18.json",
+      "bytes": 2741,
+      "sha256": "c24870e5347d24fc29fad9c936c700f3af8c525849870e0cf416b80d76f230ed"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-19.json",
+      "bytes": 3169,
+      "sha256": "9e0319879026881b7eaf65ed2791f1c61286b857d1856b33065013a52e79e555"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-20.json",
+      "bytes": 3353,
+      "sha256": "7839118dddbc93f0ce4dab23a46762c1511eb4590b34f860a1950af011762d08"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-21.json",
+      "bytes": 3333,
+      "sha256": "96cbd78f3abc0e719f7451efacd18dadf66e972fa000b56143b48207cbd8dca6"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-22.json",
+      "bytes": 2799,
+      "sha256": "9f50b625fc0bc9f729e4634224e11ce8a552c7e1c6addf156191fda0e3bbe3e0"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-23.json",
+      "bytes": 3507,
+      "sha256": "87de63decf50ae0307e6f8535c22156069aa0c57fb99d60c0ad727c99b4b3e04"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-24.json",
+      "bytes": 3021,
+      "sha256": "aef4c967a9faf34409b960d63edb9a9bf434eaca1cc1baf26a24dd7d62fcb222"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-25.json",
+      "bytes": 3028,
+      "sha256": "b0c2fce73a572ab705f5262002375583393a78b1adbfb50b0a74bd30628495a9"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-26.json",
+      "bytes": 3041,
+      "sha256": "672d8591769ba97ab9dd4e1dc4e66c3d7191ec89ee414bdfcbb0a56343cf379c"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-27.json",
+      "bytes": 2805,
+      "sha256": "912503af219b36a6f5f001a7a8afa56985541f6a2f9167f2a09929a7f4a6d72f"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-28.json",
+      "bytes": 3283,
+      "sha256": "68a10189d5f904ae6bfcc783d8b0b7f186428288be45b9342a12d6a187d19bfa"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-29.json",
+      "bytes": 3278,
+      "sha256": "bda6930f5aa24921f07cf8cc5a11a35dca8db1fc32f05bb7d555e894988002a7"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/legacy-30.json",
+      "bytes": 3015,
+      "sha256": "cfad0592a31df8b2d0701fe4c99f26fc417af61ace150b8d80de3ba7ca8fb53a"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-01.json",
+      "bytes": 2270,
+      "sha256": "52f2e514438505734f9206196c197fd0aed302ee07f19b5718b4b255b30e0d58"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-02.json",
+      "bytes": 2272,
+      "sha256": "c0f6fa3d79690adaa9329c45fbc39a2893da40c3a97317bbd2d49799ddacd1ad"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-03.json",
+      "bytes": 2256,
+      "sha256": "3f941a62c308c9000eaec7032f5b03a008c1a597677fa3230ae5cd54c0222a61"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-04.json",
+      "bytes": 2288,
+      "sha256": "e3bace48dd438c3e90c795d30f91044372738a2b62a7b554589d51e734530a0f"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-05.json",
+      "bytes": 2278,
+      "sha256": "99281925755b537fb5654cf44c181c49c0de5046ff6c224f138d29224b8b16fc"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-06.json",
+      "bytes": 2242,
+      "sha256": "531f2b2c84d498ea03e1de9282cb8df3bda5c456630990a470a9bc1a6949c9b4"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-07.json",
+      "bytes": 2240,
+      "sha256": "588f485ade0809474338b31a60aa29e739f0287f85e5505eee8a9bcd9adabcdf"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-08.json",
+      "bytes": 2292,
+      "sha256": "bcdb0708cbea5e68f9dd9ec8a1190a68db3adc7650c73524e78a3d62c8dda6f1"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-09.json",
+      "bytes": 2292,
+      "sha256": "bb64cfec1c239fd14121f886e26976d5d1769876298b1de0d605f865ad89e249"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-10.json",
+      "bytes": 2265,
+      "sha256": "757c502ef4c923ba314e0ff3533dbaba271cbe4950ea036636fd0598e76f5490"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-11.json",
+      "bytes": 2281,
+      "sha256": "53fb4dd6f58fa08702cb3080be41b23c81179d55450f2b45bc472ee70551bb98"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-12.json",
+      "bytes": 2289,
+      "sha256": "449cc50ecf2c7adf67fbbfa114fb685ed374a2876907c5a104e3491fbfb58c00"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-13.json",
+      "bytes": 2281,
+      "sha256": "7542e7ac1c7b1a29cf9ccfa48ba0fa96873df9352216acbdf16c4eb2a88ed7a9"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-14.json",
+      "bytes": 2295,
+      "sha256": "9a817a0784984629bd6d52505ab5ac26f0f38da7f9cbb51691861e98267ab933"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-15.json",
+      "bytes": 2289,
+      "sha256": "c5d80facf8c0b1c4651a9d8158ad6c72f8d02c84c05b6ca58f86ce05109beddf"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-16.json",
+      "bytes": 2267,
+      "sha256": "9b5cdee5e063fa20e9791cda779664d506e698ffb6176749339e7be5f3fa0b6f"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-17.json",
+      "bytes": 2299,
+      "sha256": "fb05975927a8886daad47290e58572d1582179fc2866b576e2a5bc46909c55cd"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-18.json",
+      "bytes": 2285,
+      "sha256": "7efe6b6364ca4d85bced52c7239b8ac257b2a15def9144f92fcf4b64602dfefe"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-19.json",
+      "bytes": 2181,
+      "sha256": "b737298e96875f63d34e1780bcd4115fac798366fb62280e5b14e68ac1ec2958"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-20.json",
+      "bytes": 2229,
+      "sha256": "cc473cc48d3912fb26ae11191d8978fec653b5757a09adc55b59d6d26d44e14f"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-21.json",
+      "bytes": 2281,
+      "sha256": "418bb342068467c7314a5e2c5bc6bdbe489c9339125536e904cb6a533ee3a863"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-22.json",
+      "bytes": 2239,
+      "sha256": "0a79bd7dd9a7c21512a09503f6d4f8a95fdc14dcf46099c0fec820116e36e095"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-23.json",
+      "bytes": 2317,
+      "sha256": "90186a6965c2aacd4ce440967938438ac35ab3a3ed92f75330ec3a6c6c95b9f1"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-24.json",
+      "bytes": 2313,
+      "sha256": "bffb84d938d1e95ae215e5d1ac23eee98a45b4561d360e46863218b552ee7931"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-25.json",
+      "bytes": 2293,
+      "sha256": "cf642e45d0dc69da1161a2ff806bd8889a71e0894d0fcabec246118cb4e3b2cc"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-26.json",
+      "bytes": 2283,
+      "sha256": "5182bd75ac650ad287b9a867b651411084cf09cb758e259805e46c7a282eab9c"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-27.json",
+      "bytes": 2275,
+      "sha256": "a696ecff2ccef0017a20c762bdb6162f85a8dfffc4b8428fb14a61fbe048d16c"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-28.json",
+      "bytes": 2259,
+      "sha256": "29691bf146134b36c01285b0a31e6838d8a345f91797209eb596119744cf1bec"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-29.json",
+      "bytes": 2295,
+      "sha256": "f90dfbe0f838c99a32c72daa34dfbacf1d92e971d60347a3bbfa3d1010da322b"
+    },
+    {
+      "path": "$AMIDST_ARTIFACTS/d133-switch-headless/core-30.json",
+      "bytes": 2263,
+      "sha256": "9f19ce1db62635f3c7ec4ccf50f445dfd95853b2a5b46751e0d4f660f7e49ec9"
+    }
+  ],
+  "not_measured": [
+    "physical display fps",
+    "live detector-to-switch latency",
+    "manual first-pixel target appearance",
+    "A4/B4 integrated core switch latency"
+  ],
+  "latency_origin": "recorded first matching observation at B frame 103 / source 5.15s; source selection is not physical ground truth",
+  "resource_timing_boundary": "27-case receipt used the default ResourceTiming buffer; http_* fields are first buffered entries, NOT total transfers. FPS/ElementTiming/decode observations are independent. Later script increases the buffer.",
+  "encoder": {
+    "jpeg": {
+      "optimize": true,
+      "quality": 90,
+      "subsampling": 0
+    },
+    "pillow": "12.3.0",
+    "webp": {
+      "method": 4,
+      "quality": 90
+    }
+  },
+  "encoder_executed_script_sha256": "185717eada928e3712c744e7f8213599b8aeb15a7e8f750a18d55ba847ec7f0f",
+  "conversion_seconds": 149.54337150000356,
+  "minimum_free_bytes_during_conversion": 14413717504,
+  "source_manifests": {
+    "D124": "ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01",
+    "P1": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7"
+  },
+  "verification": {
+    "status": "PASS",
+    "verified_at_unix_s": 1794069756.35469,
+    "original_png_verified": 2370,
+    "proxy_files_verified": 4740,
+    "proxy_manifest_sha256": "48668dcfc5ca8282c1eeb8f057fd8d464cbd56db9232c7780f2f2e69202a6fab",
+    "clean_runtime_head": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
+    "synthetic_core_health": {
+      "status": "SYNTHETIC",
+      "source_head": "088252833665a4bca9fcfbf31597b4bb296fb549",
+      "source_checkout": "$AMIDST_ARTIFACTS/d131-previews/checkouts/pr452",
+      "route_calls": 747
+    },
+    "tool_sha256": {
+      "measure_switch_latency.mjs": "83567d0a34dbbd9b77a3f6ead8bc9469edbbd600e2a5b87f741cac865feb60bb",
+      "browser_probe.mjs": "dbb817a2d9a99f18e6aaa2bfbfe63a9d119233a727fd50604977cff283d1316f",
+      "measure_playback.mjs": "7c367a54ecc29638f8b9a2563a268e4a0f8c77d3454ba69a436d20bc1ca4040e",
+      "viewer_server.mjs": "c22eded06681df8ef1ef9c757b0d481d3dba1dbd1dfb6ce54651cc3b48bf67b6",
+      "legacy_proxy_server.py": "62fcb3582e3438c87d060a053a54e456f6f9b0142bf65814750b5dafa6e1ff6e",
+      "report_results.py": "f484a0521f3893c6c6d891d0cb50f6b8cb7f3906ab7a230a1a4d43d4ad4dc324",
+      "measure_legacy_playback.mjs": "9d88ecb9babe585947ee6d26602155c211f42410ed8f7807f8ffefdff6292aa8",
+      "build_proxies.py": "185717eada928e3712c744e7f8213599b8aeb15a7e8f750a18d55ba847ec7f0f"
+    },
+    "free_bytes": 14705541120,
+    "source_writes": false,
+    "inference_or_render_executed": false
+  },
+  "executed_source_versions": {
+    "encoder": "9581d473b4f1622e3a2a097bcfae811a54fe5bbf",
+    "viewer_27_case": "93a08774685874b420ecdf45a5cf75f84bcc0bb7",
+    "workbench_9_case": "7a7301a4957a81b025e30c40c463414f9fb3ae25",
+    "headed_latency": "0c09efbe840d6b717079f7d6020547db59a2609c",
+    "headless_latency": "34cbf3966aff10d566c4d88a37a91332342945fd",
+    "initial_report": "34cbf3966aff10d566c4d88a37a91332342945fd"
+  },
+  "executed_tool_sha256": {
+    "viewer": {
+      "measure_playback.mjs": "006a927486acf2030b090999df44cd76af2cc8279e2988382e818468df4f6cbf",
+      "browser_probe.mjs": "dbb817a2d9a99f18e6aaa2bfbfe63a9d119233a727fd50604977cff283d1316f"
+    },
+    "workbench": {
+      "measure_legacy_playback.mjs": "9d88ecb9babe585947ee6d26602155c211f42410ed8f7807f8ffefdff6292aa8",
+      "browser_probe.mjs": "dbb817a2d9a99f18e6aaa2bfbfe63a9d119233a727fd50604977cff283d1316f"
+    },
+    "headless_latency": {
+      "measure_switch_latency.mjs": "83567d0a34dbbd9b77a3f6ead8bc9469edbbd600e2a5b87f741cac865feb60bb",
+      "browser_probe.mjs": "dbb817a2d9a99f18e6aaa2bfbfe63a9d119233a727fd50604977cff283d1316f"
+    }
+  },
+  "headed_browser_version": "UNKNOWN: interrupted run did not save final summary; adjacent pilot version is not substituted",
+  "recommendation": {
+    "format": "WebP90 for LOCAL playback on the measured Mac; JPEG90 optional alternative",
+    "webp_reduction_vs_original_png_pct": 95.08127620464812,
+    "webp_reduction_vs_jpeg_pct": 44.275275700087036,
+    "reason": "Smallest footprint with similar measured fps. JPEG has lower event-viewer decode-promise wait; these are not isolated decoder CPU benchmarks.",
+    "limits": "one full-duration trial per format/speed/case, quality settings not perceptually equated; PNG remains the source of inference and original evidence; no product integration"
+  },
+  "artifact_receipts": {
+    "d133-measurement-report/results.json": {
+      "bytes": 141317,
+      "sha256": "216e4347f76868e2539b1f096e0e0f9d2739a8cb88d62b46b8af6e941cdefdcc"
+    },
+    "d133-measurement-report/verification.json": {
+      "bytes": 1420,
+      "sha256": "2bcdaec28aa4a92ec73b981ef2d14d651fb15bf2daa86dce649b70aca3d51d15"
+    },
+    "d133-measurement-report/latency_ecdf.svg": {
+      "bytes": 66410,
+      "sha256": "7c5cec70fd4716c4ac659eaec47a168a5c96ae50725ec6464657dec52f2e6ab2"
+    },
+    "d133-measurement-report/latency_ecdf.png": {
+      "bytes": 71225,
+      "sha256": "c7409c7f7b4aefd9eef94aa8deef7fae952f52301097f64483954b9d6699a798"
+    },
+    "d133-playback-measurements/summary.json": {
+      "bytes": 49363,
+      "sha256": "90afa53a546ddcc77063173d0124fa9aa7ecaf02355f215c2aeab952f40c18a1"
+    },
+    "d133-workbench-measurements/summary.json": {
+      "bytes": 5306,
+      "sha256": "d6e7d4e26c900680ebb22e4dd8d0a934be87a3421ea2843104879c2c00121c66"
+    },
+    "d133-switch-headless/summary.json": {
+      "bytes": 36744,
+      "sha256": "9cf06884b704d90fb21e85a3bb7e861ce13bf72413c169ed3b57ccb4c4d50d2f"
+    }
+  }
+}
