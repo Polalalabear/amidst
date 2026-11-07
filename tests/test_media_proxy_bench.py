@@ -35,6 +35,9 @@ def test_metadata_png_never_served_as_public_baseline():
     stream=BytesIO();info=PngImagePlugin.PngInfo();info.add_text('test','metadata')
     Image.new('RGB',(8,8)).save(stream,format='PNG',pnginfo=info)
     with pytest.raises(ValueError,match='PNG_METADATA_NOT_PUBLIC'):builder.png_chunks(stream.getvalue())
+    safe=builder.public_png(stream.getvalue());assert b'tEXt' not in safe
+    assert Image.open(BytesIO(safe)).tobytes()==Image.open(BytesIO(stream.getvalue())).tobytes()
+    assert builder.encode(stream.getvalue(),'jpeg')[1]==[8,8]
 
 
 def test_trailing_bytes_and_transparency_rejected():

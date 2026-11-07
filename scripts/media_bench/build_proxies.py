@@ -104,10 +104,28 @@ def png_chunks(raw):
     return names
 
 
+def public_png(raw):
+    """Drop ancillary metadata without interpreting it; preserve pixel chunks."""
+    require(raw[:8]==b'\x89PNG\r\n\x1a\n','PNG_SIGNATURE')
+    allowed={b'IHDR',b'IDAT',b'IEND',b'sRGB',b'gAMA',b'pHYs',b'cHRM',b'bKGD',b'sBIT'}
+    out=bytearray(raw[:8]);offset=8
+    while offset<len(raw):
+        require(offset+12<=len(raw),'PNG_TRUNCATED')
+        size=int.from_bytes(raw[offset:offset+4],'big');kind=raw[offset+4:offset+8];end=offset+size+12
+        require(end<=len(raw),'PNG_TRUNCATED')
+        require(zlib.crc32(raw[offset+4:end-4])==int.from_bytes(raw[end-4:end],'big'),'PNG_CRC')
+        require(kind in allowed or kind[0]&32,'UNKNOWN_CRITICAL_CHUNK')
+        if kind in allowed:out.extend(raw[offset:end])
+        offset=end
+        if kind==b'IEND':
+            require(size==0 and offset==len(raw),'PNG_TRAILING_DATA');break
+    result=bytes(out);png_chunks(result);return result
+
+
 def encode(raw, fmt):
     from PIL import Image
     require(fmt in {'jpeg','webp'}, 'EXPLICIT_PROXY_FORMAT')
-    png_chunks(raw)
+    raw=public_png(raw)
     image=Image.open(BytesIO(raw));require(image.format=='PNG' and not getattr(image,'is_animated',False),'ONE_PNG_FRAME')
     require(image.width*image.height<=4_194_304,'PIXEL_SIZE')
     if 'A' in image.getbands():require(image.getchannel('A').getextrema()==(255,255),'OPAQUE_SOURCE_REQUIRED')
@@ -129,7 +147,8 @@ def build(plan_path, plan_sha, out_root):
     for i,source in enumerate(plan['rows']):
         minimum=min(minimum,shutil.disk_usage(out).free);require(minimum>=MIN_FREE,'LOW_DISK')
         require(Path(source['path']).suffix=='.png','PNG_SOURCE_ONLY')
-        raw=read_pin(source['path'],source['sha256']);row=dict(source,source_bytes=len(raw),proxies={})
+        raw=read_pin(source['path'],source['sha256']);safe=public_png(raw)
+        row=dict(source,source_bytes=len(raw),png_public_sha256=sha(safe),png_public_bytes=len(safe),proxies={})
         for fmt,ext in [('jpeg','jpg'),('webp','webp')]:
             payload,size=encode(raw,fmt);rel=f"{fmt}/{source['case']}/{source['camera_id']}/{source['frame_index']:06d}.{ext}"
             target=out/rel;target.parent.mkdir(parents=True,exist_ok=True)
