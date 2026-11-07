@@ -224,8 +224,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   let measuredCoreRate=null,coreRateSample=null;
   const coreRate=document.createElement('span');coreRate.id='q-core-rate';coreRate.className='note';$('#q-play').after(coreRate);
   function renderTime(s) {
+    $('#q-speed').value=String(s.speed);
     coreRate.hidden=!(s.coreTrackResponse&&s.activeRun?.source_kind==='SYNTHETIC');
-    coreRate.textContent=`設定 ${s.speed}× · 實際 ${measuredCoreRate===null?'UNKNOWN':measuredCoreRate.toFixed(2)+'×'}（合成時鐘）`;
+    coreRate.textContent=`設定 ${s.speed}× · 實際 ${measuredCoreRate===null?'UNKNOWN':measuredCoreRate.toFixed(2)+'×'}（${s.playing?'合成時鐘':'已暫停；上次合成時鐘'}）`;
     $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
     const stop=$('#q-stop');if(stop)stop.disabled=!api.activeJob?.();
