@@ -107,7 +107,10 @@ def plot_latency(all_trials,out):
     for ax,title in zip(axes,['B-05b replay: native image paint','Synthetic core: decoded schematic ready']):
         ax.set_title(title);ax.set_xlabel('Latency (ms)');ax.set_ylabel('Empirical CDF');ax.set_ylim(0,1.02);ax.grid(alpha=.25);ax.legend()
     fig.suptitle('Browser replay baselines — no live detector latency')
-    fig.savefig(out/'latency_ecdf.svg',metadata={'Date':None});fig.savefig(out/'latency_ecdf.png',dpi=160)
+    svg=out/'latency_ecdf.svg'
+    fig.savefig(svg,metadata={'Date':None});fig.savefig(out/'latency_ecdf.png',dpi=160)
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
+    plt.close(fig)
 
 
 if __name__=='__main__':

@@ -146,9 +146,14 @@ MPLCONFIGDIR=/private/tmp/amidst-d133-mpl uv run --no-project --offline \
   --out /private/tmp/new-d133-chart
 ```
 
-Both recomputed SVG and PNG matched the original LOCAL chart byte hashes:
-SVG `7c5cec70fd4716c4ac659eaec47a168a5c96ae50725ec6464657dec52f2e6ab2`,
-PNG `c7409c7f7b4aefd9eef94aa8deef7fae952f52301097f64483954b9d6699a798`.
+The recomputed PNG matched the original LOCAL byte hash:
+`c7409c7f7b4aefd9eef94aa8deef7fae952f52301097f64483954b9d6699a798`.
+The published SVG removes only generated trailing whitespace to satisfy the diff
+gate: `83cb618f1897d635e8369298fbcc446680182e50bedb08ccb88c27b28d90ddcb`.
+The original LOCAL SVG is retained unchanged at
+`7c5cec70fd4716c4ac659eaec47a168a5c96ae50725ec6464657dec52f2e6ab2`;
+its whitespace-normalized bytes equal the published SVG. The plotting script now
+applies that normalization to future SVG output.
 Focused proxy tests: **8 passed in 0.11 s** using the existing offline uv Python.
 Initial sandbox cache access / macOS system-configuration failures were environment
 errors; the same focused command passed in normal local execution without code or

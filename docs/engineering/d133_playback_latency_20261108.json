@@ -2806,5 +2806,14 @@
       "bytes": 36744,
       "sha256": "9cf06884b704d90fb21e85a3bb7e861ce13bf72413c169ed3b57ccb4c4d50d2f"
     }
+  },
+  "published_charts": {
+    "d133_latency_ecdf_20261108.png": "c7409c7f7b4aefd9eef94aa8deef7fae952f52301097f64483954b9d6699a798",
+    "d133_latency_ecdf_20261108.svg": "83cb618f1897d635e8369298fbcc446680182e50bedb08ccb88c27b28d90ddcb"
+  },
+  "runtime_versions": {
+    "node": "v26.0.0",
+    "python": "3.12.12",
+    "playwright_core": "1.56.0"
   }
 }
