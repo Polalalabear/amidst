@@ -11,7 +11,8 @@ const toolPins={};for(const name of ['measure_playback.mjs','browser_probe.mjs']
 async function disk(){const s=await statfs(path.dirname(options.output));if(s.bavail*s.bsize<8*1024**3)throw Error('DISK_BELOW_8_GIB');}
 await disk();
 await mkdir(options.output,{recursive:false});
-const browser=await chromium.launch({headless:false,executablePath:options.chrome,args:['--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows']});
+const headful=options.visible==='true';
+const browser=await chromium.launch({headless:!headful,executablePath:options.chrome,args:['--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows']});
 const rows=[];const quantile=(a,p)=>a.length?[...a].sort((x,y)=>x-y)[Math.ceil(p*a.length)-1]:null;
 try{
  for(const [ci,c] of manifest.cases.entries())for(const [si,speed] of [1,1.5,2].entries()){
@@ -19,7 +20,7 @@ try{
    if(options.only&&`${c.key}:${format}:${speed}`!==options.only)continue;
    await disk();
    const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
-   await context.addInitScript(probe,{kind:'viewer'});const page=await context.newPage();await page.bringToFront();
+   await context.addInitScript(probe,{kind:'viewer'});const page=await context.newPage();if(headful)await page.bringToFront();
    const errors=[];page.on('pageerror',e=>errors.push(String(e)));
    const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
    await page.goto(`http://127.0.0.1:8780/?run=${c.key}&format=${format}`,{waitUntil:'networkidle'});
@@ -47,5 +48,5 @@ try{
    await context.close();
   }
  }
- await writeFile(path.join(options.output,'summary.json'),JSON.stringify({browser:await browser.version(),node:process.version,hardware:{platform:os.platform(),release:os.release(),arch:os.arch(),cpu:os.cpus()[0].model,logical_cpus:os.cpus().length,memory_bytes:os.totalmem()},executed_tool_sha256:toolPins,headful:true,viewport:[1440,1000],cache:'fresh context, HTTP cache disabled per trial',source_head:'eb10d4c62ce09a765488cdd0548cfdd3abfd5109',manifest_sha256:createHash('sha256').update(manifestRaw).digest('hex'),trials:rows},null,2));
+ await writeFile(path.join(options.output,'summary.json'),JSON.stringify({browser:await browser.version(),node:process.version,hardware:{platform:os.platform(),release:os.release(),arch:os.arch(),cpu:os.cpus()[0].model,logical_cpus:os.cpus().length,memory_bytes:os.totalmem()},executed_tool_sha256:toolPins,headful,viewport:[1440,1000],cache:'fresh context, HTTP cache disabled per trial',source_head:'eb10d4c62ce09a765488cdd0548cfdd3abfd5109',manifest_sha256:createHash('sha256').update(manifestRaw).digest('hex'),trials:rows},null,2));
 }finally{await browser.close();}

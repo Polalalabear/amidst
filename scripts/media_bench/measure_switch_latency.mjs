@@ -14,15 +14,16 @@ const recorded=JSON.parse(recordingRaw),response=typeof recorded.response==='str
 const change=response.timeline.find(s=>s.kind==='ON_CAMERA'&&s.entered_by==='SWITCH');
 const observed=change.observation_ids.map(id=>recorded.observations[id]).sort((a,b)=>a.timestamp_us-b.timestamp_us)[0];
 await mkdir(args.output,{recursive:false});
-const browser=await chromium.launch({headless:false,executablePath:args.chrome,args:['--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows']});
+const headful=args.visible==='true';
+const browser=await chromium.launch({headless:!headful,executablePath:args.chrome,args:['--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows']});
 const trials=[];const count=Number(args.repeats??30);
 const quantile=(v,p)=>v.length?[...v].sort((a,b)=>a-b)[Math.ceil(p*v.length)-1]:null;
 const median=v=>{if(!v.length)return null;const a=[...v].sort((x,y)=>x-y),i=Math.floor(a.length/2);return a.length%2?a[i]:(a[i-1]+a[i])/2;};
 try{
- for(const kind of ['legacy','core'])for(let i=0;i<count;i++){
+ for(const kind of (args.profiles??'legacy,core').split(','))for(let i=0;i<count;i++){
   await disk();
   const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});await context.addInitScript(probe,{kind});
-  const page=await context.newPage();await page.bringToFront();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  const page=await context.newPage();if(headful)await page.bringToFront();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
   let target;
   if(kind==='legacy'){
    await page.goto('http://127.0.0.1:8781/workbench-v2/?recording=2777741d96ac9aff5bffb2f61a4d2938',{waitUntil:'domcontentloaded'});
@@ -54,7 +55,7 @@ try{
   if(i===0||i===count-1)await page.screenshot({path:path.join(args.output,`${kind}-${i+1}.png`),fullPage:true});
   trials.push(row);console.log(JSON.stringify(row));await context.close();
  }
- const summary={browser:await browser.version(),node:process.version,hardware:{platform:os.platform(),release:os.release(),arch:os.arch(),cpu:os.cpus()[0].model,logical_cpus:os.cpus().length,memory_bytes:os.totalmem()},executed_tool_sha256:toolPins,headful:true,recording_sha256:recordingPin,source_appearance_basis:'first matching source observation referenced by recorded switch segment; unlabelled earlier pixel appearance UNKNOWN',
+ const summary={browser:await browser.version(),node:process.version,hardware:{platform:os.platform(),release:os.release(),arch:os.arch(),cpu:os.cpus()[0].model,logical_cpus:os.cpus().length,memory_bytes:os.totalmem()},executed_tool_sha256:toolPins,headful,recording_sha256:recordingPin,source_appearance_basis:'first matching source observation referenced by recorded switch segment; unlabelled earlier pixel appearance UNKNOWN',
   profiles:['legacy','core'].map(kind=>{const rows=trials.filter(t=>t.kind===kind),ready=rows.map(t=>t.render_ready_latency_ms).filter(t=>t!==null),native=rows.map(t=>t.native_image_paint_latency_ms).filter(t=>t!==null);return {kind,trials:rows.length,timeouts:rows.filter(r=>r.timeout).length,ready_n:ready.length,ready_median_ms:median(ready),ready_p90_ms:quantile(ready,.9),native_n:native.length,native_median_ms:median(native),native_p90_ms:quantile(native,.9)};}),trials};
  await writeFile(path.join(args.output,'summary.json'),JSON.stringify(summary,null,2));
 }finally{await browser.close();}
