@@ -1,0 +1,237 @@
+{
+  "scope": "LOCAL merge-tree preview only; no merge commit, branch change, or conflict resolution",
+  "heads": {
+    "443": "20ea00fbfc0aa927a1fbc73b048d81641ccdd413",
+    "452": "088252833665a4bca9fcfbf31597b4bb296fb549",
+    "408": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
+    "442": "62a8979632d800e9ac6d23fc29789e56a11550bc",
+    "447": "39b9c4323288cae8c52532277cdd6dc75b63a965",
+    "470": "ea707902690d568700c90a3894805f168e244695",
+    "473": "df493522fa10308a8712316a8881879cddd981ac"
+  },
+  "pairs": [
+    {
+      "a": "443",
+      "b": "452",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 1,
+      "tree": "6bb7aacaf6982b8d5389bceff0f8486b13046969",
+      "conflicts": [
+        {
+          "type": "add/add",
+          "message": "Merge conflict",
+          "file": "frontend/workbench-v2/core-search-track-model.mjs"
+        }
+      ],
+      "stderr": null
+    },
+    {
+      "a": "443",
+      "b": "408",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "7a5c04e1d8b5c43f2c0a5ce0fe258009568df8b2",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "443",
+      "b": "442",
+      "common_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+      "exit_code": 0,
+      "tree": "253138bd2b07402695382719e01c7f9d5d5ab772",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "443",
+      "b": "447",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "f3696d13b2962d8bfb11bc8d3e49b2cfec171888",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "443",
+      "b": "470",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 1,
+      "tree": "46263d08f7247a1e34a9ef9b827e29372000fbce",
+      "conflicts": [
+        {
+          "type": "content",
+          "message": "Merge conflict",
+          "file": "configs/architecture/schema_registry_v1.json"
+        }
+      ],
+      "stderr": null
+    },
+    {
+      "a": "443",
+      "b": "473",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "48f02758bf87a507e7fed17c1c489982c61887cb",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "452",
+      "b": "408",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 1,
+      "tree": "fe786ac2606f9e3909eda9d5c7ed342faae298c7",
+      "conflicts": [
+        {
+          "type": "content",
+          "message": "Merge conflict",
+          "file": "frontend/workbench-v2/app.mjs"
+        },
+        {
+          "type": "content",
+          "message": "Merge conflict",
+          "file": "frontend/workbench-v2/index.html"
+        },
+        {
+          "type": "content",
+          "message": "Merge conflict",
+          "file": "frontend/workbench-v2/q-time.test.mjs"
+        }
+      ],
+      "stderr": null
+    },
+    {
+      "a": "452",
+      "b": "442",
+      "common_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+      "exit_code": 0,
+      "tree": "e785b387c630787508e846b37dc0128b1f573d49",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "452",
+      "b": "447",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "135aa9f3dccc42ede6f4fee4cebe1aee57f0b6b3",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "452",
+      "b": "470",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 1,
+      "tree": "3432dddf259c99595b96779b0f2e4383494e1fd4",
+      "conflicts": [
+        {
+          "type": "content",
+          "message": "Merge conflict",
+          "file": "configs/architecture/schema_registry_v1.json"
+        }
+      ],
+      "stderr": null
+    },
+    {
+      "a": "452",
+      "b": "473",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "3c109d52b9f9890161bdf56cc851d4e721586058",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "408",
+      "b": "442",
+      "common_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+      "exit_code": 0,
+      "tree": "5d3cfc347c712a519fcf6cd772c8e31051d89ad5",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "408",
+      "b": "447",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "8d4188602d49153adc553e72b57006af8034f8d1",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "408",
+      "b": "470",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "decc03397f543a18d8838b227395857bc34bd003",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "408",
+      "b": "473",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "df913b22e97e1f3633219b1e34b9165e632c7dc7",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "442",
+      "b": "447",
+      "common_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+      "exit_code": 0,
+      "tree": "7b2df2350009c0da5e6652f7f977cee07fc982b7",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "442",
+      "b": "470",
+      "common_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+      "exit_code": 0,
+      "tree": "1b907afa24d2664e656d7a4c82f718a770872fa5",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "442",
+      "b": "473",
+      "common_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+      "exit_code": 0,
+      "tree": "42f9d68a564882cf59501c522f9d5257aa359f09",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "447",
+      "b": "470",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "59ae3a6db68eb53421c0bcf44f76ff68ba4d777a",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "447",
+      "b": "473",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "b17519773fa30364149212b2d957ef3980a80c7a",
+      "conflicts": [],
+      "stderr": null
+    },
+    {
+      "a": "470",
+      "b": "473",
+      "common_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "exit_code": 0,
+      "tree": "11116de8790b6f6d4aee84b326d5664514fdb904",
+      "conflicts": [],
+      "stderr": null
+    }
+  ]
+}
