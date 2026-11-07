@@ -99,6 +99,27 @@ try{
   await shot('10-simple-view');
   await page.locator('#view-seg [data-view="system"]').click();
   check((await page.locator('body').getAttribute('data-view'))==='system','system view restored');
+  // Use the actual source menu for all three explicitly synthetic events.
+  check(await page.locator('#q-run option').count()===3,'three synthetic event scopes');
+  for(const [index,runId,count] of [['0','SYNTHETIC_B05',2],['1','SYNTHETIC_A4_1',3],['2','SYNTHETIC_B4_1',2]]){
+    await page.locator('#q-run').selectOption(index);
+    await page.waitForFunction(id=>document.querySelector('#q-source-state')?.textContent?.includes(id),runId);
+    check(await page.locator('#core-search-wall-slot').getAttribute('hidden')!==null,'event switch clears old results '+runId);
+    await page.locator('#q-core-region:not([disabled])').waitFor();
+    await page.locator('#q-core-region').selectOption([]);await page.locator('#q-core-class').selectOption('person');
+    await page.locator('#q-core-start').fill('13:00:00');await page.locator('#q-core-end').fill('13:00:02');
+    await coreSearch(count);
+    check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').at(-1).payload.run_id===runId,'search uses selected event '+runId);
+    check(await page.locator('#core-search-wall-slot').isVisible(),'event search visible '+runId);
+    await shot('11-'+runId+'-search');
+    await page.locator('#q-core-track').click();await awaitFeedback('追蹤回應：LOST');
+    check(preview.routeCalls.filter(c=>c.route==='/api/q_core_track').at(-1).payload.run_id===runId,'track uses selected event '+runId);
+    await page.locator('#core-tracking-slot [data-mode="single"]').click();await seek(300000);
+    check(await page.locator('#core-tracking-slot .q-core-active-cam-id').innerText()==='A','event single view '+runId);
+    await page.locator('#core-tracking-slot [data-mode="multi"]').click();
+    check(await page.locator('#core-tracking-slot .q-core-multi-cam-tile').count()===count,'event multi camera count '+runId);
+    await shot('12-'+runId+'-track-multi');
+  }
   check(pageErrors.length===0,'no browser page errors: '+pageErrors.join('; '));
   console.log(JSON.stringify({status:'PASS',checks,source_head:preview.head,url:preview.url,screenshots:shots,not_verified:['Windows','Linux','real RGB','physical display fps; measured rate is the synthetic source clock only']},null,2));
 }finally{await browser.close();await new Promise((done,reject)=>preview.server.close(error=>error?reject(error):done()));}
