@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "checks": 30,
+  "source_head": "088252833665a4bca9fcfbf31597b4bb296fb549",
+  "url": "LOCAL_DYNAMIC_LOOPBACK",
+  "screenshots": [
+    {
+      "filename": "01-location-only.png",
+      "sha256": "babc5fc9ba1e4098bcae2177c4cae37bf4cfc65b82170b00fe3b1479c6cffdcb"
+    },
+    {
+      "filename": "02-feature-only.png",
+      "sha256": "ba5525fa2e553cc949a3c046a0eee2905698fc631cfd0d7b74a4415116533b9d"
+    },
+    {
+      "filename": "03-location-and-feature.png",
+      "sha256": "c6c3e8e99bb09d0902ca02c3f23f6e2d1d4a1e9cb69f4addfec26c89f9c86a20"
+    },
+    {
+      "filename": "04-route-unavailable.png",
+      "sha256": "a448d9230e6feacfe561cb85059c21734fd2e12896f0a44cba6c87fdd9c4495b"
+    },
+    {
+      "filename": "05-track-a.png",
+      "sha256": "962c39317c1f1c684e1f8a94b78e064916e4ae54b72074a5bbff068f8ba213fa"
+    },
+    {
+      "filename": "06-track-gap.png",
+      "sha256": "a816028b974779e06d96d89bbd7c4ee77a02040c2618f850144117fcdc1957d9"
+    },
+    {
+      "filename": "07-track-b.png",
+      "sha256": "259860322b63ff06f22c93bf440c6c49e02de80715ae38123b4127d26ae3f42a"
+    },
+    {
+      "filename": "08-track-lost.png",
+      "sha256": "7f8b8d669ec48f9b83f47cec4fe668d09a697d2289b91c25ba051c63d9f56234"
+    },
+    {
+      "filename": "09-track-multi.png",
+      "sha256": "68e51d68c0101839f5abc100d968c01ed56c17e625def81b4a6e9882461a2f58"
+    },
+    {
+      "filename": "10-simple-view.png",
+      "sha256": "e56e7ba5ffebf5018ca448e171588bf29a9e4901ece1653722aab7c723ff5b53"
+    }
+  ],
+  "not_verified": [
+    "Windows",
+    "Linux",
+    "real RGB",
+    "physical display fps; measured rate is the synthetic source clock only"
+  ],
+  "note": "Mac only by explicit 2026-11-07 instruction. Full PNGs remain LOCAL; small synthetic contact sheet is the PR review receipt."
+}
