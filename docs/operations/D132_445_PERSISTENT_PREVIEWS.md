@@ -24,3 +24,11 @@ Services now verify both head/report pin **and persistent source directory**. On
 The new #478 cross-camera outputs are generated independently under `cross-camera/` with a metadata-only `cross-camera-job.json`. They are not copied #475 payloads. See #478's handoff for 46 Python tests, 462 real response comparisons, input/output pins and the future #445 adapter. The earlier seven-head merge-tree report remains a historical pairwise preview; it does not claim to cover #475/#478 or a completed integration. `q-core.track-response.v1` registry additions must be unioned with #443/#452 at future authorized integration.
 
 The user's new LOST question is recorded in #478: current #410 trailing LOST is not timeout-based confirmed loss. Claude/user review of that distinction, formal parameters, identity validity and complete real-RGB core integration is still pending. This delivery adds no merge commit, source-asset write, external upload or coverage approval. Final absolute locators, byte totals and the final top-level manifest hash are posted in #445; the top-level manifest also lists newly generated cross-camera output pins.
+
+## Final manifest receipt
+
+- `$AMIDST_ARTIFACTS/d131-previews/manifest.json`: **4,350,026 bytes**, SHA-256 `3f42d082d87eb52e825416358a35df57844403a13cb41f9d58a6b1d788527835`.
+- 8,325 original copy entries; 8,316 currently byte-identical. The nine new hashes are the launcher, three adapters, one locator manifest and four Git index stat caches. Original copy hashes are retained for every entry. Five exact original launcher/adapter/manifest text files are also preserved under `receipts/`.
+- 18 new generated-output/metadata entries, **1,350,144 bytes**, include the cross-camera job/results, independent consumer-check receipt and DRAFT-pin validation. The user's raw return is not copied or applied.
+- Persistent launcher SHA-256 `fc99e188e8dc68f7137fb1cec0134882fe99f92417f4b06f418ae41eeef534f4`; unchanged confirmation HTML SHA-256 `82182cfa34f1068cac9d803897ee18fa5d85177e2529499aa390013cbf3aa109`.
+- Runtime launcher code source is #477 commit `317a53400223fc4c02ca3939fde3ec250abcf5db`; the copied `checkouts/pr477` snapshot remains clean at `1cdac7829d7f255d31c1b70a81dd76bd2524789b`. This final documentation-only update does not relabel those source snapshots.
