@@ -150,7 +150,7 @@ class D124DemoRun:
         }
         self.files = {'rgb_index': {'records': projection, 'missing': []}}
         self.source_projection = {
-            'profile': 'DEMO_DEFAULT', 'formal_eligible': False, 'provenance': {'gt_read': False},
+            'profile': 'DEMO_DEFAULT', 'formal_eligible': False,
             'safe_manifest_sha256': EXPECTED_BUNDLE_SHA256,
             'run_descriptor': run_rel, 'run_descriptor_sha256': inventory[run_rel],
             'clock_ref': clock_rel, 'clock_sha256': inventory[clock_rel],

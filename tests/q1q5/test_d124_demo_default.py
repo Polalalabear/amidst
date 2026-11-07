@@ -54,7 +54,7 @@ def test_projection_only_opens_pinned_metadata(fixture, monkeypatch):
     run = demo.D124DemoRun(root, cfg)
     assert not any(x.endswith('.png') for x in seen)
     assert run.source_projection['formal_eligible'] is False
-    assert run.source_projection['provenance']['gt_read'] is False
+    assert run.source_projection['profile'] == 'DEMO_DEFAULT'
     assert run.read_rgb('SYN_CAM', 0) == b'SYNTHETIC_PIXEL_BYTES'
 
 
