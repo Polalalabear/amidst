@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "checks": 49,
+  "source_head": "088252833665a4bca9fcfbf31597b4bb296fb549",
+  "url": "LOCAL_DYNAMIC_LOOPBACK",
+  "screenshots": [
+    {
+      "filename": "01-location-only.png",
+      "sha256": "5833a272cc0e82715aab3f3de098f6bcf0ea3ec7ebe8b7fe6b47f255e36291a1"
+    },
+    {
+      "filename": "02-feature-only.png",
+      "sha256": "df633a0d9b2e3b66d151b54f3c784e898563db832cb17e626c412ac65f68a8d7"
+    },
+    {
+      "filename": "03-location-and-feature.png",
+      "sha256": "d5f4429e162e9828872d98aaf96717faddcf1ebec38478e6d49cbaf7bda6e92a"
+    },
+    {
+      "filename": "04-route-unavailable.png",
+      "sha256": "526e2b4ef44d8395d5ec7ecea45a708a05d13fb52c28861cda5d665f6dd58b70"
+    },
+    {
+      "filename": "05-track-a.png",
+      "sha256": "165da106f780714ffa358c95b3771933421ba5962d087db4a1948fb22085dd36"
+    },
+    {
+      "filename": "06-track-gap.png",
+      "sha256": "5c4a81af6b84340e94dae85e58f1cba0080f9d517b66b5994df575d0abf70d68"
+    },
+    {
+      "filename": "07-track-b.png",
+      "sha256": "47f3b6b37de1d94f6a5ec41c9f7656aadc9eb98d3bb7a2294a6b223c4879112e"
+    },
+    {
+      "filename": "08-track-lost.png",
+      "sha256": "e69693b42937c8de976d468d40626c544e0b6b0afa507249a3645052fd5ef90e"
+    },
+    {
+      "filename": "09-track-multi.png",
+      "sha256": "4326c24d5159e6b9474f5154f427cc205f56929bb44aeb937ee13ec16b7656b0"
+    },
+    {
+      "filename": "10-simple-view.png",
+      "sha256": "e56e7ba5ffebf5018ca448e171588bf29a9e4901ece1653722aab7c723ff5b53"
+    },
+    {
+      "filename": "11-SYNTHETIC_B05-search.png",
+      "sha256": "7be825dabc7671df4ce60e7d3c5ac7f85f2125e2c3b07a15c8eccf0c9dc11907"
+    },
+    {
+      "filename": "12-SYNTHETIC_B05-track-multi.png",
+      "sha256": "ed17ce0e737ef4e73d517c06b30c9aa22434bb166162b4e5015b9c0a7484f3f1"
+    },
+    {
+      "filename": "11-SYNTHETIC_A4_1-search.png",
+      "sha256": "1a49e797ff83cf8e290889797965baca543bf15e5200ed87e90a2573c9c62ddd"
+    },
+    {
+      "filename": "12-SYNTHETIC_A4_1-track-multi.png",
+      "sha256": "b35347811370349d1c8a65327174976dfcf17e70b41c11d4e519bc7deb61e755"
+    },
+    {
+      "filename": "11-SYNTHETIC_B4_1-search.png",
+      "sha256": "69888eae7a26ec52301382cc08309ea3b01e926a6e9ca9365392e444bce207cd"
+    },
+    {
+      "filename": "12-SYNTHETIC_B4_1-track-multi.png",
+      "sha256": "d5e6f1e13b9ff1ebc75908d60cefaf4230dc421d5a5b06a04152f81e5f9226fd"
+    }
+  ],
+  "not_verified": [
+    "Windows",
+    "Linux",
+    "real RGB",
+    "physical display fps; measured rate is the synthetic source clock only"
+  ],
+  "synthetic_event_scopes": [
+    "SYNTHETIC_B05",
+    "SYNTHETIC_A4_1",
+    "SYNTHETIC_B4_1"
+  ],
+  "note": "Mac only by explicit 2026-11-07 instruction. All 16 screenshots contain synthetic inputs only. No real event data or research acceptance. Windows/Linux/CI artifact upload NOT_RUN.",
+  "tool_sha256": {
+    "tests/browser/core-preview/core-e2e.mjs": "a9ba448d95b004b9d0b7d8c3950d4cc0c193520776782ad4c0b87b8ff3402a89",
+    "tests/browser/core-preview/preview-server.mjs": "9026846ac86e1ee809f7d3ce58c4b29a86f4589f754e979cd51e5f1a78ea543f"
+  },
+  "contact_sheet": {
+    "filename": "D131_459_MAC_E2E_CONTACT.jpg",
+    "bytes": 193838,
+    "sha256": "c67fd7476fcb0d37c869f67541ee93846e8d686f2089d7d845e87f2d6ed2b4b7"
+  }
+}
