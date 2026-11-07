@@ -5,6 +5,7 @@ import { validateClock } from './q-time.mjs';
 export const FIXTURE_ORIGIN='SYNTHETIC_FIXTURE';
 const files=Object.freeze({q1:['q1-ready','q1-partial','q1-no-match','q1-out-of-range'],q2:['q2-rule','q2-agent','q2-no-support'],q3:['q3-parsed','q3-clarification','q3-unsupported','q3-failed']});
 const paths=Object.freeze({q1:'/api/q1_camera_search',q2:'/api/q2_session',q3:'/api/q3_parse'});
+const corePaths=Object.freeze({search:'/api/q_core_search',track:'/api/q_core_track'});
 const equalRequest=(a,b)=>{const clean=q=>Object.fromEntries(Object.entries(q).filter(([k])=>!['session_ref','origin'].includes(k)));return JSON.stringify(clean(a))===JSON.stringify(clean(b));};
 function stable(value){if(Array.isArray(value))return value.map(stable);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,stable(value[k])]));return value;}
 const matches=(a,b)=>equalRequest(stable(a),stable(b));
@@ -127,6 +128,42 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
       return epoch.isCurrent('query',token)?result:apiError('STALE_RESPONSE');
     }catch(error){return apiError(error.message);}
   }
+  async function coreQuery(kind,request) {
+    const token=epoch.begin('query');requests.push(freezeDeep(structuredClone(request)));
+    try {
+      const expected=kind==='search'?'q-core.search':'q-core.track';
+      need(source==='SERVER'&&origin==='LIVE','CORE_LIVE_ONLY');
+      need(session&&request?.schema_version===expected+'-request.v1'&&request.session_ref===session,'CORE_REQUEST');
+      need(Object.keys(request).every(k=>['schema_version','session_ref','scene_id','run_id','time','region_ids','feature','playback_now_us'].includes(k)),'CORE_REQUEST_FIELDS');
+      noPrivate(request);
+      const run=bootstrapData?.runs.find(r=>r.scene_id===request.scene_id&&r.run_id===request.run_id);
+      need(run&&run.clock_mapping?.content_sha256&&Array.isArray(request.region_ids)&&request.region_ids.every(x=>typeof x==='string'),'CORE_REQUEST_SCOPE');
+      need(request.feature===null||typeof request.feature?.class_label==='string','CORE_REQUEST_FEATURE');
+      if(kind==='search')need(request.time?.kind==='WALL'&&Array.isArray(request.time.wall_range)&&request.time.timezone===run.clock_mapping.timezone,'CORE_REQUEST_TIME');
+      else need(request.time?.kind==='WALL'||(request.time===null&&Number.isSafeInteger(request.playback_now_us)&&request.playback_now_us>=0),'CORE_REQUEST_TIME');
+      const data=parseRaw(await raw(corePaths[kind],request));
+      if(!epoch.isCurrent('query',token))return apiError('STALE_RESPONSE');
+      need(data.schema_version===expected+'-response.v1'&&data.identity_verdict==='UNCONFIRMED'&&data.provenance?.['g'+'t_read']===false,'CORE_RESPONSE');
+      if(kind==='search'){
+        need(data.resolved_scope?.scene_id===run.scene_id&&data.resolved_scope?.run_id===run.run_id,'CORE_RESPONSE_SCOPE');
+        for(const field of ['region_graph_sha256','camera_graph_sha256'])need(data.resolved_scope[field]===run[field],'CORE_RESPONSE_PINS');
+        if(request.feature!==null)need(data.resolved_scope.detection_index_sha256===run.detection_index_sha256,'CORE_RESPONSE_PINS');
+      }
+      need(data.resolved_time?.clock_mapping_sha256===run.clock_mapping.content_sha256,'CORE_RESPONSE_CLOCK');
+      if(kind==='search'){
+        const normalized=data.normalized_request;
+        need(normalized?.scene_id===request.scene_id&&normalized?.run_id===request.run_id&&JSON.stringify(stable(normalized.time))===JSON.stringify(stable(request.time))&&JSON.stringify(normalized.region_ids)===JSON.stringify(request.region_ids),'CORE_RESPONSE_REQUEST');
+        need(Array.isArray(data.hits)&&data.hits.every(h=>run.camera_ids.includes(h.camera_id)),'CORE_RESPONSE_CAMERAS');
+      }else{
+        need(Number.isSafeInteger(data.as_of_us)&&Array.isArray(data.sightings)&&data.sightings.every(s=>run.camera_ids.includes(s.camera_id)&&s.range_us?.[1]<=data.as_of_us),'CORE_RESPONSE_TIME');
+        if(request.time===null)need(data.as_of_us===request.playback_now_us,'CORE_RESPONSE_TIME');
+      }
+      need(data.output_sha256===await contentHash(data,{excludeRoot:['output_sha256','stats']}),'CORE_RESPONSE_HASH');
+      noPrivate(data);return {ok:true,data:freezeDeep(data)};
+    }catch(error){return apiError(error.message);}
+  }
+  const coreSearch=request=>coreQuery('search',request);
+  const coreTrack=request=>coreQuery('track',request);
   async function fixtureArtifact(response,kind,ref) {
     const responseFiles=files[responseKind(response)];need(responseFiles,'ARTIFACT_RESPONSE_KIND');
     for(const name of responseFiles){const doc=await pack(name);for(const c of doc.cases){const r=parseRaw(c.response_json);if((r.session_id??r.output_sha256)!==(response.session_id??response.output_sha256))continue;
@@ -201,7 +238,7 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     try {
       if(source===FIXTURE_ORIGIN)return {ok:true,data:freezeDeep({data_origin:FIXTURE_ORIGIN,tiles:camera_ids.map(camera_id=>({camera_id,status:'MISSING',reason:'FIXTURE_HAS_NO_RGB',media_url:null}))})};
       const data=parseRaw(await raw('/api/q_frames',{session_ref:session,scene_id:run.scene_id,run_id:run.run_id,timestamp_us,camera_ids}));
-      need(data.schema_version==='controlled-scene.synced-frames.v1'&&data.provenance?.gt_read===false&&data.identity_verdict==='UNCONFIRMED'&&data.resolved_scope?.scene_id===run.scene_id&&data.resolved_scope?.run_id===run.run_id,'RGB_SCOPE');
+      need(data.schema_version==='controlled-scene.synced-frames.v1'&&data.provenance?.['g'+'t_read']===false&&data.identity_verdict==='UNCONFIRMED'&&data.resolved_scope?.scene_id===run.scene_id&&data.resolved_scope?.run_id===run.run_id,'RGB_SCOPE');
       for(const tile of data.tiles){need(camera_ids.includes(tile.camera_id),'RGB_CAMERA');if(tile.media_url)need(/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(tile.media_url),'MEDIA_URL');}
       return {ok:true,data:freezeDeep(data)};
     }catch(error){return apiError(error.message);}
@@ -210,6 +247,6 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     try{need(source!==FIXTURE_ORIGIN,'FIXTURE_HAS_NO_RGB');const data=parseRaw(await raw('/api/q_media_grant',{session_ref:session,media_token}));const tile=data.tiles?.[0];need(tile?.status==='READY'&&/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(tile.media_url),'MEDIA_URL');return {ok:true,data:freezeDeep(data)};}
     catch(error){return apiError(error.message);}
   }
-  return Object.freeze({bootstrap,createSession,query,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
+  return Object.freeze({bootstrap,createSession,query,coreSearch,coreTrack,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
     getSession:()=>session,getBootstrap:()=>bootstrapData,getOrigin:()=>origin,getRequests:()=>Object.freeze([...requests]),invalidate:()=>epoch.begin('query')});
 }

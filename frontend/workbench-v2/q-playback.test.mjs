@@ -81,3 +81,11 @@ test('loop follows the setting each tick: unticking then ticking again changes t
  store=playingStore();tick(store,{loop:true,deltaMs:200});assert.equal(store.getState().tUs,0);
  assert.deepEqual(afterTick({ended:true,tUs:5,carry:.5},{loop:true,start:5,end:5}),{tUs:5,carry:.5,pause:true});// empty range never loops
 });
+
+test('core synthetic timeline playback stays unavailable for real or loading sources',()=>{
+ const state={coreTrackResponse:{as_of_us:2000000},activeRun:{source_kind:'SYNTHETIC'}};
+ assert.equal(canPlay(state),true);
+ assert.equal(canPlay({...state,loading:true}),false);
+ assert.equal(canPlay({...state,activeRun:{source_kind:'ACTUAL_BLENDER'}}),false);
+ assert.equal(canPlay({...state,coreTrackResponse:{as_of_us:0}}),false);
+});

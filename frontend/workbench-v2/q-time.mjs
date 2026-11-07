@@ -41,7 +41,7 @@ export function stepUs(t,interval,direction,duration) {
   return Math.max(0,Math.min(Math.floor((duration-1)/interval)*interval,(Math.floor(t/interval)+direction)*interval));
 }
 export function advanceUs(t,deltaMs,speed,duration,carry=0) {
-  check(integer(t)&&Number.isFinite(deltaMs)&&deltaMs>=0&&[.5,1,2].includes(speed)&&integer(duration)&&Number.isFinite(carry)&&carry>=0,'PLAYBACK_CLOCK_INVALID');
+  check(integer(t)&&Number.isFinite(deltaMs)&&deltaMs>=0&&[.5,1,1.5,2].includes(speed)&&integer(duration)&&Number.isFinite(carry)&&carry>=0,'PLAYBACK_CLOCK_INVALID');
   const amount=deltaMs*1000*speed+carry;const whole=Math.floor(amount);
   return {tUs:Math.min(duration,t+whole),carry:amount-whole,ended:t+whole>=duration};
 }

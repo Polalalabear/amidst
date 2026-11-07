@@ -26,3 +26,8 @@ test('source half-open boundaries and index step use integers without wall clipp
  assert.equal(formatSource(1),'0.00 s');assert.equal(formatSource(5150000),'5.15 s');assert.equal(formatSource(5100000),'5.10 s');assert.equal(formatSource(5000000),'5.00 s');assert.equal(formatSource(5159999),'5.15 s');assert.equal(formatSource(5149999),'5.14 s');const a=advanceUs(0,.0005,1,1000000);assert.equal(a.tUs,0);assert.equal(advanceUs(a.tUs,.0005,1,1000000,a.carry).tUs,1);
  assert.throws(()=>stepUs(.5,200000,1,1000000));
 });
+
+test('1.5x advances the source clock with integer microseconds',()=>{
+ assert.deepEqual(advanceUs(0,10,1.5,2000000),{tUs:15000,carry:0,ended:false});
+ assert.throws(()=>advanceUs(0,10,3,2000000),/PLAYBACK_CLOCK_INVALID/);
+});
