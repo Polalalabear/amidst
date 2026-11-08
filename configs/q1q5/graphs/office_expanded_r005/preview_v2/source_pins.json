@@ -1,0 +1,23 @@
+{
+  "scene_id": "office_expanded_r005",
+  "source_sha256": "79d142bac6a1853f6cde0066b72efd7d439d2fe329195df0fadfbfd32cfebf2e",
+  "parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072",
+  "files": {
+    "cameras.json": "0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3",
+    "regions.json": "c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+    "build_receipt.json": "0f6b279e4d535959aad7bff769022f6fcf0a2257e2aca922f6f9fa0fac1ea3bd",
+    "coverage_review.json": "396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52",
+    "region_graph.json": "c61b1ce126d1fcae34f517f0d500d614990aa66ca4770c09e73d797d991ddf50",
+    "camera_graph.json": "0ed4b6ca74917459d25935915fdfe2c20e274924d89845b08e89db858286d0f9"
+  },
+  "region_content_sha256": "0ecc318e5041d801153790e86070854b4b59c393ba5b18a4fe6c4996e7953991",
+  "camera_content_sha256": "8fe4bdb9cc30b9e6ef1945a1780481a0f98986b840a5524ec10adca9670e0f41",
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "gt_read": false,
+  "preview_revision": "v2",
+  "preview_correction_sha256": "e07218a16875a79aac474a0f5ab1ae714248571414a2d775f1ab2f2c8295aa74",
+  "parent_source_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "parent_receipt_sha256": "79c5a9020fd78c19427c54a5c776f1344733eacc71d0b3f8226e9290f493fdc0"
+}
