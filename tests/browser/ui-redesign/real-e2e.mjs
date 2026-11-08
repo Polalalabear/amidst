@@ -30,6 +30,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  const first=track.sightings[0],t=first.range_us[0]+Math.floor((first.range_us[1]-first.range_us[0])/2);await seek(p,t);await decoded(p,'#ui-case2 .ui-stage-img',1);
  check(await p.locator('#ui-play').isEnabled(),event+' source playback enabled');
  check(await p.locator('#ui-case2 #q-stop').isVisible()&&await p.locator('#ui-case2 #q-manual-controls').isVisible(),'existing session controls retained');
+ const singleBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleBar.y+singleBar.height-1000)<2,'single bar at viewport bottom');
  await capture(p,event+'-case2-single',{status:track.status,reasons:track.reasons,current:await p.locator('#ui-scrub').inputValue()});
  const firstCamera=track.single_view.find(s=>s.kind==='ON_CAMERA').camera_id,ni=track.single_view.findIndex(s=>s.kind==='ON_CAMERA'&&s.camera_id!==firstCamera);
  check(ni>0,'cross-camera event');const previous=track.single_view.slice(0,ni).filter(s=>s.kind==='ON_CAMERA').at(-1),next=track.single_view[ni];
@@ -39,6 +40,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
  await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);
  const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);check(true,event+' multi-view playback advances with decoded source RGB');
+ const multiBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiBar.y+multiBar.height-1000)<2,'multi bar at viewport bottom');
  await capture(p,event+'-case2-multi',{tiles:2,decoded:2});
  await p.locator('#ui-layout [data-layout=single]').click();
  const stamp=event==='A4-1'?9400000:event==='B4-1'?2100000:3000000;await seek(p,stamp);
