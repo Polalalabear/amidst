@@ -22,7 +22,7 @@ from amidst.q1q5.q5_controller import RuntimeBindings
 from amidst.q1q5.scene_graphs import load_scene_graphs
 from amidst.q1q5.store import DetectionSnapshot, DocumentPin, JsonRunStore, canonical_hash
 from run_cross_camera_demo import read_pin, loads, load_run
-from demo_dependency_config import configuration, owned_path, resolve_job
+from demo_dependency_config import configuration, owned_path, resolve_job, install_owned_io_guard
 
 REPO = Path(__file__).resolve().parents[1]
 P1_PIN = '6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7'
@@ -281,6 +281,7 @@ def main():
     p.add_argument('--config', type=Path)
     p.add_argument('--port', type=int, default=8785)
     args = p.parse_args(); config, root = configuration(args.config)
+    install_owned_io_guard(root)
     state_root = owned_path(root, config['state_root']); state_root.mkdir(exist_ok=True)
     state = Path(tempfile.mkdtemp(prefix='run-', dir=state_root))/'state'
     app = Demo(owned_path(root, config['artifacts_root']), owned_path(root, config['p1_bundle']), state,
