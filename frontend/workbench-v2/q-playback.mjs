@@ -10,7 +10,7 @@ export function afterTick(next,{loop,start,end}){
   if(!next.ended)return {tUs:next.tUs,carry:next.carry,pause:false};
   return loop&&end>start?{tUs:start,carry:0,pause:false}:{tUs:next.tUs,carry:next.carry,pause:true};
 }
-export function canPlay(s){return !s.loading&&((s.coreTrackResponse&&s.activeRun?.source_kind==='SYNTHETIC'&&s.coreTrackResponse.as_of_us>0)|| (s.task==='q2'?!!s.q2?.timeline.length:s.selection?.kind==='Q1_SEGMENT'&&!!s.q1));}
+export function canPlay(s){return !s.loading&&((s.coreTrackResponse&&['SYNTHETIC','ACTUAL_BLENDER'].includes(s.activeRun?.source_kind)&&s.coreTrackResponse.as_of_us>0)|| (s.task==='q2'?!!s.q2?.timeline.length:s.selection?.kind==='Q1_SEGMENT'&&!!s.q1));}
 export function playbackScope(run){return JSON.stringify([run?.scene_id,run?.run_id,run?.detection_index_sha256,run?.clock_mapping?.content_sha256]);}
 export function createFrameBuffer(api,{decode=decodeTile,now=()=>performance.now(),limit=96,maxBytes=67108864}={}){
   let scope=null,epoch=0,decodedBytes=0;const frames=new Map(),pixels=new Map();
@@ -73,5 +73,15 @@ export function createPlayback({api,store,root,onReady=()=>{}}){
   }
   const pending=target=>{target.dataset.status='BUFFERING';for(const box of target.querySelectorAll('.q2-box,.q1-box'))box.remove();};
   const clockReady=()=>{const selector=store.getState().task==='q2'?'.q2-screen .q2-media':'.q1-grid .q1-media';const targets=[...root.querySelectorAll(selector)].filter(x=>getComputedStyle(x).visibility!=='hidden'&&x.getClientRects().length>0);return mediaSettled(targets.map(x=>({status:x.dataset.status,imageReady:!!x.querySelector('img')?.naturalWidth})));};
-  return {buffer,present,pending,paint,clockReady:()=>store.getState().coreTrackResponse&&store.getState().activeRun?.source_kind==='SYNTHETIC'?true:clockReady(),viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
+  const coreClockReady=()=>{
+    const state=store.getState();
+    if(state.coreTrackResponse){
+      const view=state.coreTrackingView;
+      if(state.playbackMode!=='multi'&&view?.singleView?.segmentKind!=='ON_CAMERA')return true;
+      const images=[...root.querySelectorAll('#core-tracking-slot img')];
+      return images.length>0&&images.every(img=>!img.hidden&&img.naturalWidth>0);
+    }
+    return clockReady();
+  };
+  return {buffer,present,pending,paint,clockReady:()=>store.getState().coreTrackResponse&&store.getState().activeRun?.source_kind==='SYNTHETIC'?true:coreClockReady(),viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
 }

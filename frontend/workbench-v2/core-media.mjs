@@ -77,6 +77,7 @@ export function resolveFrameImageSrc({
   currentTUs = 0,
   segmentKind = 'ON_CAMERA',
   lastObservedCameraId = null,
+  includeCandidate = false,
   mediaResolver = null,
   synthetic = false,
   onResolved = null,
@@ -104,7 +105,7 @@ export function resolveFrameImageSrc({
     kind: segmentKind,
   }) : null;
 
-  if (segmentKind === 'ON_CAMERA' && typeof mediaResolver === 'function') {
+  if ((segmentKind === 'ON_CAMERA' || (segmentKind === 'CANDIDATE' && includeCandidate)) && typeof mediaResolver === 'function') {
     try {
       const res = mediaResolver({
         cameraId,
@@ -128,7 +129,7 @@ export function resolveFrameImageSrc({
 
 const MEDIA_URL=/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/;
 export function createBoundMediaResolver({store,api}) {
-  return async ({kind,cameraId,mediaToken,currentTUs,segmentKind}) => {
+  return async ({kind,cameraId,mediaToken,currentTUs,segmentKind,targetObserved}) => {
     const before=store.getState();
     const run=before.activeRun;
     const response=kind==='search_card'?before.coreSearchResponse:before.coreTrackResponse;
@@ -136,11 +137,16 @@ export function createBoundMediaResolver({store,api}) {
     const scope=response.resolved_scope;
     if((kind==='search_card'&&(scope?.scene_id!==run.scene_id||scope?.run_id!==run.run_id))||response.resolved_time?.clock_mapping_sha256!==run.clock_mapping.content_sha256)return null;
     let result;
-    if(kind==='search_card'){
+    const locationFrame=kind==='search_card'&&targetObserved===false&&response.hits?.some(h=>h.camera_id===cameraId&&h.target_observed===false);
+    if(locationFrame){
+      const stamp=response.resolved_time?.source_range_us?.[0];
+      if(!Number.isSafeInteger(stamp)||stamp<0)return null;
+      result=await api.frames(run,stamp,[cameraId]);
+    }else if(kind==='search_card'){
       if(typeof mediaToken!=='string'||!mediaToken||!response.hits?.some(h=>h.camera_id===cameraId&&h.segments?.some(s=>s.representative?.media_token===mediaToken)))return null;
       result=await api.mediaGrant(mediaToken);
     }else{
-      if(segmentKind!=='ON_CAMERA'||!Number.isSafeInteger(currentTUs)||currentTUs<0||currentTUs>=response.as_of_us)return null;
+      if(!['ON_CAMERA','CANDIDATE'].includes(segmentKind)||!Number.isSafeInteger(currentTUs)||currentTUs<0||currentTUs>=response.as_of_us)return null;
       result=await api.frames(run,currentTUs,[cameraId]);
     }
     const now=store.getState();
@@ -149,7 +155,8 @@ export function createBoundMediaResolver({store,api}) {
     if(data?.schema_version!=='controlled-scene.synced-frames.v1'||data.resolved_scope?.scene_id!==run.scene_id||data.resolved_scope?.run_id!==run.run_id||data.clock_id!==run.clock_id||(run.source_kind&&data.data_origin!==run.source_kind)||data.provenance?.['g'+'t_read']!==false||data.identity_verdict!=='UNCONFIRMED'||data.tiles?.length!==1||tile?.camera_id!==cameraId||tile.status!=='READY'||!MEDIA_URL.test(tile.media_url??''))return null;
     if(!Number.isSafeInteger(data.t_us)||data.t_us<0)return null;
     if(kind==='tracking_frame'&&data.t_us!==currentTUs)return null;
-    if(kind==='search_card'&&!response.hits.some(h=>h.camera_id===cameraId&&h.segments?.some(s=>s.representative?.media_token===mediaToken&&s.range_us?.[0]<=data.t_us&&data.t_us<s.range_us?.[1])))return null;
+    if(kind==='search_card'&&!locationFrame&&!response.hits.some(h=>h.camera_id===cameraId&&h.segments?.some(s=>s.representative?.media_token===mediaToken&&s.range_us?.[0]<=data.t_us&&data.t_us<s.range_us?.[1])))return null;
+    if(locationFrame&&data.t_us!==response.resolved_time.source_range_us[0])return null;
     return tile.media_url;
   };
 }

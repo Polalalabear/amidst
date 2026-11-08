@@ -10,12 +10,18 @@ from pathlib import Path
 from amidst.q1q5.graphs import (
     GraphError, _digest, _document, _fields, _require, _safe, _text, _unique, _zones, load_graphs,
 )
-from amidst.q1q5.store import _json
+from amidst.q1q5.store import _json, canonical_hash
+
+
+def _coverage_hash(document):
+    return canonical_hash(document, exclude=('graph_id', 'content_sha256', 'stats'))
+
 
 ROOT = Path(__file__).resolve().parents[3] / 'configs/q1q5/graphs'
 R005 = 'office_expanded_r005'
 R004 = 'controlled_scene_v1_s001'
 R005_MANIFEST_SHA256 = '01fe6b8a55d04cfafc1178aee1facc4340c7370703b9bb3fe942dcc72cf7ec7e'
+R005_HUMAN_COVERAGE_SHA256 = '372d28e65ea19c8793d347bc12745463ad30d935fe79652ee15c0bbcd55a366c'
 R004_PINS = {
     'region_graph_v3_1.json': 'a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1',
     'camera_graph_v3_1.json': 'e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409',
@@ -129,7 +135,7 @@ def _pending_graphs(region, camera, pins):
     return SceneGraphs(deepcopy(region), deepcopy(camera))
 
 
-def load_scene_graphs(scene_id, *, graph_root=None, run_scene_id=None):
+def load_scene_graphs(scene_id, *, graph_root=None, run_scene_id=None, include_human_coverage=True):
     """Select the pinned r004/v3_1 or r005 search skeleton by scene ID.
 
     graph_root is a repository graph directory for isolated verification. Trusted
@@ -155,7 +161,30 @@ def load_scene_graphs(scene_id, *, graph_root=None, run_scene_id=None):
         _safe(pins)
         r, c = [_read(directory, name, pins['files'][name])[0]
                 for name in ('region_graph.json', 'camera_graph.json')]
-        return _pending_graphs(r, c, pins)
+        graphs = _pending_graphs(r, c, pins)
+        if not include_human_coverage:
+            return graphs
+        review, _ = _read(directory, 'human_coverage.json', R005_HUMAN_COVERAGE_SHA256)
+        _require(review['scene_id'] == R005 and review['human_approval_verified'] is True
+                 and review['source_region_graph_sha256'] == pins['files']['region_graph.json'],
+                 'Human coverage source mismatch')
+        rows = _unique(review['camera_reviews'], 'camera_id')
+        for camera in c['cameras']:
+            row = rows.get(camera['camera_id'])
+            if row is None or row['coverage_basis'] != 'MANUAL_ON_STATIC_FRAME':
+                continue
+            _require(all(z['static_frame_sha256'] == row['static_frame_sha256'] for z in camera['exit_zones']),
+                     'Human coverage frame mismatch')
+            for cover in camera['covered_regions']:
+                if cover['region_id'] in row['covered_region_ids']:
+                    cover.update(basis='MANUAL_ON_STATIC_FRAME',
+                                 visibility_ref='human-review:' + review['source_return_sha256'] + ':' + camera['camera_id'])
+        # Search-only copy. Neither original static preview nor runtime graph authority changes.
+        c['inputs'].append({'ref': 'human-review:' + review['source_return_sha256'],
+                            'sha256': R005_HUMAN_COVERAGE_SHA256})
+        c['content_sha256'] = _coverage_hash(c)
+        c['graph_id'] = 'cgraph:r005:static:' + c['content_sha256'][:16]
+        return SceneGraphs(r, c)
     except (KeyError, TypeError, IndexError, AttributeError) as exc:
         raise GraphError('Malformed skeleton', 'GRAPH_SKELETON_INVALID') from exc
 

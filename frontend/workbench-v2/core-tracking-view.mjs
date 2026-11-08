@@ -28,6 +28,7 @@ export function mountCoreTrackingView({
   api = null,
   mediaResolver = null,
   synthetic = false,
+  onFrameReady = () => {},
 } = {}) {
   if (!container) throw new Error('CONTAINER_REQUIRED');
 
@@ -35,7 +36,15 @@ export function mountCoreTrackingView({
   let destroyed = false;
   let generation = 0;
 
+  let lastRenderKey=null;
   function render(model) {
+    if(store&&model){
+      const state=store.getState(),intervals=state.activeRun?.sampling?.per_camera?.map(c=>c.source_frame_interval_us).filter(x=>Number.isSafeInteger(x)&&x>0)??[];
+      const interval=intervals.length?Math.min(...intervals):1;
+      const key=JSON.stringify([state.coreTrackResponse?.output_sha256,model.playbackMode,model.speed,model.status,
+        model.singleView?.segmentKind,model.singleView?.activeCameraId,Math.floor(model.currentTUs/interval),model.asOfUs]);
+      if(key===lastRenderKey)return;lastRenderKey=key;
+    }else lastRenderKey=null;
     if (destroyed) return;
     currentModel = model;
     const renderGeneration=++generation;
@@ -157,6 +166,7 @@ export function mountCoreTrackingView({
       }
 
       const img = el('img', undefined, 'q-core-tracking-frame-img');
+      img.addEventListener('load',()=>{if(!destroyed&&generation===renderGeneration)onFrameReady();});
       img.alt = captionText;
       img.dataset.cameraId = model.singleView.activeCameraId ?? '';
       img.dataset.kind = model.singleView.segmentKind;
@@ -227,6 +237,7 @@ export function mountCoreTrackingView({
         frameSlot.dataset.active = String(cam.isActive);
 
         const img = el('img', undefined, 'q-core-multi-cam-img');
+        img.addEventListener('load',()=>{if(!destroyed&&generation===renderGeneration)onFrameReady();});
         img.alt = `${cam.cameraId} 畫面`;
         img.dataset.cameraId = cam.cameraId;
         img.dataset.active = String(cam.isActive);
@@ -236,6 +247,7 @@ export function mountCoreTrackingView({
           cameraId: cam.cameraId,
           currentTUs: model.currentTUs,
           segmentKind: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE',
+          includeCandidate: true,
           mediaResolver,
           synthetic,
           onResolved: (url) => {
@@ -265,7 +277,7 @@ export function mountCoreTrackingView({
 
     const blindStatus = model?.topdown?.blind_status ?? 'UNAVAILABLE';
     const isEstimated = blindStatus === 'ESTIMATED' && model?.topdown?.blind?.usable;
-    const blindBadge = el('span', isEstimated ? 'INFERRED · 信心 LOW' : '預測不可用', 'q-core-blind-status');
+    const blindBadge = el('span', isEstimated ? `INFERRED · 信心 ${model.topdown.blind.confidence??'UNKNOWN'}` : '預測不可用', 'q-core-blind-status');
     blindBadge.classList.add(isEstimated ? 'estimated' : 'unavailable');
     tdHead.append(blindBadge);
 
