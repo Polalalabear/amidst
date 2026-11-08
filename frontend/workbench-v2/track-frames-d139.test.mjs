@@ -50,3 +50,17 @@ test('feature search: English label, Chinese name and alias all match, case-inse
   assert.deepEqual(filterClasses(classes, '電視', {電視: 'tv'}), ['tv']);
   assert.deepEqual(filterClasses(null, 'a'), []);
 });
+
+import {initialPlayheadUs} from './ui-model.mjs';
+test('D143: playhead starts at the first ON_CAMERA segment (A4-1: 5.8 s); no observation → window start', () => {
+  assert.deepEqual(initialPlayheadUs(SV, {startUs: 0, asOfUs: 50e6}), {us: 5.8e6, jumped: true});
+  assert.deepEqual(initialPlayheadUs([...SV].reverse(), {startUs: 0, asOfUs: 50e6}), {us: 5.8e6, jumped: true});
+  assert.deepEqual(initialPlayheadUs([{kind: 'LOST', range_us: [0, 50e6]}], {startUs: 0, asOfUs: 50e6}), {us: 0, jumped: false});
+  assert.deepEqual(initialPlayheadUs([], {startUs: 2e6, asOfUs: 9e6}), {us: 2e6, jumped: false});
+  assert.deepEqual(initialPlayheadUs(undefined, {startUs: 0, asOfUs: 9e6}), {us: 0, jumped: false});
+  // a segment that began before the window clamps to the window start
+  assert.equal(initialPlayheadUs([{kind: 'ON_CAMERA', camera_id: 'A', range_us: [0.5e6, 4e6]}], {startUs: 1e6, asOfUs: 9e6}).us, 1e6);
+  // the timeline itself is unchanged: the leading PENDING segment stays, and the jump position is not inside it
+  const tl = cameraTimeline(SV, {startUs: 0, asOfUs: 50e6, currentUs: 5.8e6});
+  assert.equal(tl.segments[0].kind, 'PENDING'); assert.ok(!tl.segments[0].current); assert.ok(tl.segments[1].current);
+});

@@ -7,7 +7,7 @@ import {
   CASES, NOT_MEASURED, SEARCH_STAGES, TRACK_STAGES,
   loadSettings, readJson, writeJson, SNAPSHOT_KEY, EVENTLOG_KEY, pushEvent, normalizeLog,
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, filterClasses, colorDisplay,
-  stagesModel, wallCards, cardChips, cameraTimeline, blindShare, floorPlan, trackStateChip, trackJournal,
+  stagesModel, wallCards, cardChips, cameraTimeline, initialPlayheadUs, blindShare, floorPlan, trackStateChip, trackJournal,
   parseRoute, nextAfterCover, blindReacquire, reacquireMarker, classGroups, DETECTION_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
 import {FIT_MODES, FIT_STORAGE_KEY, normalizeFit} from './media-fit-model.mjs';
@@ -46,6 +46,7 @@ export function mountUi(ctx) {
   const phase = createPhaseStore();
   const disposers = [];
   let screen = 'cover', queryOpen = false, destroyed = false, lightbox = null;
+  let jumpUs = null;   // set when the playhead was moved to the target's first appearance for the current track result
   let search = {startedAt: 0, lastForm: null, logged: null}, track = {startedAt: 0, lastForm: null, logged: null, segKey: null};
   let snapshot = readJson(storage, SNAPSHOT_KEY, {}) ?? {};
   let eventLog = normalizeLog(readJson(storage, EVENTLOG_KEY, []));
@@ -420,7 +421,7 @@ export function mountUi(ctx) {
     if (resp && view) updateCase2(s, resp, view);
   }
   function stopTracking() {
-    trackStopped = true; track.startedAt = 0; track.logged = null; track.segKey = null;
+    trackStopped = true; jumpUs = null; track.startedAt = 0; track.logged = null; track.segKey = null;
     store.dispatch({type: 'STOP_CORE_TRACKING'}); phase.dispatch({type: 'SEARCH_END'});
     saveSnapshot({lastTrack: null}); logEvent('已停止前端追蹤顯示', 'UNKNOWN'); setQuery(false); render();
   }
@@ -480,11 +481,12 @@ export function mountUi(ctx) {
     speedSel.addEventListener('change', () => store.dispatch({type: 'SET_SPEED', speed: Number(speedSel.value)}));
     trackParts.speedSel = speedSel;
     const actual = el('span', undefined, 'ui-mono ui-faint ui-small'); actual.id = 'ui-speed-note';
+    const jumpNote = el('span', undefined, 'ui-mono ui-faint ui-small'); jumpNote.id = 'ui-jump-note'; jumpNote.hidden = true;
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
     scrub.addEventListener('input', () => { const tUs = Number(scrub.value); store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); });
-    ctl.append(play, speedSel, actual);   // one timeline only: the scrubber is laid over the camera timeline row
+    ctl.append(play, speedSel, actual, jumpNote);   // one timeline only: the scrubber is laid over the camera timeline row
     ctl.append(stopButton(false));
-    Object.assign(trackParts, {play, actual, scrub});
+    Object.assign(trackParts, {play, actual, jumpNote, scrub});
     scrub.className = 'ui-scrub ui-scrub-overlay';
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
@@ -539,6 +541,7 @@ export function mountUi(ctx) {
     trackParts.play.title = canPlayNow(s) ? '' : '請先載入可播放的來源片段';
     trackParts.speedSel.value = String(s.speed);
     trackParts.actual.textContent = shownSpeedNote();
+    trackParts.jumpNote.hidden = !jumpUs; trackParts.jumpNote.textContent = jumpUs === null ? '' : `已跳到第一次出現（${wallClockText(cm, jumpUs) ?? `${(jumpUs / 1e6).toFixed(1)} s`}）`;
     trackParts.scrub.min = String(start); trackParts.scrub.max = String(asOf); trackParts.scrub.value = String(s.tUs);
     // floor plan
     renderPlan(s, view, resp);
@@ -709,6 +712,12 @@ export function mountUi(ctx) {
       saveSnapshot({...runIds(), lastSearch: {ms, total: n, perCamera: countsFromSearch(s.coreSearchResponse)}});
       if (screen === 'case1') setQuery(settings.searchPanelOpen);
     }
+    // every new track result (re-track, other event): the playhead starts at the first appearance; the timeline still shows the full window
+    if (s.coreTrackResponse && s.coreTrackResponse !== prev?.coreTrackResponse) {
+      const [startUs, asOfUs] = playbackBounds(s), first = initialPlayheadUs(s.coreTrackResponse.single_view, {startUs, asOfUs});
+      jumpUs = first.jumped ? first.us : null;
+      if (s.tUs !== first.us) store.dispatch({type: 'SET_T_US', tUs: first.us});
+    }
     if (s.coreTrackResponse && s.coreTrackResponse !== prev?.coreTrackResponse && track.startedAt && track.logged !== s.coreTrackResponse) {
       track.logged = s.coreTrackResponse; const ms = performance.now() - track.startedAt;
       pushHistory('lock', ms);
@@ -717,8 +726,7 @@ export function mountUi(ctx) {
       logEvent(`追蹤${trackStateChip(view).text === 'UNKNOWN' ? '：' + s.coreTrackResponse.status : '已鎖定'}`, trackStateChip(view).text === 'OBSERVED' ? 'OBSERVED' : 'UNKNOWN');
       if (screen === 'case2') setQuery(false);
       // first lock: start playing when the source allows it
-      const [startUs] = playbackBounds(s);
-      if (canPlayNow(s) && !s.playing) { store.dispatch({type: 'SET_T_US', tUs: startUs}); store.dispatch({type: 'PLAY'}); }
+      if (canPlayNow(s) && !s.playing) store.dispatch({type: 'PLAY'});
     }
     // segment changes while playing → event log + snapshot
     if (s.coreTrackResponse && track.logged === s.coreTrackResponse) {

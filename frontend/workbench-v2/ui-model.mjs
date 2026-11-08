@@ -209,6 +209,14 @@ export function cameraTimeline(singleView, { startUs = 0, asOfUs = 0, currentUs 
   const covered = segments.reduce((n, x) => n + (x.endUs - x.startUs), 0);
   return { segments, marker: Math.min(1, Math.max(0, (currentUs - startUs) / span)), uncovered: Math.max(0, span - covered) / span };
 }
+// Where the playhead starts after a track result loads: the start of the first ON_CAMERA (OBSERVED) segment inside the window.
+// Returns { us, jumped }; no observed segment → the window start, jumped=false.
+export function initialPlayheadUs(singleView, { startUs = 0, asOfUs = 0 } = {}) {
+  const firsts = (Array.isArray(singleView) ? singleView : []).filter(s => s?.kind === 'ON_CAMERA' && Array.isArray(s.range_us) && s.range_us[1] > s.range_us[0] && s.range_us[1] > startUs && s.range_us[0] < asOfUs)
+    .map(s => Math.max(startUs, s.range_us[0]));
+  if (!firsts.length) return { us: startUs, jumped: false };
+  return { us: Math.min(...firsts), jumped: true };
+}
 // Share of the tracked window with no camera seeing the target (GAP + LOST); null when there is no timeline.
 export function blindShare(singleView) {
   const list = (Array.isArray(singleView) ? singleView : []).filter(s => Array.isArray(s.range_us));
