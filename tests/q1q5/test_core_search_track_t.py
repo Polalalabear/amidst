@@ -117,15 +117,15 @@ def test_single_view_vectors_are_well_formed():
             assert segments[-1]['kind'] != 'GAP'
 
 
-def test_r004_scene_rooms_have_an_indoor_manual_camera():
-    """Scene expansion acceptance (Codex): every ROOM region has a manual static-frame camera."""
-    for name, graph in GRAPHS.items():
-        rooms = [r['region_id'] for r in graph['region']['regions'] if r['kind'] == 'ROOM']
-        uncovered = [r for r in rooms if not expected_location(graph['camera'], {r})]
-        if name == 'synthetic_multi_room':
-            assert not uncovered
-        elif uncovered:
-            missing('SCENE_ROOM_COVERAGE_PENDING')
+def test_expanded_scene_rooms_have_an_indoor_manual_camera():
+    """#445 scene expansion uses reviewed r005, without changing legacy r004 coverage."""
+    from amidst.q1q5.scene_graphs import load_scene_graphs, room_coverage_pending
+    graph = load_scene_graphs('r005')
+    assert room_coverage_pending(graph) is None
+    assert len([r for r in graph.region['regions'] if r['kind'] == 'ROOM']) == 4
+    for camera in graph.camera['cameras']:
+        assert all(c['visibility_ref'].startswith('human-review:336bd2f8')
+                   for c in camera['covered_regions'] if c['basis'] == MANUAL)
 
 
 def test_physical_prediction_route_is_unavailable_or_the_existing_shape():

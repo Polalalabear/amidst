@@ -4,7 +4,7 @@ import {resolve,extname,join,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 
-const REQUIRED_HEAD=process.env.CORE_452_HEAD ?? '088252833665a4bca9fcfbf31597b4bb296fb549';
+const INTEGRATION_BASE='ac6cd12225ceb2c8f236ce9e1f9f2420f29bfdb4';
 const MEDIA_URL='/api/controlled_scene_media?token='+'s'.repeat(43);
 const MIME={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml; charset=utf-8'};
 const send=(res,status,body,type='application/json; charset=utf-8')=>{res.writeHead(status,{'content-type':type,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(typeof body==='string'||Buffer.isBuffer(body)?body:JSON.stringify(body));};
@@ -15,6 +15,8 @@ const image=(camera)=>`<svg xmlns="http://www.w3.org/2000/svg" width="640" heigh
 export async function startPreview({source,port=8765}={}){
   if(!source)throw Error('SOURCE_REQUIRED');
   const root=await realpath(source),head=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+  const REQUIRED_HEAD=process.env.CORE_INTEGRATION_HEAD ?? execFileSync('git',['rev-parse','refs/heads/claude/445-demo-integration'],{cwd:root,encoding:'utf8'}).trim();
+  execFileSync('git',['merge-base','--is-ancestor',INTEGRATION_BASE,head],{cwd:root});
   if(head!==REQUIRED_HEAD)throw Error(`SOURCE_HEAD_MISMATCH ${head}`);
   const status=execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim();
   if(status)throw Error('SOURCE_DIRTY');

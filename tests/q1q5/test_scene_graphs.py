@@ -24,9 +24,9 @@ def test_r004_original_bytes_and_loader_are_preserved():
 
 
 def test_r005_selects_separate_pinned_pending_skeleton():
-    graphs = load_scene_graphs(R005, run_scene_id=R005)
+    graphs = load_scene_graphs(R005, run_scene_id=R005, include_human_coverage=False)
     assert not isinstance(graphs, GraphBundle)
-    assert graphs.region == load_scene_graphs('r005').region
+    assert graphs.region == load_scene_graphs('r005', include_human_coverage=False).region
     assert len([r for r in graphs.region['regions'] if r['kind'] == 'ROOM']) == 4
     assert len(graphs.camera['cameras']) == 6 and len(graphs.camera['transitions']) == 10
     for camera in graphs.camera['cameras']:
@@ -38,7 +38,7 @@ def test_r005_selects_separate_pinned_pending_skeleton():
 
 
 def test_pending_location_has_no_hits_and_run_catalog_is_required():
-    graphs = load_scene_graphs(R005)
+    graphs = load_scene_graphs(R005, include_human_coverage=False)
     regions = [r['region_id'] for r in graphs.region['regions']]
     cameras = [r['camera_id'] for r in graphs.camera['cameras']]
     result = location_coverage(graphs, regions, run_camera_ids=cameras)
@@ -53,8 +53,6 @@ def test_pending_location_has_no_hits_and_run_catalog_is_required():
 def test_source_bound_room_coverage_acceptance():
     graphs = load_scene_graphs(R005)
     reason = room_coverage_pending(graphs)
-    if reason:
-        pytest.skip(reason + ': r005 manual static-frame coverage awaits #464; AI review is not human approval')
     assert room_coverage_pending(graphs) is None
 
 
@@ -65,7 +63,7 @@ def test_unsupported_scene_and_cross_run_fail_closed(scene, run, code):
     assert exc.value.code == code
 
 
-@pytest.mark.parametrize('change', ['missing_manifest', 'missing_graph', 'missing_pin', 'tamper', 'symlink'])
+@pytest.mark.parametrize('change', ['missing_manifest', 'missing_graph', 'missing_pin', 'tamper', 'symlink', 'missing_human', 'tamper_human'])
 def test_missing_or_changed_evidence_cannot_be_skipped(tmp_path, change):
     target = tmp_path / R005 / 'search_skeleton'
     shutil.copytree(ROOT / R005 / 'search_skeleton', target)
@@ -76,6 +74,9 @@ def test_missing_or_changed_evidence_cannot_be_skipped(tmp_path, change):
         (target / 'source_pins.json').write_text(json.dumps(doc))
     elif change == 'tamper':
         with (target / 'camera_graph.json').open('ab') as output: output.write(b' ')
+    elif change == 'missing_human': (target / 'human_coverage.json').unlink()
+    elif change == 'tamper_human':
+        with (target / 'human_coverage.json').open('ab') as output: output.write(b' ')
     else:
         (target / 'camera_graph.json').unlink()
         (target / 'camera_graph.json').symlink_to(ROOT / R005 / 'search_skeleton/camera_graph.json')
@@ -94,7 +95,7 @@ def reseal(r, c, pins):
 
 @pytest.mark.parametrize('change', ['manual', 'basis', 'claim', 'wrong_region', 'wrong_camera', 'wrong_edge', 'authority', 'cross_scene', 'unknown_field'])
 def test_semantic_counterexamples_fail_even_with_recomputed_content_pins(change):
-    graphs = load_scene_graphs('r005'); r, c = graphs.region, graphs.camera
+    graphs = load_scene_graphs('r005', include_human_coverage=False); r, c = graphs.region, graphs.camera
     pins = json.loads((ROOT / R005 / 'search_skeleton/source_pins.json').read_bytes())
     if change == 'manual': c['cameras'][0]['covered_regions'][0]['basis'] = 'MANUAL_ON_STATIC_FRAME'
     elif change == 'basis': c['cameras'][0]['covered_regions'][0]['basis'] = 'UNKNOWN_BASIS'
@@ -118,4 +119,17 @@ def test_exact_source_reference_is_retained_without_its_ai_coverage_grant():
         'region_graph.json': 'c61b1ce126d1fcae34f517f0d500d614990aa66ca4770c09e73d797d991ddf50',
         'camera_graph.json': '0ed4b6ca74917459d25935915fdfe2c20e274924d89845b08e89db858286d0f9',
     }
-    assert room_coverage_pending(load_scene_graphs(R005)) == 'SCENE_ROOM_COVERAGE_PENDING'
+    assert room_coverage_pending(load_scene_graphs(R005, include_human_coverage=False)) == 'SCENE_ROOM_COVERAGE_PENDING'
+
+
+def test_human_review_grants_only_six_declared_pairs():
+    graphs = load_scene_graphs(R005)
+    cameras = [c['camera_id'] for c in graphs.camera['cameras']]
+    regions = [r['region_id'] for r in graphs.region['regions']]
+    result = location_coverage(graphs, regions, run_camera_ids=cameras)
+    assert len(result['hits']) == 6 and not result['not_evaluated']
+    assert sum(len(v) for v in result['hits'].values()) == 6
+    assert all(b['visibility_ref'].startswith('human-review:336bd2f8')
+               for values in result['hits'].values() for b in values)
+    assert graphs.camera['approval_status'] == 'DRAFT'
+    assert all(t['path_traversability'] == 'TOPOLOGICAL_ONLY' for t in graphs.camera['transitions'])

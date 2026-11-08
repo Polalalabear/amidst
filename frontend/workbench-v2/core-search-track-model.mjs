@@ -735,7 +735,7 @@ export function projectTopdown(topdown, cameraPositions, activeCameraId = null) 
       points: curvePoints,
       svgPoints,
       evidence_state: 'INFERRED',
-      confidence: 'LOW',
+      confidence: segment?.confidence??topdown?.blind?.confidence??'UNKNOWN',
       stroke_dasharray: segment?.stroke_dasharray ?? '4 5',
     },
   };

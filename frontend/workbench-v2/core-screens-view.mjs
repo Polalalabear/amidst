@@ -42,6 +42,7 @@ export function mountCoreScreens({
       api,
       mediaResolver,
       synthetic,
+      onFrameReady: () => playback?.viewReady?.(),
       onModeChange: (mode) => {
         if (store?.dispatch) {
           store.dispatch({ type: 'SET_PLAYBACK_MODE', value: mode });

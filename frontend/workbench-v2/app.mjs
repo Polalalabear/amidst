@@ -84,7 +84,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
   const simpleView=mountSimpleView({doc:root,store,url});views.push(simpleView);  // 單純顯示模式 toggle; presentation only (simple-view.mjs)
-  views.push(mountEventMenu({doc:root,simple:simpleView,store,url}));  // 事件選單: page events reload this page; live / complex events are embedded (event-menu.mjs)
+  const eventMenu=mountEventMenu({doc:root,simple:simpleView,store,url});views.push(eventMenu);  // 事件選單: page events reload this page; live / complex events are embedded (event-menu.mjs)
   const coreScreens=mountCoreScreens({wallSlot:$('#core-search-wall-slot'),trackSlot:$('#core-tracking-slot'),store,api,playback,mediaResolver:createBoundMediaResolver({store,api}),synthetic:source===FIXTURE_ORIGIN});
   views.push(coreScreens);
   const syncCoreSlots=()=>{
@@ -155,7 +155,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     }for(const candidate of d.candidates_considered){if(candidate.evidence_sha256&&!evidence[candidate.evidence_sha256]){const item=await api.artifact(response,'evidence',candidate.evidence_sha256);if(item.ok)evidence[candidate.evidence_sha256]=item.data;}}}
     store.dispatch({type:'Q_ARTIFACTS',for_hash:response.output_sha256,data:{decisions:journal.data,snapshots,evidence}});return journal;
   }
-  handlers.run=index=>{const run=store.getState().bootstrap?.runs[index];if(!run)return;requestGeneration++;api.invalidate();store.dispatch({type:'SET_Q_RUN',run});};
+  handlers.run=index=>{const run=store.getState().bootstrap?.runs[index];if(!run)return;requestGeneration++;api.invalidate();store.dispatch({type:'SET_Q_RUN',run});wallSettings.set({selection:{kind:'run',scene_id:run.scene_id,run_id:run.run_id},cameras:null,startUs:0});};
   handlers.fixture=async name=>{
     if(name==='core-search'||name==='core-track'){
       const isSearch=name==='core-search';
@@ -173,9 +173,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   async function verifyCoreRegions(run){
     const attached=Boolean(run?.region_graph),graph=run?.region_graph??store.getState().regionGraph;
     if(!graph||typeof run?.region_graph_sha256!=='string'||graph.content_sha256!==run.region_graph_sha256||!Array.isArray(graph.regions)||(!attached&&(graph.scene_id!==run.scene_id||graph.run_id!==run.run_id))||graph.scene_id&&graph.scene_id!==run.scene_id||graph.run_id&&graph.run_id!==run.run_id)return;
-    if(await contentHash(graph,{excludeRoot:['content_sha256','stats']})!==run.region_graph_sha256)return;
+    if(await contentHash(graph,{excludeRoot:['graph_id','content_sha256','stats']})!==run.region_graph_sha256)return;
     if(destroyed||store.getState().activeRun!==run)return;
-    verifiedRegions.set(run,graph.regions.filter(r=>typeof r.region_id==='string').map(r=>({value:r.region_id,label:r.display_name??r.region_id})));
+    verifiedRegions.set(run,graph.regions.filter(r=>typeof r.region_id==='string').map(r=>({value:r.region_id,label:r.display_name??run.region_catalog?.regions?.find(x=>x.region_id===r.region_id)?.label??r.region_id})));
     renderCoreRegions(run);
   }
   const coreForm=()=>({start:$('#q-core-start')?.value??'',end:$('#q-core-end')?.value??'',classLabel:$('#q-core-class')?.value??'',colorLabel:$('#q-core-color')?.value??'',regionIds:[...($('#q-core-region')?.selectedOptions??[])].map(option=>option.value)});
@@ -194,7 +194,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const classes=$('#q-core-class'),colors=$('#q-core-color');
     classes.replaceChildren();colors.replaceChildren();renderCoreRegions(run);
     if(!run)return;
-    for(const label of ['',...(run.supported_classes?.class_labels??[])]){const option=document.createElement('option');option.value=label;option.textContent=label||'不限類別';classes.append(option);}
+    for(const label of ['',...(run.supported_classes?.class_labels??[])]){const option=document.createElement('option');option.value=label;option.textContent=label?(Object.entries(run.supported_classes?.aliases??{}).find(([a,v])=>v===label&&/[\u3400-\u9fff]/.test(a))?.[0]??label):'不限類別';classes.append(option);}
     for(const label of ['',...(run.supported_classes?.color_vocabulary?.labels??[])]){const option=document.createElement('option');option.value=label;option.textContent=label||'不限';colors.append(option);}
     verifyCoreRegions(run).catch(()=>{});
   }
@@ -249,10 +249,32 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
-  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});monitorRoom?.setBootstrap(loaded.data);if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
+  else{if(loaded.data.demo_integration===true)eventMenu.destroy();store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});monitorRoom?.setBootstrap(loaded.data);if(loaded.data.runs.length){const wanted=config.searchParams.get('run');const found=loaded.data.runs.findIndex(r=>r.run_id===wanted||r.title?.startsWith(wanted+' ·'));handlers.run(found<0?0:found);}
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
+  const screen=config.searchParams.get('screen');
+  if(screen&&['search','track-single','track-multi','blind'].includes(screen)){
+    const run=store.getState().activeRun;
+    if(run){
+      await verifyCoreRegions(run);
+      const isSearch=screen==='search',clock=run.clock_mapping;
+      $('#q-core-class').value=config.searchParams.get('class')??(run.run_id==='r005-static-reviewed-v2'?'':'person');
+      const region=config.searchParams.get('region');if(region)$('#q-core-region').value=region;
+      const duration=clock.source_duration_us;
+      const asOf=Number(config.searchParams.get('as_of_us')??duration);
+      const local=d=>new Intl.DateTimeFormat('en-GB',{timeZone:clock.timezone,hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(d);
+      if(screen==='blind'){
+        $('#q-core-start').value='';$('#q-core-end').value='';store.dispatch({type:'SET_T_US',tUs:asOf});
+      }else{
+        $('#q-core-start').value=local(new Date(clock.wall_origin));
+        $('#q-core-end').value=local(new Date(Date.parse(clock.wall_origin)+asOf/1000));
+      }
+      await submitCore(isSearch?'search':'track');
+      if(!isSearch){store.dispatch({type:'SET_PLAYBACK_MODE',value:screen==='track-multi'?'multi':'single'});
+        store.dispatch({type:'SET_T_US',tUs:Number(config.searchParams.get('t_us')??(screen==='blind'?asOf:(store.getState().coreTrackResponse?.sightings?.[0]?.range_us?.[0]??0)))});}
+    }
+  }
   return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();unsubCoreSlots();unsubCoreMenus();clearInterval(noteTimer);unsyncStamp();detachPhase();unsyncWall();unsyncCoreWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();
