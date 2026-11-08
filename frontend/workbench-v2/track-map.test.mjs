@@ -39,13 +39,28 @@ test('physical prediction from a later as_of is hidden; one for an unobserved ca
 });
 test('confidence layers: the single drawn path keeps its confidence style and warnings; UNKNOWN confidence has its own muted style',()=>{
   const p=scene(400000,{physical:physicalDoc()}).predicted;assert.equal(p.length,1);
-  assert.equal(p[0].label,'#1 00:00:01–00:00:05 · 中');assert.equal(p[0].style.tone,'int');
+  assert.equal(p[0].confidence,'LOW');
+  assert.equal(p[0].evidence_state,'INFERRED');
+  assert.equal(p[0].label,'#1 00:00:01–00:00:05 · 低');assert.equal(p[0].style.tone,'int');
   assert.match(p[0].title,/圖未核准（DRAFT）/);assert.match(p[0].title,/通行狀態未知/);
   const unk=physicalDoc();unk.candidates=[{...unk.candidates[1],rank:1}];
-  const u=scene(400000,{physical:unk}).predicted;assert.equal(u[0].confidence,'UNKNOWN');assert.notEqual(u[0].style.dash,p[0].style.dash);assert.equal(u[0].style.tone,'unk');assert.match(u[0].title,/信心未知/);
+  const u=scene(400000,{physical:unk}).predicted;assert.equal(u[0].confidence,'UNKNOWN');
+  assert.equal(u[0].evidence_state,'INFERRED');
+  assert.notEqual(u[0].style.dash,p[0].style.dash);assert.equal(u[0].style.tone,'unk');assert.match(u[0].title,/信心未知/);
   const svg=renderSvg(scene(400000,{physical:unk}));
   assert.match(svg,/tm-conf-UNKNOWN/);assert.match(svg,/stroke-dasharray="1.5 4"/);assert.equal((svg.match(/tm-pred /g)||[]).length,1);
   assert.ok(!svg.includes('NaN'));
+});
+test('blind curve clamping: raw HIGH and MEDIUM are clamped to LOW and INFERRED, UNKNOWN direction to UNKNOWN',()=>{
+  const high=physicalDoc({candidates:[{camera_id:'B',rank:1,confidence:'HIGH',relation:'BLIND_GAP',window_us:[1400000,5400000]}]});
+  const hp=scene(400000,{physical:high}).predicted;
+  assert.equal(hp[0].confidence,'LOW');assert.equal(hp[0].evidence_state,'INFERRED');assert.equal(hp[0].label,'#1 00:00:01–00:00:05 · 低');
+  const dirUnk=physicalDoc({direction:{status:'UNKNOWN'}});
+  const dup=scene(400000,{physical:dirUnk}).predicted;
+  assert.equal(dup[0].confidence,'UNKNOWN');assert.equal(dup[0].evidence_state,'INFERRED');assert.equal(dup[0].label,'#1 00:00:01–00:00:05 · 未知');
+  const estimated=physicalDoc({status:'ESTIMATED',confidence:'LOW',candidates:[{camera_id:'B',rank:1,confidence:'LOW',model_confidence:'MEDIUM',relation:'BLIND_GAP',window_us:[1400000,5400000]}]});
+  const ep=scene(400000,{physical:estimated}).predicted;
+  assert.equal(ep[0].confidence,'LOW');assert.equal(ep[0].evidence_state,'INFERRED');
 });
 test('NODE_GRAPH fallback: no metre text, fixed note, deterministic layout independent of time',()=>{
   const a=scene(200000),b=scene(2000000);

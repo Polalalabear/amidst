@@ -19,10 +19,10 @@ from pathlib import Path
 from amidst.q1q5.query_alias import region_catalog
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
-POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_camera_map','q_candidate_view','q_external_prediction'})
+POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_camera_map','q_candidate_view','q_external_prediction','q_physical_prediction'})
 # Recognized error-only paths, not implemented capabilities. Keep them outside
 # POST_ROUTES so the UI-support conformance helpers still report missing wiring.
-UNAVAILABLE_POST_ROUTES=frozenset({'q_physical_prediction'})
+UNAVAILABLE_POST_ROUTES=frozenset()
 GET_ROUTES=frozenset({'q_bootstrap'})
 ROUTES=POST_ROUTES|UNAVAILABLE_POST_ROUTES|GET_ROUTES
 Q_STATIC_FILES=frozenset({
@@ -603,7 +603,7 @@ class QAPI:
             check(isinstance(payload['camera_ids'],list) and payload['camera_ids'] and all(isinstance(x,str) for x in payload['camera_ids'])
                 and set(payload['camera_ids'])<={x['camera_id'] for x in run.bindings.index.manifest['sampling']['per_camera']},'FORBIDDEN_DATA_SCOPE',403)
             return self._frames(payload['session_ref'],payload['scene_id'],payload['run_id'],payload['timestamp_us'],payload['camera_ids'])
-        if action in {'q_candidate_view','q_external_prediction'}:
+        if action in {'q_candidate_view','q_external_prediction','q_physical_prediction'}:
             check(set(payload)=={'session_ref','response_ref','as_of_us'}
                   and isinstance(payload['response_ref'],str) and bool(payload['response_ref']))
             check(type(payload['as_of_us']) is int and payload['as_of_us']>=0)
@@ -612,6 +612,26 @@ class QAPI:
             check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403)
             self._authorize(token,bundle['scene_id'],authorize,audit=False)
             self._verify_bundle(bundle)
+            if action=='q_physical_prediction':
+                check(bundle['response'].get('schema_version') in {'q-demo.q2-response.v1','q-demo.q2-response.v2'},'FORBIDDEN_DATA_SCOPE',403)
+                run=self.runs.get((bundle['scene_id'],bundle['run_id']))
+                check(run is not None,'Q_RESOURCE_UNAVAILABLE',503)
+                r=bundle['response']
+                as_of=payload['as_of_us']
+                segments=[s for s in r.get('timeline',[]) if s.get('kind')=='ON_CAMERA' and s.get('range_us',[0])[0]<=as_of]
+                check(bool(segments),'Q_RESOURCE_UNAVAILABLE',503)
+                segment=segments[-1]
+                obs=[bundle['observations'][o] for o in segment.get('observation_ids',[]) if o in bundle.get('observations',{}) and bundle['observations'][o]['timestamp_us']<=as_of]
+                check(bool(obs),'Q_RESOURCE_UNAVAILABLE',503)
+                boxes=[{'camera_id':o['camera_id'],'source_time_us':o['timestamp_us'],'bbox_xyxy_px':o['bbox_xyxy_px']} for o in obs]
+                last_observed_us=max(b['source_time_us'] for b in boxes)
+                from amidst.q1q5.physical_prediction import predict_next_cameras
+                display_positions=getattr(self,'camera_display_positions',None)
+                if isinstance(display_positions,dict):
+                    display_positions=display_positions.get(bundle['scene_id'])
+                return predict_next_cameras(last_camera_id=segment['camera_id'],last_observed_us=last_observed_us,
+                                            as_of_us=as_of,boxes=boxes,camera_graph=run.bindings.graphs.camera,
+                                            display_positions=display_positions)
             if action=='q_candidate_view':
                 from amidst.q1q5.candidate_view import candidate_view
                 return candidate_view(snapshots=bundle.get('snapshots',[]),decisions_jsonl=bundle.get('decisions',''),

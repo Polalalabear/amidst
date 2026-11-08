@@ -1,6 +1,8 @@
 // Pure model of the tracking 俯視圖 (UI-C, DEMO_UI_SUPPORT_V1 §7). Display only: no scoring, no Q5 input.
 // Every field is read through a whitelist, so decoy keys (gt_*, actor_id, renderer_trajectory, visibility, depth, script…)
 // can neither be drawn nor change the drawing. Replay at time t uses only data with source_time_us <= t.
+import { clampBlindConfidence } from './topdown-model.mjs';
+export { clampBlindConfidence };
 export const SYNTHETIC_NOTE='SYNTHETIC／待接後端';
 export const PHYSICAL_LEGEND='虛線＝最可能的一條物理預測（排序第 1；示意，非實際路徑）';
 export const RANK_UNKNOWN_NOTE='預測排序 UNKNOWN，不畫虛線';
@@ -45,11 +47,23 @@ export function readCameraMap(doc) {
 export function readPhysical(doc) {
   if(!isObj(doc)||doc.schema_version!=='q-demo.physical-prediction.v1'||doc.gt_read!==false||doc.used_for!=='DISPLAY_ONLY')return null;
   if(!isNum(doc.as_of_us)||!str(doc.last_camera_id))return null;
-  const candidates=(Array.isArray(doc.candidates)?doc.candidates:[]).filter(c=>isObj(c)&&str(c.camera_id)).map((c,i)=>({
-    camera_id:c.camera_id,rank:isNum(c.rank)?c.rank:i+1,rank_known:isNum(c.rank),window_us:c.window_us,confidence:Object.hasOwn(CONFIDENCE_STYLE,c.confidence)?c.confidence:'UNKNOWN',
-    relation:str(c.relation),traversability:str(c.path_traversability),unknown_state:c.path_has_unknown_state!==false}));
+  const dirKnown=doc.direction?.status==='KNOWN'||(doc.status==='ESTIMATED'&&doc.confidence!=='UNKNOWN');
+  const candidates=(Array.isArray(doc.candidates)?doc.candidates:[]).filter(c=>isObj(c)&&str(c.camera_id)).map((c,i)=>{
+    const rawConf=Object.hasOwn(CONFIDENCE_STYLE,c.confidence)?c.confidence:'UNKNOWN';
+    const modelConf=str(c.model_confidence)||rawConf;
+    const clampedConf=clampBlindConfidence(rawConf,dirKnown);
+    return {
+      camera_id:c.camera_id,rank:isNum(c.rank)?c.rank:i+1,rank_known:isNum(c.rank),window_us:c.window_us,
+      confidence:clampedConf,raw_confidence:rawConf,model_confidence:modelConf,evidence_state:'INFERRED',
+      relation:str(c.relation),traversability:str(c.path_traversability),unknown_state:c.path_has_unknown_state!==false,
+      sketch_points:Array.isArray(c.sketch_points)&&c.sketch_points.length===2?c.sketch_points:null,
+      sketch_basis:str(c.sketch_basis)||null,
+    };
+  });
   return {as_of_us:doc.as_of_us,last_camera_id:doc.last_camera_id,last_observed_us:isNum(doc.last_observed_us)?doc.last_observed_us:null,
-    candidates,status:str(doc.status),graph_approved:doc.graph_approval_status==='APPROVED',direction_known:doc.direction?.status==='KNOWN'};
+    candidates,status:str(doc.status),graph_approved:doc.graph_approval_status==='APPROVED',direction_known:dirKnown,
+    evidence_state:'INFERRED',curve:isObj(doc.curve)?doc.curve:null,curve_points:Array.isArray(doc.curve_points)?doc.curve_points:null,
+    curve_basis:str(doc.curve_basis)||null};
 }
 export function readExternal(doc) {
   if(!isObj(doc)||doc.schema_version!=='q-demo.external-prediction.v1'||doc.gt_read!==false||doc.used_for!=='DISPLAY_ONLY'||doc.scoring_use!==false)return null;
@@ -121,8 +135,8 @@ export function buildScene({cameraMap=null,timeline=[],tUs,physical=null,externa
     if(!has(c.camera_id))continue;
     const st=CONFIDENCE_STYLE[c.confidence];
     const warn=[!pred.graph_approved?'圖未核准（DRAFT）':null,c.unknown_state?'通行狀態未知':null,c.confidence==='UNKNOWN'?'方向未知，信心未知':null].filter(Boolean);
-    predicted.push({from:pred.last_camera_id,to:c.camera_id,rank:c.rank,confidence:c.confidence,style:st,
-      label:`#${c.rank} ${windowText(c.window_us)} · ${st.label}`,title:`物理預測 #${c.rank} → ${c.camera_id}${warn.length?' · '+warn.join(' · '):''}`});
+    predicted.push({from:pred.last_camera_id,to:c.camera_id,rank:c.rank,confidence:c.confidence,evidence_state:'INFERRED',style:st,
+      label:`#${c.rank} ${windowText(c.window_us)} · ${st.label}`,title:`物理預測（推論 · ${st.label}） #${c.rank} → ${c.camera_id}${warn.length?' · '+warn.join(' · '):''}`});
   }
   if(rankUnknown)notes.push(RANK_UNKNOWN_NOTE);
   if(usable&&pred.as_of_us<tUs)notes.push(`預測取自 ${hms(pred.as_of_us)}`);
