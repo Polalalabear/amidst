@@ -3,6 +3,7 @@ import {readFile,realpath} from 'node:fs/promises';
 import {resolve,extname,join,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 
 const INTEGRATION_BASE='ac6cd12225ceb2c8f236ce9e1f9f2420f29bfdb4';
 const MEDIA_URL='/api/controlled_scene_media?token='+'s'.repeat(43);
@@ -82,6 +83,12 @@ export async function startPreview({source,port=8765}={}){
       if(payload.session_ref!==session){send(res,403,{error_code:'FORBIDDEN_DATA_SCOPE'});return;}
       if(url.pathname==='/api/q_core_search'){send(res,200,await search(payload));return;}
       if(url.pathname==='/api/q_core_track'){send(res,200,await track(payload));return;}
+      if(url.pathname==='/api/q_nl_parse'){
+        // Epic D path (b): the real Python parser (nl_options) replays the SYNTHETIC_FIXTURE recording; never executes a query.
+        const run=resolveRun(payload);
+        const nlOut=execFileSync(process.env.AMIDST_PYTHON??'python3',['-m','amidst.q1q5.nl_options','replay'],{cwd:join(fileURLToPath(new URL('../../..',import.meta.url))),input:JSON.stringify({request:payload,run}),encoding:'utf8',env:{...process.env,PYTHONPATH:''},timeout:20000});
+        send(res,200,nlOut);return;
+      }
       if(url.pathname==='/api/q_media_grant'){const grant=mediaTokens.get(payload.media_token);if(!grant)throw Error('SYNTHETIC_GRANT_SCOPE');const {run,camera}=grant;send(res,200,{schema_version:'controlled-scene.synced-frames.v1',resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},clock_id:run.clock_id,data_origin:'SYNTHETIC',t_us:300000,provenance:{['g'+'t_read']:false},identity_verdict:'UNCONFIRMED',tiles:[{camera_id:camera,status:'READY',media_url:MEDIA_URL}]});return;}
       if(url.pathname==='/api/q_frames'){
         const run=resolveRun(payload),camera=payload.camera_ids?.[0];if(!run.camera_ids.includes(camera))throw Error('SYNTHETIC_CAMERA_SCOPE');

@@ -1,0 +1,122 @@
+{
+ "content_sha256": "67d3f21d1004930390faae71ec6b1661d51668ad3f2309fd8ecc672ca593badf",
+ "data_origin": "SYNTHETIC_FIXTURE",
+ "entries": [
+  {
+   "error_code": null,
+   "latency_ms": null,
+   "raw_output": "{\"camera_terms\": [], \"clarification_question\": null, \"class_term\": \"人\", \"color_term\": null, \"intent\": \"FIND_CAMERAS\", \"needs_clarification\": false, \"region_terms\": [\"合成區 A\"], \"schema_version\": \"q-demo.q3-llm-output.v1\", \"time_literal\": {\"date\": null, \"end\": \"一點半\", \"start\": \"下午一點\"}}",
+   "request": {
+    "model": "SYNTHETIC_FIXTURE",
+    "options": {
+     "num_predict": 256,
+     "seed": 7,
+     "temperature": 0
+    },
+    "prompt": "版本 q3-parse.v2。你只解析 USER_TEXT，不回答、不執行。輸出符合指定schema的緊湊JSON，省略排版空白。\nclass_term/color_term與camera_terms/region_terms只能抄USER_TEXT原文片段；詞表的英文標籤不是可自行填入的原文。沒提到的類別／顏色用null、鏡頭／區域用[]，不可從目錄挑一個當預設。\ntime_literal必須是start/end/date物件，值抄原文，缺值null；不可改時間或補日期。找鏡頭用FIND_CAMERAS，找人物用FIND_PERSON；只解釋用EXPLAIN，超出支援用UNSUPPORTED。\n只有缺必要資訊才needs_clarification=true並給簡短問題；否則false且clarification_question=null。不能確認身分，不讀影像或私有資料，不輸出推理、Markdown或額外欄位。\nCLOSED_CATALOG={\"camera_aliases\": {}, \"camera_ids\": [], \"class_aliases\": {\"car\": \"car\", \"person\": \"person\", \"\\u4eba\": \"person\", \"\\u4eba\\u7269\": \"person\", \"\\u884c\\u4eba\": \"person\", \"\\u8eca\": \"car\", \"\\u8eca\\u8f1b\": \"car\"}, \"class_labels\": [\"person\", \"car\"], \"color_aliases\": {\"blue\": \"blue\", \"red\": \"red\", \"\\u7d05\": \"red\", \"\\u85cd\": \"blue\"}, \"color_labels\": [\"red\", \"blue\"], \"region_aliases\": {\"SYNTHETIC_ROOM_A\": \"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\": \"SYNTHETIC_ROOM_B\", \"\\u5408\\u6210\\u5340 A\": \"SYNTHETIC_ROOM_A\", \"\\u5408\\u6210\\u5340 B\": \"SYNTHETIC_ROOM_B\"}, \"region_ids\": [\"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\"]}\nUSER_TEXT=\"\\u4e0b\\u5348\\u4e00\\u9ede\\u5230\\u4e00\\u9ede\\u534a \\u5408\\u6210\\u5340 A \\u7684\\u4eba\"",
+    "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c",
+    "template_version": "q3-parse.v2"
+   },
+   "request_sha256": "dcbf6b8b4bd381ade4ce833f86746ee681d68b2458a1aa0213ba1b23ec8b3c0d"
+  },
+  {
+   "error_code": null,
+   "latency_ms": null,
+   "raw_output": "{\"camera_terms\": [], \"clarification_question\": null, \"class_term\": \"人\", \"color_term\": \"紅\", \"intent\": \"FIND_PERSON\", \"needs_clarification\": false, \"region_terms\": [], \"schema_version\": \"q-demo.q3-llm-output.v1\", \"time_literal\": {\"date\": null, \"end\": null, \"start\": null}}",
+   "request": {
+    "model": "SYNTHETIC_FIXTURE",
+    "options": {
+     "num_predict": 256,
+     "seed": 7,
+     "temperature": 0
+    },
+    "prompt": "版本 q3-parse.v2。你只解析 USER_TEXT，不回答、不執行。輸出符合指定schema的緊湊JSON，省略排版空白。\nclass_term/color_term與camera_terms/region_terms只能抄USER_TEXT原文片段；詞表的英文標籤不是可自行填入的原文。沒提到的類別／顏色用null、鏡頭／區域用[]，不可從目錄挑一個當預設。\ntime_literal必須是start/end/date物件，值抄原文，缺值null；不可改時間或補日期。找鏡頭用FIND_CAMERAS，找人物用FIND_PERSON；只解釋用EXPLAIN，超出支援用UNSUPPORTED。\n只有缺必要資訊才needs_clarification=true並給簡短問題；否則false且clarification_question=null。不能確認身分，不讀影像或私有資料，不輸出推理、Markdown或額外欄位。\nCLOSED_CATALOG={\"camera_aliases\": {}, \"camera_ids\": [], \"class_aliases\": {\"car\": \"car\", \"person\": \"person\", \"\\u4eba\": \"person\", \"\\u4eba\\u7269\": \"person\", \"\\u884c\\u4eba\": \"person\", \"\\u8eca\": \"car\", \"\\u8eca\\u8f1b\": \"car\"}, \"class_labels\": [\"person\", \"car\"], \"color_aliases\": {\"blue\": \"blue\", \"red\": \"red\", \"\\u7d05\": \"red\", \"\\u85cd\": \"blue\"}, \"color_labels\": [\"red\", \"blue\"], \"region_aliases\": {\"SYNTHETIC_ROOM_A\": \"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\": \"SYNTHETIC_ROOM_B\", \"\\u5408\\u6210\\u5340 A\": \"SYNTHETIC_ROOM_A\", \"\\u5408\\u6210\\u5340 B\": \"SYNTHETIC_ROOM_B\"}, \"region_ids\": [\"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\"]}\nUSER_TEXT=\"\\u8ffd\\u8e64\\u7d05\\u8863\\u670d\\u7684\\u4eba\"",
+    "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c",
+    "template_version": "q3-parse.v2"
+   },
+   "request_sha256": "dbbd089378f25b3ea5577b3faf432421092efd8f28bb41c6cab2f8858ff65e96"
+  },
+  {
+   "error_code": "PROVIDER_TIMEOUT",
+   "latency_ms": null,
+   "raw_output": null,
+   "request": {
+    "model": "SYNTHETIC_FIXTURE",
+    "options": {
+     "num_predict": 256,
+     "seed": 7,
+     "temperature": 0
+    },
+    "prompt": "版本 q3-parse.v2。你只解析 USER_TEXT，不回答、不執行。輸出符合指定schema的緊湊JSON，省略排版空白。\nclass_term/color_term與camera_terms/region_terms只能抄USER_TEXT原文片段；詞表的英文標籤不是可自行填入的原文。沒提到的類別／顏色用null、鏡頭／區域用[]，不可從目錄挑一個當預設。\ntime_literal必須是start/end/date物件，值抄原文，缺值null；不可改時間或補日期。找鏡頭用FIND_CAMERAS，找人物用FIND_PERSON；只解釋用EXPLAIN，超出支援用UNSUPPORTED。\n只有缺必要資訊才needs_clarification=true並給簡短問題；否則false且clarification_question=null。不能確認身分，不讀影像或私有資料，不輸出推理、Markdown或額外欄位。\nCLOSED_CATALOG={\"camera_aliases\": {}, \"camera_ids\": [], \"class_aliases\": {\"car\": \"car\", \"person\": \"person\", \"\\u4eba\": \"person\", \"\\u4eba\\u7269\": \"person\", \"\\u884c\\u4eba\": \"person\", \"\\u8eca\": \"car\", \"\\u8eca\\u8f1b\": \"car\"}, \"class_labels\": [\"person\", \"car\"], \"color_aliases\": {\"blue\": \"blue\", \"red\": \"red\", \"\\u7d05\": \"red\", \"\\u85cd\": \"blue\"}, \"color_labels\": [\"red\", \"blue\"], \"region_aliases\": {\"SYNTHETIC_ROOM_A\": \"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\": \"SYNTHETIC_ROOM_B\", \"\\u5408\\u6210\\u5340 A\": \"SYNTHETIC_ROOM_A\", \"\\u5408\\u6210\\u5340 B\": \"SYNTHETIC_ROOM_B\"}, \"region_ids\": [\"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\"]}\nUSER_TEXT=\"\\u4e0b\\u5348\\u4e00\\u9ede\\u5230\\u4e00\\u9ede\\u534a \\u5408\\u6210\\u5340 B \\u7684\\u8eca\"",
+    "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c",
+    "template_version": "q3-parse.v2"
+   },
+   "request_sha256": "3ed7441fff575b3de2eeaa993bfdeb2c293d7a6ae591c446ff3ffed3a954ceea"
+  },
+  {
+   "error_code": null,
+   "latency_ms": null,
+   "raw_output": "not json",
+   "request": {
+    "model": "SYNTHETIC_FIXTURE",
+    "options": {
+     "num_predict": 256,
+     "seed": 7,
+     "temperature": 0
+    },
+    "prompt": "版本 q3-parse.v2。你只解析 USER_TEXT，不回答、不執行。輸出符合指定schema的緊湊JSON，省略排版空白。\nclass_term/color_term與camera_terms/region_terms只能抄USER_TEXT原文片段；詞表的英文標籤不是可自行填入的原文。沒提到的類別／顏色用null、鏡頭／區域用[]，不可從目錄挑一個當預設。\ntime_literal必須是start/end/date物件，值抄原文，缺值null；不可改時間或補日期。找鏡頭用FIND_CAMERAS，找人物用FIND_PERSON；只解釋用EXPLAIN，超出支援用UNSUPPORTED。\n只有缺必要資訊才needs_clarification=true並給簡短問題；否則false且clarification_question=null。不能確認身分，不讀影像或私有資料，不輸出推理、Markdown或額外欄位。\nCLOSED_CATALOG={\"camera_aliases\": {}, \"camera_ids\": [], \"class_aliases\": {\"car\": \"car\", \"person\": \"person\", \"\\u4eba\": \"person\", \"\\u4eba\\u7269\": \"person\", \"\\u884c\\u4eba\": \"person\", \"\\u8eca\": \"car\", \"\\u8eca\\u8f1b\": \"car\"}, \"class_labels\": [\"person\", \"car\"], \"color_aliases\": {\"blue\": \"blue\", \"red\": \"red\", \"\\u7d05\": \"red\", \"\\u85cd\": \"blue\"}, \"color_labels\": [\"red\", \"blue\"], \"region_aliases\": {\"SYNTHETIC_ROOM_A\": \"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\": \"SYNTHETIC_ROOM_B\", \"\\u5408\\u6210\\u5340 A\": \"SYNTHETIC_ROOM_A\", \"\\u5408\\u6210\\u5340 B\": \"SYNTHETIC_ROOM_B\"}, \"region_ids\": [\"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\"]}\nUSER_TEXT=\"\\u8ffd\\u8e64\\u85cd\\u8863\\u670d\\u7684\\u4eba\"",
+    "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c",
+    "template_version": "q3-parse.v2"
+   },
+   "request_sha256": "cf96c33a89b4398331e7fabb2d2606df1ce78ed3d57b46af20b6542898fcc41d"
+  },
+  {
+   "error_code": null,
+   "latency_ms": null,
+   "raw_output": "{\"camera_terms\": [], \"clarification_question\": null, \"class_term\": \"人\", \"color_term\": null, \"intent\": \"FIND_CAMERAS\", \"needs_clarification\": false, \"region_terms\": [], \"schema_version\": \"q-demo.q3-llm-output.v1\", \"time_literal\": {\"date\": null, \"end\": \"一點半\", \"start\": \"下午一點\"}}",
+   "request": {
+    "model": "SYNTHETIC_FIXTURE",
+    "options": {
+     "num_predict": 256,
+     "seed": 7,
+     "temperature": 0
+    },
+    "prompt": "版本 q3-parse.v2。你只解析 USER_TEXT，不回答、不執行。輸出符合指定schema的緊湊JSON，省略排版空白。\nclass_term/color_term與camera_terms/region_terms只能抄USER_TEXT原文片段；詞表的英文標籤不是可自行填入的原文。沒提到的類別／顏色用null、鏡頭／區域用[]，不可從目錄挑一個當預設。\ntime_literal必須是start/end/date物件，值抄原文，缺值null；不可改時間或補日期。找鏡頭用FIND_CAMERAS，找人物用FIND_PERSON；只解釋用EXPLAIN，超出支援用UNSUPPORTED。\n只有缺必要資訊才needs_clarification=true並給簡短問題；否則false且clarification_question=null。不能確認身分，不讀影像或私有資料，不輸出推理、Markdown或額外欄位。\nCLOSED_CATALOG={\"camera_aliases\": {}, \"camera_ids\": [], \"class_aliases\": {\"car\": \"car\", \"person\": \"person\", \"\\u4eba\": \"person\", \"\\u4eba\\u7269\": \"person\", \"\\u884c\\u4eba\": \"person\", \"\\u8eca\": \"car\", \"\\u8eca\\u8f1b\": \"car\"}, \"class_labels\": [\"person\", \"car\"], \"color_aliases\": {\"blue\": \"blue\", \"red\": \"red\", \"\\u7d05\": \"red\", \"\\u85cd\": \"blue\"}, \"color_labels\": [\"red\", \"blue\"], \"region_aliases\": {\"SYNTHETIC_ROOM_A\": \"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\": \"SYNTHETIC_ROOM_B\", \"\\u5408\\u6210\\u5340 A\": \"SYNTHETIC_ROOM_A\", \"\\u5408\\u6210\\u5340 B\": \"SYNTHETIC_ROOM_B\"}, \"region_ids\": [\"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\"]}\nUSER_TEXT=\"\\u4e0b\\u5348\\u4e00\\u9ede\\u5230\\u4e00\\u9ede\\u534a\\u7684\\u4eba\"",
+    "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c",
+    "template_version": "q3-parse.v2"
+   },
+   "request_sha256": "9d85b4c5f3e28273e241e3f53e8c0e9f364319a252f23ff6448a672d9bb150a7"
+  },
+  {
+   "error_code": null,
+   "latency_ms": null,
+   "raw_output": "{\"camera_terms\": [], \"clarification_question\": \"請補充明確的條件、起訖時間與範圍。\", \"class_term\": \"人\", \"color_term\": \"紅\", \"intent\": \"FIND_PERSON\", \"needs_clarification\": true, \"region_terms\": [], \"schema_version\": \"q-demo.q3-llm-output.v1\", \"time_literal\": {\"date\": null, \"end\": null, \"start\": \"下午一點\"}}",
+   "request": {
+    "model": "SYNTHETIC_FIXTURE",
+    "options": {
+     "num_predict": 256,
+     "seed": 7,
+     "temperature": 0
+    },
+    "prompt": "版本 q3-parse.v2。你只解析 USER_TEXT，不回答、不執行。輸出符合指定schema的緊湊JSON，省略排版空白。\nclass_term/color_term與camera_terms/region_terms只能抄USER_TEXT原文片段；詞表的英文標籤不是可自行填入的原文。沒提到的類別／顏色用null、鏡頭／區域用[]，不可從目錄挑一個當預設。\ntime_literal必須是start/end/date物件，值抄原文，缺值null；不可改時間或補日期。找鏡頭用FIND_CAMERAS，找人物用FIND_PERSON；只解釋用EXPLAIN，超出支援用UNSUPPORTED。\n只有缺必要資訊才needs_clarification=true並給簡短問題；否則false且clarification_question=null。不能確認身分，不讀影像或私有資料，不輸出推理、Markdown或額外欄位。\nCLOSED_CATALOG={\"camera_aliases\": {}, \"camera_ids\": [], \"class_aliases\": {\"car\": \"car\", \"person\": \"person\", \"\\u4eba\": \"person\", \"\\u4eba\\u7269\": \"person\", \"\\u884c\\u4eba\": \"person\", \"\\u8eca\": \"car\", \"\\u8eca\\u8f1b\": \"car\"}, \"class_labels\": [\"person\", \"car\"], \"color_aliases\": {\"blue\": \"blue\", \"red\": \"red\", \"\\u7d05\": \"red\", \"\\u85cd\": \"blue\"}, \"color_labels\": [\"red\", \"blue\"], \"region_aliases\": {\"SYNTHETIC_ROOM_A\": \"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\": \"SYNTHETIC_ROOM_B\", \"\\u5408\\u6210\\u5340 A\": \"SYNTHETIC_ROOM_A\", \"\\u5408\\u6210\\u5340 B\": \"SYNTHETIC_ROOM_B\"}, \"region_ids\": [\"SYNTHETIC_ROOM_A\", \"SYNTHETIC_ROOM_B\"]}\nUSER_TEXT=\"\\u8ddf\\u8457\\u7a7f\\u7d05\\u8863\\u670d\\u7684\\u4eba\\uff0c\\u5f9e\\u4e0b\\u5348\\u4e00\\u9ede\\u958b\\u59cb\"",
+    "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c",
+    "template_version": "q3-parse.v2"
+   },
+   "request_sha256": "49f1f3933ff737c06d4101a1a0c0e9185e4f2e8b0118414670860a18f6246815"
+  }
+ ],
+ "note": "SYNTHETIC_FIXTURE: computed from the rule parser, not produced by Qwen or any model. Latency unknown.",
+ "provider": {
+  "kind": "RECORDED",
+  "model": "SYNTHETIC_FIXTURE",
+  "model_digest": null,
+  "options": {
+   "num_predict": 256,
+   "seed": 7,
+   "temperature": 0
+  }
+ },
+ "recording_id": "nl-synthetic-fixture-v1",
+ "schema_version": "q-core.agent-recording.v1",
+ "template_sha256": "6429be77f5f9928fee0daaff84826f80b3bb9e5499be6863dc440b9f348c1a2c"
+}

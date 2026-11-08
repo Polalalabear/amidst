@@ -19,6 +19,7 @@ import {
   AUTO_SEED_LABEL, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
 } from './core-search-track-model.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
+import {mountNlInput} from './nl-input.mjs';
 
 // Same range the player uses (app.mjs playbackBounds); kept here so this module does not import the composition root.
 const playbackBounds = s => s.coreTrackResponse ? [s.coreTrackResponse.resolved_time?.source_range_us?.[0] ?? 0, s.coreTrackResponse.as_of_us] : [0, s.activeRun?.clock_mapping?.source_duration_us ?? 0];
@@ -119,6 +120,8 @@ export function mountUi(ctx) {
   const trackForm = {regions: new Set(), classLabel: '', colorLabel: ''};
   const q1 = buildQueryWindow({win: qWin1, title: '查找', form: searchForm, id: 'search', kind: 'search'});
   const q2 = buildQueryWindow({win: qWin2, title: '追蹤新目標', form: trackForm, id: 'track', kind: 'track'});
+  // Epic D path (b): sentence box above each query window; it only pre-fills the form, the shell's own submitQuery runs on confirm.
+  for (const [w, win] of [[q1, qWin1], [q2, qWin2]]) disposers.push(mountNlInput({ctx, doc, win, w, refresh: renderCatalog, submit: submitQuery}).destroy);
 
   function buildQueryWindow({win, title, form, id, kind}) {
     const card = el('div', undefined, 'ui-card ui-qcard');
