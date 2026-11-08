@@ -12,7 +12,7 @@ const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE??
 const out=process.env.SCREENSHOT_DIR??join(owned.evidenceRoot,'ui-synthetic');await mkdir(out,{recursive:true});
 const preview=await startPreview({source,port:0}),browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
 const viewportHeight=Number(process.env.CORE_VIEWPORT_HEIGHT??900);
-const page=await browser.newPage({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),errors=[],shots=[];let checks=0;
+const page=await browser.newPage({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),errors=[],shots=[];let checks=0,result=null;
 const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({check:checks,message:msg}));};page.on('pageerror',e=>errors.push(String(e)));
 const shot=async name=>{const path=join(out,name+'.png');await page.screenshot({path,fullPage:true});const b=await readFile(path);shots.push({path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});};
 const calls=route=>preview.routeCalls.filter(c=>c.route===route);
@@ -50,5 +50,15 @@ try{
   await page.goto(preview.url+'?run='+runId+'&screen=case2',{waitUntil:'domcontentloaded'});await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');check(calls('/api/q_core_track').at(-1).payload.run_id===runId,'selected tracking source '+runId);await seek(300000);check(await page.locator('.ui-stagebox').getAttribute('data-kind')==='ON_CAMERA','selected source single state');await page.locator('#ui-layout [data-layout=multi]').click();check(await page.locator('.ui-multi-tile').count()===n,'selected source multi count');await shot('08-'+runId+'-multi');
  }
  check(errors.length===0,'no browser page errors');
- const result={status:'PASS',checks,viewport:{width:1440,height:viewportHeight},bar_rect:bar,source_head:preview.head,url:preview.url,screenshots:shots,page_errors:errors,source_kind:'SYNTHETIC API FIXTURE',physical_display_fps:null};await writeFile(join(out,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
-}finally{await browser.close();await new Promise((done,reject)=>preview.server.close(e=>e?reject(e):done()));}
+ result={status:'PASS',checks,viewport:{width:1440,height:viewportHeight},bar_rect:bar,source_head:preview.head,url:preview.url,screenshots:shots,page_errors:errors,source_kind:'SYNTHETIC API FIXTURE',physical_display_fps:null};
+}finally{
+ try {
+  await page.unrouteAll({behavior:'ignoreErrors'});
+  await page.context().close();
+  await browser.close();
+ } finally {
+  await new Promise((done,reject)=>{preview.server.close(e=>e?reject(e):done());preview.server.closeAllConnections?.();});
+ }
+}
+// PASS is emitted only after context, browser and owned HTTP server have closed.
+await writeFile(join(out,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
