@@ -2545,6 +2545,15 @@
       ],
       "issue_ref": "#93",
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-demo.candidate-view.v1",
+      "source_paths": [
+        "docs/contracts/DEMO_UI_SUPPORT_V1.md",
+        "src/amidst/q1q5/candidate_view.py"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }
