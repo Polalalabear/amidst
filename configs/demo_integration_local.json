@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "owned_root": "~/amidst-artifacts/demo-owned-v1",
+  "copy_manifest_sha256": "8b9a4b4b98f52fa56317e0673dcf4da0d688b846c75dc0003b2d8bca743d061f",
+  "p1_bundle": "data/p1-v4",
+  "artifacts_root": "data/artifacts",
+  "cross_camera_job": "metadata/cross-camera-job.json",
+  "cross_camera_job_sha256": "651906f9ca18a02d8efd300eb9cef57877ad8da758d9a323b590f82feb86d49e",
+  "state_root": "state",
+  "evidence_root": "evidence/486",
+  "python_base": "runtime/python",
+  "playwright_module": "tooling/playwright-core/index.mjs",
+  "models": {
+    "rtdetr_weights": "models/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth",
+    "rtdetr_source": "models/rtdetr/source/rtdetr_pytorch",
+    "ollama_models": "models/ollama",
+    "enabled": false
+  }
+}

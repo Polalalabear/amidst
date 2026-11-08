@@ -68,3 +68,6 @@ data/pilot/
 frontend/product/node_modules/
 /data/product/local_run/
 *.review-expectations.json
+
+# Owned demo environments and dependency caches stay LOCAL (#486).
+.local/demo-cache/
