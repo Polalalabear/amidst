@@ -2503,6 +2503,14 @@
         "configs/q1q5/graphs/office_expanded_r005/search_skeleton/camera_graph.json"
       ],
       "issue_ref": "#457",
+        "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+      },
+      {
+      "value": "q-core.track-response.v1",
+      "source_paths": [
+        "src/amidst/q1q5/cross_camera_demo.py"
+      ],
+      "issue_ref": "#417",
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
