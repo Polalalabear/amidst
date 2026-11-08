@@ -16,7 +16,7 @@
 
 ## 可重現命令
 
-環境與資產依 `DEMO_OWNED_DEPENDENCIES_20261108.md`。Python lock 依使用者指定的 #491 交付版本；未收到交付通知前不自行猜版本或使用舊 venv。Node 與 browser 均用 repo 安裝的 Playwright。
+環境與資產依 `DEMO_OWNED_DEPENDENCIES_20261108.md`。Python lock 已接入 #491 `fa9a199a` 原始交付，Mac 自有 runtime 是 3.12.12；合併後完整重跑結果與 8785 保持運行的交接見 `DEMO_PY312_LOCK_SYNC_20261108.md`。Node 與 browser 均用 repo 安裝的 Playwright。
 
 ```sh
 ./start_445_demo.command --port 8785

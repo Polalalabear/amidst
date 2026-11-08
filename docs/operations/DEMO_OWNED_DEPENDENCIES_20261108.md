@@ -1,6 +1,6 @@
 # C / #486：自有依賴與主線交接（2026-11-08）
 
-本次從 #445 `1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb` 的 saved-observation demo 收編依賴，分支 `codex/486-vendor-deps`。WIP `e34c16af` 已先保存並 push；#487 的 UI 修正在 `claude/ui-redesign-v1`，沒有把 #487 合入本分支。本分支的程式、鎖定、啟動器、manifest 與文件以進 `mainline/q1q5` 為交接目標；依使用者指示不開 PR、不合併、不整理或刪除分支。
+本次從 #445 `1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb` 的 saved-observation demo 收編依賴，分支 `codex/486-vendor-deps`。WIP `e34c16af` 已先保存並 push；#487 的 UI 修正在 `claude/ui-redesign-v1`，沒有把 #487 合入本分支。本分支的程式、鎖定、啟動器、manifest 與文件以進 `mainline/q1q5` 為交接目標；依使用者指示不另開 PR、不合併 PR／主線、不整理或刪除分支。#491 feature branch 的交接依 C issue 指示使用 merge commit；Python lock 同步結果見 `DEMO_PY312_LOCK_SYNC_20261108.md`。
 
 ## 啟動與重現
 
@@ -18,7 +18,7 @@ PYTHONPATH=src uv run --offline --no-project \
 ./start_445_demo.command --port 8785
 ```
 
-若沒有設定環境變數，第一個命令的 Python 改用 `~/amidst-artifacts/demo-owned-v1/runtime/python/bin/python3.12`。第二個命令會自己讀同一設定，不需要任何舊環境參數。setup 僅使用 repo `uv.lock` 和 `tests/browser/core-preview/package-lock.json`；venv 在 checkout `.venv`，`uv sync --frozen --no-install-project --link-mode copy --no-python-downloads`，專案由 `PYTHONPATH=src` 讀取。Node 依 `.node-version` 為 26.0.0，npm 本次為 11.12.1，Playwright **devDependency** 鎖 1.56.0；`npm ci --ignore-scripts --no-audit --no-fund` 安裝於 repo 下，無 TMP fallback。Python `.python-version` 為 3.12.12。
+若沒有設定環境變數，第一個命令的 Python 改用 `~/amidst-artifacts/demo-owned-v1/runtime/python/bin/python3.12`。第二個命令會自己讀同一設定，不需要任何舊環境參數。setup 僅使用 repo `uv.lock` 和 `tests/browser/core-preview/package-lock.json`；venv 在 checkout `.venv`，`uv sync --frozen --no-install-project --link-mode copy --no-python-downloads`，專案由 `PYTHONPATH=src` 讀取。Node 依 `.node-version` 為 26.0.0，npm 本次為 11.12.1，Playwright **devDependency** 鎖 1.56.0；`npm ci --ignore-scripts --no-audit --no-fund` 安裝於 repo 下，無 TMP fallback。Python `.python-version` 採 #491 原值 `3.12`；Mac 自有 runtime 由 config／逐檔 manifest 固定為 **3.12.12**。
 
 服務會拒絕讀取 checkout／owned package 以外的 home、Shared、TMP 輸入，並拒絕模型子程序與外連。immutable JSON 裡的舊來源字串只作 provenance；不被解析成活的讀檔路徑。圖、index、clock、records、local tracks、r005 人工回條及 RGB 原始 bytes/pins 均不改；新 job 只有 locator 換成相對路徑。state／證據落在 owned 根目錄；uv cache 在 checkout `.local/demo-cache/uv`。
 
@@ -49,7 +49,7 @@ PYTHONPATH=src uv run --offline --no-project \
 - `scripts/export_demo_dependency_manifest.py --owned-root <根> --output configs/demo_dependencies_manifest_v1.json` 可逐 bytes 重現 repo ledger；已有輸出只接受完全相同 bytes。
 - 新 `metadata/cross-camera-job.json` SHA-256 `651906f9ca18a02d8efd300eb9cef57877ad8da758d9a323b590f82feb86d49e`；原始 job 與每個輸入 pin 仍保留。
 - RT-DETR 權重 SHA-256 `3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0`。Ollama Qwen3 model blob SHA-256 `3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6`；其餘 descriptor/blob digest 逐一在 repo ledger 與 checker 證據。
-- `uv.lock` SHA-256 `18c66a46f799efcfb4da36a15246245d2c959e42768a67b01f667eb73d284a17`（原 lock 未改）；Node lock SHA-256 `d875f6ffa3ee7863fdd0570ce17907238215690e58c0b6d71a9362f48c6f6263`。35 個 installed distributions 的精確版本都必須出現在 uv lock。舊環境的 editable project／非 #445 必要的可選 video extra 不當 runtime 借用；可選 dependency 本身仍在 lock。
+- `uv.lock` SHA-256 `18c66a46f799efcfb4da36a15246245d2c959e42768a67b01f667eb73d284a17`（初次交付的歷史 lock；#491 同步後為 `112e2b3fd06b60e08b83526b321dd9f4bfde561be1e94af61865dcc046c8ed36`）；Node lock SHA-256 `d875f6ffa3ee7863fdd0570ce17907238215690e58c0b6d71a9362f48c6f6263`。35 個 installed distributions 的精確版本都必須出現在 uv lock。舊環境的 editable project／非 #445 必要的可選 video extra 不當 runtime 借用；可選 dependency 本身仍在 lock。
 
 ## 聚焦驗證
 
@@ -78,7 +78,9 @@ node tests/browser/core-preview/real-e2e.mjs
 
 本輪只完成 #486 的本機依賴收編子項。D132 的 Windows／Linux、CI、清理／主線合併、索引改寫等大清單不因這個本機收據自動勾選。平台測試需要相應環境，清理／合併需要使用者決定；下一位處理者以 C issue 清單與使用者授權為準。這裡沒有用 UNKNOWN 代替本次可修的 runtime／測試問題。
 
-## 實際產出 / Actual output
+## 初次交付的實際產出 / Actual output
+
+以下保留原交付證據。#491 合併後重跑結果與 8785 保持運行的新交接，見 `DEMO_PY312_LOCK_SYNC_20261108.md`。
 
 - Model / effort: GPT-6 family / UNKNOWN。
 - PR / commits: `codex/486-vendor-deps`，runtime 與四組 gate 綁 `eff11e47432a449d5abd5ba049c59d8e370d2c37`；其後只補 schema registry、原件驗證器與結果文件。最終 SHA 在 C 回條。未開 PR、未合併。
