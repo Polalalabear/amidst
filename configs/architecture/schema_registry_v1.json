@@ -2554,6 +2554,49 @@
       ],
       "issue_ref": "#383",
       "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.nl-parse-request.v1",
+      "source_paths": [
+        "src/amidst/q1q5/nl_options.py",
+        "frontend/workbench-v2/nl-input.mjs"
+      ],
+      "issue_ref": "#489",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.nl-parse-response.v1",
+      "source_paths": [
+        "src/amidst/q1q5/nl_options.py",
+        "frontend/workbench-v2/nl-input.mjs"
+      ],
+      "issue_ref": "#489",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.agent-trace.v1",
+      "source_paths": [
+        "src/amidst/q1q5/nl_options.py"
+      ],
+      "issue_ref": "#489",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.agent-recording.v1",
+      "source_paths": [
+        "src/amidst/q1q5/nl_options.py",
+        "configs/epicd/nl_recording_synthetic_fixture_v1.json"
+      ],
+      "issue_ref": "#489",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.nl-sentences.v1",
+      "source_paths": [
+        "configs/epicd/nl_sentences_v1.json"
+      ],
+      "issue_ref": "#489",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }

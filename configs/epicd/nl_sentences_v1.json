@@ -1,0 +1,12 @@
+{
+  "schema_version": "q-core.nl-sentences.v1",
+  "note": "Fixed sentences for the Epic D path (b) recording (docs/specs/EPIC_D_AGENTIC_V1.md C-1). Each sentence is sent once per kind it applies to; the prompt does not include the kind, so one recording call per distinct sentence.",
+  "sentences": [
+    {"id": "S01", "kind": "search", "text": "下午一點到一點半 合成區 A 的人"},
+    {"id": "S02", "kind": "track", "text": "追蹤紅衣服的人"},
+    {"id": "S03", "kind": "search", "text": "下午一點到一點半 合成區 B 的車"},
+    {"id": "S04", "kind": "track", "text": "追蹤藍衣服的人"},
+    {"id": "S05", "kind": "search", "text": "下午一點到一點半的人"},
+    {"id": "S06", "kind": "track", "text": "跟著穿紅衣服的人，從下午一點開始"}
+  ]
+}

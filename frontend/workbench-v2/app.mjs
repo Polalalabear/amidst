@@ -24,6 +24,7 @@ import {mountEventMenu} from './event-menu.mjs';
 import {mountCoreScreens} from './core-screens-view.mjs';
 import {buildCoreSearchRequest,buildCoreTrackRequest,ERROR_TEXT} from './core-search-track-model.mjs';
 import {createBoundMediaResolver} from './core-media.mjs';
+import {mountUi} from './ui-shell.mjs';
 
 export function playbackBounds(s) {
   if(s.coreTrackResponse)return [s.coreTrackResponse.resolved_time?.source_range_us?.[0]??0,s.coreTrackResponse.as_of_us];
@@ -66,6 +67,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const source=config.searchParams.get('source')==='fixture'?FIXTURE_ORIGIN:'SERVER';
   const api=providedApi??createQApi({source});const store=createStore(initialState({rail:loadRailPref(),reviewMode}));
   const handlers={};const shell=mountQShell(root,store,handlers);const $=selector=>root.querySelector(selector);
+  // New front desk (ui-shell.mjs) sits over the engine DOM below; ?ui=legacy removes it and keeps the old workbench.
+  const uiRoot=$('#ui-v1'),v1=Boolean(uiRoot)&&config.searchParams.get('ui')!=='legacy';if(uiRoot&&!v1)uiRoot.remove();if(v1)(root.body??root.documentElement)?.setAttribute('data-ui','v1');
+  let uiWall=null;
   let destroyed=false,raf=null,previous=null,carry=0,review=null,requestGeneration=0;
   const syncStampClock=s=>setStampClock(s.activeRun?.clock_mapping??null);syncStampClock(store.getState());const unsyncStamp=store.subscribe(syncStampClock);
   const playback=createPlayback({api,store,root,onReady:()=>renderTime(store.getState())});
@@ -85,7 +89,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
   const simpleView=mountSimpleView({doc:root,store,url});views.push(simpleView);  // 單純顯示模式 toggle; presentation only (simple-view.mjs)
   const eventMenu=mountEventMenu({doc:root,simple:simpleView,store,url});views.push(eventMenu);  // 事件選單: page events reload this page; live / complex events are embedded (event-menu.mjs)
-  const coreScreens=mountCoreScreens({wallSlot:$('#core-search-wall-slot'),trackSlot:$('#core-tracking-slot'),store,api,playback,mediaResolver:createBoundMediaResolver({store,api}),synthetic:source===FIXTURE_ORIGIN});
+  const coreScreens=mountCoreScreens({wallSlot:v1?null:$('#core-search-wall-slot'),trackSlot:v1?null:$('#core-tracking-slot'),store,api,playback,mediaResolver:createBoundMediaResolver({store,api}),synthetic:source===FIXTURE_ORIGIN});
   views.push(coreScreens);
   const syncCoreSlots=()=>{
     const s=store.getState();
@@ -99,7 +103,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
   const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;
   // The wall follows the search phase: WALL shows the wall; SEARCHING and RESULT hide it (loading shows no camera frames; RESULT shows the hit wall or the tracking view).
-  const syncWall=p=>{if(!monitorRoom)return;const s=store.getState();const on=p.phase==='wall'&&!s.coreSearchResponse&&!s.coreTrackResponse;monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
+  const syncWall=p=>{if(!monitorRoom)return;const s=store.getState();const on=uiWall?uiWall():p.phase==='wall'&&!s.coreSearchResponse&&!s.coreTrackResponse;monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
   const unsyncWall=phase.subscribe(syncWall);const unsyncCoreWall=store.subscribe(()=>syncWall(phase.getState()));syncWall(phase.getState());
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
@@ -168,7 +172,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   };
   const coreControl=$('#q-core-query');
   const coreFeedback=$('#q-core-feedback');
-  const verifiedRegions=new WeakMap();
+  const verifiedRegions=new WeakMap(),catalogListeners=new Set();
   const coreRegionCatalog=run=>verifiedRegions.get(run)??[];
   async function verifyCoreRegions(run){
     const attached=Boolean(run?.region_graph),graph=run?.region_graph??store.getState().regionGraph;
@@ -177,8 +181,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     if(destroyed||store.getState().activeRun!==run)return;
     verifiedRegions.set(run,graph.regions.filter(r=>typeof r.region_id==='string').map(r=>({value:r.region_id,label:r.display_name??run.region_catalog?.regions?.find(x=>x.region_id===r.region_id)?.label??r.region_id})));
     renderCoreRegions(run);
+    for(const fn of [...catalogListeners])fn();
   }
-  const coreForm=()=>({start:$('#q-core-start')?.value??'',end:$('#q-core-end')?.value??'',classLabel:$('#q-core-class')?.value??'',colorLabel:$('#q-core-color')?.value??'',regionIds:[...($('#q-core-region')?.selectedOptions??[])].map(option=>option.value)});
+  const coreFormDom=()=>({start:$('#q-core-start')?.value??'',end:$('#q-core-end')?.value??'',classLabel:$('#q-core-class')?.value??'',colorLabel:$('#q-core-color')?.value??'',regionIds:[...($('#q-core-region')?.selectedOptions??[])].map(option=>option.value)});
   const coreMenus=run=>({regions:coreRegionCatalog(run),classes:run.supported_classes?.class_labels??[],colors:run.supported_classes?.color_vocabulary?.labels??[]});
   let displayedRun=null;
   function renderCoreRegions(run){
@@ -199,15 +204,18 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     verifyCoreRegions(run).catch(()=>{});
   }
   const unsubCoreMenus=store.subscribe(updateCoreMenus);updateCoreMenus();
-  async function submitCore(kind){
+  async function submitCore(kind,override=null){
     const run=store.getState().activeRun;
-    if(!run||!api.getSession?.()){if(coreFeedback)coreFeedback.textContent='UNKNOWN · 來源或 session 未就緒';return;}
+    if(!run||!api.getSession?.()){const text='UNKNOWN · 來源或 session 未就緒';if(coreFeedback)coreFeedback.textContent=text;return {ok:false,text};}
     try{
-      const request=kind==='search'?buildCoreSearchRequest(run,api.getSession(),coreForm(),coreMenus(run)):buildCoreTrackRequest(run,api.getSession(),coreForm(),coreMenus(run),store.getState().tUs);
+      const request=kind==='search'?buildCoreSearchRequest(run,api.getSession(),override??coreFormDom(),coreMenus(run)):buildCoreTrackRequest(run,api.getSession(),override??coreFormDom(),coreMenus(run),store.getState().tUs);
       const result=await execute(request);
-      if(coreFeedback)coreFeedback.textContent=result.ok?`${kind==='search'?'查找':'追蹤'}回應：${result.data.status}`:`UNKNOWN · ${result.error?.code??'REQUEST_FAILED'}`;
-    }catch(error){if(coreFeedback)coreFeedback.textContent=ERROR_TEXT[error.message]??`UNKNOWN · ${error.message}`;}
+      const text=result.ok?`${kind==='search'?'查找':'追蹤'}回應：${result.data.status}`:`UNKNOWN · ${result.error?.code??'REQUEST_FAILED'}`;if(coreFeedback)coreFeedback.textContent=text;return {ok:Boolean(result.ok),text,code:result.ok?null:result.error?.code??'REQUEST_FAILED'};
+    }catch(error){const text=ERROR_TEXT[error.message]??`UNKNOWN · ${error.message}`;if(coreFeedback)coreFeedback.textContent=text;return {ok:false,text,code:error.message};}
   }
+  context.submitCore=submitCore;context.subscribeCatalog=fn=>{catalogListeners.add(fn);return()=>catalogListeners.delete(fn);};
+  context.coreCatalog=()=>{const run=store.getState().activeRun;return run?{run,...coreMenus(run),aliases:run.supported_classes?.aliases??{}}:{run:null,regions:[],classes:[],colors:[],aliases:{}};};
+  context.setWallGate=fn=>{uiWall=fn;syncWall(phase.getState());};context.refreshWall=()=>syncWall(phase.getState());
   const coreSearchButton=$('#q-core-search'),coreTrackButton=$('#q-core-track');
   if(coreControl){coreSearchButton?.addEventListener('click',()=>submitCore('search'));coreTrackButton?.addEventListener('click',()=>submitCore('track'));}
   handlers.recording=async id=>{const requestToken=++requestGeneration;api.invalidate();const result=await api.replay(id);if(destroyed||requestToken!==requestGeneration)return;if(!result.ok){store.dispatch({type:'Q_ERROR',error:result.error});return;}
@@ -247,6 +255,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const noteTimer=setInterval(()=>{const n=$('#q-speed-note'),s=store.getState();if(n&&s.playing)n.textContent=formatSpeedNote(s.speed,speedMeter.actual(performance.now()));},500);
   function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&s.coreTrackResponse&&s.activeRun?.source_kind==='SYNTHETIC'){if(!coreRateSample)coreRateSample={wall:now,source:s.tUs};else if(now-coreRateSample.wall>=300){const dt=s.tUs-coreRateSample.source;if(dt>=0)measuredCoreRate=dt/(1000*(now-coreRateSample.wall));coreRateSample={wall:now,source:s.tUs};}}else coreRateSample=null;if(s.playing&&previous!==null){const [start,end]=playbackBounds(s);const step=afterTick(advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry),{loop:wallSettings.get().loop,start,end});carry=step.carry;store.dispatch({type:'SET_T_US',tUs:step.tUs});if(step.pause)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
+  // LEGACY BRIDGE: the only place the new front desk touches the old workbench DOM (case 3 reuses its playback widgets).
+  context.legacy={speedNote:()=>$('#q-speed-note')?.textContent??'',transport:$('.transport'),wallSlot:$('#monitor-room-slot'),q1Slot:$('#q1-slot'),q2Slot:$('#q2-slot')};
+  const ui=v1?mountUi({...context,root,url,synthetic:source===FIXTURE_ORIGIN,mediaResolver:createBoundMediaResolver({store,api}),storage:globalThis.localStorage??null}):null;if(ui)views.push(ui);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
   else{if(loaded.data.demo_integration===true)eventMenu.destroy();store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});monitorRoom?.setBootstrap(loaded.data);if(loaded.data.runs.length){const wanted=config.searchParams.get('run');const found=loaded.data.runs.findIndex(r=>r.run_id===wanted||r.title?.startsWith(wanted+' ·'));handlers.run(found<0?0:found);}

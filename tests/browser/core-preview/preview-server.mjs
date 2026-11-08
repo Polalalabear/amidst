@@ -3,6 +3,7 @@ import {readFile,realpath} from 'node:fs/promises';
 import {resolve,extname,join,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 
 const INTEGRATION_BASE='ac6cd12225ceb2c8f236ce9e1f9f2420f29bfdb4';
 const MEDIA_URL='/api/controlled_scene_media?token='+'s'.repeat(43);
@@ -11,6 +12,9 @@ const send=(res,status,body,type='application/json; charset=utf-8')=>{res.writeH
 const body=async request=>{let text='';for await(const chunk of request){text+=chunk;if(text.length>100000)throw Error('REQUEST_TOO_LARGE');}return JSON.parse(text);};
 const banner='<div id="synthetic-api-banner" role="note" style="position:fixed;z-index:99999;top:0;left:0;right:0;background:#8b1e1e;color:white;text-align:center;padding:6px;font:bold 14px system-ui">SYNTHETIC API FIXTURE · 合成畫面／合成回應 · 非真實 RGB 或正式驗收</div><style>body{padding-top:32px!important}</style>';
 const image=(camera)=>`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><rect width="640" height="360" fill="#17243b"/><rect x="4" y="4" width="632" height="352" fill="none" stroke="#e06868" stroke-width="8"/><text x="320" y="140" text-anchor="middle" fill="#fff" font-size="45" font-family="sans-serif">SYNTHETIC</text><text x="320" y="215" text-anchor="middle" fill="#ddd" font-size="26" font-family="sans-serif">${camera}</text></svg>`;
+
+// Synthetic preview: the sentence parser always replays the recording. Provider selection and any API key in the caller's environment never reach it.
+const nlEnv=()=>{const env={...process.env,PYTHONPATH:'',AMIDST_NL_PROVIDER:'RECORDED'};for(const k of Object.keys(env))if(/^OPENAI_|^AMIDST_NL_(OPENAI|OLLAMA)/.test(k))delete env[k];return env;};
 
 export async function startPreview({source,port=8765}={}){
   if(!source)throw Error('SOURCE_REQUIRED');
@@ -82,6 +86,12 @@ export async function startPreview({source,port=8765}={}){
       if(payload.session_ref!==session){send(res,403,{error_code:'FORBIDDEN_DATA_SCOPE'});return;}
       if(url.pathname==='/api/q_core_search'){send(res,200,await search(payload));return;}
       if(url.pathname==='/api/q_core_track'){send(res,200,await track(payload));return;}
+      if(url.pathname==='/api/q_nl_parse'){
+        // Epic D path (b): the real Python parser (nl_options) replays the SYNTHETIC_FIXTURE recording; never executes a query.
+        const run=resolveRun(payload);
+        const nlOut=execFileSync(process.env.AMIDST_PYTHON??'python3',['-m','amidst.q1q5.nl_options','replay'],{cwd:join(fileURLToPath(new URL('../../..',import.meta.url))),input:JSON.stringify({request:payload,run}),encoding:'utf8',env:nlEnv(),timeout:20000});
+        send(res,200,nlOut);return;
+      }
       if(url.pathname==='/api/q_media_grant'){const grant=mediaTokens.get(payload.media_token);if(!grant)throw Error('SYNTHETIC_GRANT_SCOPE');const {run,camera}=grant;send(res,200,{schema_version:'controlled-scene.synced-frames.v1',resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},clock_id:run.clock_id,data_origin:'SYNTHETIC',t_us:300000,provenance:{['g'+'t_read']:false},identity_verdict:'UNCONFIRMED',tiles:[{camera_id:camera,status:'READY',media_url:MEDIA_URL}]});return;}
       if(url.pathname==='/api/q_frames'){
         const run=resolveRun(payload),camera=payload.camera_ids?.[0];if(!run.camera_ids.includes(camera))throw Error('SYNTHETIC_CAMERA_SCOPE');

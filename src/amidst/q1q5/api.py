@@ -19,7 +19,7 @@ from pathlib import Path
 from amidst.q1q5.query_alias import region_catalog
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
-POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_camera_map','q_candidate_view','q_external_prediction','q_physical_prediction'})
+POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_nl_parse','q_camera_map','q_candidate_view','q_external_prediction','q_physical_prediction'})
 # Recognized error-only paths, not implemented capabilities. Keep them outside
 # POST_ROUTES so the UI-support conformance helpers still report missing wiring.
 UNAVAILABLE_POST_ROUTES=frozenset()
@@ -649,6 +649,17 @@ class QAPI:
             except CoreRequestError as exc:raise APIError(exc.code,422) from None
             self._save_response(payload['session_ref'],self._bundle(payload,response,run))
             return response
+        if action=='q_nl_parse':
+            # Epic D path (b): sentence -> pre-filled options only. Never executes a query; provider defaults to RECORDED.
+            run=self._run({'session_ref':payload.get('session_ref'),'scene_id':payload.get('scene_id'),'run_ids':[payload.get('run_id')]},authorize)
+            from amidst.q1q5 import nl_options
+            row=next((r for r in self.bootstrap()['runs'] if r['scene_id']==payload['scene_id'] and r['run_id']==payload['run_id']),None)
+            check(row is not None,'Q_RUN_NOT_CONFIGURED',503)
+            with self._lock:
+                if getattr(self,'_nl_provider',None) is None or self._nl_provider.__class__ is nl_options.UnavailableProvider:
+                    self._nl_provider=nl_options.safe_default_provider()   # a build failure degrades to rules; it is retried next call
+            try:return nl_options.parse_nl_options(payload,catalog=nl_options.catalog_from_run_summary(row),provider=self._nl_provider)
+            except nl_options.NlParseError as exc:raise APIError(exc.code,422) from None
         raise APIError('FORBIDDEN_DATA_SCOPE',403)
 
     def _external_prediction(self,bundle,payload):
