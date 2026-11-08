@@ -324,3 +324,19 @@ export function parseRoute(search = '', settings = DEFAULT_SETTINGS) {
   return { legacy, initial, skipCover: initial !== null, settings };
 }
 export function nextAfterCover(settings) { return settings.defaultCase ?? 'choose'; }
+
+// D146: continuous playback. Every camera plays on the one shared clock; the stage follows the target:
+//  ON_CAMERA -> that segment's camera (observed). GAP / LOST -> keep playing the camera the target was last seen on (not observed).
+//  PENDING (before the first sighting) -> the first camera that will see the target. `observed` is true only inside ON_CAMERA.
+export function stagePlan(singleView, t) {
+  const list = (Array.isArray(singleView) ? singleView : []).filter(x => Array.isArray(x.range_us)).sort((a, b) => a.range_us[0] - b.range_us[0]);
+  if (!list.length) return { kind: 'UNKNOWN', cam: null, observed: false, last: null };
+  let seg = list.find(x => x.range_us[0] <= t && t < x.range_us[1]);
+  if (!seg && t >= list.at(-1).range_us[1]) seg = list.at(-1);
+  const first = list.find(x => x.kind === 'ON_CAMERA');
+  if (!seg) return { kind: 'PENDING', cam: first?.camera_id ?? null, observed: false, last: null };
+  if (seg.kind === 'ON_CAMERA') return { kind: 'ON_CAMERA', cam: seg.camera_id, observed: true, last: seg.camera_id };
+  let last = null; for (const x of list) if (x.kind === 'ON_CAMERA' && x.range_us[0] <= t) last = x.camera_id;
+  const kind = ['GAP', 'LOST'].includes(seg.kind) ? seg.kind : 'UNKNOWN';
+  return { kind, cam: last ?? first?.camera_id ?? null, observed: false, last };
+}

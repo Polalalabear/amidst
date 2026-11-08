@@ -114,8 +114,8 @@ body.ui-admin{margin:0}
 .ui-tag-obs[data-tone="inferred"]{background:var(--inferred)}
 .ui-stagebox[data-kind="GAP"]{border-style:dashed;border-color:var(--inferred)}
 .ui-multi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.ui-multi-tile{position:relative;height:260px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;overflow:hidden;opacity:.55}
-.ui-multi-tile[data-active="true"]{opacity:1;outline:2px solid var(--accent)}
+.ui-multi-tile{position:relative;height:260px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ui-multi-tile[data-current="true"]{outline:3px solid var(--accent);outline-offset:-1px}
 .ui-multi-cap{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:8px 12px;background:linear-gradient(rgba(20,20,19,.8),transparent);font-size:12px}
 .ui-timeline{display:flex;flex-direction:column;gap:8px}.ui-tl-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--faint)}
 .ui-tl-row{position:relative;display:flex;gap:3px;height:26px;font:11px var(--mono)}
@@ -239,6 +239,5 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
    divided by the zoom so nothing overflows; the root stays fixed to the window, so the bottom bar stays at the window bottom. */
 #ui-v1{--ui-zoom:1;zoom:var(--ui-zoom);--ui-vh:calc(100dvh / var(--ui-zoom));--ui-vw:calc(100vw / var(--ui-zoom))}
 .ui-zoom-select{padding:6px 10px;width:auto;flex:0 0 auto}
-/* held picture: the last real frame of the previous camera (blind interval / lost); dimmed and labelled, never shown as observed */
-.ui-stagebox[data-hold="true"] .ui-stage-img{filter:grayscale(.6) brightness(.7)}
-.ui-hold-note{position:absolute;left:16px;bottom:14px;max-width:calc(100% - 32px);font-size:13px;background:rgba(20,20,19,.82);color:var(--inferred);border:1px dashed var(--inferred);padding:4px 10px;border-radius:6px}
+/* D146: the stage keeps playing live video while the target is out of view; a plain note says so (never styled as observed) */
+.ui-live-note{position:absolute;left:16px;bottom:14px;max-width:calc(100% - 32px);font-size:13px;background:rgba(20,20,19,.82);color:var(--inferred);border:1px solid var(--inferred);padding:4px 10px;border-radius:6px}

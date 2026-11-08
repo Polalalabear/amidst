@@ -45,3 +45,8 @@ export function techSummary(tags) {
   for (const t of tags ?? []) { const text = typeof t === 'string' ? t : t?.text; if (text && !seen.has(text)) { seen.add(text); out.push(text); } }
   return out.join(' · ');
 }
+
+// D146: the stage keeps playing the live picture of one camera while the target is out of view.
+export const gapLiveNote = cam => `目標暫時不在畫面中，持續播放 ${cameraName(cam)} 鏡頭`;
+export const lostLiveNote = cam => `目標已跟丟，持續播放 ${cameraName(cam)} 鏡頭`;
+export const pendingLiveNote = '目標尚未出現';

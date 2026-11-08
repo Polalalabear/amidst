@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 // ui-shell.mjs only touches the DOM inside mountUi, so its pure helpers can be imported directly.
-import {createFrameLoader, lastSeenFrame} from './ui-shell.mjs';
+import {createFrameLoader} from './ui-shell.mjs';
 import {classGroups, CAMERA_COUNT_NOTE} from './ui-model.mjs';
 
 const tick = () => new Promise(r => setTimeout(r, 0));
@@ -25,13 +25,6 @@ test('frame loader: failures report null and keep the loop alive; cancel and dis
   assert.deepEqual(shown, [[1, null], [2, 'u2']]);
   loader.dispose(); loader.request({t: 3}); await tick(); await tick();
   assert.equal(shown.length, 2);
-});
-
-test('lastSeenFrame: the last observed picture before a blind interval', () => {
-  const seq = [{kind: 'PENDING', range_us: [0, 200000]}, {kind: 'ON_CAMERA', camera_id: 'A', range_us: [200000, 600000]}, {kind: 'GAP', range_us: [600000, 1000000]}, {kind: 'ON_CAMERA', camera_id: 'B', range_us: [1000000, 1400000]}, {kind: 'LOST', range_us: [1400000, 2000000]}];
-  assert.deepEqual(lastSeenFrame(seq, 800000), {cam: 'A', t: 599999, seg: 'ON_CAMERA'});
-  assert.deepEqual(lastSeenFrame(seq, 1800000), {cam: 'B', t: 1399999, seg: 'ON_CAMERA'});
-  assert.equal(lastSeenFrame(seq, 100000), null); assert.equal(lastSeenFrame(undefined, 5), null);
 });
 
 test('classGroups: camera_count is carried only when it is a positive integer; ranking still uses detection_count', () => {
