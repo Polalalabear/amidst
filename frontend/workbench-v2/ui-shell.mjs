@@ -14,6 +14,7 @@ import {countsFromSearch, HISTORY_LIMIT} from './admin-overview-model.mjs';
 import {createPhaseStore, progressPercent} from './search-phase-model.mjs';
 import {sourcePresentation} from './q-tokens.mjs';
 import {resolveCardImageSrc, resolveFrameImageSrc} from './core-media.mjs';
+import {canPlay} from './q-playback.mjs';
 import {
   AUTO_SEED_LABEL, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
 } from './core-search-track-model.mjs';
@@ -92,11 +93,21 @@ export function mountUi(ctx) {
   const segSingle = el('button', '單畫面', undefined, {type: 'button', 'data-layout': 'single'}), segMulti = el('button', '多畫面', undefined, {type: 'button', 'data-layout': 'multi'});
   layoutSeg.append(segSingle, segMulti);
   const badge = el('span', undefined, 'ui-badge'); badge.id = 'ui-source-badge';
-  const topRight = el('div', undefined, 'ui-top-right'); topRight.append(progChip, layoutSeg, badge);
+  const sourceSelect = el('select', undefined, 'ui-input ui-small', {'aria-label': '資料來源'}); sourceSelect.id = 'ui-run-select';
+  sourceSelect.addEventListener('change', () => selectSource(sourceSelect.value));
+  let sourceKey = '';
+  const integration = () => store.getState().bootstrap?.demo_integration === true;
+  function selectSource(runId) {
+    const run = store.getState().bootstrap?.runs?.find(r => r.run_id === runId); if (!run) return;
+    const u = new URL(url); u.search = ''; u.searchParams.set('run', run.run_id); u.searchParams.set('screen', screen);
+    globalThis.location?.assign?.(u.toString());
+  }
+  const topRight = el('div', undefined, 'ui-top-right'); topRight.append(sourceSelect, progChip, layoutSeg, badge);
   const topAdmin = el('a', '後台', 'ui-pill-link', {href: 'admin.html'});
   topRight.append(topAdmin);
   top.append(topLeft, topRight);
   burger.addEventListener('click', () => setQuery(!queryOpen));
+  ctxChip.addEventListener('click', () => { if (screen === 'case2') setQuery(true); });
   for (const b of [segSingle, segMulti]) b.addEventListener('click', () => { store.dispatch({type: 'SET_PLAYBACK_MODE', value: b.dataset.layout}); });
 
   // ---- query windows ----------------------------------------------------------------------------------------------
@@ -247,7 +258,7 @@ export function mountUi(ctx) {
     if (destroyed) return;
     if (next === 'choose' && settings.defaultCase) next = settings.defaultCase;
     if (next === 'case2' && !entered.case2) { entered.case2 = true; store.dispatch({type: 'SET_PLAYBACK_MODE', value: settings.trackLayout}); store.dispatch({type: 'SET_SPEED', speed: settings.trackSpeed}); }
-    if (next === 'case3' && route.initial !== 'case3' && cfg.ev === null) {
+    if (next === 'case3' && !integration() && route.initial !== 'case3' && cfg.ev === null) {
       const wanted = EVENTS.find(e => e.id === settings.defaultEvent);
       if (wanted && available(wanted, cfg) && wanted.kind === 'page') { globalThis.location?.assign?.(case3Url(wanted)); return; }
     }
@@ -379,7 +390,7 @@ export function mountUi(ctx) {
     for (const sp of SUPPORTED_SPEEDS) { const b = el('button', `${sp}x`, 'ui-pillbtn', {type: 'button', 'data-speed': String(sp)}); b.addEventListener('click', () => store.dispatch({type: 'SET_SPEED', speed: sp})); speedSeg.append(b); trackParts.speeds.set(sp, b); }
     const actual = el('span', undefined, 'ui-mono ui-faint ui-small'); actual.id = 'ui-speed-note';
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
-    scrub.addEventListener('input', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Number(scrub.value)}); });
+    scrub.addEventListener('input', () => { const tUs = Number(scrub.value); store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); });
     ctl.append(play, speedSeg, actual, scrub); Object.assign(trackParts, {play, actual, scrub});
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
@@ -400,7 +411,7 @@ export function mountUi(ctx) {
       trackParts.stage.dataset.kind = sv.segmentKind;
       const fk = `${cam}|${t}|${sv.segmentKind}`;
       if (trackParts.frameKey !== fk) {   // one media request per frame, not per store tick
-        trackParts.frameKey = fk;
+        trackParts.frameKey = fk; trackParts.img.hidden = true; trackParts.img.removeAttribute('src');
         const src = resolveFrameImageSrc({cameraId: cam, currentTUs: t, segmentKind: sv.segmentKind, lastObservedCameraId: sv.lastObservedCameraId, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '') && trackParts.frameKey === fk && trackParts.img) { trackParts.img.src = u; trackParts.img.hidden = false; trackParts.note.hidden = true; } }});
         if (src) { trackParts.img.src = src; trackParts.img.hidden = false; trackParts.note.hidden = true; }
         else { trackParts.img.hidden = true; trackParts.img.removeAttribute('src'); trackParts.note.hidden = false; trackParts.note.textContent = sv.segmentKind === 'GAP' ? `盲區 · 沒有畫面（前一鏡頭 ${sv.lastObservedCameraId ?? '無'}）` : sv.segmentKind === 'LOST' ? `目標遺失（LOST）· 最後出現 ${sv.lastObservedCameraId ?? '無'}` : 'MISSING · 來源 RGB 未取得'; }
@@ -413,8 +424,8 @@ export function mountUi(ctx) {
     if (trackParts.multi) for (const cam of view.multiView.cameras) {
       const part = trackParts.multi.get(cam.cameraId); if (!part) continue;
       part.tile.dataset.active = String(cam.isActive); part.cap.lastChild.textContent = cam.badge;
-      const fk = `${t}|${cam.isActive}`; if (part.key === fk) continue; part.key = fk;
-      const src = resolveFrameImageSrc({cameraId: cam.cameraId, currentTUs: t, segmentKind: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE', mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '') && part.key === fk) { part.img.src = u; part.img.hidden = false; part.empty.hidden = true; } }});
+      const fk = `${t}|${cam.isActive}`; if (part.key === fk) continue; part.key = fk; part.img.hidden = true; part.img.removeAttribute('src');
+      const src = resolveFrameImageSrc({cameraId: cam.cameraId, currentTUs: t, segmentKind: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE', includeCandidate: true, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '') && part.key === fk) { part.img.src = u; part.img.hidden = false; part.empty.hidden = true; } }});
       if (src) { part.img.src = src; part.img.hidden = false; part.empty.hidden = true; } else { part.img.hidden = true; part.empty.hidden = false; }
     }
     // camera timeline
@@ -430,7 +441,7 @@ export function mountUi(ctx) {
     }
     // controls
     trackParts.play.textContent = s.playing ? '❚❚' : '▶'; trackParts.play.disabled = !canPlayNow(s);
-    trackParts.play.title = canPlayNow(s) ? '' : '此來源無法播放（合成時鐘以外的來源不播放）';
+    trackParts.play.title = canPlayNow(s) ? '' : '請先載入可播放的來源片段';
     for (const [sp, b] of trackParts.speeds) { b.classList.toggle('on', s.speed === sp); b.setAttribute('aria-pressed', String(s.speed === sp)); }
     const note = ctx.legacy?.speedNote?.() ?? ''; trackParts.actual.textContent = note;
     trackParts.scrub.min = String(start); trackParts.scrub.max = String(asOf); trackParts.scrub.value = String(s.tUs);
@@ -438,7 +449,7 @@ export function mountUi(ctx) {
     renderPlan(s, view, resp);
     renderJournal(resp, cm);
   }
-  const canPlayNow = s => s.playing || (!s.loading && s.coreTrackResponse && s.activeRun?.source_kind === 'SYNTHETIC' && s.coreTrackResponse.as_of_us > 0);
+  const canPlayNow = s => s.playing || canPlay(s);
   function renderPlan(s, view, resp) {
     const plan = floorPlan(view.topdown, {settings, singleView: resp.single_view, currentTUs: view.currentTUs});
     const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status]);
@@ -466,21 +477,25 @@ export function mountUi(ctx) {
   }
 
   // ---- case 3: replay of existing events --------------------------------------------------------------------------
-  let case3Built = false, frame = null;
+  let case3Built = false, case3Scope = null, frame = null;
   const eventLabel = e => e.label;
   function currentEventId() {
+    if (integration()) return 'wall';
     if (cfg.ev) return cfg.ev;
     return new URL(url).searchParams.get('recording') === B05B_RECORDING_ID ? 'b05b' : 'wall';
   }
   function mountCase3() {
+    const s = store.getState(), scope = JSON.stringify([integration(), s.activeRun?.run_id, s.bootstrap?.runs?.map(r => r.run_id)]);
+    if (case3Scope !== scope) { case3Built = false; case3Scope = scope; }
     if (!case3Built) {
       case3Built = true; sCase3.replaceChildren();
       const bar = el('div', undefined, 'ui-events'); bar.id = 'ui-events'; bar.setAttribute('role', 'tablist');
       const cur = currentEventId();
-      for (const e of EVENTS) {
+      const entries = integration() ? (s.bootstrap?.runs ?? []).map(run => ({id: run.run_id, label: run.title ?? run.run_id, kind: 'page', run})) : EVENTS;
+      for (const e of entries) {
         const ok = available(e, cfg), b = el('button', ok ? eventLabel(e) : `${eventLabel(e)}（未啟動）`, 'ui-pillbtn', {type: 'button', 'data-event': e.id, role: 'tab'});
         b.disabled = !ok; b.setAttribute('aria-pressed', String(e.id === cur)); b.classList.toggle('on', e.id === cur);
-        b.addEventListener('click', () => chooseEvent(e)); bar.append(b);
+        b.addEventListener('click', () => e.run ? selectSource(e.run.run_id) : chooseEvent(e)); bar.append(b);
       }
       const note = el('p', undefined, 'ui-muted ui-small ui-event-note'); note.id = 'ui-event-note'; note.textContent = EVENTS.find(e => e.id === cur)?.note ?? '';
       const stage = el('div', undefined, 'ui-case3-stage'); stage.id = 'ui-case3-stage';
@@ -495,8 +510,8 @@ export function mountUi(ctx) {
   }
   function showEvent(id) {
     const e = EVENTS.find(x => x.id === id) ?? EVENTS[0], stage = sCase3.querySelector('#ui-case3-stage'), embedded = e.kind === 'embed';
-    for (const b of sCase3.querySelectorAll('[data-event]')) { b.classList.toggle('on', b.dataset.event === e.id); b.setAttribute('aria-pressed', String(b.dataset.event === e.id)); }
-    sCase3.querySelector('#ui-event-note').textContent = e.note;
+    for (const b of sCase3.querySelectorAll('[data-event]')) { const current = integration() ? b.dataset.event === store.getState().activeRun?.run_id : b.dataset.event === e.id; b.classList.toggle('on', current); b.setAttribute('aria-pressed', String(current)); }
+    sCase3.querySelector('#ui-event-note').textContent = integration() ? `${store.getState().activeRun?.title ?? ''} · ${store.getState().activeRun?.source_kind ?? 'UNKNOWN'} · 身分未確認 · 物理通行與碰撞 UNKNOWN` : e.note;
     const src = embedded ? embedSrc(e, cfg, 'system', modeOf(e, cfg)) : null;
     frame.hidden = !embedded || !src;
     if (src && frame.getAttribute('src') !== src) frame.setAttribute('src', src); if (!src) frame.removeAttribute('src');
@@ -514,6 +529,9 @@ export function mountUi(ctx) {
   // ---- header context + badge -------------------------------------------------------------------------------------
   function renderHeader() {
     const s = store.getState();
+    const runs = s.bootstrap?.runs ?? [], key = JSON.stringify(runs.map(r => [r.run_id, r.title]));
+    if (sourceKey !== key) { sourceKey = key; sourceSelect.replaceChildren(...runs.map(r => el('option', r.title ?? r.run_id, undefined, {value: r.run_id}))); }
+    sourceSelect.hidden = runs.length < 2; sourceSelect.value = s.activeRun?.run_id ?? '';
     const origin = s.responseOrigin ?? s.bootstrap?.data_origin ?? 'UNAVAILABLE', pres = sourcePresentation(origin, s.recordedKind ?? s.activeRun?.source_kind);
     const text = /SYNTHETIC/.test(pres.label) ? 'SYNTHETIC' : /PILOT/.test(pres.label) ? 'PILOT' : origin === 'RECORDED' ? 'REPLAY' : origin;
     badge.textContent = text; badge.title = pres.note;
@@ -566,6 +584,7 @@ export function mountUi(ctx) {
     renderHeader(); renderProgress();
     if (screen === 'case1') renderCase1();
     else if (screen === 'case2') renderCase2();
+    else if (screen === 'case3') mountCase3();
   }
   let prevState = store.getState();
   disposers.push(store.subscribe(s => { afterStore(s, prevState); const prev = prevState; prevState = s; if (s.bootstrap !== prev.bootstrap || s.activeRun !== prev.activeRun) renderCatalog(); render(); }));
