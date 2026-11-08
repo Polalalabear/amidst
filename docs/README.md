@@ -16,6 +16,7 @@
 
 ### 契約
 
+- [Demo bootstrap 偵測類別統計](contracts/Q_DEMO_API_BOOTSTRAP_V1.md)：D139 `detected_class_counts`、索引 pin 與衍生統計邊界。
 - [Q1–Q5 第一版契約](contracts/Q1_Q2_FIRST_DEMO_V1.md)：現行版在 `codex/q1q5-staging`（契約 B，[#237](https://github.com/Polalalabear/amidst/pull/237)）；mainline 的副本不手改。
 
 ### Line 1：r004 baseline
