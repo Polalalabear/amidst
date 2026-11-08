@@ -185,7 +185,7 @@
       child { node {鏡頭播放\\紀錄} }
     };
 \end{tikzpicture}
-\caption{功能架構（功能樹）。依據 PR \#487 描述\src{S2}。「鏡頭播放」「紀錄」為舊功能移入後台的分頁。}
+\caption{功能架構（功能樹）。依據 PR \#487（大問題 A）描述\src{S2}。「鏡頭播放」「紀錄」為舊功能移入後台的分頁。}
 \label{fig:func}
 \end{figure}
 
@@ -252,7 +252,7 @@
 \subsection{場景}
 \begin{itemize}
   \item \textbf{r004}：Blender 室內場景；鏡頭目錄 8 台、5 fps、單一 run 長 30 s、影像 960$\times$540；run A4 為 4 台鏡頭、B4 為 5 台；設定狀態 \code{PROPOSED_NOT_FROZEN}，正式產製未執行\src{S8}。
-  \item \textbf{r005}：六張靜態圖（人工區域＋模型候選），12:00:00～12:00:01 只是明示的展示時間槽，不是拍攝時間\src{S1}。使用 \#464 的 33 個顯示用模型候選（固定分數門檻 0.30）\src{S9}；人工回條只授權六組鏡頭／影格／區域\src{S1}。
+  \item \textbf{r005}：六張靜態圖（人工區域＋模型候選），12:00:00～12:00:01 只是明示的展示時間槽，不是拍攝時間\src{S1}。使用大問題 A 下 \#464 的 33 個顯示用模型候選（固定分數門檻 0.30）\src{S9}；人工回條只授權六組鏡頭／影格／區域\src{S1}。
 \end{itemize}
 
 \subsection{事件與影像來源}
@@ -269,11 +269,11 @@ A4-1 & r004（D124） & \code{ACTUAL_BLENDER} RGB & 4 & \code{DEMO_DEFAULT}，�
 B4-1 & r004（D124） & \code{ACTUAL_BLENDER} RGB & 5 & \code{DEMO_DEFAULT}，自動種子 \\
 \bottomrule
 \end{tabularx}
-\par\smallskip\footnotesize 鏡頭數來源：\#445 留言 6717335520\src{S1}。自動種子 preset 只含 person、無顏色、無區域\src{S1}。
+\par\smallskip\footnotesize 鏡頭數來源：大問題 A（\#445） 留言 6717335520\src{S1}。自動種子 preset 只含 person、無顏色、無區域\src{S1}。
 \end{table}
 
 \subsection{硬體與軟體}
-功能驗收與播放量測在同一台 Mac 上執行：Apple M3、8 個邏輯 CPU、記憶體 17,179,869,184 bytes（16 GiB）、Darwin 25.6.0、arm64；瀏覽器 Chrome 156.0.8078.80；Node v26.0.0、Python 3.12.12、playwright-core 1.56.0\src{S4}。偵測器設定為 CPU、FP32、2 threads、seed 7\src{S8}。第 \ref{sec:latency} 節的歷史推論量測為 CPU 2 threads、單 worker，機器型號在 \#479 內文未載明（\UNK）\src{S3}；量測 A 的硬體與 worker 數同樣 \UNK\src{S11}。
+功能驗收與播放量測在同一台 Mac 上執行：Apple M3、8 個邏輯 CPU、記憶體 17,179,869,184 bytes（16 GiB）、Darwin 25.6.0、arm64；瀏覽器 Chrome 156.0.8078.80；Node v26.0.0、Python 3.12.12、playwright-core 1.56.0\src{S4}。偵測器設定為 CPU、FP32、2 threads、seed 7\src{S8}。第 \ref{sec:latency} 節的歷史推論量測為 CPU 2 threads、單 worker，機器型號在 大問題 B（\#479） 內文未載明（\UNK）\src{S3}；量測 A 的硬體與 worker 數同樣 \UNK\src{S11}。
 
 \subsection{研究問題}
 使用者原本以 Q1–Q5 稱呼的五個問題，本紀錄改稱 RQ1–RQ5。表~\ref{tab:rq} 列出各題對應的功能、評估方法與指標。
@@ -286,21 +286,21 @@ B4-1 & r004（D124） & \code{ACTUAL_BLENDER} RGB & 5 & \code{DEMO_DEFAULT}，�
 \toprule
 研究問題 & 對應功能 & 評估方法 & 指標 & 狀態 \\
 \midrule
-RQ1 依條件找出鏡頭 & case1 \code{q_core_search}：地點命中（人工靜態涵蓋）與物件命中 & 每筆查詢的命中鏡頭集合，對照人工核定的期望鏡頭集合（r005 用 \#464 人工回條） & 鏡頭層級 precision／recall；查找回應時間 & 功能驗收完成；正式數字 \TBD \tabularnewline
+RQ1 依條件找出鏡頭 & case1 \code{q_core_search}：地點命中（人工靜態涵蓋）與物件命中 & 每筆查詢的命中鏡頭集合，對照人工核定的期望鏡頭集合（r005 用大問題 A 下 \#464 的人工回條） & 鏡頭層級 precision／recall；查找回應時間 & 功能驗收完成；正式數字 \TBD \tabularnewline
 RQ2 在畫面中找出人物 & 離線 RT-DETR R18 偵測索引 & 取樣影格上的 person 偵測，對照人工框 & recall、AP@IoU 0.5；$T_{\mathrm{det}}$（中位數、P90） & 正式數字 \TBD；$T_{\mathrm{det}}$ 平均 279.64 ms（表~\ref{tab:detA}），P50／P90 \UNK \tabularnewline
-RQ3 理解使用者的描述 & 自然語言轉選單輸入框（\#480） & 描述句 → 結構化條件（時間、地點、類別、顏色），對照人工標準答案 & 欄位層級 exact match、整句正確率、解析時間 & \TBD（只有方法） \tabularnewline
+RQ3 理解使用者的描述 & 自然語言轉選單輸入框（大問題 D；原 \#480） & 描述句 → 結構化條件（時間、地點、類別、顏色），對照人工標準答案 & 欄位層級 exact match、整句正確率、解析時間 & \TBD（只有方法） \tabularnewline
 RQ4 從偵測判斷 2D 畫面有無目標 & 偵測索引＋條件比對（\code{target_observed}） & 影格／片段層級的有無判斷，對照組員 yyin 提供的正式標註 & precision、recall、F1 & \TBD（標註未到） \tabularnewline
 RQ5 目標離開時要不要換鏡頭 & case2 單畫面切鏡規則（契約 §3.5）、自動換鏡頭 & 實機 E2E 實際播放的切鏡序列，對照人工標記的轉移 & 切鏡序列正確與否；切換延遲 P90 & 功能驗收完成；延遲 \NR \tabularnewline
 \bottomrule
 \end{tabularx}
 \end{table}
 
-RQ3 與 RQ4 目前沒有任何結果，只寫方法與計畫：RQ3 待 \#480 的解析器完成後，以固定的描述句集合評估；RQ4 待組員 yyin 提供正式標註後，以同一組影格計算有無判斷的 precision／recall／F1。
+RQ3 與 RQ4 目前沒有任何結果，只寫方法與計畫：RQ3 待大問題 D（原 \#480）的解析器完成後，以固定的描述句集合評估；RQ4 待組員 yyin 提供正式標註後，以同一組影格計算有無判斷的 precision／recall／F1。
 
 %=====================================================================
 \section{結果}\label{sec:results}
 \subsection{功能驗收}
-表~\ref{tab:accept} 為三個事件在各畫面的實機驗收結果，取自 \#445 Codex 留言 6717335520（整合分支 \code{1fdc1a4}）\src{S1}；表~\ref{tab:tests} 為自動化測試數量。
+表~\ref{tab:accept} 為三個事件在各畫面的實機驗收結果，取自 大問題 A（\#445） Codex 留言 6717335520（整合分支 \code{1fdc1a4}）\src{S1}；表~\ref{tab:tests} 為自動化測試數量。
 
 \begin{table}[htbp]
 \centering\small
@@ -330,7 +330,7 @@ r005 & \multicolumn{4}{l}{「101 教室」1 台；「筆電」2 台；兩者皆�
 \midrule
 後端 pytest：\code{test_core_search_track_t.py}、\code{test_scene_graphs.py} & \#485 \code{1fdc1a4} & 121 passed、0 skipped & S1 \tabularnewline
 前端 Node（\code{workbench-v2}、\code{event-viewer}） & \#485 \code{1fdc1a4} & 478 pass、0 fail & S1 \tabularnewline
-合成核心畫面 E2E（\#476 \code{core-e2e.mjs}） & \#485 \code{1fdc1a4} & 49 checks PASS、16 張合成截圖 & S1 \tabularnewline
+合成核心畫面 E2E（大問題 A；\#476 \code{core-e2e.mjs}） & \#485 \code{1fdc1a4} & 49 checks PASS、16 張合成截圖 & S1 \tabularnewline
 實機 E2E（\code{real-e2e.mjs}） & \#485（實作 \code{741478b}） & 53 checks PASS、17 張截圖、0 page error、0 failed API & S1 \tabularnewline
 架構守門：\code{check_architecture_guard.py} & \#485 \code{1fdc1a4} & PASS、0 findings & S1 \tabularnewline
 前端 Node（新 UI） & \#487 & 492 pass、0 fail（新增 14 項） & S2 \tabularnewline
@@ -340,13 +340,13 @@ r005 & \multicolumn{4}{l}{「101 教室」1 台；「筆電」2 台；兩者皆�
 \end{table}
 
 \subsection{延遲}\label{sec:latency}
-本節先列 r004 上的離線偵測速度（量測 A，表~\ref{tab:detA}），再依 \#479 內文列出歷史量測（表~\ref{tab:latency}）；歷史量測都在工程場景（P1／staging）上，不是 r004\src{S3}。兩者都是\textbf{離線建索引}的速度，不是展示現場的速度；現場不跑模型\src{S3}。
+本節先列 r004 上的離線偵測速度（量測 A，表~\ref{tab:detA}），再依 大問題 B（\#479） 內文列出歷史量測（表~\ref{tab:latency}）；歷史量測都在工程場景（P1／staging）上，不是 r004\src{S3}。兩者都是\textbf{離線建索引}的速度，不是展示現場的速度；現場不跑模型\src{S3}。
 
-\paragraph{量測 A：r004 離線偵測速度。}取自 \#475 的 DEMO\_DEFAULT 試跑紀錄，只讀 GitHub 紀錄計算、未重跑\src{S11}。偵測器為 RT-DETR R18，CPU、FP32、輸入 640$\times$640、seed 7、2 threads；來源 5 fps，全部影格都做了推論（A4-1 1,000／1,000、B4-1 1,050／1,050）\src{S11}。紀錄只有每個 run 的分階段秒數加總，沒有逐張時間，因此中位數、P90、P99 為 \UNK，不估算\src{S11}。
+\paragraph{量測 A：r004 離線偵測速度。}取自大問題 B 下 \#475 的 DEMO\_DEFAULT 試跑紀錄，只讀 GitHub 紀錄計算、未重跑\src{S11}。偵測器為 RT-DETR R18，CPU、FP32、輸入 640$\times$640、seed 7、2 threads；來源 5 fps，全部影格都做了推論（A4-1 1,000／1,000、B4-1 1,050／1,050）\src{S11}。紀錄只有每個 run 的分階段秒數加總，沒有逐張時間，因此中位數、P90、P99 為 \UNK，不估算\src{S11}。
 
 \begin{table}[htbp]
 \centering\small
-\caption{量測 A：r004 離線偵測速度（\#475，DEMO\_DEFAULT 試跑）。}
+\caption{量測 A：r004 離線偵測速度（大問題 B，來源 \#475；DEMO\_DEFAULT 試跑）。}
 \label{tab:detA}
 \begin{tabular}{l r r r}
 \toprule
@@ -362,7 +362,7 @@ r005 & \multicolumn{4}{l}{「101 教室」1 台；「筆電」2 台；兩者皆�
 中位數／P90／P99 & \UNK & \UNK & \UNK \\
 \bottomrule
 \end{tabular}
-\par\smallskip\footnotesize 來源：\#479 留言 6717580954\src{S11}，原始數據為 \code{D131_417_DEMO_DEFAULT_RESULTS.json}@\code{a786bde} 的 \code{runs[].seconds_by_stage}。各階段為讀檔、雜湊、解碼、前處理、前向、後處理、HSV、索引編碼八項；合計為兩個 run 的秒數相加後除以 2,050。各階段加總不含程序啟動、模型載入與寫檔，不是總 wall-clock（\UNK）；硬體與 worker 數 \UNK；每個 run 只有一次，沒有信賴區間\src{S11}。
+\par\smallskip\footnotesize 來源：大問題 B（\#479） 留言 6717580954\src{S11}，原始數據為 \code{D131_417_DEMO_DEFAULT_RESULTS.json}@\code{a786bde} 的 \code{runs[].seconds_by_stage}。各階段為讀檔、雜湊、解碼、前處理、前向、後處理、HSV、索引編碼八項；合計為兩個 run 的秒數相加後除以 2,050。各階段加總不含程序啟動、模型載入與寫檔，不是總 wall-clock（\UNK）；硬體與 worker 數 \UNK；每個 run 只有一次，沒有信賴區間\src{S11}。
 \end{table}
 
 與歷史值（3.129 fps，約 320 ms／幀）相比，量測 A 的前向 fps 高 14.3\%、各階段加總高 7.2\%\src{S11}；但兩者的場景、影格內容、硬體與計時範圍都不同，不能解讀為同條件下的改進，只能說數量級一致（約 3 fps、約 0.3 s／幀）\src{S11}。
@@ -412,10 +412,10 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 \par\smallskip\footnotesize 來源：\code{docs/engineering/d133_playback_latency_20261108.json}@\code{1fdc1a4}，量測 head \code{eb10d4c}\src{S4}。數值四捨五入到小數點後 1～3 位。
 \end{table}
 
-\paragraph{尚未量測。}以下項目為 \NR，量法、硬體 manifest 與樣本數依 \#479 計畫補上\src{S3}：r004 偵測時間的逐張分佈（中位數、P90；量測 A 只有平均）；case1 查找回應時間（\#462）；case2 追蹤回應時間；即時偵測到切鏡的延遲、A4／B4 整合核心的切鏡延遲\src{S4}。索引建置的總 wall-clock：\UNK；目前只有量測 A 的各階段加總 610.975 s（2,050 張）\src{S11}。
+\paragraph{尚未量測。}以下項目為 \NR，量法、硬體 manifest 與樣本數依 \#479 計畫補上\src{S3}：r004 偵測時間的逐張分佈（中位數、P90；量測 A 只有平均）；case1 查找回應時間（大問題 B；原 \#462）；case2 追蹤回應時間；即時偵測到切鏡的延遲、A4／B4 整合核心的切鏡延遲\src{S4}。索引建置的總 wall-clock：\UNK；目前只有量測 A 的各階段加總 610.975 s（2,050 張）\src{S11}。
 
 \subsection{實際畫面}
-圖~\ref{fig:screens} 為整合版在 Mac 上的實機截圖（\#445 留言列出的截圖資料夾\src{S1}），經檢查畫面上沒有 GT、渲染軌跡或劇本資訊。
+圖~\ref{fig:screens} 為整合版在 Mac 上的實機截圖（大問題 A（\#445） 留言列出的截圖資料夾\src{S1}），經檢查畫面上沒有 GT、渲染軌跡或劇本資訊。
 
 \begin{figure}[htbp]
 \centering
@@ -460,8 +460,8 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 本階段完成了 D126 兩個核心功能在 r004／r005、三個事件上的整合與功能驗收，自動化測試全數通過\src{S1,S2}；架構上以離線索引避開即時偵測所需的大量 worker（\EXT）\src{S3}，並以 GT 隔離與 fail-closed 規則確保畫面上只出現可追溯的證據。尚未完成的是研究問題的正式評估與 Agent 能力的驗證。後續工作：
 \begin{enumerate}
   \item RQ4：取得 yyin 的正式標註後計算 precision／recall／F1。
-  \item RQ3：完成 \#480 自然語言解析並評估。
-  \item 依 \#479 補量 r004 逐張偵測時間（runner 需記錄逐張前向時間）、case1／case2 回應時間與切鏡延遲。
+  \item RQ3：完成大問題 D（原 \#480）的自然語言解析並評估。
+  \item 依 大問題 B（\#479） 補量 r004 逐張偵測時間（runner 需記錄逐張前向時間）、case1／case2 回應時間與切鏡延遲。
   \item 把盲區假設模組（\eqref{eq:reach}–\eqref{eq:admissible}）接入 case2，並在 A4／B4 上與 \eqref{eq:window} 的顯示路徑比較。
   \item 依第 \ref{sec:discussion} 節的方式驗證或修正「Agentic」的宣稱。
 \end{enumerate}
@@ -495,9 +495,9 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 標記 & 來源 \\
 \midrule
 \endhead
-S1 & \#445 Codex 留言 6717335520（2026-11-08），\url{https://github.com/Polalalabear/amidst/issues/445\#issuecomment-6717335520} \\
+S1 & 大問題 A（\#445） Codex 留言 6717335520（2026-11-08），\url{https://github.com/Polalalabear/amidst/issues/445\#issuecomment-6717335520} \\
 S2 & PR \#487 描述「實際產出」，\url{https://github.com/Polalalabear/amidst/pull/487}（head \code{53953a8}） \\
-S3 & Issue \#479 內文（W-A24 延遲分析），\url{https://github.com/Polalalabear/amidst/issues/479}；其原始來源為 \#397 §B-4、\#93 留言 6362295156／6417324746、\code{docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md} \\
+S3 & 大問題 B（\#479，原 W-A24 延遲分析）內文，\url{https://github.com/Polalalabear/amidst/issues/479}；其原始來源為 \#397 §B-4、\#93 留言 6362295156／6417324746、\code{docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md} \\
 S4 & \code{docs/engineering/d133_playback_latency_20261108.json}@\code{1fdc1a4}（硬體、版本、\code{playback_trials}、\code{not_measured}） \\
 S5 & \code{docs/contracts/Q_CORE_SEARCH_TRACK_V1.md}@\code{1fdc1a4}（§0、§1、§2.2、§3.5、§3.6、§4） \\
 S6 & \code{src/amidst/q1q5/physical_prediction.py}@\code{1fdc1a4}（\code{PredictionParams}、\code{_window}） \\
@@ -507,10 +507,18 @@ S7c & \code{src/amidst/q1q5/openai_prediction.py}@\code{1fdc1a4}（模組說明�
 S8 & \code{configs/q1q5/r004_production_v1.json}@\code{1fdc1a4} \\
 S9 & \code{docs/operations/D134_445_MAC_INTEGRATION.md}@\code{1fdc1a4} \\
 S10 & 專題報告初稿（Claude Docs），\url{https://claude.ai/artifact/B7oycBdnYfkeK1U1JiPWSL}，第二章與參考文獻（2026-11-08 讀取，rev 11） \\
-S11 & \#479 留言 6717580954（量測 A：離線偵測速度），\url{https://github.com/Polalalabear/amidst/issues/479\#issuecomment-6717580954}；原始數據 \code{docs/engineering/D131_417_DEMO_DEFAULT_RESULTS.md}／\code{.json}@\code{a786bde} \\
+S11 & 大問題 B（\#479） 留言 6717580954（量測 A：離線偵測速度），\url{https://github.com/Polalalabear/amidst/issues/479\#issuecomment-6717580954}；原始數據 \code{docs/engineering/D131_417_DEMO_DEFAULT_RESULTS.md}／\code{.json}@\code{a786bde} \\
 S12 & PR \#487 審查留言 6717576841（ADOPT、無 P1），\url{https://github.com/Polalalabear/amidst/pull/487\#issuecomment-6717576841} \\
 \bottomrule
 \end{longtable}
+
+\paragraph{大問題對照。}GitHub 依 D132 把工作整合成四個大問題；本紀錄以大問題為主，舊編號保留作為來源連結（對照取自各大問題內文，2026-11-08 讀取）：
+\begin{itemize}
+  \item 大問題 A（\#445）：Demo 驗收，新 UI＋真實資料。本紀錄引用的 \#464、\#476、\#478、\#485、\#487 在其下。
+  \item 大問題 B（\#479）：實驗紀錄與研究報告。本紀錄引用的 \#397、\#462、\#475 在其下。
+  \item 大問題 C（\#486）：大掃除與可攜性（本紀錄未引用）。
+  \item 大問題 D（\#489）：讓 Agentic 成立。本紀錄引用的 \#480（自然語言）在其下，第 \ref{sec:discussion} 節的補強方向也屬此項。
+\end{itemize}
 
 \section{分支、PR 與重現指令}
 \begin{table}[htbp]
