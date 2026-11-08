@@ -106,6 +106,8 @@
       "required": ["camera_id", "range_us", "evidence_state", "observation_ids"],
       "properties": {"camera_id": {"$ref": "#/$defs/nonEmptyString"}, "range_us": {"$ref": "#/$defs/rangeUs"},
                      "evidence_state": {"const": "OBSERVED"},
+                     "track_ref": {"type": "string"},
+                     "link_kind": {"enum": ["LOCAL_SEED", "SAME_CAMERA_REACQUISITION", "CROSS_CAMERA_HANDOFF"]},
                      "observation_ids": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}, "minItems": 1}}
     },
     "singleViewSegment": {
@@ -156,6 +158,11 @@
         "reasons": {"type": "array", "items": {"type": "string"}},
         "as_of_us": {"$ref": "#/$defs/sourceUs"},
         "sightings": {"type": "array", "items": {"$ref": "#/$defs/sighting"}},
+        "association_audit": {"type": "array", "description": "Optional DEMO_DEFAULT candidate decisions, including D145 same-camera reacquisition",
+          "items": {"type": "object", "required": ["reason", "timestamp_us"],
+            "properties": {"reason": {"type": "string"}, "timestamp_us": {"$ref": "#/$defs/sourceUs"},
+              "link_kind": {"enum": ["SAME_CAMERA_REACQUISITION", "CROSS_CAMERA_HANDOFF"]},
+              "identity_verdict": {"const": "UNCONFIRMED"}}}},
         "multi_view": {"type": "array", "items": {"type": "object", "required": ["camera_id", "first_us", "last_us"]}},
         "single_view": {"type": "array", "items": {"$ref": "#/$defs/singleViewSegment"}},
         "blind": {"$ref": "#/$defs/blind"},

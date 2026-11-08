@@ -92,7 +92,9 @@ def associate(tracks, transitions, *, as_of_us, parameters):
     """Choose the earliest seed, then evaluate each later seed using its past only.
 
     At a candidate seed, the current camera must lack a contemporaneous sample.
-    Direct graph edge, bounded sample gap and a shared non-NONE color are required.
+    Cross-camera candidates require a direct graph edge. D145 same-camera
+    reacquisition requires a new local segment, the same bounded sample gap and
+    a shared non-NONE color; it grants no graph authority or confirmed identity.
     Multiple eligible seeds at the same timestamp stop with UNKNOWN, never a rank.
     """
     if type(as_of_us) is not int or as_of_us < 0:
@@ -123,12 +125,16 @@ def associate(tracks, transitions, *, as_of_us, parameters):
             seed = candidate.observations[0]
             edge = transitions.get((current.camera_id, candidate.camera_id))
             gap = timestamp - (last.timestamp_us + parameters.sample_interval_us)
-            reason = ('NO_DIRECT_TRANSITION' if edge is None else
+            same_camera = current.camera_id == candidate.camera_id
+            reason = ('SAME_LOCAL_SEGMENT' if current.track_ref == candidate.track_ref else
+                      'NO_DIRECT_TRANSITION' if not same_camera and edge is None else
                       'CURRENT_CAMERA_STILL_OBSERVED' if gap < 0 else
                       'HANDOFF_WINDOW_EXCEEDED' if gap > parameters.handoff_max_gap_us else
                       'COLOR_NOT_COMPATIBLE' if not last.colors.intersection(seed.colors) else None)
             row = {'from_camera_id': current.camera_id, 'to_camera_id': candidate.camera_id,
                    'timestamp_us': timestamp, 'transition_id': edge, 'gap_us': gap,
+                   'link_kind': 'SAME_CAMERA_REACQUISITION' if same_camera else 'CROSS_CAMERA_HANDOFF',
+                   'from_track_ref': current.track_ref, 'to_track_ref': candidate.track_ref,
                    'reason': reason, 'evidence_state': 'INFERRED', 'confidence': 'LOW',
                    'identity_verdict': 'UNCONFIRMED'}
             audit.append(row)
@@ -151,13 +157,15 @@ def associate(tracks, transitions, *, as_of_us, parameters):
                 continue
             end = min(obs.timestamp_us + parameters.sample_interval_us, cutoff, as_of_us)
             if (sightings and sightings[-1]['camera_id'] == track.camera_id
-                    and sightings[-1]['range_us'][1] == obs.timestamp_us):
+                    and sightings[-1]['range_us'][1] == obs.timestamp_us
+                    and sightings[-1]['track_ref'] == track.track_ref):
                 sightings[-1]['range_us'][1] = end
                 sightings[-1]['observation_ids'].append(obs.observation_id)
             else:
                 sightings.append({'camera_id': track.camera_id, 'range_us': [obs.timestamp_us, end],
                                   'evidence_state': 'OBSERVED', 'observation_ids': [obs.observation_id],
-                                  'track_ref': track.track_ref})
+                                  'track_ref': track.track_ref,
+                                  'link_kind': events[i - 1]['link_kind'] if i else 'LOCAL_SEED'})
     return sightings, events, audit
 
 
@@ -175,11 +183,13 @@ def response(tracks, transitions, *, as_of_us, parameters, clock_mapping_sha256)
               'as_of_us': as_of_us,
               'resolved_time': {'kind': 'PLAYBACK_NOW', 'source_range_us': [0, as_of_us],
                                 'clock_mapping_sha256': clock_mapping_sha256},
-              'sightings': sightings, 'multi_view': sorted(cameras.values(), key=lambda c: (c['first_us'], c['camera_id'])),
+              'sightings': sightings, 'association_audit': audit, 'multi_view': sorted(cameras.values(), key=lambda c: (c['first_us'], c['camera_id'])),
               'single_view': single,
               'blind': {'status': 'UNAVAILABLE', 'reason': 'PREDICTION_UNAVAILABLE', 'estimate': None}
                        if single and single[-1]['kind'] in {'GAP', 'LOST'} else None,
               'identity_verdict': 'UNCONFIRMED', 'physical_navigation': 'UNKNOWN'}
+    if any(event['link_kind'] == 'SAME_CAMERA_REACQUISITION' for event in events):
+        result['reasons'].append('SAME_CAMERA_REACQUISITION')
     if any(row['reason'].startswith('AMBIGUOUS') for row in audit):
         result['reasons'].append('ASSOCIATION_AMBIGUOUS')
     return result, events, audit

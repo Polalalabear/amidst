@@ -312,3 +312,24 @@
 | O2 | `track_lookback_us` 數值 | PROPOSED 預設，寫進參數集；核准前回應帶 `PARAMETERS_NOT_APPROVED` |
 | O3 | 非人物追蹤 | 待連接器支援後另立 v2；v1 回 UNSUPPORTED |
 | O4 | 多教室靜態顯示座標的來源 | Codex 擴充場景時一併提供靜態平面圖顯示點（非渲染軌跡） |
+
+
+### D145：D124 demo replay 的同鏡頭重現（2026-11-09）
+
+此項僅適用 `demo-cross-camera-local-linker` 的 DEMO_DEFAULT replay，不改一般
+`execute_core_track`、G4、原索引或既有首段產物。loader 以原 hash 綁定 records／config
+重播全部 camera-local IoU 候選；首段結束或未匹配的合格觀測可以建立新的 local track_ref，
+不復活舊 local segment。IoU、分數、取樣、最大局部缺口與歧義門檻保持原值；無最短段長。
+多個種子／前驅爭用同一觀測保持 UNKNOWN，不以 camera_id 排名挑身分。
+
+使用者 D145 授權：同鏡頭的新段可作重現候選，須符合既有 `handoff_max_gap_us = 6000000`、
+`min_score = 0.4` 與共享非 NONE 顏色條件；使用新的 track_ref，不需要也不新增 self edge。
+跨鏡頭仍須既有有向圖邊、同一時間窗與顏色條件。超窗、缺偵測、低於門檻或歧義都不硬接。
+仍為條件相符候選，`identity_verdict = UNCONFIRMED`，`physical_navigation = UNKNOWN`。
+
+Demo `sightings[].link_kind` 明列 `LOCAL_SEED`、`SAME_CAMERA_REACQUISITION` 或
+`CROSS_CAMERA_HANDOFF`；同鏡頭重現時 top-level reasons 也含 `SAME_CAMERA_REACQUISITION`。
+`single_view` 維持 §3.5 的純切鏡格式，可依重疊的 sightings／track_ref 區分重現，
+不能把相鄰 ON_CAMERA 顯示合併當成相同身分。回應的 `association_audit` 與獨立 events 同步記錄 link_kind、
+from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us。
+此授權不放寬 6 秒窗、不核准圖、不觸發重新推論、不改 formal_eligible=false。
