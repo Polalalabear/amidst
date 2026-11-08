@@ -68,7 +68,7 @@
 \maketitle
 
 \begin{abstract}
-\noindent 多鏡頭監控的視野彼此不重疊，目標走出一台鏡頭後會進入沒有任何鏡頭看得到的盲區，監控人員必須手動猜測下一台鏡頭。本紀錄整理 Amidst 在 D126 定位（「輔助、不求精確」）下的階段成果：系統只保留兩個核心功能——case1 查找（時間必填，地點或特徵至少一項）與 case2 追蹤（特徵必填，時間空白代表現在；自動換鏡頭，盲區在俯視圖以虛線畫出推測路線）。偵測以 RT-DETR R18 離線建立索引，展示時只查索引並重播，現場不跑模型。我們在 r004 與 r005 兩個場景、B-05／A4-1／B4-1 三個事件上完成功能驗收：後端 pytest 121 項、前端 Node 478 項（新 UI 分支 492 項）、合成瀏覽器 E2E 49 項、實機瀏覽器 E2E 53 項全數通過\src{S1,S2}。延遲方面，歷史量測顯示 RT-DETR 單 worker 為 3.129 fps，若要即時處理 9 台 5 fps 鏡頭約需 14.4 個 worker（\EXT）\src{S3}，支持「離線建索引、現場查詢」的設計。我們也客觀檢討副標題中的「Agentic」：目前所有自主行為都是規則或演算法，語言模型 Agent 模式在歷史量測中 18 次全部逾時\src{S3}、預設關閉，因此「Agentic」尚未被實際驗證。研究問題 RQ3（自然語言理解）與 RQ4（2D 目標存在判斷）的正式結果待補。
+\noindent 多鏡頭監控的視野彼此不重疊，目標走出一台鏡頭後會進入沒有任何鏡頭看得到的盲區，監控人員必須手動猜測下一台鏡頭。本紀錄整理 Amidst 在 D126 定位（「輔助、不求精確」）下的階段成果：系統只保留兩個核心功能——case1 查找（時間必填，地點或特徵至少一項）與 case2 追蹤（特徵必填，時間空白代表現在；自動換鏡頭，盲區在俯視圖以虛線畫出推測路線）。偵測以 RT-DETR R18 離線建立索引，展示時只查索引並重播，現場不跑模型。我們在 r004 與 r005 兩個場景、B-05／A4-1／B4-1 三個事件上完成功能驗收：後端 pytest 121 項、前端 Node 478 項（新 UI 分支 492 項）、合成瀏覽器 E2E 49 項、實機瀏覽器 E2E 53 項全數通過\src{S1,S2}。延遲方面，歷史量測顯示 RT-DETR 單 worker 為 3.129 fps，若要即時處理 9 台 5 fps 鏡頭約需 14.4 個 worker（\EXT）\src{S3}，支持「離線建索引、現場查詢」的設計；r004 上 2,050 張影格的離線偵測前向平均為 279.64 ms／張（3.576 fps）\src{S11}。我們也客觀檢討副標題中的「Agentic」：目前所有自主行為都是規則或演算法，語言模型 Agent 模式在歷史量測中 18 次全部逾時\src{S3}、預設關閉，因此「Agentic」尚未被實際驗證。研究問題 RQ3（自然語言理解）與 RQ4（2D 目標存在判斷）的正式結果待補。
 \end{abstract}
 
 \noindent\textbf{關鍵詞：}多鏡頭監控、不重疊視野、盲區推測、負證據、離線索引、跨鏡頭追蹤輔助、數位孿生
@@ -273,7 +273,7 @@ B4-1 & r004（D124） & \code{ACTUAL_BLENDER} RGB & 5 & \code{DEMO_DEFAULT}，�
 \end{table}
 
 \subsection{硬體與軟體}
-功能驗收與播放量測在同一台 Mac 上執行：Apple M3、8 個邏輯 CPU、記憶體 17,179,869,184 bytes（16 GiB）、Darwin 25.6.0、arm64；瀏覽器 Chrome 156.0.8078.80；Node v26.0.0、Python 3.12.12、playwright-core 1.56.0\src{S4}。偵測器設定為 CPU、FP32、2 threads、seed 7\src{S8}。第 \ref{sec:latency} 節的歷史推論量測為 CPU 2 threads、單 worker，機器型號在 \#479 內文未載明（\UNK）\src{S3}。
+功能驗收與播放量測在同一台 Mac 上執行：Apple M3、8 個邏輯 CPU、記憶體 17,179,869,184 bytes（16 GiB）、Darwin 25.6.0、arm64；瀏覽器 Chrome 156.0.8078.80；Node v26.0.0、Python 3.12.12、playwright-core 1.56.0\src{S4}。偵測器設定為 CPU、FP32、2 threads、seed 7\src{S8}。第 \ref{sec:latency} 節的歷史推論量測為 CPU 2 threads、單 worker，機器型號在 \#479 內文未載明（\UNK）\src{S3}；量測 A 的硬體與 worker 數同樣 \UNK\src{S11}。
 
 \subsection{研究問題}
 使用者原本以 Q1–Q5 稱呼的五個問題，本紀錄改稱 RQ1–RQ5。表~\ref{tab:rq} 列出各題對應的功能、評估方法與指標。
@@ -287,7 +287,7 @@ B4-1 & r004（D124） & \code{ACTUAL_BLENDER} RGB & 5 & \code{DEMO_DEFAULT}，�
 研究問題 & 對應功能 & 評估方法 & 指標 & 狀態 \\
 \midrule
 RQ1 依條件找出鏡頭 & case1 \code{q_core_search}：地點命中（人工靜態涵蓋）與物件命中 & 每筆查詢的命中鏡頭集合，對照人工核定的期望鏡頭集合（r005 用 \#464 人工回條） & 鏡頭層級 precision／recall；查找回應時間 & 功能驗收完成；正式數字 \TBD \tabularnewline
-RQ2 在畫面中找出人物 & 離線 RT-DETR R18 偵測索引 & 取樣影格上的 person 偵測，對照人工框 & recall、AP@IoU 0.5；$T_{\mathrm{det}}$（中位數、P90） & 正式數字 \TBD；$T_{\mathrm{det}}$ \NR \tabularnewline
+RQ2 在畫面中找出人物 & 離線 RT-DETR R18 偵測索引 & 取樣影格上的 person 偵測，對照人工框 & recall、AP@IoU 0.5；$T_{\mathrm{det}}$（中位數、P90） & 正式數字 \TBD；$T_{\mathrm{det}}$ 平均 279.64 ms（表~\ref{tab:detA}），P50／P90 \UNK \tabularnewline
 RQ3 理解使用者的描述 & 自然語言轉選單輸入框（\#480） & 描述句 → 結構化條件（時間、地點、類別、顏色），對照人工標準答案 & 欄位層級 exact match、整句正確率、解析時間 & \TBD（只有方法） \tabularnewline
 RQ4 從偵測判斷 2D 畫面有無目標 & 偵測索引＋條件比對（\code{target_observed}） & 影格／片段層級的有無判斷，對照組員 yyin 提供的正式標註 & precision、recall、F1 & \TBD（標註未到） \tabularnewline
 RQ5 目標離開時要不要換鏡頭 & case2 單畫面切鏡規則（契約 §3.5）、自動換鏡頭 & 實機 E2E 實際播放的切鏡序列，對照人工標記的轉移 & 切鏡序列正確與否；切換延遲 P90 & 功能驗收完成；延遲 \NR \tabularnewline
@@ -334,12 +334,38 @@ r005 & \multicolumn{4}{l}{「101 教室」1 台；「筆電」2 台；兩者皆�
 實機 E2E（\code{real-e2e.mjs}） & \#485（實作 \code{741478b}） & 53 checks PASS、17 張截圖、0 page error、0 failed API & S1 \tabularnewline
 架構守門：\code{check_architecture_guard.py} & \#485 \code{1fdc1a4} & PASS、0 findings & S1 \tabularnewline
 前端 Node（新 UI） & \#487 & 492 pass、0 fail（新增 14 項） & S2 \tabularnewline
+\#487 獨立審查重跑：前端 Node、架構守門 & \#487 \code{53953a8} & 493 pass、0 fail（比 PR 宣稱多 1 項）；守門 PASS；判定 ADOPT，無 P1 & S12 \tabularnewline
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{延遲}\label{sec:latency}
-表~\ref{tab:latency} 依 \#479 內文列出歷史量測；這些量測都在工程場景（P1／staging）上，不是 r004\src{S3}。
+本節先列 r004 上的離線偵測速度（量測 A，表~\ref{tab:detA}），再依 \#479 內文列出歷史量測（表~\ref{tab:latency}）；歷史量測都在工程場景（P1／staging）上，不是 r004\src{S3}。兩者都是\textbf{離線建索引}的速度，不是展示現場的速度；現場不跑模型\src{S3}。
+
+\paragraph{量測 A：r004 離線偵測速度。}取自 \#475 的 DEMO\_DEFAULT 試跑紀錄，只讀 GitHub 紀錄計算、未重跑\src{S11}。偵測器為 RT-DETR R18，CPU、FP32、輸入 640$\times$640、seed 7、2 threads；來源 5 fps，全部影格都做了推論（A4-1 1,000／1,000、B4-1 1,050／1,050）\src{S11}。紀錄只有每個 run 的分階段秒數加總，沒有逐張時間，因此中位數、P90、P99 為 \UNK，不估算\src{S11}。
+
+\begin{table}[htbp]
+\centering\small
+\caption{量測 A：r004 離線偵測速度（\#475，DEMO\_DEFAULT 試跑）。}
+\label{tab:detA}
+\begin{tabular}{l r r r}
+\toprule
+項目 & A4-1 & B4-1 & 合計 \\
+\midrule
+推論張數 & 1,000 & 1,050 & 2,050 \\
+偵測器前向秒數 & 276.937 & 296.329 & 573.266 \\
+前向：每張平均 (ms) & 276.94 & 282.22 & 279.64 \\
+前向：fps & 3.611 & 3.543 & 3.576 \\
+各階段加總秒數 & 295.609 & 315.366 & 610.975 \\
+各階段加總：每張平均 (ms) & 295.61 & 300.35 & 298.04 \\
+各階段加總：fps & 3.383 & 3.329 & 3.355 \\
+中位數／P90／P99 & \UNK & \UNK & \UNK \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize 來源：\#479 留言 6717580954\src{S11}，原始數據為 \code{D131_417_DEMO_DEFAULT_RESULTS.json}@\code{a786bde} 的 \code{runs[].seconds_by_stage}。各階段為讀檔、雜湊、解碼、前處理、前向、後處理、HSV、索引編碼八項；合計為兩個 run 的秒數相加後除以 2,050。各階段加總不含程序啟動、模型載入與寫檔，不是總 wall-clock（\UNK）；硬體與 worker 數 \UNK；每個 run 只有一次，沒有信賴區間\src{S11}。
+\end{table}
+
+與歷史值（3.129 fps，約 320 ms／幀）相比，量測 A 的前向 fps 高 14.3\%、各階段加總高 7.2\%\src{S11}；但兩者的場景、影格內容、硬體與計時範圍都不同，不能解讀為同條件下的改進，只能說數量級一致（約 3 fps、約 0.3 s／幀）\src{S11}。
 
 \begin{table}[htbp]
 \centering\small
@@ -386,7 +412,7 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 \par\smallskip\footnotesize 來源：\code{docs/engineering/d133_playback_latency_20261108.json}@\code{1fdc1a4}，量測 head \code{eb10d4c}\src{S4}。數值四捨五入到小數點後 1～3 位。
 \end{table}
 
-\paragraph{尚未量測。}以下項目為 \NR，量法、硬體 manifest 與樣本數依 \#479 計畫補上\src{S3}：r004 的 $T_{\mathrm{det}}$（中位數、P90）；case1 查找回應時間（\#462）；case2 追蹤回應時間；即時偵測到切鏡的延遲、A4／B4 整合核心的切鏡延遲\src{S4}。索引建置時間：\#475 有實際執行（共推論 2,050 張\src{S3}），耗時數字本紀錄未取得，記為 \UNK。
+\paragraph{尚未量測。}以下項目為 \NR，量法、硬體 manifest 與樣本數依 \#479 計畫補上\src{S3}：r004 偵測時間的逐張分佈（中位數、P90；量測 A 只有平均）；case1 查找回應時間（\#462）；case2 追蹤回應時間；即時偵測到切鏡的延遲、A4／B4 整合核心的切鏡延遲\src{S4}。索引建置的總 wall-clock：\UNK；目前只有量測 A 的各階段加總 610.975 s（2,050 張）\src{S11}。
 
 \subsection{實際畫面}
 圖~\ref{fig:screens} 為整合版在 Mac 上的實機截圖（\#445 留言列出的截圖資料夾\src{S1}），經檢查畫面上沒有 GT、渲染軌跡或劇本資訊。
@@ -435,7 +461,7 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 \begin{enumerate}
   \item RQ4：取得 yyin 的正式標註後計算 precision／recall／F1。
   \item RQ3：完成 \#480 自然語言解析並評估。
-  \item 依 \#479 量測 r004 $T_{\mathrm{det}}$、case1／case2 回應時間與切鏡延遲。
+  \item 依 \#479 補量 r004 逐張偵測時間（runner 需記錄逐張前向時間）、case1／case2 回應時間與切鏡延遲。
   \item 把盲區假設模組（\eqref{eq:reach}–\eqref{eq:admissible}）接入 case2，並在 A4／B4 上與 \eqref{eq:window} 的顯示路徑比較。
   \item 依第 \ref{sec:discussion} 節的方式驗證或修正「Agentic」的宣稱。
 \end{enumerate}
@@ -481,6 +507,8 @@ S7c & \code{src/amidst/q1q5/openai_prediction.py}@\code{1fdc1a4}（模組說明�
 S8 & \code{configs/q1q5/r004_production_v1.json}@\code{1fdc1a4} \\
 S9 & \code{docs/operations/D134_445_MAC_INTEGRATION.md}@\code{1fdc1a4} \\
 S10 & 專題報告初稿（Claude Docs），\url{https://claude.ai/artifact/B7oycBdnYfkeK1U1JiPWSL}，第二章與參考文獻（2026-11-08 讀取，rev 11） \\
+S11 & \#479 留言 6717580954（量測 A：離線偵測速度），\url{https://github.com/Polalalabear/amidst/issues/479\#issuecomment-6717580954}；原始數據 \code{docs/engineering/D131_417_DEMO_DEFAULT_RESULTS.md}／\code{.json}@\code{a786bde} \\
+S12 & PR \#487 審查留言 6717576841（ADOPT、無 P1），\url{https://github.com/Polalalabear/amidst/pull/487\#issuecomment-6717576841} \\
 \bottomrule
 \end{longtable}
 
