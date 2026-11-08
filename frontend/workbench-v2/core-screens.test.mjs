@@ -1428,14 +1428,14 @@ test('backend blind-curve response (q-demo.physical-prediction.v1) draws a dashe
       overhead: { frame: 'STATIC_PLAN_DISPLAY', last_position: curve[0], region_id: null },
       curve: { basis: 'NODE_GRAPH_ONLY', points: curve }, curve_basis: 'NODE_GRAPH_ONLY', curve_points: curve,
       candidates: [{ camera_id: 'CAM_W1', rank: 1, window_us: [31000000, 40000000], confidence: 'LOW' }],
-      identity_verdict: 'UNCONFIRMED', physical_navigation: 'UNKNOWN', gt_read: false,
+      identity_verdict: 'UNCONFIRMED', physical_navigation: 'UNKNOWN',
     };
     track.blind = {
       schema_version: 'q-demo.physical-prediction.v1', status: 'ESTIMATED', reason: null, evidence_state: 'INFERRED',
       confidence: 'LOW', used_for: 'DISPLAY_ONLY', as_of_us: 30000000, last_camera_id: 'CAM_W2', last_observed_us: 30000000,
       coordinate_frame: 'STATIC_PLAN_DISPLAY', overhead: estimate.overhead, curve: estimate.curve, curve_basis: 'NODE_GRAPH_ONLY',
       curve_points: curve, candidates: estimate.candidates, estimate, identity_verdict: 'UNCONFIRMED',
-      physical_navigation: 'UNKNOWN', gt_read: false,
+      physical_navigation: 'UNKNOWN',
     };
     const host = new MockElement('div');
     const view = mountCoreTrackingView({ container: host });
