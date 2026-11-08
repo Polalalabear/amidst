@@ -25,7 +25,7 @@ const seek=async t=>page.locator('#q-scrub').evaluate((element,value)=>{element.
 const coreSearch=async expected=>{const response=page.waitForResponse(r=>r.url().endsWith('/api/q_core_search')&&r.request().method()==='POST');await page.locator('#q-core-search').click();await response;await page.waitForFunction(n=>document.querySelector('#q-core-feedback')?.textContent?.includes('查找回應：READY')&&document.querySelectorAll('#core-search-wall-slot .q-core-card').length===n,expected);};
 let checks=0;const check=(value,message)=>{assert.ok(value,message);checks++;};
 try{
-  await page.goto(preview.url,{waitUntil:'networkidle'});
+  await page.goto(preview.url+'?ui=legacy',{waitUntil:'networkidle'});  // this script drives the legacy workbench DOM
   await page.locator('#q-core-region:not([disabled])').waitFor();
   check((await page.locator('#synthetic-api-banner').innerText()).includes('SYNTHETIC API FIXTURE'),'fixed synthetic banner');
   check((await page.locator('#q-origin').innerText()).includes('SYNTHETIC'),'source badge synthetic');
