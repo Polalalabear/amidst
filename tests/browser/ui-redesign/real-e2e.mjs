@@ -61,7 +61,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  await writeFile(out+'/'+event+'-blind-response.json',JSON.stringify(blind,null,2));
  await seek(p,stamp);await p.waitForTimeout(300);const curves=await p.locator('#ui-floorplan .is-inferred').count();
  check(curves===0,event+' future snapshot is not shown at earlier playhead');
- if(event==='B-05')check((await p.locator('#ui-floorplan').innerText()).includes('無法預測'),'unavailable blind prediction has plain explanation');
+ if(event==='B-05')check(await p.locator('#ui-floorplan').isHidden(),'no camera positions: the whole floor-plan panel is hidden');
  await capture(p,event+'-blind',{curves,status:blind.blind?.status,confidence:blind.blind?.confidence,asOfUs:blind.as_of_us,blankPayload});
  if(event!=='B-05'){
   const at=blind.single_view.findIndex((segment,i,xs)=>i>0&&segment.kind==='ON_CAMERA'&&xs[i-1].kind==='GAP');

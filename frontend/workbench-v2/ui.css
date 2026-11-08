@@ -68,7 +68,7 @@ body.ui-admin{margin:0}
 .ui-chip-missing,.ui-chip-unknown{color:var(--faint);background:var(--line-strong);border-color:var(--line-strong)}
 .ui-chip-neutral{color:var(--faint)}
 /* floating query window */
-.ui-float{max-height:calc(100dvh - 148px);overflow:hidden;overscroll-behavior:contain;visibility:hidden;position:absolute;left:24px;top:76px;width:380px;z-index:5;display:flex;flex-direction:column;gap:16px;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));opacity:0;transform:translateX(-16px);pointer-events:none;transition:opacity .2s,transform .2s}
+.ui-float{max-height:calc(var(--ui-vh) - 148px);overflow:hidden;overscroll-behavior:contain;visibility:hidden;position:absolute;left:24px;top:76px;width:380px;z-index:5;display:flex;flex-direction:column;gap:16px;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));opacity:0;transform:translateX(-16px);pointer-events:none;transition:opacity .2s,transform .2s}
 .ui-float[data-open="true"]{visibility:visible;opacity:1;transform:none;pointer-events:auto}
 .ui-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:16px}
 .ui-qhead{display:flex;justify-content:space-between;align-items:center}.ui-qtitle{font-family:var(--serif);font-size:26px}
@@ -100,7 +100,7 @@ body.ui-admin{margin:0}
 .ui-shot-id{display:flex;gap:12px;align-items:baseline;font-size:14px}.ui-shot-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .ui-empty{display:flex;flex-direction:column;align-items:center;gap:14px;padding:120px 0;text-align:center}
 .ui-lightbox{position:absolute;inset:0;z-index:20;background:rgba(10,10,9,.92);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
-.ui-lb-stage{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:80vw}.ui-lb-img{max-width:80vw;max-height:70vh;border-radius:8px;background:var(--surface-2)}.ui-lb-bar{display:flex;gap:12px}
+.ui-lb-stage{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:calc(var(--ui-vw) * .8)}.ui-lb-img{max-width:calc(var(--ui-vw) * .8);max-height:calc(var(--ui-vh) * .7);border-radius:8px;background:var(--surface-2)}.ui-lb-bar{display:flex;gap:12px}
 /* case 2 */
 .ui-track{display:flex;gap:24px;align-items:flex-start}
 .ui-track-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:14px}
@@ -235,9 +235,10 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 
 /* D139-2 feature search (pinned with the time fields; only the list scrolls) */
 .ui-feat-search{flex:0 0 auto;margin:0 0 8px}.ui-feat-empty{padding:8px 2px}
-/* D139-3 display scale: fit (default, no crop) · fill (cover) · orig (native pixels). Display only. */
-.ui-fit-ctl{display:flex;align-items:center;gap:6px;flex:0 0 auto}.ui-fit-btn{padding:4px 10px;font-size:12px}
-html[data-media-fit="fill"] :is(.ui-img,.mr-media img){object-fit:cover}
-html[data-media-fit="orig"] :is(.ui-img,.mr-media img){object-fit:none}
-html[data-media-fit="fill"] .ui-lb-img{width:80vw;height:70vh;object-fit:cover}
-html[data-media-fit="orig"] .ui-lb-img{width:80vw;height:70vh;object-fit:none}
+/* D139 whole-interface scale: the front-desk root is zoomed as one piece (text, layout, images). Viewport units inside it are
+   divided by the zoom so nothing overflows; the root stays fixed to the window, so the bottom bar stays at the window bottom. */
+#ui-v1{--ui-zoom:1;zoom:var(--ui-zoom);--ui-vh:calc(100dvh / var(--ui-zoom));--ui-vw:calc(100vw / var(--ui-zoom))}
+.ui-zoom-select{padding:6px 10px;width:auto;flex:0 0 auto}
+/* held picture: the last real frame of the previous camera (blind interval / lost); dimmed and labelled, never shown as observed */
+.ui-stagebox[data-hold="true"] .ui-stage-img{filter:grayscale(.6) brightness(.7)}
+.ui-hold-note{position:absolute;left:16px;bottom:14px;max-width:calc(100% - 32px);font-size:13px;background:rgba(20,20,19,.82);color:var(--inferred);border:1px dashed var(--inferred);padding:4px 10px;border-radius:6px}

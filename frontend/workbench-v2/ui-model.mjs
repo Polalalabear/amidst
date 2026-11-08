@@ -85,13 +85,14 @@ export function validateTrackForm({ classLabel = '' } = {}) {
 // Missing / empty / malformed counts → grouped:false and the caller keeps the single flat list. `supports(label)` marks
 // classes the current operation cannot use (tracking: person only); they stay listed but disabled.
 export const DETECTION_COUNT_NOTE = '模型偵測筆數，含誤判，不是實際物件數';
+export const CAMERA_COUNT_NOTE = '照到這個類別的鏡頭數（模型偵測，可能含誤判）';
 export function classGroups(classes, counts, supports = () => true) {
   const all = (Array.isArray(classes) ? classes : []).filter(c => typeof c === 'string' && c);
   const known = new Set(all), seen = new Set(), detected = [];
   if (Array.isArray(counts)) for (const r of counts) {
     const label = r?.class_label, n = r?.detection_count;
     if (typeof label !== 'string' || !known.has(label) || seen.has(label) || !Number.isInteger(n) || n <= 0) continue;
-    seen.add(label); detected.push({ label, count: n, supported: supports(label) !== false });
+    const cc = r?.camera_count; seen.add(label); detected.push({ label, count: n, cameraCount: Number.isInteger(cc) && cc > 0 ? cc : null, supported: supports(label) !== false });
   }
   if (!detected.length) return { grouped: false, detected: [], others: all.map(label => ({ label, supported: supports(label) !== false })) };
   detected.sort((a, b) => b.count - a.count || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
