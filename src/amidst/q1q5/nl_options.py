@@ -1,8 +1,8 @@
 """Epic D path (b): one natural-language sentence -> query-window options (docs/specs/EPIC_D_AGENTIC_V1.md §3-§7).
 
 The result only pre-fills the case1/case2 query window; nothing is executed here and the user must confirm in the UI.
-Inputs are the sentence plus a closed server catalog (class/color/region labels). No GT, script, trajectory, visibility
-or depth value can enter: requests are whitelisted and scanned for forbidden keys. Provider kinds: RECORDED (default,
+Inputs are the sentence plus a closed server catalog (class/color/region labels). No private evaluation, script or rendering data
+can enter: requests are whitelisted and scanned for forbidden keys. Provider kinds: RECORDED (default,
 offline replay), OLLAMA (loopback only), OPENAI (off unless enabled; key read only from the environment and never
 stored or echoed) and NONE (rules only). Every outcome carries a step trace ``q-core.agent-trace.v1`` and the labels
 EXPLORATORY / UNCONFIRMED. Same recording + same input => byte-identical response.

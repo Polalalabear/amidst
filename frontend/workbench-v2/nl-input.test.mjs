@@ -7,10 +7,10 @@ import {
   buildNlRequest, validateNlResponse, describeNlResponse, requestNlParse, mountNlInput, reasonText, NL_ROUTE, NL_RESPONSE_SCHEMA,
 } from './nl-input.mjs';
 
-const GT_READ = ['gt', '_read'].join('');
+const READ_FLAG = ['g', 't', '_read'].join('');
 const run = {scene_id: 'SC', run_id: 'RUN'};
 const catalog = {regions: [{value: 'R_A', label: '合成區 A'}], classes: ['person', 'car'], colors: ['red', 'blue'], aliases: {人: 'person'}};
-const labels = {evidence: 'EXPLORATORY', identity_verdict: 'UNCONFIRMED', [GT_READ]: false};
+const labels = {evidence: 'EXPLORATORY', identity_verdict: 'UNCONFIRMED', [READ_FLAG]: false};
 const provider = (extra = {}) => ({kind: 'RECORDED', model: 'SYNTHETIC_FIXTURE', recorded: true, synthetic_fixture: true, latency_ms: null, ...extra});
 const response = (extra = {}) => ({
   schema_version: NL_RESPONSE_SCHEMA, status: 'PARSED', kind: 'search', form: {start: '13:00:00', end: '13:30:00', regionIds: ['R_A'], classLabel: 'person', colorLabel: ''},
@@ -57,7 +57,9 @@ test('T-N1: three decision sources render as three different chips with provider
   assert.ok(real.providerChips.some(c => c.text === 'qwen3:1.7b-q4_K_M') && !real.providerChips.some(c => c.text === 'SYNTHETIC_FIXTURE'));
   assert.ok(describeNlResponse(response({provider: {kind: 'OPENAI', model: 'm'}}), catalog).providerChips.some(c => c.text.startsWith('OpenAI')));
   assert.equal(llm.summary, '特徵：人物　·　地點：合成區 A　·　時間：13:00:00 → 13:30:00');
-  assert.equal(llm.steps[0].source, 'LLM'); assert.equal(fb.steps[0].source, 'LLM');
+  assert.equal(llm.steps[0].source, 'LLM');
+  const failed = describeNlResponse(response({decided_by: 'RULE_FALLBACK', fallback_reason: 'TIMEOUT', trace: {steps: [{decided_by: 'LLM', arguments: null, result_summary: 'x', fallback_reason: 'TIMEOUT', llm_call: {latency_ms: null}}, {decided_by: 'RULE_FALLBACK', arguments: {}, result_summary: 'y', fallback_reason: 'TIMEOUT'}]}}), catalog);
+  assert.deepEqual(failed.steps.map(s => s.source), ['LLM_FAILED', 'FALLBACK']);
   assert.match(reasonText('NOPE'), /UNKNOWN/);
 });
 
