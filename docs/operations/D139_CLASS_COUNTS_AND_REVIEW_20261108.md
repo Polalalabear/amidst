@@ -35,3 +35,15 @@ CORE_BASE_URL=http://127.0.0.1:8787 UI_QA_HEIGHT=900 UI_QA_OUTPUT=<LOCAL>/real-9
 LOCAL 根：`$AMIDST_ARTIFACTS/demo-owned-v1/evidence/d139-493/`。保留原版失敗、期望修正過程與完整兩高度結果；preview receipt 記 PID／啟動 SHA。每張圖 SHA／回應在各 browser-results；最終 manifest／counts JSON／logs 的 bytes 和 SHA 見 GitHub 回條。前台 runtime 仍是 4683521，E2E driver 是 counts 子分支的修改；最終交接必須區分兩者，不能宣稱畫面問題已修。code/config/contract/report 進 repo，RGB、venv、模型、screenshots 不進 Git。
 
 子 PR 只交付 counts 與使用者允許的 real-e2e 修正；父 PR #493 的上述前台修正由 Claude 接手。D138 本機整理留到驗收 A 後；本次不刪原件或分支。
+
+
+## 最終實際產出 / Actual output
+
+- Model / effort: GPT-6 family / UNKNOWN。
+- PR / commits: runtime／E2E driver `c30ff9a9cda85427eab11b8489a4cfc7dcc970fa`，base #493 `46835218`；最終 head 與子 PR 連結見 GitHub 回條。只合入 `claude/ui-d139`，不合併 #493。
+- Files changed: QAPI bootstrap、合成 bootstrap fixture、counts 契約／pytest、real-e2e 期望與審查 diagnostics、docs 索引與本交接／composition。沒有改 #493 前台實作。
+- Commands run and results: 上列聚焦 pytest **170 PASS／0 skip**、Node **511 PASS／0 fail／0 skip**。exact `c30ff9a9` driver 在 8787 跑兩高度 real-e2e **各 176 checks／34 PNG／exit 0／0 page errors／0 failed API**，包含 0.5／1／1.5／2 下拉；synthetic **各 78 checks／exit 0**，DOM **25 checks**。`git diff --check` PASS。no-allow architecture：authority／schemas PASS，inference 仍為上述父版 `ui-d139.test.mjs:88` 的單一 FAIL，沒有新增 finding／allow／豁免。
+- Artifacts: LOCAL `demo-owned-v1/evidence/d139-493/D139_RESULTS_MANIFEST.json`；精簡採證 payload **130 files／19,622,477 bytes**，SHA-256 **`abbe5db832f2130a63dbf168d43e32acc8d9cae763868c92895a771f5fb017b8`**，每份 payload 都列 bytes／hash。原始失敗／中間期望修正產物仍保留，不冒稱最終通過。完整 source composition 在同名 `D139_CLASS_COUNTS_COMPOSITION_20261108.json`。
+- Verified: 三個實資料 run 的每筆 detection 計數加總、合法類別、排序和原 pins；B-05=1396／11 類、A4=1160／24 類、B4=2158／17 類，另 r005=33／10 類。這些是索引偵測數，包含模型誤判，不作物件真實存在聲明。兩高度所有主流程與不確定性，並且明確目視／記錄 W1 重現後終點缺失。沒有新推論、render、GT 或原件改寫。
+- Not verified: 沒有重跑整套 Python suite或做量測 B；本次是指定聚焦測試和 Mac Chrome 8787 preview，B 依使用者安排待合併後才量。沒有宣稱 #493 全部通過。
+- Deviations and handoff: #493 項目 1／2／守門列要修，由 Claude 接手前台；counts 自己的測試全過。8785 PID 18763 及其 4ea0ebb checkout 保持不動；獨立 8787 保留 4683521 原審查版供查看。D138 整理留到驗收 A 後，原件／分支不刪。
