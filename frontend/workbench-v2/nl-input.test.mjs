@@ -61,6 +61,8 @@ test('T-N1: three decision sources render as three different chips with provider
   const failed = describeNlResponse(response({decided_by: 'RULE_FALLBACK', fallback_reason: 'TIMEOUT', trace: {steps: [{decided_by: 'LLM', arguments: null, result_summary: 'x', fallback_reason: 'TIMEOUT', llm_call: {latency_ms: null}}, {decided_by: 'RULE_FALLBACK', arguments: {}, result_summary: 'y', fallback_reason: 'TIMEOUT'}]}}), catalog);
   assert.deepEqual(failed.steps.map(s => s.source), ['LLM_FAILED', 'FALLBACK']);
   assert.match(reasonText('NOPE'), /UNKNOWN/);
+  const miss = describeNlResponse(response({decided_by: 'RULE_FALLBACK', fallback_reason: 'REPLAY_MISS'}), catalog);
+  assert.match(miss.hint, /不在錄製檔裡/); assert.equal(llm.hint, ''); assert.equal(fb.hint, '');
 });
 
 test('requestNlParse: ok, http error code, bad json, network error and a hung server (CLIENT_TIMEOUT)', async () => {

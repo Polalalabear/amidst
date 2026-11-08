@@ -26,6 +26,7 @@ export const REASON_TEXT = Object.freeze({
   INVALID_REQUEST: '句子不符合格式（1–200 字）',
 });
 export const reasonText = code => REASON_TEXT[code] ?? `UNKNOWN（${code ?? '未知'}）`;
+export const REPLAY_MISS_HINT = '這句話不在錄製檔裡，已改用規則解析（不是模型輸出）。若每一句都這樣，代表錄製檔和目前的資料目錄不一致。';
 const MISSING_TEXT = Object.freeze({time: '時間', regionOrFeature: '地點或特徵', feature: '特徵'});
 
 export function buildNlRequest({run, session, kind, text}) {
@@ -87,7 +88,7 @@ export function describeNlResponse(resp, catalog = {}) {
     source: s.decided_by === 'LLM' ? (s.arguments ? 'LLM' : 'LLM_FAILED') : s.decided_by === 'RULE_FALLBACK' ? 'FALLBACK' : 'RULE',
   }));
   return {
-    state: manual ? 'MANUAL' : 'READY', decision, providerChips, summary: parts.join('　·　'),
+    state: manual ? 'MANUAL' : 'READY', decision, hint: !manual && resp.fallback_reason === 'REPLAY_MISS' ? REPLAY_MISS_HINT : '', providerChips, summary: parts.join('　·　'),
     missing: (resp.missing ?? []).map(m => MISSING_TEXT[m] ?? m), warnings: resp.warnings ?? [], ignored: resp.ignored_terms ?? [], steps,
     recordedLatency: p.recorded && Number.isFinite(p.latency_ms) ? latencyText(p.latency_ms) : '',
   };
@@ -151,7 +152,7 @@ export function mountNlInput({ctx, doc, win, w, refresh, submit, fetchImpl}) {
     if (view.state === 'READY') {
       const check = (kind === 'search' ? validateSearchForm : validateTrackForm)(currentForm());
       result.append(el('p', view.summary || '（沒有可填入的選項）', 'ui-nl-summary'));
-      const notes = [...view.warnings, ...(view.ignored.length ? [`未使用的詞：${view.ignored.join('、')}`] : []), ...(check.ok ? [] : [`尚缺：${view.missing.join('、') || check.text}，請在下方補上`])];
+      const notes = [...(view.hint ? [view.hint] : []), ...view.warnings, ...(view.ignored.length ? [`未使用的詞：${view.ignored.join('、')}`] : []), ...(check.ok ? [] : [`尚缺：${view.missing.join('、') || check.text}，請在下方補上`])];
       if (notes.length) result.append(el('p', notes.join('；'), 'ui-nl-note'));
       const bar = el('div', undefined, 'ui-nl-confirm');
       const go = el('button', '確認後執行', 'ui-btn ui-btn-light', {type: 'button'}); go.id = `ui-nl-${id}-confirm`; go.disabled = !check.ok;

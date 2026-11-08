@@ -283,3 +283,15 @@ def test_qapi_route_end_to_end_with_real_bootstrap_catalog(monkeypatch):
             api.call('q_nl_parse', bad, authorize)
     with pytest.raises(APIError):
         api.call('q_nl_parse', {**base, 'session_ref': 'not-a-session'}, authorize)
+
+
+def test_check_recording_script_detects_catalog_drift():
+    import check_nl_recording as chk
+    sentences = json.loads((REPO / 'configs/epicd/nl_sentences_v1.json').read_text(encoding='utf-8'))['sentences']
+    rec = json.loads(nl.FIXTURE_RECORDING.read_text(encoding='utf-8'))
+    ok, report = chk.check_recording(rec, CATALOG, sentences)
+    assert ok and report['catalog_equal'] and report['missing'] == [] and report['entries'] == len(sentences)
+    drifted = {**CATALOG, 'region_ids': CATALOG['region_ids'] + ['R9'], 'region_aliases': {**CATALOG['region_aliases'], 'R9': 'R9'}}
+    ok, report = chk.check_recording(rec, drifted, sentences)
+    assert not ok and report['catalog_equal'] is False and len(report['missing']) == len(sentences)
+    assert chk.check_recording(rec, CATALOG, sentences + [{'id': 'SX', 'kind': 'search', 'text': '沒錄過的句子 人'}])[1]['missing'] == ['SX']

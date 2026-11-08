@@ -90,7 +90,7 @@ try {
   await page.locator('#ui-nl-search-result details summary').click();
   await shot(page, '05-fallback-rules-timeout');
   r = await parse(page, 'search', '下午一點到一點半 合成區 A 的人 穿紅衣服');   // not recorded
-  check((await decision(r)).startsWith('退回規則：') && (await r.innerText()).includes('錄製'), 'unrecorded sentence -> replay miss fallback');
+  check((await decision(r)).startsWith('退回規則：') && (await r.innerText()).includes('不在錄製檔裡'), 'unrecorded sentence -> replay miss fallback with hint');
   r = await parse(page, 'search', '幫我找戴眼鏡的人');
   check(await r.getAttribute('data-state') === 'MANUAL' && (await decision(r)).startsWith('退回手動選單：'), 'unsupported -> manual menu');
   check(await page.locator('#ui-nl-search-confirm').count() === 0, 'no confirm on a manual fallback');
