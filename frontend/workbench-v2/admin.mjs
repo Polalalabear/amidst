@@ -10,10 +10,10 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
   const $=s=>root.querySelector(s),source=new URL(root.baseURI??'http://localhost/').searchParams.get('source')==='fixture'?FIXTURE_ORIGIN:'SERVER';
   const api=provided??createQApi({source}),settings=createSettingsStore(storage,{key:SETTINGS_KEY});
   const preview=createSettingsStore(null),wall=mountMonitorRoom($('#admin-preview'),{api,settings:preview});
-  let boot=null;mountTabs(root);const overview=mountOverview($('#admin-overview'),{getBootstrap:()=>boot,storage});const settingsPane=mountSettings($('#admin-settings'),{getBootstrap:()=>boot,storage});
+  let boot=null;const tabs=mountTabs(root);const overview=mountOverview($('#admin-overview'),{getBootstrap:()=>boot,storage});const settingsPane=mountSettings($('#admin-settings'),{getBootstrap:()=>boot,storage});
   const loaded=await api.bootstrap();await api.createSession();
   if(loaded.ok){boot=loaded.data;settingsPane.draw();overview.draw();}
-  if(!loaded.ok){$('#admin-origin').textContent=`UNKNOWN · ${loaded.error?.code??'BOOTSTRAP'}`;return {settings,wall};}
+  if(!loaded.ok){$('#admin-origin').textContent=`UNKNOWN · ${loaded.error?.code??'BOOTSTRAP'}`;return {settings,wall,destroy(){tabs.destroy();wall.destroy();settings.destroy();}};}
   const data=loaded.data;$('#admin-origin').textContent=`${data.data_origin} · ${data.status}`;wall.setBootstrap(data);
   const runs=runCatalog(data),recs=recordingCatalog(data),kinds=[...new Set([...runs,...recs].map(x=>x.source_kind))];
   for(const k of kinds)$('#f-kind').append(Object.assign(el('option',k),{value:k}));
@@ -59,7 +59,7 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
   $('#admin-auto').onclick=()=>settings.set({selection:null,cameras:null,restart:settings.get().restart+1});
   $('#admin-start').onchange=e=>{const us=parseTimecode(e.target.value);$('#admin-start-note').textContent=us===null&&e.target.value?'格式：m:ss 或秒數':'';if(us!==null||!e.target.value)settings.set({startUs:us??0,restart:settings.get().restart+1});};
   for(const id of ['#f-scene','#f-camera','#f-from','#f-rec-from','#f-rec-to','#f-kind'])$(id).addEventListener('input',drawRecords);
-  settings.subscribe(draw);await draw();
-  return {settings,wall,preview};
+  const unsubscribe=settings.subscribe(draw);await draw();
+  return {settings,wall,preview,destroy(){tabs.destroy();unsubscribe();wall.destroy();settings.destroy();preview.destroy();}};
 }
 if(typeof document!=='undefined'&&document.getElementById('admin-root'))bootstrap();

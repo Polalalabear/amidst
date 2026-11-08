@@ -18,7 +18,8 @@ export function mountTabs(root = document) {
   };
   globalThis.addEventListener('hashchange', show); show();
   const tick = () => { const t = taipeiTime(new Date()); if (t) root.querySelector('#admin-clock').textContent = t; };
-  tick(); setInterval(tick, 1000);
+  tick(); const timer = setInterval(tick, 1000);
+  return {destroy() { clearInterval(timer); globalThis.removeEventListener('hashchange', show); }};
 }
 
 export function mountOverview(box, {getBootstrap, storage = globalThis.localStorage}) {

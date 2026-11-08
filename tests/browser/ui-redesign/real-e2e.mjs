@@ -36,7 +36,9 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  for(const speed of ['1','1.5','2']){await p.locator('#ui-case2 [data-speed="'+speed+'"]').click();check(await p.locator('#ui-case2 [data-speed="'+speed+'"]').getAttribute('aria-pressed')==='true','source speed '+speed);}
  await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),next.camera_id,{timeout:15000});
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
- await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);await capture(p,event+'-case2-multi',{tiles:2,decoded:2});
+ await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);
+ const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);check(true,event+' multi-view playback advances with decoded source RGB');
+ await capture(p,event+'-case2-multi',{tiles:2,decoded:2});
  await p.locator('#ui-layout [data-layout=single]').click();
  const stamp=event==='A4-1'?9400000:event==='B4-1'?2100000:3000000;await seek(p,stamp);
  // Empty start means re-query at the visible source clock; no API or store injection.

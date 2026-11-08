@@ -1,125 +1,50 @@
+// Synthetic API conformance through the redesigned visible front desk.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {mkdir,readFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {startPreview} from './preview-server.mjs';
-
-const source=process.env.CORE_SOURCE;
-if(!source)throw Error('CORE_SOURCE_REQUIRED');
-const moduleId=process.env.PLAYWRIGHT_CORE_MODULE;
-const {chromium}=await import(moduleId?pathToFileURL(moduleId).href:'playwright-core');
-const screenshotDir=process.env.SCREENSHOT_DIR??join(tmpdir(),'amidst-459-screenshots');
-const browserOptions={headless:true};
-if(process.env.CHROME_EXECUTABLE)browserOptions.executablePath=process.env.CHROME_EXECUTABLE;
-const preview=await startPreview({source,port:0});
-const browser=await chromium.launch(browserOptions);
-const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
-const pageErrors=[],shots=[];page.on('pageerror',error=>pageErrors.push(String(error)));
-await mkdir(screenshotDir,{recursive:true});
-const shot=async name=>{const path=join(screenshotDir,name+'.png');await page.screenshot({path,fullPage:true});const hash=createHash('sha256').update(await readFile(path)).digest('hex');shots.push({path,sha256:hash});};
-const feedback=()=>page.locator('#q-core-feedback').innerText();
-const awaitFeedback=async phrase=>{await page.waitForFunction(value=>document.querySelector('#q-core-feedback')?.textContent?.includes(value),phrase);};
-const seek=async t=>page.locator('#q-scrub').evaluate((element,value)=>{element.value=String(value);element.dispatchEvent(new Event('input',{bubbles:true}));},t);
-const coreSearch=async expected=>{const response=page.waitForResponse(r=>r.url().endsWith('/api/q_core_search')&&r.request().method()==='POST');await page.locator('#q-core-search').click();await response;await page.waitForFunction(n=>document.querySelector('#q-core-feedback')?.textContent?.includes('查找回應：READY')&&document.querySelectorAll('#core-search-wall-slot .q-core-card').length===n,expected);};
-let checks=0;const check=(value,message)=>{assert.ok(value,message);checks++;};
+const source=process.env.CORE_SOURCE;if(!source)throw Error('CORE_SOURCE_REQUIRED');
+const {chromium}=await import(process.env.PLAYWRIGHT_CORE_MODULE?pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE).href:'playwright-core');
+const out=process.env.SCREENSHOT_DIR??join(tmpdir(),'amidst-new-ui-synthetic');await mkdir(out,{recursive:true});
+const preview=await startPreview({source,port:0}),browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
+const page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1}),errors=[],shots=[];let checks=0;
+const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};page.on('pageerror',e=>errors.push(String(e)));
+const shot=async name=>{const path=join(out,name+'.png');await page.screenshot({path,fullPage:true});const b=await readFile(path);shots.push({path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});};
+const calls=route=>preview.routeCalls.filter(c=>c.route===route);
+const open=async kind=>{if(await page.locator('#ui-q-'+kind).getAttribute('data-open')!=='true')await page.locator('.ui-burger').click();};
+const submit=async(kind,n)=>{await open(kind==='search'?'search':'track');const resp=page.waitForResponse(r=>r.url().endsWith('/api/q_core_'+kind)&&r.request().method()==='POST');await page.locator('#ui-'+kind+'-submit').click();await resp;if(kind==='search')await page.waitForFunction(n=>document.querySelectorAll('#ui-case1 .ui-shot').length===n,n);else await page.locator('#ui-scrub').waitFor();};
+const seek=async t=>{await page.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await page.locator('#ui-scrub').inputValue())===t,'seek value preserved');};
+const feature=async value=>{const b=page.locator('#ui-q-search [data-role=classes] [data-value="'+value+'"]');if(await b.getAttribute('aria-pressed')!=='true')await b.click();};
 try{
-  await page.goto(preview.url+'?ui=legacy',{waitUntil:'networkidle'});  // this script drives the legacy workbench DOM
-  await page.locator('#q-core-region:not([disabled])').waitFor();
-  check((await page.locator('#synthetic-api-banner').innerText()).includes('SYNTHETIC API FIXTURE'),'fixed synthetic banner');
-  check((await page.locator('#q-origin').innerText()).includes('SYNTHETIC'),'source badge synthetic');
-
-  // Contract field errors must stay in the normal control flow without a route request.
-  const initialCalls=preview.routeCalls.filter(c=>c.route==='/api/q_core_search').length;
-  await page.locator('#q-core-search').click();await awaitFeedback('地點區域與特徵至少需提供一項');
-  check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').length===initialCalls,'empty search sends no request');
-  await page.locator('#q-core-class').selectOption('person');await page.locator('#q-core-search').click();await awaitFeedback('請輸入時間範圍');
-  check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').length===initialCalls,'missing time sends no request');
-  await page.locator('#q-core-start').fill('13:00:00');await page.locator('#q-core-end').fill('13:00:02');
-
-  // Three menu combinations use real controls and the validated API client.
-  await page.locator('#q-core-class').selectOption('');
-  await page.locator('#q-core-region').selectOption(['SYNTHETIC_ROOM_A']);
-  await coreSearch(1);
-  check((await page.locator('#core-search-wall-slot .q-core-card').count())===1,'location only one camera');check(await page.locator('#core-search-wall-slot').isVisible(),'search result visible above monitor wall');
-  check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').at(-1).payload.feature===null,'location only feature null');
-  await shot('01-location-only');
-
-  await page.locator('#q-core-region').selectOption([]);
-  await page.locator('#q-core-class').selectOption('person');
-  await coreSearch(2);
-  check((await page.locator('#core-search-wall-slot .q-core-card').count())===2,'feature only two cameras');
-  check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').at(-1).payload.region_ids.length===0,'feature only no region');
-  await shot('02-feature-only');
-
-  await page.locator('#q-core-region').selectOption(['SYNTHETIC_ROOM_A']);
-  await coreSearch(1);
-  check((await page.locator('#core-search-wall-slot .q-core-card').count())===1,'combined one camera');
-  check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').at(-1).payload.feature?.class_label==='person','combined feature');
-  await shot('03-location-and-feature');
-
-  // A route failure must be shown as an error; it must not keep a success wall.
-  await page.route('**/api/q_core_search',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error_code:'Q_RESOURCE_UNAVAILABLE'})}));
-  await page.locator('#q-core-search').click();await awaitFeedback('Q_RESOURCE_UNAVAILABLE');
-  check(await page.locator('#core-search-wall-slot').getAttribute('hidden')!==null,'failed search clears wall');
-  await shot('04-route-unavailable');
-  await page.unroute('**/api/q_core_search');
-
-  // Two overlapping requests: the late first response must not replace the later result.
-  let intercepted=0;
-  await page.route('**/api/q_core_search',async route=>{intercepted++;if(intercepted===1)await new Promise(r=>setTimeout(r,250));await route.continue();});
-  await page.locator('#q-core-search').click();await page.waitForTimeout(20);await page.locator('#q-core-region').selectOption([]);await page.locator('#q-core-search').click();
-  await awaitFeedback('查找回應：READY');await page.waitForTimeout(300);
-  check(intercepted===2,'two browser requests issued');
-  check((await page.locator('#core-search-wall-slot .q-core-card').count())===2,'late response did not corrupt wall');
-  await page.unroute('**/api/q_core_search');
-
-  // Track at the source clock's current point, then inspect the four single-view states.
-  await page.locator('#q-core-region').selectOption([]);
-  await page.locator('#q-core-start').fill('');await page.locator('#q-core-end').fill('');
-  await seek(2000000);await page.locator('#q-core-track').click();await awaitFeedback('追蹤回應：LOST');
-  check(preview.routeCalls.filter(c=>c.route==='/api/q_core_track').at(-1).payload.playback_now_us===2000000,'track now uses displayed source clock');
-  for(const [t,camera,kind,name] of [[300000,'A','ON_CAMERA','05-track-a'],[800000,'無畫面（盲區／遺失）','GAP','06-track-gap'],[1200000,'B','ON_CAMERA','07-track-b'],[1800000,'無畫面（盲區／遺失）','LOST','08-track-lost']]){
-    await seek(t);
-    check((await page.locator('#core-tracking-slot .q-core-active-cam-id').innerText())===camera,`${kind} camera`);
-    check((await page.locator('#core-tracking-slot .q-core-segment-badge').getAttribute('data-kind'))===kind,`${kind} state`);
-    await shot(name);
-  }
-  await seek(200000);await page.locator('#q-play').click();await page.waitForFunction(()=>document.querySelector('.q-core-active-cam-id')?.textContent==='B');await page.locator('#q-play').click();check((await page.locator('#q-core-rate').innerText()).includes('實際'),'actual synthetic clock rate displayed');
-  await page.locator('#core-tracking-slot [data-mode="multi"]').click();
-  check((await page.locator('#core-tracking-slot .q-core-multi-cam-tile').count())===2,'multi-view two cameras');
-  await page.locator('#core-tracking-slot [data-speed="1.5"]').click();
-  check((await page.locator('#core-tracking-slot [data-speed="1.5"]').getAttribute('aria-pressed'))==='true','1.5x speed setting');
-  check(await page.locator('#q-speed').inputValue()==='1.5','global speed agrees with core control');
-  await seek(200000);await page.locator('#q-play').click();await page.waitForFunction(()=>document.querySelector('#q-core-rate')?.textContent?.includes('1.5'));await page.waitForTimeout(400);await page.locator('#q-play').click();
-  await shot('09-track-multi');
-  await page.locator('#view-seg [data-view="simple"]').click();
-  check((await page.locator('body').getAttribute('data-view'))==='simple','simple view mode');
-  await shot('10-simple-view');
-  await page.locator('#view-seg [data-view="system"]').click();
-  check((await page.locator('body').getAttribute('data-view'))==='system','system view restored');
-  // Use the actual source menu for all three explicitly synthetic events.
-  check(await page.locator('#q-run option').count()===3,'three synthetic event scopes');
-  for(const [index,runId,count] of [['0','SYNTHETIC_B05',2],['1','SYNTHETIC_A4_1',3],['2','SYNTHETIC_B4_1',2]]){
-    await page.locator('#q-run').selectOption(index);
-    await page.waitForFunction(id=>document.querySelector('#q-source-state')?.textContent?.includes(id),runId);
-    check(await page.locator('#core-search-wall-slot').getAttribute('hidden')!==null,'event switch clears old results '+runId);
-    await page.locator('#q-core-region:not([disabled])').waitFor();
-    await page.locator('#q-core-region').selectOption([]);await page.locator('#q-core-class').selectOption('person');
-    await page.locator('#q-core-start').fill('13:00:00');await page.locator('#q-core-end').fill('13:00:02');
-    await coreSearch(count);
-    check(preview.routeCalls.filter(c=>c.route==='/api/q_core_search').at(-1).payload.run_id===runId,'search uses selected event '+runId);
-    check(await page.locator('#core-search-wall-slot').isVisible(),'event search visible '+runId);
-    await shot('11-'+runId+'-search');
-    await page.locator('#q-core-track').click();await awaitFeedback('追蹤回應：LOST');
-    check(preview.routeCalls.filter(c=>c.route==='/api/q_core_track').at(-1).payload.run_id===runId,'track uses selected event '+runId);
-    await page.locator('#core-tracking-slot [data-mode="single"]').click();await seek(300000);
-    check(await page.locator('#core-tracking-slot .q-core-active-cam-id').innerText()==='A','event single view '+runId);
-    await page.locator('#core-tracking-slot [data-mode="multi"]').click();
-    check(await page.locator('#core-tracking-slot .q-core-multi-cam-tile').count()===count,'event multi camera count '+runId);
-    await shot('12-'+runId+'-track-multi');
-  }
-  check(pageErrors.length===0,'no browser page errors: '+pageErrors.join('; '));
-  console.log(JSON.stringify({status:'PASS',checks,source_head:preview.head,url:preview.url,screenshots:shots,not_verified:['Windows','Linux','real RGB','physical display fps; measured rate is the synthetic source clock only']},null,2));
-}finally{await browser.close();await new Promise((done,reject)=>preview.server.close(error=>error?reject(error):done()));}
+ await page.goto(preview.url,{waitUntil:'domcontentloaded'});await page.locator('#ui-enter').waitFor();
+ check(await page.locator('#synthetic-api-banner').isVisible(),'synthetic banner visible above new UI');check((await page.locator('.ui-tagline').innerText()).includes('Agentic'),'approved cover tagline');await shot('00-cover');
+ await page.locator('#ui-enter').click();await page.locator('[data-case=case1]').click();await page.locator('#ui-q-search [data-role=regions] button').first().waitFor();
+ const initial=calls('/api/q_core_search').length;
+ await page.locator('#ui-search-submit').click();check((await page.locator('#ui-search-feedback').innerText()).includes('地點與特徵至少選一項'),'empty criteria validation');check(calls('/api/q_core_search').length===initial,'empty criteria sends no request');
+ await feature('person');await page.locator('#ui-search-end').fill('');await page.locator('#ui-search-submit').click();check((await page.locator('#ui-search-feedback').innerText()).includes('請輸入開始與結束時間'),'missing time validation');check(calls('/api/q_core_search').length===initial,'missing time sends no request');
+ await page.locator('#ui-search-start').fill('13:00:00');await page.locator('#ui-search-end').fill('13:00:02');await feature('');
+ const region=()=>page.locator('#ui-q-search [data-role=regions] [data-value=SYNTHETIC_ROOM_A]');await region().click();await submit('search',1);
+ check(calls('/api/q_core_search').at(-1).payload.feature===null,'location only feature null');check(await page.locator('#ui-wall').isVisible(),'result wall visible');await shot('01-location-only');
+ await open('search');await region().click();await feature('person');await submit('search',2);check(calls('/api/q_core_search').at(-1).payload.region_ids.length===0,'feature only no region');check(await page.locator('#ui-case1 .ui-shot').count()===2,'feature two cameras');await shot('02-feature-only');
+ await open('search');await region().click();await submit('search',1);check(calls('/api/q_core_search').at(-1).payload.feature.class_label==='person','combined feature');check(calls('/api/q_core_search').at(-1).payload.region_ids.length===1,'combined region');await shot('03-combined');
+ await page.route('**/api/q_core_search',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error_code:'Q_RESOURCE_UNAVAILABLE'})}));await open('search');await page.locator('#ui-search-submit').click();await page.waitForFunction(()=>document.querySelector('#ui-search-feedback')?.textContent.includes('Q_RESOURCE_UNAVAILABLE'));check(await page.locator('#ui-case1 .ui-shot').count()===0,'failed search clears result wall');await shot('04-unavailable');await page.unroute('**/api/q_core_search');
+ let intercepted=0;await page.route('**/api/q_core_search',async r=>{if(++intercepted===1)await new Promise(done=>setTimeout(done,250));await r.continue();});
+ await open('search');await page.locator('#ui-search-submit').click();await page.waitForTimeout(20);await open('search');await region().click();await page.locator('#ui-search-submit').click();await page.waitForTimeout(500);check(intercepted===2,'two overlapping browser requests');check(await page.locator('#ui-case1 .ui-shot').count()===2,'late response cannot replace new result');await page.unroute('**/api/q_core_search');
+ // Selection must not rebuild already decoded result tiles.
+ const handle=await page.locator('#ui-case1 .ui-shot img').first().elementHandle();await page.locator('#ui-case1 .ui-shot').first().click();check(await handle.evaluate(img=>img.isConnected),'selection retains image node');check(await page.locator('.ui-lightbox').isVisible(),'new UI lightbox');await page.getByRole('button',{name:'回到結果牆'}).click();
+ await page.locator('.ui-brand').click();await page.locator('#ui-enter').click();await page.locator('[data-case=case2]').click();await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');await seek(2000000);await page.locator('#ui-context').click();await page.locator('#ui-track-start').fill('');await submit('track');check(calls('/api/q_core_track').at(-1).payload.playback_now_us===2000000,'track now uses visible source clock');
+ for(const [t,kind]of[[300000,'ON_CAMERA'],[800000,'GAP'],[1200000,'ON_CAMERA'],[1800000,'LOST']]){await seek(t);check(await page.locator('.ui-stagebox').getAttribute('data-kind')===kind,'visible '+kind+' state');await shot('05-track-'+t);}
+ await seek(300000);await page.locator('#ui-play').click();await page.waitForFunction(()=>document.querySelector('.ui-stamp')?.textContent.startsWith('B ·'));await page.locator('#ui-play').click();check(true,'automatic camera switch via visible play control');
+ await page.locator('#ui-layout [data-layout=multi]').click();check(await page.locator('.ui-multi-tile').count()===2,'multi two cameras');await page.locator('#ui-case2 [data-speed="1.5"]').click();check(await page.locator('#ui-case2 [data-speed="1.5"]').getAttribute('aria-pressed')==='true','visible speed selected');await shot('06-multi');
+ const bar=await page.locator('#ui-track-bar').boundingBox();check(Math.abs(bar.y+bar.height-1000)<2,'short-content bar meets viewport bottom');
+ check(await page.locator('#ui-run-select option').count()===3,'three source choices');
+ for(const [runId,n]of[['SYNTHETIC_B05',2],['SYNTHETIC_A4_1',3],['SYNTHETIC_B4_1',2]]){
+  await page.goto(preview.url+'?run='+runId+'&screen=case1',{waitUntil:'domcontentloaded'});await page.locator('#ui-q-search [data-role=classes] [data-value=person]').click();await submit('search',n);check(calls('/api/q_core_search').at(-1).payload.run_id===runId,'selected search source '+runId);await shot('07-'+runId+'-search');
+  await page.goto(preview.url+'?run='+runId+'&screen=case2',{waitUntil:'domcontentloaded'});await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');check(calls('/api/q_core_track').at(-1).payload.run_id===runId,'selected tracking source '+runId);await seek(300000);check(await page.locator('.ui-stagebox').getAttribute('data-kind')==='ON_CAMERA','selected source single state');await page.locator('#ui-layout [data-layout=multi]').click();check(await page.locator('.ui-multi-tile').count()===n,'selected source multi count');await shot('08-'+runId+'-multi');
+ }
+ check(errors.length===0,'no browser page errors');
+ const result={status:'PASS',checks,source_head:preview.head,url:preview.url,screenshots:shots,page_errors:errors,source_kind:'SYNTHETIC API FIXTURE',physical_display_fps:null};await writeFile(join(out,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+}finally{await browser.close();await new Promise((done,reject)=>preview.server.close(e=>e?reject(e):done()));}

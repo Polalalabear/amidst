@@ -277,10 +277,13 @@ export function mountUi(ctx) {
   const case3Url = entry => { const u = new URL(pageUrl(entry, cfg, url, {mode: entry.recording ? 'track' : cfg.mode ?? 'view'})); u.searchParams.set('screen', 'case3'); return u.toString(); };
 
   // ---- case 1: results wall ---------------------------------------------------------------------------------------
+  let case1Key = null;
   function renderCase1() {
     const s = store.getState(), resp = s.coreSearchResponse, model = s.coreSearchWall;
-    sCase1.replaceChildren();
     const p = phase.getState();
+    const key = JSON.stringify([resp?.output_sha256, Boolean(model), p.phase, p.mode, p.miss, s.error?.code, settings.resultLimit, settings.staggerResults]);
+    if (case1Key === key) return; case1Key = key;
+    sCase1.replaceChildren();
     if (p.phase === 'searching' && p.mode === 'find' && !resp) {
       const wait = el('div', undefined, 'ui-empty'); wait.append(el('p', p.miss ? '尚未找到' : '正在查找…', 'ui-h3'), el('p', p.miss ? `${p.miss.code} · ${p.miss.message}` : '結果出來後會顯示在這裡', 'ui-muted'));
       sCase1.append(wait); return;

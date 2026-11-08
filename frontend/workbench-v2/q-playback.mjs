@@ -84,5 +84,5 @@ export function createPlayback({api,store,root,onReady=()=>{}}){
     }
     return clockReady();
   };
-  return {buffer,present,pending,paint,clockReady:()=>store.getState().coreTrackResponse&&store.getState().activeRun?.source_kind==='SYNTHETIC'?true:coreClockReady(),viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
+  return {buffer,present,pending,paint,clockReady:()=>store.getState().coreTrackResponse&&store.getState().activeRun?.source_kind==='SYNTHETIC'&&root.body?.dataset.ui!=='v1'?true:coreClockReady(),viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
 }
