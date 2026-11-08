@@ -1,6 +1,8 @@
 """Source-pinned index-only Q1 search; no query-time media/inference or GT reads."""
 import math
 import re
+
+from amidst.q1q5.query_alias import AliasError, region_aliases, resolve_alias, validate_aliases
 from copy import deepcopy
 from functools import wraps
 
@@ -75,14 +77,22 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
     _require(canonical_hash(aliases,exclude=('content_sha256','stats'))==expected_aliases_sha256==aliases['content_sha256'],'Alias pin mismatch')
     _require(aliases['schema_version']=='q-demo.supported-classes.v1' and isinstance(aliases['class_labels'],list) and len(set(aliases['class_labels']))==len(aliases['class_labels']),'Invalid alias schema')
     _require(all(isinstance(k,str) and k and v in aliases['class_labels'] for k,v in aliases['aliases'].items()),'Alias points outside class map')
-    _require(len({k.casefold() for k in aliases['aliases']})==len(aliases['aliases']),'Casefold alias collision')
+    try:
+        validate_aliases(aliases['aliases'], aliases['class_labels'])
+    except AliasError as exc:
+        raise SearchError(str(exc), exc.code) from exc
     vocabulary=aliases['color_vocabulary']
     _require(isinstance(aliases['version'],str) and aliases['version'] and isinstance(vocabulary,dict)
              and isinstance(vocabulary['version'],str) and vocabulary['version']
              and isinstance(vocabulary['labels'],list) and all(isinstance(v,str) and v for v in vocabulary['labels'])
              and len(set(vocabulary['labels']))==len(vocabulary['labels'])
              and canonical_hash(vocabulary,exclude=('content_sha256','stats'))==vocabulary['content_sha256'],'Invalid color vocabulary pin')
-    label=next((v for k,v in aliases['aliases'].items() if k.casefold()==condition['class_label'].casefold()),condition['class_label'])
+    try:
+        label=resolve_alias(condition['class_label'], aliases['aliases'], aliases['class_labels'])
+    except AliasError as exc:
+        if exc.code != 'ALIAS_UNKNOWN':
+            raise SearchError(str(exc), exc.code) from exc
+        label=condition['class_label']  # Existing UNSUPPORTED_CLASS response remains unchanged.
     condition['class_label']=label
     scope={k:None for k in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256','time_range_source']}
     response={'schema_version':'q-demo.q1-response.v2','status':'UNKNOWN','reason':None,'query_id':None,'query_sha256':None,'normalized_condition':condition,'results':[],'no_match_cameras':[],'not_evaluated_cameras':[],'results_total':0,'returned_count':0,'next_cursor':None,'ranking_basis':['first_match_us_asc','camera_id'],'supported_classes_ref':'supported-classes:'+expected_aliases_sha256,'resolved_scope':scope,'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':False,'agent_used':False,'decision_source':None,'fallback_used':False,'fallback_reason':None,'provenance':{'producer':'q1-camera-search','producer_version':'1','gt_read':False,'input_refs':['supported-classes:'+expected_aliases_sha256]}}
@@ -146,6 +156,10 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
         if graphs is None:return finish('UNKNOWN','GRAPH_NOT_AVAILABLE')
         r,c=graphs.region,graphs.camera
         _require(r['scene_id']==m['scene_id'] and r['scene_revision']==m['scene_revision'],'Graph/index scene mismatch')
+        try:
+            q['region_ids']=[resolve_alias(v, region_aliases(), [n['region_id'] for n in r['regions']], allow_unavailable=True) for v in q['region_ids']]
+        except AliasError as exc:
+            raise SearchError(str(exc), exc.code) from exc
         _require(set(q['region_ids'])<={n['region_id'] for n in r['regions']},'Region outside graph','FORBIDDEN_DATA_SCOPE')
         selected&={cam['camera_id'] for cam in c['cameras'] if any(cover['region_id'] in q['region_ids'] for cover in cam['covered_regions'])}
         scope.update(region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256']);graph_draft=graphs.approval_status!='APPROVED'

@@ -16,6 +16,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
+from amidst.q1q5.query_alias import region_catalog
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
 POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_camera_map','q_candidate_view','q_external_prediction'})
@@ -25,7 +26,7 @@ UNAVAILABLE_POST_ROUTES=frozenset({'q_physical_prediction'})
 GET_ROUTES=frozenset({'q_bootstrap'})
 ROUTES=POST_ROUTES|UNAVAILABLE_POST_ROUTES|GET_ROUTES
 Q_STATIC_FILES=frozenset({
-    'q-playback.mjs','q-api.mjs','q-validate.mjs','q-time.mjs','q-tokens.mjs','q1-wall-model.mjs','q1-wall-view.mjs',
+    'query-alias-model.mjs','q-playback.mjs','q-api.mjs','q-validate.mjs','q-time.mjs','q-tokens.mjs','q1-wall-model.mjs','q1-wall-view.mjs',
     'q3-bar-model.mjs','q3-bar-view.mjs','provenance-bar.mjs','q2-session-model.mjs','q2-view.mjs',
     'q2-timeline-model.mjs','q2-timeline-view.mjs','q4-evidence-view.mjs','q5-log-model.mjs','q5-log-view.mjs',
     'review/review-model.mjs','review/review-view.mjs','review/fixtures/expectations.synthetic.json',
@@ -203,6 +204,7 @@ class QAPI:
                            for r in (run.bindings.graphs.region.get('regions',[]) if run.bindings.graphs else [])],
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
+                'region_catalog':region_catalog(run),
                 'supported_classes_ref':'supported-classes:'+run.aliases_sha256,'supported_classes':deepcopy(run.aliases),
                 'sampling':deepcopy(m['sampling']),'index_score_floor':m['detector']['index_score_floor'],
                 'parameter_approval':deepcopy(run.bindings.parameter_set['approval']),

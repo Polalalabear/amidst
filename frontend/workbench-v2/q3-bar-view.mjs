@@ -1,3 +1,4 @@
+import {displayOptions} from './query-alias-model.mjs';
 import {intentPresentation,parsePresentation,manualRequest,editedRequest,textRequest,vocabulary} from './q3-bar-model.mjs';
 const el=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x;};
 export function mount({store,slots,api,execute}) {
@@ -25,8 +26,8 @@ export function mount({store,slots,api,execute}) {
     parserMode.disabled=!s.activeRun||s.loading;llm.disabled=!s.activeRun?.q3_llm_available;
     if(s.activeRun!==run){run=s.activeRun;lastIntent=null;classes.replaceChildren();colors.replaceChildren();
       parserMode.value='RULE_ONLY';
-      for(const c of run?.supported_classes.class_labels??[]){const o=el('option',c);o.value=c;classes.append(o);}classes.value='person';
-      for(const c of ['',...(run?.supported_classes.color_vocabulary.labels??[])]){const o=el('option',c||'不指定');o.value=c;colors.append(o);}
+      for(const c of run?.supported_classes.class_labels??[]){const o=el('option',displayOptions(run.supported_classes.class_labels,run.supported_classes.aliases??{}).find(x=>x.value===c).label);o.value=c;classes.append(o);}classes.value='person';
+      for(const c of ['',...(run?.supported_classes.color_vocabulary.labels??[])]){const o=el('option',({'red':'紅色','blue':'藍色'}[c]??c)||'不指定');o.value=c;colors.append(o);}
       start.value='0';end.value=String(run?.clock_mapping?.source_duration_us??0);terms.textContent=vocabulary(run);
     }
     if(s.q3===response&&s.loading===lastLoading)return;response=s.q3;lastLoading=s.loading;
