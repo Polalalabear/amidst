@@ -10,8 +10,8 @@ const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({ch
 try{
  await page.goto(preview.url,{waitUntil:'domcontentloaded'});await page.locator('#ui-enter').waitFor();
  check(await page.locator('#ui-v1').count()===1&&await page.locator('body[data-ui=v1]').count()===1,'ui root mounted and body marked data-ui=v1');
- check(await page.locator('[data-case]').count()===0||!(await page.locator('[data-case=case1]').isVisible()),'chooser hidden on cover');
- await page.locator('#ui-enter').click();
+ check(await page.locator('#ui-cover').getAttribute('data-on')==='true','cover layer is on at start');
+ await page.locator('#ui-enter').click();await page.waitForTimeout(400);check(await page.locator('#ui-cover').getAttribute('data-on')==='false','cover layer off after enter');
  for(const c of ['case1','case2','case3'])check(await page.locator(`[data-case=${c}]`).isVisible(),'chooser offers '+c);
  await page.locator('[data-case=case1]').click();await page.locator('#ui-case1').waitFor();
  check(await page.locator('#ui-case1').isVisible()&&!(await page.locator('#ui-case2').isVisible()),'case1 visible, case2 hidden');
