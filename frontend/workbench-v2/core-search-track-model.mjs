@@ -741,6 +741,12 @@ export function projectTopdown(topdown, cameraPositions, activeCameraId = null) 
   };
 }
 
+// 展示標示：追蹤起點由系統自動選取（非使用者指定）；原因碼（含 GRAPH_NOT_APPROVED）照原文顯示，不改寫、不隱藏。
+export const AUTO_SEED_LABEL = '自動種子';
+export function reasonChips(reasons) {
+  return (Array.isArray(reasons) ? reasons : []).filter(r => typeof r === 'string' && r).map(code => ({ code, text: code }));
+}
+
 export function coreSearchTrackReducer(state, action) {
   switch (action.type) {
     case 'SET_CORE_SEARCH_RESPONSE':

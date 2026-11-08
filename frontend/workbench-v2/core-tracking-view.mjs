@@ -2,6 +2,8 @@
 // Connects to buildCoreTrackingViewModel output. Pure DOM view; no inference inputs.
 
 import {
+  AUTO_SEED_LABEL,
+  reasonChips,
   buildCoreTrackingViewModel,
   SUPPORTED_SPEEDS,
   CORE_NAVIGATION_BADGE,
@@ -54,6 +56,12 @@ export function mountCoreTrackingView({
     const statusBadge = el('span', model?.statusText ?? '尚未載入追蹤結果。', 'q-core-track-status');
     head.append(statusBadge);
     root.append(head);
+    if (model && model.status !== 'UNLOADED') {
+      const tags = el('div', undefined, 'q-core-tags');
+      tags.append(el('span', AUTO_SEED_LABEL, 'q-core-auto-seed'));
+      for (const chip of reasonChips(model.reasons)) tags.append(el('span', chip.text, 'q-core-reason'));
+      root.append(tags);
+    }
 
     if (!model || model.status === 'UNLOADED') {
       const emptyBox = el('div', undefined, 'q-core-empty');

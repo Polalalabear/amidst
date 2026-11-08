@@ -326,3 +326,6 @@
   background: #333;
   color: #888;
 }
+
+.q-core-tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+.q-core-auto-seed,.q-core-reason{font-size:12px;padding:2px 8px;border:1px solid currentColor;border-radius:10px;opacity:.9}

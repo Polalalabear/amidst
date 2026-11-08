@@ -1452,3 +1452,41 @@ test('backend blind-curve response (q-demo.physical-prediction.v1) draws a dashe
     tearDownDoc();
   }
 });
+
+// --- #445 integration: demo labels and receipt isolation ----------------------------------------------------
+test('tracking view shows 自動種子 and GRAPH_NOT_APPROVED; the wall shows GRAPH_NOT_APPROVED', () => {
+  setupDoc();
+  try {
+    const track = structuredClone(SYNTHETIC_TRACK_RESPONSE);
+    track.reasons = ['DEMO_DEFAULT', 'GRAPH_NOT_APPROVED', 'ASSOCIATION_IDENTITY_UNCONFIRMED'];
+    const host = new MockElement('div');
+    const view = mountCoreTrackingView({ container: host });
+    view.update(buildCoreTrackingViewModel(track, { tUs: 35000000 }));
+    assert.equal(findByClass(host, 'q-core-auto-seed')[0].textContent, '自動種子');
+    const codes = findByClass(host, 'q-core-reason').map(n => n.textContent);
+    assert.ok(codes.includes('GRAPH_NOT_APPROVED') && codes.includes('DEMO_DEFAULT'));
+    view.destroy();
+
+    const wallHost = new MockElement('div');
+    const wallView = mountCoreSearchWallView({ container: wallHost });
+    wallView.update(buildSearchResultsWallModel({ ...SYNTHETIC_SEARCH_RESPONSE, reasons: ['GRAPH_NOT_APPROVED'] }, {}));
+    assert.deepEqual(findByClass(wallHost, 'q-core-reason').map(n => n.textContent), ['GRAPH_NOT_APPROVED']);
+    wallView.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('workbench, event viewer and index code never reference the #442 receipt or its witness time', async () => {
+  const { readdirSync, readFileSync } = await import('node:fs');
+  const roots = ['../workbench-v2/', '../event-viewer/'].map(r => new URL(r, import.meta.url));
+  const files = [];
+  for (const root of roots) for (const f of readdirSync(root)) if (/\.(mjs|html|css|js)$/.test(f) && !/\.test\.mjs$/.test(f)) files.push(new URL(f, root));
+  for (const rel of ['../../src/amidst/q1q5/demo_default_index.py', '../../src/amidst/q1q5/cross_camera_demo.py', '../../src/amidst/q1q5/demo_launcher.py']) files.push(new URL(rel, import.meta.url));
+  assert.ok(files.length > 20);
+  for (const f of files) {
+    let text;
+    try { text = readFileSync(f, 'utf8'); } catch { continue; }
+    assert.doesNotMatch(text, /RERENDER_RECEIPT|first_static_witness|9\.6518|9651833/, f.pathname);
+  }
+});

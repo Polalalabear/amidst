@@ -2,6 +2,7 @@
 // Connects to buildSearchResultsWallModel output. Pure DOM view; no inference inputs.
 
 import {
+  reasonChips,
   buildSearchResultsWallModel,
   CORE_IDENTITY_BADGE,
   CORE_RANKING_NOTE,
@@ -58,6 +59,12 @@ export function mountCoreSearchWallView({
     const statusEl = el('span', countText, 'q-core-wall-status');
     head.append(statusEl);
     root.append(head);
+    const wallChips = reasonChips(model?.reasons);
+    if (wallChips.length) {
+      const tags = el('div', undefined, 'q-core-tags');
+      for (const chip of wallChips) tags.append(el('span', chip.text, 'q-core-reason'));
+      root.append(tags);
+    }
 
     // Cards Grid or Empty State
     if (!model?.hasResults || model.cards.length === 0) {
