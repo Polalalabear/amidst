@@ -68,3 +68,5 @@ data/pilot/
 frontend/product/node_modules/
 /data/product/local_run/
 *.review-expectations.json
+
+node_modules/

@@ -73,12 +73,13 @@
 
 ### 開始使用
 
-需要 Python ≥3.12 與 [`uv`](https://docs.astral.sh/uv/)：
+需要 [`uv`](https://docs.astral.sh/uv/) 與 Node.js 20+。Python 固定為 3.12（`.python-version`），依賴由 `uv.lock` 與各 `package-lock.json` 鎖定：
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
 cd amidst
-uv sync --frozen
+scripts/setup_env.sh        # 建立 .venv（Python 3.12）並照鎖定檔安裝 Python 與 node 依賴
+.venv/bin/pytest tests/q1q5
 ```
 
 Clone 只取得程式、設定與文件。Blender 場景、渲染畫面、模型權重、偵測索引與資料庫都只存在本機，不在 repository 裡，
@@ -169,12 +170,13 @@ Every PR and issue, classified by the five questions and by done / in progress /
 
 ### Getting started
 
-Requires Python ≥3.12 and [`uv`](https://docs.astral.sh/uv/):
+Requires [`uv`](https://docs.astral.sh/uv/) and Node.js 20+. Python is pinned to 3.12 (`.python-version`); dependencies are locked by `uv.lock` and each `package-lock.json`:
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
 cd amidst
-uv sync --frozen
+scripts/setup_env.sh        # 建立 .venv（Python 3.12）並照鎖定檔安裝 Python 與 node 依賴
+.venv/bin/pytest tests/q1q5
 ```
 
 A clone contains code, configuration and documents only. Blender scenes, rendered frames, model weights, the detection
