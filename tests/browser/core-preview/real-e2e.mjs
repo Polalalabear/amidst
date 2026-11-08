@@ -1,9 +1,14 @@
+// Legacy RGB compatibility gate (53); the new UI real gate is ../ui-redesign/real-e2e.mjs.
 import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
-const {chromium}=await import(process.env.PLAYWRIGHT_CORE_MODULE?pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE).href:'playwright-core');
+import {ownedRuntime} from './owned-runtime.mjs';
+const owned=ownedRuntime();
+const moduleId=process.env.PLAYWRIGHT_CORE_MODULE??owned.playwrightModule;
+const baseUrl=process.env.CORE_BASE_URL??'http://127.0.0.1:8785';
+const {chromium}=await import(pathToFileURL(moduleId).href);
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-const out=process.env.INTEGRATION_OUTPUT;if(!out)throw Error('INTEGRATION_OUTPUT_REQUIRED');await mkdir(out+'/screenshots',{recursive:true});
+const out=process.env.INTEGRATION_OUTPUT??owned.evidenceRoot+'/real';await mkdir(out+'/screenshots',{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const page=await browser.newPage({viewport:{width:1600,height:1100},deviceScaleFactor:1});
 await page.addInitScript(()=>localStorage.clear());
@@ -14,7 +19,7 @@ const shot=async(name,extra={})=>{await page.screenshot({path:out+'/screenshots/
 const seek=async t=>{await page.locator('#q-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);};
 try{
 for(const event of ['B-05','A4-1','B4-1']){
-  await page.goto('http://127.0.0.1:8785/workbench-v2/?run='+event,{waitUntil:'domcontentloaded'});
+  await page.goto(baseUrl+'/workbench-v2/?ui=legacy&run='+event,{waitUntil:'domcontentloaded'});
   await page.locator('#q-core-class option[value=person]').waitFor({state:'attached'});
   await page.waitForFunction(()=>document.querySelectorAll('.mr-tile[data-status="READY"]').length>0,{timeout:30000});
   await page.locator('.mr-toggle').click();
@@ -57,14 +62,14 @@ for(const event of ['B-05','A4-1','B4-1']){
   await writeFile(out+'/'+event+'-search.json',JSON.stringify(sd,null,2));await writeFile(out+'/'+event+'-track.json',JSON.stringify(td,null,2));
 }
 for(const [event,stamp] of [['B-05',3000000],['A4-1',9400000],['B4-1',2100000]]){
-await page.goto('http://127.0.0.1:8785/workbench-v2/?run='+event+'&screen=blind&as_of_us='+stamp,{waitUntil:'domcontentloaded'});
+await page.goto(baseUrl+'/workbench-v2/?ui=legacy&run='+event+'&screen=blind&as_of_us='+stamp,{waitUntil:'domcontentloaded'});
 await page.waitForFunction(()=>document.querySelector('#q-core-feedback')?.textContent.includes('追蹤回應：'));await page.waitForTimeout(700);
 const curves=await page.locator('#core-tracking-slot polyline').count();
 if(event!=='B-05')check(curves>0,event+' actual-index blind curve');
 await shot(event+'-blind',{feedback:await page.locator('#q-core-feedback').innerText(),curves,text:(await page.locator('#core-tracking-slot').innerText()).slice(0,1800)});
 }
 for(const [name,q]of[['r005-location','region=R101'],['r005-laptop','class=laptop']]){
-await page.goto('http://127.0.0.1:8785/workbench-v2/?run=r005&screen=search&'+q,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('#q-core-feedback')?.textContent.includes('查找回應：'));await page.waitForTimeout(700);
+await page.goto(baseUrl+'/workbench-v2/?run=r005&screen=search&'+q,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('#q-core-feedback')?.textContent.includes('查找回應：'));await page.waitForTimeout(700);
 check(await page.locator('#core-search-wall-slot .q-core-card').count()===(name==='r005-location'?1:2),name+' actual search cards');
 await page.waitForFunction(()=>{const xs=[...document.querySelectorAll('#core-search-wall-slot img')];return xs.length>0&&xs.every(x=>x.naturalWidth>0);});
 check(await page.locator('#core-search-wall-slot img').evaluateAll(xs=>xs.length>0&&xs.every(x=>x.naturalWidth>0)),name+' decoded static RGB');

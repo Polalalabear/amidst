@@ -1,12 +1,14 @@
 // Real server acceptance: only visible UI controls, source-bound API, and decoded RGB.
 import assert from 'node:assert/strict';
+import {ownedRuntime} from '../core-preview/owned-runtime.mjs';
+const owned=ownedRuntime();
 import {pathToFileURL} from 'node:url';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-const {chromium}=await import(process.env.PLAYWRIGHT_CORE_MODULE?pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE).href:'playwright-core');
-const out=process.env.UI_QA_OUTPUT;if(!out)throw Error('UI_QA_OUTPUT_REQUIRED');await mkdir(out+'/screenshots',{recursive:true});
-const base=new URL('/workbench-v2/',process.env.UI_QA_BASE_URL??'http://127.0.0.1:8785').href;
+const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE??owned.playwrightModule).href);
+const out=process.env.UI_QA_OUTPUT??owned.evidenceRoot+'/ui-real';await mkdir(out+'/screenshots',{recursive:true});
+const base=new URL('/workbench-v2/',process.env.UI_QA_BASE_URL??process.env.CORE_BASE_URL??'http://127.0.0.1:8785').href;
 const b=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const results=[],errors=[],http=[],playbacks=[];let checks=0;const check=(ok,text)=>{assert.ok(ok,text);checks++;};
 const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png';await p.screenshot({path:file,fullPage:true});const raw=await readFile(file);const r={name,url:p.url(),bytes:raw.length,sha256:createHash('sha256').update(raw).digest('hex'),...data};results.push(r);console.log(JSON.stringify(r));};
