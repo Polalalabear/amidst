@@ -104,7 +104,7 @@ try{
   check(warm.every(x=>x.ok),'D139 during playback every sampled moment has a loaded image (complete, naturalWidth>0): '+warm.filter(x=>!x.ok).map(x=>x.ms+'ms '+x.kind).join(',')+' failed');
   check(urls.size>=4,'D139 playback image URL changes with time: '+urls.size+' different URLs');
   { // D146: the blind interval keeps playing LIVE video of the previous camera: the URL keeps changing and the camera never changes
-    const blindUrls=new Set(blind.filter(x=>x.ok).map(x=>x.src)),obsCam=observed.filter(x=>x.ms<(blind[0]?.ms??0)).at(-1)?.cam;
+    const blindUrls=new Set(blind.filter(x=>x.ok).map(x=>x.src)),obsCam=samples.filter(x=>x.kind==='ON_CAMERA'&&x.ms<(blind[0]?.ms??0)).at(-1)?.cam;
     check(blind.length>=3&&blind.every(x=>x.ok&&/^目標暫時不在畫面中，持續播放 [A-Z0-9_]+ 鏡頭$/.test(x.liveNote)&&x.tagHidden),'D146 blind interval plays live with the plain note and no observed tag ('+blind.length+' samples)');
     check(blindUrls.size>=2,'D146 blind interval image URL keeps changing (not frozen): '+blindUrls.size+' URLs');
     check(new Set(blind.map(x=>x.cam)).size===1&&blind[0]?.cam===obsCam,'D146 blind interval stays on the camera of the previous segment: '+blind[0]?.cam+' vs '+obsCam);}
