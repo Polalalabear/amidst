@@ -656,7 +656,8 @@ class QAPI:
             row=next((r for r in self.bootstrap()['runs'] if r['scene_id']==payload['scene_id'] and r['run_id']==payload['run_id']),None)
             check(row is not None,'Q_RUN_NOT_CONFIGURED',503)
             with self._lock:
-                if getattr(self,'_nl_provider',None) is None:self._nl_provider=nl_options.default_provider()
+                if getattr(self,'_nl_provider',None) is None or self._nl_provider.__class__ is nl_options.UnavailableProvider:
+                    self._nl_provider=nl_options.safe_default_provider()   # a build failure degrades to rules; it is retried next call
             try:return nl_options.parse_nl_options(payload,catalog=nl_options.catalog_from_run_summary(row),provider=self._nl_provider)
             except nl_options.NlParseError as exc:raise APIError(exc.code,422) from None
         raise APIError('FORBIDDEN_DATA_SCOPE',403)

@@ -71,7 +71,7 @@ export function describeNlResponse(resp, catalog = {}) {
   const reason = resp.fallback_reason ?? resp.manual_reason;
   let decision;
   if (manual) decision = {source: 'FALLBACK', text: `退回手動選單：${reasonText(resp.manual_reason ?? reason)}`, reason};
-  else if (resp.decided_by === 'LLM') decision = {source: 'LLM', text: 'LLM 決定', reason: null};
+  else if (resp.decided_by === 'LLM') decision = {source: 'LLM', text: p.synthetic_fixture ? 'LLM 決定（合成示範・非模型輸出）' : 'LLM 決定', reason: null, synthetic: !!p.synthetic_fixture};
   else if (resp.decided_by === 'RULE_FALLBACK') decision = {source: 'FALLBACK', text: `退回規則：${reasonText(reason)}`, reason};
   else decision = {source: 'RULE', text: '規則', reason: null};
   const f = resp.form;
@@ -85,7 +85,7 @@ export function describeNlResponse(resp, catalog = {}) {
   }
   const steps = (resp.trace?.steps ?? []).map(s => ({
     text: s.result_summary, reason: s.fallback_reason ?? null, latency: latencyText(s.llm_call?.latency_ms),
-    source: s.decided_by === 'LLM' ? (s.arguments ? 'LLM' : 'LLM_FAILED') : s.decided_by === 'RULE_FALLBACK' ? 'FALLBACK' : 'RULE',
+    synthetic: !!p.synthetic_fixture, source: s.decided_by === 'LLM' ? (s.arguments ? 'LLM' : 'LLM_FAILED') : s.decided_by === 'RULE_FALLBACK' ? 'FALLBACK' : 'RULE',
   }));
   return {
     state: manual ? 'MANUAL' : 'READY', decision, hint: !manual && resp.fallback_reason === 'REPLAY_MISS' ? REPLAY_MISS_HINT : '', providerChips, summary: parts.join('　·　'),
@@ -146,7 +146,7 @@ export function mountNlInput({ctx, doc, win, w, refresh, submit, fetchImpl}) {
   function show(view, resp) {
     result.hidden = false; result.replaceChildren(); result.dataset.state = view.state; result.dataset.source = view.decision.source;
     const chips = el('div', undefined, 'ui-nl-chips');
-    chips.append(chip(view.decision.text, `is-${view.decision.source.toLowerCase()}`), ...view.providerChips.map(c => chip(c.text, c.cls)));
+    chips.append(chip(view.decision.text, `is-${view.decision.source.toLowerCase()}${view.decision.synthetic ? ' is-synth' : ''}`), ...view.providerChips.map(c => chip(c.text, c.cls)));
     chips.firstChild.dataset.role = 'decision';
     result.append(chips);
     if (view.state === 'READY') {
@@ -169,7 +169,7 @@ export function mountNlInput({ctx, doc, win, w, refresh, submit, fetchImpl}) {
     }
     if (view.steps.length) {
       const d = el('details', undefined, 'ui-nl-steps'); d.append(el('summary', `解析步驟（${view.steps.length}）${view.recordedLatency ? '・錄製耗時 ' + view.recordedLatency : ''}`));
-      for (const s of view.steps) { const li = el('p', undefined, 'ui-nl-step'); li.append(chip({LLM: 'LLM', LLM_FAILED: 'LLM 失敗', RULE: '規則', FALLBACK: '退回規則'}[s.source], `is-${s.source === 'LLM_FAILED' ? 'fallback' : s.source.toLowerCase()}`), el('span', `${s.text}${s.reason ? '（' + reasonText(s.reason) + '）' : ''}${s.latency ? ' · ' + s.latency : ''}`)); d.append(li); }
+      for (const s of view.steps) { const li = el('p', undefined, 'ui-nl-step'); li.append(chip(s.source === 'LLM' && s.synthetic ? 'LLM（合成）' : {LLM: 'LLM', LLM_FAILED: 'LLM 失敗', RULE: '規則', FALLBACK: '退回規則'}[s.source], `is-${s.source === 'LLM_FAILED' ? 'fallback' : s.source.toLowerCase()}${s.source === 'LLM' && s.synthetic ? ' is-synth' : ''}`), el('span', `${s.text}${s.reason ? '（' + reasonText(s.reason) + '）' : ''}${s.latency ? ' · ' + s.latency : ''}`)); d.append(li); }
       result.append(d);
     }
   }
@@ -196,5 +196,5 @@ export function mountNlInput({ctx, doc, win, w, refresh, submit, fetchImpl}) {
   }
   parseBtn.addEventListener('click', run);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
-  return {box, input, parse: run, reset, last: () => last, destroy() { seq++; box.remove(); }};
+  return {box, input, parse: run, reset, last: () => last, destroy() { seq++; box.remove(); if (!doc.querySelector('.ui-nl')) doc.querySelector('link[data-nl-input]')?.remove(); }};
 }

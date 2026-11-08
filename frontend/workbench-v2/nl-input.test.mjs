@@ -48,7 +48,10 @@ test('T-N1: three decision sources render as three different chips with provider
   const fb = describeNlResponse(response({decided_by: 'RULE_FALLBACK', fallback_reason: 'TIMEOUT'}), catalog);
   const manual = describeNlResponse(response({status: 'FALLBACK_MANUAL', form: null, manual_reason: 'UNSUPPORTED_CONDITION', fallback_reason: 'UNSUPPORTED_CONDITION', decided_by: 'RULE_FALLBACK'}), catalog);
   assert.deepEqual([llm.decision.source, rule.decision.source, fb.decision.source, manual.decision.source], ['LLM', 'RULE', 'FALLBACK', 'FALLBACK']);
-  assert.equal(llm.decision.text, 'LLM 決定'); assert.equal(rule.decision.text, '規則'); assert.equal(fb.decision.text, '退回規則：模型逾時');
+  assert.equal(llm.decision.text, 'LLM 決定（合成示範・非模型輸出）'); assert.equal(llm.decision.synthetic, true);
+  const realLlm = describeNlResponse(response({provider: provider({model: 'qwen3:1.7b-q4_K_M', synthetic_fixture: false})}), catalog);
+  assert.equal(realLlm.decision.text, 'LLM 決定'); assert.equal(realLlm.decision.synthetic, false, 'only a real recording is called plain LLM');
+  assert.equal(llm.steps[0].synthetic, true); assert.equal(realLlm.steps[0].synthetic, false); assert.equal(rule.decision.text, '規則'); assert.equal(fb.decision.text, '退回規則：模型逾時');
   assert.equal(manual.decision.text, '退回手動選單：句子含有目前不支援的條件'); assert.equal(manual.state, 'MANUAL');
   assert.equal(new Set([llm, rule, fb].map(v => v.decision.source)).size, 3);
   assert.ok(llm.providerChips.some(c => c.text === '錄製重播') && llm.providerChips.some(c => c.text === 'SYNTHETIC_FIXTURE' && c.cls === 'is-synthetic') && llm.providerChips.some(c => c.text === 'EXPLORATORY'));
@@ -155,4 +158,27 @@ test('module boundaries: no GT words, no key access, no direct core calls; the s
   assert.doesNotMatch(src, /localStorage|OPENAI_API_KEY|api_key|Authorization|q_core_search|q_core_track|submitCore/i);
   assert.match(shell, /mountNlInput\(\{ctx, doc, win, w, refresh: renderCatalog, submit: submitQuery\}\)/);
   assert.equal((shell.match(/mountNlInput/g) ?? []).length, 2);   // import + one mount line
+});
+
+test('synthetic fixture answers are marked on the decision chip and the step chip, never plain "LLM"', async () => {
+  const t = mount('search', okFetch(response()));
+  t.h.input.value = '下午一點到一點半 合成區 A 的人'; await t.h.parse();
+  const chips = t.ids('ui-nl-search-result').textContent;
+  assert.match(chips, /LLM 決定（合成示範・非模型輸出）/); assert.match(chips, /LLM（合成）/); assert.match(chips, /SYNTHETIC_FIXTURE/);
+  assert.doesNotMatch(chips.replace('LLM 決定（合成示範・非模型輸出）', ''), /LLM 決定/);
+});
+
+test('destroy invalidates an in-flight parse: it neither fills the form nor submits', async () => {
+  let release;
+  const gate = new Promise(r => { release = r; });
+  const t = mount('search', async (u, init) => { await gate; return {ok: true, text: async () => JSON.stringify(response())}; });
+  t.h.input.value = '下午一點到一點半 合成區 A 的人';
+  const pending = t.h.parse();
+  t.h.destroy(); release(); await pending;
+  assert.equal(t.w.start.value, ''); assert.equal(t.w.form.classLabel, ''); assert.equal(t.submitted.length, 0);
+});
+
+test('a slow answer over the total budget is shown as a fallback reason, in plain words', () => {
+  const v = describeNlResponse(response({decided_by: 'RULE_FALLBACK', fallback_reason: 'TIME_BUDGET'}), catalog);
+  assert.equal(v.decision.text, '退回規則：超過時間預算');
 });

@@ -56,7 +56,7 @@ try {
   await page.locator('#ui-nl-search-text').fill('下午一點到一點半 合成區 A 的人');
   await shot(page, '01-input-case1');
   const r1 = await parse(page, 'search', '下午一點到一點半 合成區 A 的人');
-  check(await decision(r1) === 'LLM 決定', 'decision chip: LLM');
+  check(await decision(r1) === 'LLM 決定（合成示範・非模型輸出）', 'decision chip: LLM, marked synthetic');
   const chips = await r1.locator('.ui-nl-chip').allInnerTexts();
   check(chips.includes('錄製重播') && chips.includes('SYNTHETIC_FIXTURE') && chips.includes('EXPLORATORY'), 'provider/fixture/label chips: ' + chips.join('|'));
   check(await page.locator('#ui-search-start').inputValue() === '13:00:00' && await page.locator('#ui-search-end').inputValue() === '13:30:00', 'time filled');
@@ -102,7 +102,7 @@ try {
   // ---- case 2 ------------------------------------------------------------------------------------------------------
   await open(page, 'case2');
   r = await parse(page, 'track', '追蹤紅衣服的人');
-  check(await decision(r) === 'LLM 決定', 'case2 LLM decision');
+  check(await decision(r) === 'LLM 決定（合成示範・非模型輸出）', 'case2 LLM decision, marked synthetic');
   check(await page.locator('#ui-q-track [data-role=classes] [data-value=person]').getAttribute('aria-pressed') === 'true' && await page.locator('#ui-q-track [data-role=colors] [data-value=red]').getAttribute('aria-pressed') === 'true', 'case2 class+color filled');
   check(await page.locator('#ui-track-start').inputValue() === '', 'blank start = now');
   check(calls('/api/q_core_track').length === 0, 'no track before confirm');

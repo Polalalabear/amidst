@@ -217,6 +217,14 @@ class RecordedNlProvider:
     kind = 'RECORDED'
 
     def __init__(self, recording, *, sequential=False):
+        try:
+            self._load(recording, sequential)
+        except ReplayMismatch:
+            raise
+        except (KeyError, TypeError, AttributeError, ValueError):
+            raise ReplayMismatch('Recording is malformed') from None
+
+    def _load(self, recording, sequential):
         if not isinstance(recording, dict) or recording.get('schema_version') != RECORDING_SCHEMA:
             raise ReplayMismatch('Not a q-core.agent-recording.v1')
         if canonical_hash(recording, exclude=('content_sha256',)) != recording.get('content_sha256'):
@@ -352,6 +360,32 @@ def default_provider(env=None):
                             model=env.get('AMIDST_NL_OLLAMA_MODEL', QWEN3_MODEL), options={'temperature': 0, 'seed': 7, 'num_predict': 256})
 
 
+class UnavailableProvider:
+    """Stands in when the configured provider cannot be built (missing/corrupt recording, bad mode): every call
+    degrades to the rules with ``code`` as the reason instead of failing the request."""
+
+    def __init__(self, kind, code):
+        self.kind, self.code = kind, code
+        self.info = {'kind': kind, 'model': None, 'model_digest': None, 'options': {}, 'recorded': kind == 'RECORDED',
+                     'synthetic_fixture': False, 'recording_id': None, 'recording_sha256': None}
+
+    def generate(self, **_):
+        raise ProviderError(self.code, {})
+
+
+def safe_default_provider(env=None):
+    """default_provider() that never raises: a build failure becomes an UnavailableProvider (reason shown, rules used)."""
+    env = os.environ if env is None else env
+    try:
+        return default_provider(env)
+    except NlParseError as exc:
+        code = exc.code if exc.code == 'REPLAY_MISS' else 'PROVIDER_UNAVAILABLE'
+    except Exception:  # missing file, bad JSON, unreachable config: never echo the message (may hold paths)
+        code = 'PROVIDER_UNAVAILABLE'
+    mode = env.get('AMIDST_NL_PROVIDER', 'RECORDED')
+    return UnavailableProvider(mode if mode in PROVIDER_KINDS and mode != 'NONE' else 'RECORDED', code)
+
+
 # ---- orchestration -----------------------------------------------------------------------------------------------
 def build_prompt(text, catalog):
     return (_template() + '\nCLOSED_CATALOG=' + json.dumps({k: catalog[k] for k in _LLM_CATALOG_FIELDS}, ensure_ascii=True, sort_keys=True)
@@ -434,6 +468,8 @@ def parse_nl_options(request, *, catalog, provider=None, budget=None):
             record = result.record
             call['raw_output_sha256'] = record.get('raw_output_sha256')
             call['latency_ms'] = (record.get('stats') or {}).get('latency_ms', (time.monotonic() - started) * 1000)
+            if call['latency_ms'] is not None and call['latency_ms'] > budget['total_budget_ms']:
+                raise ProviderError('TIME_BUDGET', record)   # answer arrived after the budget: it is not used (spec §6 rule 2)
             checked = _check_llm_output(_strict_object(result.text), rules.output, text, catalog)
             llm_form, missing, warnings = build_form(kind, checked, catalog)
             if llm_form is None:  # model proposed terms outside the closed catalog
@@ -448,6 +484,8 @@ def parse_nl_options(request, *, catalog, provider=None, budget=None):
             fallback, call['validation'] = 'REPLAY_MISS', 'INVALID_RESPONSE'
         except (ValueError, TypeError, KeyError):
             fallback, call['validation'] = 'INVALID_RESPONSE', 'INVALID_RESPONSE'
+        except Exception:  # a provider that fails in any other way (never echo the message: it may hold paths or headers)
+            fallback, call['validation'] = 'PROVIDER_UNAVAILABLE', 'PROVIDER_UNAVAILABLE'
         if llm_form is not None:
             form, decided_by = llm_form, 'LLM'
             steps.append(_step(0, 'LLM', form, [], call, _summary(form, missing, kind), None, result=form))
@@ -517,7 +555,7 @@ def _main(argv):
         sys.stderr.write('usage: python -m amidst.q1q5.nl_options replay < {request, run, recording?}\n')
         return 2
     payload = json.load(sys.stdin)
-    provider = RecordedNlProvider.from_file(payload['recording']) if payload.get('recording') else default_provider()
+    provider = RecordedNlProvider.from_file(payload['recording']) if payload.get('recording') else safe_default_provider()
     sys.stdout.write(json.dumps(parse_nl_options(payload['request'], catalog=catalog_from_run_summary(payload['run']), provider=provider),
                                 ensure_ascii=False, sort_keys=True))
     return 0

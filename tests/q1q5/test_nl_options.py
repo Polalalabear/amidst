@@ -295,3 +295,88 @@ def test_check_recording_script_detects_catalog_drift():
     ok, report = chk.check_recording(rec, drifted, sentences)
     assert not ok and report['catalog_equal'] is False and len(report['missing']) == len(sentences)
     assert chk.check_recording(rec, CATALOG, sentences + [{'id': 'SX', 'kind': 'search', 'text': '沒錄過的句子 人'}])[1]['missing'] == ['SX']
+
+
+def _llm_literal(**o):
+    base = {'schema_version': 'q-demo.q3-llm-output.v1', 'intent': 'FIND_PERSON', 'class_term': None, 'color_term': None,
+            'time_literal': {'start': None, 'end': None, 'date': None}, 'camera_terms': [], 'region_terms': [],
+            'needs_clarification': False, 'clarification_question': None}
+    return json.dumps({**base, **o}, ensure_ascii=False)
+
+
+class _Scripted:
+    def __init__(self, text=None, exc=None, latency=1.0):
+        self.text, self.exc, self.latency = text, exc, latency
+        self.info = {**fixture().info, 'kind': 'OLLAMA', 'recorded': False, 'synthetic_fixture': False}
+
+    def generate(self, **_):
+        if self.exc:
+            raise self.exc
+        return CallResult(self.text, {'raw_output_sha256': None, 'stats': {'latency_ms': self.latency}})
+
+
+def test_a_provider_failing_in_an_unexpected_way_degrades_to_rules_without_echoing_the_message():
+    for exc in (OSError('/secret/path'), RuntimeError('Bearer ' + FAKE_KEY), ConnectionResetError('x')):
+        r = parse('track', '追蹤紅衣服的人', provider=_Scripted(exc=exc))
+        assert r['decided_by'] == 'RULE_FALLBACK' and r['fallback_reason'] == 'PROVIDER_UNAVAILABLE' and r['form']['colorLabel'] == 'red'
+        assert '/secret/path' not in json.dumps(r) and FAKE_KEY not in json.dumps(r)
+
+
+def test_an_answer_slower_than_the_total_budget_is_not_used():
+    good = _llm_literal(class_term='人', color_term='紅')
+    ok = parse('track', '追蹤紅衣服的人', provider=_Scripted(good, latency=14999.0))
+    assert ok['decided_by'] == 'LLM' and ok['fallback_reason'] is None
+    slow = parse('track', '追蹤紅衣服的人', provider=_Scripted(good, latency=15001.0))
+    assert slow['decided_by'] == 'RULE_FALLBACK' and slow['fallback_reason'] == 'TIME_BUDGET'
+    assert slow['trace']['steps'][0]['arguments'] is None and slow['form']['colorLabel'] == 'red'
+    tight = parse('track', '追蹤紅衣服的人', provider=_Scripted(good, latency=500.0), budget={'total_budget_ms': 400})
+    assert tight['fallback_reason'] == 'TIME_BUDGET'
+
+
+def test_terms_not_in_the_sentence_never_reach_the_form():
+    """The model copies words; the server builds menu values. A catalog label or a word the user never wrote is refused."""
+    sentence = '追蹤的人'   # no colour word in the sentence
+    for term in ({'class_term': '人', 'color_term': '紅'}, {'class_term': 'person'}, {'class_term': '人', 'color_term': 'red'},
+                 {'class_term': '人', 'region_terms': ['SYNTHETIC_ROOM_A']}, {'class_term': '人', 'region_terms': ['合成區 A']}):
+        r = parse('track', sentence, provider=_Scripted(_llm_literal(**term)))
+        assert r['decided_by'] == 'RULE_FALLBACK' and r['fallback_reason'] == 'INVALID_RESPONSE', term
+        assert r['form']['colorLabel'] == '' and r['form']['regionIds'] == [], term
+    # a catalog label that the sentence really contains is a literal copy and is fine
+    ok = parse('track', '追蹤 person', provider=_Scripted(_llm_literal(class_term='person')))
+    assert ok['form']['classLabel'] == 'person'
+
+
+def test_malformed_recording_is_a_replay_miss_not_a_crash():
+    rec = json.loads(nl.FIXTURE_RECORDING.read_text(encoding='utf-8'))
+    for broken in ({k: v for k, v in rec.items() if k != 'provider'}, {**rec, 'entries': [{'request': {}}]}, {**rec, 'entries': [1]}):
+        broken['content_sha256'] = canonical_hash(broken, exclude=('content_sha256',))
+        with pytest.raises(nl.ReplayMismatch):
+            nl.RecordedNlProvider(broken)
+
+
+def test_safe_default_provider_degrades_with_a_reason_instead_of_failing(tmp_path):
+    for env, code in (({'AMIDST_NL_RECORDING': str(tmp_path / 'missing.json')}, 'PROVIDER_UNAVAILABLE'),
+                      ({'AMIDST_NL_PROVIDER': 'NOPE'}, 'PROVIDER_UNAVAILABLE')):
+        prov = nl.safe_default_provider(env)
+        r = parse('track', '追蹤紅衣服的人', provider=prov)
+        assert r['status'] == 'PARSED' and r['decided_by'] == 'RULE_FALLBACK' and r['fallback_reason'] == code
+        assert r['form']['colorLabel'] == 'red' and r['executed'] is False
+    bad = tmp_path / 'bad.json'
+    bad.write_text('{"schema_version": "x"}', encoding='utf-8')
+    assert parse('track', '追蹤紅衣服的人', provider=nl.safe_default_provider({'AMIDST_NL_RECORDING': str(bad)}))['fallback_reason'] == 'REPLAY_MISS'
+    assert nl.safe_default_provider({}).kind == 'RECORDED' and nl.safe_default_provider({}).info['synthetic_fixture'] is True
+
+
+def test_qapi_route_survives_a_broken_recording_path(monkeypatch, tmp_path):
+    sys.path.insert(0, str(REPO / 'tests/q1q5'))
+    from test_api import TOKEN, api_fixture, authorize
+    monkeypatch.setenv('AMIDST_NL_RECORDING', str(tmp_path / 'missing.json'))
+    api, _ = api_fixture()
+    row = api.bootstrap()['runs'][0]
+    r = api.call('q_nl_parse', {'schema_version': nl.REQUEST_SCHEMA, 'session_ref': TOKEN, 'scene_id': row['scene_id'], 'run_id': row['run_id'],
+                                'kind': 'track', 'text': '追蹤人'}, authorize)
+    assert r['decided_by'] == 'RULE_FALLBACK' and r['fallback_reason'] == 'PROVIDER_UNAVAILABLE' and r['form']['classLabel'] == 'person'
+    monkeypatch.delenv('AMIDST_NL_RECORDING')   # a failed build is not cached: the next call recovers
+    r2 = api.call('q_nl_parse', {'schema_version': nl.REQUEST_SCHEMA, 'session_ref': TOKEN, 'scene_id': row['scene_id'], 'run_id': row['run_id'],
+                                 'kind': 'track', 'text': '追蹤人'}, authorize)
+    assert r2['provider']['synthetic_fixture'] is True
