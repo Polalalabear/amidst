@@ -30,7 +30,15 @@ python scripts/record_nl_options.py --bootstrap /tmp/epicd_bootstrap.json --run-
 ```
 
 4. 輸出會列出每句的耗時、錄製狀態（OK／PROVIDER_TIMEOUT／INVALID_RESPONSE）、離線重播後的 `decided_by/fallback_reason/status`，最後一行是 `recording_sha256` 和 `model_digest`。把整段輸出貼回 #489。
-5. 驗證重播（不連 Ollama）：
+5. 檢查錄製檔對得上這個後端的目錄（離線，不連模型；不一致時畫面會顯示「退回規則：錄製檔沒有這句話」）：
+
+```bash
+python scripts/check_nl_recording.py --recording configs/epicd/nl_recording_qwen3_1p7b_v1.json --bootstrap /tmp/epicd_bootstrap.json --run-id <RUN_ID>
+```
+
+   最後一行是 `RESULT MATCH` 才算對上；`MISMATCH` 會列出哪幾句沒對上、目錄是否一致。
+
+5b. 驗證重播（不連 Ollama）：
 
 ```bash
 AMIDST_NL_PROVIDER=RECORDED AMIDST_NL_RECORDING=configs/epicd/nl_recording_qwen3_1p7b_v1.json python -m pytest tests/q1q5/test_nl_options.py -q
