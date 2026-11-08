@@ -1,10 +1,10 @@
 /* Redesigned front desk + admin (docs/specs/UI_REDESIGN_V1.md). Desktop only (1280–1920 px). Fonts are local stacks:
    Source Serif 4 / Inter / Noto TC / JetBrains Mono are used when installed, no CDN. */
-body[data-ui="v1"],body.ui-admin{--bg:#141413;--surface:#1f1e1d;--surface-2:#262624;--line:#30302e;--line-strong:#3d3d3a;--text:#faf9f5;--muted:#b0aea5;--faint:#9c9a92;--dim:#73726c;--accent:#d97757;--accent-hover:#c6613f;--observed:#7fb59a;--observed-line:#3f7d62;--inferred:#6a9bcc;--missing:#5e5d59;--person:#d4724f;--object:#5a95d8;--grid:#232220;
+#ui-v1,.ui-admin-root{--bg:#141413;--surface:#1f1e1d;--surface-2:#262624;--line:#30302e;--line-strong:#3d3d3a;--text:#faf9f5;--muted:#b0aea5;--faint:#9c9a92;--dim:#73726c;--accent:#d97757;--accent-hover:#c6613f;--observed:#7fb59a;--observed-line:#3f7d62;--inferred:#6a9bcc;--missing:#5e5d59;--person:#d4724f;--object:#5a95d8;--grid:#232220;
 --serif:'Source Serif 4','Noto Serif TC',Georgia,serif;--sans:Inter,'Noto Sans TC','PingFang TC',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace}
-body[data-ui="v1"]{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+body[data-ui="v1"]{margin:0}
 body[data-ui="v1"]>*:not(#ui-v1):not(#synthetic-api-banner):not(script){display:none!important}
-body.ui-admin{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+body.ui-admin{margin:0}
 #ui-v1,.ui-admin-root{color:var(--text);font-family:var(--sans)}
 #ui-v1{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:clip}
 #ui-v1 [hidden]{display:none!important}
@@ -173,7 +173,7 @@ body.ui-admin{margin:0;background:var(--bg);color:var(--text);font-family:var(--
 .ui-admin-root .badge{font-size:12px;border:1px solid var(--line-strong);border-radius:999px;padding:2px 8px;color:var(--faint)}
 .ui-admin-root h2,.ui-admin-root h3{font-family:var(--serif);font-weight:400}
 /* admin: neutralise the old admin.css / style.css page rules */
-body.ui-admin{display:block;overflow:auto;font-size:14px;background:var(--bg);color:var(--text)}
+body.ui-admin{display:block;overflow:auto;font-size:14px}
 body.ui-admin main.ui-admin-main{display:flex;flex-direction:column;grid-template-columns:none;padding:0;gap:0;align-items:stretch}
 body.ui-admin section.ui-admin-sec{background:none;border:0;padding:0 40px 24px;gap:12px}
 body.ui-admin .ui-admin-sec.wide{grid-column:auto}
@@ -185,10 +185,17 @@ body.ui-admin h2{font-size:22px}
 #ui-case3 .transport{position:sticky;bottom:0;z-index:4}
 
 /* A short tracking view fills the viewport; a long view keeps the bar in its own flow space. */
-#ui-case2:not([hidden]){min-height:100%;display:flex;flex-direction:column}
+#ui-case2:not([hidden]),#ui-case3:not([hidden]){min-height:100%;display:flex;flex-direction:column}
 #ui-case2 .ui-track{margin-bottom:16px}
 #ui-case2 .ui-bottombar{margin-top:auto}
 body[data-ui="v1"]>#synthetic-api-banner{display:block!important}
 body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 
 .ui-track-aside>#q-manual-controls{padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+
+.ui-admin-root{min-height:100vh;background:var(--bg)}
+#ui-case3 .ui-case3-stage{margin-bottom:16px}
+#ui-case3 .transport{margin: auto -32px -40px;padding:12px 32px 16px;background:var(--bg);flex-shrink:0}
+
+#ui-v1 #ui-case3 .transport{display:flex;height:auto;min-height:112px;position:sticky;bottom:0}
+#ui-case3 .mr-toggle{display:none}

@@ -36,6 +36,8 @@ export function mountUi(ctx) {
   const cfg = parseConfig(new URL(url).search);
   let settings = loadSettings(storage);
   const route = parseRoute(new URL(url).search, settings);
+  const coreDeepLink = ['search', 'track-single', 'track-multi', 'blind'].includes(new URL(url).searchParams.get('screen'));
+  let trackStopped = false;
   const phase = createPhaseStore();
   const disposers = [];
   let screen = 'cover', queryOpen = false, destroyed = false, lightbox = null;
@@ -181,7 +183,7 @@ export function mountUi(ctx) {
     const run = store.getState().activeRun;
     const check = w.kind === 'search' ? validateSearchForm(form) : validateTrackForm(form);
     if (!check.ok) { w.feedback.textContent = check.text; w.feedback.dataset.state = 'error'; return; }
-    if (w.kind === 'track') { const win = trackWindow(form.start, run?.clock_mapping); form.start = win.start; form.end = win.end; }
+    if (w.kind === 'track') { trackStopped = false; const win = trackWindow(form.start, run?.clock_mapping); form.start = win.start; form.end = win.end; }
     w.feedback.textContent = ''; w.feedback.dataset.state = '';
     const now = performance.now();
     phase.dispatch({type: 'SEARCH_START', mode: w.kind === 'search' ? 'find' : 'track'});
@@ -328,9 +330,9 @@ export function mountUi(ctx) {
     const stage = el('div', undefined, 'ui-lb-stage'), img = el('img', undefined, 'ui-lb-img'), cap = el('p', undefined, 'ui-mono ui-lb-cap');
     const prev = el('button', '◀', 'ui-btn ui-btn-ghost', {type: 'button', 'aria-label': '上一張'}), next = el('button', '▶', 'ui-btn ui-btn-ghost', {type: 'button', 'aria-label': '下一張'}), close = el('button', '回到結果牆', 'ui-btn ui-btn-light', {type: 'button'});
     const show = i => {
-      lightbox.index = (i + cards.length) % cards.length; const c = cards[lightbox.index];
+      lightbox.index = (i + cards.length) % cards.length; const selected = lightbox.index, c = cards[selected];
       cap.textContent = `${c.cameraId} · ${c.wallRangeText} · ${lightbox.index + 1} / ${cards.length}`;
-      img.hidden = false; img.src = i === index && currentSrc ? currentSrc : (resolveCardImageSrc({card: c, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '')) img.src = u; }}) ?? ''); if (!img.src) img.hidden = true;
+      img.hidden = true; img.removeAttribute('src'); const src = i === index && currentSrc ? currentSrc : (resolveCardImageSrc({card: c, mediaResolver, synthetic, onResolved: u => { if (lightbox?.box === box && lightbox.index === selected && MEDIA.test(u ?? '')) { img.src = u; img.hidden = false; } }}) ?? ''); if (src) { img.src = src; img.hidden = false; }
     };
     prev.addEventListener('click', () => show(lightbox.index - 1)); next.addEventListener('click', () => show(lightbox.index + 1)); close.addEventListener('click', closeLightbox);
     box.addEventListener('click', e => { if (e.target === box) closeLightbox(); });
@@ -347,20 +349,36 @@ export function mountUi(ctx) {
     return s.coreTrackResponse ? (s.coreTrackingView ?? buildCoreTrackingViewModel(s.coreTrackResponse, {tUs: s.tUs, playbackMode: s.playbackMode, speed: s.speed, cameraGraph: s.cameraGraph, displayPositions: s.displayPositions})) : null;
   }
   function renderCase2() {
-    const s = store.getState(), resp = s.coreTrackResponse, view = trackView(), p = phase.getState();
-    const searching = p.phase === 'searching' && p.mode === 'track' && !resp;
+    const s = store.getState(), resp = trackStopped ? null : s.coreTrackResponse, view = trackStopped ? null : trackView(), p = phase.getState();
+    const searching = !trackStopped && p.phase === 'searching' && p.mode === 'track' && !resp;
     // Structure is rebuilt when the response, playback layout or loading state changes; the clock-driven parts update in place.
     const key = `${resp?.output_sha256 ?? 'none'}|${s.playbackMode}|${searching}|${p.miss ? 'miss' : ''}|${s.error?.code ?? ''}`;
     if (trackParts.key !== key) { trackParts.key = key; buildCase2(s, resp, view, searching, p); }
     if (resp && view) updateCase2(s, resp, view);
+  }
+  function stopTracking() {
+    trackStopped = true; track.startedAt = 0; track.logged = null; track.segKey = null;
+    store.dispatch({type: 'STOP_CORE_TRACKING'}); phase.dispatch({type: 'SEARCH_END'});
+    saveSnapshot({lastTrack: null}); logEvent('已停止前端追蹤顯示', 'UNKNOWN'); setQuery(false); render();
+  }
+  function stopButton(disabled) {
+    const button = el('button', '停止追蹤', 'ui-btn ui-btn-ghost', {type: 'button'}); button.id = 'ui-stop-track'; button.disabled = disabled;
+    button.title = '停止前端播放與追蹤顯示；不呼叫後端停止或變更來源'; button.addEventListener('click', stopTracking); return button;
+  }
+  function manualChoice() {
+    const card = el('div', undefined, 'ui-card'); card.id = 'ui-manual-choice';
+    const button = el('button', '改選目標', 'ui-btn ui-btn-ghost', {type: 'button'}); button.id = 'ui-manual-target'; button.disabled = true;
+    const note = el('p', '目前追蹤起點由系統自動選取（自動種子），手動改選尚未支援', 'ui-note'); note.id = 'ui-manual-note';
+    const reopen = el('button', '回查詢窗重新輸入特徵', 'ui-linkbtn', {type: 'button'}); reopen.addEventListener('click', () => setQuery(true));
+    card.append(button, note, reopen); return card;
   }
   function buildCase2(s, resp, view, searching, p) {
     sCase2.replaceChildren(); for (const k of Object.keys(trackParts)) if (k !== 'key') delete trackParts[k];
     if (!resp || !view) {
       const wait = el('div', undefined, 'ui-empty');
       if (searching) { const cams = s.activeRun?.camera_ids?.length; wait.append(el('p', p.miss ? '尚未找到' : cams ? `在 ${cams} 台鏡頭中尋找目標…` : '尋找目標…', 'ui-h3'), el('p', p.miss ? `${p.miss.code} · ${p.miss.message}` : '第一次鎖定需要一點時間；鎖定後換鏡頭會立即切換。', 'ui-muted')); }
-      else { wait.append(el('p', '追蹤', 'ui-h3'), el('p', '開啟查詢窗，選好特徵就能開始追蹤；時間留空代表現在。', 'ui-muted')); const open = el('button', '開啟查詢窗', 'ui-btn ui-btn-light', {type: 'button'}); open.addEventListener('click', () => setQuery(true)); wait.append(open); }
-      sCase2.append(wait); return;
+      else { wait.append(el('p', trackStopped ? '追蹤顯示已停止' : '追蹤', 'ui-h3'), el('p', '開啟查詢窗，選好特徵就能開始追蹤；時間留空代表現在。', 'ui-muted')); const open = el('button', '開啟查詢窗', 'ui-btn ui-btn-light', {type: 'button'}); open.addEventListener('click', () => setQuery(true)); wait.append(open); }
+      wait.append(stopButton(true)); sCase2.append(wait, manualChoice()); return;
     }
     const layout = el('div', undefined, 'ui-track'), main = el('section', undefined, 'ui-track-main'), aside = el('aside', undefined, 'ui-track-aside');
     const aliases = s.activeRun?.supported_classes?.aliases ?? {};
@@ -395,13 +413,13 @@ export function mountUi(ctx) {
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
     scrub.addEventListener('input', () => { const tUs = Number(scrub.value); store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); });
     ctl.append(play, speedSeg, actual, scrub);
-    if (ctx.legacy?.stopControl) ctl.append(ctx.legacy.stopControl);
+    ctl.append(stopButton(false));
     Object.assign(trackParts, {play, actual, scrub});
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
     Object.assign(trackParts, {plan, journal}); aside.append(plan, journal);
-    if (ctx.legacy?.manualControls) aside.append(ctx.legacy.manualControls);
+    aside.append(manualChoice());
     layout.append(main, aside); sCase2.append(layout, bar);
     trackParts.built = true;
   }
@@ -455,13 +473,13 @@ export function mountUi(ctx) {
     renderPlan(s, view, resp);
     renderJournal(resp, cm);
   }
-  const canPlayNow = s => s.playing || canPlay(s);
+  const canPlayNow = s => !trackStopped && (s.playing || canPlay(s));
   function renderPlan(s, view, resp) {
     const plan = floorPlan(view.topdown, {settings, singleView: resp.single_view, currentTUs: view.currentTUs});
-    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status]);
+    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence]);
     if (trackParts.planKey === key) return; trackParts.planKey = key;
     const box = trackParts.plan; box.replaceChildren();
-    const head = el('div', undefined, 'ui-card-head'); head.append(el('span', '樓層俯視圖'), el('span', plan.blindVisible ? 'INFERRED' : (view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown ? '預測不可用' : ''), plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small')); box.append(head);
+    const head = el('div', undefined, 'ui-card-head'); head.append(el('span', '樓層俯視圖'), el('span', plan.blindVisible ? `INFERRED · 信心 ${view.topdown?.blind_curve?.confidence ?? 'UNKNOWN'}` : (view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown ? 'UNKNOWN · 預測不可用' : ''), plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small')); box.append(head);
     if (!plan.available) { box.append(el('p', `UNKNOWN · 鏡頭位置未提供`, 'ui-muted ui-small')); return; }
     const g = svg('svg', {viewBox: '0 0 100 100', class: 'ui-plan-svg', role: 'img', 'aria-label': '樓層俯視圖：實線為已觀察路線，虛線為推測路線'});
     const grid = svg('pattern', {id: 'ui-grid', width: 10, height: 10, patternUnits: 'userSpaceOnUse'}); grid.append(svg('path', {d: 'M10 0H0V10', fill: 'none', stroke: 'var(--grid)', 'stroke-width': 0.4}));
@@ -483,7 +501,7 @@ export function mountUi(ctx) {
   }
 
   // ---- case 3: replay of existing events --------------------------------------------------------------------------
-  let case3Built = false, case3Scope = null, frame = null;
+  let case3Built = false, case3Scope = null, frame = null, wallParts = null;
   const eventLabel = e => e.label;
   function currentEventId() {
     if (integration()) return 'wall';
@@ -508,7 +526,13 @@ export function mountUi(ctx) {
       sCase3.append(bar, note, stage);
       // The existing playback widgets are reused as they are (their ids and listeners stay): wall, Q1/Q2 slots and the transport.
       for (const n of [ctx.legacy?.wallSlot, ctx.legacy?.q1Slot, ctx.legacy?.q2Slot]) if (n) stage.append(n);
-      if (ctx.legacy?.transport) {
+      if (integration()) {
+        if (ctx.legacy?.transport) ctx.legacy.transportHome?.append(ctx.legacy.transport);
+        sCase3.append(buildWallTransport());
+      }
+      else if (ctx.legacy?.transport) {
+        if (ctx.legacy.stopControl) ctx.legacy.stopControl.hidden = true;
+        if (ctx.legacy.manualControls) ctx.legacy.manualControls.hidden = true;
         if (ctx.legacy.stopControl) ctx.legacy.transport.firstElementChild?.append(ctx.legacy.stopControl);
         if (ctx.legacy.manualControls) ctx.legacy.transport.append(ctx.legacy.manualControls);
         sCase3.append(ctx.legacy.transport);
@@ -517,6 +541,24 @@ export function mountUi(ctx) {
       const notice = el('p', undefined, 'ui-feedback ui-embed-notice'); notice.id = 'ui-embed-notice'; notice.hidden = true; stage.append(frame, notice);
     }
     showEvent(currentEventId());
+  }
+  function buildWallTransport() {
+    const bar = el('div', undefined, 'transport ui-wall-transport');
+    const play = el('button', '播放', 'ui-btn ui-btn-ghost', {type: 'button'}); play.id = 'ui-wall-play';
+    const clock = el('span', '', 'ui-mono'), speeds = new Map();
+    play.addEventListener('click', () => { const value = ctx.wallPlayback?.get(); if (value) ctx.wallPlayback.set({playing: !value.playing}); updateWallTransport(); });
+    bar.append(play, clock);
+    for (const speed of SUPPORTED_SPEEDS) { const b = el('button', `${speed}x`, 'ui-pillbtn', {type: 'button', 'data-wall-speed': String(speed)}); b.addEventListener('click', () => { ctx.wallPlayback?.set({speed}); updateWallTransport(); }); speeds.set(speed, b); bar.append(b); }
+    const scrub = el('input', undefined, 'ui-scrub', {type: 'range', min: 0, max: 0, step: 1, 'aria-label': '查看來源時間'}); scrub.id = 'ui-wall-scrub';
+    scrub.addEventListener('input', () => { const value = Number(scrub.value), current = ctx.wallPlayback?.get(); if (current) ctx.wallPlayback.set({startUs: value, playing: false, restart: current.restart+1}); updateWallTransport(); }); bar.append(scrub);
+    wallParts = {bar,play,clock,speeds,scrub}; updateWallTransport(); return bar;
+  }
+  function updateWallTransport() {
+    if (!wallParts) return; const value = ctx.wallPlayback?.get(); if (!value) return;
+    wallParts.play.textContent = value.playing ? '暫停' : '播放'; wallParts.play.disabled = !(value.durationUs > 0);
+    wallParts.clock.textContent = `${(value.tUs/1e6).toFixed(2)} s / ${(value.durationUs/1e6).toFixed(2)} s`;
+    wallParts.scrub.max = String(Math.max(0,value.durationUs-1)); wallParts.scrub.value = String(value.tUs);
+    for (const [speed,b] of wallParts.speeds) { b.classList.toggle('on', value.speed===speed); b.setAttribute('aria-pressed', String(value.speed===speed)); }
   }
   function showEvent(id) {
     const e = EVENTS.find(x => x.id === id) ?? EVENTS[0], stage = sCase3.querySelector('#ui-case3-stage'), embedded = e.kind === 'embed';
@@ -553,7 +595,7 @@ export function mountUi(ctx) {
     } else if (screen === 'case2') {
       ctxChip.textContent = '❯ 追蹤新目標…'; ctxChip.className = 'ui-chip-ctx is-cmd';
     } else { ctxChip.textContent = ''; }
-    layoutSeg.hidden = screen !== 'case2' || !s.coreTrackResponse;
+    layoutSeg.hidden = screen !== 'case2' || !s.coreTrackResponse || trackStopped;
     segSingle.classList.toggle('on', s.playbackMode === 'single'); segMulti.classList.toggle('on', s.playbackMode === 'multi');
     segSingle.setAttribute('aria-pressed', String(s.playbackMode === 'single')); segMulti.setAttribute('aria-pressed', String(s.playbackMode === 'multi'));
     burger.hidden = screen === 'case3';
@@ -561,6 +603,8 @@ export function mountUi(ctx) {
 
   // ---- reactions to store changes ---------------------------------------------------------------------------------
   function afterStore(s, prev) {
+    if (coreDeepLink && screen === 'case1' && s.coreSearchResponse && s.coreSearchResponse !== prev?.coreSearchResponse && !search.startedAt) setQuery(settings.searchPanelOpen);
+    if (coreDeepLink && screen === 'case2' && s.coreTrackResponse && s.coreTrackResponse !== prev?.coreTrackResponse && !track.startedAt) setQuery(false);
     // search result landed
     if (s.coreSearchResponse && s.coreSearchResponse !== prev?.coreSearchResponse && search.startedAt && search.logged !== s.coreSearchResponse) {
       search.logged = s.coreSearchResponse; const ms = performance.now() - search.startedAt; const n = s.coreSearchResponse.hits?.length ?? 0;
@@ -599,7 +643,7 @@ export function mountUi(ctx) {
   let prevState = store.getState();
   disposers.push(store.subscribe(s => { afterStore(s, prevState); const prev = prevState; prevState = s; if (s.bootstrap !== prev.bootstrap || s.activeRun !== prev.activeRun) renderCatalog(); render(); }));
   const unsubCatalog = ctx.subscribeCatalog?.(renderCatalog); if (unsubCatalog) disposers.push(unsubCatalog);
-  const noteTimer = setInterval(() => { if (screen === 'case2' && trackParts.actual) trackParts.actual.textContent = ctx.legacy?.speedNote?.() ?? ''; }, 500);
+  const noteTimer = setInterval(() => { if (screen === 'case2' && trackParts.actual) trackParts.actual.textContent = ctx.legacy?.speedNote?.() ?? ''; if (screen === 'case3') updateWallTransport(); }, 500);
   disposers.push(() => clearInterval(noteTimer));
   const onStorage = e => { if (e.key === null || e.key === 'amidst.ui.settings.v1') settings = loadSettings(storage); };
   globalThis.addEventListener?.('storage', onStorage); disposers.push(() => globalThis.removeEventListener?.('storage', onStorage));

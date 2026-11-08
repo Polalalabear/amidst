@@ -66,6 +66,7 @@ test('state chips and journal map only to OBSERVED / INFERRED / MISSING / UNKNOW
 });
 test('routing: ?ev / ?recording open 查看; ?screen picks a case; ?ui=legacy keeps the old page', () => {
   assert.equal(parseRoute('?ev=b05b').initial, 'case3'); assert.equal(parseRoute('?screen=case2').initial, 'case2');
+  for (const [screen, target] of [['search', 'case1'], ['track-single', 'case2'], ['track-multi', 'case2'], ['blind', 'case2']]) assert.equal(parseRoute('?screen='+screen).initial, target);
   assert.equal(parseRoute('').initial, null); assert.equal(parseRoute('?ui=legacy').legacy, true); assert.equal(parseRoute('?screen=zzz').initial, null);
   assert.equal(nextAfterCover({defaultCase: null}), 'choose'); assert.equal(nextAfterCover({defaultCase: 'case1'}), 'case1');
 });

@@ -212,3 +212,11 @@ test('validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a dif
     }
   }
 });
+
+test('front-end stop clears tracking and playback while retaining the selected source and search', () => {
+  const source = {run_id: 'LOCAL_SOURCE'}, search = {query_id: 'search'};
+  const state = {...initialState(), activeRun: source, coreSearchResponse: search, coreTrackResponse: {query_id: 'track'}, coreTrackingView: {}, coreSelection: {}, playing: true};
+  const stopped = reduce(state, {type: 'STOP_CORE_TRACKING'});
+  assert.equal(stopped.playing, false); assert.equal(stopped.coreTrackResponse, null); assert.equal(stopped.coreTrackingView, null); assert.equal(stopped.coreSelection, null);
+  assert.equal(stopped.activeRun, source); assert.equal(stopped.coreSearchResponse, search); assert.equal(state.playing, true);
+});

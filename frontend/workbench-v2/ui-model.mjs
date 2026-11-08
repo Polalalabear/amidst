@@ -215,7 +215,8 @@ export function parseRoute(search = '', settings = DEFAULT_SETTINGS) {
   const screen = p.get('screen');
   // Event-menu links (?ev=…) belong to 查看.
   const wantsView = p.has('ev') || p.has('recording');
-  const initial = CASE_IDS.includes(screen) ? screen : wantsView ? 'case3' : null;
+  const coreLinks = {search: 'case1', 'track-single': 'case2', 'track-multi': 'case2', blind: 'case2'};
+  const initial = CASE_IDS.includes(screen) ? screen : Object.hasOwn(coreLinks, screen) ? coreLinks[screen] : wantsView ? 'case3' : null;
   return { legacy, initial, skipCover: initial !== null, settings };
 }
 export function nextAfterCover(settings) { return settings.defaultCase ?? 'choose'; }
