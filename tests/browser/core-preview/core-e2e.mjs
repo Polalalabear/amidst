@@ -11,7 +11,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_CORE_MODULE?pathToFileURL(p
 const out=process.env.SCREENSHOT_DIR??join(tmpdir(),'amidst-new-ui-synthetic');await mkdir(out,{recursive:true});
 const preview=await startPreview({source,port:0}),browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
 const page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1}),errors=[],shots=[];let checks=0;
-const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};page.on('pageerror',e=>errors.push(String(e)));
+const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({check:checks,message:msg}));};page.on('pageerror',e=>errors.push(String(e)));
 const shot=async name=>{const path=join(out,name+'.png');await page.screenshot({path,fullPage:true});const b=await readFile(path);shots.push({path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});};
 const calls=route=>preview.routeCalls.filter(c=>c.route===route);
 const open=async kind=>{if(await page.locator('#ui-q-'+kind).getAttribute('data-open')!=='true')await page.locator('.ui-burger').click();};
@@ -34,6 +34,7 @@ try{
  let intercepted=0;await page.route('**/api/q_core_search',async r=>{if(++intercepted===1)await new Promise(done=>setTimeout(done,250));await r.continue();});
  await open('search');await page.locator('#ui-search-submit').click();await page.waitForTimeout(20);await open('search');await region().click();await page.locator('#ui-search-submit').click();await page.waitForTimeout(500);check(intercepted===2,'two overlapping browser requests');check(await page.locator('#ui-case1 .ui-shot').count()===2,'late response cannot replace new result');await page.unroute('**/api/q_core_search');
  // Selection must not rebuild already decoded result tiles.
+ if(await page.locator('#ui-q-search').getAttribute('data-open')==='true')await page.getByRole('button',{name:'收起查詢窗'}).filter({visible:true}).click();
  const handle=await page.locator('#ui-case1 .ui-shot img').first().elementHandle();await page.locator('#ui-case1 .ui-shot').first().click();check(await handle.evaluate(img=>img.isConnected),'selection retains image node');check(await page.locator('.ui-lightbox').isVisible(),'new UI lightbox');await page.getByRole('button',{name:'回到結果牆'}).click();
  await page.locator('.ui-brand').click();await page.locator('#ui-enter').click();await page.locator('[data-case=case2]').click();await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');await seek(2000000);await page.locator('#ui-context').click();await page.locator('#ui-track-start').fill('');await submit('track');check(calls('/api/q_core_track').at(-1).payload.playback_now_us===2000000,'track now uses visible source clock');
  for(const [t,kind]of[[300000,'ON_CAMERA'],[800000,'GAP'],[1200000,'ON_CAMERA'],[1800000,'LOST']]){await seek(t);check(await page.locator('.ui-stagebox').getAttribute('data-kind')===kind,'visible '+kind+' state');await shot('05-track-'+t);}

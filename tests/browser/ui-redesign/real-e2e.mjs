@@ -29,6 +29,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  check(track.sightings?.length>0,event+' track sightings');check(track.single_view.some(s=>s.kind==='GAP')&&track.single_view.some(s=>s.kind==='LOST'),'missing states retained');
  const first=track.sightings[0],t=first.range_us[0]+Math.floor((first.range_us[1]-first.range_us[0])/2);await seek(p,t);await decoded(p,'#ui-case2 .ui-stage-img',1);
  check(await p.locator('#ui-play').isEnabled(),event+' source playback enabled');
+ check(await p.locator('#ui-case2 #q-stop').isVisible()&&await p.locator('#ui-case2 #q-manual-controls').isVisible(),'existing session controls retained');
  await capture(p,event+'-case2-single',{status:track.status,reasons:track.reasons,current:await p.locator('#ui-scrub').inputValue()});
  const firstCamera=track.single_view.find(s=>s.kind==='ON_CAMERA').camera_id,ni=track.single_view.findIndex(s=>s.kind==='ON_CAMERA'&&s.camera_id!==firstCamera);
  check(ni>0,'cross-camera event');const previous=track.single_view.slice(0,ni).filter(s=>s.kind==='ON_CAMERA').at(-1),next=track.single_view[ni];

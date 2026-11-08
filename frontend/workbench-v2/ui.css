@@ -190,3 +190,5 @@ body.ui-admin h2{font-size:22px}
 #ui-case2 .ui-bottombar{margin-top:auto}
 body[data-ui="v1"]>#synthetic-api-banner{display:block!important}
 body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
+
+.ui-track-aside>#q-manual-controls{padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}

@@ -394,11 +394,14 @@ export function mountUi(ctx) {
     const actual = el('span', undefined, 'ui-mono ui-faint ui-small'); actual.id = 'ui-speed-note';
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
     scrub.addEventListener('input', () => { const tUs = Number(scrub.value); store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); });
-    ctl.append(play, speedSeg, actual, scrub); Object.assign(trackParts, {play, actual, scrub});
+    ctl.append(play, speedSeg, actual, scrub);
+    if (ctx.legacy?.stopControl) ctl.append(ctx.legacy.stopControl);
+    Object.assign(trackParts, {play, actual, scrub});
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
     Object.assign(trackParts, {plan, journal}); aside.append(plan, journal);
+    if (ctx.legacy?.manualControls) aside.append(ctx.legacy.manualControls);
     layout.append(main, aside); sCase2.append(layout, bar);
     trackParts.built = true;
   }
@@ -505,7 +508,11 @@ export function mountUi(ctx) {
       sCase3.append(bar, note, stage);
       // The existing playback widgets are reused as they are (their ids and listeners stay): wall, Q1/Q2 slots and the transport.
       for (const n of [ctx.legacy?.wallSlot, ctx.legacy?.q1Slot, ctx.legacy?.q2Slot]) if (n) stage.append(n);
-      if (ctx.legacy?.transport) sCase3.append(ctx.legacy.transport);
+      if (ctx.legacy?.transport) {
+        if (ctx.legacy.stopControl) ctx.legacy.transport.firstElementChild?.append(ctx.legacy.stopControl);
+        if (ctx.legacy.manualControls) ctx.legacy.transport.append(ctx.legacy.manualControls);
+        sCase3.append(ctx.legacy.transport);
+      }
       frame = el('iframe', undefined, 'ui-embed', {title: '事件', referrerpolicy: 'no-referrer', sandbox: 'allow-scripts allow-same-origin allow-forms'}); frame.id = 'ui-event-frame'; frame.hidden = true;
       const notice = el('p', undefined, 'ui-feedback ui-embed-notice'); notice.id = 'ui-embed-notice'; notice.hidden = true; stage.append(frame, notice);
     }
