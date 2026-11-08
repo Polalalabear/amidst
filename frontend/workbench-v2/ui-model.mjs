@@ -33,6 +33,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   searchPanelOpen: false,
   staggerResults: true,
   switchMode: 'RULE_ONLY',
+  presentationMode: true,     // D139: front desk shows plain wording; technical tags move into ⓘ
 });
 
 const clampInt = (v, lo, hi, d) => { const n = Math.trunc(Number(v)); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
@@ -51,6 +52,7 @@ export function normalizeSettings(raw) {
     searchPanelOpen: typeof r.searchPanelOpen === 'boolean' ? r.searchPanelOpen : d.searchPanelOpen,
     staggerResults: typeof r.staggerResults === 'boolean' ? r.staggerResults : d.staggerResults,
     switchMode: ['RULE_ONLY', 'AGENT_SEQUENTIAL'].includes(r.switchMode) ? r.switchMode : d.switchMode,
+    presentationMode: typeof r.presentationMode === 'boolean' ? r.presentationMode : d.presentationMode,
   };
 }
 // Browser-only storage (task: settings live in this browser). Every access is guarded: a blocked storage keeps defaults.
@@ -100,12 +102,30 @@ export function taipeiTime(date) {
     return new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(date).replace(/^24/, '00');
   } catch { return null; }
 }
-// A track request with only a start needs an end; the run's own end on the declared clock is the widest honest bound.
-export function trackWindow(startText, clockMapping) {
-  if (!filled(startText)) return { start: '', end: '' };
-  const end = wallClockText(clockMapping, clockMapping?.source_duration_us ?? NaN);
-  return { start: String(startText).trim(), end: end ?? '' };
+// D139: a track request always carries concrete times. Blank start = the recording's clock start; blank end = clock start
+// plus source_duration (the recording's end). Never empty values: an empty window reached the backend as "now" and gave
+// the 14:00:00～14:00:00 / 時間窗內無觀測紀錄 result.
+export function recordingWindow(clockMapping) {
+  const t0 = Number.isFinite(clockMapping?.t0_us) ? clockMapping.t0_us : 0;
+  const dur = clockMapping?.source_duration_us;
+  const start = wallClockText(clockMapping, t0);
+  const end = Number.isFinite(dur) ? wallClockText(clockMapping, t0 + dur) : null;
+  return start && end ? { start, end } : null;
 }
+export const clockSeconds = text => { const m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(String(text ?? '').trim()); return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3] ?? 0) : null; };
+export const padClock = text => { const n = clockSeconds(text); return n === null ? String(text ?? '').trim() : [Math.floor(n / 3600), Math.floor(n / 60) % 60, n % 60].map(v => String(v).padStart(2, '0')).join(':'); };
+export function trackWindow(startText, endText, clockMapping) {
+  const rec = recordingWindow(clockMapping);
+  const start = filled(startText) ? padClock(startText) : rec?.start ?? '';
+  const end = filled(endText) ? padClock(endText) : rec?.end ?? '';
+  if (!start || !end) return { ok: false, start, end, code: 'CLOCK_UNKNOWN', text: '尚無錄影時間資料，請手動輸入開始與結束時間' };
+  const a = clockSeconds(start), b = clockSeconds(end);
+  if (a !== null && b !== null && b <= a) return { ok: false, start, end, code: 'END_BEFORE_START', text: '結束時間要晚於開始時間' };
+  return { ok: true, start, end, code: null, text: '' };
+}
+export const timeRangeText = (start, end) => `${start}～${end}`;
+export const endPlaceholder = clockMapping => { const rec = recordingWindow(clockMapping); return rec ? `到錄影結尾（${rec.end}）` : '到錄影結尾'; };
+export const startPlaceholder = clockMapping => recordingWindow(clockMapping)?.start ?? 'HH:MM:SS';
 
 // ---- Search progress (示意：進度條只是等待回饋，不是實際進度) ------------------------------------------------------
 export const SEARCH_STAGES = Object.freeze(['讀取鏡頭', '比對區域', '比對物件', '整理畫面']);
@@ -175,6 +195,16 @@ export function floorPlan(topdown, { settings = DEFAULT_SETTINGS, singleView = n
   const activeNode = nodes.find(n => n.isActive) ?? null;
   const current = activeNode ? [activeNode.x, activeNode.y] : (observed.at(-1) ?? null);
   return { available: true, nodes, observed, blind: blindVisible ? curve.svgPoints : [], blindVisible, dash: curve?.stroke_dasharray ?? '6 6', current };
+}
+// D139: where the blind interval ends. The newest GAP before the playhead; when the very next segment is ON_CAMERA and
+// the playhead has reached it, the target has reappeared: returns that camera and the real observation time.
+export function blindReacquire(singleView, currentTUs, clockMapping) {
+  const list = (Array.isArray(singleView) ? singleView : []).filter(x => Array.isArray(x.range_us)).sort((a, b) => a.range_us[0] - b.range_us[0]);
+  let gap = -1; list.forEach((x, i) => { if (x.kind === 'GAP' && x.range_us[0] <= currentTUs) gap = i; });
+  const next = gap >= 0 ? list[gap + 1] : null;
+  if (!next || next.kind !== 'ON_CAMERA' || next.range_us[0] > currentTUs) return null;
+  const atUs = next.range_us[0], atText = wallClockText(clockMapping, atUs) ?? `${(atUs / 1e6).toFixed(2)} s`;
+  return { cameraId: next.camera_id, atUs, atText };
 }
 export const isBlindNow = view => ['GAP', 'LOST'].includes(view?.singleView?.segmentKind);
 

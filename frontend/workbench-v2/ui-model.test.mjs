@@ -29,8 +29,9 @@ test('case1 needs time plus a place or a feature; case2 needs a feature and may 
   assert.ok(validateSearchForm({start: '13:00', end: '13:30', regionIds: ['R101']}).ok);
   assert.ok(validateSearchForm({start: '13:00', end: '13:30', classLabel: 'person'}).ok);
   assert.equal(validateTrackForm({}).code, 'FEATURE_REQUIRED'); assert.ok(validateTrackForm({classLabel: 'person'}).ok);
-  assert.deepEqual(trackWindow('', clock), {start: '', end: ''});
-  assert.deepEqual(trackWindow('13:05', clock), {start: '13:05', end: '13:30:00'});
+  // D139: blank times become concrete values (recording start / start + source_duration); see ui-d139.test.mjs.
+  assert.deepEqual(trackWindow('', '', clock), {ok: true, start: '13:00:00', end: '13:30:00', code: null, text: ''});
+  assert.deepEqual(trackWindow('13:05', '', clock), {ok: true, start: '13:05:00', end: '13:30:00', code: null, text: ''});
 });
 test('wall clock text comes from the declared clock mapping only', () => {
   assert.equal(wallClockText(clock, 5 * 60e6), '13:05:00'); assert.equal(wallClockText(null, 0), null);

@@ -8,8 +8,9 @@ import {
   loadSettings, readJson, writeJson, SNAPSHOT_KEY, EVENTLOG_KEY, pushEvent, normalizeLog,
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, blindShare, floorPlan, trackStateChip, trackJournal,
-  parseRoute, nextAfterCover,
+  parseRoute, nextAfterCover, blindReacquire, timeRangeText, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
+import {PLAIN, plainState, gapNote, lostNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
 import {countsFromSearch, HISTORY_LIMIT} from './admin-overview-model.mjs';
 import {createPhaseStore, progressPercent} from './search-phase-model.mjs';
 import {sourcePresentation} from './q-tokens.mjs';
@@ -35,6 +36,9 @@ export function mountUi(ctx) {
   const svg = (tag, attrs = {}) => { const n = doc.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v)); return n; };
   const cfg = parseConfig(new URL(url).search);
   let settings = loadSettings(storage);
+  // D139: presentation mode is on by default for the front desk; ?present=0 or the admin setting turns it off.
+  const presentOn = () => settings.presentationMode !== false && new URL(url).searchParams.get('present') !== '0';
+  const stateWord = code => presentOn() ? plainState(code) : code;
   const route = parseRoute(new URL(url).search, settings);
   const coreDeepLink = ['search', 'track-single', 'track-multi', 'blind'].includes(new URL(url).searchParams.get('screen'));
   let trackStopped = false;
@@ -114,6 +118,8 @@ export function mountUi(ctx) {
 
   // ---- query windows ----------------------------------------------------------------------------------------------
   const chipBtn = (label, on, cls = '') => { const b = el('button', label, `ui-chip-btn ${cls}`.trim(), {type: 'button'}); b.setAttribute('aria-pressed', String(on)); return b; };
+  // ⓘ: technical detail shown on hover / keyboard focus (CSS). Empty text → no icon.
+  const info = (text, label = '技術資訊') => { if (!text) return null; const n = el('span', 'ⓘ', 'ui-info', {tabindex: '0', role: 'img', 'aria-label': `${label}：${text}`, 'data-info': text}); n.append(el('span', text, 'ui-info-pop', {role: 'tooltip'})); return n; };
   const field = (label, ...kids) => { const l = el('label', undefined, 'ui-field'); l.append(el('span', label, 'ui-label'), ...kids); return l; };
   const timeInput = (id, value, label, ph) => { const i = el('input', undefined, 'ui-input ui-mono', {type: 'text', 'aria-label': label}); i.id = id; i.value = value ?? ''; if (ph) i.placeholder = ph; return i; };
 
@@ -130,13 +136,13 @@ export function mountUi(ctx) {
     const regionsBox = el('div', undefined, 'ui-chips'); regionsBox.dataset.role = 'regions';
     const classBox = el('div', undefined, 'ui-chips'); classBox.dataset.role = 'classes';
     const colorBox = el('div', undefined, 'ui-chips'); colorBox.dataset.role = 'colors';
-    const start = timeInput(`ui-${id}-start`, '', kind === 'search' ? '開始時間' : '開始時間', kind === 'track' ? '現在' : 'HH:MM:SS');
+    const start = timeInput(`ui-${id}-start`, '', '開始時間', 'HH:MM:SS');
     const end = timeInput(`ui-${id}-end`, '', '結束時間', 'HH:MM:SS');
     const timeRow = el('span', undefined, 'ui-timerow');
-    if (kind === 'search') timeRow.append(start, el('span', '→', 'ui-faint'), end); else timeRow.append(start);
+    timeRow.append(start, el('span', '～', 'ui-faint'), end);
     const submit = el('button', kind === 'search' ? '開始查找' : '開始追蹤', 'ui-btn ui-btn-light ui-btn-block', {type: 'button'}); submit.id = `ui-${id}-submit`;
     const feedback = el('p', '', 'ui-feedback'); feedback.id = `ui-${id}-feedback`; feedback.setAttribute('role', 'status');
-    const timeField = field(kind === 'search' ? '時間範圍（必填）' : '從什麼時候開始（空白＝現在）', timeRow);
+    const timeField = field(kind === 'search' ? '時間範圍（必填）' : '時間範圍（預設為整段錄影，可修改）', timeRow);
     const regionField = el('div', undefined, 'ui-field'); regionField.append(el('span', kind === 'search' ? '地點' : '地點（選填）', 'ui-label'), regionsBox);
     const featField = el('div', undefined, 'ui-field'); featField.append(el('span', kind === 'track' ? '特徵（必填）' : '特徵', 'ui-label'), classBox, colorBox);
     const note = kind === 'track' ? el('p', '第一次鎖定需要掃過全部鏡頭，會顯示進度；鎖定之後換鏡頭會立即切換。', 'ui-note') : null;
@@ -154,7 +160,7 @@ export function mountUi(ctx) {
     for (const w of [q1, q2]) {
       const {regionsBox, classBox, colorBox, form} = w;
       regionsBox.replaceChildren();
-      if (!cat.regions.length) regionsBox.append(el('span', cat.run ? 'UNKNOWN · 地點目錄未就緒' : NOT_MEASURED, 'ui-faint ui-small'));
+      if (!cat.regions.length) regionsBox.append(el('span', cat.run ? (presentOn() ? PLAIN.regionsPending : 'UNKNOWN · 地點目錄未就緒') : NOT_MEASURED, 'ui-faint ui-small'));
       for (const r of cat.regions) {
         const b = chipBtn(r.label, form.regions.has(r.value)); b.dataset.value = r.value;
         b.addEventListener('click', () => { form.regions.has(r.value) ? form.regions.delete(r.value) : form.regions.add(r.value); b.setAttribute('aria-pressed', String(form.regions.has(r.value))); b.classList.toggle('on', form.regions.has(r.value)); });
@@ -175,15 +181,20 @@ export function mountUi(ctx) {
       }
     }
     const run = cat.run;
+    q2.start.placeholder = startPlaceholder(run?.clock_mapping); q2.end.placeholder = endPlaceholder(run?.clock_mapping);
     if (run && !q1.start.value && !q1.end.value) { q1.start.value = wallClockText(run.clock_mapping, 0) ?? ''; q1.end.value = wallClockText(run.clock_mapping, run.clock_mapping?.source_duration_us) ?? ''; }
   }
 
   async function submitQuery(w) {
-    const form = {start: w.start.value, end: w.kind === 'search' ? w.end.value : '', regionIds: [...w.form.regions], classLabel: w.form.classLabel, colorLabel: w.form.colorLabel};
+    const form = {start: w.start.value, end: w.end.value, regionIds: [...w.form.regions], classLabel: w.form.classLabel, colorLabel: w.form.colorLabel};
     const run = store.getState().activeRun;
     const check = w.kind === 'search' ? validateSearchForm(form) : validateTrackForm(form);
     if (!check.ok) { w.feedback.textContent = check.text; w.feedback.dataset.state = 'error'; return; }
-    if (w.kind === 'track') { trackStopped = false; const win = trackWindow(form.start, run?.clock_mapping); form.start = win.start; form.end = win.end; }
+    if (w.kind === 'track') {
+      const win = trackWindow(form.start, form.end, run?.clock_mapping);
+      if (!win.ok) { w.feedback.textContent = win.text; w.feedback.dataset.state = 'error'; return; }
+      trackStopped = false; form.start = win.start; form.end = win.end;   // always concrete times, never empty
+    }
     w.feedback.textContent = ''; w.feedback.dataset.state = '';
     const now = performance.now();
     phase.dispatch({type: 'SEARCH_START', mode: w.kind === 'search' ? 'find' : 'track'});
@@ -200,6 +211,7 @@ export function mountUi(ctx) {
     }
   }
 
+  const missText = m => presentOn() ? m.message : `${m.code} · ${m.message}`;
   // ---- progress (示意) --------------------------------------------------------------------------------------------
   // Core responses are not part of the legacy outcome model, so the phase store is driven here: armed when the request
   // starts loading, resolved when the matching response lands, stalled on an error.
@@ -232,7 +244,7 @@ export function mountUi(ctx) {
         row.append(el('span', `${st.state === 'done' ? '✓' : st.state === 'pending' ? '○' : '●'} ${st.label}`, 'ui-stage-label'), segBar(st.filled, st.total));
         w.progress.append(row);
       }
-      if (p.miss) w.progress.append(el('p', `${p.miss.code} · ${p.miss.message}`, 'ui-feedback', {'data-state': 'error'}));
+      if (p.miss) { const m = el('p', presentOn() ? p.miss.message : `${p.miss.code} · ${p.miss.message}`, 'ui-feedback', {'data-state': 'error'}); if (presentOn()) m.append(' ', info(p.miss.code) ?? ''); w.progress.append(m); }
       else w.progress.append(el('p', '進度為示意，不代表實際完成比例', 'ui-faint ui-small'));
     }
     const mineActive = searching && !p.miss;
@@ -287,7 +299,7 @@ export function mountUi(ctx) {
     if (case1Key === key) return; case1Key = key;
     sCase1.replaceChildren();
     if (p.phase === 'searching' && p.mode === 'find' && !resp) {
-      const wait = el('div', undefined, 'ui-empty'); wait.append(el('p', p.miss ? '尚未找到' : '正在查找…', 'ui-h3'), el('p', p.miss ? `${p.miss.code} · ${p.miss.message}` : '結果出來後會顯示在這裡', 'ui-muted'));
+      const wait = el('div', undefined, 'ui-empty'); wait.append(el('p', p.miss ? '尚未找到' : '正在查找…', 'ui-h3'), el('p', p.miss ? missText(p.miss) : '結果出來後會顯示在這裡', 'ui-muted'));
       sCase1.append(wait); return;
     }
     if (!resp || !model) {
@@ -299,23 +311,26 @@ export function mountUi(ctx) {
     const {cards, total, truncated} = wallCards(model, settings.resultLimit);
     const wall = el('div', undefined, 'ui-wall'); wall.id = 'ui-wall';
     const meta = el('div', undefined, 'ui-wall-meta');
-    meta.append(el('span', model.statusText, 'ui-muted'), el('span', `${total} 個畫面`, 'ui-mono ui-muted'), el('span', model.identityBadge, 'ui-chip ui-chip-neutral'));
-    for (const c of reasonChips(model.reasons)) meta.append(el('span', c.text, 'ui-chip ui-chip-neutral ui-mono'));
+    if (presentOn()) { meta.append(el('span', model.statusText, 'ui-muted'), el('span', `${total} 個畫面`, 'ui-mono ui-muted'), el('span', PLAIN.identity, 'ui-chip ui-chip-neutral')); const i = info(techSummary([model.identityBadge, ...reasonChips(model.reasons)])); if (i) meta.append(i); }
+    else {
+      meta.append(el('span', model.statusText, 'ui-muted'), el('span', `${total} 個畫面`, 'ui-mono ui-muted'), el('span', model.identityBadge, 'ui-chip ui-chip-neutral'));
+      for (const c of reasonChips(model.reasons)) meta.append(el('span', c.text, 'ui-chip ui-chip-neutral ui-mono'));
+    }
     sCase1.append(meta);
     if (!cards.length) { const e = el('div', undefined, 'ui-empty'); e.append(el('p', '這段時間沒有找到', 'ui-h3'), el('p', model.statusText, 'ui-muted')); sCase1.append(e); return; }
     cards.forEach((card, i) => {
       const art = el('article', undefined, 'ui-shot'); art.dataset.cameraId = card.cameraId; art.dataset.rank = String(card.rank);
       if (settings.staggerResults) art.style.animationDelay = Math.min(i, 12) * 45 + 'ms'; else art.classList.add('no-anim');
       const media = el('div', undefined, 'ui-media'); const img = el('img', undefined, 'ui-img'); img.alt = `${card.cameraId} 代表畫面`;
-      const ph = el('span', synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得', 'ui-media-note');
-      const src = resolveCardImageSrc({card, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '')) { img.src = u; img.hidden = false; ph.textContent = '來源綁定 RGB'; } }});
+      const ph = el('span', presentOn() ? (synthetic ? PLAIN.syntheticFrame : PLAIN.noFrame) : (synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得'), 'ui-media-note');
+      const src = resolveCardImageSrc({card, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '')) { img.src = u; img.hidden = false; ph.textContent = presentOn() ? '' : '來源綁定 RGB'; ph.hidden = presentOn(); } }});
       if (src) img.src = src; else img.hidden = true;
       media.append(img, ph);
       const foot = el('div', undefined, 'ui-shot-foot'), id = el('span', undefined, 'ui-shot-id');
       id.append(el('span', card.cameraId, 'ui-mono'), el('span', card.wallRangeText, 'ui-mono ui-muted'));
       const chips = el('span', undefined, 'ui-shot-chips');
       for (const c of cardChips(card, aliases)) chips.append(el('span', c.text, `ui-chip ui-chip-${c.tone}`));
-      if (!card.targetObserved) chips.append(el('span', '場景設定', 'ui-chip ui-chip-neutral'));
+      if (!card.targetObserved) chips.append(el('span', presentOn() ? '依場景設定' : '場景設定', 'ui-chip ui-chip-neutral'));
       foot.append(id, chips); art.append(media, foot);
       art.addEventListener('click', () => { store.dispatch({type: 'SET_CORE_SELECTION', selection: {rank: card.rank, cameraId: card.cameraId}}); openLightbox(cards, i, img.src); });
       wall.append(art);
@@ -368,7 +383,7 @@ export function mountUi(ctx) {
   function manualChoice() {
     const card = el('div', undefined, 'ui-card'); card.id = 'ui-manual-choice';
     const button = el('button', '改選目標', 'ui-btn ui-btn-ghost', {type: 'button'}); button.id = 'ui-manual-target'; button.disabled = true;
-    const note = el('p', '目前追蹤起點由系統自動選取（自動種子），手動改選尚未支援', 'ui-note'); note.id = 'ui-manual-note';
+    const note = el('p', presentOn() ? PLAIN.manualUnsupported : '目前追蹤起點由系統自動選取（自動種子），手動改選尚未支援', 'ui-note'); note.id = 'ui-manual-note';
     const reopen = el('button', '回查詢窗重新輸入特徵', 'ui-linkbtn', {type: 'button'}); reopen.addEventListener('click', () => setQuery(true));
     card.append(button, note, reopen); return card;
   }
@@ -376,20 +391,25 @@ export function mountUi(ctx) {
     sCase2.replaceChildren(); for (const k of Object.keys(trackParts)) if (k !== 'key') delete trackParts[k];
     if (!resp || !view) {
       const wait = el('div', undefined, 'ui-empty');
-      if (searching) { const cams = s.activeRun?.camera_ids?.length; wait.append(el('p', p.miss ? '尚未找到' : cams ? `在 ${cams} 台鏡頭中尋找目標…` : '尋找目標…', 'ui-h3'), el('p', p.miss ? `${p.miss.code} · ${p.miss.message}` : '第一次鎖定需要一點時間；鎖定後換鏡頭會立即切換。', 'ui-muted')); }
-      else { wait.append(el('p', trackStopped ? '追蹤顯示已停止' : '追蹤', 'ui-h3'), el('p', '開啟查詢窗，選好特徵就能開始追蹤；時間留空代表現在。', 'ui-muted')); const open = el('button', '開啟查詢窗', 'ui-btn ui-btn-light', {type: 'button'}); open.addEventListener('click', () => setQuery(true)); wait.append(open); }
+      if (searching) { const cams = s.activeRun?.camera_ids?.length; wait.append(el('p', p.miss ? '尚未找到' : cams ? `在 ${cams} 台鏡頭中尋找目標…` : '尋找目標…', 'ui-h3'), el('p', p.miss ? missText(p.miss) : '第一次鎖定需要一點時間；鎖定後換鏡頭會立即切換。', 'ui-muted')); }
+      else { wait.append(el('p', trackStopped ? '追蹤顯示已停止' : '追蹤', 'ui-h3'), el('p', '開啟查詢窗，選好特徵就能開始追蹤；時間不填就追蹤整段錄影。', 'ui-muted')); const open = el('button', '開啟查詢窗', 'ui-btn ui-btn-light', {type: 'button'}); open.addEventListener('click', () => setQuery(true)); wait.append(open); }
       wait.append(stopButton(true)); sCase2.append(wait, manualChoice()); return;
     }
     const layout = el('div', undefined, 'ui-track'), main = el('section', undefined, 'ui-track-main'), aside = el('aside', undefined, 'ui-track-aside');
     const aliases = s.activeRun?.supported_classes?.aliases ?? {};
     const klass = track.lastForm?.classLabel ?? resp.normalized_request?.feature?.class_label ?? '';
     const head = el('div', undefined, 'ui-track-head'), title = el('h2', undefined, 'ui-h2 ui-track-title'); trackParts.title = title;
-    head.append(title, el('span', view.identityBadge, 'ui-mono ui-muted'));
-    const tags = el('div', undefined, 'ui-tags'); tags.append(el('span', AUTO_SEED_LABEL, 'ui-chip ui-chip-neutral', {'data-code': 'AUTO_SEED'}));
-    for (const c of reasonChips(view.reasons)) tags.append(el('span', c.text, 'ui-chip ui-chip-neutral ui-mono', {'data-code': c.code}));
-    trackParts.stateChip = el('span', undefined, 'ui-chip'); tags.append(trackParts.stateChip);
+    head.append(title, el('span', presentOn() ? PLAIN.identity : view.identityBadge, 'ui-mono ui-muted'));
+    const range = el('p', undefined, 'ui-mono ui-muted ui-track-range'); range.id = 'ui-track-range'; trackParts.range = range;
+    const tags = el('div', undefined, 'ui-tags');
+    if (presentOn()) { const i = info(techSummary([AUTO_SEED_LABEL, view.identityBadge, ...reasonChips(view.reasons)])); if (i) tags.append(i); }
+    else {
+      tags.append(el('span', AUTO_SEED_LABEL, 'ui-chip ui-chip-neutral', {'data-code': 'AUTO_SEED'}));
+      for (const c of reasonChips(view.reasons)) tags.append(el('span', c.text, 'ui-chip ui-chip-neutral ui-mono', {'data-code': c.code}));
+    }
+    trackParts.stateChip = el('span', undefined, 'ui-chip'); tags.prepend(trackParts.stateChip);
     trackParts.klass = classDisplay(klass, aliases) || '目標';
-    main.append(head, tags);
+    main.append(head, range, tags);
     if (s.playbackMode === 'single') {
       const stage = el('div', undefined, 'ui-stagebox'), img = el('img', undefined, 'ui-img ui-stage-img'); img.alt = '追蹤畫面';
       const note = el('div', undefined, 'ui-stage-empty'); const stamp = el('span', undefined, 'ui-stamp ui-mono'), sw = el('span', undefined, 'ui-stamp ui-stamp-right'), tag = el('span', undefined, 'ui-tag-obs ui-mono');
@@ -399,7 +419,7 @@ export function mountUi(ctx) {
       for (const cam of view.multiView.cameras) {
         const tile = el('article', undefined, 'ui-multi-tile'), img = el('img', undefined, 'ui-img'); img.alt = `${cam.cameraId} 畫面`;
         const cap = el('div', undefined, 'ui-multi-cap'); cap.append(el('span', cam.cameraId, 'ui-mono'), el('span', '', 'ui-chip ui-chip-neutral'));
-        const empty = el('span', synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得', 'ui-media-note');
+        const empty = el('span', presentOn() ? (synthetic ? PLAIN.syntheticFrame : PLAIN.noFrame) : (synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得'), 'ui-media-note');
         tile.append(img, empty, cap); grid.append(tile); trackParts.multi.set(cam.cameraId, {tile, img, cap, empty});
       }
       main.append(grid);
@@ -407,14 +427,17 @@ export function mountUi(ctx) {
     const tl = el('div', undefined, 'ui-timeline'); tl.id = 'ui-camera-timeline'; trackParts.timeline = tl;
     const ctl = el('div', undefined, 'ui-controls');
     const play = el('button', undefined, 'ui-play', {type: 'button', 'aria-label': '播放或暫停'}); play.id = 'ui-play'; play.addEventListener('click', () => store.dispatch({type: 'TOGGLE_PLAY'}));
-    const speedSeg = el('span', undefined, 'ui-speeds'); trackParts.speeds = new Map();
-    for (const sp of SUPPORTED_SPEEDS) { const b = el('button', `${sp}x`, 'ui-pillbtn', {type: 'button', 'data-speed': String(sp)}); b.addEventListener('click', () => store.dispatch({type: 'SET_SPEED', speed: sp})); speedSeg.append(b); trackParts.speeds.set(sp, b); }
+    const speedSel = el('select', undefined, 'ui-input ui-small ui-speed-select', {'aria-label': '播放速度'}); speedSel.id = 'ui-speed';
+    for (const sp of SUPPORTED_SPEEDS) speedSel.append(el('option', `${sp}×`, undefined, {value: String(sp)}));
+    speedSel.addEventListener('change', () => store.dispatch({type: 'SET_SPEED', speed: Number(speedSel.value)}));
+    trackParts.speedSel = speedSel;
     const actual = el('span', undefined, 'ui-mono ui-faint ui-small'); actual.id = 'ui-speed-note';
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
     scrub.addEventListener('input', () => { const tUs = Number(scrub.value); store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); });
-    ctl.append(play, speedSeg, actual, scrub);
+    ctl.append(play, speedSel, actual);   // one timeline only: the scrubber is laid over the camera timeline row
     ctl.append(stopButton(false));
     Object.assign(trackParts, {play, actual, scrub});
+    scrub.className = 'ui-scrub ui-scrub-overlay';
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
@@ -425,9 +448,10 @@ export function mountUi(ctx) {
   function updateCase2(s, resp, view) {
     if (!trackParts.built) return;
     const cm = s.activeRun?.clock_mapping, [start] = playbackBounds(s), asOf = view.asOfUs, t = view.currentTUs;
-    const chip = trackStateChip(view); trackParts.stateChip.textContent = chip.text; trackParts.stateChip.className = `ui-chip ui-chip-${chip.tone}`;
+    const chip = trackStateChip(view); trackParts.stateChip.textContent = stateWord(chip.text); trackParts.stateChip.dataset.state = chip.text; trackParts.stateChip.className = `ui-chip ui-chip-${chip.tone}`;
     const locked = view.singleView.segmentKind === 'ON_CAMERA';
-    trackParts.title.textContent = `${trackParts.klass} · ${locked ? '已鎖定' : view.singleView.segmentKind === 'GAP' ? '盲區中' : view.singleView.segmentKind === 'LOST' ? '已跟丟' : view.statusText}`;
+    trackParts.title.textContent = `${trackParts.klass} · ${locked ? '已鎖定' : view.singleView.segmentKind === 'GAP' ? '盲區中' : view.singleView.segmentKind === 'LOST' ? '已跟丟' : (presentOn() ? '狀態未明' : view.statusText)}`;
+    if (trackParts.range) { const win = queriedWindow(s, resp); trackParts.range.textContent = win ? `查詢時段 ${win}` : ''; trackParts.range.hidden = !win; }
     const clock = wallClockText(cm, t) ?? `${(t / 1e6).toFixed(2)} s`;
     if (trackParts.stage) {
       const sv = view.singleView, cam = sv.activeCameraId;
@@ -437,12 +461,12 @@ export function mountUi(ctx) {
         trackParts.frameKey = fk; trackParts.img.hidden = true; trackParts.img.removeAttribute('src');
         const src = resolveFrameImageSrc({cameraId: cam, currentTUs: t, segmentKind: sv.segmentKind, lastObservedCameraId: sv.lastObservedCameraId, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '') && trackParts.frameKey === fk && trackParts.img) { trackParts.img.src = u; trackParts.img.hidden = false; trackParts.note.hidden = true; } }});
         if (src) { trackParts.img.src = src; trackParts.img.hidden = false; trackParts.note.hidden = true; }
-        else { trackParts.img.hidden = true; trackParts.img.removeAttribute('src'); trackParts.note.hidden = false; trackParts.note.textContent = sv.segmentKind === 'GAP' ? `盲區 · 沒有畫面（前一鏡頭 ${sv.lastObservedCameraId ?? '無'}）` : sv.segmentKind === 'LOST' ? `目標遺失（LOST）· 最後出現 ${sv.lastObservedCameraId ?? '無'}` : 'MISSING · 來源 RGB 未取得'; }
+        else { trackParts.img.hidden = true; trackParts.img.removeAttribute('src'); trackParts.note.hidden = false; trackParts.note.textContent = presentOn() ? (sv.segmentKind === 'GAP' ? gapNote(sv.lastObservedCameraId) : sv.segmentKind === 'LOST' ? lostNote(sv.lastObservedCameraId) : PLAIN.noFrame) : (sv.segmentKind === 'GAP' ? `盲區 · 沒有畫面（前一鏡頭 ${sv.lastObservedCameraId ?? '無'}）` : sv.segmentKind === 'LOST' ? `目標遺失（LOST）· 最後出現 ${sv.lastObservedCameraId ?? '無'}` : 'MISSING · 來源 RGB 未取得'); }
       }
       trackParts.stamp.textContent = `${cam ?? '—'} · ${clock}`;
       const prev = [...view.singleView.transitions].reverse().find(x => x.switch_at_us <= t && x.to_camera === cam && x.from_camera);
       trackParts.sw.textContent = prev ? `↳ 從 ${prev.from_camera} 切換` : ''; trackParts.sw.hidden = !prev;
-      trackParts.tag.textContent = chip.text; trackParts.tag.dataset.tone = chip.tone; trackParts.tag.hidden = !locked;
+      trackParts.tag.textContent = stateWord(chip.text); trackParts.tag.dataset.tone = chip.tone; trackParts.tag.hidden = !locked;
     }
     if (trackParts.multi) for (const cam of view.multiView.cameras) {
       const part = trackParts.multi.get(cam.cameraId); if (!part) continue;
@@ -458,28 +482,39 @@ export function mountUi(ctx) {
       trackParts.tlKey = tlKey; const box = trackParts.timeline; box.replaceChildren();
       const labels = el('div', undefined, 'ui-tl-labels ui-mono'); labels.append(el('span', wallClockText(cm, start) ?? `${(start / 1e6).toFixed(1)} s`), el('span', '鏡頭時間軸'), el('span', wallClockText(cm, asOf) ?? `${(asOf / 1e6).toFixed(1)} s`));
       const row = el('div', undefined, 'ui-tl-row');
-      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : 'LOST', `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; if (seg.current) b.classList.add('current'); b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); row.append(b); }
+      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; if (seg.current) b.classList.add('current'); b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); row.append(b); }
       if (tl.uncovered > 0.001) { const rest = el('span', undefined, 'ui-tl-seg is-empty'); rest.style.flex = `${tl.uncovered} 1 0`; row.append(rest); }
-      const marker = el('span', undefined, 'ui-tl-marker'); marker.style.left = (tl.marker * 100).toFixed(2) + '%'; row.append(marker); box.append(labels, row);
+      const marker = el('span', undefined, 'ui-tl-marker'); marker.style.left = (tl.marker * 100).toFixed(2) + '%'; row.append(marker, trackParts.scrub); box.append(labels, row);
     }
     // controls
     trackParts.play.textContent = s.playing ? '❚❚' : '▶'; trackParts.play.disabled = !canPlayNow(s);
     trackParts.play.title = canPlayNow(s) ? '' : '請先載入可播放的來源片段';
-    for (const [sp, b] of trackParts.speeds) { b.classList.toggle('on', s.speed === sp); b.setAttribute('aria-pressed', String(s.speed === sp)); }
-    const note = ctx.legacy?.speedNote?.() ?? ''; trackParts.actual.textContent = note;
+    trackParts.speedSel.value = String(s.speed);
+    trackParts.actual.textContent = shownSpeedNote();
     trackParts.scrub.min = String(start); trackParts.scrub.max = String(asOf); trackParts.scrub.value = String(s.tUs);
     // floor plan
     renderPlan(s, view, resp);
     renderJournal(resp, cm);
   }
+  const shownSpeedNote = () => { const note = ctx.legacy?.speedNote?.() ?? ''; return presentOn() ? speedNoteText(note) : note; };
+  // D139: the window the response actually covers, as concrete times (never blank, never relative).
+  function queriedWindow(s, resp) {
+    const cm = s.activeRun?.clock_mapping, r = resp?.resolved_time?.source_range_us;
+    if (Array.isArray(r) && r.length === 2) { const a = wallClockText(cm, r[0]), b = wallClockText(cm, r[1]); if (a && b) return timeRangeText(a, b); }
+    const f = track.lastForm; return f?.start && f?.end ? timeRangeText(f.start, f.end) : null;
+  }
   const canPlayNow = s => !trackStopped && (s.playing || canPlay(s));
   function renderPlan(s, view, resp) {
     const plan = floorPlan(view.topdown, {settings, singleView: resp.single_view, currentTUs: view.currentTUs});
-    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence]);
+    const reacq = plan.blindVisible ? blindReacquire(resp.single_view, view.currentTUs, s.activeRun?.clock_mapping) : null;
+    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence, reacq, presentOn()]);
     if (trackParts.planKey === key) return; trackParts.planKey = key;
     const box = trackParts.plan; box.replaceChildren();
-    const head = el('div', undefined, 'ui-card-head'); head.append(el('span', '樓層俯視圖'), el('span', plan.blindVisible ? `INFERRED · 信心 ${view.topdown?.blind_curve?.confidence ?? 'UNKNOWN'}` : (view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown ? 'UNKNOWN · 預測不可用' : ''), plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small')); box.append(head);
-    if (!plan.available) { box.append(el('p', `UNKNOWN · 鏡頭位置未提供`, 'ui-muted ui-small')); return; }
+    const head = el('div', undefined, 'ui-card-head'); const conf = view.topdown?.blind_curve?.confidence ?? 'UNKNOWN', unavailable = view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown;
+    const headText = plan.blindVisible ? (presentOn() ? (reacq ? PLAIN.bothEndsObserved : planHeadText(conf)) : `INFERRED · 信心 ${conf}`) : (unavailable ? (presentOn() ? PLAIN.noPrediction : 'UNKNOWN · 預測不可用') : '');
+    const headChip = el('span', headText, plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small'); headChip.id = 'ui-plan-chip';
+    head.append(el('span', '樓層俯視圖'), headChip); box.append(head);
+    if (!plan.available) { box.append(el('p', presentOn() ? PLAIN.noPlan : `UNKNOWN · 鏡頭位置未提供`, 'ui-muted ui-small')); return; }
     const g = svg('svg', {viewBox: '0 0 100 100', class: 'ui-plan-svg', role: 'img', 'aria-label': '樓層俯視圖：實線為已觀察路線，虛線為推測路線'});
     const grid = svg('pattern', {id: 'ui-grid', width: 10, height: 10, patternUnits: 'userSpaceOnUse'}); grid.append(svg('path', {d: 'M10 0H0V10', fill: 'none', stroke: 'var(--grid)', 'stroke-width': 0.4}));
     const defs = svg('defs'); defs.append(grid); g.append(defs, svg('rect', {x: 1, y: 1, width: 98, height: 98, rx: 2, fill: 'url(#ui-grid)', stroke: 'var(--line-strong)', 'stroke-width': 0.8}));
@@ -490,13 +525,18 @@ export function mountUi(ctx) {
       const t = svg('text', {x: n.x, y: n.y - 3, 'text-anchor': 'middle', class: 'cam-label'}); t.textContent = n.cameraId.replace(/^CAM_/, ''); g.append(t);
     }
     if (plan.current) { g.append(svg('circle', {cx: plan.current[0], cy: plan.current[1], r: 2.4, class: 'here'}), svg('circle', {cx: plan.current[0], cy: plan.current[1], r: 4, class: 'here-ring', fill: 'none'})); }
+    if (reacq && plan.blind.length > 1) {   // D139: the route's end is a real observation, the middle is inferred
+      const end = plan.blind.at(-1);
+      g.append(svg('circle', {cx: end[0], cy: end[1], r: 2.2, class: 'reacq-end', fill: 'none', 'stroke-width': 0.9}));
+    }
     box.append(g);
+    if (reacq) { const note = el('p', reacquiredText(reacq), 'ui-note ui-reacq'); note.id = 'ui-blind-end'; note.dataset.camera = reacq.cameraId; note.dataset.atUs = String(reacq.atUs); box.append(note); }
   }
   function renderJournal(resp, cm) {
     const rows = trackJournal(resp.single_view, cm), key = JSON.stringify(rows); if (trackParts.journalKey === key) return; trackParts.journalKey = key;
     const box = trackParts.journal; box.replaceChildren(el('span', '追蹤紀錄', 'ui-eyebrow'));
-    if (!rows.length) box.append(el('p', '時間窗內無觀測紀錄', 'ui-muted ui-small'));
-    for (const r of rows) { const row = el('div', undefined, 'ui-journal-row'); row.append(el('span', `${r.t} ${r.text}`, 'ui-mono'), el('span', r.state, `ui-chip ui-chip-${r.tone}`)); box.append(row); }
+    if (!rows.length) box.append(el('p', presentOn() ? '這段時間內沒有觀測紀錄' : '時間窗內無觀測紀錄', 'ui-muted ui-small'));
+    for (const r of rows) { const row = el('div', undefined, 'ui-journal-row'); row.append(el('span', `${r.t} ${r.text}`, 'ui-mono'), el('span', r.tone === 'missing' ? stateWord('LOST') : stateWord(r.state), `ui-chip ui-chip-${r.tone}`)); box.append(row); }
   }
 
   // ---- case 3: replay of existing events --------------------------------------------------------------------------
@@ -547,7 +587,10 @@ export function mountUi(ctx) {
     const clock = el('span', '', 'ui-mono'), speeds = new Map();
     play.addEventListener('click', () => { const value = ctx.wallPlayback?.get(); if (value) ctx.wallPlayback.set({playing: !value.playing}); updateWallTransport(); });
     bar.append(play, clock);
-    for (const speed of SUPPORTED_SPEEDS) { const b = el('button', `${speed}x`, 'ui-pillbtn', {type: 'button', 'data-wall-speed': String(speed)}); b.addEventListener('click', () => { ctx.wallPlayback?.set({speed}); updateWallTransport(); }); speeds.set(speed, b); bar.append(b); }
+    const speedSel = el('select', undefined, 'ui-input ui-small ui-speed-select', {'aria-label': '播放速度'}); speedSel.id = 'ui-wall-speed';
+    for (const speed of SUPPORTED_SPEEDS) speedSel.append(el('option', `${speed}×`, undefined, {value: String(speed)}));
+    speedSel.addEventListener('change', () => { ctx.wallPlayback?.set({speed: Number(speedSel.value)}); updateWallTransport(); });
+    bar.append(speedSel); speeds.set('select', speedSel);
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', min: 0, max: 0, step: 1, 'aria-label': '查看來源時間'}); scrub.id = 'ui-wall-scrub';
     scrub.addEventListener('input', () => { const value = Number(scrub.value), current = ctx.wallPlayback?.get(); if (current) ctx.wallPlayback.set({startUs: value, playing: false, restart: current.restart+1}); updateWallTransport(); }); bar.append(scrub);
     wallParts = {bar,play,clock,speeds,scrub}; updateWallTransport(); return bar;
@@ -555,14 +598,17 @@ export function mountUi(ctx) {
   function updateWallTransport() {
     if (!wallParts) return; const value = ctx.wallPlayback?.get(); if (!value) return;
     wallParts.play.textContent = value.playing ? '暫停' : '播放'; wallParts.play.disabled = !(value.durationUs > 0);
-    wallParts.clock.textContent = `${(value.tUs/1e6).toFixed(2)} s / ${(value.durationUs/1e6).toFixed(2)} s`;
+    const cm = store.getState().activeRun?.clock_mapping, t0 = cm?.t0_us ?? 0, at = wallClockText(cm, t0 + value.tUs), endAt = wallClockText(cm, t0 + value.durationUs);
+    wallParts.clock.textContent = at && endAt ? `${at} / ${endAt}` : `${(value.tUs/1e6).toFixed(2)} s / ${(value.durationUs/1e6).toFixed(2)} s`;
     wallParts.scrub.max = String(Math.max(0,value.durationUs-1)); wallParts.scrub.value = String(value.tUs);
-    for (const [speed,b] of wallParts.speeds) { b.classList.toggle('on', value.speed===speed); b.setAttribute('aria-pressed', String(value.speed===speed)); }
+    wallParts.speeds.get('select').value = String(value.speed);
   }
   function showEvent(id) {
     const e = EVENTS.find(x => x.id === id) ?? EVENTS[0], stage = sCase3.querySelector('#ui-case3-stage'), embedded = e.kind === 'embed';
     for (const b of sCase3.querySelectorAll('[data-event]')) { const current = integration() ? b.dataset.event === store.getState().activeRun?.run_id : b.dataset.event === e.id; b.classList.toggle('on', current); b.setAttribute('aria-pressed', String(current)); }
-    sCase3.querySelector('#ui-event-note').textContent = integration() ? `${store.getState().activeRun?.title ?? ''} · ${store.getState().activeRun?.source_kind ?? 'UNKNOWN'} · 身分未確認 · 物理通行與碰撞 UNKNOWN` : e.note;
+    const noteBox = sCase3.querySelector('#ui-event-note'), run = store.getState().activeRun;
+    if (integration() && presentOn()) { noteBox.replaceChildren(`${run?.title ?? ''} · ${PLAIN.identity} `, info(techSummary([run?.source_kind ?? 'UNKNOWN', '物理通行與碰撞 UNKNOWN'])) ?? ''); }
+    else noteBox.textContent = integration() ? `${run?.title ?? ''} · ${run?.source_kind ?? 'UNKNOWN'} · 身分未確認 · 物理通行與碰撞 UNKNOWN` : e.note;
     const src = embedded ? embedSrc(e, cfg, 'system', modeOf(e, cfg)) : null;
     frame.hidden = !embedded || !src;
     if (src && frame.getAttribute('src') !== src) frame.setAttribute('src', src); if (!src) frame.removeAttribute('src');
@@ -585,11 +631,12 @@ export function mountUi(ctx) {
     sourceSelect.hidden = runs.length < 2; sourceSelect.value = s.activeRun?.run_id ?? '';
     const origin = s.responseOrigin ?? s.bootstrap?.data_origin ?? 'UNAVAILABLE', pres = sourcePresentation(origin, s.recordedKind ?? s.activeRun?.source_kind);
     const text = /SYNTHETIC/.test(pres.label) ? 'SYNTHETIC' : /PILOT/.test(pres.label) ? 'PILOT' : origin === 'RECORDED' ? 'REPLAY' : origin;
-    badge.textContent = text; badge.title = pres.note;
+    if (presentOn()) { badge.replaceChildren(info(`${text} · ${pres.note}`, '資料來源') ?? ''); badge.title = ''; badge.dataset.tech = text; }
+    else { badge.textContent = text; badge.title = pres.note; delete badge.dataset.tech; }
     const parts = [];
     if (screen === 'case1') {
       const f = search.lastForm, cat = ctx.coreCatalog?.() ?? {regions: [], aliases: {}};
-      if (f) { const names = (f.regionIds ?? []).map(id => cat.regions.find(r => r.value === id)?.label ?? id); parts.push(...names); if (f.classLabel) parts.push(classDisplay(f.classLabel, cat.aliases)); parts.push(`${f.start} → ${f.end}`); }
+      if (f) { const names = (f.regionIds ?? []).map(id => cat.regions.find(r => r.value === id)?.label ?? id); parts.push(...names); if (f.classLabel) parts.push(classDisplay(f.classLabel, cat.aliases)); parts.push(timeRangeText(f.start, f.end)); }
       ctxChip.textContent = parts.join(' · '); ctxChip.className = 'ui-chip-ctx';
     } else if (screen === 'case2') {
       ctxChip.textContent = '❯ 追蹤新目標…'; ctxChip.className = 'ui-chip-ctx is-cmd';
@@ -642,7 +689,7 @@ export function mountUi(ctx) {
   let prevState = store.getState();
   disposers.push(store.subscribe(s => { afterStore(s, prevState); const prev = prevState; prevState = s; if (s.bootstrap !== prev.bootstrap || s.activeRun !== prev.activeRun) renderCatalog(); render(); }));
   const unsubCatalog = ctx.subscribeCatalog?.(renderCatalog); if (unsubCatalog) disposers.push(unsubCatalog);
-  const noteTimer = setInterval(() => { if (screen === 'case2' && trackParts.actual) trackParts.actual.textContent = ctx.legacy?.speedNote?.() ?? ''; if (screen === 'case3') updateWallTransport(); }, 500);
+  const noteTimer = setInterval(() => { if (screen === 'case2' && trackParts.actual) trackParts.actual.textContent = shownSpeedNote(); if (screen === 'case3') updateWallTransport(); }, 500);
   disposers.push(() => clearInterval(noteTimer));
   const onStorage = e => { if (e.key === null || e.key === 'amidst.ui.settings.v1') settings = loadSettings(storage); };
   globalThis.addEventListener?.('storage', onStorage); disposers.push(() => globalThis.removeEventListener?.('storage', onStorage));
