@@ -198,13 +198,18 @@ class QAPI:
     @staticmethod
     def _detected_class_counts(run):
         # Derived display statistics only: read indexed detections, never scene truth.
-        supported=set(run.aliases['class_labels']); counts=Counter()
+        supported=set(run.aliases['class_labels']); counts=Counter(); cameras={}
+        allowed_cameras={row['camera_id'] for row in run.bindings.index.manifest['sampling']['per_camera']}
         for record in run.bindings.index.records:
             for detection in record['detections'] or ():
                 label=detection['class_label']
                 check(isinstance(label,str) and label in supported,'DataIntegrityError',409)
+                camera_id=record['camera_id']
+                check(isinstance(camera_id,str) and camera_id in allowed_cameras,'DataIntegrityError',409)
                 counts[label]+=1
-        return [{'class_label':label,'detection_count':count}
+                cameras.setdefault(label,set()).add(camera_id)
+        return [{'class_label':label,'detection_count':count,
+                 'camera_count':len(cameras[label]),'camera_ids':sorted(cameras[label])}
                 for label,count in sorted(counts.items(),key=lambda item:(-item[1],item[0]))]
 
     def bootstrap(self):
