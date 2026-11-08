@@ -6,11 +6,11 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {startPreview} from './preview-server.mjs';
-const source=process.env.CORE_SOURCE;if(!source)throw Error('CORE_SOURCE_REQUIRED');
+const source=process.env.CORE_SOURCE;const VIEWPORT_H=Number(process.env.VIEWPORT_H??1000);if(![900,1000,1300].includes(VIEWPORT_H))throw Error('VIEWPORT_H must be 900, 1000 or 1300');if(!source)throw Error('CORE_SOURCE_REQUIRED');
 const {chromium}=await import(process.env.PLAYWRIGHT_CORE_MODULE?pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE).href:'playwright-core');
 const out=process.env.SCREENSHOT_DIR??join(tmpdir(),'amidst-new-ui-synthetic');await mkdir(out,{recursive:true});
 const preview=await startPreview({source,port:0}),browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
-const page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1}),errors=[],shots=[];let checks=0;
+const page=await browser.newPage({viewport:{width:1440,height:VIEWPORT_H},deviceScaleFactor:1}),errors=[],shots=[];let checks=0;
 const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({check:checks,message:msg}));};page.on('pageerror',e=>errors.push(String(e)));
 const shot=async name=>{const path=join(out,name+'.png');await page.screenshot({path,fullPage:true});const b=await readFile(path);shots.push({path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});};
 const calls=route=>preview.routeCalls.filter(c=>c.route===route);
@@ -40,7 +40,7 @@ try{
  for(const [t,kind]of[[300000,'ON_CAMERA'],[800000,'GAP'],[1200000,'ON_CAMERA'],[1800000,'LOST']]){await seek(t);check(await page.locator('.ui-stagebox').getAttribute('data-kind')===kind,'visible '+kind+' state');await shot('05-track-'+t);}
  await seek(300000);await page.locator('#ui-play').click();await page.waitForFunction(()=>document.querySelector('.ui-stamp')?.textContent.startsWith('B ·'));await page.locator('#ui-play').click();check(true,'automatic camera switch via visible play control');
  await page.locator('#ui-layout [data-layout=multi]').click();check(await page.locator('.ui-multi-tile').count()===2,'multi two cameras');await page.locator('#ui-case2 [data-speed="1.5"]').click();check(await page.locator('#ui-case2 [data-speed="1.5"]').getAttribute('aria-pressed')==='true','visible speed selected');await shot('06-multi');
- const bar=await page.locator('#ui-track-bar').boundingBox();check(Math.abs(bar.y+bar.height-1000)<2,'short-content bar meets viewport bottom');
+ const bar=await page.locator('#ui-track-bar').boundingBox();const vp=page.viewportSize().height,scroller=await page.locator('.ui-screens').evaluate(e=>({sh:e.scrollHeight,ch:e.clientHeight}));check(bar.y+bar.height<=vp+2&&bar.y>=0,'bar stays inside viewport at '+vp);if(scroller.sh<=scroller.ch+1)check(Math.abs(bar.y+bar.height-vp)<2,'short-content bar meets viewport bottom at '+vp);else check(await page.locator('#ui-track-bar').evaluate(b=>{const r=b.getBoundingClientRect(),q=document.elementFromPoint(r.left+r.width/2,r.bottom-4);return b.contains(q);}),'long content: bar not covered at '+vp);
  check(await page.locator('#ui-run-select option').count()===3,'three source choices');
  for(const [runId,n]of[['SYNTHETIC_B05',2],['SYNTHETIC_A4_1',3],['SYNTHETIC_B4_1',2]]){
   await page.goto(preview.url+'?run='+runId+'&screen=case1',{waitUntil:'domcontentloaded'});await page.locator('#ui-q-search [data-role=classes] [data-value=person]').click();await submit('search',n);check(calls('/api/q_core_search').at(-1).payload.run_id===runId,'selected search source '+runId);await shot('07-'+runId+'-search');
