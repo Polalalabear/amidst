@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
-import { clampFrame, formatTime, frameName, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
+import { clampFrame, formatTime, frameName, mediaUrl, planTick, stampText, stampParts, virtualTime, stepFrame } from './sync.mjs';
 import { inspectPng, parseMediaPath, validateRun, resolveSafeFile, loadVerifiedFrame } from './guard.mjs';
 import { RUNS } from './runs.mjs';
 import { createServer } from './server.mjs';
@@ -364,12 +364,106 @@ test('HTTP 反例（完整 A4-1 SYNTHETIC，只毒化一格 IEND）：UNAVAILABL
   }
 });
 
-test('畫格標籤：<鏡頭> · <秒> s（5 fps，兩位小數），未知時間顯示 UNKNOWN', () => {
-  assert.equal(stampText('CAM_ENTRY', 62, 5), 'CAM_ENTRY · 12.40 s');
-  assert.equal(stampText('CAM_W1', 0, 5), 'CAM_W1 · 0.00 s');
-  assert.equal(stampText('CAM_W1', 249, 5), 'CAM_W1 · 49.80 s');
-  for (const bad of [null, undefined, NaN, -1, 1.5]) assert.equal(stampText('CAM_W1', bad, 5), 'CAM_W1 · UNKNOWN');
-  assert.equal(stampText('CAM_W1', 3, 0), 'CAM_W1 · UNKNOWN');
-  // 各鏡頭各自計算，同一 index 不共用字串
-  assert.notEqual(stampText('A', 5, 5), stampText('B', 5, 5));
+test('畫格標籤：<鏡頭> · <虛擬世界時間>（UTC+8）＋次要行 +<經過秒數> s · DECLARED_DEMO_CLOCK；時鐘缺失則 UNKNOWN、不假設日期', () => {
+  const [a4, b4] = [RUNS[0].clock, RUNS[1].clock];
+  assert.equal(stampText('CAM_ENTRY', 62, 5, a4), 'CAM_ENTRY · 2026-11-01 14:00:12.40（UTC+8）\n+12.40 s · DECLARED_DEMO_CLOCK');
+  assert.equal(stampParts('CAM_W1', 0, 5, a4).main, 'CAM_W1 · 2026-11-01 14:00:00.00（UTC+8）');
+  assert.equal(stampParts('CAM_W1', 100, 5, a4).main, 'CAM_W1 · 2026-11-01 14:00:20.00（UTC+8）');
+  assert.equal(stampParts('CAM_W1', 249, 5, a4).main, 'CAM_W1 · 2026-11-01 14:00:49.80（UTC+8）');
+  assert.equal(stampParts('CAM_W1', 105, 5, b4).main, 'CAM_W1 · 2026-11-01 14:10:21.00（UTC+8）');
+  assert.equal(virtualTime(0, 5, a4).declared, true);
+  // 時鐘缺失或無效：虛擬時間 UNKNOWN，經過秒數仍保留為次要資訊
+  assert.equal(stampText('CAM_W1', 62, 5, null), 'CAM_W1 · UNKNOWN\n+12.40 s · CLOCK_MAPPING_MISSING');
+  assert.equal(stampParts('X', 1, 5, { ...a4, timezone: 'Not/AZone' }).main, 'X · UNKNOWN');
+  assert.equal(stampParts('X', 1, 5, { ...a4, wall_origin: 'bad' }).main, 'X · UNKNOWN');
+  for (const bad of [null, undefined, NaN, -1, 1.5]) assert.equal(stampText('CAM_W1', bad, 5, a4), 'CAM_W1 · UNKNOWN');
+  assert.equal(stampText('CAM_W1', 3, 0, a4), 'CAM_W1 · UNKNOWN');
+  assert.notEqual(stampText('A', 5, 5, a4), stampText('B', 5, 5, a4));
+});
+
+test('已宣告的展示時鐘逐欄等於 configs/q1q5/clocks（不自行假設日期），並由 /api/runs 提供', async () => {
+  const dir = new URL('../../configs/q1q5/clocks/', import.meta.url);
+  for (const [run, file] of [[RUNS[0], 'r004_a4_v1.json'], [RUNS[1], 'r004_b4_v1.json']]) {
+    const c = JSON.parse(await fs.readFile(new URL(file, dir), 'utf8'));
+    assert.equal(c.run_id, run.runId);
+    for (const k of ['clock_id', 'mapping_kind', 'timezone', 'wall_origin', 't0_us', 'rate']) assert.equal(run.clock[k], c[k], `${run.key}.${k}`);
+    assert.equal(c.mapping_kind, 'DECLARED_DEMO_CLOCK');
+  }
+  const dir2 = await fs.mkdtemp(path.join(os.tmpdir(), 'ev-clock-'));
+  const { server } = await createServer(path.join(dir2, 'missing'));
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  try {
+    const runs = await (await fetch(`http://127.0.0.1:${server.address().port}/api/runs`)).json();
+    assert.equal(runs[0].clock.wall_origin, '2026-11-01T14:00:00+08:00');
+    assert.equal(runs[1].clock.wall_origin, '2026-11-01T14:10:00+08:00');
+  } finally { server.close(); await fs.rm(dir2, { recursive: true, force: true }); }
+});
+
+import { parseEmbed, acceptViewMessage as acceptViewMsg, INSUFFICIENT_TEXT as VIEWER_INSUFFICIENT } from './sync.mjs';
+
+test('embed: params are validated; simple view shows the fixed 證據不足 notice; only the parent loopback window may switch the view', () => {
+  const keys = ['A4-1', 'B4-1'];
+  assert.deepEqual(parseEmbed('?embed=1&view=simple&run=B4-1', keys), { embed: true, view: 'simple', run: 'B4-1' });
+  assert.deepEqual(parseEmbed('?embed=1&view=x&run=../gt_private', keys), { embed: true, view: 'system', run: null });
+  assert.deepEqual(parseEmbed('', keys), { embed: false, view: 'system', run: null });
+  assert.equal(VIEWER_INSUFFICIENT, '證據不足');
+  const parent = {};
+  const ok = { source: parent, origin: 'http://127.0.0.1:8766', data: { type: 'amidst.view', view: 'simple' } };
+  assert.equal(acceptViewMsg(ok, parent), 'simple');
+  assert.equal(acceptViewMsg({ ...ok, source: {} }, parent), null);
+  assert.equal(acceptViewMsg({ ...ok, origin: 'http://evil.test' }, parent), null);
+  assert.equal(acceptViewMsg({ ...ok, data: { type: 'amidst.view', view: 'x' } }, parent), null);
+});
+
+test('embed: server allows only loopback framing and still 404s every non-safe path', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ev-embed-'));
+  const { server } = await createServer(path.join(dir, 'missing'));
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  try {
+    const res = await fetch(`http://127.0.0.1:${port}/`);
+    assert.equal(res.headers.get('content-security-policy'), 'frame-ancestors http://127.0.0.1:*');
+    assert.equal((await fetch(`http://127.0.0.1:${port}/gt_private/x`)).status, 404);
+    assert.equal((await fetch(`http://127.0.0.1:${port}/media/A4-1/../gt_private/a`)).status, 404);
+  } finally { server.close(); await fs.rm(dir, { recursive: true, force: true }); }
+});
+
+import { SPEEDS as VIEWER_SPEEDS } from './sync.mjs';
+
+test('倍速 1×／1.5×／2×：換格間隔隨倍速縮短，但標籤與虛擬世界時間仍只由 frame index 決定（不漂移）', () => {
+  assert.deepEqual([...VIEWER_SPEEDS], [1, 1.5, 2]);
+  const base = { frame: 3, total: 250, fps: 5, ready: true };
+  const step = (speed) => planTick({ ...base, now: 1000, nextDue: 1000, speed });
+  assert.equal(step(1).nextDue - 1000, 200);
+  assert.ok(Math.abs(step(1.5).nextDue - 1000 - 200 / 1.5) < 1e-9);
+  assert.equal(step(2).nextDue - 1000, 100);
+  assert.equal(step(7).nextDue - 1000, 200);            // 不在白名單的倍速一律視為 1×
+  // 以 2× 連續播 100 格：牆鐘 10 s，來源時間仍是 frame ÷ 5 fps = 20.00 s，虛擬時間 14:00:20.00
+  let st = { now: 0, nextDue: 0, frame: 0 };
+  for (let i = 0; i < 100; i++) {
+    const p = planTick({ ...base, total: 250, now: st.nextDue, nextDue: st.nextDue, frame: st.frame, speed: 2 });
+    st = { now: p.nextDue, nextDue: p.nextDue, frame: p.frame };
+  }
+  assert.equal(st.frame, 100);assert.equal(st.nextDue, 10000);
+  assert.equal(stampParts('CAM_W1', st.frame, 5, RUNS[0].clock).main, 'CAM_W1 · 2026-11-01 14:00:20.00（UTC+8）');
+  // 未傳 speed 等同 1×（舊呼叫端不變）
+  assert.equal(planTick({ ...base, now: 1000, nextDue: 1000 }).nextDue - 1000, 200);
+});
+
+import { createSpeedMeter, formatSpeedNote } from './sync.mjs';
+test('實際倍速：2× 穩定讀 2×；解碼只跟得上 1.4× 就讀 1.4×（不跳格）；停滯會降低；跳轉重新量測；標籤不受影響', () => {
+  const m = createSpeedMeter();
+  let ms = 0, frame = 0;
+  for (let i = 0; i < 40; i++) { ms += 100; frame += 1; m.record(frame, 5, ms); }       // 5 fps 來源、100 ms 換一格 = 2×
+  assert.ok(Math.abs(m.actual() - 2) < 0.01);
+  const slow = createSpeedMeter();
+  ms = 0; frame = 0;
+  for (let i = 0; i < 40; i++) { ms += 1000 / 7; frame += 1; slow.record(frame, 5, ms); }  // 每秒 7 格 = 1.4×
+  assert.ok(Math.abs(slow.actual() - 1.4) < 0.02);
+  assert.equal(formatSpeedNote(2, slow.actual()), '設定 2× · 實際 1.4×');
+  assert.ok(slow.actual(ms + 1500) < 0.8);
+  const seek = createSpeedMeter(); seek.record(0, 5, 0); seek.record(1, 5, 100); seek.record(200, 5, 200);
+  assert.equal(seek.actual(), null);
+  assert.equal(formatSpeedNote(1.5, null), '設定 1.5×');
+  assert.equal(stampParts('CAM_W1', 100, 5, RUNS[0].clock).main, 'CAM_W1 · 2026-11-01 14:00:20.00（UTC+8）');
 });
