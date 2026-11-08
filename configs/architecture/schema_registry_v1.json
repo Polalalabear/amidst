@@ -2554,6 +2554,24 @@
       ],
       "issue_ref": "#383",
       "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "amidst.demo-dependency-inventory.v1",
+      "source_paths": [
+        "docs/engineering/DEMO_DEPENDENCY_INVENTORY_20261108.json"
+      ],
+      "issue_ref": "#486",
+      "status": "LOCAL_TEXT_INVENTORY_ONLY"
+    },
+    {
+      "value": "amidst.demo-owned-files.v1",
+      "source_paths": [
+        "configs/demo_dependencies_manifest_v1.json",
+        "scripts/export_demo_dependency_manifest.py",
+        "scripts/check_demo_dependencies.py"
+      ],
+      "issue_ref": "#486",
+      "status": "LOCAL_DEPENDENCY_MANIFEST_ONLY"
     }
   ]
 }
