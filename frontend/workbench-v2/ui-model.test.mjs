@@ -117,3 +117,10 @@ test('static: cover entrance finishes within 0.6 s and the chooser transition is
   const delays = [...css.matchAll(/\.ui-d\d\{animation-delay:(\.?\d*\.?\d+)s\}/g)].map(m => Number(m[1]));
   assert.ok(Math.max(...delays) + dur <= 0.6 + 1e-9); assert.match(css, /\.ui-layer\{[^}]*transition:opacity \.25s/);
 });
+
+test('static: cover subtitle, sticky bottom bar and design camera sizes', () => {
+  const shell = read('ui-shell.mjs'), css = read('ui.css');
+  assert.ok(shell.includes('Agentic 驅動之智慧監控數位孿生系統'));
+  assert.match(css, /\.ui-bottombar\{position:sticky;bottom:0/); assert.match(shell, /sCase2\.append\(layout, bar\)/);
+  assert.match(css, /\.ui-media\{height:300px;flex:0 0 auto/); assert.match(css, /\.ui-stagebox\{position:relative;height:520px;flex:0 0 auto/);
+});

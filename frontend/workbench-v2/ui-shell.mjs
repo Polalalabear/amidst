@@ -66,7 +66,7 @@ export function mountUi(ctx) {
   const coverBody = el('div', undefined, 'ui-cover-body');
   const enter = el('button', '進入系統 →', 'ui-btn ui-btn-light ui-rise ui-d4', {type: 'button'}); enter.id = 'ui-enter';
   coverBody.append(el('span', '多鏡頭查找與追蹤', 'ui-kicker ui-rise ui-d1'), el('h1', 'Amidst', 'ui-hero ui-rise ui-d2'),
-    el('p', '在鏡頭之間，找到並跟上目標。', 'ui-tagline ui-rise ui-d3'),
+    el('p', 'Agentic 驅動之智慧監控數位孿生系統', 'ui-tagline ui-rise ui-d3'),
     el('p', '輸入時間、地點或特徵，系統幫你找出畫面；鎖定之後，鏡頭會自動切換。', 'ui-lede ui-rise ui-d3'), enter);
   cover.append(el('span', undefined, 'ui-glow'), coverBar, coverBody);
   const chooseBody = el('div', undefined, 'ui-choose-body'), cards = el('div', undefined, 'ui-choose-cards');
@@ -372,7 +372,7 @@ export function mountUi(ctx) {
       }
       main.append(grid);
     }
-    const tl = el('div', undefined, 'ui-timeline'); tl.id = 'ui-camera-timeline'; trackParts.timeline = tl; main.append(tl);
+    const tl = el('div', undefined, 'ui-timeline'); tl.id = 'ui-camera-timeline'; trackParts.timeline = tl;
     const ctl = el('div', undefined, 'ui-controls');
     const play = el('button', undefined, 'ui-play', {type: 'button', 'aria-label': '播放或暫停'}); play.id = 'ui-play'; play.addEventListener('click', () => store.dispatch({type: 'TOGGLE_PLAY'}));
     const speedSeg = el('span', undefined, 'ui-speeds'); trackParts.speeds = new Map();
@@ -380,11 +380,12 @@ export function mountUi(ctx) {
     const actual = el('span', undefined, 'ui-mono ui-faint ui-small'); actual.id = 'ui-speed-note';
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
     scrub.addEventListener('input', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Number(scrub.value)}); });
-    ctl.append(play, speedSeg, actual, scrub); Object.assign(trackParts, {play, actual, scrub}); main.append(ctl);
+    ctl.append(play, speedSeg, actual, scrub); Object.assign(trackParts, {play, actual, scrub});
+    const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
     Object.assign(trackParts, {plan, journal}); aside.append(plan, journal);
-    layout.append(main, aside); sCase2.append(layout);
+    layout.append(main, aside); sCase2.append(layout, bar);
     trackParts.built = true;
   }
   function updateCase2(s, resp, view) {
