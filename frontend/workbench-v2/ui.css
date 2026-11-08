@@ -120,7 +120,7 @@ body.ui-admin{margin:0}
 .ui-timeline{display:flex;flex-direction:column;gap:8px}.ui-tl-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--faint)}
 .ui-tl-row{position:relative;display:flex;gap:3px;height:26px;font:11px var(--mono)}
 .ui-tl-seg{display:flex;align-items:center;padding-left:8px;border-radius:4px;min-width:6px;overflow:hidden;white-space:nowrap;cursor:pointer}
-.ui-tl-seg.is-observed{background:var(--observed);color:var(--bg)}.ui-tl-seg.is-gap{border:1px dashed var(--inferred);color:var(--inferred)}.ui-tl-seg.is-lost{background:var(--line-strong);color:var(--faint)}.ui-tl-seg.is-empty{background:var(--surface-2);cursor:default}
+.ui-tl-seg.is-observed{background:var(--observed);color:var(--bg)}.ui-tl-seg.is-gap{border:1px dashed var(--inferred);color:var(--inferred)}.ui-tl-seg.is-pending{background:transparent;border:1px dotted var(--line-strong);color:var(--muted,#8a8f98)}.ui-tl-seg.is-lost{background:var(--line-strong);color:var(--faint)}.ui-tl-seg.is-empty{background:var(--surface-2);cursor:default}
 .ui-tl-seg.current{outline:2px solid var(--accent)}
 .ui-tl-marker{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--accent);pointer-events:none}
 .ui-controls{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--muted)}
@@ -232,3 +232,12 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .ui-class-others[hidden]{display:none}
 .ui-chip-btn:disabled{opacity:.4;cursor:not-allowed}
 .ui-class-note{width:100%;margin:6px 0 0}
+
+/* D139-2 feature search (pinned with the time fields; only the list scrolls) */
+.ui-feat-search{flex:0 0 auto;margin:0 0 8px}.ui-feat-empty{padding:8px 2px}
+/* D139-3 display scale: fit (default, no crop) · fill (cover) · orig (native pixels). Display only. */
+.ui-fit-ctl{display:flex;align-items:center;gap:6px;flex:0 0 auto}.ui-fit-btn{padding:4px 10px;font-size:12px}
+html[data-media-fit="fill"] :is(.ui-img,.mr-media img){object-fit:cover}
+html[data-media-fit="orig"] :is(.ui-img,.mr-media img){object-fit:none}
+html[data-media-fit="fill"] .ui-lb-img{width:80vw;height:70vh;object-fit:cover}
+html[data-media-fit="orig"] .ui-lb-img{width:80vw;height:70vh;object-fit:none}

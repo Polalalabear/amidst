@@ -97,6 +97,14 @@ export function classGroups(classes, counts, supports = () => true) {
   detected.sort((a, b) => b.count - a.count || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
   return { grouped: true, detected, others: all.filter(c => !seen.has(c)).map(label => ({ label, supported: supports(label) !== false })) };
 }
+// D139 feature search: case-insensitive substring over the English label, the Chinese display name and any alias.
+export function filterClasses(classes, query, aliases = {}) {
+  const list = Array.isArray(classes) ? classes : [];
+  const q = String(query ?? '').trim().toLowerCase().replace(/[_\s]+/g, ' ');
+  if (!q) return list.slice();
+  return list.filter(c => [c, classDisplay(c, aliases), ...Object.entries(aliases ?? {}).filter(([, v]) => v === c).map(([k]) => k)]
+    .some(t => String(t).toLowerCase().replace(/[_\s]+/g, ' ').includes(q)));
+}
 const COLOR_ZH = Object.freeze({ red: '紅色', blue: '藍色', black: '黑色', white: '白色', green: '綠色', yellow: '黃色', gray: '灰色', grey: '灰色', orange: '橘色', purple: '紫色', brown: '棕色', pink: '粉紅色' });
 const CLASS_ZH = Object.freeze({ person: '人物', laptop: '筆電', backpack: '背包', chair: '椅子', car: '車輛', bottle: '水瓶', cup: '杯子', cell_phone: '手機', 'cell phone': '手機' });
 // Presentation only: the request still carries the vocabulary label from the run's supported_classes.
@@ -184,12 +192,21 @@ export function cardChips(card, aliases = {}) {
 // Segments come straight from track_response.single_view (ON_CAMERA / GAP / LOST). Widths are proportional to time.
 export function cameraTimeline(singleView, { startUs = 0, asOfUs = 0, currentUs = 0 } = {}) {
   const span = Math.max(1, asOfUs - startUs);
-  const list = (Array.isArray(singleView) ? singleView : []).filter(s => Array.isArray(s.range_us) && s.range_us[1] > s.range_us[0]);
-  const segments = list.map(s => {
+  const list = (Array.isArray(singleView) ? singleView : []).filter(s => Array.isArray(s.range_us) && s.range_us[1] > s.range_us[0])
+    .slice().sort((x, y) => x.range_us[0] - y.range_us[0]);
+  const seg = (kind, cameraId, a, b, current) => ({ kind, cameraId, startUs: a, endUs: b, flex: Math.max(0.0001, (b - a) / span), current });
+  const segments = [];
+  let cursor = startUs;
+  for (const s of list) {
     const a = Math.max(startUs, s.range_us[0]), b = Math.min(asOfUs, s.range_us[1]);
-    return { kind: s.kind, cameraId: s.camera_id ?? null, startUs: a, endUs: b, flex: Math.max(0.0001, (b - a) / span), current: s.range_us[0] <= currentUs && currentUs < s.range_us[1] };
-  });
-  const covered = segments.reduce((n, s) => n + (s.endUs - s.startUs), 0);
+    if (b <= a) continue;
+    // time with no segment (before the first sighting, or a hole) is PENDING, drawn where it happens — never moved to the end of the bar
+    if (a > cursor) segments.push(seg('PENDING', null, cursor, a, cursor <= currentUs && currentUs < a));
+    segments.push(seg(s.kind, s.camera_id ?? null, a, b, s.range_us[0] <= currentUs && currentUs < s.range_us[1]));
+    cursor = Math.max(cursor, b);
+  }
+  if (list.length && cursor < asOfUs) segments.push(seg('PENDING', null, cursor, asOfUs, cursor <= currentUs && currentUs < asOfUs));
+  const covered = segments.reduce((n, x) => n + (x.endUs - x.startUs), 0);
   return { segments, marker: Math.min(1, Math.max(0, (currentUs - startUs) / span)), uncovered: Math.max(0, span - covered) / span };
 }
 // Share of the tracked window with no camera seeing the target (GAP + LOST); null when there is no timeline.

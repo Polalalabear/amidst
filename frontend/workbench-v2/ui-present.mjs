@@ -26,8 +26,10 @@ export const PLAIN = Object.freeze({
   stopHint: '停止畫面上的追蹤顯示；不會影響原始錄影',
   bothEndsObserved: '兩端已觀測，中段為推測',
 });
-export const gapNote = last => `此時段沒有畫面（目標在盲區，上一個鏡頭 ${last ?? '無'}）`;
-export const lostNote = last => `目標已跟丟 · 最後出現在 ${last ?? '無'}`;
+export const cameraName = id => String(id ?? '').replace(/^CAM_/, '');
+export const gapNote = last => `此時段沒有畫面（目標在盲區${last ? `，上一個鏡頭 ${cameraName(last)}` : ''}）`;
+export const lostNote = last => last ? `目標已跟丟 · 最後出現在 ${cameraName(last)} 鏡頭` : '目標尚未出現 · 此時段沒有畫面';
+export const pendingNote = '目標尚未出現 · 此時段沒有畫面';
 export const planHeadText = confidence => `推測路線 · 信心${confidenceText(confidence)}`;
 export const reacquiredText = ({ cameraId, atText }) => `已由 ${String(cameraId).replace(/^CAM_/, '')} 鏡頭於 ${atText} 觀測到`;
 

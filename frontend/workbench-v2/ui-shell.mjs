@@ -6,11 +6,12 @@
 import {
   CASES, NOT_MEASURED, SEARCH_STAGES, TRACK_STAGES,
   loadSettings, readJson, writeJson, SNAPSHOT_KEY, EVENTLOG_KEY, pushEvent, normalizeLog,
-  validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, colorDisplay,
+  validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, filterClasses, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, blindShare, floorPlan, trackStateChip, trackJournal,
   parseRoute, nextAfterCover, blindReacquire, reacquireMarker, classGroups, DETECTION_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
-import {PLAIN, plainState, gapNote, lostNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
+import {FIT_MODES, FIT_STORAGE_KEY, normalizeFit} from './media-fit-model.mjs';
+import {PLAIN, plainState, gapNote, lostNote, pendingNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
 import {countsFromSearch, HISTORY_LIMIT} from './admin-overview-model.mjs';
 import {createPhaseStore, progressPercent} from './search-phase-model.mjs';
 import {sourcePresentation} from './q-tokens.mjs';
@@ -121,6 +122,17 @@ export function mountUi(ctx) {
 
   // ---- query windows ----------------------------------------------------------------------------------------------
   const chipBtn = (label, on, cls = '') => { const b = el('button', label, `ui-chip-btn ${cls}`.trim(), {type: 'button'}); b.setAttribute('aria-pressed', String(on)); return b; };
+  // D139-3 display scale (display only): one document-wide attribute, every control instance stays in sync.
+  let mediaFit = normalizeFit((() => { try { return storage?.getItem(FIT_STORAGE_KEY); } catch { return null; } })());
+  const fitControls = new Set();
+  const applyFit = () => { doc.documentElement.dataset.mediaFit = mediaFit; for (const c of fitControls) for (const b of c.querySelectorAll('button')) { const on = b.dataset.fit === mediaFit; b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on); } };
+  const setFit = v => { mediaFit = normalizeFit(v); try { storage?.setItem(FIT_STORAGE_KEY, mediaFit); } catch {} applyFit(); };
+  const fitControl = () => {
+    const box = el('div', undefined, 'ui-fit-ctl', {role: 'group', 'aria-label': '畫面比例'}); box.append(el('span', '畫面比例', 'ui-faint ui-small'));
+    for (const m of FIT_MODES) { const b = chipBtn(m.label, m.id === mediaFit, 'ui-fit-btn'); b.dataset.fit = m.id; b.title = m.hint; b.addEventListener('click', () => setFit(m.id)); box.append(b); }
+    fitControls.add(box); applyFit(); return box;
+  };
+  disposers.push(() => { fitControls.clear(); delete doc.documentElement.dataset.mediaFit; });
   // ⓘ: technical detail shown on hover / keyboard focus (CSS). Empty text → no icon.
   const info = (text, label = '技術資訊') => { if (!text) return null; const n = el('span', 'ⓘ', 'ui-info', {tabindex: '0', role: 'img', 'aria-label': `${label}：${text}`, 'data-info': text}); n.append(el('span', text, 'ui-info-pop', {role: 'tooltip'})); return n; };
   const field = (label, ...kids) => { const l = el('label', undefined, 'ui-field'); l.append(el('span', label, 'ui-label'), ...kids); return l; };
@@ -148,15 +160,17 @@ export function mountUi(ctx) {
     const timeField = field(kind === 'search' ? '時間範圍（必填）' : '時間範圍（預設為整段錄影，可修改）', timeRow);
     const regionField = el('div', undefined, 'ui-field'); regionField.append(el('span', kind === 'search' ? '地點' : '地點（選填）', 'ui-label'), regionsBox);
     const featField = el('div', undefined, 'ui-field'); featField.append(el('span', kind === 'track' ? '特徵（必填）' : '特徵', 'ui-label'), classBox, colorBox);
+    const filterInput = el('input', undefined, 'ui-input ui-feat-search', {type: 'search', placeholder: '搜尋特徵，例如「人」「person」「bag」', 'aria-label': '搜尋特徵', autocomplete: 'off'}); filterInput.id = `ui-${id}-feat-search`;
     const note = kind === 'track' ? el('p', '第一次鎖定需要掃過全部鏡頭，會顯示進度；鎖定之後換鏡頭會立即切換。', 'ui-note') : null;
     // Layout: only the feature list scrolls; head, time, place, submit and notes stay put (the button never scrolls away).
     featField.classList.add('ui-qfeat'); card.classList.add('ui-qcard-split');
-    card.append(head, timeField, regionField, featField, submit, feedback);
+    card.append(head, timeField, regionField, filterInput, featField, submit, feedback);   // search stays pinned with the time fields; only the list scrolls
     if (note) card.append(note);
     const progress = el('div', undefined, 'ui-card ui-progress'); progress.id = `ui-${id}-progress`; progress.hidden = true;
     win.append(card, progress);
-    const api = {start, end, regionsBox, classBox, colorBox, feedback, submit, progress, form, kind, card, regionField};
+    const api = {filterInput, filter: '', start, end, regionsBox, classBox, colorBox, feedback, submit, progress, form, kind, card, regionField};
     submit.addEventListener('click', () => submitQuery(api));
+    filterInput.addEventListener('input', () => { api.filter = filterInput.value; renderCatalog(); });
     for (const input of [start, end]) input.addEventListener('keydown', e => { if (e.key === 'Enter') submitQuery(api); });
     return api;
   }
@@ -172,7 +186,8 @@ export function mountUi(ctx) {
         b.classList.toggle('on', form.regions.has(r.value)); regionsBox.append(b);
       }
       classBox.replaceChildren();
-      const classes = w.kind === 'search' ? ['', ...cat.classes] : cat.classes;
+      const visible = filterClasses(cat.classes, w.filter, cat.aliases), filtering = Boolean(String(w.filter ?? '').trim());
+      const classes = w.kind === 'search' && !filtering ? ['', ...visible] : visible;
       const pickClass = c => { form.classLabel = form.classLabel === c && c !== '' ? '' : c; if (form.classLabel !== 'person') form.colorLabel = ''; renderCatalog(); };
       const classChip = (c, extra = {}) => {
         const b = chipBtn(c ? classDisplay(c, cat.aliases) : '不限', form.classLabel === c); b.dataset.value = c;
@@ -181,18 +196,21 @@ export function mountUi(ctx) {
         else b.addEventListener('click', () => pickClass(c));
         b.classList.toggle('on', form.classLabel === c); return b;
       };
-      const groups = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined);
-      if (!groups.grouped) { for (const c of classes) classBox.append(classChip(c)); }
+      const full = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined), keep = new Set(visible);
+      const groups = {grouped: full.grouped, detected: full.detected.filter(d => keep.has(d.label)), others: full.others.filter(o => keep.has(o.label))};   // groups survive filtering
+      if (filtering && !visible.length) classBox.append(el('p', '沒有符合的特徵', 'ui-note ui-small ui-feat-empty', {role: 'status'}));
+      else if (!groups.grouped) { for (const c of classes) classBox.append(classChip(c)); }
       else {
         // D139-1: detected classes (with counts, most first) · divider · other classes (faded, collapsed)
         const top = el('div', undefined, 'ui-chips ui-class-group'); top.dataset.group = 'detected';
-        if (w.kind === 'search') top.append(classChip(''));
+        if (w.kind === 'search' && !filtering) top.append(classChip(''));
         const headRow = el('div', undefined, 'ui-class-head ui-small ui-faint'); headRow.append(el('span', '本場景偵測到'));
+        if (!groups.detected.length) top.append(el('span', '（沒有符合的偵測類別）', 'ui-faint ui-small'));
         const countInfo = info(DETECTION_COUNT_NOTE, '偵測數'); if (countInfo) headRow.append(countInfo);
         for (const d of groups.detected) top.append(classChip(d.label, {count: d.count, disabled: !d.supported}));
         classBox.append(headRow, top);
         if (groups.others.length) {
-          const sep = el('hr', undefined, 'ui-class-sep'); const open = w.othersOpen || groups.others.some(o => o.label === form.classLabel);
+          const sep = el('hr', undefined, 'ui-class-sep'); const open = w.othersOpen || filtering || groups.others.some(o => o.label === form.classLabel);
           const toggle = el('button', `${open ? '▾' : '▸'} 其他類別（${groups.others.length}）`, 'ui-class-toggle ui-small', {type: 'button', 'aria-expanded': String(open)}); toggle.dataset.role = 'other-toggle';
           const rest = el('div', undefined, 'ui-chips ui-class-group ui-class-others'); rest.dataset.group = 'others'; rest.hidden = !open;
           for (const o of groups.others) rest.append(classChip(o.label, {disabled: !o.supported}));
@@ -381,7 +399,7 @@ export function mountUi(ctx) {
     };
     prev.addEventListener('click', () => show(lightbox.index - 1)); next.addEventListener('click', () => show(lightbox.index + 1)); close.addEventListener('click', closeLightbox);
     box.addEventListener('click', e => { if (e.target === box) closeLightbox(); });
-    stage.append(img, cap); const bar = el('div', undefined, 'ui-lb-bar'); bar.append(prev, close, next); box.append(stage, bar); host.append(box); show(index); close.focus();
+    stage.append(fitControl(), img, cap); const bar = el('div', undefined, 'ui-lb-bar'); bar.append(prev, close, next); box.append(stage, bar); host.append(box); show(index); close.focus();
   }
   function closeLightbox() { lightbox?.box.remove(); lightbox = null; }
   const onKey = e => { if (e.key === 'Escape') { if (lightbox) closeLightbox(); else if (queryOpen) setQuery(false); } else if (lightbox && e.key === 'ArrowRight') lightbox.box.querySelector('[aria-label="下一張"]')?.click(); else if (lightbox && e.key === 'ArrowLeft') lightbox.box.querySelector('[aria-label="上一張"]')?.click(); };
@@ -439,7 +457,7 @@ export function mountUi(ctx) {
     }
     trackParts.stateChip = el('span', undefined, 'ui-chip'); tags.prepend(trackParts.stateChip);
     trackParts.klass = classDisplay(klass, aliases) || '目標';
-    main.append(head, range, tags);
+    main.append(head, range, tags, fitControl());
     if (s.playbackMode === 'single') {
       const stage = el('div', undefined, 'ui-stagebox'), img = el('img', undefined, 'ui-img ui-stage-img'); img.alt = '追蹤畫面';
       const note = el('div', undefined, 'ui-stage-empty'); const stamp = el('span', undefined, 'ui-stamp ui-mono'), sw = el('span', undefined, 'ui-stamp ui-stamp-right'), tag = el('span', undefined, 'ui-tag-obs ui-mono');
@@ -480,7 +498,7 @@ export function mountUi(ctx) {
     const cm = s.activeRun?.clock_mapping, [start] = playbackBounds(s), asOf = view.asOfUs, t = view.currentTUs;
     const chip = trackStateChip(view); trackParts.stateChip.textContent = stateWord(chip.text); trackParts.stateChip.dataset.state = chip.text; trackParts.stateChip.className = `ui-chip ui-chip-${chip.tone}`;
     const locked = view.singleView.segmentKind === 'ON_CAMERA';
-    trackParts.title.textContent = `${trackParts.klass} · ${locked ? '已鎖定' : view.singleView.segmentKind === 'GAP' ? '盲區中' : view.singleView.segmentKind === 'LOST' ? '已跟丟' : (presentOn() ? '狀態未明' : view.statusText)}`;
+    trackParts.title.textContent = `${trackParts.klass} · ${locked ? '已鎖定' : view.singleView.segmentKind === 'GAP' ? '盲區中' : view.singleView.segmentKind === 'LOST' ? '已跟丟' : view.singleView.segmentKind === 'PENDING' ? '尚未出現' : (presentOn() ? '狀態未明' : view.statusText)}`;
     if (trackParts.range) { const win = queriedWindow(s, resp); trackParts.range.textContent = win ? `查詢時段 ${win}` : ''; trackParts.range.hidden = !win; }
     const clock = wallClockText(cm, t) ?? `${(t / 1e6).toFixed(2)} s`;
     if (trackParts.stage) {
@@ -491,7 +509,7 @@ export function mountUi(ctx) {
         trackParts.frameKey = fk; trackParts.img.hidden = true; trackParts.img.removeAttribute('src');
         const src = resolveFrameImageSrc({cameraId: cam, currentTUs: t, segmentKind: sv.segmentKind, lastObservedCameraId: sv.lastObservedCameraId, mediaResolver, synthetic, onResolved: u => { if (MEDIA.test(u ?? '') && trackParts.frameKey === fk && trackParts.img) { trackParts.img.src = u; trackParts.img.hidden = false; trackParts.note.hidden = true; } }});
         if (src) { trackParts.img.src = src; trackParts.img.hidden = false; trackParts.note.hidden = true; }
-        else { trackParts.img.hidden = true; trackParts.img.removeAttribute('src'); trackParts.note.hidden = false; trackParts.note.textContent = presentOn() ? (sv.segmentKind === 'GAP' ? gapNote(sv.lastObservedCameraId) : sv.segmentKind === 'LOST' ? lostNote(sv.lastObservedCameraId) : PLAIN.noFrame) : (sv.segmentKind === 'GAP' ? `盲區 · 沒有畫面（前一鏡頭 ${sv.lastObservedCameraId ?? '無'}）` : sv.segmentKind === 'LOST' ? `目標遺失（LOST）· 最後出現 ${sv.lastObservedCameraId ?? '無'}` : 'MISSING · 來源 RGB 未取得'); }
+        else { trackParts.img.hidden = true; trackParts.img.removeAttribute('src'); trackParts.note.hidden = false; trackParts.note.textContent = presentOn() ? (sv.segmentKind === 'GAP' ? gapNote(sv.lastObservedCameraId) : sv.segmentKind === 'LOST' ? lostNote(sv.lastObservedCameraId) : sv.segmentKind === 'PENDING' ? pendingNote : PLAIN.noFrame) : (sv.segmentKind === 'GAP' ? `盲區 · 沒有畫面（前一鏡頭 ${sv.lastObservedCameraId ?? '無'}）` : sv.segmentKind === 'LOST' ? `目標遺失（LOST）· 最後出現 ${sv.lastObservedCameraId ?? '無'}` : 'MISSING · 來源 RGB 未取得'); }
       }
       trackParts.stamp.textContent = `${cam ?? '—'} · ${clock}`;
       const prev = [...view.singleView.transitions].reverse().find(x => x.switch_at_us <= t && x.to_camera === cam && x.from_camera);
@@ -512,7 +530,7 @@ export function mountUi(ctx) {
       trackParts.tlKey = tlKey; const box = trackParts.timeline; box.replaceChildren();
       const labels = el('div', undefined, 'ui-tl-labels ui-mono'); labels.append(el('span', wallClockText(cm, start) ?? `${(start / 1e6).toFixed(1)} s`), el('span', '鏡頭時間軸'), el('span', wallClockText(cm, asOf) ?? `${(asOf / 1e6).toFixed(1)} s`));
       const row = el('div', undefined, 'ui-tl-row');
-      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; if (seg.current) b.classList.add('current'); b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); row.append(b); }
+      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : seg.kind === 'PENDING' ? 'pending' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : seg.kind === 'PENDING' ? '尚未出現' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; if (seg.current) b.classList.add('current'); b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); row.append(b); }
       if (tl.uncovered > 0.001) { const rest = el('span', undefined, 'ui-tl-seg is-empty'); rest.style.flex = `${tl.uncovered} 1 0`; row.append(rest); }
       const marker = el('span', undefined, 'ui-tl-marker'); marker.style.left = (tl.marker * 100).toFixed(2) + '%'; row.append(marker, trackParts.scrub); box.append(labels, row);
     }
@@ -593,7 +611,7 @@ export function mountUi(ctx) {
       }
       const note = el('p', undefined, 'ui-muted ui-small ui-event-note'); note.id = 'ui-event-note'; note.textContent = EVENTS.find(e => e.id === cur)?.note ?? '';
       const stage = el('div', undefined, 'ui-case3-stage'); stage.id = 'ui-case3-stage';
-      sCase3.append(bar, note, stage);
+      sCase3.append(bar, note, fitControl(), stage);
       // The existing playback widgets are reused as they are (their ids and listeners stay): wall, Q1/Q2 slots and the transport.
       for (const n of [ctx.legacy?.wallSlot, ctx.legacy?.q1Slot, ctx.legacy?.q2Slot]) if (n) stage.append(n);
       if (integration()) {
