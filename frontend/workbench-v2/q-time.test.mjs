@@ -43,3 +43,7 @@ test('a typed virtual time converts back to source µs with the declared offset;
   for(const bad of ['13:00:08','2026-11-01','x',''])assert.throws(()=>virtualToSourceUs(bad,m),/TIME_INVALID/);
   assert.throws(()=>virtualToSourceUs('2026-11-01 13:00:08',null),/TIME_INVALID/);
 });
+test('1.5x advances the source clock with integer microseconds',()=>{
+ assert.deepEqual(advanceUs(0,10,1.5,2000000),{tUs:15000,carry:0,ended:false});
+ assert.throws(()=>advanceUs(0,10,3,2000000),/PLAYBACK_CLOCK_INVALID/);
+});
