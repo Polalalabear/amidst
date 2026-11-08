@@ -80,6 +80,23 @@ export function validateSearchForm({ start = '', end = '', regionIds = [], class
 export function validateTrackForm({ classLabel = '' } = {}) {
   return filled(classLabel) ? { ok: true, code: null, text: '' } : { ok: false, code: 'FEATURE_REQUIRED', text: FORM_TEXT.FEATURE_REQUIRED };
 }
+// D139-1: group the feature options by what this run's detector actually saw. `counts` is the bootstrap run's
+// detected_class_counts ([{class_label, detection_count}], model detections incl. false positives, not object counts).
+// Missing / empty / malformed counts → grouped:false and the caller keeps the single flat list. `supports(label)` marks
+// classes the current operation cannot use (tracking: person only); they stay listed but disabled.
+export const DETECTION_COUNT_NOTE = '模型偵測筆數，含誤判，不是實際物件數';
+export function classGroups(classes, counts, supports = () => true) {
+  const all = (Array.isArray(classes) ? classes : []).filter(c => typeof c === 'string' && c);
+  const known = new Set(all), seen = new Set(), detected = [];
+  if (Array.isArray(counts)) for (const r of counts) {
+    const label = r?.class_label, n = r?.detection_count;
+    if (typeof label !== 'string' || !known.has(label) || seen.has(label) || !Number.isInteger(n) || n <= 0) continue;
+    seen.add(label); detected.push({ label, count: n, supported: supports(label) !== false });
+  }
+  if (!detected.length) return { grouped: false, detected: [], others: all.map(label => ({ label, supported: supports(label) !== false })) };
+  detected.sort((a, b) => b.count - a.count || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+  return { grouped: true, detected, others: all.filter(c => !seen.has(c)).map(label => ({ label, supported: supports(label) !== false })) };
+}
 const COLOR_ZH = Object.freeze({ red: '紅色', blue: '藍色', black: '黑色', white: '白色', green: '綠色', yellow: '黃色', gray: '灰色', grey: '灰色', orange: '橘色', purple: '紫色', brown: '棕色', pink: '粉紅色' });
 const CLASS_ZH = Object.freeze({ person: '人物', laptop: '筆電', backpack: '背包', chair: '椅子', car: '車輛', bottle: '水瓶', cup: '杯子', cell_phone: '手機', 'cell phone': '手機' });
 // Presentation only: the request still carries the vocabulary label from the run's supported_classes.
@@ -106,15 +123,19 @@ export function taipeiTime(date) {
 // plus source_duration (the recording's end). Never empty values: an empty window reached the backend as "now" and gave
 // the 14:00:00～14:00:00 / 時間窗內無觀測紀錄 result.
 export function recordingWindow(clockMapping) {
-  const t0 = Number.isFinite(clockMapping?.t0_us) ? clockMapping.t0_us : 0;
+  // wall_origin is the wall time of t0 (not of source 0); the backend accepts source offsets [0, source_duration].
   const dur = clockMapping?.source_duration_us;
-  const start = wallClockText(clockMapping, t0);
-  const end = Number.isFinite(dur) ? wallClockText(clockMapping, t0 + dur) : null;
+  const start = wallClockText(clockMapping, 0);
+  const end = Number.isFinite(dur) ? wallClockText(clockMapping, dur) : null;
   return start && end ? { start, end } : null;
 }
+// The backend ClockMapping only supports rate 1 (clock_mapping.py); anything else is refused in plain words.
+export const clockRateSupported = clockMapping => clockMapping?.rate === undefined || clockMapping?.rate === null || clockMapping.rate === 1;
+export const RATE_UNSUPPORTED_TEXT = '這支錄影的時間倍率目前不支援，無法用時間範圍追蹤';
 export const clockSeconds = text => { const m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(String(text ?? '').trim()); return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3] ?? 0) : null; };
 export const padClock = text => { const n = clockSeconds(text); return n === null ? String(text ?? '').trim() : [Math.floor(n / 3600), Math.floor(n / 60) % 60, n % 60].map(v => String(v).padStart(2, '0')).join(':'); };
 export function trackWindow(startText, endText, clockMapping) {
+  if (!clockRateSupported(clockMapping)) return { ok: false, start: '', end: '', code: 'RATE_UNSUPPORTED', text: RATE_UNSUPPORTED_TEXT };
   const rec = recordingWindow(clockMapping);
   const start = filled(startText) ? padClock(startText) : rec?.start ?? '';
   const end = filled(endText) ? padClock(endText) : rec?.end ?? '';
@@ -198,6 +219,14 @@ export function floorPlan(topdown, { settings = DEFAULT_SETTINGS, singleView = n
 }
 // D139: where the blind interval ends. The newest GAP before the playhead; when the very next segment is ON_CAMERA and
 // the playhead has reached it, the target has reappeared: returns that camera and the real observation time.
+// Where the "blind ends" ring is drawn. A legal inferred curve keeps its own last point; otherwise the observed
+// re-acquisition camera's node. Never another prediction's end point.
+export function reacquireMarker(plan, reacq) {
+  if (!reacq) return null;
+  if (plan?.blindVisible && plan.blind?.length > 1) return plan.blind.at(-1);
+  const n = (plan?.nodes ?? []).find(x => x.cameraId === reacq.cameraId);
+  return n ? [n.x, n.y] : null;
+}
 export function blindReacquire(singleView, currentTUs, clockMapping) {
   const list = (Array.isArray(singleView) ? singleView : []).filter(x => Array.isArray(x.range_us)).sort((a, b) => a.range_us[0] - b.range_us[0]);
   let gap = -1; list.forEach((x, i) => { if (x.kind === 'GAP' && x.range_us[0] <= currentTUs) gap = i; });

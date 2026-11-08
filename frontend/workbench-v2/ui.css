@@ -221,3 +221,14 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .ui-qcard-split>.ui-qfeat{flex:1 1 auto;min-height:96px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .ui-float[inert]{pointer-events:none}
 .ui-side-brand{color:var(--text);text-decoration:none}
+
+/* D139-1 feature groups: detected (counts) · divider · other classes (faded, collapsed) */
+.ui-class-group{width:100%}
+.ui-class-head{display:flex;align-items:center;width:100%;margin-bottom:2px}
+.ui-class-count{margin-left:4px;opacity:.75;font-size:12px}
+.ui-class-sep{width:100%;border:0;border-top:1px solid var(--line-strong);margin:10px 0 4px}
+.ui-class-toggle{width:100%;text-align:left;background:transparent;border:0;color:var(--faint);cursor:pointer;padding:4px 0;font-family:var(--sans)}
+.ui-class-others .ui-chip-btn{opacity:.6}
+.ui-class-others[hidden]{display:none}
+.ui-chip-btn:disabled{opacity:.4;cursor:not-allowed}
+.ui-class-note{width:100%;margin:6px 0 0}

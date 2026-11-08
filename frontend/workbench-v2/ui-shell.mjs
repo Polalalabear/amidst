@@ -8,7 +8,7 @@ import {
   loadSettings, readJson, writeJson, SNAPSHOT_KEY, EVENTLOG_KEY, pushEvent, normalizeLog,
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, blindShare, floorPlan, trackStateChip, trackJournal,
-  parseRoute, nextAfterCover, blindReacquire, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
+  parseRoute, nextAfterCover, blindReacquire, reacquireMarker, classGroups, DETECTION_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
 import {PLAIN, plainState, gapNote, lostNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
 import {countsFromSearch, HISTORY_LIMIT} from './admin-overview-model.mjs';
@@ -17,7 +17,7 @@ import {sourcePresentation} from './q-tokens.mjs';
 import {resolveCardImageSrc, resolveFrameImageSrc} from './core-media.mjs';
 import {canPlay} from './q-playback.mjs';
 import {
-  AUTO_SEED_LABEL, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
+  AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
 } from './core-search-track-model.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
@@ -173,10 +173,33 @@ export function mountUi(ctx) {
       }
       classBox.replaceChildren();
       const classes = w.kind === 'search' ? ['', ...cat.classes] : cat.classes;
-      for (const c of classes) {
+      const pickClass = c => { form.classLabel = form.classLabel === c && c !== '' ? '' : c; if (form.classLabel !== 'person') form.colorLabel = ''; renderCatalog(); };
+      const classChip = (c, extra = {}) => {
         const b = chipBtn(c ? classDisplay(c, cat.aliases) : '不限', form.classLabel === c); b.dataset.value = c;
-        b.addEventListener('click', () => { form.classLabel = form.classLabel === c && c !== '' ? '' : c; if (form.classLabel !== 'person') form.colorLabel = ''; renderCatalog(); });
-        b.classList.toggle('on', form.classLabel === c); classBox.append(b);
+        if (extra.count) { b.append(el('span', ` ${extra.count}`, 'ui-class-count ui-mono')); b.dataset.count = String(extra.count); }
+        if (extra.disabled) { b.disabled = true; b.title = '追蹤目前只支援人物'; b.dataset.unsupported = 'true'; }
+        else b.addEventListener('click', () => pickClass(c));
+        b.classList.toggle('on', form.classLabel === c); return b;
+      };
+      const groups = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined);
+      if (!groups.grouped) { for (const c of classes) classBox.append(classChip(c)); }
+      else {
+        // D139-1: detected classes (with counts, most first) · divider · other classes (faded, collapsed)
+        const top = el('div', undefined, 'ui-chips ui-class-group'); top.dataset.group = 'detected';
+        if (w.kind === 'search') top.append(classChip(''));
+        const headRow = el('div', undefined, 'ui-class-head ui-small ui-faint'); headRow.append(el('span', '本場景偵測到'));
+        const countInfo = info(DETECTION_COUNT_NOTE, '偵測數'); if (countInfo) headRow.append(countInfo);
+        for (const d of groups.detected) top.append(classChip(d.label, {count: d.count, disabled: !d.supported}));
+        classBox.append(headRow, top);
+        if (groups.others.length) {
+          const sep = el('hr', undefined, 'ui-class-sep'); const open = w.othersOpen || groups.others.some(o => o.label === form.classLabel);
+          const toggle = el('button', `${open ? '▾' : '▸'} 其他類別（${groups.others.length}）`, 'ui-class-toggle ui-small', {type: 'button', 'aria-expanded': String(open)}); toggle.dataset.role = 'other-toggle';
+          const rest = el('div', undefined, 'ui-chips ui-class-group ui-class-others'); rest.dataset.group = 'others'; rest.hidden = !open;
+          for (const o of groups.others) rest.append(classChip(o.label, {disabled: !o.supported}));
+          toggle.addEventListener('click', () => { w.othersOpen = !open; renderCatalog(); });
+          classBox.append(sep, toggle, rest);
+        }
+        if (w.kind === 'track' && [...groups.detected, ...groups.others].some(x => !x.supported)) classBox.append(el('p', '追蹤目前只支援人物，其他類別請用「查找」', 'ui-note ui-small ui-class-note'));
       }
       colorBox.replaceChildren(); colorBox.hidden = form.classLabel !== 'person' || !cat.colors.length;
       for (const c of cat.colors) {
@@ -513,12 +536,12 @@ export function mountUi(ctx) {
   const canPlayNow = s => !trackStopped && (s.playing || canPlay(s));
   function renderPlan(s, view, resp) {
     const plan = floorPlan(view.topdown, {settings, singleView: resp.single_view, currentTUs: view.currentTUs});
-    const reacq = plan.blindVisible ? blindReacquire(resp.single_view, view.currentTUs, s.activeRun?.clock_mapping) : null;
+    const reacq = blindReacquire(resp.single_view, view.currentTUs, s.activeRun?.clock_mapping);
     const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence, reacq, presentOn()]);
     if (trackParts.planKey === key) return; trackParts.planKey = key;
     const box = trackParts.plan; box.replaceChildren();
     const head = el('div', undefined, 'ui-card-head'); const conf = view.topdown?.blind_curve?.confidence ?? 'UNKNOWN', unavailable = view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown;
-    const headText = plan.blindVisible ? (presentOn() ? (reacq ? PLAIN.bothEndsObserved : planHeadText(conf)) : `INFERRED · 信心 ${conf}`) : (unavailable ? (presentOn() ? PLAIN.noPrediction : 'UNKNOWN · 預測不可用') : '');
+    const headText = reacq && presentOn() ? PLAIN.bothEndsObserved : plan.blindVisible ? (presentOn() ? planHeadText(conf) : `INFERRED · 信心 ${conf}`) : (unavailable ? (presentOn() ? PLAIN.noPrediction : 'UNKNOWN · 預測不可用') : '');
     const headChip = el('span', headText, plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small'); headChip.id = 'ui-plan-chip';
     head.append(el('span', '樓層俯視圖'), headChip); box.append(head);
     if (!plan.available) { box.append(el('p', presentOn() ? PLAIN.noPlan : `UNKNOWN · 鏡頭位置未提供`, 'ui-muted ui-small')); return; }
@@ -532,8 +555,8 @@ export function mountUi(ctx) {
       const t = svg('text', {x: n.x, y: n.y - 3, 'text-anchor': 'middle', class: 'cam-label'}); t.textContent = n.cameraId.replace(/^CAM_/, ''); g.append(t);
     }
     if (plan.current) { g.append(svg('circle', {cx: plan.current[0], cy: plan.current[1], r: 2.4, class: 'here'}), svg('circle', {cx: plan.current[0], cy: plan.current[1], r: 4, class: 'here-ring', fill: 'none'})); }
-    if (reacq && plan.blind.length > 1) {   // D139: the route's end is a real observation, the middle is inferred
-      const end = plan.blind.at(-1);
+    const end = reacquireMarker(plan, reacq);
+    if (end) {   // D139: the route's end is a real observation (from the tracked segment), the middle is inferred
       g.append(svg('circle', {cx: end[0], cy: end[1], r: 2.2, class: 'reacq-end', fill: 'none', 'stroke-width': 0.9}));
     }
     box.append(g);
