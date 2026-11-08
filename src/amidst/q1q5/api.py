@@ -11,6 +11,7 @@ import re
 import secrets
 import stat
 import threading
+from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -194,6 +195,18 @@ class QAPI:
         for doc in camera_maps:
             self._register_camera_map(doc)
 
+    @staticmethod
+    def _detected_class_counts(run):
+        # Derived display statistics only: read indexed detections, never scene truth.
+        supported=set(run.aliases['class_labels']); counts=Counter()
+        for record in run.bindings.index.records:
+            for detection in record['detections'] or ():
+                label=detection['class_label']
+                check(isinstance(label,str) and label in supported,'DataIntegrityError',409)
+                counts[label]+=1
+        return [{'class_label':label,'detection_count':count}
+                for label,count in sorted(counts.items(),key=lambda item:(-item[1],item[0]))]
+
     def bootstrap(self):
         rows=[]
         for (scene,run_id),run in sorted(self.runs.items()):
@@ -202,6 +215,7 @@ class QAPI:
                 'title':run.title,'title_source':'RUN_REGISTRY' if run.title is not None else 'UNTITLED',
                 'regions':[{'region_id':r['region_id'],'display_name':r.get('display_name',r['region_id']),'kind':r.get('kind')}
                            for r in (run.bindings.graphs.region.get('regions',[]) if run.bindings.graphs else [])],
+                'detected_class_counts':self._detected_class_counts(run),
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
                 'region_catalog':region_catalog(run),

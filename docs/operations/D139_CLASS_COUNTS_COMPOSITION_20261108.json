@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "reviewed_pr": 493,
+  "reviewed_head": "46835218c600d99b8c973e52f62e8dd95e79ff15",
+  "preview": {
+    "port": 8787,
+    "pid": 27641,
+    "runtime_head": "46835218c600d99b8c973e52f62e8dd95e79ff15",
+    "owned_root_relative_to_AMIDST_ARTIFACTS": "demo-owned-v1"
+  },
+  "counts_runtime_and_e2e_driver_head": "c30ff9a9cda85427eab11b8489a4cfc7dcc970fa",
+  "frozen_ui_branch": {
+    "branch": "claude/ui-redesign-v1",
+    "head": "4ea0ebb1c94797d311f16f5bf59701a8e48432cc",
+    "port": 8785,
+    "pid": 18763
+  },
+  "evidence": {
+    "relative_to_AMIDST_ARTIFACTS": "demo-owned-v1/evidence/d139-493",
+    "manifest": "D139_RESULTS_MANIFEST.json",
+    "sha256": "abbe5db832f2130a63dbf168d43e32acc8d9cae763868c92895a771f5fb017b8",
+    "payload_files": 130,
+    "payload_bytes": 19622477
+  },
+  "status": {
+    "counts": "PASS",
+    "real_e2e": "PASS_WITH_SEPARATE_ENDPOINT_FINDING",
+    "parent_493": "NEEDS_FIX",
+    "architecture": "FAIL_INHERITED_FROM_493"
+  }
+}
