@@ -283,7 +283,7 @@ export function mountUi(ctx) {
   function renderCase1() {
     const s = store.getState(), resp = s.coreSearchResponse, model = s.coreSearchWall;
     const p = phase.getState();
-    const key = JSON.stringify([resp?.output_sha256, Boolean(model), p.phase, p.mode, p.miss, s.error?.code, settings.resultLimit, settings.staggerResults]);
+    const key = resp && model ? JSON.stringify(['result', resp.output_sha256, settings.resultLimit, settings.staggerResults]) : JSON.stringify(['empty', p.phase, p.mode, p.miss, s.error?.code]);
     if (case1Key === key) return; case1Key = key;
     sCase1.replaceChildren();
     if (p.phase === 'searching' && p.mode === 'find' && !resp) {
@@ -418,8 +418,7 @@ export function mountUi(ctx) {
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
-    Object.assign(trackParts, {plan, journal}); aside.append(plan, journal);
-    aside.append(manualChoice());
+    Object.assign(trackParts, {plan, journal}); aside.append(plan, manualChoice(), journal);
     layout.append(main, aside); sCase2.append(layout, bar);
     trackParts.built = true;
   }

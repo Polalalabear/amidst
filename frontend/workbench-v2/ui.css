@@ -199,3 +199,6 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 
 #ui-v1 #ui-case3 .transport{display:flex;height:auto;min-height:112px;position:sticky;bottom:0}
 #ui-case3 .mr-toggle{display:none}
+
+#ui-v1 #ui-case3 .ui-wall-transport{flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px}
+#ui-wall-scrub{flex:1 0 100%;width:100%}
