@@ -2,6 +2,7 @@
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {createSettingsStore,resolveRun,wallCameras,SETTINGS_KEY} from './monitor-room-model.mjs';
 import {mountMonitorRoom} from './monitor-room-view.mjs';
+import {mountTabs,mountOverview,mountSettings} from './admin-ui.mjs';
 import {runCatalog,recordingCatalog,filterRuns,filterRecordings,parseTimecode,formatDuration,selectionFor,isSelected} from './admin.model.mjs';
 
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -9,7 +10,9 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
   const $=s=>root.querySelector(s),source=new URL(root.baseURI??'http://localhost/').searchParams.get('source')==='fixture'?FIXTURE_ORIGIN:'SERVER';
   const api=provided??createQApi({source}),settings=createSettingsStore(storage,{key:SETTINGS_KEY});
   const preview=createSettingsStore(null),wall=mountMonitorRoom($('#admin-preview'),{api,settings:preview});
+  let boot=null;mountTabs(root);const overview=mountOverview($('#admin-overview'),{getBootstrap:()=>boot,storage});const settingsPane=mountSettings($('#admin-settings'),{getBootstrap:()=>boot,storage});
   const loaded=await api.bootstrap();await api.createSession();
+  if(loaded.ok){boot=loaded.data;settingsPane.draw();overview.draw();}
   if(!loaded.ok){$('#admin-origin').textContent=`UNKNOWN · ${loaded.error?.code??'BOOTSTRAP'}`;return {settings,wall};}
   const data=loaded.data;$('#admin-origin').textContent=`${data.data_origin} · ${data.status}`;wall.setBootstrap(data);
   const runs=runCatalog(data),recs=recordingCatalog(data),kinds=[...new Set([...runs,...recs].map(x=>x.source_kind))];
