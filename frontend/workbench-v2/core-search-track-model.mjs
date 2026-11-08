@@ -707,8 +707,37 @@ export function buildCoreTrackingViewModel(trackResponse, {
     multiView: {
       cameras: multiCameras,
     },
-    topdown,
+    topdown: projectTopdown(topdown, cameraPositions, activeCameraId),
     reasons: Array.isArray(trackResponse.reasons) ? trackResponse.reasons : [],
+  };
+}
+
+// Projects camera display positions and the blind-interval curve (INFERRED, LOW) into the 0..100 SVG box the
+// tracking view draws. Display-only: positions are static-plan sketch coordinates, never measured paths.
+export function projectTopdown(topdown, cameraPositions, activeCameraId = null) {
+  const positions = Object.entries(cameraPositions ?? {}).filter(([, p]) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite));
+  const segment = topdown?.blind?.usable ? (topdown.blind.curve_segments ?? [])[0] : null;
+  const curvePoints = segment && Array.isArray(segment.points) && segment.points.length > 1 ? segment.points : [];
+  const all = [...positions.map(([, p]) => p), ...curvePoints];
+  if (all.length === 0) return { ...topdown, nodes: [], blind_curve: { visible: false, points: [], svgPoints: [] } };
+  const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
+  const minX = Math.min(...xs), minY = Math.min(...ys);
+  const span = Math.max(Math.max(...xs) - minX, Math.max(...ys) - minY, 1e-9);
+  const scale = 80 / span;
+  const map = p => [Math.round((10 + (p[0] - minX) * scale) * 100) / 100, Math.round((10 + (p[1] - minY) * scale) * 100) / 100];
+  const nodes = positions.map(([cameraId, p]) => { const [x, y] = map(p); return { cameraId, x, y, isActive: cameraId === activeCameraId }; });
+  const svgPoints = curvePoints.map(map);
+  return {
+    ...topdown,
+    nodes,
+    blind_curve: {
+      visible: svgPoints.length > 1,
+      points: curvePoints,
+      svgPoints,
+      evidence_state: 'INFERRED',
+      confidence: 'LOW',
+      stroke_dasharray: segment?.stroke_dasharray ?? '4 5',
+    },
   };
 }
 

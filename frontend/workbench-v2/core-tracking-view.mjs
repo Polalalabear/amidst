@@ -257,7 +257,7 @@ export function mountCoreTrackingView({
 
     const blindStatus = model?.topdown?.blind_status ?? 'UNAVAILABLE';
     const isEstimated = blindStatus === 'ESTIMATED' && model?.topdown?.blind?.usable;
-    const blindBadge = el('span', isEstimated ? '物理預測（示意，非實際路徑）· 低信心' : '預測不可用', 'q-core-blind-status');
+    const blindBadge = el('span', isEstimated ? 'INFERRED · 信心 LOW' : '預測不可用', 'q-core-blind-status');
     blindBadge.classList.add(isEstimated ? 'estimated' : 'unavailable');
     tdHead.append(blindBadge);
 
@@ -275,6 +275,8 @@ export function mountCoreTrackingView({
     if (observedCams.length > 1) {
       const poly = document.createElementNS(SVG_NS, 'polyline');
       poly.setAttribute('class', 'q-core-observed-path');
+      const at = new Map((model?.topdown?.nodes ?? []).map(n => [n.cameraId, n]));
+      poly.setAttribute('points', observedCams.map(c => at.get(typeof c === 'string' ? c : c?.camera_id ?? c?.cameraId)).filter(Boolean).map(n => `${n.x},${n.y}`).join(' '));
       poly.setAttribute('stroke', '#50fa7b');
       poly.setAttribute('stroke-width', '2');
       poly.setAttribute('fill', 'none');
@@ -287,7 +289,8 @@ export function mountCoreTrackingView({
       blindPath.setAttribute('class', 'q-core-blind-curve');
       blindPath.setAttribute('stroke', '#ffb86c');
       blindPath.setAttribute('stroke-width', '2');
-      blindPath.setAttribute('stroke-dasharray', '4 3');
+      blindPath.setAttribute('stroke-dasharray', model.topdown.blind_curve.stroke_dasharray ?? '4 3');
+      blindPath.setAttribute('points', model.topdown.blind_curve.svgPoints.map(pt => pt.join(',')).join(' '));
       blindPath.setAttribute('fill', 'none');
       svg.append(blindPath);
     }

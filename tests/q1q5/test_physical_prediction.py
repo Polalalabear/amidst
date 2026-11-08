@@ -488,7 +488,10 @@ def test_q_physical_prediction_api_route_e2e_wiring():
     # Valid route call reproduces pure prediction
     res = api.call('q_physical_prediction', {'session_ref': TOKEN, 'response_ref': r['session_id'], 'as_of_us': 500_000}, authorize)
     assert res['schema_version'] == 'q-demo.physical-prediction.v1'
-    assert res['status'] == 'PREDICTED'
+    # Integration (#445): the route now returns the build_blind_curve_response document (INFERRED, LOW, DISPLAY_ONLY).
+    assert res['status'] == 'ESTIMATED'
+    assert res['evidence_state'] == 'INFERRED' and res['confidence'] in {'LOW', 'UNKNOWN'}
+    assert res['estimate']['evidence_state'] == 'INFERRED' and res['used_for'] == 'DISPLAY_ONLY'
     assert res['as_of_us'] == 500_000
     assert res['last_camera_id'] == 'A'
     assert res['candidates']

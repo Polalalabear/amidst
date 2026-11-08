@@ -625,13 +625,14 @@ class QAPI:
                 check(bool(obs),'Q_RESOURCE_UNAVAILABLE',503)
                 boxes=[{'camera_id':o['camera_id'],'source_time_us':o['timestamp_us'],'bbox_xyxy_px':o['bbox_xyxy_px']} for o in obs]
                 last_observed_us=max(b['source_time_us'] for b in boxes)
-                from amidst.q1q5.physical_prediction import predict_next_cameras
+                from amidst.q1q5.physical_prediction import build_blind_curve_response
                 display_positions=getattr(self,'camera_display_positions',None)
                 if isinstance(display_positions,dict):
-                    display_positions=display_positions.get(bundle['scene_id'])
-                return predict_next_cameras(last_camera_id=segment['camera_id'],last_observed_us=last_observed_us,
-                                            as_of_us=as_of,boxes=boxes,camera_graph=run.bindings.graphs.camera,
-                                            display_positions=display_positions)
+                    display_positions=display_positions.get((bundle['scene_id'],bundle['run_id']))or display_positions.get(bundle['scene_id'])
+                # Blind-interval curve: INFERRED, LOW confidence, DISPLAY_ONLY (build_blind_curve_response wraps predict_next_cameras).
+                return build_blind_curve_response(as_of_us=as_of,camera_graph=run.bindings.graphs.camera,boxes=boxes,
+                                                  last_camera_id=segment['camera_id'],last_observed_us=last_observed_us,
+                                                  display_positions=display_positions,fail_closed=True)
             if action=='q_candidate_view':
                 from amidst.q1q5.candidate_view import candidate_view
                 return candidate_view(snapshots=bundle.get('snapshots',[]),decisions_jsonl=bundle.get('decisions',''),
@@ -644,7 +645,7 @@ class QAPI:
             try:
                 if action=='q_core_search':
                     response=execute_core_search(payload,run,media_token_for_frame=lambda frame:self._media_ref(payload['session_ref'],run,frame))
-                else:response=execute_core_track(payload,run,physical_prediction_available=False)
+                else:response=execute_core_track(payload,run,physical_prediction_available=True,display_positions=self.camera_display_positions.get((run.catalog['scene_id'],run.catalog['run_id']))or self.camera_display_positions.get(run.catalog['scene_id']))
             except CoreRequestError as exc:raise APIError(exc.code,422) from None
             self._save_response(payload['session_ref'],self._bundle(payload,response,run))
             return response

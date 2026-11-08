@@ -954,11 +954,43 @@ def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int)
     return sightings, ordered_reasons(reasons), linker_used
 
 
+def _blind_for_track(run: object, sightings: list, as_of_us: int, display_positions: Mapping | None) -> dict:
+    """Display-only INFERRED blind-interval curve from the last observed track (q-demo.physical-prediction.v1 via
+    build_blind_curve_response). Uses only observations at or before as_of_us; fails closed to UNAVAILABLE."""
+    from amidst.q1q5.physical_prediction import build_blind_curve_response
+
+    unavailable = {'status': 'UNAVAILABLE', 'reason': 'PREDICTION_UNAVAILABLE', 'estimate': None}
+    b = getattr(run, 'bindings')
+    if not sightings or b.graphs is None or not isinstance(b.index, DetectionSnapshot):
+        return unavailable
+    last = max(sightings, key=lambda s: (s['range_us'][1], s['range_us'][0], s['camera_id']))
+    wanted = set(last['observation_ids'])
+    boxes = []
+    for row in b.index.records:
+        ts = row.get('timestamp_us')
+        if type(ts) is not int or ts > as_of_us or row.get('camera_id') != last['camera_id']:
+            continue
+        for det in row.get('detections') or []:
+            if det.get('observation_id') in wanted:
+                boxes.append({'camera_id': row['camera_id'], 'source_time_us': ts, 'bbox_xyxy_px': det['bbox_xyxy_px']})
+    if not boxes:
+        return unavailable
+    positions = display_positions
+    try:
+        return build_blind_curve_response(
+            as_of_us=as_of_us, camera_graph=b.graphs.camera, boxes=boxes,
+            last_camera_id=last['camera_id'], last_observed_us=max(x['source_time_us'] for x in boxes),
+            display_positions=positions, fail_closed=True)
+    except Exception:  # prediction is display-only; any failure must not break tracking
+        return unavailable
+
+
 def execute_core_track(
     payload: Mapping,
     run: object,
     *,
     physical_prediction_available: bool = False,
+    display_positions: Mapping | None = None,
 ) -> dict:
     """Execute q_core_track against a bound QRun."""
     b = getattr(run, 'bindings')
@@ -1085,8 +1117,7 @@ def execute_core_track(
         if not physical_prediction_available:
             blind = {'status': 'UNAVAILABLE', 'reason': 'PREDICTION_UNAVAILABLE', 'estimate': None}
         else:
-            # When physical prediction route is hooked up, estimation happens here
-            blind = {'status': 'UNAVAILABLE', 'reason': 'PREDICTION_UNAVAILABLE', 'estimate': None}
+            blind = _blind_for_track(run, all_sightings, as_of_us, display_positions)
 
     if b.graphs and (b.graphs.camera.get('approval_status') != 'APPROVED' or b.graphs.region.get('approval_status') != 'APPROVED'):
         reasons.append('GRAPH_NOT_APPROVED')

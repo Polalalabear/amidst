@@ -169,3 +169,31 @@ def test_search_reference_is_repeatable_session_independent_and_source_bound():
         a = execute_core_search(request, unavailable, media_token_for_frame=media)
         b = execute_core_search(deepcopy(request), unavailable, media_token_for_frame=media)
         assert a['status'] == 'UNKNOWN' and a == b
+
+
+# --- #445 integration: blind-interval curve is wired into the track response -------------------------
+
+def test_track_blind_uses_blind_curve_response_when_prediction_is_available():
+    run = bound_run(pattern={'A': {0: 'STRONG', 1: 'STRONG'}}, frames=5)
+    result = execute_core_track(track_request(run), run, physical_prediction_available=True)
+    assert result['single_view'][-1]['kind'] in {'GAP', 'LOST'}
+    blind = result['blind']
+    assert blind['schema_version'] == 'q-demo.physical-prediction.v1' and blind['status'] == 'ESTIMATED'
+    assert blind['evidence_state'] == 'INFERRED' and blind['confidence'] in {'LOW', 'UNKNOWN'}
+    assert blind['estimate']['evidence_state'] == 'INFERRED' and blind['used_for'] == 'DISPLAY_ONLY'
+    assert blind['identity_verdict'] == 'UNCONFIRMED' and blind['physical_navigation'] == 'UNKNOWN'
+    assert blind['as_of_us'] == result['as_of_us'] and blind['last_camera_id'] == 'A'
+    # Only observations at or before the last observed frame feed the curve.
+    assert blind['last_observed_us'] <= result['single_view'][0]['range_us'][1]
+
+
+def test_track_blind_stays_unavailable_without_the_prediction_route():
+    run = bound_run(pattern={'A': {0: 'STRONG', 1: 'STRONG'}}, frames=5)
+    result = execute_core_track(track_request(run), run)
+    assert result['blind'] == {'status': 'UNAVAILABLE', 'reason': 'PREDICTION_UNAVAILABLE', 'estimate': None}
+
+
+def test_track_blind_is_absent_while_the_target_is_on_camera():
+    run = bound_run()
+    result = execute_core_track(track_request(run), run, physical_prediction_available=True)
+    assert result['single_view'][-1]['kind'] == 'ON_CAMERA' and result['blind'] is None
