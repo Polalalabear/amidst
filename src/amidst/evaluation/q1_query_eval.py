@@ -51,26 +51,26 @@ def rows(raw):
 
 _PINNED_FILES = {'mini_schema.py': '07b2fa8fe958e3a9beee02b3933ab9ed4c59d662664d67f52c888a74b4f338a4',
  'schemas/agent-decision.v1.schema.json': '22a75187165926a64b56737b14fee9d3b72b4812339f5cdeb94b661cec2d2401',
- 'schemas/camera-transition-graph.v1.schema.json': '7fd9cf290420a15713c78203ce0d9bc9007cb913d77b50cf06936daa0545e7f1',
- 'schemas/candidate-evidence.v1.schema.json': '53ce8d0a6d07c0dfd5390896911c505186a7b10fbee917cad0663cac0c14fca0',
- 'schemas/candidate-snapshot.v1.schema.json': '56db1fe4217969373eb67460c9bd8ed45559b93ff7cc76f1ee091a74e3986b75',
+ 'schemas/camera-transition-graph.v1.schema.json': 'b972304a821619eb0acb04cbc67740b888cc8140fba8cab77bfa310834c6fd26',
+ 'schemas/candidate-evidence.v1.schema.json': 'e166078051f41dbc5f2a298f33a8637fd1c5a7b6b80d701da3e855bc98afeae3',
+ 'schemas/candidate-snapshot.v1.schema.json': 'fa2549958497177d4cc77d79c021497ec995ab98829dd203eec27082f1453694',
  'schemas/clock-mapping.v1.schema.json': '00e8856105fee84acc8c43cfd2e8637238e839e2f145ae1f39c2d3f95bac1376',
- 'schemas/common.schema.json': 'bfeab0531551039ce33570c94380a4012db40dae43389fbe5e91c3b0fb5a4645',
- 'schemas/decision-record.v1.schema.json': 'ac6a9b3e1117e3ecebaa1709187c736ab42f8f2f1a23172edcb9b3ceecc627e3',
+ 'schemas/common.schema.json': '6cde5005412a4b55f7725a65713b468ca31380b80e296a2cdbcb2701637185fc',
+ 'schemas/decision-record.v1.schema.json': 'def9bd42220d7664b394725368dd9ea3aeafc823a8a424928ad0ed0a9881f14d',
  'schemas/detection-index.v1.schema.json': '7b57ba14d5b62eb20593aa431acf5724eda3654fb6d5fe1a26f9938d5c7823e5',
  'schemas/detection-record.schema.json': '23e69782f3c38e2a441c32f5fe2671626cce5615ebc9cfe66c4cede8c55e9a75',
  'schemas/explanation.v1.schema.json': '0361661d041be467cafafb8e94b88c664db5443ee33d740b2c8af279fa801f16',
- 'schemas/kit-supported-classes.v1.schema.json': '5b69f8b315279cab088534e9f4ba91c26280e4a768ccb940c186481dbd56729f',
- 'schemas/link-record.schema.json': '0cce2b8a825b13d35402982196a51bb5f74075c48b51d5ec493b95321c1d0115',
+ 'schemas/kit-supported-classes.v1.schema.json': 'b58ba88345f9a2007e549646041854fdab9f2e4ee453abdc86a32ba28a4d82b5',
+ 'schemas/link-record.v1.schema.json': '7a0e25285cf3db5dab02a7700e456af3aec1ec18fe6d69a9d89311bb570b9a48',
  'schemas/parameter-set.v1.schema.json': '5d6b7022cb73d982707939861cb81579b253c8d38a5805031216ad9b9f9b80b6',
  'schemas/q1-request.v1.schema.json': '7426c14f5256939f51b3957471c38d7acd8f6db7c088871bf879150b23631aa6',
- 'schemas/q1-response.v1.schema.json': '061d759e5e77c1031f18367d30d2f980be2c4eb85c740bb8aa01eed8da3008e2',
- 'schemas/q2-request.v1.schema.json': '0011eb4392a003b024549e786ff1c347778ad1eb716387944eb92bccf0af4770',
- 'schemas/q2-response.v1.schema.json': '11ed71d4cff91028aa915563ad91c0b90b505e5502e247b90443efefefcda1fe',
+ 'schemas/q1-response.v1.schema.json': '58f8721985f52e920100f727368e29998cf747b7300ffcc436a9f3e204f1e006',
+ 'schemas/q2-request.v1.schema.json': 'c4187d483c9da079e3c7cf41d46f55226e6f655c14cc34f9f0a2cdcc6bb7f6e2',
+ 'schemas/q2-response.v1.schema.json': '16cb52999f38e67962971ad46136244886fedd9c7dec5586d4a6cae36f412e32',
  'schemas/q3-llm-output.v1.schema.json': 'b54ea0ef9e760e07d600ab57c4eaacdfc130038c3b87ec9e3fd872432a0fdcdb',
  'schemas/q3-parse-request.v1.schema.json': 'd032caae1571f351102c23681e4682280e8bc6f796ad447fa52cca1fd74fcd24',
- 'schemas/q3-parse-response.v1.schema.json': '67b385efa6a456b5fe36f3b62d183d1b54565b0bbb311aba0548a0aafe9bbbbf',
- 'schemas/region-graph.v1.schema.json': '0fe44c062ef5fb8a6b9b20d58bf01caba242f7edb36a68c1234896a71109cd8e'}
+ 'schemas/q3-parse-response.v1.schema.json': 'ab5a4e7e177b96830473aa817fe93339f983ecf33b52601f80b55b3caec05eb6',
+ 'schemas/region-graph.v1.schema.json': '7a5e01275285bb506549738eae0f0d1fa3714b1ff8443c45c05ca5eefd819bbe'}
 
 
 class PinnedSchemas:
