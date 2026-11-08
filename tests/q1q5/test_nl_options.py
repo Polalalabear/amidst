@@ -262,3 +262,24 @@ def test_record_script_core_with_a_fake_provider_and_replays_identically():
     again = [json.dumps(nl.parse_nl_options(req(i['kind'], i['text']), catalog=CATALOG, provider=nl.RecordedNlProvider(rec)), sort_keys=True) for i in sentences]
     assert outs == again
     assert json.loads(outs[1])['fallback_reason'] == 'TIMEOUT'
+
+
+def test_qapi_route_end_to_end_with_real_bootstrap_catalog(monkeypatch):
+    """Through QAPI.call: authorised, whitelisted, pre-fills only (no core query runs), defaults to RECORDED."""
+    sys.path.insert(0, str(REPO / 'tests/q1q5'))
+    from test_api import TOKEN, api_fixture, authorize
+    from amidst.q1q5.api import APIError
+    monkeypatch.delenv('AMIDST_NL_PROVIDER', raising=False)
+    monkeypatch.delenv('AMIDST_NL_RECORDING', raising=False)
+    api, _ = api_fixture()
+    row = api.bootstrap()['runs'][0]
+    base = {'schema_version': nl.REQUEST_SCHEMA, 'session_ref': TOKEN, 'scene_id': row['scene_id'], 'run_id': row['run_id'], 'kind': 'track', 'text': '追蹤人'}
+    r = api.call('q_nl_parse', base, authorize)
+    assert r['schema_version'] == nl.RESPONSE_SCHEMA and r['executed'] is False and r['provider']['kind'] == 'RECORDED' and r['provider']['synthetic_fixture'] is True
+    assert r['form']['classLabel'] == 'person' and r['fallback_reason'] == 'REPLAY_MISS'   # real catalog differs from the fixture's: honest fallback
+    assert not api.responses, 'no response bundle stored: nothing was executed'
+    for bad in ({**base, 'actor_id': 'x'}, {**base, 'extra': 1}, {**base, 'kind': 'other'}, {**base, 'run_id': 'NOPE'}):
+        with pytest.raises(APIError):
+            api.call('q_nl_parse', bad, authorize)
+    with pytest.raises(APIError):
+        api.call('q_nl_parse', {**base, 'session_ref': 'not-a-session'}, authorize)
