@@ -34,7 +34,7 @@ PYTHONPATH=src uv run --offline --no-project \
 | `~/amidst-artifacts/r004-cx7r-20261104-01a19f8b/bundle/safe_bundle` | `data/artifacts/r004-cx7r-20261104-01a19f8b/bundle/safe_bundle/` | 2,056 / 1,105,936,480 bytes，含 2,050 RGB | `serve_demo_integration.py` Media manifest／catalog／clocks |
 | `~/amidst-artifacts/d131-previews/cross-camera-job.json`、其 `checkouts/pr477/configs/q1q5/graphs/r004/camera_graph_v3_1.json`；`/private/tmp/amidst-d131-417-output/{A4-1,B4-1}`；`/private/tmp/amidst-d131-control/{A4-1,B4-1}-config.json` | `provenance/original-cross-camera-job.json`；`metadata/{cross-camera-job.json,graphs/,config/}`；`data/indexes/{A4-1,B4-1}/` | 原始 12 / 1,605,219 bytes；另產生相對 locator job | 舊 Demo constructor 的 job 引用；新 `resolve_job`。逐檔舊／新／bytes 在 inventory JSON |
 | `~/amidst-artifacts/d127-418-office-expanded-r005-preview-v2/rgb`、`d129-464-r005-probe-20261105-a/report.json` | `data/artifacts/` 下同名相對路徑 | 7 / 3,022,482 bytes，六張相機圖＋回條；無 overhead/GT | `serve_demo_integration.py` r005 loader |
-| `~/Models/amidst/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth`、`~/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/model-source/rtdetr_pytorch`、`/private/tmp/amidst-d131-control/model-source-hashes.json` | `models/rtdetr/{weights,source}`（權重實際檔名見 config）＋`provenance/model-source-hashes.json` | 73 / 81,225,896 bytes | frozen A4/B4 config 的模型 provenance；新 config `models`，本 demo 不執行模型 |
+| `~/Models/amidst/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth`、`~/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/model-source/rtdetr_pytorch`、`/private/tmp/amidst-d131-control/model-source-hashes.json` | `models/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth`、`models/rtdetr/source/rtdetr_pytorch/`、`provenance/model-source-hashes.json` | 73 / 81,225,896 bytes | frozen A4/B4 config 的模型 provenance；新 config `models`，本 demo 不執行模型 |
 | `~/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models` 的 Qwen3 1.7b q4_K_M | `models/ollama/` | manifest＋5 個被引用 blobs，6 / 1,359,294,303 bytes | 新 config `models.ollama_models`；未啟動 Ollama |
 | `/private/tmp/amidst-d131-playwright/node_modules/playwright-core` | **repo** `tests/browser/core-preview/node_modules/playwright-core`（從 lock 安裝）；遷移副本仍保留於 `tooling/playwright-core/` | 遷移副本 340 / 8,228,434 bytes；repo 套件 340 檔 hash 相符 | 兩個 browser gates 的 `owned-runtime.mjs` |
 | 舊 `INTEGRATION_OUTPUT`／臨時截圖根目錄、`/private/tmp/amidst-445-*` state | `evidence/486/{synthetic,real}`、`state/` | 每次產物大小與 SHA 見 LOCAL receipts | config `evidence_root/state_root`，兩個 browser gates／server main |
@@ -43,7 +43,7 @@ PYTHONPATH=src uv run --offline --no-project \
 
 ## Manifest 與持久 LOCAL 證據
 
-- repo `configs/demo_dependencies_manifest_v1.json`：**4,788 entries / 2,756,614,124 bytes**（含 8 個相對 symlinks 與新 job），逐檔 SHA-256；manifest SHA-256 `ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50`。
+- repo `configs/demo_dependencies_manifest_v1.json`：**4,788 entries / 2,756,614,124 bytes**（含 9 個相對 symlinks 與新 job），逐檔 SHA-256；manifest SHA-256 `ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50`。
 - LOCAL `demo-owned-v1/copy-manifest.json`：原始 **4,787-entry** copy receipt，SHA-256 `8b9a4b4b98f52fa56317e0673dcf4da0d688b846c75dc0003b2d8bca743d061f`；原始一般檔案 bytes 2,756,610,945。複製期間記錄的最低 free **10,814,017,536 bytes**，高於 8 GiB。
 - LOCAL `demo-owned-v1/provenance/486-copy-plan.json`：原計畫 SHA-256 `2467de25476dae79ccdcbc78b082fb31edcb57beb864e0ce35b9d8105cc8f9da`。`scripts/collect_demo_dependencies.py --plan <該計畫>` 只接受**全新**目的根目錄，exclusive create、hash 比對並逐塊檢查 8 GiB；不直接對現有根目錄重跑。
 - `scripts/export_demo_dependency_manifest.py --owned-root <根> --output configs/demo_dependencies_manifest_v1.json` 可逐 bytes 重現 repo ledger；已有輸出只接受完全相同 bytes。
@@ -70,10 +70,21 @@ node tests/browser/core-preview/real-e2e.mjs
 
 未設定 `AMIDST_DEMO_HOME` 時第一個 checker 的 output 可直接填預設根目錄，其他指令會由設定取預設值。synthetic gate 必須在乾淨 tree 上執行；exact head pin 與 ancestry guard 不關閉。real gate 需要前述 8785 服務，可用 `CORE_BASE_URL` 指定本次服務。
 
-實際已執行：離線 setup、4,788 項 hash/link、repo Node 340 檔、Ollama manifest 的五個 blob digest、外部輸入負向探針、four-source bootstrap 與四張 served PNG SHA 均 PASS；模型／render 皆未執行。四組 #445 acceptance 的實際結果與精確 head、檔案量、hash 記在 C 最終回條及 LOCAL `evidence/486/`，不能把命令本身當 PASS。
+實際已執行：離線 setup、4,788 項 hash/link、repo Node 340 檔、Ollama manifest 的五個 blob digest、外部輸入負向探針、four-source bootstrap 與四張 served PNG SHA 均 PASS；模型／render 皆未執行。四組 #445 acceptance 已實跑通過，詳見下列實際產出。
 
 ## 清理與主線邊界
 
 所有舊位置對本 demo 的活讀取已解除，受 runtime guard 保障；但**沒有任何舊路徑可在本輪宣稱全球無人引用或可刪**。例如 `scripts/start_office_demo.py:30` 仍是另一個 Office launcher 的歷史 evidence/vendor 預設；其他 checkout／服務不屬本輪盤點。表中來源可交給 C（原 #448）複核其他 owner，不能據此清理。原始 assets／舊 venv／舊 worktree／原模型與分支全部保留。
 
 本輪只完成 #486 的本機依賴收編子項。D132 的 Windows／Linux、CI、清理／主線合併、索引改寫等大清單不因這個本機收據自動勾選。平台測試需要相應環境，清理／合併需要使用者決定；下一位處理者以 C issue 清單與使用者授權為準。這裡沒有用 UNKNOWN 代替本次可修的 runtime／測試問題。
+
+## 實際產出 / Actual output
+
+- Model / effort: GPT-6 family / UNKNOWN。
+- PR / commits: `codex/486-vendor-deps`，runtime 與四組 gate 綁 `eff11e47432a449d5abd5ba049c59d8e370d2c37`；其後只補 schema registry、原件驗證器與結果文件。最終 SHA 在 C 回條。未開 PR、未合併。
+- Files changed: single config／repo dependency manifest、Python/Node version pins、Node devDependency lock、owned startup/config/helper、setup/check/export/collector、兩個 browser gate 的 owned paths、schema registry、inventory、本文與總索引。
+- Commands run and results: 上列 pytest **121 passed / 1.13 s**；Node **478 passed / 0 failed / 0 skipped**；synthetic **49 checks / 16 PNG**；real **53 checks / 17 PNG / 0 page errors / 0 failed API**。no-allow architecture guard、launcher `bash -n`、`git diff --check` PASS。新 metadata schema 以 #486 正常登錄，無 guard bypass。
+- Artifacts: LOCAL `$AMIDST_ARTIFACTS/demo-owned-v1/evidence/486/`：**48 payload files / 8,492,837 bytes**，另附 `EVIDENCE_MANIFEST.json` SHA-256 **`746236989d7e6a95980444db0a851d1ed2c7de7075278643207f573f62095de8`**。manifest 綁逐檔 hash、runtime commit／檔案 hashes、registry／原件驗證器 hashes。runtime 自有根目錄當次 `du -sk` 2,718,832 KiB；checkout `.venv` 722,588 KiB、Node package 8,736 KiB，環境由 locks 重建，raw 不進 Git。
+- Verified: 離線 setup PASS；4,788 項 manifest hash/link PASS；repo Node 340 檔與原 pin 相符；Ollama 五個 blob digest/size PASS；35 個 installed distributions 全部在 uv lock；venv prefix 是 checkout、base prefix 在 owned runtime；外部 I/O 負向探針拒絕成功；four-source bootstrap／served PNG hashes PASS。另 `collect_demo_dependencies.py --verify-sources <copy-manifest.json>` 重新讀取 allowlist 的 **4,778 一般檔案＋9 相對 links = 4,787 項**，與 copy receipt 全部一致；只讀，原件未寫回。四組 #445 gate 全部使用新路徑；r005 R101 與 laptop 也有實際 RGB。
+- Not verified: Windows/PowerShell 與 Linux 執行需要對應平台環境，本輪明確只有 Mac runtime profile；主機實體顯示 FPS 沒有量測資料，UNKNOWN。沒有執行新 inference 或 render，這是 saved-observation demo 的依賴遷移，不以它冒稱模型／研究驗收。
+- Deviations, decisions and scope: 本機依賴收編沒有未修 runtime／測試問題。source/run/clock/hash 與 DRAFT/DEMO_DEFAULT、identity UNCONFIRMED、physical UNKNOWN 不升權。C 大清單的其他工作與 mainline 合併由使用者／對應平台 owner 接續；本 chat 的不開 PR、不合併、不清理分支指示保持有效。

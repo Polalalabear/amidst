@@ -90,6 +90,29 @@ def collect(plan_path):
                       'job_sha256': digest(job_path), 'free_bytes': shutil.disk_usage(root).free}), flush=True)
 
 
+def verify_sources(receipt_path):
+    manifest = json.loads(receipt_path.read_bytes()); count = links = total = 0
+    for entry in manifest['files']:
+        src = Path(entry['source'])
+        require(not FORBIDDEN_PARTS.intersection(src.resolve().parts), 'PROTECTED_SOURCE')
+        require(src.lstat().st_size == entry['bytes'], 'SOURCE_SIZE_DRIFT')
+        if entry['kind'] == 'symlink':
+            require(src.is_symlink() and os.readlink(src) == entry['target'], 'SOURCE_LINK_DRIFT')
+            links += 1
+        else:
+            require(not src.is_symlink() and digest(src) == entry['sha256'], 'SOURCE_HASH_DRIFT')
+            count += 1; total += entry['bytes']
+    print(json.dumps({'status': 'PASS', 'source_entries': count+links,
+                      'regular_files': count, 'relative_links': links, 'file_bytes': total,
+                      'receipt_sha256': digest(receipt_path), 'original_writes': False}, indent=2))
+
+
 if __name__ == '__main__':
-    p = argparse.ArgumentParser(description=__doc__); p.add_argument('--plan', type=Path, required=True)
-    collect(p.parse_args().plan)
+    p = argparse.ArgumentParser(description=__doc__)
+    mode = p.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--plan', type=Path); mode.add_argument('--verify-sources', type=Path)
+    args = p.parse_args()
+    if args.plan:
+        collect(args.plan)
+    else:
+        verify_sources(args.verify_sources)
