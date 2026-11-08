@@ -24,12 +24,12 @@ try{
    ui=mountUi({root:doc,store,url:location.origin+'/workbench-v2/',storage:null,synthetic:true,submitCore:()=>{submitted++;},coreCatalog:()=>({regions:[],classes:['person'],colors:[],aliases:{}})});
    const cover=ui.screen==='cover';doc.querySelector('#ui-enter').click();const chooser=ui.screen==='choose'&&doc.querySelectorAll('[data-case]').length===3;
    doc.querySelector('[data-case=case1]').click();doc.querySelector('#ui-search-submit').click();const validation=doc.querySelector('#ui-search-feedback').textContent.includes('請輸入開始與結束時間')&&submitted===0;
-   ui.go('case2');const manual=doc.querySelector('#ui-manual-target').disabled&&doc.querySelector('#ui-manual-note').textContent==='目前追蹤起點由系統自動選取（自動種子），手動改選尚未支援';
+   ui.go('case2');const trackWindowFields=!!doc.querySelector('#ui-track-end')&&doc.querySelector('#ui-track-start')&&!doc.body.textContent.includes('空白＝現在')&&/^到錄影結尾/.test(doc.querySelector('#ui-track-end').placeholder);const manual=doc.querySelector('#ui-manual-target').disabled&&doc.querySelector('#ui-manual-note').textContent==='追蹤起點由系統自動選擇，目前還不能手動改選目標';
    const stop=doc.querySelector('#ui-stop-track').disabled;const mountedTimers=timers.size;ui.destroy();ui=null;
    const destroyed=doc.querySelector('#ui-v1').children.length===0&&subs===0&&timers.size===0&&listeners.size===0&&docListeners.size===0;
    doc.body.innerHTML='<h1 id="admin-title"></h1><span id="admin-clock"></span><section data-pane="overview"></section><section data-pane="settings"></section><a data-tab="overview"></a><a data-tab="settings"></a>';
    tabs=mountTabs(doc);const adminTimer=timers.size===1,adminClock=doc.querySelector('#admin-clock').textContent.length>0;tabs.destroy();tabs=null;
-   return {cover,chooser,validation,manual,stop,mountedTimers,destroyed,adminTimer,adminClock,adminDestroyed:timers.size===0&&listeners.size===0};
+   return {cover,chooser,validation,trackWindowFields,manual,stop,mountedTimers,destroyed,adminTimer,adminClock,adminDestroyed:timers.size===0&&listeners.size===0};
   }finally{
    ui?.destroy();tabs?.destroy();for(const id of timers)original.clearInterval.call(globalThis,id);
    globalThis.setInterval=original.setInterval;globalThis.clearInterval=original.clearInterval;globalThis.addEventListener=original.add;globalThis.removeEventListener=original.remove;doc.addEventListener=original.docAdd;doc.removeEventListener=original.docRemove;iframe.remove();
