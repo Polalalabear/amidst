@@ -541,7 +541,7 @@ export function mountUi(ctx) {
     trackParts.play.title = canPlayNow(s) ? '' : '請先載入可播放的來源片段';
     trackParts.speedSel.value = String(s.speed);
     trackParts.actual.textContent = shownSpeedNote();
-    trackParts.jumpNote.hidden = !jumpUs; trackParts.jumpNote.textContent = jumpUs === null ? '' : `已跳到第一次出現（${wallClockText(cm, jumpUs) ?? `${(jumpUs / 1e6).toFixed(1)} s`}）`;
+    trackParts.jumpNote.hidden = jumpUs === null; trackParts.jumpNote.textContent = jumpUs === null ? '' : `已跳到第一次出現（${wallClockText(cm, jumpUs) ?? `${(jumpUs / 1e6).toFixed(1)} s`}）`;
     trackParts.scrub.min = String(start); trackParts.scrub.max = String(asOf); trackParts.scrub.value = String(s.tUs);
     // floor plan
     renderPlan(s, view, resp);
