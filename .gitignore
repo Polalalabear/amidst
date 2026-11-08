@@ -72,3 +72,6 @@ frontend/product/node_modules/
 # Owned demo environments and dependency caches stay LOCAL (#486).
 .local/demo-cache/
 tests/browser/core-preview/node_modules/
+
+# Locked Node installs (#491).
+node_modules/
