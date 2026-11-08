@@ -14,7 +14,7 @@ export const CASES = Object.freeze([
   Object.freeze({ id: 'case3', no: 'case 3', title: '查看', blurb: '回放整段事件，同時看所有鏡頭與時間軸。' }),
 ]);
 export const CASE_IDS = Object.freeze(CASES.map(c => c.id));
-export const SPEEDS = Object.freeze([1, 1.5, 2]);
+export const SPEEDS = Object.freeze([0.5, 1, 1.5, 2]);
 export const EVENT_CHOICES = Object.freeze([
   Object.freeze({ id: 'b05b', label: 'B-05' }),
   Object.freeze({ id: 'a41', label: 'A4-1' }),

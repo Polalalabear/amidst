@@ -55,7 +55,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  await p.locator('#ui-layout [data-layout=single]').click();
  const stamp=event==='A4-1'?9400000:event==='B4-1'?2100000:3000000;await seek(p,stamp);
  // Empty start means re-query at the visible source clock; no API or store injection.
- await p.locator('#ui-context').click();await p.locator('#ui-track-start').fill('');const br=p.waitForResponse(r=>r.url().endsWith('/api/q_core_track')&&r.request().method()==='POST');await p.locator('#ui-track-submit').click();const blind=await(await br).json();
+ await p.locator('.ui-burger').click();await p.locator('#ui-track-start').fill('');const br=p.waitForResponse(r=>r.url().endsWith('/api/q_core_track')&&r.request().method()==='POST');await p.locator('#ui-track-submit').click();const blind=await(await br).json();
  await writeFile(out+'/'+event+'-blind-response.json',JSON.stringify(blind,null,2));
  await seek(p,stamp);await p.waitForTimeout(300);const curves=await p.locator('#ui-floorplan .is-inferred').count();
  check(event==='B-05'?curves===0:curves>0,event+' blind evidence / UNKNOWN preserved');check((await p.locator('#ui-floorplan').innerText()).includes(event==='B-05'?'無法預測':'信心'+({LOW:'低',MEDIUM:'中',HIGH:'高'}[blind.blind.confidence]??'未知')),'blind confidence is visible');

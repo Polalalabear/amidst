@@ -124,3 +124,18 @@ test('D139 static: favicon on both pages, admin brand links to the front desk, q
   assert.match(shell, /go\(homeScreen\(settings\)\)/); assert.match(shell, /qWin1\.inert = !open1/); assert.match(shell, /ui-qfeat/);
   assert.match(read('./ui.css'), /\.ui-qfeat\{[^}]*overflow-y:auto/);
 });
+
+import {SPEEDS as UI_SPEEDS} from './ui-model.mjs';
+import {SUPPORTED_SPEEDS} from './core-search-track-model.mjs';
+import {advanceUs} from './q-time.mjs';
+import {createStore, initialState} from './store.mjs';
+test('D139 0.5× speed: offered by the front desk, accepted by store and clock, source time advances at half rate', () => {
+  assert.deepEqual([...UI_SPEEDS], [0.5, 1, 1.5, 2]); assert.deepEqual([...SUPPORTED_SPEEDS], [0.5, 1, 1.5, 2]);
+  assert.equal(normalizeSettings({trackSpeed: 0.5}).trackSpeed, 0.5);
+  const store = createStore(initialState()); store.dispatch({type: 'SET_SPEED', speed: 0.5}); assert.equal(store.getState().speed, 0.5);
+  assert.equal(advanceUs(0, 1000, 0.5, 50e6).tUs, 500000);
+});
+test('D139 mode switch replaces the 追蹤新目標 chip: three cover modes in the header', () => {
+  const shell = readFileSync(new URL('./ui-shell.mjs', import.meta.url), 'utf8');
+  assert.match(shell, /modeSeg\.id = 'ui-modes'/); assert.match(shell, /for \(const c of CASES\)/); assert.doesNotMatch(shell, /追蹤新目標…'/);
+});

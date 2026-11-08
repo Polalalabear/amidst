@@ -94,7 +94,11 @@ export function mountUi(ctx) {
   const brand = el('button', 'Amidst', 'ui-brand', {type: 'button'}); brand.addEventListener('click', () => go(homeScreen(settings)));
   const ctxChip = el('span', undefined, 'ui-chip-ctx'); ctxChip.id = 'ui-context';
   const progChip = el('span', undefined, 'ui-chip-prog'); progChip.id = 'ui-prog-chip'; progChip.hidden = true;
-  const topLeft = el('div', undefined, 'ui-top-left'); topLeft.append(burger, brand, ctxChip);
+  // Mode switch (replaces the old 「追蹤新目標…」 chip): the three cover modes, always one click away.
+  const modeSeg = el('span', undefined, 'ui-seg ui-modes'); modeSeg.id = 'ui-modes'; modeSeg.setAttribute('role', 'tablist'); modeSeg.setAttribute('aria-label', '模式');
+  const modeBtns = new Map();
+  for (const c of CASES) { const b = el('button', c.title, undefined, {type: 'button', 'data-case': c.id, role: 'tab', title: `${c.no} ${c.title}`}); b.addEventListener('click', () => go(c.id)); modeBtns.set(c.id, b); modeSeg.append(b); }
+  const topLeft = el('div', undefined, 'ui-top-left'); topLeft.append(burger, brand, modeSeg, ctxChip);
   const layoutSeg = el('span', undefined, 'ui-seg'); layoutSeg.id = 'ui-layout';
   const segSingle = el('button', '單畫面', undefined, {type: 'button', 'data-layout': 'single'}), segMulti = el('button', '多畫面', undefined, {type: 'button', 'data-layout': 'multi'});
   layoutSeg.append(segSingle, segMulti);
@@ -113,7 +117,6 @@ export function mountUi(ctx) {
   topRight.append(topAdmin);
   top.append(topLeft, topRight);
   burger.addEventListener('click', () => setQuery(!queryOpen));
-  ctxChip.addEventListener('click', () => { if (screen === 'case2') setQuery(true); });
   for (const b of [segSingle, segMulti]) b.addEventListener('click', () => { store.dispatch({type: 'SET_PLAYBACK_MODE', value: b.dataset.layout}); });
 
   // ---- query windows ----------------------------------------------------------------------------------------------
@@ -644,8 +647,10 @@ export function mountUi(ctx) {
       if (f) { const names = (f.regionIds ?? []).map(id => cat.regions.find(r => r.value === id)?.label ?? id); parts.push(...names); if (f.classLabel) parts.push(classDisplay(f.classLabel, cat.aliases)); parts.push(timeRangeText(f.start, f.end)); }
       ctxChip.textContent = parts.join(' · '); ctxChip.className = 'ui-chip-ctx';
     } else if (screen === 'case2') {
-      ctxChip.textContent = '❯ 追蹤新目標…'; ctxChip.className = 'ui-chip-ctx is-cmd';
+      ctxChip.textContent = '';
     } else { ctxChip.textContent = ''; }
+    ctxChip.hidden = !ctxChip.textContent;
+    for (const [id, b] of modeBtns) { b.classList.toggle('on', id === screen); b.setAttribute('aria-pressed', String(id === screen)); b.setAttribute('aria-selected', String(id === screen)); }
     layoutSeg.hidden = screen !== 'case2' || !s.coreTrackResponse || trackStopped;
     segSingle.classList.toggle('on', s.playbackMode === 'single'); segMulti.classList.toggle('on', s.playbackMode === 'multi');
     segSingle.setAttribute('aria-pressed', String(s.playbackMode === 'single')); segMulti.setAttribute('aria-pressed', String(s.playbackMode === 'multi'));

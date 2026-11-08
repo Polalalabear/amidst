@@ -399,7 +399,7 @@ export const TRACKING_STATUS_TEXT = Object.freeze({
   UNKNOWN: '資料不足，無法判定追蹤狀態',
 });
 
-export const SUPPORTED_SPEEDS = Object.freeze([1, 1.5, 2]);
+export const SUPPORTED_SPEEDS = Object.freeze([0.5, 1, 1.5, 2]);
 
 export const CORE_IDENTITY_VERDICT = 'UNCONFIRMED';
 export const CORE_IDENTITY_BADGE = '身分未確認 · 條件相符之候選';
