@@ -27,7 +27,7 @@ test('D139-5: end = clock start + source_duration, also with a non-zero t0', () 
   assert.deepEqual(recordingWindow({...clock, rate: 2}), {start: '14:00:00', end: '14:02:30'});
 });
 test('D139-5: without a clock mapping or with end before start the form is refused, never sent empty', () => {
-  const none = trackWindow('', '', null); assert.equal(none.ok, false); assert.equal(none.code, 'CLOCK_UNKNOWN'); assert.equal(none.start, ''); 
+  const none = trackWindow('', '', null); assert.equal(none.ok, false); assert.equal(none.code, 'CLOCK_UNKNOWN'); assert.equal(none.start, '');
   assert.equal(trackWindow('14:03', '14:02', clock).code, 'END_BEFORE_START');
   assert.equal(trackWindow('14:03', '14:03', clock).code, 'END_BEFORE_START');
 });
