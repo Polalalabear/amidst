@@ -87,3 +87,40 @@ test('D139 static wiring: one speed dropdown, one timeline, ⓘ for tags, concre
   const present = readFileSync(new URL('./ui-present.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(present + shell, /gt_private|ground_truth|renderer_trajectory|visibility_|depth_map/i);
 });
+
+import {mergeFlicker, JOURNAL_MERGE_GAP_US, homeScreen, trackJournal} from './ui-model.mjs';
+test('D139 journal: short same-camera GAPs merge into one row; raw segments are untouched', () => {
+  // B-05 shape: A appears / leaves / appears ... within 2 s (≈20 flickers)
+  const raw = []; let t = 0;
+  for (let i = 0; i < 20; i++) { raw.push({kind: 'ON_CAMERA', camera_id: 'A', range_us: [t, t + 60000]}); t += 60000; if (i < 19) { raw.push({kind: 'GAP', camera_id: null, range_us: [t, t + 40000]}); t += 40000; } }
+  const copy = JSON.stringify(raw);
+  const {segments, merged} = mergeFlicker(raw);
+  assert.equal(JSON.stringify(raw), copy);                       // input not mutated
+  assert.equal(segments.length, 1); assert.equal(merged, 19);
+  assert.deepEqual(segments[0].range_us, [0, raw.at(-1).range_us[1]]);
+  const rows = trackJournal(segments, clock);
+  assert.equal(rows.length, 1); assert.match(rows[0].text, /鎖定於 A/);
+  assert.equal(trackJournal(raw, clock).length, 39);             // the raw journal (admin / present=0 data) still has every row
+});
+test('D139 journal merge rule: only GAP <= 1 s between the SAME camera; different camera, long gap and LOST stay', () => {
+  assert.equal(JOURNAL_MERGE_GAP_US, 1e6);
+  const seg = (kind, cam, a, b) => ({kind, camera_id: cam, range_us: [a, b]});
+  assert.equal(mergeFlicker([seg('ON_CAMERA', 'A', 0, 5e6), seg('GAP', null, 5e6, 6e6), seg('ON_CAMERA', 'A', 6e6, 9e6)]).merged, 1);      // exactly 1 s merges
+  assert.equal(mergeFlicker([seg('ON_CAMERA', 'A', 0, 5e6), seg('GAP', null, 5e6, 6.1e6), seg('ON_CAMERA', 'A', 6.1e6, 9e6)]).merged, 0);  // 1.1 s stays
+  assert.equal(mergeFlicker([seg('ON_CAMERA', 'A', 0, 5e6), seg('GAP', null, 5e6, 5.5e6), seg('ON_CAMERA', 'B', 5.5e6, 9e6)]).merged, 0);  // camera change stays
+  assert.equal(mergeFlicker([seg('ON_CAMERA', 'A', 0, 5e6), seg('GAP', null, 5e6, 5.5e6), seg('LOST', null, 5.5e6, 9e6)]).segments.length, 3);
+  assert.deepEqual(mergeFlicker(null), {segments: [], merged: 0});
+});
+test('D139 brand: home is the cover while it is on, else the entry setting', () => {
+  assert.equal(homeScreen({coverAnimation: true, defaultCase: 'case2'}), 'cover');
+  assert.equal(homeScreen({coverAnimation: false, defaultCase: null}), 'choose');
+  assert.equal(homeScreen({coverAnimation: false, defaultCase: 'case1'}), 'case1');
+});
+test('D139 static: favicon on both pages, admin brand links to the front desk, query window layout', () => {
+  const read = f => readFileSync(new URL(f, import.meta.url), 'utf8');
+  for (const f of ['./index.html', './admin.html']) assert.match(read(f), /<link rel="icon" href="data:image\/svg\+xml;base64,/, f);
+  assert.match(read('./admin.html'), /<a class="ui-side-brand" href="index\.html"/);
+  const shell = read('./ui-shell.mjs');
+  assert.match(shell, /go\(homeScreen\(settings\)\)/); assert.match(shell, /qWin1\.inert = !open1/); assert.match(shell, /ui-qfeat/);
+  assert.match(read('./ui.css'), /\.ui-qfeat\{[^}]*overflow-y:auto/);
+});

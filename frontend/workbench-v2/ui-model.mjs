@@ -206,6 +206,25 @@ export function blindReacquire(singleView, currentTUs, clockMapping) {
   const atUs = next.range_us[0], atText = wallClockText(clockMapping, atUs) ?? `${(atUs / 1e6).toFixed(2)} s`;
   return { cameraId: next.camera_id, atUs, atText };
 }
+// D139 front-desk journal: a GAP no longer than maxGapUs that sits between two ON_CAMERA segments of the SAME camera
+// is a flicker (the detector lost the target for a few frames). The GAP and the second segment are folded into the first,
+// which then spans both. Longer gaps, gaps between different cameras and LOST are never merged. Presentation only: the
+// response, the camera timeline and the admin event log keep the raw segments.
+export const JOURNAL_MERGE_GAP_US = 1e6;
+export function mergeFlicker(singleView, maxGapUs = JOURNAL_MERGE_GAP_US) {
+  const list = (Array.isArray(singleView) ? singleView : []).filter(x => Array.isArray(x?.range_us)).map(x => ({ ...x, range_us: [...x.range_us] })).sort((a, b) => a.range_us[0] - b.range_us[0]);
+  const out = []; let merged = 0;
+  for (let i = 0; i < list.length; i++) {
+    const cur = list[i], prev = out.at(-1), next = list[i + 1];
+    const flicker = cur.kind === 'GAP' && prev?.kind === 'ON_CAMERA' && next?.kind === 'ON_CAMERA' && prev.camera_id === next.camera_id && cur.range_us[1] - cur.range_us[0] <= maxGapUs;
+    if (flicker) { prev.range_us[1] = Math.max(prev.range_us[1], next.range_us[1]); merged++; i++; continue; }
+    if (cur.kind === 'ON_CAMERA' && prev?.kind === 'ON_CAMERA' && prev.camera_id === cur.camera_id && cur.range_us[0] <= prev.range_us[1]) { prev.range_us[1] = Math.max(prev.range_us[1], cur.range_us[1]); continue; }
+    out.push(cur);
+  }
+  return { segments: out, merged };
+}
+// Where the front desk lands when the user clicks the Amidst brand: the cover while it is enabled, else the entry setting.
+export const homeScreen = settings => (settings?.coverAnimation !== false ? 'cover' : nextAfterCover(settings ?? {}));
 export const isBlindNow = view => ['GAP', 'LOST'].includes(view?.singleView?.segmentKind);
 
 // ---- Tracking: status / log -------------------------------------------------------------------------------------

@@ -8,7 +8,7 @@ import {
   loadSettings, readJson, writeJson, SNAPSHOT_KEY, EVENTLOG_KEY, pushEvent, normalizeLog,
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, blindShare, floorPlan, trackStateChip, trackJournal,
-  parseRoute, nextAfterCover, blindReacquire, timeRangeText, startPlaceholder, endPlaceholder, recordingWindow,
+  parseRoute, nextAfterCover, blindReacquire, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
 import {PLAIN, plainState, gapNote, lostNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
 import {countsFromSearch, HISTORY_LIMIT} from './admin-overview-model.mjs';
@@ -91,7 +91,7 @@ export function mountUi(ctx) {
   // ---- header -----------------------------------------------------------------------------------------------------
   const burger = el('button', undefined, 'ui-burger', {type: 'button', 'aria-label': '開關查詢窗'});
   burger.append(el('span'), el('span'), el('span'));
-  const brand = el('button', 'Amidst', 'ui-brand', {type: 'button'}); brand.addEventListener('click', () => go('cover'));
+  const brand = el('button', 'Amidst', 'ui-brand', {type: 'button'}); brand.addEventListener('click', () => go(homeScreen(settings)));
   const ctxChip = el('span', undefined, 'ui-chip-ctx'); ctxChip.id = 'ui-context';
   const progChip = el('span', undefined, 'ui-chip-prog'); progChip.id = 'ui-prog-chip'; progChip.hidden = true;
   const topLeft = el('div', undefined, 'ui-top-left'); topLeft.append(burger, brand, ctxChip);
@@ -146,7 +146,9 @@ export function mountUi(ctx) {
     const regionField = el('div', undefined, 'ui-field'); regionField.append(el('span', kind === 'search' ? '地點' : '地點（選填）', 'ui-label'), regionsBox);
     const featField = el('div', undefined, 'ui-field'); featField.append(el('span', kind === 'track' ? '特徵（必填）' : '特徵', 'ui-label'), classBox, colorBox);
     const note = kind === 'track' ? el('p', '第一次鎖定需要掃過全部鏡頭，會顯示進度；鎖定之後換鏡頭會立即切換。', 'ui-note') : null;
-    card.append(head, ...(kind === 'search' ? [timeField, regionField, featField] : [featField, regionField, timeField]), submit, feedback);
+    // Layout: only the feature list scrolls; head, time, place, submit and notes stay put (the button never scrolls away).
+    featField.classList.add('ui-qfeat'); card.classList.add('ui-qcard-split');
+    card.append(head, timeField, regionField, featField, submit, feedback);
     if (note) card.append(note);
     const progress = el('div', undefined, 'ui-card ui-progress'); progress.id = `ui-${id}-progress`; progress.hidden = true;
     win.append(card, progress);
@@ -264,7 +266,9 @@ export function mountUi(ctx) {
   // ---- navigation -------------------------------------------------------------------------------------------------
   function setQuery(open) {
     queryOpen = open && (screen === 'case1' || screen === 'case2');
-    qWin1.dataset.open = String(queryOpen && screen === 'case1'); qWin2.dataset.open = String(queryOpen && screen === 'case2');
+    const open1 = queryOpen && screen === 'case1', open2 = queryOpen && screen === 'case2';
+    qWin1.dataset.open = String(open1); qWin2.dataset.open = String(open2);
+    qWin1.inert = !open1; qWin2.inert = !open2;   // closed windows cannot be focused or clicked
     burger.setAttribute('aria-expanded', String(queryOpen));
   }
   let entered = {case2: false};
@@ -533,8 +537,9 @@ export function mountUi(ctx) {
     if (reacq) { const note = el('p', reacquiredText(reacq), 'ui-note ui-reacq'); note.id = 'ui-blind-end'; note.dataset.camera = reacq.cameraId; note.dataset.atUs = String(reacq.atUs); box.append(note); }
   }
   function renderJournal(resp, cm) {
-    const rows = trackJournal(resp.single_view, cm), key = JSON.stringify(rows); if (trackParts.journalKey === key) return; trackParts.journalKey = key;
+    const merged = mergeFlicker(resp.single_view, JOURNAL_MERGE_GAP_US), rows = trackJournal(merged.segments, cm), key = JSON.stringify([rows, merged.merged]); if (trackParts.journalKey === key) return; trackParts.journalKey = key;
     const box = trackParts.journal; box.replaceChildren(el('span', '追蹤紀錄', 'ui-eyebrow'));
+    if (merged.merged > 0 && presentOn()) { const n = el('p', `已合併 ${merged.merged} 次短暫離開（同一鏡頭 ${JOURNAL_MERGE_GAP_US / 1e6} 秒內離開又出現視為連續）`, 'ui-note ui-journal-merge'); n.id = 'ui-journal-merge'; box.append(n); }
     if (!rows.length) box.append(el('p', presentOn() ? '這段時間內沒有觀測紀錄' : '時間窗內無觀測紀錄', 'ui-muted ui-small'));
     for (const r of rows) { const row = el('div', undefined, 'ui-journal-row'); row.append(el('span', `${r.t} ${r.text}`, 'ui-mono'), el('span', r.tone === 'missing' ? stateWord('LOST') : stateWord(r.state), `ui-chip ui-chip-${r.tone}`)); box.append(row); }
   }

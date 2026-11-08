@@ -25,6 +25,12 @@ try{
    const cover=ui.screen==='cover';doc.querySelector('#ui-enter').click();const chooser=ui.screen==='choose'&&doc.querySelectorAll('[data-case]').length===3;
    doc.querySelector('[data-case=case1]').click();doc.querySelector('#ui-search-submit').click();const validation=doc.querySelector('#ui-search-feedback').textContent.includes('請輸入開始與結束時間')&&submitted===0;
    ui.go('case2');const trackWindowFields=!!doc.querySelector('#ui-track-end')&&doc.querySelector('#ui-track-start')&&!doc.body.textContent.includes('空白＝現在')&&/^到錄影結尾/.test(doc.querySelector('#ui-track-end').placeholder);const manual=doc.querySelector('#ui-manual-target').disabled&&doc.querySelector('#ui-manual-note').textContent==='追蹤起點由系統自動選擇，目前還不能手動改選目標';
+   // D139: query window burger / Esc / closed = not interactive (inert); the Amidst brand goes to the front-desk home.
+   const burgerBtn=doc.querySelector('.ui-burger'),qwin=doc.querySelector('#ui-q-track'),KE=doc.defaultView.KeyboardEvent;
+   const qOpenAtStart=qwin.dataset.open==='true'&&!qwin.inert;
+   doc.dispatchEvent(new KE('keydown',{key:'Escape',bubbles:true}));const qClosedByEsc=qwin.dataset.open==='false'&&qwin.inert===true&&doc.querySelector('#ui-q-search').inert===true;
+   burgerBtn.click();const qReopened=qwin.dataset.open==='true'&&!qwin.inert;burgerBtn.click();const qClosedByBurger=qwin.dataset.open==='false'&&qwin.inert===true;
+   const adminHtml=new DOMParser().parseFromString(await (await fetch('/workbench-v2/admin.html')).text(),'text/html'),adminBrand=adminHtml.querySelector('a.ui-side-brand')?.getAttribute('href')==='index.html'&&!!adminHtml.querySelector('link[rel=icon]')&&!!new DOMParser().parseFromString(await (await fetch('/workbench-v2/index.html')).text(),'text/html').querySelector('link[rel=icon]');
    const stop=doc.querySelector('#ui-stop-track').disabled;
    // D139-6: blind route end label. A→GAP→B response with a blind curve, played to before / inside / after the gap.
    store.dispatch({type:'SET_Q_RUN',run:{scene_id:'S',run_id:'R',title:'A4-1 教室走廊事件',camera_ids:['CAM_W1','CAM_W2'],camera_map:{CAM_W1:[10,3],CAM_W2:[20,3]},source_kind:'SYNTHETIC',clock_mapping:{wall_origin:'2026-11-01T13:00:00+08:00',t0_us:0,rate:1,source_duration_us:42000000,timezone:'Asia/Taipei'}}});
@@ -34,11 +40,11 @@ try{
    store.dispatch({type:'SET_T_US',tUs:12000000});const blindNoEnd=!endNote()&&chipText().startsWith('推測路線');
    store.dispatch({type:'SET_T_US',tUs:20000000});const blindEnd=endNote()?.textContent==='已由 W2 鏡頭於 13:00:15 觀測到'&&chipText()==='兩端已觀測，中段為推測'&&doc.querySelector('.reacq-end')!==null;
    const rangeText=doc.querySelector('#ui-track-range')?.textContent==='查詢時段 13:00:00～13:00:42';
-   const visible=(()=>{const c=doc.querySelector('#ui-case2').cloneNode(true);c.querySelectorAll('.ui-info-pop').forEach(n=>n.remove());return c.textContent;})();const noTech=!/自動種子|DEMO_DEFAULT|GRAPH_NOT_APPROVED|ASSOCIATION_IDENTITY_UNCONFIRMED|ACTUAL_BLENDER|D124|INFERRED|OBSERVED|UNKNOWN|MISSING/.test(visible)&&doc.querySelectorAll('#ui-case2 .ui-info').length>=1;const mountedTimers=timers.size;ui.destroy();ui=null;
+   const visible=(()=>{const c=doc.querySelector('#ui-case2').cloneNode(true);c.querySelectorAll('.ui-info-pop').forEach(n=>n.remove());return c.textContent;})();const noTech=!/自動種子|DEMO_DEFAULT|GRAPH_NOT_APPROVED|ASSOCIATION_IDENTITY_UNCONFIRMED|ACTUAL_BLENDER|D124|INFERRED|OBSERVED|UNKNOWN|MISSING/.test(visible)&&doc.querySelectorAll('#ui-case2 .ui-info').length>=1;doc.querySelector('.ui-brand').click();const brandHome=ui.screen==='cover';const mountedTimers=timers.size;ui.destroy();ui=null;
    const destroyed=doc.querySelector('#ui-v1').children.length===0&&subs===0&&timers.size===0&&listeners.size===0&&docListeners.size===0;
    doc.body.innerHTML='<h1 id="admin-title"></h1><span id="admin-clock"></span><section data-pane="overview"></section><section data-pane="settings"></section><a data-tab="overview"></a><a data-tab="settings"></a>';
    tabs=mountTabs(doc);const adminTimer=timers.size===1,adminClock=doc.querySelector('#admin-clock').textContent.length>0;tabs.destroy();tabs=null;
-   return {noTech,cover,chooser,validation,trackWindowFields,blindNoEnd,blindEnd,rangeText,manual,stop,mountedTimers,destroyed,adminTimer,adminClock,adminDestroyed:timers.size===0&&listeners.size===0};
+   return {qOpenAtStart,qClosedByEsc,qReopened,qClosedByBurger,adminBrand,brandHome,noTech,cover,chooser,validation,trackWindowFields,blindNoEnd,blindEnd,rangeText,manual,stop,mountedTimers,destroyed,adminTimer,adminClock,adminDestroyed:timers.size===0&&listeners.size===0};
   }finally{
    ui?.destroy();tabs?.destroy();for(const id of timers)original.clearInterval.call(globalThis,id);
    globalThis.setInterval=original.setInterval;globalThis.clearInterval=original.clearInterval;globalThis.addEventListener=original.add;globalThis.removeEventListener=original.remove;doc.addEventListener=original.docAdd;doc.removeEventListener=original.docRemove;iframe.remove();
