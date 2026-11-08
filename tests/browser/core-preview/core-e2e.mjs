@@ -13,8 +13,27 @@ const out=process.env.SCREENSHOT_DIR??join(owned.evidenceRoot,'ui-synthetic');aw
 const preview=await startPreview({source,port:0}),browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
 const viewportHeight=Number(process.env.CORE_VIEWPORT_HEIGHT??900);
 const page=await browser.newPage({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),errors=[],shots=[];let checks=0,result=null;
-const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({check:checks,message:msg}));};page.on('pageerror',e=>errors.push(String(e)));
+const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({check:checks,message:msg}));};page.on('pageerror',e=>errors.push(String(e)));const iconRequests=[];page.on('request',r=>{if(/favicon\.ico/.test(r.url()))iconRequests.push(r.url());});
 const shot=async name=>{const path=join(out,name+'.png');await page.screenshot({path,fullPage:true});const b=await readFile(path);shots.push({path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});};
+
+// D139: the query window keeps time fields and the submit button fixed; only the feature list scrolls (all features expanded).
+const stickyCheck=async kind=>{
+ const win='#ui-q-'+kind,btn='#ui-'+kind+'-submit';
+ await page.locator(win+' [data-role=classes]').evaluate(box=>{for(let i=0;i<80;i++){const b=document.createElement('button');b.type='button';b.className='ui-chip-btn';b.dataset.injected='1';b.textContent='coco-class-'+i;box.append(b);}});
+ const rects=async()=>page.evaluate(([win,btn,kind])=>{const r=s=>{const b=document.querySelector(s).getBoundingClientRect();return {y:Math.round(b.y),bottom:Math.round(b.bottom)};};const feat=document.querySelector(win+' .ui-qfeat'),w=document.querySelector(win),b=document.querySelector(btn).getBoundingClientRect();const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return {submit:r(btn),time:r('#ui-'+kind+'-start'),vh:innerHeight,scrollable:feat.scrollHeight>feat.clientHeight+10,featOverflow:getComputedStyle(feat).overflowY,winScrolls:w.scrollHeight>w.clientHeight+1,hit:hit===document.querySelector(btn)};},[win,btn,kind]);
+ const before=await rects();
+ check(before.submit.bottom<=before.vh&&before.hit,'D139 '+kind+' submit button visible and hittable at open with all features expanded (vh '+before.vh+')');
+ check(before.scrollable&&before.featOverflow==='auto'&&!before.winScrolls,'D139 '+kind+' only the feature list scrolls');
+ await page.locator(win+' .ui-qfeat').evaluate(el=>{el.scrollTop=el.scrollHeight;});
+ const after=await rects();check(after.submit.y===before.submit.y&&after.time.y===before.time.y&&after.hit,'D139 '+kind+' time fields and button stay fixed while the feature list scrolls');
+ await page.locator(btn).click({trial:true});
+ await page.locator(win+' [data-injected]').evaluateAll(n=>n.forEach(x=>x.remove()));
+ // burger / Esc: closed window is not interactive
+ const where=await page.locator(btn).boundingBox();await page.keyboard.press('Escape');
+ const closed=await page.evaluate(([win,x,y])=>{const w=document.querySelector(win),cs=getComputedStyle(w);return {open:w.dataset.open,inert:w.inert,vis:cs.visibility,pe:cs.pointerEvents,hit:w.contains(document.elementFromPoint(x,y))};},[win,where.x+where.width/2,where.y+where.height/2]);
+ check(closed.open==='false'&&closed.inert&&closed.vis==='hidden'&&closed.pe==='none'&&!closed.hit,'D139 '+kind+' Esc closes the query window and it is no longer interactive');
+ await page.locator('.ui-burger').click();check(await page.locator(win).getAttribute('data-open')==='true'&&!(await page.locator(win).evaluate(w=>w.inert)),'D139 burger reopens the '+kind+' query window');
+};
 const calls=route=>preview.routeCalls.filter(c=>c.route===route);
 const open=async kind=>{if(await page.locator('#ui-q-'+kind).getAttribute('data-open')!=='true')await page.locator('.ui-burger').click();};
 const submit=async(kind,n)=>{await open(kind==='search'?'search':'track');const resp=page.waitForResponse(r=>r.url().endsWith('/api/q_core_'+kind)&&r.request().method()==='POST');await page.locator('#ui-'+kind+'-submit').click();await resp;if(kind==='search')await page.waitForFunction(n=>document.querySelectorAll('#ui-case1 .ui-shot').length===n,n);else await page.locator('#ui-scrub').waitFor();};
@@ -24,7 +43,7 @@ try{
  await page.goto(preview.url,{waitUntil:'domcontentloaded'});await page.locator('#ui-enter').waitFor();
  check(await page.locator('#synthetic-api-banner').isVisible(),'synthetic banner visible above new UI');check((await page.locator('.ui-tagline').innerText()).includes('Agentic'),'approved cover tagline');await shot('00-cover');
  await page.locator('#ui-enter').click();await page.locator('[data-case=case1]').click();await page.locator('#ui-q-search [data-role=regions] button').first().waitFor();
- const initial=calls('/api/q_core_search').length;
+ await stickyCheck('search');const initial=calls('/api/q_core_search').length;
  await page.locator('#ui-search-submit').click();check((await page.locator('#ui-search-feedback').innerText()).includes('地點與特徵至少選一項'),'empty criteria validation');check(calls('/api/q_core_search').length===initial,'empty criteria sends no request');
  await feature('person');await page.locator('#ui-search-end').fill('');await page.locator('#ui-search-submit').click();check((await page.locator('#ui-search-feedback').innerText()).includes('請輸入開始與結束時間'),'missing time validation');check(calls('/api/q_core_search').length===initial,'missing time sends no request');
  await page.locator('#ui-search-start').fill('13:00:00');await page.locator('#ui-search-end').fill('13:00:02');await feature('');
@@ -39,7 +58,7 @@ try{
  if(await page.locator('#ui-q-search').getAttribute('data-open')==='true')await page.locator('#ui-q-search [aria-label=收起查詢窗]').click();
  const mediaBefore=calls('/api/q_media_grant').length;
  const handle=await page.locator('#ui-case1 .ui-shot img').first().elementHandle();await page.waitForTimeout(400);check(await handle.evaluate(img=>img.isConnected)&&calls('/api/q_media_grant').length===mediaBefore,'phase completion retains image node and media grants');await page.locator('#ui-case1 .ui-shot').first().click();check(await handle.evaluate(img=>img.isConnected),'selection retains image node');check(calls('/api/q_media_grant').length===mediaBefore,'unchanged result does not request images again');check(await page.locator('.ui-lightbox').isVisible(),'new UI lightbox');await page.getByRole('button',{name:'回到結果牆'}).click();
- await page.locator('.ui-brand').click();await page.locator('#ui-enter').click();await page.locator('[data-case=case2]').click();await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');await seek(2000000);await page.locator('#ui-context').click();await page.locator('#ui-track-start').fill('');await submit('track');check(/到錄影結尾（13:00:02）/.test(await page.locator('#ui-track-end').getAttribute('placeholder')),'track end placeholder shows the recording end');
+ await page.locator('.ui-brand').click();await page.locator('#ui-enter').click();await page.locator('[data-case=case2]').click();await page.locator('#ui-q-track [data-role=classes] [data-value=person]').waitFor();await stickyCheck('track');await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');await seek(2000000);await page.locator('#ui-context').click();await page.locator('#ui-track-start').fill('');await submit('track');check(/到錄影結尾（13:00:02）/.test(await page.locator('#ui-track-end').getAttribute('placeholder')),'track end placeholder shows the recording end');
  {const payload=calls('/api/q_core_track').at(-1).payload,range=payload.time?.wall_range??[];check(payload.time?.kind==='WALL'&&!('playback_now_us' in payload)&&/T13:00:00/.test(range[0])&&/T13:00:02/.test(range[1]),'D139 blank track times are sent as concrete recording start and end, never empty');
   check((await page.locator('#ui-track-range').innerText()).includes('13:00:00～13:00:02'),'D139 result shows the queried time range');check(await page.locator('#ui-journal').innerText().then(t=>!t.includes('時間窗內無觀測紀錄')),'D139 blank-time track no longer reports an empty window');}
  for(const [t,kind]of[[300000,'ON_CAMERA'],[800000,'GAP'],[1200000,'ON_CAMERA'],[1800000,'LOST']]){await seek(t);check(await page.locator('.ui-stagebox').getAttribute('data-kind')===kind,'visible '+kind+' state');await shot('05-track-'+t);}
@@ -55,6 +74,8 @@ try{
   await page.goto(preview.url+'?run='+runId+'&screen=case1',{waitUntil:'domcontentloaded'});await page.locator('#ui-q-search [data-role=classes] [data-value=person]').click();await submit('search',n);check(calls('/api/q_core_search').at(-1).payload.run_id===runId,'selected search source '+runId);await shot('07-'+runId+'-search');
   await page.goto(preview.url+'?run='+runId+'&screen=case2',{waitUntil:'domcontentloaded'});await page.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await page.locator('#ui-track-start').fill('13:00:00');await submit('track');check(calls('/api/q_core_track').at(-1).payload.run_id===runId,'selected tracking source '+runId);await seek(300000);check(await page.locator('.ui-stagebox').getAttribute('data-kind')==='ON_CAMERA','selected source single state');await page.locator('#ui-layout [data-layout=multi]').click();check(await page.locator('.ui-multi-tile').count()===n,'selected source multi count');await shot('08-'+runId+'-multi');
  }
+ check(iconRequests.length===0,'D139 no /favicon.ico request (page declares its icon)');
+ {await page.goto(new URL('admin.html',preview.url).toString(),{waitUntil:'domcontentloaded'});check(await page.locator('link[rel=icon]').count()===1,'D139 admin declares an icon');await page.locator('a.ui-side-brand').click();await page.locator('#ui-v1').waitFor();check(/\/workbench-v2\/(index\.html)?$/.test(new URL(page.url()).pathname)&&await page.locator('#ui-v1').getAttribute('data-screen')==='cover','D139 admin Amidst brand returns to the front-desk cover');check(iconRequests.length===0,'D139 still no /favicon.ico request after admin');}
  check(errors.length===0,'no browser page errors');
  result={status:'PASS',checks,viewport:{width:1440,height:viewportHeight},bar_rect:bar,source_head:preview.head,url:preview.url,screenshots:shots,page_errors:errors,source_kind:'SYNTHETIC API FIXTURE',physical_display_fps:null};
 }finally{
