@@ -1,0 +1,194 @@
+{
+  "all_path_logical_bytes": 2213127402,
+  "allowed_purposes": [],
+  "artifacts_sha256": {
+    "A4-1/gt_private/c1-static-reference.json": "9ebee6b31e997d0738939b6d040a72e61b5a8696317bf07191641c976f43c304",
+    "bundle/safe_bundle/manifest.json": "ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01",
+    "gt_private/motion-audit.json": "3e90cd4466ff73d8fc12b6d4746959df30d8557eb57c8dc8560c98da09398201",
+    "mechanical/checker.json": "01a95fd4b1bbe0cd96c89acf9d4a40c84aab23a316d1de7aac11674b23d48791",
+    "mechanical/checker_pins.json": "3d12f3e7586ba0102160e2f2a9e1b9e972ca196c9888129595454ec3eb6e3854",
+    "mechanical/receipt.json": "cc15d314fdee1dbbac66314329435a59a60321296de3bfe1095a17bcbddf6c3c"
+  },
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061",
+  "bindings": {
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "freeze_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6556609083",
+    "freeze_sha256": "ab45a8322855dfa58bb26bf868554145240ff51653afa62f6efd800e09ad63fb",
+    "g4_decisions_sha256": "9d99f87ea007e1988797e50fa28e70f67e6973578bc15ef3f440ba4f4d8bc76c",
+    "g4_head": "0502225bb16f117014fd875fc7a9281220ede484",
+    "producer_code_sha256": "c48244be9e01915a725bf6af29b13c8a637b5f2577e4b5527da1604167d8b596",
+    "producer_config_sha256": "b4d27b170ca4aae8537f358a6502edc662d48dc156668aa4f54be8ae88594707",
+    "projection_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061",
+    "render_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061",
+    "source_render_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6579052576",
+    "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b"
+  },
+  "blender_build": "9e2066aef7ef",
+  "blender_version": "5.2.1 LTS",
+  "c1": {
+    "condition": "NOT_MET",
+    "detector_visibility": "UNKNOWN",
+    "exact_first_sampled_appearance_s": "UNKNOWN",
+    "first_static_witness_s": 9.651833290624083,
+    "required_earliest_t_V_s": 10.4,
+    "rgb_t_V_upper_bound_s": 9.6,
+    "scoring_changed": false,
+    "whole_body_visibility": "UNKNOWN"
+  },
+  "classification": "ENGINEERING",
+  "cx7t_status": "PASS",
+  "cx8_run": "NOT_RUN",
+  "distinct_inode_allocated_bytes": 1112563712,
+  "focused_tests": {
+    "all_four_files_before_materialized_pins": {
+      "passed": 260
+    },
+    "d124_after_materialized_pins": {
+      "deselected": 176,
+      "passed": 84
+    }
+  },
+  "human_approval_verified": false,
+  "index_run": "NOT_RUN",
+  "inference_run": "NOT_RUN",
+  "local_helpers": {
+    "/private/tmp/amidst-d124-01a19f8b/audit_motion.py": "615b9a427706c59393a0e317fc765d98831c9f55a16ae1c8e26867c3924537a6",
+    "/private/tmp/amidst-d124-01a19f8b/render_supervisor.py": "35a323d0fb53ea6138ac76d6cb1c64621492b5124f2f8224441ef60914e78c41"
+  },
+  "local_root": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b",
+  "locator_class": "LOCAL",
+  "motion_audit": {
+    "freeze_sha256": "ab45a8322855dfa58bb26bf868554145240ff51653afa62f6efd800e09ad63fb",
+    "inference_performed": false,
+    "rows": [
+      {
+        "authored_waypoint_bytes_unchanged": true,
+        "checked_frames": 1000,
+        "checked_stop_frames": 260,
+        "max_position_error_m": 0.0,
+        "max_tangent_or_hold_yaw_error_rad": 0.0,
+        "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1"
+      },
+      {
+        "authored_waypoint_bytes_unchanged": true,
+        "checked_frames": 1050,
+        "checked_stop_frames": 520,
+        "max_position_error_m": 0.0,
+        "max_tangent_or_hold_yaw_error_rad": 0.0,
+        "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1"
+      }
+    ],
+    "scope": "PRIVATE_PRODUCER_EVALUATION_ONLY",
+    "scoring_changed": false
+  },
+  "rgb_frames": 2050,
+  "ruff_full_style": {
+    "codes": {
+      "B905": 7,
+      "E402": 4,
+      "E501": 152,
+      "E731": 1,
+      "I001": 9
+    },
+    "findings": 173,
+    "required_issue_gate": false,
+    "status": "FAIL"
+  },
+  "runs": [
+    {
+      "after_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 198939128  11691240    95% 2136242 116912400    2%   /System/Volumes/Data\n",
+      "before_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 198396576  12233792    95% 2134624 122337920    2%   /System/Volumes/Data\n",
+      "clock_id": "clock:r004:a4:declared-demo:v1:d124-v1",
+      "clock_sha256": "0f69b149841f38fc5fe9c282a0cff5bcd1855fe61f2afcff1be3ef7557c2db26",
+      "disk_min_available_bytes": 11971829760,
+      "exit_code": 0,
+      "frame_count": 1000,
+      "monotonic_elapsed_s": 530.5636290829862,
+      "parent_run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "producer_script_sha256": "d304d0fcc17932e11dd54120fc06f88c96e28dbb07713c75e388e7664a4824a9",
+      "render_after_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+      "render_before_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+      "rgb_bytes": 538255652,
+      "run_declaration_sha256": "60045dc3c677c48f4e5c433d5fbe9e532f0f44c2a72b35566858131a521c6487",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "source_clock_sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a",
+      "source_inventory_ref": "evidence/A4-1-inventory.json",
+      "source_inventory_sha256": "2e03270385646a916a543c1c66050e0395c726fd739c3396e37010dcdad01728",
+      "source_run_declaration_sha256": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9"
+    },
+    {
+      "after_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 199502884  11127484    95% 2137300 111274840    2%   /System/Volumes/Data\n",
+      "before_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 198940108  11690260    95% 2136243 116902600    2%   /System/Volumes/Data\n",
+      "clock_id": "clock:r004:b4:declared-demo:v1:d124-v1",
+      "clock_sha256": "91bd3fe34adddcec11d1f9389dda4372e7feb40121d4fc2a32edf09e0f3229d2",
+      "disk_min_available_bytes": 11394543616,
+      "exit_code": 0,
+      "frame_count": 1050,
+      "monotonic_elapsed_s": 804.0652884999872,
+      "parent_run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+      "producer_script_sha256": "c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345",
+      "render_after_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+      "render_before_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+      "rgb_bytes": 566860911,
+      "run_declaration_sha256": "bb203b0a2ebbe655f7acf8eb0fddbd5b969fb09b0fbb6842e1cad5c41fe50ac8",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "source_clock_sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4",
+      "source_inventory_ref": "evidence/B4-1-inventory.json",
+      "source_inventory_sha256": "3dc3e72f570bbc9181b8dd038318d4585ee4a9e698eca5b6a7ee729fc1a5f19f",
+      "source_run_declaration_sha256": "bec1b2829ef2eabcdac74ea9123725ee7e9b486364c27c360b45e70eb707b598"
+    }
+  ],
+  "safe_manifest_entries": 2055,
+  "screenshots": [
+    {
+      "local_relative_path": "A4-1/safe/media/CAM_W1/000048.png",
+      "sha256": "07a2fffd4c588e5d8ee075555d819a852dc1fea2ae7cb27220c271044ff57e40",
+      "source_time_us": 9600000,
+      "visual_note": "c1 partial RGB appearance; upper bound only"
+    },
+    {
+      "local_relative_path": "A4-1/safe/media/CAM_W1/000055.png",
+      "sha256": "c6c3f44c3a670042700d8f847d8cc4fae791c82de1c0646c5aa5a614d418e2d0",
+      "source_time_us": 11000000,
+      "visual_note": "backpack"
+    },
+    {
+      "local_relative_path": "A4-1/safe/media/CAM_W1/000089.png",
+      "sha256": "5d39ae9b4bd46a59a37f6a3784a8f2ce8e6fdde67e7787b806c773414a5848ee",
+      "source_time_us": 17800000,
+      "visual_note": "17.8 s before reversal; backpack"
+    },
+    {
+      "local_relative_path": "A4-1/safe/media/CAM_W1/000090.png",
+      "sha256": "4206bdf86851ab95f27a14555fff97e53c9e6d4a0e8a23badd687e4facf00395",
+      "source_time_us": 18000000,
+      "visual_note": "18 s reversal; front badge"
+    },
+    {
+      "local_relative_path": "A4-1/safe/media/CAM_W1/000125.png",
+      "sha256": "36bd8dd395f7bfa6b075af7a35d5cf2bec23b3f9b56d146d76aab4321670596a",
+      "source_time_us": 25000000,
+      "visual_note": "face and front badge"
+    },
+    {
+      "local_relative_path": "B4-1/safe/media/CAM_BRANCH/000099.png",
+      "sha256": "4a329b789b6fa9c08a243ed4f936be589f4abd4a445cecc562e2bd1f91890c01",
+      "source_time_us": 19800000,
+      "visual_note": "19.8 s hold; front"
+    },
+    {
+      "local_relative_path": "B4-1/safe/media/CAM_BRANCH/000100.png",
+      "sha256": "18ab355f7c169db143d88522c81462ee11c4d3a30f97d1086be292c0e847dade",
+      "source_time_us": 20000000,
+      "visual_note": "20 s reversal; backpack"
+    },
+    {
+      "local_relative_path": "B4-1/safe/media/CAM_R101_IN/000170.png",
+      "sha256": "2834ed6f6fd2bab36f0cbbc4d6a4c71423566cf1cc6c3c1b00129cf5e01a3c4b",
+      "source_time_us": 34000000,
+      "visual_note": "34 s front"
+    }
+  ],
+  "source_base": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab",
+  "task_issue": 414
+}
