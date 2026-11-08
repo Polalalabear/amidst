@@ -97,7 +97,7 @@ export function mountUi(ctx) {
   // Mode switch (replaces the old 「追蹤新目標…」 chip): the three cover modes, always one click away.
   const modeSeg = el('span', undefined, 'ui-seg ui-modes'); modeSeg.id = 'ui-modes'; modeSeg.setAttribute('role', 'tablist'); modeSeg.setAttribute('aria-label', '模式');
   const modeBtns = new Map();
-  for (const c of CASES) { const b = el('button', c.title, undefined, {type: 'button', 'data-case': c.id, role: 'tab', title: `${c.no} ${c.title}`}); b.addEventListener('click', () => go(c.id)); modeBtns.set(c.id, b); modeSeg.append(b); }
+  for (const c of CASES) { const b = el('button', c.title, undefined, {type: 'button', 'data-mode': c.id, role: 'tab', title: `${c.no} ${c.title}`}); b.addEventListener('click', () => go(c.id)); modeBtns.set(c.id, b); modeSeg.append(b); }
   const topLeft = el('div', undefined, 'ui-top-left'); topLeft.append(burger, brand, modeSeg, ctxChip);
   const layoutSeg = el('span', undefined, 'ui-seg'); layoutSeg.id = 'ui-layout';
   const segSingle = el('button', '單畫面', undefined, {type: 'button', 'data-layout': 'single'}), segMulti = el('button', '多畫面', undefined, {type: 'button', 'data-layout': 'multi'});
