@@ -1,202 +1,249 @@
 # Amidst
 
-**多攝影機畫面的調查工作台：依條件找鏡頭、在畫面中找人、理解使用者的問題、判斷畫面是否含目標，並在目標離開鏡頭時決定要不要切鏡。每個答案都能追溯到來源證據。**
+**多攝影機畫面的調查輔助工具：用條件「查找」畫面，選定目標後跨鏡頭「追蹤」，目標進入盲區時標出推測路線。每個答案都能追溯到來源證據。**
 
-**An investigation workbench for multi-camera footage: find cameras by a condition, find a person in the footage, understand the user's question, judge whether a frame contains the target, and decide when to switch cameras as the target leaves. Every answer traces back to source evidence.**
+**An investigation aid for multi-camera footage: *search* frames by a condition, *track* a chosen target across cameras, and mark the inferred route when the target enters a blind interval. Every answer traces back to source evidence.**
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> **狀態（2026-10-27）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。主線目標是 **Q1–Q5 第一版 Demo**；即時進度看[任務看板 #93](https://github.com/Polalalabear/amidst/issues/93)。
+> **狀態（2026-11-08）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。目前在做**大問題 A：Demo 驗收**（新 UI 加真實資料，[#445](https://github.com/Polalalabear/amidst/issues/445)），即時進度和決策紀錄看[決策板 #93](https://github.com/Polalalabear/amidst/issues/93)。
 >
-> **Status (2026-10-27):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. The current goal is the **Q1–Q5 first demo**; live progress is on [task board #93](https://github.com/Polalalabear/amidst/issues/93).
+> **Status (2026-11-08):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. Current work is **epic A: demo acceptance** (new UI on real data, [#445](https://github.com/Polalalabear/amidst/issues/445)). Live progress and decisions are on [decision board #93](https://github.com/Polalalabear/amidst/issues/93).
 
 ## 繁體中文
 
 ### 這個專案在做什麼
 
-建築內的攝影機很多，調查人員常常要逐支影片回看。Amidst 讓使用者用一句話提問，系統從偵測索引中找出相關鏡頭與畫面，
-並在目標離開某台鏡頭時判斷下一台該看哪裡。系統只回答證據支持的內容：身分一律 `UNCONFIRMED`，證據不足時回 `UNKNOWN`，不以猜測補上。
+建築內的攝影機很多，調查人員常常要逐支影片回看。Amidst 只做兩件核心的事（D126）：
 
-| 編號 | 能力 | 說明 |
+| 核心 | 使用者做什麼 | 系統回什麼 |
 | --- | --- | --- |
-| Q1 | 依條件找鏡頭 | 例如「哪些鏡頭在這段時間拍到穿紅衣的人」，回傳鏡頭與時段 |
-| Q2 | 在畫面中找人 | 在時間軸與主畫面上標出人物框，同一鏡頭內以 IoU 串接成片段 |
-| Q3 | 理解使用者語意 | 把自然語言問題解析成結構化查詢；解析失敗時有可稽核的規則備援 |
-| Q4 | 判斷畫面是否含目標 | 由模型自己的偵測與顏色證據判斷任一鏡頭的 2D 畫面是否有目標 |
-| Q5 | 決定是否切鏡 | 目標離開鏡頭時，從合法的候選鏡頭中判斷下一個要看的鏡頭，以維持追蹤 |
+| **查找** | 輸入時段，再選地點或特徵（例如「人物」，可加衣服顏色） | 符合條件的鏡頭和畫面，排成結果牆，可放大逐張看 |
+| **追蹤** | 選特徵和開始時間，系統自動選取追蹤起點 | 目標在各鏡頭出現的片段、自動切鏡、播放列和追蹤紀錄；目標離開所有鏡頭時，在俯視圖畫出盲區的推測路線 |
+
+系統是**輔助**，目的是讓使用者快速知道目標大概在哪，不追求精確：
+
+- 身分一律是 `UNCONFIRMED`：串起來的片段是「條件相符的候選」，不代表同一個人。
+- 證據不足時回 `UNKNOWN`，不用猜測補上。
+- 盲區路線是推測（`INFERRED`），不代表目標實際走得通。
+
+### 畫面
+
+新 UI 在 `frontend/workbench-v2/`，從封面進入，有三個前台畫面和一個後台：
+
+| 畫面 | 內容 |
+| --- | --- |
+| case 1 查找 | 查詢窗、進度、結果牆、放大檢視 |
+| case 2 追蹤 | 單畫面和多畫面播放、自動切鏡、速度選擇、俯視圖的盲區路線、追蹤紀錄 |
+| case 3 查看 | 依事件同時看所有鏡頭 |
+| 後台（`admin.html`） | 概況、鏡頭播放、紀錄、設定（例如預設入口） |
+
+前台預設是展示模式：只顯示事件名稱和白話狀態，技術標籤收進 ⓘ。後台完整顯示所有欄位。加上 `?ui=legacy` 會回到舊工作台。
 
 ### 方法
 
 ```text
-來源 RGB 畫面 ─▶ RT-DETR 人物偵測 ─▶ 上半身 HSV 顏色訊號（STRONG／WEAK／NONE／UNKNOWN）
-                                         │
-                                         ▼
-                                    偵測索引（綁定來源、時鐘與 hash）
-                                         │
-         ┌───────────────────────────────┼───────────────────────────────┐
-         ▼                               ▼                               ▼
-   Q3 語意解析                    兩層圖：鏡頭拓撲                  Q1／Q2／Q4 查詢
-  （本機 LLM＋規則備援）           ＋同鏡頭 IoU 串接                與證據彙整
-                                         │
-                                         ▼
-                        Q5：決定性排序產生 top-k 候選鏡頭（D28）
-                        Agent 依序查證候選；超過輪數或時間上限
-                        改由決定性規則（RULE_ONLY）完整接手
+來源 RGB 畫面 ─▶ RT-DETR 物件偵測 ─▶ 人物上半身 HSV 顏色訊號
+                         │
+                         ▼
+                偵測索引（綁定來源、時鐘與 hash）
+                         │
+        ┌────────────────┴────────────────┐
+        ▼                                 ▼
+     查找                               追蹤
+  地點：場景設定的涵蓋區域          同鏡頭以 IoU 串成片段
+  特徵：索引中的偵測與顏色          兩層圖（鏡頭拓撲）決定切鏡
+                                          │
+                                          ▼
+                              盲區：依可走區域與時間
+                              推算可能路線（INFERRED）
 ```
 
-- 候選集合與順序由決定性服務產生，Agent 只在合法候選內查證與判斷，不負責排序。
-- 第一版不使用追蹤器或 ReID，也不放同色干擾人物；LLM 在本機執行（Ollama），不呼叫外部 API。
-- 每個回應都標示是否用到 Agent、是否觸發備援及原因，並保留 prompt 紀錄以便重播。
+- 地點命中是場景設定（人工在靜態畫面標的涵蓋範圍），不是看到目標，所以這類結果會標成「目標未觀測」。
+- 區域、鏡頭、類別、顏色都從 pinned 設定檔讀，程式不寫死特定教室或鏡頭。
+- Agent 和自然語言查詢（大問題 D）目前是把自然語言轉成查詢選項，使用者確認後才執行。自主行為仍是規則式，不是學習出來的。
 
 ### 核心原則
 
 | 原則 | 說明 |
 | --- | --- |
-| 證據狀態分開 | 觀測、推論、`MISSING`、`UNKNOWN` 分開保存與顯示，不混用 |
-| 身分不自動確認 | 顏色相符只是證據強弱，不代表同一人；身分維持 `UNCONFIRMED` |
-| Ground Truth 隔離 | GT 只用於模擬匯出、預測凍結後的評估與除錯，不進入偵測、索引、排序或 Agent |
+| 證據狀態分開 | `OBSERVED`、`INFERRED`、`MISSING`、`UNKNOWN` 分開保存。前台改成白話顯示，但資料層不合併 |
+| 身分不自動確認 | 顏色相符只代表證據強弱，不代表同一人；身分維持 `UNCONFIRMED` |
+| Ground Truth 隔離 | GT、渲染軌跡、visibility、depth、劇本關鍵影格不進推論、測試輸入或畫面；請求帶這些鍵會被拒絕（422） |
 | 來源追溯與 fail-closed | 每筆資料綁定來源、run、時鐘與 hash；不符就拒絕，缺資料只關閉該功能 |
-| 決定性備援 | 沒有 Agent 或 Agent 失敗時，`RULE_ONLY` 能完整回答，結果不依賴模型 |
+| 依賴自有 | 依賴、鎖定檔、啟動腳本、資料和模型的 manifest 都在 repo 裡，不借用舊環境（D133） |
 
-### 目前進度（2026-10-27）
+### 目前進度（2026-11-08）
 
-- **整合狀態：**Codex 的整合 PR [#231](https://github.com/Polalalabear/amidst/pull/231) 已併入 `codex/q1q5-staging`（`680ca35`），契約 B（[#237](https://github.com/Polalalabear/amidst/pull/237)）同在其中；#119–#122（工作台 T1–T4）已完成。staging 尚未整批併入主線。
-- **P1 與走查：**P1 可攜包 v4（MANIFEST `6e9a0a4c…`）已出；CL-4 瀏覽器走查貼在 [#228](https://github.com/Polalalabear/amidst/pull/228)。
-- **P2 目標（D84、D89）：**目錄已凍結 `3eba8572…`，`static_validity` 為 `NOT_EVALUATED`；r004 第一版採 A4-1（50 s）與 B4-1（42 s）。
-- **兩條線（D87）：**Line 1 是上述 r004 baseline；Line 2 處理複雜場景（一窗多次 RETURN、長時間 LOST、重疊接手、新鏡頭），計畫見 [#252](https://github.com/Polalalabear/amidst/pull/252)。
-- **未決：**G4（逐邊核准與 M1）；Line 2 的渲染等使用者授權（D90-3 磁碟維持現狀）。
+工作整合成四個大問題（D132）：
 
-跨攝影機盲區的 3D 軌跡重建線暫停但保留，在分支 `archive/3d-line`。
+| 大問題 | 內容 | 狀態 |
+| --- | --- | --- |
+| A [#445](https://github.com/Polalalabear/amidst/issues/445) | Demo 驗收：新 UI 加真實資料 | 新 UI（[#487](https://github.com/Polalalabear/amidst/pull/487)）在真實資料上的瀏覽器測試已通過；前台展示調整 D139（[#493](https://github.com/Polalalabear/amidst/pull/493)）審查中；之後做量測 B、走查，再由使用者驗收 |
+| B [#479](https://github.com/Polalalabear/amidst/issues/479) | 實驗紀錄與研究報告 | 實驗紀錄 v2 已出（[#488](https://github.com/Polalalabear/amidst/pull/488)）；v3 等新截圖和量測 B |
+| C [#486](https://github.com/Polalalabear/amidst/issues/486) | 大掃除與可攜性 | Python 3.12 鎖定和依賴收編已完成（[#491](https://github.com/Polalalabear/amidst/pull/491)）；Windows／Linux、CI、分支整理在驗收後 |
+| D [#489](https://github.com/Polalalabear/amidst/issues/489) | 讓 Agentic 成立 | 路徑 (b) 自然語言轉選項已完成（[#490](https://github.com/Polalalabear/amidst/pull/490)）；路徑 (a)、現場 Qwen／OpenAI 在驗收後 |
 
-全部 PR 與 issue 依五大問題與「已完成／進行中／未完成／待確認」的分類，見 **[Q1–Q5 進度導覽](docs/operations/Q1Q5_PROGRESS.md)**；
-即時狀態看[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)。
+上面的 PR 都還沒合併進 `mainline/q1q5`，合併要使用者授權。跨攝影機 3D 軌跡重建線暫停但保留，在分支 `archive/3d-line`。
 
-### 開始使用
+### 開發環境
 
-需要 [`uv`](https://docs.astral.sh/uv/) 與 Node.js 20+。Python 固定為 3.12（`.python-version`），依賴由 `uv.lock` 與各 `package-lock.json` 鎖定：
+需要 [`uv`](https://docs.astral.sh/uv/) 和 Node.js。Python 固定為 3.12（`.python-version`），Node 版本在 `.node-version`，依賴由 `uv.lock` 和各 `package-lock.json` 鎖定：
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
 cd amidst
-scripts/setup_env.sh        # 建立 .venv（Python 3.12）並照鎖定檔安裝 Python 與 node 依賴
+scripts/setup_env.sh        # 建立 .venv（Python 3.12），照鎖定檔安裝 Python 和 node 依賴
 .venv/bin/pytest tests/q1q5
+AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs
 ```
 
-Clone 只取得程式、設定與文件。Blender 場景、渲染畫面、模型權重、偵測索引與資料庫都只存在本機，不在 repository 裡，
-所以 clone 下來不能直接重現 Demo。
+### 執行真實資料 Demo
+
+Clone 只取得程式、設定和文件。渲染畫面、模型權重、偵測索引這些資料放在本機的自有資料夾（預設 `~/amidst-artifacts/demo-owned-v1`，可用 `AMIDST_DEMO_HOME` 改位置），不在 repository 裡，所以光靠 clone 不能重現 Demo。資料夾備妥後：
+
+```sh
+export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$HOME/amidst-artifacts/demo-owned-v1}"
+PYTHONPATH=src uv run --offline --no-project \
+  --python "$AMIDST_DEMO_HOME/runtime/python/bin/python3.12" \
+  python -B scripts/setup_owned_demo.py        # 第一次，或鎖定檔變了之後才需要
+./start_445_demo.command --port 8785
+```
+
+然後開 `http://localhost:8785/workbench-v2/`。細節和移機方式見[依賴收編說明](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md)；展示和驗收步驟見 [Demo 腳本兼驗收清單](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md)。目前只驗證過 Mac（darwin-arm64）。
 
 ### 分支與協作
 
 - `mainline/q1q5`：預設與整合分支，只接受 merge commit。
-- `codex/q1q5-staging`：Codex 的整合分支，審查後分批合併進主線。
+- `claude/445-demo-integration`（[#485](https://github.com/Polalalabear/amidst/pull/485)）：大問題 A 的整合分支，驗收後合進主線。
+- `claude/ui-redesign-v1`（[#487](https://github.com/Polalalabear/amidst/pull/487)）：新 UI，合進 #485。
 - `main`：Q1–Q5 轉向前的歷史版本，目前不更新。
-- Codex 與 Claude Code 依檔案與資料契約分工；檢查點以 `checkpoint` 標籤的 issue 管理。規則見 [AGENTS.md](AGENTS.md)。
+- Codex 和 Claude Code 依檔案和資料契約分工，規則見 [AGENTS.md](AGENTS.md)。只用 merge commit，不 rebase、不 force。
 
 ### 文件導覽
 
-- [Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)（現行版在 `codex/q1q5-staging`；mainline 副本不手改）
-- [Baseline 驗收計畫](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)、[兩條線計畫](https://github.com/Polalalabear/amidst/pull/252)（#252，合併後在 `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`）
-- [最新協調者交接（2026-10-27）](docs/agents/COORDINATOR_HANDOFF_20261027.md)
-- [封存索引](docs/archive/ARCHIVE_20261027.md)（討論稿、契約審查、Office、3D 線與 Phase 1／2 文件，皆為歷史）、[Q1–Q5 產品規格](docs/specs/Q1Q5_PRODUCT_SPEC.md)
-- [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性）
-- [文件索引](docs/README.md)
-- [Q1–Q5 進度導覽](docs/operations/Q1Q5_PROGRESS.md)（全部 PR 與 issue 的分類）
-- [任務看板 #93](https://github.com/Polalalabear/amidst/issues/93)、[Checkpoint #88](https://github.com/Polalalabear/amidst/issues/88)
+- [核心功能契約：查找與追蹤](docs/contracts/Q_CORE_SEARCH_TRACK_V1.md)（`Q_CORE_SEARCH_TRACK_V1`）、[Demo UI 支援契約](docs/contracts/DEMO_UI_SUPPORT_V1.md)、[Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)（時鐘、偵測索引、兩層圖的定義沿用這份）
+- [Demo 腳本兼驗收清單](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md)、[依賴收編說明](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md)、[Python 3.12 鎖定同步](docs/operations/DEMO_PY312_LOCK_SYNC_20261108.md)
+- [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性）、[Q1–Q5 產品規格](docs/specs/Q1Q5_PRODUCT_SPEC.md)
+- [文件索引](docs/README.md)、[封存索引](docs/archive/ARCHIVE_20261027.md)
+- 舊的 issue 編號已經併入四個大問題，對照表在 [#93](https://github.com/Polalalabear/amidst/issues/93)。`docs/operations/Q1Q5_PROGRESS.md` 停在 2026-10-27，以 #93 為準。
 - **給 AI agent：**依 [AGENTS.md](AGENTS.md) 工作；本 README 不重複其規則。
 
 ## English
 
 ### What it does
 
-Buildings have many cameras, and investigators often review every video by hand. Amidst lets a user ask a question in
-plain language; the system finds the relevant cameras and frames in a detection index and, when the target leaves a
-camera, decides which camera to watch next. It answers only what the evidence supports: identity is always
-`UNCONFIRMED`, and missing evidence yields `UNKNOWN` rather than a guess.
+Buildings have many cameras, and investigators often review every video by hand. Amidst does two core things (D126):
 
-| ID | Capability | Description |
+| Core | The user | The system returns |
 | --- | --- | --- |
-| Q1 | Find cameras by a condition | e.g. "which cameras saw a person in red during this period"; returns cameras and time ranges |
-| Q2 | Find a person in footage | Person boxes on the timeline and main view, linked into same-camera segments by IoU |
-| Q3 | Understand the question | Parses natural language into a structured query, with an auditable rule-based fallback |
-| Q4 | Judge whether a frame has the target | Uses the model's own detection and color evidence on any camera's 2D frame |
-| Q5 | Decide whether to switch cameras | When the target leaves, picks the next camera from legal candidates to keep tracking |
+| **Search** | Enters a time range, then picks a location or a feature (e.g. "person", optionally with a clothing color) | Matching cameras and frames as a result wall, each frame viewable full size |
+| **Track** | Picks a feature and a start time; the system chooses the starting detection | Segments where the target appears on each camera, automatic camera switching, a playback bar and a track log; when the target leaves every camera, the top view draws an inferred route through the blind interval |
+
+The system is an **aid**: it tells the user roughly where the target is, not exactly.
+
+- Identity is always `UNCONFIRMED`: linked segments are candidates that match the condition, not proof of the same person.
+- Missing evidence yields `UNKNOWN` rather than a guess.
+- The blind-interval route is an inference (`INFERRED`), not proof that the path is walkable.
+
+### Screens
+
+The new UI lives in `frontend/workbench-v2/`. A cover page leads to three front-end screens and an admin page:
+
+| Screen | Contents |
+| --- | --- |
+| Case 1 Search | Query panel, progress, result wall, full-size viewer |
+| Case 2 Track | Single and multi-view playback, automatic switching, speed selector, blind-interval route on the top view, track log |
+| Case 3 View | All cameras of one event side by side |
+| Admin (`admin.html`) | Overview, camera playback, logs, settings (e.g. the default entry screen) |
+
+The front end defaults to presentation mode: it shows the event name and plain-language status, with technical labels behind ⓘ. The admin page shows every field. Adding `?ui=legacy` returns to the old workbench.
 
 ### Method
 
 ```text
-Source RGB frames ─▶ RT-DETR person detection ─▶ upper-body HSV color signal (STRONG / WEAK / NONE / UNKNOWN)
-                                                    │
-                                                    ▼
-                                    Detection index (bound to source, clock and hash)
-                                                    │
-         ┌──────────────────────────────────────────┼──────────────────────────────┐
-         ▼                                          ▼                              ▼
-   Q3 query parsing                   Two-layer graph: camera topology       Q1 / Q2 / Q4 queries
-  (local LLM + rule fallback)         + same-camera IoU linking              and evidence summaries
-                                                    │
-                                                    ▼
-                        Q5: deterministic ordering yields top-k candidate cameras (D28)
-                        The Agent checks candidates in order; past a round or time limit
-                        the deterministic RULE_ONLY path takes over completely
+Source RGB frames ─▶ RT-DETR object detection ─▶ upper-body HSV color signal for persons
+                              │
+                              ▼
+               Detection index (bound to source, clock and hash)
+                              │
+          ┌───────────────────┴───────────────────┐
+          ▼                                       ▼
+       Search                                   Track
+  Location: configured coverage areas     Same-camera segments linked by IoU
+  Feature: detections and colors          Two-layer camera graph decides switching
+                                                  │
+                                                  ▼
+                                   Blind interval: possible routes from
+                                   walkable area and time (INFERRED)
 ```
 
-- A deterministic service produces the candidate set and order. The Agent only checks and judges legal candidates; it never ranks.
-- The first version uses no tracker or ReID and no same-color distractor. The LLM runs locally (Ollama); no external API is called.
-- Every response records whether the Agent was used, whether the fallback fired and why, and keeps the prompts for replay.
+- A location hit is scene configuration (coverage hand-marked on a still frame), not a sighting, so such results are marked "target not observed".
+- Regions, cameras, classes and colors are read from pinned configuration; no classroom or camera is hard-coded.
+- The agent and natural-language query (epic D) currently turn a sentence into query options that run only after the user confirms. Autonomous behavior is still rule-based, not learned.
 
 ### Principles
 
 | Principle | Meaning |
 | --- | --- |
-| Separate evidence states | Observed, inferred, `MISSING` and `UNKNOWN` are stored and shown separately, never mixed |
+| Separate evidence states | `OBSERVED`, `INFERRED`, `MISSING` and `UNKNOWN` are stored separately. The front end words them plainly; the data layer never merges them |
 | No automatic identity | A color match is evidence strength, not identity; identity stays `UNCONFIRMED` |
-| Ground Truth isolation | GT is used only for simulation export, evaluation after predictions freeze, and debugging; never for detection, indexing, ranking or the Agent |
+| Ground Truth isolation | GT, render trajectories, visibility, depth and script keyframes never enter inference, test inputs or the screen; requests carrying them are rejected (422) |
 | Provenance and fail-closed | Every record is bound to source, run, clock and hash. Mismatches are rejected; missing data disables only that feature |
-| Deterministic fallback | Without the Agent, or when it fails, `RULE_ONLY` answers fully; results do not depend on a model |
+| Owned dependencies | Dependencies, lock files, launch scripts and data/model manifests live in the repository; no old environments are reused (D133) |
 
-### Progress (2026-10-27)
+### Progress (2026-11-08)
 
-- **Integration:** Codex's integration PR [#231](https://github.com/Polalalabear/amidst/pull/231) is merged into `codex/q1q5-staging` (`680ca35`), together with contract B ([#237](https://github.com/Polalalabear/amidst/pull/237)); the workbench tasks T1–T4 (#119–#122) are done. Staging has not yet been merged into mainline as a whole.
-- **P1 and walkthrough:** the portable P1 package v4 (MANIFEST `6e9a0a4c…`) exists; the CL-4 browser walkthrough is posted on [#228](https://github.com/Polalalabear/amidst/pull/228).
-- **P2 target (D84, D89):** the catalog is frozen at `3eba8572…` with `static_validity` = `NOT_EVALUATED`; the first r004 version uses A4-1 (50 s) and B4-1 (42 s).
-- **Two lines (D87):** Line 1 is the r004 baseline above; Line 2 covers complex scenes (several RETURN events in one window, long LOST spans, overlap handoff, new cameras); plan in [#252](https://github.com/Polalalabear/amidst/pull/252).
-- **Open:** G4 (per-edge approval and M1); Line 2 rendering awaits the user's authorization (D90-3, disk kept as is).
+Work is organized into four epics (D132):
 
-The cross-camera blind-interval 3D reconstruction line is paused but kept on the branch `archive/3d-line`.
+| Epic | Scope | Status |
+| --- | --- | --- |
+| A [#445](https://github.com/Polalalabear/amidst/issues/445) | Demo acceptance: new UI on real data | The new UI ([#487](https://github.com/Polalalabear/amidst/pull/487)) passes its browser tests on real data; presentation changes D139 ([#493](https://github.com/Polalalabear/amidst/pull/493)) are in review; measurement B, a walkthrough and the user's acceptance follow |
+| B [#479](https://github.com/Polalalabear/amidst/issues/479) | Experiment record and research report | Record v2 is out ([#488](https://github.com/Polalalabear/amidst/pull/488)); v3 waits for new screenshots and measurement B |
+| C [#486](https://github.com/Polalalabear/amidst/issues/486) | Cleanup and portability | Python 3.12 pin and owned dependencies are done ([#491](https://github.com/Polalalabear/amidst/pull/491)); Windows/Linux, CI and branch cleanup come after acceptance |
+| D [#489](https://github.com/Polalalabear/amidst/issues/489) | Making the agentic claim hold | Path (b), natural language to query options, is done ([#490](https://github.com/Polalalabear/amidst/pull/490)); path (a) and live Qwen/OpenAI come after acceptance |
 
-Every PR and issue, classified by the five questions and by done / in progress / not done / to confirm, is in the
-**[Q1–Q5 progress guide](docs/operations/Q1Q5_PROGRESS.md)** (Traditional Chinese). Live status is on
-[task board #93](https://github.com/Polalalabear/amidst/issues/93).
+None of these PRs is merged into `mainline/q1q5` yet; merging needs the user's authorization. The cross-camera 3D reconstruction line is paused but kept on the branch `archive/3d-line`.
 
-### Getting started
+### Development setup
 
-Requires [`uv`](https://docs.astral.sh/uv/) and Node.js 20+. Python is pinned to 3.12 (`.python-version`); dependencies are locked by `uv.lock` and each `package-lock.json`:
+Requires [`uv`](https://docs.astral.sh/uv/) and Node.js. Python is pinned to 3.12 (`.python-version`), Node to `.node-version`, and dependencies are locked by `uv.lock` and each `package-lock.json`:
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
 cd amidst
-scripts/setup_env.sh        # 建立 .venv（Python 3.12）並照鎖定檔安裝 Python 與 node 依賴
+scripts/setup_env.sh        # creates .venv (Python 3.12) and installs locked Python and node dependencies
 .venv/bin/pytest tests/q1q5
+AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs
 ```
 
-A clone contains code, configuration and documents only. Blender scenes, rendered frames, model weights, the detection
-index and databases live on a local machine and are not in the repository, so a clone cannot reproduce the demo on its own.
+### Running the real-data demo
+
+A clone contains code, configuration and documents only. Rendered frames, model weights and the detection index live in a local owned folder (default `~/amidst-artifacts/demo-owned-v1`, overridable with `AMIDST_DEMO_HOME`) and are not in the repository, so a clone alone cannot reproduce the demo. With that folder in place:
+
+```sh
+export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$HOME/amidst-artifacts/demo-owned-v1}"
+PYTHONPATH=src uv run --offline --no-project \
+  --python "$AMIDST_DEMO_HOME/runtime/python/bin/python3.12" \
+  python -B scripts/setup_owned_demo.py        # first run, or after the locks change
+./start_445_demo.command --port 8785
+```
+
+Then open `http://localhost:8785/workbench-v2/`. Details and moving to another machine are in the [owned-dependency notes](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md); the demo and acceptance steps are in the [demo script and acceptance checklist](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md) (both in Traditional Chinese). Only macOS (darwin-arm64) has been verified so far.
 
 ### Branches and collaboration
 
 - `mainline/q1q5`: default and integration branch; merge commits only.
-- `codex/q1q5-staging`: Codex's integration branch, merged into mainline in reviewed batches.
+- `claude/445-demo-integration` ([#485](https://github.com/Polalalabear/amidst/pull/485)): epic A integration branch, merged into mainline after acceptance.
+- `claude/ui-redesign-v1` ([#487](https://github.com/Polalalabear/amidst/pull/487)): the new UI, merged into #485.
 - `main`: the pre-Q1–Q5 history; not currently updated.
-- Codex and Claude Code split work by file sets and data contracts; checkpoints are issues labeled `checkpoint`. See [AGENTS.md](AGENTS.md).
+- Codex and Claude Code split work by file sets and data contracts; see [AGENTS.md](AGENTS.md). Merge commits only; no rebase or force-push.
 
 ### Documents
 
-- [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) (the current version is on `codex/q1q5-staging`; the mainline copy is not edited by hand)
-- [Baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md), [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (#252; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md` once merged)
-- [Latest coordinator handoff (2026-10-27)](docs/agents/COORDINATOR_HANDOFF_20261027.md)
-- [Archive index](docs/archive/ARCHIVE_20261027.md) (discussion drafts, contract review, Office, 3D-line and Phase 1/2 documents, all historical) and the [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md)
-- [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty)
-- [Document index](docs/README.md)
-- [Q1–Q5 progress guide](docs/operations/Q1Q5_PROGRESS.md) (every PR and issue, classified)
-- [Task board #93](https://github.com/Polalalabear/amidst/issues/93), [checkpoint #88](https://github.com/Polalalabear/amidst/issues/88)
+- [Core contract: search and track](docs/contracts/Q_CORE_SEARCH_TRACK_V1.md) (`Q_CORE_SEARCH_TRACK_V1`), [demo UI support contract](docs/contracts/DEMO_UI_SUPPORT_V1.md), [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) (still the source for clocks, the detection index and the two-layer graph)
+- [Demo script and acceptance checklist](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md), [owned-dependency notes](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md), [Python 3.12 lock sync](docs/operations/DEMO_PY312_LOCK_SYNC_20261108.md)
+- [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty), [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md)
+- [Document index](docs/README.md), [archive index](docs/archive/ARCHIVE_20261027.md)
+- Old issue numbers were folded into the four epics; the mapping is on [#93](https://github.com/Polalalabear/amidst/issues/93). `docs/operations/Q1Q5_PROGRESS.md` stops at 2026-10-27; #93 is authoritative.
 - **For AI agents:** work by [AGENTS.md](AGENTS.md); this README does not repeat its rules.
