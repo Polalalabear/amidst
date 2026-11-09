@@ -513,6 +513,46 @@ A6 & 可重播 & 同一錄製檔不連 LLM 產生逐位元組相同結果（T-U7
 
 \paragraph{結論。}副標題中的「Agentic」目前仍未被實際驗證：A1、A2 沒有任何路徑滿足，A3–A6 只在合成 fixture 上成立。要成立，至少需要 (1) Codex 完成 Qwen3 1.7B 的 (b) 錄製，並以第~\ref{sec:rq3} 節的方法和規則解析器對照；(2) 實作路徑 (a)，以真實錄製通過 A1–A6 的全部測試，並以 \code{RULE_ONLY} 為基準比較；(3) 記錄逾時率與合法輸出率。若無法在報告前完成，建議把副標題改為描述實際能力的用語。
 
+\subsection{目前遇到的重大問題（2026-11-09）}\label{sec:issues}
+使用者在 8787（\code{f7752ec}）看畫面後，以人工方式記下人物實際出現的時段（表~\ref{tab:recall} 的「參考格數」）。這份人工結果只用來評估，不進推論、排序或重建\src{S18,S19}。表~\ref{tab:issues} 列出目前遇到的重大問題（I1–I7）。表~\ref{tab:recall} 是只讀現有索引、不重跑推論的召回率比較\src{S19}。
+
+\begin{table}[htbp]
+\centering\small
+\caption{目前遇到的重大問題（2026-11-09）。}
+\label{tab:issues}
+\footnotesize\begin{tabularx}{\linewidth}{l >{\raggedright}p{3.0cm} >{\raggedright}X >{\raggedright\arraybackslash}p{3.6cm}}
+\toprule
+\# & 問題 & 證據 & 狀態 \\
+\midrule
+I1 & 人偶被偵測成其他類別 & A4 W1 9–14 s 共 25 格，只有 1 格 person $\ge 0.4$，其餘被判成 traffic light、toothbrush、parking meter；B4 BRANCH 13–22 s 0/45 格、R101 32–42 s 0/50 格，34 s 後只剩頭部大小的 sports ball 框；框的位置是連續移動的\src{S19} & 原型「起點 $\ge 0.3$＋不分類別接續」離線召回 78–97\%（表~\ref{tab:recall}），不必重跑推論；待 Codex 依 D147 實作 \\
+I2 & 車輛完全沒有偵測到 & A4 的 \code{detected_class_counts} 沒有 car（0 筆），使用者確認場景裡有車\src{S18} & 未解決；需要換模型或重跑偵測，列為後續 \\
+I3 & 誤判類別數量多 & B-05 refrigerator 1146 筆、B4 toilet 449 筆，查找窗的鏡頭數因此包含誤判\src{S18} & 前端已改成場景物件置頂、其他類別收合（\code{8a45bea}，只影響顯示） \\
+I4 & 追蹤規則太保守 & 跟丟後只等 6 s、遇到歧義就停：B4 WIDE 14.0–20.0 s 有 31 筆、W2 26.8–30.0 s 有 17 筆、A4 EXT\_CLEAR 28.8–36.8 s 有 41 筆合格候選未採用；實際追蹤對五個參考段的召回率都 $\le 4\%$\src{S18,S19} & D147-1 已決定（全程重掃、歧義不中止）；驗收測試已寫好（\code{dceeb7c}），待 Codex \\
+I5 & 同一鏡頭短缺口造成閃爍 & A4 W1 14.8–22.8 s 有 9 個 0.2–0.4 s 的缺口\src{S18} & D147-1：同鏡頭 $\le 0.6$ s 合併；待 Codex \\
+I6 & 拖曳播放條彈回起點 & 時間軸每次更新都整列重建，連拖曳中的 range input 也被搬動；舊版拖到 70\% 停在 5.8 s & 已修正（\code{8a45bea}），新版停在 35.1 s \\
+I7 & 測試環境 & dom-e2e 預設連到 8785（舊版 \code{4ea0ebb}），未指定伺服器時測到的是舊程式；可用磁碟 6.9 GiB，低於 8 GiB 保護線，需要真實資料的 pytest 都被擋下 & 待清出空間（D138 本機整併）；dom-e2e 改用本 commit 的預覽伺服器執行 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{人工參考段的召回率：格數（比例）。只讀現有索引，不重跑推論。}
+\label{tab:recall}
+\footnotesize\begin{tabular}{llrrrrrr}
+\toprule
+段落 & 鏡頭 & 參考格數 & 現行 $\ge 0.4$ & $\ge 0.3$ & 接續（起點 $\ge 0.4$） & 建議 & 實際追蹤 \\
+\midrule
+A4-W1-early & CAM\_W1 & 25 & 1 (4\%) & 2 (8\%) & 18 (72\%) & 21 (84\%) & 1 (4\%) \\
+A4-W1-late & CAM\_W1 & 60 & 1 (2\%) & 1 (2\%) & 56 (93\%) & 58 (97\%) & 0 (0\%) \\
+B4-WIDE & CAM\_WIDE & 40 & 33 (82\%) & 34 (85\%) & 34 (85\%) & 34 (85\%) & 0 (0\%) \\
+B4-BRANCH & CAM\_BRANCH & 45 & 0 (0\%) & 4 (9\%) & 0 (0\%) & 35 (78\%) & 0 (0\%) \\
+B4-R101 & CAM\_R101\_IN & 50 & 0 (0\%) & 3 (6\%) & 0 (0\%) & 45 (90\%) & 0 (0\%) \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize 「建議」為起點 person $\ge 0.3$（索引下限）加上不分類別的框接續，框可縮小到 1/12（例如只剩頭部）。「實際追蹤」為 \code{f7752ec} 在 8787 的 real-e2e 回應（1440×900 第二次）。每格 0.2 s。接續的框沒有顏色驗證，因為索引只對 person 計算顏色\src{S19}。
+\end{table}
+
 \subsection{其他限制}
 \begin{itemize}
   \item \textbf{合成影像。}B-05 使用 P1 v4 \code{SYNTHETIC} RGB，只有 A4-1／B4-1 是 \code{ACTUAL_BLENDER} RGB\src{S1}；且 B-05 沒有可畫的盲區曲線\src{S1}。
@@ -533,6 +573,7 @@ A6 & 可重播 & 同一錄製檔不連 LLM 產生逐位元組相同結果（T-U7
   \item 實作路徑 (a) 跟丟找回（D134），並支援 case2 手動改選種子（D137）。
   \item 把盲區假設模組（\eqref{eq:reach}–\eqref{eq:admissible}）接入 case2，並在 A4／B4 上與 \eqref{eq:window} 的顯示路徑比較。
   \item 依第 \ref{sec:discussion} 節的方式驗證或修正「Agentic」的宣稱。
+  \item 依第~\ref{sec:issues} 節處理 I1–I7：Codex 實作 D147（全程重掃、短缺口合併、不分類別接續），以人工參考段的召回率 $\ge 0.75$ 為驗收門檻；車輛偵測（I2）另行評估換模型。
 \end{enumerate}
 
 %=====================================================================
@@ -583,6 +624,8 @@ S14 & \#93 決策留言（2026-11-08）：D130 6717574920、D131 6717610160 與�
 S15 & PR \#490 描述「實際產出」與「Deviations」（head \code{ebc6d3f}），\url{https://github.com/Polalalabear/amidst/pull/490}；以及同一 head 的 \code{configs/epicd/nl_sentences_v1.json}、\code{nl_recording_synthetic_fixture_v1.json} \\
 S16 & 大問題 C（\#486）勾選清單（\#456 W-A14 GitHub Actions），\url{https://github.com/Polalalabear/amidst/issues/486}；\#93 協調清單留言 6719482435「D. 驗收之後」 \\
 S17 & 模型版本：RT-DETR 權重 SHA-256 取自 \code{configs/q1q5/r004_production_v1.json}@\code{1fdc1a4}（\code{weights_file_sha256}）與 S11 的 \code{D131_417_DEMO_DEFAULT_RESULTS.md}@\code{a786bde}；Qwen3 1.7B digest 取自 \code{docs/history/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.json}@\code{1fdc1a4}（\code{model_digest}） \\
+S18 & \#93 決策 D147（2026-11-09）留言 6730595312，\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6730595312}；前端修正 \code{claude/ui-d139}@\code{8a45bea}（PR \#493） \\
+S19 & 人工參考 \code{configs/evaluation/d147_human_reference_v1.json}、評估程式 \code{src/amidst/evaluation/track_recall.py} 與 \code{scripts/eval_d147_recall.py}@\code{dceeb7c}；輸出 \code{docs/research/experiment_record/data/d147_recall_eval.json}；索引 A4-1 \code{1a6bfa20}…、B4-1 \code{24944adf}…（\code{content_sha256}） \\
 \bottomrule
 \end{longtable}
 

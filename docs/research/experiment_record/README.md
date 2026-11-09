@@ -10,6 +10,12 @@ v2 (2026-11-08) adds: reproducibility method (§4.4) and Appendix C table
 Appendix D workflow decisions D131–D137. Placeholders, not filled:
 `TODO：待 #487 定版後換圖` (Fig. 5) and `NOT_RUN：量測 B` (§5.2).
 
+v2.1 (2026-11-09) adds §6.2 major issues I1–I7 (person detected as other
+classes, no car detections, tracking rules too conservative, flicker,
+scrub snap-back, test environment) and Table 10, recall against the user's
+human reference (evaluation only; `data/d147_recall_eval.json`, produced by
+`scripts/eval_d147_recall.py` at `dceeb7c` on `claude/ui-d139`).
+
 - Source: `amidst_experiment_record.tex`
 - Output: `amidst_experiment_record.pdf` (committed; LOCAL copy in
   `/Users/polalabear/amidst-artifacts/experiment-record-20261108/`)

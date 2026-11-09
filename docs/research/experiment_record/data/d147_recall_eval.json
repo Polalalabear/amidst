@@ -1,0 +1,397 @@
+{
+  "reference": {
+    "path": "configs/evaluation/d147_human_reference_v1.json",
+    "sha256": "8853add4d0c41987bda7c282c58a55bb3ff7b6e4d5c3697c84a42aa6250e44f5"
+  },
+  "inference_run": false,
+  "runs": [
+    {
+      "label": "A4-1",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "index_content_sha256": "1a6bfa206a1bb3b5c67e7f8dd9aabf1675bee70145b89772854f0dc83a7d55b1",
+      "records_file_sha256": "462388425ea6c38ba0f13c2738f57d5f2feca3d5e2ea9ad354e6b087d30809f0",
+      "strategies": {
+        "person>=0.4 (current)": [
+          {
+            "id": "A4-W1-early",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              9000000,
+              14000000
+            ],
+            "reference_frames": 25,
+            "covered_frames": 1,
+            "recall": 0.04
+          },
+          {
+            "id": "A4-W1-late",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              38000000,
+              50000000
+            ],
+            "reference_frames": 60,
+            "covered_frames": 1,
+            "recall": 0.0167
+          }
+        ],
+        "person>=0.3": [
+          {
+            "id": "A4-W1-early",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              9000000,
+              14000000
+            ],
+            "reference_frames": 25,
+            "covered_frames": 2,
+            "recall": 0.08
+          },
+          {
+            "id": "A4-W1-late",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              38000000,
+              50000000
+            ],
+            "reference_frames": 60,
+            "covered_frames": 1,
+            "recall": 0.0167
+          }
+        ],
+        "box continuation (any class)": [
+          {
+            "id": "A4-W1-early",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              9000000,
+              14000000
+            ],
+            "reference_frames": 25,
+            "covered_frames": 18,
+            "recall": 0.72
+          },
+          {
+            "id": "A4-W1-late",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              38000000,
+              50000000
+            ],
+            "reference_frames": 60,
+            "covered_frames": 56,
+            "recall": 0.9333
+          }
+        ],
+        "seed>=0.3 + continuation, area<=12x (recommended)": [
+          {
+            "id": "A4-W1-early",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              9000000,
+              14000000
+            ],
+            "reference_frames": 25,
+            "covered_frames": 21,
+            "recall": 0.84
+          },
+          {
+            "id": "A4-W1-late",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              38000000,
+              50000000
+            ],
+            "reference_frames": 60,
+            "covered_frames": 58,
+            "recall": 0.9667
+          }
+        ]
+      },
+      "frames_per_camera": {
+        "person>=0.4 (current)": {
+          "CAM_ENTRY": 0,
+          "CAM_EXT_CAR": 2,
+          "CAM_EXT_CLEAR": 60,
+          "CAM_W1": 30
+        },
+        "person>=0.3": {
+          "CAM_ENTRY": 0,
+          "CAM_EXT_CAR": 16,
+          "CAM_EXT_CLEAR": 63,
+          "CAM_W1": 42
+        },
+        "box continuation (any class)": {
+          "CAM_ENTRY": 0,
+          "CAM_EXT_CAR": 6,
+          "CAM_EXT_CLEAR": 60,
+          "CAM_W1": 136
+        },
+        "seed>=0.3 + continuation, area<=12x (recommended)": {
+          "CAM_ENTRY": 0,
+          "CAM_EXT_CAR": 18,
+          "CAM_EXT_CLEAR": 65,
+          "CAM_W1": 143
+        }
+      },
+      "continuation_only_frames_per_camera": {
+        "CAM_ENTRY": 0,
+        "CAM_EXT_CAR": 0,
+        "CAM_EXT_CLEAR": 0,
+        "CAM_W1": 96
+      },
+      "track_response": {
+        "path": "/Users/polalabear/amidst-artifacts/demo-owned-v1/evidence/d139-493/verify-f7752ec-d146-20261109/900-retry/A4-1-track-response.json",
+        "sha256": "f55aa0b9cd3475ee9ca5173efc76ab76a2a9a09bb0298f1c2b0d540235be0647",
+        "scores": [
+          {
+            "id": "A4-W1-early",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              9000000,
+              14000000
+            ],
+            "reference_frames": 25,
+            "covered_frames": 1,
+            "recall": 0.04
+          },
+          {
+            "id": "A4-W1-late",
+            "camera_id": "CAM_W1",
+            "range_us": [
+              38000000,
+              50000000
+            ],
+            "reference_frames": 60,
+            "covered_frames": 0,
+            "recall": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "label": "B4-1",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "index_content_sha256": "24944adfa947b2421f3073d29d3e1d8397bd916af4ba422ea22d880f4edee0fe",
+      "records_file_sha256": "c2b8bfa02db34104aca22d76bdc4ae30f7b6254506ea56a54ccb36993b2a524f",
+      "strategies": {
+        "person>=0.4 (current)": [
+          {
+            "id": "B4-WIDE",
+            "camera_id": "CAM_WIDE",
+            "range_us": [
+              13000000,
+              21000000
+            ],
+            "reference_frames": 40,
+            "covered_frames": 33,
+            "recall": 0.825
+          },
+          {
+            "id": "B4-BRANCH",
+            "camera_id": "CAM_BRANCH",
+            "range_us": [
+              13000000,
+              22000000
+            ],
+            "reference_frames": 45,
+            "covered_frames": 0,
+            "recall": 0.0
+          },
+          {
+            "id": "B4-R101",
+            "camera_id": "CAM_R101_IN",
+            "range_us": [
+              32000000,
+              42000000
+            ],
+            "reference_frames": 50,
+            "covered_frames": 0,
+            "recall": 0.0
+          }
+        ],
+        "person>=0.3": [
+          {
+            "id": "B4-WIDE",
+            "camera_id": "CAM_WIDE",
+            "range_us": [
+              13000000,
+              21000000
+            ],
+            "reference_frames": 40,
+            "covered_frames": 34,
+            "recall": 0.85
+          },
+          {
+            "id": "B4-BRANCH",
+            "camera_id": "CAM_BRANCH",
+            "range_us": [
+              13000000,
+              22000000
+            ],
+            "reference_frames": 45,
+            "covered_frames": 4,
+            "recall": 0.0889
+          },
+          {
+            "id": "B4-R101",
+            "camera_id": "CAM_R101_IN",
+            "range_us": [
+              32000000,
+              42000000
+            ],
+            "reference_frames": 50,
+            "covered_frames": 3,
+            "recall": 0.06
+          }
+        ],
+        "box continuation (any class)": [
+          {
+            "id": "B4-WIDE",
+            "camera_id": "CAM_WIDE",
+            "range_us": [
+              13000000,
+              21000000
+            ],
+            "reference_frames": 40,
+            "covered_frames": 34,
+            "recall": 0.85
+          },
+          {
+            "id": "B4-BRANCH",
+            "camera_id": "CAM_BRANCH",
+            "range_us": [
+              13000000,
+              22000000
+            ],
+            "reference_frames": 45,
+            "covered_frames": 0,
+            "recall": 0.0
+          },
+          {
+            "id": "B4-R101",
+            "camera_id": "CAM_R101_IN",
+            "range_us": [
+              32000000,
+              42000000
+            ],
+            "reference_frames": 50,
+            "covered_frames": 0,
+            "recall": 0.0
+          }
+        ],
+        "seed>=0.3 + continuation, area<=12x (recommended)": [
+          {
+            "id": "B4-WIDE",
+            "camera_id": "CAM_WIDE",
+            "range_us": [
+              13000000,
+              21000000
+            ],
+            "reference_frames": 40,
+            "covered_frames": 34,
+            "recall": 0.85
+          },
+          {
+            "id": "B4-BRANCH",
+            "camera_id": "CAM_BRANCH",
+            "range_us": [
+              13000000,
+              22000000
+            ],
+            "reference_frames": 45,
+            "covered_frames": 35,
+            "recall": 0.7778
+          },
+          {
+            "id": "B4-R101",
+            "camera_id": "CAM_R101_IN",
+            "range_us": [
+              32000000,
+              42000000
+            ],
+            "reference_frames": 50,
+            "covered_frames": 45,
+            "recall": 0.9
+          }
+        ]
+      },
+      "frames_per_camera": {
+        "person>=0.4 (current)": {
+          "CAM_BRANCH": 0,
+          "CAM_R101_IN": 3,
+          "CAM_W1": 13,
+          "CAM_W2": 36,
+          "CAM_WIDE": 33
+        },
+        "person>=0.3": {
+          "CAM_BRANCH": 4,
+          "CAM_R101_IN": 11,
+          "CAM_W1": 23,
+          "CAM_W2": 46,
+          "CAM_WIDE": 34
+        },
+        "box continuation (any class)": {
+          "CAM_BRANCH": 0,
+          "CAM_R101_IN": 6,
+          "CAM_W1": 19,
+          "CAM_W2": 87,
+          "CAM_WIDE": 34
+        },
+        "seed>=0.3 + continuation, area<=12x (recommended)": {
+          "CAM_BRANCH": 35,
+          "CAM_R101_IN": 63,
+          "CAM_W1": 27,
+          "CAM_W2": 90,
+          "CAM_WIDE": 34
+        }
+      },
+      "continuation_only_frames_per_camera": {
+        "CAM_BRANCH": 0,
+        "CAM_R101_IN": 2,
+        "CAM_W1": 2,
+        "CAM_W2": 43,
+        "CAM_WIDE": 0
+      },
+      "track_response": {
+        "path": "/Users/polalabear/amidst-artifacts/demo-owned-v1/evidence/d139-493/verify-f7752ec-d146-20261109/900-retry/B4-1-track-response.json",
+        "sha256": "bf877cd1a1c8c60f6629a4980cd9307f3feab74cb0acd435a74b28d4b16773e4",
+        "scores": [
+          {
+            "id": "B4-WIDE",
+            "camera_id": "CAM_WIDE",
+            "range_us": [
+              13000000,
+              21000000
+            ],
+            "reference_frames": 40,
+            "covered_frames": 0,
+            "recall": 0.0
+          },
+          {
+            "id": "B4-BRANCH",
+            "camera_id": "CAM_BRANCH",
+            "range_us": [
+              13000000,
+              22000000
+            ],
+            "reference_frames": 45,
+            "covered_frames": 0,
+            "recall": 0.0
+          },
+          {
+            "id": "B4-R101",
+            "camera_id": "CAM_R101_IN",
+            "range_us": [
+              32000000,
+              42000000
+            ],
+            "reference_frames": 50,
+            "covered_frames": 0,
+            "recall": 0.0
+          }
+        ]
+      }
+    }
+  ]
+}
