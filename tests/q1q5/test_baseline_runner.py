@@ -21,6 +21,7 @@ from amidst.q1q5.llm_provider import QWEN3_MODEL, FakeProvider
 from amidst.q1q5.store import DetectionSnapshot, canonical_hash
 
 ROOT = Path(__file__).resolve().parents[2]
+PROTOCOL = ROOT / "configs/q1q5/baseline_v1_protocol.json"
 
 
 @pytest.fixture(autouse=True)
@@ -35,7 +36,6 @@ def _ample_free_disk(monkeypatch):
     monkeypatch.setattr(shutil, "disk_usage", lambda _path: usage(2**40, 0, 2**40))
 
 
-PROTOCOL =ROOT / "configs/q1q5/baseline_v1_protocol.json"
 PATTERNS = {
     "supported_candidate": None,
     "empty_candidates": {"A": {0: "STRONG", 1: "STRONG"}},
