@@ -145,7 +145,9 @@ def associate(tracks, transitions, *, as_of_us, parameters):
             link_kind = ('SAME_CAMERA_REACQUISITION' if same_camera else
                          'CROSS_CAMERA_HANDOFF' if edge is not None and gap <= parameters.handoff_max_gap_us
                          else 'CROSS_CAMERA_REACQUISITION')
-            reason = None if known_colors(current, timestamp).intersection(known_colors(candidate, timestamp)) else 'COLOR_NOT_COMPATIBLE'
+            reason = ('CURRENT_CAMERA_STILL_OBSERVED' if gap < 0 else
+                      None if known_colors(current, timestamp).intersection(known_colors(candidate, timestamp))
+                      else 'COLOR_NOT_COMPATIBLE')
             row = {'from_camera_id': current.camera_id, 'to_camera_id': candidate.camera_id,
                    'timestamp_us': timestamp, 'transition_id': edge if link_kind == 'CROSS_CAMERA_HANDOFF' else None,
                    'gap_us': gap, 'link_kind': link_kind,

@@ -156,3 +156,9 @@ def test_d147_edge_free_or_late_candidate_is_unconfirmed_reacquisition(edges, ma
     assert events[0]['link_kind'] == 'CROSS_CAMERA_REACQUISITION'
     assert result['sightings'][-1]['camera_id'] == 'B'
     assert audit[0]['identity_verdict'] == 'UNCONFIRMED'
+
+
+def test_reacquisition_cannot_interrupt_a_current_sample_before_its_interval_end():
+    result, events, audit = replay([track('A', [0]), track('B', [100_000])])
+    assert not events and audit[0]['reason'] == 'CURRENT_CAMERA_STILL_OBSERVED'
+    assert result['single_view'][0]['range_us'] == [0, 200_000]

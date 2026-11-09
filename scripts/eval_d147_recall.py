@@ -43,13 +43,26 @@ def load_records(home, label):
 
 def strategies(records, cameras):
     out = {}
-    out['person>=0.4 (current)'] = {c: person_frames(records, c, 0.4) for c in cameras}
+    out['person>=0.4 (legacy)'] = {c: person_frames(records, c, 0.4) for c in cameras}
     out['person>=0.3'] = {c: person_frames(records, c, 0.3) for c in cameras}
     cont = {c: box_continuation_frames(records, c) for c in cameras}
     out['box continuation (any class)'] = {c: v[0] for c, v in cont.items()}
     low = {c: box_continuation_frames(records, c, **RECOMMENDED) for c in cameras}
     out['seed>=0.3 + continuation, area<=12x (recommended)'] = {c: v[0] for c, v in low.items()}
     return out, {c: len(v[1]) for c, v in cont.items()}
+
+
+def load_track_response(path, *, run_id, index_sha256):
+    response = json.loads(Path(path).read_text())
+    scope = response.get('resolved_scope', {})
+    if (response.get('schema_version') != 'q-core.track-response.v1' or scope.get('run_id') != run_id
+            or scope.get('detection_index_sha256') != index_sha256):
+        raise ValueError('TRACK_SCOPE_MISMATCH')
+    raw = json.dumps({k: v for k, v in response.items() if k not in {'output_sha256', 'stats'}},
+                     sort_keys=True, separators=(',', ':'), ensure_ascii=True, allow_nan=False).encode()
+    if hashlib.sha256(raw).hexdigest() != response.get('output_sha256'):
+        raise ValueError('TRACK_OUTPUT_SHA256_MISMATCH')
+    return response
 
 
 def main():
@@ -63,7 +76,7 @@ def main():
     tracks = dict(item.split('=', 1) for item in args.track)
     result = {'reference': {'path': os.path.relpath(args.reference, ROOT), 'sha256': sha256(args.reference)},
               'inference_run': False, 'runs': []}
-    lines = ['| 場景 | 段落 | 鏡頭 | 參考格數 | ' + ' | '.join(['現行 ≥0.4', '≥0.3', '不分類別接續（起點 ≥0.4）', '建議：起點 ≥0.3＋接續（框可縮 12 倍）', '實際 sightings 召回']) + ' |',
+    lines = ['| 場景 | 段落 | 鏡頭 | 參考格數 | ' + ' | '.join(['舊版 person ≥0.4', '≥0.3', '不分類別接續（起點 ≥0.4）', 'D148 原型：起點 ≥0.3＋接續（框可縮 12 倍）', '實際 sightings 召回']) + ' |',
              '|---|---|---|---:|---:|---:|---:|---:|---:|']
     for run in reference['runs']:
         manifest, records = load_records(args.home, run['label'])
@@ -79,7 +92,7 @@ def main():
         actual = None
         if run['label'] in tracks:
             path = tracks[run['label']]
-            response = json.loads(Path(path).read_text())
+            response = load_track_response(path, run_id=run['run_id'], index_sha256=manifest['content_sha256'])
             actual = score_sightings(records, run, response['sightings'])
             entry['single_view_switching'] = score_single_view_switching(run, response['single_view'])
             entry['single_view_per_camera_diagnostic'] = score_single_view(records, run, response['single_view'])
