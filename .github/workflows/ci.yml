@@ -1,0 +1,99 @@
+name: ci
+
+# Phase 1 CI (#486): results are bound to the commit SHA shown in the job summary.
+# No secrets, no external services (package install only), nothing is uploaded.
+# GT isolation: the steps only run repository checks/tests; they never read gt_private/ or any data outside the checkout.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Pinned architecture-guard base for pushes; pull requests use the PR base SHA.
+      PUSH_GUARD_BASE: 46835218c600d99b8c973e52f62e8dd95e79ff15
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      CHECKED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the guard needs merge-base history
+
+      - uses: astral-sh/setup-uv@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version   # same lock as local runs (26.0.0)
+
+      - name: Install Python deps from uv.lock
+        run: uv sync --frozen --all-groups --python "$(tr -d '[:space:]' < .python-version)"
+
+      - name: Run checks
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$RUNNER_TEMP/ci"
+          OUT="$RUNNER_TEMP/ci"
+          BASE="${PR_BASE_SHA:-$PUSH_GUARD_BASE}"
+          fail=0
+
+          .venv/bin/python scripts/check_architecture_guard.py --repo . --base "$BASE" > "$OUT/guard.log" 2>&1
+          g=$?; [ $g -ne 0 ] && fail=1
+
+          AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs > "$OUT/node.log" 2>&1
+          n=$?; [ $n -ne 0 ] && fail=1
+
+          DESEL=()
+          while IFS= read -r id; do DESEL+=(--deselect "$id"); done < <(grep -v '^#' .github/ci-linux-deselect.txt | grep -v '^$')
+          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations "${DESEL[@]}" -rfs --tb=short > "$OUT/pytest.log" 2>&1
+          p=$?; [ $p -ne 0 ] && fail=1
+
+          git diff --check "$BASE"...HEAD > "$OUT/diffcheck.log" 2>&1
+          d=$?; [ $d -ne 0 ] && fail=1
+
+          node_pass=$(grep -E '^ℹ pass ' "$OUT/node.log" | awk '{print $3}')
+          node_fail=$(grep -E '^ℹ fail ' "$OUT/node.log" | awk '{print $3}')
+          node_skip=$(grep -E '^ℹ skipped ' "$OUT/node.log" | awk '{print $3}')
+          py_line=$(tail -n 1 "$OUT/pytest.log")
+          guard_status=$(.venv/bin/python -c 'import json,sys; r=json.load(open(sys.argv[1])); print(r["status"], {k: v["status"] for k, v in r["checks"].items()})' "$OUT/guard.log" 2>/dev/null || echo UNKNOWN)
+          [ $g -eq 0 ] && G=PASS || G=FAIL
+          [ $n -eq 0 ] && N=PASS || N=FAIL
+          [ $p -eq 0 ] && P=PASS || P=FAIL
+          [ $d -eq 0 ] && D=PASS || D=FAIL
+
+          {
+            echo "## CI result for \`$CHECKED_SHA\`"
+            echo
+            echo "Guard base: \`$BASE\`"
+            echo
+            echo "| Step | Result | Numbers |"
+            echo "| --- | --- | --- |"
+            echo "| architecture guard | $G | $guard_status |"
+            echo "| node --test (workbench-v2, event-viewer) | $N | pass ${node_pass:-?} / fail ${node_fail:-?} / skipped ${node_skip:-?} |"
+            echo "| pytest tests/q1q5 tests/evaluation tests/operations | $P | $py_line |"
+            echo "| git diff --check | $D | exit $d |"
+            echo
+            echo "**真實資料測試在 CI 上不跑，需在本機跑。** CI 沒有 \`AMIDST_DEMO_HOME\`，需要真實資料的測試會自動 skip（見下方 skip 清單）；綠燈不代表驗收通過。"
+            echo
+            echo "pytest 在 ubuntu 上排除 ${#DESEL[@]} 個參數（$(( ${#DESEL[@]} / 2 )) 個需 macOS 工具或對時間敏感的測試，清單：\`.github/ci-linux-deselect.txt\`），這些需在本機 Mac 跑。"
+            echo
+            echo "<details><summary>pytest skips</summary>"
+            echo
+            echo '```'
+            grep -E '^SKIPPED' "$OUT/pytest.log" | head -50
+            echo '```'
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for f in guard node pytest diffcheck; do echo "::group::$f"; tail -n 60 "$OUT/$f.log"; echo "::endgroup::"; done
+          grep -E '^FAILED' "$OUT/pytest.log" | head -60
+          exit $fail

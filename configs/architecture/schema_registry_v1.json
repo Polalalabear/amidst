@@ -2592,6 +2592,15 @@
       ],
       "issue_ref": "#93",
       "status": "REGISTERED_D149_SEARCH_DISPLAY_ONLY"
+    },
+    {
+      "value": "amidst.provenance-record.v1",
+      "source_paths": [
+        "scripts/provenance_record.py",
+        "docs/operations/PROVENANCE_RECORD.md"
+      ],
+      "issue_ref": "#486",
+      "status": "PROVENANCE_RECORD_ONLY"
     }
   ]
 }
