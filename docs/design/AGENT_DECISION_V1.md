@@ -4,7 +4,7 @@
 - 基準：`mainline/q1q5`＠`2616661`（Merge #485）。
 - 作者／Model / effort：Claude Code，Opus 5.5 / medium。
 - 附件：
-  - schema v1 [`docs/contracts/schemas/q-core.agent-decision.v1.schema.json`](../contracts/schemas/q-core.agent-decision.v1.schema.json)（WP1 定稿；`CALL_BUDGET_EXHAUSTED`、`REPLAY_MISS` 待 Codex 確認，Q3）
+  - schema v1 [`docs/contracts/schemas/q-core.agent-decision.v1.schema.json`](../contracts/schemas/q-core.agent-decision.v1.schema.json)（WP1 定稿；`CALL_BUDGET_EXHAUSTED`、`REPLAY_MISS` 依 D168 已加進 `common.v2`，Q3）
   - 參數集 schema [`docs/contracts/schemas/q-core.agent-decision-params.v1.schema.json`](../contracts/schemas/q-core.agent-decision-params.v1.schema.json)；正式組 [`configs/q1q5/agent_decision_params_v1.json`](../../configs/q1q5/agent_decision_params_v1.json)、探索組 [`configs/q1q5/agent_decision_params_v1_exploratory.json`](../../configs/q1q5/agent_decision_params_v1_exploratory.json)
   - WP1 實作 [`src/amidst/q1q5/agent_decision.py`](../../src/amidst/q1q5/agent_decision.py)，測試 [`tests/q1q5/test_agent_decision_wp1.py`](../../tests/q1q5/test_agent_decision_wp1.py)
   - 決策點計數腳本 [`scripts/design/count_agent_decision_points.py`](../../scripts/design/count_agent_decision_points.py)（設計證據，不是正式評估）
@@ -108,7 +108,7 @@ DP1 是主要假設（對應 #397 的 M1／H1-Q2）。DP3 是次要，只報點�
 | 連不到 provider | 用規則答案 | `PROVIDER_UNAVAILABLE` |
 | REPLAY 時找不到對應的錄製 | 用規則答案 | **新增** `REPLAY_MISS`（`openai_prediction.py:433` 已在用） |
 
-- 新增的兩個 enum 值要經 Codex 確認後才能寫進 `common.v2`；在這之前只出現在 v1 schema（`pending_confirmation` 欄位列出）。
+- 新增的兩個 enum 值依 D168 由 WP1 直接加進 `common.v2`（只新增，舊資料仍然合法），並知會 Codex，不需要他確認。
 - 評估的探索組可以放寬逾時（#397 D121-B），但要另外成組，不能和正式組混在一起報。
 
 ### 2.4 身分
@@ -357,7 +357,7 @@ agent-decision-pack_<OS>_<YYYYMMDD>/
 | --- | --- | --- |
 | Q1 | OpenAI 要比哪兩個模型（O-small／O-large）、總預算上限 | 使用者 |
 | Q2 | 2000／5000／3 的預算綁到 r004 的 run（`run_bound_approval`＝UNRESOLVED） | 使用者 |
-| Q3 | 新增 `CALL_BUDGET_EXHAUSTED`、`REPLAY_MISS` 到 `common.v2` 的 enum | Codex 確認 |
+| Q3 | 新增 `CALL_BUDGET_EXHAUSTED`、`REPLAY_MISS` 到 `common.v2` 的 enum | **已決（D168）**：WP1 直接加，知會 Codex |
 | Q4 | 是否授權 S3（多人新渲染） | 使用者授權，Codex 執行 |
 | Q5 | 人工參考答案由誰標註（兩人＋裁決） | 使用者 |
 | Q6 | R1 的平手規則和 DP3 的門檻（要在看資料以前固定） | Claude 提案，使用者確認 |

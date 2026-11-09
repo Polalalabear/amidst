@@ -95,7 +95,9 @@
             "INVALID_RESPONSE",
             "ILLEGAL_CANDIDATE",
             "EXPLANATION_INVALID",
-            "MODE_NOT_AUTHORIZED"
+            "MODE_NOT_AUTHORIZED",
+            "CALL_BUDGET_EXHAUSTED",
+            "REPLAY_MISS"
           ]
         },
         {

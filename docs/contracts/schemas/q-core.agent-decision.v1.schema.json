@@ -2,11 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "q-core.agent-decision.v1",
   "title": "q-core Agent decision request/response/record v1",
-  "description": "v1 contract for the bounded Agent decisions DP1 (handoff adjudication) and DP3 (continuation acceptance). Design source: docs/design/AGENT_DECISION_V1.md §2. Validator: src/amidst/q1q5/agent_decision.py (the repository has no jsonschema dependency; tests/q1q5/test_agent_decision_wp1.py checks that the validator and this file agree). A request carries only numeric summaries and opaque ids: no Ground Truth, script, visibility, depth, renderer path, actor id, file path or raw track ref. identity_verdict is always UNCONFIRMED. decision_source/fallback_reason reuse src/amidst/contracts/q_demo/schemas/common.v2.schema.json; CALL_BUDGET_EXHAUSTED and REPLAY_MISS are new here and stay out of common.v2 until Codex confirms them (design §8.2 Q3).",
+  "description": "v1 contract for the bounded Agent decisions DP1 (handoff adjudication) and DP3 (continuation acceptance). Design source: docs/design/AGENT_DECISION_V1.md §2. Validator: src/amidst/q1q5/agent_decision.py (the repository has no jsonschema dependency; tests/q1q5/test_agent_decision_wp1.py checks that the validator and this file agree). A request carries only numeric summaries and opaque ids: no Ground Truth, script, visibility, depth, renderer path, actor id, file path or raw track ref. identity_verdict is always UNCONFIRMED. decision_source/fallback_reason reuse src/amidst/contracts/q_demo/schemas/common.v2.schema.json; CALL_BUDGET_EXHAUSTED and REPLAY_MISS were added to common.v2 additively under D168 (design §8.2 Q3; Codex informed, no confirmation needed).",
   "status": "V1",
-  "pending_confirmation": {
+  "added_to_common_v2": {
     "fallback_reason": ["CALL_BUDGET_EXHAUSTED", "REPLAY_MISS"],
-    "confirm_by": "Codex",
+    "decision": "D168",
     "question": "docs/design/AGENT_DECISION_V1.md §8.2 Q3"
   },
   "$defs": {

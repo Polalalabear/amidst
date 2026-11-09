@@ -4,6 +4,7 @@ No LLM, provider or network is used: providers are scripted fakes returning Atte
 """
 import ast
 import copy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -23,6 +24,11 @@ FORMAL = json.loads((ROOT / 'configs/q1q5/agent_decision_params_v1.json').read_t
 EXPLORATORY = json.loads((ROOT / 'configs/q1q5/agent_decision_params_v1_exploratory.json').read_text())
 MODULE = ROOT / 'src/amidst/q1q5/agent_decision.py'
 STAGE = 'PILOT_AND_CONSISTENCY'
+COMMON_V2 = ROOT / 'src/amidst/contracts/q_demo/schemas/common.v2.schema.json'
+PRE_D168_COMMON_V2_SHA256 = 'bbc998ed811cd1678e4e1544b8eed0e0183a45f43bd14711165c358604d65283'
+V2_REASONS_AFTER_D168 = ['ROUND_LIMIT', 'TIME_BUDGET', 'PROVIDER_UNAVAILABLE', 'PROVIDER_TIMEOUT', 'INVALID_RESPONSE',
+                         'ILLEGAL_CANDIDATE', 'EXPLANATION_INVALID', 'MODE_NOT_AUTHORIZED',
+                         'CALL_BUDGET_EXHAUSTED', 'REPLAY_MISS']
 D = SCHEMA['$defs']
 
 
@@ -103,7 +109,7 @@ def test_schema_is_v1_not_draft_and_names_pending_enums():
     assert SCHEMA['$id'] == 'q-core.agent-decision.v1' and SCHEMA['status'] == 'V1'
     assert 'DRAFT' not in SCHEMA['title'] and 'DRAFT' not in SCHEMA['description']
     assert not (ROOT / 'docs/contracts/schemas/q-core.agent-decision.v1.draft.schema.json').exists()
-    assert SCHEMA['pending_confirmation']['fallback_reason'] == list(ad.FALLBACK_REASONS_PENDING)
+    assert SCHEMA['added_to_common_v2']['fallback_reason'] == list(ad.FALLBACK_REASONS_NEW)
 
 
 def test_schema_and_validator_constants_agree():
@@ -140,10 +146,27 @@ def test_schema_and_validator_constants_agree():
     att = rec['properties']['attempts']
     assert att['maxItems'] == 3 and set(att['items']['properties']) == ad.ATTEMPT_KEYS
     assert att['items']['properties']['outcome']['enum'] == list(ad.ATTEMPT_OUTCOMES)
-    common = json.loads((ROOT / 'src/amidst/contracts/q_demo/schemas/common.v2.schema.json').read_text())
-    v2 = set(common['$defs']['fallback_reason']['anyOf'][0]['enum'])
-    assert set(ad.FALLBACK_REASONS_COMMON_V2) <= v2
-    assert not set(ad.FALLBACK_REASONS_PENDING) & v2, 'pending enums must not enter common.v2 before Codex confirms'
+    common = json.loads(COMMON_V2.read_text())
+    assert common['$defs']['fallback_reason']['anyOf'][0]['enum'] == V2_REASONS_AFTER_D168
+    assert set(ad.FALLBACK_REASONS) <= set(V2_REASONS_AFTER_D168)
+
+
+def test_common_v2_change_is_additive_and_old_data_stays_valid():
+    """D168: removing exactly the two new enum lines restores the pre-D168 bytes (old pin).
+
+    So every other definition is byte-identical, the old enum is a prefix of the new one,
+    and any document valid under the old common.v2 is still valid."""
+    raw = COMMON_V2.read_bytes().decode()
+    new_lines = '            "MODE_NOT_AUTHORIZED",\n            "CALL_BUDGET_EXHAUSTED",\n            "REPLAY_MISS"\n'
+    assert raw.count(new_lines) == 1
+    old = raw.replace(new_lines, '            "MODE_NOT_AUTHORIZED"\n')
+    assert hashlib.sha256(old.encode()).hexdigest() == PRE_D168_COMMON_V2_SHA256
+    old_enum = json.loads(old)['$defs']['fallback_reason']['anyOf'][0]['enum']
+    assert V2_REASONS_AFTER_D168[:len(old_enum)] == old_enum
+    from amidst.evaluation.response_versions import V2_SCHEMA_PINS, v2_schema_documents
+    assert V2_SCHEMA_PINS['common.v2.schema.json'] == hashlib.sha256(raw.encode()).hexdigest()
+    docs = v2_schema_documents()  # every pinned v2 response schema still loads against the new bytes
+    assert docs['common.v2.schema.json']['$defs']['fallback_reason']['anyOf'][1] == {'type': 'null'}
 
 
 def test_params_schema_and_validator_agree():
