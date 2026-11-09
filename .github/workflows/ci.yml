@@ -52,7 +52,9 @@ jobs:
           AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs > "$OUT/node.log" 2>&1
           n=$?; [ $n -ne 0 ] && fail=1
 
-          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations -rfs --tb=short > "$OUT/pytest.log" 2>&1
+          DESEL=()
+          while IFS= read -r id; do DESEL+=(--deselect "$id"); done < <(grep -v '^#' .github/ci-linux-deselect.txt | grep -v '^$')
+          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations "${DESEL[@]}" -rfs --tb=short > "$OUT/pytest.log" 2>&1
           p=$?; [ $p -ne 0 ] && fail=1
 
           git diff --check "$BASE"...HEAD > "$OUT/diffcheck.log" 2>&1
@@ -81,6 +83,8 @@ jobs:
             echo "| git diff --check | $D | exit $d |"
             echo
             echo "**真實資料測試在 CI 上不跑，需在本機跑。** CI 沒有 \`AMIDST_DEMO_HOME\`，需要真實資料的測試會自動 skip（見下方 skip 清單）；綠燈不代表驗收通過。"
+            echo
+            echo "pytest 在 ubuntu 上排除 ${#DESEL[@]} 個參數（$(( ${#DESEL[@]} / 2 )) 個需 macOS 工具或對時間敏感的測試，清單：\`.github/ci-linux-deselect.txt\`），這些需在本機 Mac 跑。"
             echo
             echo "<details><summary>pytest skips</summary>"
             echo
