@@ -32,9 +32,9 @@ const sourcePixel=async(p,event,t,kind,cam,frames)=>{
  await p.waitForFunction(({kind,cam})=>{const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp');return stage?.dataset.kind===kind&&stamp?.textContent.startsWith(cam+' ·')&&img&&!img.hidden&&img.complete&&img.naturalWidth>0;},{kind,cam});
  // A paused seek must finish the request for this exact source timestamp, not leave a stale picture.
  await p.waitForFunction(({t})=>Number(document.querySelector('#ui-scrub')?.value)===t,{t});
- let row;
+ let row;const FRAME_STEP_US=200000;   // recorded runs are 5 fps
  for(let n=0;n<100;n++){
-  const url=await p.locator('.ui-stage-img').getAttribute('src');row=frames.findLast(f=>f.tUs===t&&f.cam===cam&&f.mediaUrl===url);
+  const url=await p.locator('.ui-stage-img').getAttribute('src');row=frames.findLast(f=>f.tUs<=t&&t-f.tUs<FRAME_STEP_US&&f.cam===cam&&f.mediaUrl===url);   // D147 frameTUs: requests snap to the frame floor
   if(row)break;await p.waitForTimeout(50);
  }
  check(!!row,`${event} ${kind} ${t} uses the requested source frame`);
@@ -77,7 +77,15 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  await p.locator('#ui-enter').click();await p.locator('[data-case=case1]').click();
  const bootResponse=await p.request.get(new URL('/api/q_bootstrap',base).href);check(bootResponse.status()===200,'bootstrap available');const boot=await bootResponse.json(),run=boot.runs.find(r=>r.title?.startsWith(event+' '));check(!!run,event+' source-bound bootstrap run');
  const shownCounts=await p.locator('#ui-q-search [data-role=classes] [data-value]').evaluateAll(xs=>Object.fromEntries(xs.map(x=>[x.dataset.value,x.querySelector('.ui-class-count')?.textContent.trim()??null])));
- for(const row of run.detected_class_counts)check(Number(shownCounts[row.class_label])===row.camera_count,`${event} search ${row.class_label} camera count equals bootstrap ${row.camera_count}`);
+ // D147: only the scene's featured classes sit on top with camera counts; D149: a featured count is the union of detected and annotated cameras
+ const featured={'B-05':['person'],'A4-1':['person','car'],'B4-1':['person']}[event];
+ for(const label of featured){const row=run.detected_class_counts.find(r=>r.class_label===label),cams=new Set([...(row?.camera_ids??[]),...(run.scene_annotations??[]).filter(a=>a.class_label===label).flatMap(a=>a.camera_ids)]);
+  check(Number(shownCounts[label])===cams.size,`${event} featured ${label} camera count equals bootstrap detected∪annotated ${cams.size}`);}
+ check(Object.entries(shownCounts).every(([k,v])=>v===null||featured.includes(k)),`${event} only the featured classes carry camera counts`);
+ const otherToggle=p.locator('#ui-q-search [data-role=other-toggle]');if(await otherToggle.count()&&await otherToggle.getAttribute('aria-expanded')!=='true')await otherToggle.click();
+ const listed=new Set(await p.locator('#ui-q-search [data-role=classes] [data-value], #ui-q-search [data-value]').evaluateAll(xs=>xs.map(x=>x.dataset.value)));
+ for(const row of run.detected_class_counts)check(listed.has(row.class_label),`${event} detected class ${row.class_label} listed (top or 其他類別)`);
+ if(await otherToggle.count())await otherToggle.click();
  if(event==='B4-1')check(Number(shownCounts.person)===5,'B4-1 search person shows 5 cameras');
  await capture(p,event+'-search-camera-counts');await checkZoom(p,event,'search');
  await p.locator('#ui-q-search [data-role=classes] [data-value=person]').click();await p.locator('#ui-search-start').fill(start);await p.locator('#ui-search-end').fill(end);
