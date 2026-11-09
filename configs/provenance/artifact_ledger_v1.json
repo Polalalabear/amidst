@@ -14,7 +14,7 @@
    "full": "single file sha256 or directory manifest",
    "git_head": "git HEAD only (checkout / ref)",
    "none": "cache, venv or scratch: size only",
-   "files_only": "reserved",
+   "files_only": "per-file SHA-256 folded into a manifest (D163: caches; digest identifies the contents, it does not make them restorable)",
    "path_size_only": "reserved"
   },
   "dispositions": {
@@ -57,7 +57,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -89,7 +94,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -411,7 +421,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -841,7 +856,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1103,7 +1123,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1167,7 +1192,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1199,7 +1229,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1231,7 +1266,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1423,7 +1463,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1455,7 +1500,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -1937,7 +1987,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2065,7 +2120,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2338,7 +2398,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2370,7 +2435,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2402,7 +2472,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2466,7 +2541,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2498,7 +2578,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2530,7 +2615,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2562,7 +2652,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：repo 外研究／交接產物，沒有「已收進主線或有等價備份」的證據；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2592,7 +2687,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2622,7 +2722,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2639,8 +2744,10 @@
    "size_bytes": 419546852,
    "file_count": 42095,
    "hash": {
-    "policy": "none",
-    "completeness": "not_computed"
+    "policy": "files_only",
+    "manifest_sha256": "200843c0f019ab6455f0f96b4780b2fee5adce5552d2848bc540fcfe227bbb88",
+    "completeness": "complete",
+    "hashed_files": 42095
    },
    "safety": {
     "status": "SAFE",
@@ -2652,18 +2759,30 @@
      "raw_assets": "pass"
     },
     "reason": "只是 npm 下載快取，沒有任何程式、config、CI 或 demo 啟動器引用 ~/.npm",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "git grep -E -n \"npm_config_cache\" 2616661 + 103 heads → 0 筆；`\\.npm` 的命中只是 registry.npmjs.org 的 URL（package-lock.json，非 ~/.npm 路徑）",
      "lsof -nP | grep -cF -- \".npm\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline） 無新增引用",
-     "非原始資產、非證據；owned demo 以 repo 的 lock 離線安裝，不依賴 ~/.npm"
+     "非原始資產、非證據；owned demo 以 repo 的 lock 離線安裝，不依賴 ~/.npm",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：大小與檔案數不變（419546852 B／42095 檔）；不再只比大小：逐檔 SHA-256 manifest = 200843c0f019ab6455f0f96b4780b2fee5adce5552d2848bc540fcfe227bbb88（連算兩次相同）",
+     "git status --ignored：此路徑為 .gitignore 忽略的工具快取，不是追蹤檔",
+     "D163：~/.npm 目前只剩 _npx（531 MB：create-vite、create-expo-app、create-next-app、@mermaid-js/mermaid-cli、xcodebuildmcp、gemini-cli 的 npx 下載快取）、_logs、_prebuilds；_cacache 已在 11-09 清除。mainline 與 8785 都不使用 npx（git grep 無 npx 引用，demo 啟動器 0 筆）；這些是專案外工具，清除後下次 npx 需要網路重新下載（gemini-cli 來自 GitHub 原始碼）。驗證關卡以空的 npm_config_cache 做 npm ci，成功"
     ],
     "verify_commands": [
-     "git grep -n \"npm_config_cache\" 2616661 -- .  # 0 筆",
-     "lsof -nP | grep -cF -- \"/.npm\"  # 0"
+     "python3 scripts/artifact_ledger.py verify --only CACHE-npm  # 大小、檔案數、manifest",
+     "git grep -n -E 'npm_config_cache|\\.pytest_cache|\\.ruff_cache' e85b51e -- . ':!.gitignore' ':!docs' ':!configs/provenance/artifact_ledger_v1.json'  # 0 筆",
+     "lsof -nP | grep -cF -- '<path>'  # 0（刪除當下重跑）"
     ],
-    "restore": "重新 npm ci（需網路）自動重建；內容可由 package-lock.json 重新取得"
+    "restore": "重新 npm ci（需網路）自動重建；內容可由 package-lock.json 重新取得",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -2693,7 +2812,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -2947,7 +3071,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -3042,7 +3171,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -3205,7 +3339,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -3301,8 +3440,10 @@
    "size_bytes": 441451,
    "file_count": 5,
    "hash": {
-    "policy": "none",
-    "completeness": "not_computed"
+    "policy": "files_only",
+    "manifest_sha256": "a76ebcf4d2903227de2ce24fdeb51675bebc989a242a1a31d8fcfa57b8378393",
+    "completeness": "complete",
+    "hashed_files": 5
    },
    "safety": {
     "status": "SAFE",
@@ -3314,16 +3455,28 @@
      "raw_assets": "pass"
     },
     "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "git grep -E -n \"\\.pytest_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
      "lsof -nP | grep -cF -- \"/Developer/amidst/.local-worktrees/phase1-finalization/.pytest_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
-     "非原始資產；快取"
+     "非原始資產；快取",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：大小與檔案數不變（441451 B／5 檔）；不再只比大小：逐檔 SHA-256 manifest = a76ebcf4d2903227de2ce24fdeb51675bebc989a242a1a31d8fcfa57b8378393（連算兩次相同）",
+     "git status --ignored：此路徑為 .gitignore 忽略的工具快取，不是追蹤檔"
     ],
     "verify_commands": [
-     "git grep -n -E \"\\.pytest_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+     "python3 scripts/artifact_ledger.py verify --only LOC-fin-pytest_cache  # 大小、檔案數、manifest",
+     "git grep -n -E 'npm_config_cache|\\.pytest_cache|\\.ruff_cache' e85b51e -- . ':!.gitignore' ':!docs' ':!configs/provenance/artifact_ledger_v1.json'  # 0 筆",
+     "lsof -nP | grep -cF -- '<path>'  # 0（刪除當下重跑）"
     ],
-    "restore": "下次 pytest／ruff 執行時自動重建"
+    "restore": "下次 pytest／ruff 執行時自動重建",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -3340,8 +3493,10 @@
    "size_bytes": 87810,
    "file_count": 43,
    "hash": {
-    "policy": "none",
-    "completeness": "not_computed"
+    "policy": "files_only",
+    "manifest_sha256": "4540261ee4b8295d0dac084a26eb0553090c80364105496f7d6592fed7422fa7",
+    "completeness": "complete",
+    "hashed_files": 43
    },
    "safety": {
     "status": "SAFE",
@@ -3353,16 +3508,28 @@
      "raw_assets": "pass"
     },
     "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "git grep -E -n \"\\.ruff_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
      "lsof -nP | grep -cF -- \"/Developer/amidst/.local-worktrees/phase1-finalization/.ruff_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
-     "非原始資產；快取"
+     "非原始資產；快取",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：大小與檔案數不變（87810 B／43 檔）；不再只比大小：逐檔 SHA-256 manifest = 4540261ee4b8295d0dac084a26eb0553090c80364105496f7d6592fed7422fa7（連算兩次相同）",
+     "git status --ignored：此路徑為 .gitignore 忽略的工具快取，不是追蹤檔"
     ],
     "verify_commands": [
-     "git grep -n -E \"\\.ruff_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+     "python3 scripts/artifact_ledger.py verify --only LOC-fin-ruff_cache  # 大小、檔案數、manifest",
+     "git grep -n -E 'npm_config_cache|\\.pytest_cache|\\.ruff_cache' e85b51e -- . ':!.gitignore' ':!docs' ':!configs/provenance/artifact_ledger_v1.json'  # 0 筆",
+     "lsof -nP | grep -cF -- '<path>'  # 0（刪除當下重跑）"
     ],
-    "restore": "下次 pytest／ruff 執行時自動重建"
+    "restore": "下次 pytest／ruff 執行時自動重建",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -3395,7 +3562,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -3428,7 +3600,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：沒有取得完整五項證據（使用狀態或引用無法確認）；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -3641,8 +3818,10 @@
    "size_bytes": 92276,
    "file_count": 5,
    "hash": {
-    "policy": "none",
-    "completeness": "not_computed"
+    "policy": "files_only",
+    "manifest_sha256": "a1a6080bbb83b8740962735d0b9cd89671e03f7c94b3e69f8b15b49181c9e4d7",
+    "completeness": "complete",
+    "hashed_files": 5
    },
    "safety": {
     "status": "SAFE",
@@ -3654,16 +3833,28 @@
      "raw_assets": "pass"
     },
     "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "git grep -E -n \"\\.pytest_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
      "lsof -nP | grep -cF -- \"/Developer/amidst/.pytest_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
-     "非原始資產；快取"
+     "非原始資產；快取",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：大小與檔案數不變（92276 B／5 檔）；不再只比大小：逐檔 SHA-256 manifest = a1a6080bbb83b8740962735d0b9cd89671e03f7c94b3e69f8b15b49181c9e4d7（連算兩次相同）",
+     "git status --ignored：此路徑為 .gitignore 忽略的工具快取，不是追蹤檔"
     ],
     "verify_commands": [
-     "git grep -n -E \"\\.pytest_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+     "python3 scripts/artifact_ledger.py verify --only LOC-main-pytest_cache  # 大小、檔案數、manifest",
+     "git grep -n -E 'npm_config_cache|\\.pytest_cache|\\.ruff_cache' e85b51e -- . ':!.gitignore' ':!docs' ':!configs/provenance/artifact_ledger_v1.json'  # 0 筆",
+     "lsof -nP | grep -cF -- '<path>'  # 0（刪除當下重跑）"
     ],
-    "restore": "下次 pytest／ruff 執行時自動重建"
+    "restore": "下次 pytest／ruff 執行時自動重建",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -3680,8 +3871,10 @@
    "size_bytes": 16118,
    "file_count": 54,
    "hash": {
-    "policy": "none",
-    "completeness": "not_computed"
+    "policy": "files_only",
+    "manifest_sha256": "89d0bb3a5bfdb69a6c8368180ca83b6dacea4bda4db1bee50b0b09935252c74f",
+    "completeness": "complete",
+    "hashed_files": 54
    },
    "safety": {
     "status": "SAFE",
@@ -3693,16 +3886,28 @@
      "raw_assets": "pass"
     },
     "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "git grep -E -n \"\\.ruff_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
      "lsof -nP | grep -cF -- \"/Developer/amidst/.ruff_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
-     "非原始資產；快取"
+     "非原始資產；快取",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：大小與檔案數不變（16118 B／54 檔）；不再只比大小：逐檔 SHA-256 manifest = 89d0bb3a5bfdb69a6c8368180ca83b6dacea4bda4db1bee50b0b09935252c74f（連算兩次相同）",
+     "git status --ignored：此路徑為 .gitignore 忽略的工具快取，不是追蹤檔"
     ],
     "verify_commands": [
-     "git grep -n -E \"\\.ruff_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+     "python3 scripts/artifact_ledger.py verify --only LOC-main-ruff_cache  # 大小、檔案數、manifest",
+     "git grep -n -E 'npm_config_cache|\\.pytest_cache|\\.ruff_cache' e85b51e -- . ':!.gitignore' ':!docs' ':!configs/provenance/artifact_ledger_v1.json'  # 0 筆",
+     "lsof -nP | grep -cF -- '<path>'  # 0（刪除當下重跑）"
     ],
-    "restore": "下次 pytest／ruff 執行時自動重建"
+    "restore": "下次 pytest／ruff 執行時自動重建",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4095,19 +4300,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-configs--q1q5",
-     "check \"configs/q1q5\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"configs/q1q5\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4242,7 +4456,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4275,7 +4494,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4308,19 +4532,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_ACCEPTANCE.md",
-     "check \"docs/engineering/Q1Q5_BASELINE_ACCEPTANCE.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_BASELINE_ACCEPTANCE.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4353,19 +4586,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_DECISIONS.md",
-     "check \"docs/engineering/Q1Q5_BASELINE_DECISIONS.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_BASELINE_DECISIONS.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4398,19 +4640,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_RUNNER.md",
-     "check \"docs/engineering/Q1Q5_BASELINE_RUNNER.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_BASELINE_RUNNER.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4443,19 +4694,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_V1_PROTOCOL.md",
-     "check \"docs/engineering/Q1Q5_BASELINE_V1_PROTOCOL.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_BASELINE_V1_PROTOCOL.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4488,7 +4748,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4521,7 +4786,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4554,19 +4824,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_LINKED_ACCEPTANCE.md",
-     "check \"docs/engineering/Q1Q5_LINKED_ACCEPTANCE.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_LINKED_ACCEPTANCE.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4599,7 +4878,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4632,7 +4916,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4665,7 +4954,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4698,19 +4992,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_PRODUCTION_PREPARATION.md",
-     "check \"docs/engineering/Q1Q5_PRODUCTION_PREPARATION.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_PRODUCTION_PREPARATION.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4743,19 +5046,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_REVIEWED_INPUTS.md",
-     "check \"docs/engineering/Q1Q5_REVIEWED_INPUTS.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/engineering/Q1Q5_REVIEWED_INPUTS.md\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -4920,7 +5232,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -4986,19 +5303,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--evaluation",
-     "check \"docs/evaluation\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/evaluation\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5064,19 +5390,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--history--Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json",
-     "check \"docs/history/Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/history/Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5109,19 +5444,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-docs--history--Q1Q5_LINKED_ACCEPTANCE_20261024.json",
-     "check \"docs/history/Q1Q5_LINKED_ACCEPTANCE_20261024.json\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"docs/history/Q1Q5_LINKED_ACCEPTANCE_20261024.json\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5154,7 +5498,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5290,7 +5639,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5323,19 +5677,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--accept_q1q5_linked_baseline.py",
-     "check \"scripts/accept_q1q5_linked_baseline.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/accept_q1q5_linked_baseline.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5368,7 +5731,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5401,19 +5769,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--build_q1q5_pinned_index.py",
-     "check \"scripts/build_q1q5_pinned_index.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/build_q1q5_pinned_index.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5446,19 +5823,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--import_q3_minimum_review.py",
-     "check \"scripts/import_q3_minimum_review.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/import_q3_minimum_review.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5491,19 +5877,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--measure_q1q5_dynamic_rgb.py",
-     "check \"scripts/measure_q1q5_dynamic_rgb.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/measure_q1q5_dynamic_rgb.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5536,19 +5931,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--preflight_q1q5_production.py",
-     "check \"scripts/preflight_q1q5_production.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/preflight_q1q5_production.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5581,19 +5985,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--prepare_q1q5_baseline_source.py",
-     "check \"scripts/prepare_q1q5_baseline_source.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/prepare_q1q5_baseline_source.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5626,7 +6039,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5659,7 +6077,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5692,19 +6115,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--replay_q1q5_dynamic_evidence.py",
-     "check \"scripts/replay_q1q5_dynamic_evidence.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/replay_q1q5_dynamic_evidence.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5737,7 +6169,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5770,19 +6207,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-scripts--run_q1q5_linked_baseline.py",
-     "check \"scripts/run_q1q5_linked_baseline.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"scripts/run_q1q5_linked_baseline.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5815,7 +6261,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5848,19 +6299,28 @@
      "raw_assets": "pass"
     },
     "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
-    "checked_at": "2026-11-09",
+    "checked_at": "2026-11-09（D163 重驗 @e85b51e）",
     "evidence": [
      "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
      "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
      "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
      "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
-     "不是原始資產（程式／文件／測試）"
+     "不是原始資產（程式／文件／測試）",
+     "D163 重驗（e85b51e、2026-11-09）：git grep 對 e85b51e 與全部 103 個 origin heads（加 e85b51e 共 104 個 revision）重跑，排除台帳與清單文件自身後，npm_config_cache、.pytest_cache|.ruff_cache、`.npm`、Developer/amidst/(configs|docs|scripts|src|tests|frontend) 的新增引用都是 0 筆（Developer/amidst/ 對 data/reports 歷史 fixture 的 13 筆與 2616661 相同）；CI／README／start_445_demo.command 引用 0 筆；沒有任何 head 比 mainline 多引用（計數表：docs/history/CLEANUP_GATE_D163.md §2）",
+     "D163 重驗：lsof -nP 連續取樣 6 次（19:23:59–19:26:06，間隔約 25 秒，各約 11,300 行）：'.npm'、'.pytest_cache'、'.ruff_cache'、/Developer/amidst(/|$)、phase1-finalization 的行數全為 0；cwd 在 ~/Developer/amidst 的行程 0 個",
+     "D163 重驗：8785 仍由 PID 21060（啟動 17:57:49，未重啟）監聽，HTTP 200；其 cwd 與開啟檔案只在 ~/amidst-demo-20261104、~/amidst-artifacts/demo-owned-v1（runtime/python）與 scratchpad 的 serve8785.log；環境變數無 npm_config_cache；demo checkout 與 demo-owned-v1 內沒有指向本項目的 symlink 或程式／config 引用",
+     "D163：對 e85b51e 逐檔比對：~/Developer/amidst 的檔案 git hash-object 與 e85b51e:<path> 的 blob 完全相同（20 項、共 25 檔，0 不一致）；該檔在 ~/Developer/amidst 是未追蹤（git ls-files 不含）；台帳 SHA-256 與現場一致（verify PASS）"
     ],
     "verify_commands": [
      "python3 scripts/artifact_ledger.py verify --only UNT-src--amidst--evaluation--q3_review_import.py",
-     "check \"src/amidst/evaluation/q3_review_import.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+     "check \"src/amidst/evaluation/q3_review_import.py\"  # 清單文件的 check()：blob 與 mainline/q1q5（e85b51e 或更新）相同"
     ],
-    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "SAFE_CONFIRMED",
+     "gate": "docs/history/CLEANUP_GATE_D163.md"
+    }
    }
   },
   {
@@ -5893,7 +6353,12 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   },
   {
@@ -5926,8 +6391,15 @@
      "raw_assets": "unknown"
     },
     "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
-    "checked_at": "2026-11-09"
+    "checked_at": "2026-11-09",
+    "recheck": {
+     "ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+     "result": "UNKNOWN_KEPT",
+     "reason": "D163 重驗：與 e85b51e 同路徑檔案至少有 1 個 bytes 不同或在 mainline 沒有，不是重複副本，無法證明刪除不影響；維持 UNKNOWN，不刪"
+    }
    }
   }
- ]
+ ],
+ "recheck_ref": "e85b51ed9767aec6142f59115ddc4fe83751dc63",
+ "recheck_decision_ref": "D163"
 }
