@@ -96,3 +96,39 @@ def test_scoring_against_reference_and_single_view():
               {'kind': 'GAP', 'camera_id': None, 'range_us': [600_000, 800_000]},
               {'kind': 'ON_CAMERA', 'camera_id': 'D', 'range_us': [800_000, 1_000_000]}]
     assert score_single_view(records, run, single)[0]['covered_frames'] == 2
+
+
+def test_d150_overlapping_cameras_score_independently_and_time_union_counts_once():
+    from amidst.evaluation.track_recall import score_sightings, score_single_view_switching
+    reference = {'intervals': [{'id': 'A', 'camera_id': 'A', 'range_us': [0, 4_000_000]},
+                               {'id': 'B', 'camera_id': 'B', 'range_us': [2_000_000, 6_000_000]}]}
+    records = [row(t*1_000_000, camera=c) for c in ['A', 'B'] for t in range(6)]
+    sightings = [{'camera_id': 'A', 'range_us': [0, 2_000_000]},
+                 {'camera_id': 'B', 'range_us': [2_000_000, 6_000_000]}]
+    assert [s['recall'] for s in score_sightings(records, reference, sightings)] == [.5, 1.]
+    single = [{'kind': 'ON_CAMERA', 'camera_id': 'A', 'range_us': [0, 1_000_000]},
+              {'kind': 'ON_CAMERA', 'camera_id': 'WRONG', 'range_us': [1_000_000, 3_000_000]},
+              {'kind': 'ON_CAMERA', 'camera_id': 'B', 'range_us': [3_000_000, 5_000_000]}]
+    assert score_single_view_switching(reference, single) == {
+        'reference_union_us': 6_000_000, 'covered_us': 3_000_000, 'ratio': .5}
+    assert score_single_view_switching({'intervals': []}, [])['ratio'] is None
+
+
+def test_actual_track_evaluation_rejects_wrong_run_index_and_tampered_output(tmp_path):
+    import hashlib
+    import runpy
+    loader = runpy.run_path(str(ROOT/'scripts/eval_d147_recall.py'))['load_track_response']
+    response = {'schema_version': 'q-core.track-response.v1',
+                'resolved_scope': {'run_id': 'SYNTHETIC_RUN', 'detection_index_sha256': 'a'*64},
+                'sightings': [], 'single_view': []}
+    raw = json.dumps(response, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode()
+    response['output_sha256'] = hashlib.sha256(raw).hexdigest()
+    path = tmp_path/'track.json';path.write_text(json.dumps(response))
+    assert loader(path, run_id='SYNTHETIC_RUN', index_sha256='a'*64) == response
+    with pytest.raises(ValueError, match='TRACK_SCOPE_MISMATCH'):
+        loader(path, run_id='ANOTHER_RUN', index_sha256='a'*64)
+    with pytest.raises(ValueError, match='TRACK_SCOPE_MISMATCH'):
+        loader(path, run_id='SYNTHETIC_RUN', index_sha256='b'*64)
+    response['sightings'] = [{'camera_id': 'SYNTHETIC_TAMPER'}];path.write_text(json.dumps(response))
+    with pytest.raises(ValueError, match='TRACK_OUTPUT_SHA256_MISMATCH'):
+        loader(path, run_id='SYNTHETIC_RUN', index_sha256='a'*64)

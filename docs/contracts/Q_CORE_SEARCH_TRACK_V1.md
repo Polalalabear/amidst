@@ -334,7 +334,7 @@ Demo `sightings[].link_kind` 明列 `LOCAL_SEED`、`SAME_CAMERA_REACQUISITION` �
 from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us。
 此授權不放寬 6 秒窗、不核准圖、不觸發重新推論、不改 formal_eligible=false。
 
-### D147／D148：跟丟後全程重掃、短缺口合併、不分類別框接續（2026-11-09，草案，待 Codex 確認）
+### D147／D148：跟丟後全程重掃、短缺口合併、不分類別框接續（2026-11-09，Codex 依指派確認）
 
 只適用 DEMO_DEFAULT replay（同 D145 範圍）。驗收測試：`tests/q1q5/test_d147_acceptance.py`。
 
@@ -344,7 +344,7 @@ from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us�
 - 由非 person 框接續的觀測，在 `association_audit` 標 `evidence_kind: "BOX_CONTINUATION"`，並附原始 `class_label`；顏色寫 `NOT_EVALUATED`，不能算顏色相符。`single_view` 照常為 ON_CAMERA。
 - 驗收門檻：`configs/evaluation/d147_human_reference_v1.json` 每個參考段的召回率 ≥ 0.75（以 `score_single_view` 計算）。人工參考只用來評估，q1q5 不得讀取。
 
-### D149：場景標註的靜態物件（2026-11-09，草案，待 Codex 確認）
+### D149：場景標註的靜態物件（2026-11-09，Codex 依指派確認）
 
 偵測器認不出場景裡的方塊車（A4 CAM_EXT_CAR，250 格中沒有任何 car）。使用者決定改用場景標註：`configs/q1q5/scene_annotations_v1.json`（`q-demo.scene-annotations.v1`）。
 
@@ -354,3 +354,24 @@ from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us�
 - **不混入偵測**：標註不進 `detected_class_counts`、不進索引，追蹤、排序與身分判斷都不使用。bootstrap 每個 run 另外列 `scene_annotations: [{"annotation_id", "class_label", "camera_ids"}]`（沒有時為 `[]`）。
 - **前端**：命中卡片顯示「場景標註：車輛（非偵測）」；查找窗的場景物件鏡頭數，取偵測鏡頭與標註鏡頭的聯集，提示文字註明含場景標註。
 - 標註框只用於顯示，不得當成偵測或位置證據；`identity_verdict` 仍為 `UNCONFIRMED`。
+
+### D150：重疊鏡頭的雙指標驗收（2026-11-09，使用者決定）
+
+適用 D147/D148 DEMO_DEFAULT replay；不改一般核心追蹤或原始索引。
+
+- `sightings` 保留同時鏡頭的 camera-local 觀測假設。`selected_for_single_view: true`、
+  `association_state: SELECTED_HYPOTHESIS` 表示選中的關聯鏈；其餘明列
+  `selected_for_single_view: false`、`association_state: UNASSOCIATED_LOCAL_CANDIDATE`。
+  後者只保留與起點共享非 NONE 顏色的局部候選，不確認身分，也不以顏色未驗證的非人物框建立 seed。
+- DEMO_DEFAULT 的 `single_view` 以選中鏈的 sightings 產生（同鏡頭短缺口合併上限 600000 µs）；
+  不把多畫面中保留的重疊候選強行當成單一身分。歧義不中止後續掃描。
+- 每鏡頭召回：每個參考區間中，被該鏡頭實際 sighting 覆蓋的索引幀數 ÷ 參考幀數 ≥ 0.75。
+  WIDE 與 BRANCH 分開算；顯示用短缺口合併不補 sighting，也不替此指標加分。
+- 單畫面切鏡比例：該 run 所有參考區間的時間聯集中，`single_view` 為 ON_CAMERA 且鏡頭屬於
+  當下參考鏡頭集合的時間比例 ≥ 0.75；重疊時間只計一次，以整數微秒區間計算。
+- 短缺口驗收只檢查 GAP 前後是同一鏡頭的情形，此種 GAP 必須 > 0.6 s；跨鏡頭 GAP 無此限制。
+- 評估函式 `score_sightings`、`score_single_view_switching` 留在 evaluation；人工參考檔不變，
+  追蹤不讀取它。`scripts/eval_d147_recall.py --track ...` 同時列出兩張表。
+- 原凍結設定仍保留；D148 replay 的明確覆寫為 seed/continuation 分數 0.3、面積比 12、
+  IoU 0.2、中心距 0.6×高、尺寸平滑 0.5、最多容許 2 個漏格（第 3 個結束）。
+  回應 provenance 明列此 replay policy；不宣稱正式參數已核准。

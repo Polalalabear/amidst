@@ -121,6 +121,8 @@ class QRun:
     agent_factory: object | None
     source_kind: str
     title: str | None = None
+    scene_annotations: tuple = ()
+    annotation_set_sha256: str | None = None
 
 
 class RecordingStore:
@@ -188,7 +190,7 @@ class QAPI:
             check(run.catalog['scene_id']==m['scene_id'] and run.catalog['run_id']==m['run_id'],'DataIntegrityError',409)
             b=run.bindings
             owned=replace(b,index=deepcopy(b.index),graphs=deepcopy(b.graphs),parameter_set=deepcopy(b.parameter_set),media_ranges_by_camera=deepcopy(b.media_ranges_by_camera))
-            self.runs[key]=replace(run,bindings=owned,aliases=deepcopy(run.aliases),catalog=deepcopy(run.catalog),q3_options=dict(run.q3_options))
+            self.runs[key]=replace(run,bindings=owned,aliases=deepcopy(run.aliases),catalog=deepcopy(run.catalog),q3_options=dict(run.q3_options),scene_annotations=deepcopy(run.scene_annotations))
         for pin in recordings:
             check(recording_store is not None,'DataIntegrityError',409);data=recording_store.load(pin)
             self._verify_bundle(data);self.recordings[pin['recording_id']]=(deepcopy(pin),data)
@@ -213,6 +215,7 @@ class QAPI:
                 for label,count in sorted(counts.items(),key=lambda item:(-item[1],item[0]))]
 
     def bootstrap(self):
+        from amidst.q1q5.scene_annotations import bootstrap_annotations
         rows=[]
         for (scene,run_id),run in sorted(self.runs.items()):
             m=run.bindings.index.manifest
@@ -221,6 +224,7 @@ class QAPI:
                 'regions':[{'region_id':r['region_id'],'display_name':r.get('display_name',r['region_id']),'kind':r.get('kind')}
                            for r in (run.bindings.graphs.region.get('regions',[]) if run.bindings.graphs else [])],
                 'detected_class_counts':self._detected_class_counts(run),
+                'scene_annotations':bootstrap_annotations(run),
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
                 'region_catalog':region_catalog(run),

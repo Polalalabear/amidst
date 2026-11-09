@@ -16,7 +16,7 @@ const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png'
 // D139: blank times select the full recording. A later snapshot must stay hidden at an earlier playhead; endpoint persistence is recorded separately as a review finding.
 const seek=async(p,t)=>{await p.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await p.locator('#ui-scrub').inputValue())===t,'range input preserves requested timestamp');};
 const decoded=async(p,selector,n)=>{await p.waitForFunction(({selector,n})=>{const xs=[...document.querySelectorAll(selector)];return xs.length===n&&xs.every(i=>!i.hidden&&i.complete&&i.naturalWidth>0);},{selector,n});check(true,selector+' decoded RGB');};
-const pinnedEvidence=JSON.parse(await readFile(new URL('../../../tests/q1q5/fixtures/d139-index-diagnostics.engineering.json',import.meta.url),'utf8'));
+const pinnedEvidence=JSON.parse(await readFile(new URL('../../../tests/q1q5/fixtures/d147-d149-track-receipt.engineering.json',import.meta.url),'utf8'));
 const checkZoom=async(p,event,screen)=>{
  const metrics=[];
  for(const z of [60,80,100,125,150]){
@@ -56,12 +56,12 @@ const continuous=async(p,event,track,frames)=>{
  if((await p.locator('#ui-play').innerText()).includes('❚'))await p.locator('#ui-play').click();
  const sample=await p.evaluate(()=>{window.__d146.running=false;return window.__d146;});
  check(sample.total>100&&sample.missing===0,`${event} continuous playback never clears or hides the stage image (${sample.total} sampled renders)`);
- for(const kind of ['ON_CAMERA','GAP','LOST'])check(sample.samples.some(s=>s.kind===kind&&s.decoded),`${event} continuous playback includes decoded ${kind} images`);
+ for(const kind of [...new Set(track.single_view.map(s=>s.kind))])check(sample.samples.some(s=>s.kind===kind&&s.decoded),`${event} continuous playback includes decoded ${kind} images`);
  check(sample.samples.filter(s=>s.kind==='GAP'||s.kind==='LOST').every(s=>!s.observed),`${event} continued GAP/LOST playback never claims observation`);
  const served=frames.slice(firstFrame);
- for(const kind of ['ON_CAMERA','GAP','LOST']){
+ for(const kind of [...new Set(track.single_view.map(s=>s.kind))]){
   const xs=served.filter(f=>track.single_view.some(s=>s.kind===kind&&s.range_us[0]<=f.tUs&&f.tUs<s.range_us[1]));
-  check(new Set(xs.map(f=>f.frameIndex)).size>1,`${event} ${kind} source frame indices advance during playback`);
+  check(new Set(xs.map(f=>f.frameIndex)).size>=Math.min(2,Math.max(...track.single_view.filter(s=>s.kind===kind).map(s=>Math.ceil((s.range_us[1]-s.range_us[0])/200000)))),`${event} ${kind} source frame indices advance across available grid cells`);
  }
  const review={event,kind:'continuous',sample,frameResponses:served.map(({mediaUrl,...f})=>f)};d146Review.push(review);
  await capture(p,event+'-continuous-end',{sampledRenders:sample.total,missing:sample.missing,notDecodedRenders:sample.notDecoded});
@@ -99,8 +99,8 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  await p.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await p.locator('#ui-track-start').fill(start);
  const tr=p.waitForResponse(r=>r.url().endsWith('/api/q_core_track')&&r.request().method()==='POST');await p.locator('#ui-track-submit').click();const track=await(await tr).json();
  await writeFile(out+'/'+event+'-track-response.json',JSON.stringify(track,null,2));
- if(event!=='B-05'){const expected=pinnedEvidence.runs.find(r=>r.label===event);check(track.resolved_scope?.detection_index_sha256===expected.index_content_sha256,event+' exact original index pin');assert.deepEqual(track.single_view,expected.after_single_view);check(true,event+' complete single_view matches #496 index-derived receipt');}
- check(track.sightings?.length>0,event+' track sightings');check(track.single_view.some(s=>s.kind==='GAP')&&track.single_view.some(s=>s.kind==='LOST'),'missing states retained');
+ if(event!=='B-05'){const expected=pinnedEvidence.runs.find(r=>r.label===event);check(track.resolved_scope?.detection_index_sha256===expected.index_content_sha256,event+' exact original index pin');assert.deepEqual(track.single_view,expected.single_view);check(true,event+' complete single_view matches D147/D148/D150 backend receipt');}
+ check(track.sightings?.length>0,event+' track sightings');check(track.single_view.some(s=>s.kind==='GAP'),'source gaps retained');check(track.single_view.at(-1).kind==='LOST'?track.status==='LOST':track.status==='TRACKING','terminal state follows current source evidence');
  const first=track.sightings[0],t=first.range_us[0]+Math.floor((first.range_us[1]-first.range_us[0])/2);await seek(p,t);await decoded(p,'#ui-case2 .ui-stage-img',1);
  check(await p.locator('#ui-play').isEnabled(),event+' source playback enabled');
  check(await p.locator('#ui-stop-track').isEnabled(),'front-end stop available');
@@ -114,7 +114,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
   await continuous(p,event,track,frames);
   const gap=track.single_view.filter(s=>s.kind==='GAP').sort((a,b)=>(b.range_us[1]-b.range_us[0])-(a.range_us[1]-a.range_us[0]))[0],last=track.single_view.slice(0,track.single_view.indexOf(gap)).filter(s=>s.kind==='ON_CAMERA').at(-1).camera_id;
   const gapTimes=gap.range_us[1]-gap.range_us[0]>=400000?[gap.range_us[0]+10000,gap.range_us[1]-10000]:[gap.range_us[0]+10000],gapPixels=[];for(const stamp of gapTimes)gapPixels.push(await sourcePixel(p,event,stamp,'GAP',last,frames));check(gapPixels.length===1||gapPixels[0].frameIndex!==gapPixels[1].frameIndex,event+' GAP displays its actual source samples (one grid cell for a 0.2 s GAP)');d146Review.push({event,kind:'gap-source-pixels',frames:gapPixels});await capture(p,event+'-gap-live');
-  const lost=track.single_view.find(s=>s.kind==='LOST'),lastCam=track.single_view.filter(s=>s.kind==='ON_CAMERA').at(-1).camera_id,lostPixels=[];for(const stamp of [lost.range_us[0]+10000,Math.min(lost.range_us[0]+1210000,lost.range_us[1]-10000)])lostPixels.push(await sourcePixel(p,event,stamp,'LOST',lastCam,frames));check(lostPixels[0].frameIndex!==lostPixels[1].frameIndex,event+' LOST continues advancing last-camera source frames');d146Review.push({event,kind:'lost-source-pixels',frames:lostPixels});await capture(p,event+'-lost-live');
+  const lost=track.single_view.find(s=>s.kind==='LOST');if(lost){const lastCam=track.single_view.filter(s=>s.kind==='ON_CAMERA').at(-1).camera_id,lostPixels=[];for(const stamp of [lost.range_us[0]+10000,Math.min(lost.range_us[0]+1210000,lost.range_us[1]-10000)])lostPixels.push(await sourcePixel(p,event,stamp,'LOST',lastCam,frames));check(lostPixels[0].frameIndex!==lostPixels[1].frameIndex,event+' LOST continues advancing last-camera source frames');d146Review.push({event,kind:'lost-source-pixels',frames:lostPixels});await capture(p,event+'-lost-live');}else check(track.status==='TRACKING'&&track.blind===null,event+' D148 evidence reaches query end without an invented LOST tail');
   const same=track.sightings.find(s=>s.link_kind==='SAME_CAMERA_REACQUISITION');if(event==='A4-1'){check(!!same&&track.reasons.includes('SAME_CAMERA_REACQUISITION'),'A4-1 D145 reacquisition explicitly marked');d146Review.push(await sourcePixel(p,event,same.range_us[0]+10000,'ON_CAMERA',same.camera_id,frames));check(await p.locator('.ui-tag-obs').isVisible(),'A4-1 reacquisition is shown as observed inside its new local segment');await capture(p,event+'-same-camera-reacquisition');}
  }
  const firstCamera=track.single_view.find(s=>s.kind==='ON_CAMERA').camera_id,ni=track.single_view.findIndex(s=>s.kind==='ON_CAMERA'&&s.camera_id!==firstCamera);
@@ -123,11 +123,11 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  for(const speed of ['0.5','1','1.5','2']){await p.locator('#ui-speed').selectOption(speed);check(await p.locator('#ui-speed').inputValue()===speed,'source speed '+speed);}
  await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),next.camera_id,{timeout:15000});
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
- await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);
- const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',2);check(true,event+' multi-view playback advances with decoded source RGB');
+ await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);
+ const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);check(true,event+' multi-view playback advances with decoded source RGB');
  const multiBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiBar.y+multiBar.height-viewportHeight)<2,'multi bar at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const multiScrolled=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiScrolled.y+multiScrolled.height-viewportHeight)<2&&await p.locator('#ui-v1').evaluate(el=>el.scrollTop===0),'multi bar fixed while only content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
- await capture(p,event+'-case2-multi',{tiles:2,decoded:2,bar:multiBar,barAfterScroll:multiScrolled});
+ await capture(p,event+'-case2-multi',{tiles:track.multi_view.length,decoded:track.multi_view.length,bar:multiBar,barAfterScroll:multiScrolled});
  await p.locator('#ui-layout [data-layout=single]').click();
  const stamp=event==='A4-1'?9400000:event==='B4-1'?2100000:3000000;await seek(p,stamp);
  // Empty start/end now mean a concrete full-recording WALL window, not playback_now.
@@ -162,12 +162,13 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  await p.goto(base+'admin.html#settings');await p.getByRole('button',{name:'還原預設',exact:true}).click();await p.getByRole('button',{name:'儲存',exact:true}).click();await p.goto(base+'?run='+event);await p.locator('#ui-enter').click();check(await p.locator('#ui-v1').getAttribute('data-screen')==='choose','restore defaults persisted');await ctx.close();
 }
 const extra=await b.newContext({viewport:{width:1440,height:viewportHeight}}),p=await extra.newPage();p.on('pageerror',e=>errors.push({event:'deep-links',error:e.stack??String(e)}));
-for(const [event,stamp]of[['B-05',3000000],['A4-1',9400000],['B4-1',2100000]]){
+for(const [event,stamp]of[['B-05',3000000],...pinnedEvidence.runs.map(r=>{const g=r.single_view.find(s=>s.kind==='GAP');return [r.label,Math.floor((g.range_us[0]+g.range_us[1])/2)];})]){
  await p.goto(base+'?run='+event+'&screen=blind&as_of_us='+stamp);await p.waitForFunction(()=>document.querySelector('#q-core-feedback')?.textContent.includes('追蹤回應：'));
  check(await p.locator('#ui-v1').getAttribute('data-screen')==='case2','blind deep link opens new tracking screen');await p.waitForTimeout(150);await capture(p,event+'-blind-link');check(event==='B-05'?await p.locator('#ui-floorplan').isHidden():await p.locator('#ui-floorplan .is-inferred').count()>0,'blind deep link respects plan availability and declared uncertainty');
 }
 for(const [name,query,n]of[['r005-location','region=R101',1],['r005-laptop','class=laptop',2]]){
  await p.goto(base+'?run=r005&screen=search&'+query);await decoded(p,'#ui-case1 .ui-shot img',n);check(await p.locator('#ui-v1').getAttribute('data-screen')==='case1','r005 deep link opens result wall');await capture(p,name,{cards:n});
 }
+await p.goto(base+'?run=A4-1&screen=search&class=car');await decoded(p,'#ui-case1 .ui-shot img',1);check((await p.locator('#ui-case1').innerText()).includes('場景標註：車輛（非偵測）'),'D149 car card explicitly marked as scene annotation');await capture(p,'a4-car-annotation');
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
 }finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
