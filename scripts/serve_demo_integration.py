@@ -186,7 +186,7 @@ class Demo(P1):
             self.rgb.frames[key] = 200_000, by_camera, m['clock_id']
         self.add_static(artifacts, runs)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
-        self.api = QAPI(runs, max_responses=128, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
+        self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
         self.scenes = {r.catalog['scene_id'] for r in runs}
 
     def add_static(self, artifacts, runs):

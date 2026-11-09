@@ -123,3 +123,11 @@ test('single view sequence invariants hold on generated SYNTHETIC sightings',asy
     });
   }
 });
+test('expired server result shows a plain prompt, never a bare UNKNOWN',async t=>{
+  const m=await model(t);if(!m)return;
+  assert.equal(m.ERROR_TEXT.Q_RESPONSE_EXPIRED,'這筆結果已過期，請重新查詢');
+  assert.equal(m.failureText('Q_RESPONSE_EXPIRED'),'這筆結果已過期，請重新查詢');
+  assert.equal(m.failureText('SOMETHING_ELSE'),'UNKNOWN · SOMETHING_ELSE');
+  assert.equal(m.failureText(undefined),'UNKNOWN · REQUEST_FAILED');
+  assert.doesNotMatch(m.failureText('Q_RESPONSE_EXPIRED'),/UNKNOWN/);
+});

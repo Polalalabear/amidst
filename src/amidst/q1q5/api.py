@@ -11,7 +11,7 @@ import re
 import secrets
 import stat
 import threading
-from collections import Counter
+from collections import Counter, OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -178,7 +178,7 @@ class QAPI:
         self.runs={};self.rgb_api=rgb_api;self.max_responses=max_responses;self.max_media_refs=max_media_refs
         self.camera_maps={};self.camera_display_positions=deepcopy(camera_display_positions or {})
         self.openai_prediction_adapter=openai_prediction_adapter
-        self.recording_store=recording_store;self.recordings={};self.responses={};self.media_refs={};self._frame_refs={};self._active={};self._jobs={};self._recorded_responses={};self._lock=threading.RLock()
+        self.recording_store=recording_store;self.recordings={};self.responses={};self.media_refs={};self._frame_refs={};self._active={};self._jobs={};self._recorded_responses={};self._expired=OrderedDict();self._lock=threading.RLock()
         for run in runs:
             _validate_title(run.title,optional=True)
             m=run.bindings.index.manifest;key=(m['scene_id'],m['run_id']);check(key not in self.runs,'DataIntegrityError',409)
@@ -306,7 +306,7 @@ class QAPI:
         key=(token,frame,b.index_sha256)
         with self._lock:
             if key in self._frame_refs:return self._frame_refs[key]
-            check(len(self.media_refs)<self.max_media_refs,'Q_MEDIA_REFERENCE_LIMIT',409)
+            self._ensure_media_capacity(1)
             # This stable ID is a lookup reference, never bearer authorization.
             # Resolution requires the issuing session and a fresh scene check.
             ref='media-ref:'+canonical_hash({'frame_ref':frame,'index_sha256':b.index_sha256})
@@ -345,7 +345,7 @@ class QAPI:
             bundle['source_bindings']={'detection_index_sha256':b.index_sha256,'parameter_set_sha256':b.parameter_sha256,
                                        'clock_mapping_sha256':b.clock_sha256}
         if parse_receipt_ref is not None:
-            parent=self.responses[(request['session_ref'],parse_receipt_ref)]['response']
+            parent=self._response((request['session_ref'],parse_receipt_ref))['response']
             bundle['parse_receipt_ref']=parse_receipt_ref;bundle['parse_response']=deepcopy(parent)
         return bundle
 
@@ -408,11 +408,68 @@ class QAPI:
             check(record.get('content_sha256')==canonical_hash(record,exclude=('content_sha256','stats')),'DataIntegrityError',409)
 
 
+    # -- bounded memory: oldest-first eviction -------------------------------------------------
+    # Responses, jobs and media references only grow with operator actions, so each is capped
+    # and the oldest idle entry is dropped when the cap is reached. A dropped reference stays
+    # distinguishable (Q_RESPONSE_EXPIRED, HTTP 410) from one that never existed (403) through a
+    # small bounded tombstone set. Recordings are frozen data and are never evicted here.
+    EXPIRED_MEMORY=16384
+
+    def _remember_expired(self,key):
+        self._expired[key]=None
+        while len(self._expired)>self.EXPIRED_MEMORY:self._expired.popitem(last=False)
+
+    def _was_expired(self,key):
+        return key in self._expired
+
+    def _expired_error(self,key):
+        if self._was_expired(key):raise APIError('Q_RESPONSE_EXPIRED',410)
+
+    def _response(self,key):
+        """Return a stored bundle, or None. Raises Q_RESPONSE_EXPIRED for an evicted reference."""
+        bundle=self.responses.get(key)
+        if bundle is None:self._expired_error(('response',)+tuple(key))
+        return bundle
+
+    def _ensure_media_capacity(self,count):
+        """Caller holds the lock. Drop the oldest media refs to make room for ``count`` new ones."""
+        check(count<=self.max_media_refs,'Q_MEDIA_REFERENCE_LIMIT',409)
+        over=len(self.media_refs)+count-self.max_media_refs
+        if over<=0:return
+        for key in list(self.media_refs)[:over]:self._drop_media(key)
+
+    def _drop_media(self,key):
+        self.media_refs.pop(key,None);self._remember_expired(('media',)+tuple(key))
+        for frame_key in [k for k,ref in self._frame_refs.items() if (k[0],ref)==key]:del self._frame_refs[frame_key]
+
+    def _evict_responses(self):
+        """Caller holds the lock. Make room for one more response; running sessions are never evicted."""
+        while len(self.responses)>=self.max_responses:
+            victim=next((k for k in self.responses if k not in self._active),None)
+            check(victim is not None,'Q_RESPONSE_LIMIT',409)
+            self._drop_response(victim)
+
+    def _drop_response(self,key):
+        bundle=self.responses.pop(key);self._remember_expired(('response',)+tuple(key))
+        if key not in self._active and key in self._jobs:
+            del self._jobs[key];self._remember_expired(('response',)+tuple(key))
+        token=key[0]
+        keep={ref for (t,_),other in self.responses.items() if t==token for ref in other.get('media_refs',{})}
+        for ref in bundle.get('media_refs',{}):
+            if ref not in keep and (token,ref) in self.media_refs:self._drop_media((token,ref))
+
+    def _evict_jobs(self):
+        """Caller holds the lock. Make room for one more job; a RUNNING job is never evicted."""
+        while len(self._jobs)>=self.max_responses:
+            victim=next((k for k in self._jobs if k not in self._active),None)
+            check(victim is not None,'Q_JOB_LIMIT',409)
+            del self._jobs[victim];self._remember_expired(('response',)+tuple(victim))
+
     def _save_response(self,token,bundle):
         self._verify_bundle(bundle);ref=bundle['response'].get('session_id') or bundle['response']['output_sha256']
         key=(token,ref)
         with self._lock:
-            check(key in self.responses or len(self.responses)<self.max_responses,'Q_RESPONSE_LIMIT',409)
+            if key not in self.responses:self._evict_responses()
             if key in self.responses:check(self.responses[key]['response']['output_sha256']==bundle['response']['output_sha256'],'DataIntegrityError',409)
             self.responses[key]=deepcopy(bundle)
         return ref
@@ -429,7 +486,7 @@ class QAPI:
     def _parse_provenance(self,request,reference):
         if reference is None:return False
         check(isinstance(reference,str),'FORBIDDEN_INFERENCE_INPUT')
-        bundle=self.responses.get((request.get('session_ref'),reference))
+        bundle=self._response((request.get('session_ref'),reference))
         check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403)
         self._verify_bundle(bundle);parsed=bundle['response']
         expected=parsed.get('structured_query');actual=deepcopy(request)
@@ -450,7 +507,7 @@ class QAPI:
                   and isinstance(payload['response_ref'],str) and bool(payload['response_ref']))
             check(type(payload['as_of_us']) is int and payload['as_of_us']>=0)
             token=payload['session_ref'];check(isinstance(token,str) and bool(token),'FORBIDDEN_DATA_SCOPE',403)
-            bundle=self.responses.get((token,payload['response_ref']))
+            bundle=self._response((token,payload['response_ref']))
             check(bundle is not None and bundle['response'].get('schema_version') in
                   {'q-demo.q2-response.v1','q-demo.q2-response.v2'},'FORBIDDEN_DATA_SCOPE',403)
             self._authorize(token,bundle['scene_id'],authorize)
@@ -495,7 +552,7 @@ class QAPI:
                 if key in self.responses:
                     return {'schema_version':'q-demo.session-job.v1','session_id':controller.session_id,'status':'COMPLETE','response':deepcopy(self.responses[key]['response']),'error_code':None}
                 if key in self._jobs:return deepcopy(self._jobs[key]['public'])
-                check(not self._active and len(self._jobs)<self.max_responses,'Q_JOB_LIMIT',409)
+                check(not self._active,'Q_JOB_LIMIT',409);self._evict_jobs()
                 public={'schema_version':'q-demo.session-job.v1','session_id':controller.session_id,'status':'RUNNING','response':None,'error_code':None}
                 generation=controller._generation
                 self._jobs[key]={'scene_id':request['scene_id'],'public':public,'generation':generation};self._active[key]=controller
@@ -536,7 +593,9 @@ class QAPI:
         if action=='q2_poll_session':
             check(set(payload)=={'session_ref','response_ref'} and isinstance(payload['response_ref'],str))
             with self._lock:
-                entry=self._jobs.get((payload['session_ref'],payload['response_ref']));check(entry is not None,'FORBIDDEN_DATA_SCOPE',403)
+                key=(payload['session_ref'],payload['response_ref']);entry=self._jobs.get(key)
+                if entry is None:self._expired_error(('response',)+key)
+                check(entry is not None,'FORBIDDEN_DATA_SCOPE',403)
                 self._authorize(payload['session_ref'],entry['scene_id'],authorize);return deepcopy(entry['public'])
         if action in {'q2_session','q2_seed_candidates','q2_select_seed'}:
             selected=None;parse_ref=None
@@ -579,8 +638,9 @@ class QAPI:
                     'clock_mapping_sha256':b.clock_sha256,'region_graph_sha256':b.region_graph_sha256,'camera_graph_sha256':b.camera_graph_sha256}
                 check(all(scope.get(key) is None or scope[key]==pin for key,pin in pins.items()),'DataIntegrityError',409)
             with self._lock:
+                new=[ref for ref in bundle['media_refs'] if (payload['session_ref'],ref) not in self.media_refs]
+                self._ensure_media_capacity(len(new))
                 for ref,info in bundle['media_refs'].items():
-                    check(len(self.media_refs)<self.max_media_refs or (payload['session_ref'],ref) in self.media_refs,'Q_MEDIA_REFERENCE_LIMIT',409)
                     self.media_refs[(payload['session_ref'],ref)]=deepcopy(info)
             self._save_response(payload['session_ref'],bundle);return deepcopy(bundle['response'])
         if action in {'q2_artifact','q_record_response','q_manual_seed'}:
@@ -594,7 +654,7 @@ class QAPI:
                 if 'restart_agent' in payload:controller.request_manual_seed(payload['observation_id'],restart_agent=payload['restart_agent'])
                 else:controller.request_manual_seed(payload['observation_id'])
                 return {'schema_version':'q-demo.manual-selection.v1','status':'QUEUED','gt_read':False}
-            bundle=self.responses.get(key);check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403);self._authorize(payload['session_ref'],bundle['scene_id'],authorize,audit=action=='q_record_response' or payload.get('kind')!='observation')
+            bundle=self._response(key);check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403);self._authorize(payload['session_ref'],bundle['scene_id'],authorize,audit=action=='q_record_response' or payload.get('kind')!='observation')
             if action=='q_record_response':
                 check(self.recording_store is not None,'Q_RECORDING_NOT_CONFIGURED',503)
                 with self._lock:
@@ -618,6 +678,7 @@ class QAPI:
             return deepcopy(match[0])
         if action=='q_media_grant':
             check(set(payload)=={'session_ref','media_token'} and isinstance(payload['media_token'],str));info=self.media_refs.get((payload['session_ref'],payload['media_token']))
+            if info is None:self._expired_error(('media',payload['session_ref'],payload['media_token']))
             check(info is not None,'FORBIDDEN_DATA_SCOPE',403);self._authorize(payload['session_ref'],info['scene_id'],authorize)
             return self._frames(payload['session_ref'],info['scene_id'],info['run_id'],info['timestamp_us'],[info['camera_id']],expected=info)
         if action=='q_frames':
@@ -631,7 +692,7 @@ class QAPI:
                   and isinstance(payload['response_ref'],str) and bool(payload['response_ref']))
             check(type(payload['as_of_us']) is int and payload['as_of_us']>=0)
             token=payload['session_ref'];check(isinstance(token,str) and bool(token),'FORBIDDEN_DATA_SCOPE',403)
-            bundle=self.responses.get((token,payload['response_ref']))
+            bundle=self._response((token,payload['response_ref']))
             check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403)
             self._authorize(token,bundle['scene_id'],authorize,audit=False)
             self._verify_bundle(bundle)

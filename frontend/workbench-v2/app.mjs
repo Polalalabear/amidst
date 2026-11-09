@@ -22,7 +22,7 @@ import {mount as mountTrackMap} from './track-map-view.mjs';
 import {mountSimpleView} from './simple-view.mjs';
 import {mountEventMenu} from './event-menu.mjs';
 import {mountCoreScreens} from './core-screens-view.mjs';
-import {buildCoreSearchRequest,buildCoreTrackRequest,ERROR_TEXT} from './core-search-track-model.mjs';
+import {buildCoreSearchRequest,buildCoreTrackRequest,ERROR_TEXT,failureText} from './core-search-track-model.mjs';
 import {createBoundMediaResolver} from './core-media.mjs';
 import {mountUi} from './ui-shell.mjs';
 
@@ -211,7 +211,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     try{
       const request=kind==='search'?buildCoreSearchRequest(run,api.getSession(),override??coreFormDom(),coreMenus(run)):buildCoreTrackRequest(run,api.getSession(),override??coreFormDom(),coreMenus(run),store.getState().tUs);
       const result=await execute(request);
-      const text=result.ok?`${kind==='search'?'查找':'追蹤'}回應：${result.data.status}`:`UNKNOWN · ${result.error?.code??'REQUEST_FAILED'}`;if(coreFeedback)coreFeedback.textContent=text;return {ok:Boolean(result.ok),text,code:result.ok?null:result.error?.code??'REQUEST_FAILED'};
+      const text=result.ok?`${kind==='search'?'查找':'追蹤'}回應：${result.data.status}`:failureText(result.error?.code);if(coreFeedback)coreFeedback.textContent=text;return {ok:Boolean(result.ok),text,code:result.ok?null:result.error?.code??'REQUEST_FAILED'};
     }catch(error){const text=ERROR_TEXT[error.message]??`UNKNOWN · ${error.message}`;if(coreFeedback)coreFeedback.textContent=text;return {ok:false,text,code:error.message};}
   }
   context.submitCore=submitCore;context.subscribeCatalog=fn=>{catalogListeners.add(fn);return()=>catalogListeners.delete(fn);};
