@@ -30,6 +30,9 @@ HASH_POLICIES = ('full', 'files_only', 'none', 'git_head', 'path_size_only')
 COMPLETENESS = ('complete', 'partial', 'not_computed', 'not_applicable')
 EXCLUDED_DIR_NAMES = frozenset({'gt_private', 'ground_truth'})
 SKIP_NAMES = frozenset({'.DS_Store'})
+SAFETY_STATUS = ('SAFE', 'KEEP', 'UNKNOWN')
+SAFETY_CHECKS = ('refs_mainline', 'running_services', 'unmerged_work', 'evidence_preservation', 'raw_assets')
+SAFETY_RESULTS = ('pass', 'fail', 'unknown')
 SHA = '0123456789abcdef'
 
 
@@ -194,7 +197,35 @@ def validate(ledger):
             errors.append(f'{tag}: git head')
         if e.get('type') == 'raw_data' and h.get('policy') not in ('full', 'files_only', 'path_size_only'):
             errors.append(f'{tag}: raw_data needs a digest policy')
+        errors += validate_safety(tag, e)
     return errors
+
+
+def validate_safety(tag, e):
+    """D157: SAFE needs all five checks to pass, a verify command and a restore method; deletable needs SAFE."""
+    out = []
+    sf = e.get('safety')
+    if not isinstance(sf, dict):
+        return [f'{tag}: missing safety']
+    if sf.get('status') not in SAFETY_STATUS:
+        out.append(f'{tag}: safety.status')
+    checks = sf.get('checks')
+    if not isinstance(checks, dict) or set(checks) != set(SAFETY_CHECKS) or \
+            any(v not in SAFETY_RESULTS for v in checks.values()):
+        out.append(f'{tag}: safety.checks')
+        checks = {}
+    if not sf.get('reason'):
+        out.append(f'{tag}: safety.reason')
+    if sf.get('status') == 'SAFE':
+        if any(v != 'pass' for v in checks.values()):
+            out.append(f'{tag}: SAFE requires all checks pass')
+        if not sf.get('verify_commands') or not sf.get('restore'):
+            out.append(f'{tag}: SAFE requires verify_commands and restore')
+    if e.get('disposition') == 'deletable' and sf.get('status') != 'SAFE':
+        out.append(f'{tag}: deletable requires safety SAFE')
+    if e.get('type') == 'raw_data' and sf.get('status') == 'SAFE':
+        out.append(f'{tag}: raw_data can never be SAFE')
+    return out
 
 
 def load(path):

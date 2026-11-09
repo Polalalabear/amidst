@@ -46,6 +46,18 @@
     "manifest_sha256": "fbc0fbb041baa06838559bad0094905bfe53346aeaa1a14fbca7a90391435b17",
     "completeness": "complete",
     "hashed_files": 8
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -66,6 +78,18 @@
     "manifest_sha256": "373e714cf847a1e5cb59c3983c59075ad58e77d83b13843456d3e810a1c9d66d",
     "completeness": "complete",
     "hashed_files": 7
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -86,6 +110,18 @@
     "manifest_sha256": "1f0b3e3cff18fa6c1ecd5e2178728afa1a3a05021e6c469f741525854e388be5",
     "completeness": "complete",
     "hashed_files": 373
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -106,6 +142,18 @@
     "manifest_sha256": "b34a2f43c08a6517f3a6ac017f2a2902ef4c4cc69ed95260c961f8c64e669b65",
     "completeness": "complete",
     "hashed_files": 11
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -126,6 +174,18 @@
     "manifest_sha256": "1383d702fe9cf219ba22966f3dbfaa3402667c4753b217f738637fd8cb1e0db0",
     "completeness": "complete",
     "hashed_files": 11
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -146,6 +206,18 @@
     "manifest_sha256": "23accf4acb584b3f725738a070bad5c0ef94fc61bb96680c0128e7d6f6959e6a",
     "completeness": "complete",
     "hashed_files": 6
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -167,6 +239,18 @@
     "manifest_sha256": "9bee2c1b99309d23d52df96ec14adbf9684fd95088189eac64f6e9b8c6e00792",
     "completeness": "complete",
     "hashed_files": 8353
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -187,6 +271,18 @@
     "manifest_sha256": "11e2412309a3925e012de6c4f0bb682f7e9986116bb13bec9cb7b285d43164da",
     "completeness": "complete",
     "hashed_files": 3
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -207,6 +303,18 @@
     "manifest_sha256": "d4d5234764ec5d6c092af1638b6679381dfec9d35f1fd3968c59636babb6c715",
     "completeness": "complete",
     "hashed_files": 20
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -227,6 +335,18 @@
     "manifest_sha256": "90e831fcdeff4686264ddcd368c88a39b9cc16574b4e77df011c7ce65d34e0ac",
     "completeness": "complete",
     "hashed_files": 55
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -247,6 +367,18 @@
     "manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "completeness": "complete",
     "hashed_files": 0
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -268,18 +400,30 @@
     "manifest_sha256": "10841709f87257018bf1fefd92e1dff8b97127bf230bf997191a25d5be7bfe57",
     "completeness": "complete",
     "hashed_files": 4741
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
    "id": "ART-d133-proxies-v2-jpeg",
    "path": "~/amidst-artifacts/d133-playback-proxies-v2/jpeg",
    "type": "derived_data",
-   "disposition": "deletable",
+   "disposition": "user_decision",
    "purpose": "2,370 張 JPEG90 播放用衍生圖（非 inference 原圖，無 symlink/hardlink）",
    "referenced_by": [
     "docs/operations/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md:65 (benchmark 重現命令) [檔案不在 mainline@2616661，見 #485／相關 PR 分支]"
    ],
-   "retain_reason": "可由保留的 PNG 重新編碼；Pillow 12.3.0 與參數在 manifest.json",
+   "retain_reason": "主線 D133 量測文件的重現命令引用；需使用者決定是否放棄重現能力",
    "rebuildable": "yes",
    "size_bytes": 110611318,
    "file_count": 2370,
@@ -290,7 +434,24 @@
     "hashed_files": 2370
    },
    "parent_id": "ART-d133-playback-proxies-v2",
-   "notes": "重新編碼 byte 完全相同未驗證；刪除後舊 benchmark 命令需先重建圖"
+   "notes": "重新編碼 byte 完全相同未驗證；刪除後舊 benchmark 命令需先重建圖",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "fail",
+     "running_services": "pass",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "主線文件把整個 d133-playback-proxies-v2 當 benchmark 輸入：docs/engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md:65、:69、:84 與 d133_playback_latency_20261108.json:2176；刪掉 jpeg/webp 會讓量測無法重現",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -n \"d133-playback-proxies\" 2616661 -- . → 2 檔 4 處（見上）",
+     "lsof -nP | grep -cF -- \"d133-playback-proxies-v2\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python） → 0"
+    ],
+    "restore": "可由保留的 PNG 重新編碼（Pillow 12.3.0，參數在 manifest）；byte 相同未驗證"
+   }
   },
   {
    "id": "ART-d133-proxies-v2-manifest",
@@ -311,18 +472,30 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "parent_id": "ART-d133-playback-proxies-v2"
+   "parent_id": "ART-d133-playback-proxies-v2",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "ART-d133-proxies-v2-webp",
    "path": "~/amidst-artifacts/d133-playback-proxies-v2/webp",
    "type": "derived_data",
-   "disposition": "deletable",
+   "disposition": "user_decision",
    "purpose": "2,370 張 WebP90 播放用衍生圖",
    "referenced_by": [
     "同上"
    ],
-   "retain_reason": "同上",
+   "retain_reason": "主線 D133 量測文件的重現命令引用；需使用者決定是否放棄重現能力",
    "rebuildable": "yes",
    "size_bytes": 61637852,
    "file_count": 2370,
@@ -332,7 +505,24 @@
     "completeness": "complete",
     "hashed_files": 2370
    },
-   "parent_id": "ART-d133-playback-proxies-v2"
+   "parent_id": "ART-d133-playback-proxies-v2",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "fail",
+     "running_services": "pass",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "主線文件把整個 d133-playback-proxies-v2 當 benchmark 輸入：docs/engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md:65、:69、:84 與 d133_playback_latency_20261108.json:2176；刪掉 jpeg/webp 會讓量測無法重現",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -n \"d133-playback-proxies\" 2616661 -- . → 2 檔 4 處（見上）",
+     "lsof -nP | grep -cF -- \"d133-playback-proxies-v2\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python） → 0"
+    ],
+    "restore": "可由保留的 PNG 重新編碼（Pillow 12.3.0，參數在 manifest）；byte 相同未驗證"
+   }
   },
   {
    "id": "ART-d133-switch-baseline",
@@ -352,6 +542,18 @@
     "manifest_sha256": "229b4708ae8451db408333d94ae1da3dca23c08a9a1bd76b579053d1d63fc0b8",
     "completeness": "complete",
     "hashed_files": 44
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -372,6 +574,18 @@
     "manifest_sha256": "dcc5fb97f9b7442e7921891eada054b3675de0dea32eac0a85c719152115fc69",
     "completeness": "complete",
     "hashed_files": 65
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -392,6 +606,18 @@
     "manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "completeness": "complete",
     "hashed_files": 0
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -412,6 +638,18 @@
     "manifest_sha256": "93c3d5bb85fd641d617b05e11fd2f434399710be4fdbfc7032cc46bbab228c7d",
     "completeness": "complete",
     "hashed_files": 5
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -432,6 +670,18 @@
     "manifest_sha256": "ed4f175a76697ec6ca0c12b0aa2b28f72393e5deab373a9439617291c33e0b8e",
     "completeness": "complete",
     "hashed_files": 19
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -452,6 +702,18 @@
     "manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "completeness": "complete",
     "hashed_files": 0
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -472,6 +734,18 @@
     "manifest_sha256": "46399395f0bba8eeefcfe1013de8839cfdfff92204bc39d1387819da7d6151f5",
     "completeness": "complete",
     "hashed_files": 3
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -492,6 +766,18 @@
     "manifest_sha256": "f559b78700a27010534636ec6f26e3f6ae68bf41b9c14a81215a2674ff577217",
     "completeness": "complete",
     "hashed_files": 49
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -512,6 +798,18 @@
     "manifest_sha256": "6c45be67fd2c7aac899174e1d64324a90565839d2c0cc6024ac521775c29eaa4",
     "completeness": "complete",
     "hashed_files": 405
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -532,6 +830,18 @@
     "manifest_sha256": "7a3e59b650df14f44978e35dd714234f8a137457a93aa43ee04b56434d7efb3d",
     "completeness": "complete",
     "hashed_files": 95
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -552,6 +862,18 @@
     "manifest_sha256": "69ad0b54e302978654e21bfec3a4f91c6fc4e1e8baa9dc60b639a69082dd3072",
     "completeness": "complete",
     "hashed_files": 15
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -572,6 +894,18 @@
     "manifest_sha256": "7b885dcb80ab752e3c7f57398274693b6d6324929faaa190c82e2fe400b0229b",
     "completeness": "complete",
     "hashed_files": 32
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -592,6 +926,18 @@
     "manifest_sha256": "ce9f06a0adb2118cec6186ba1a11ea655452509bf6b361aa666a67f9fc4e29de",
     "completeness": "complete",
     "hashed_files": 2
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -615,7 +961,22 @@
     "completeness": "complete",
     "hashed_files": 12835
    },
-   "notes": "copy-manifest.json SHA-256 8b9a4b4b98f52fa56317e0673dcf4da0d688b846c75dc0003b2d8bca743d061f（#486 copy receipt）；repo ledger 4,788 entries／2,756,614,124 bytes，SHA-256 ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50；size_bytes 為逐檔 st_size，含 runtime/python 與 models"
+   "notes": "copy-manifest.json SHA-256 8b9a4b4b98f52fa56317e0673dcf4da0d688b846c75dc0003b2d8bca743d061f（#486 copy receipt）；repo ledger 4,788 entries／2,756,614,124 bytes，SHA-256 ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50；size_bytes 為逐檔 st_size，含 runtime/python 與 models",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "fail",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "8785 服務（PID 21060）執行中：cwd ~/amidst-demo-20261104，載入 ~/amidst-artifacts/demo-owned-v1/runtime/python 的 python3.12；runtime、venv、資料與 config 一律 KEEP",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "lsof -nP -iTCP:8785 -sTCP:LISTEN；lsof -nP -p 21060"
+    ]
+   }
   },
   {
    "id": "ART-demo-ui-f_20261102_01a199f8",
@@ -635,6 +996,18 @@
     "manifest_sha256": "21b7c73fd6810b3ca698ae209e6be78cf6a30419799443275c7999cf82b8f6c6",
     "completeness": "complete",
     "hashed_files": 2
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -655,6 +1028,18 @@
     "manifest_sha256": "faaa9edba5087a790b4e0e99e07b5e56828735b059c4519a39c9c8cf2a0c8b91",
     "completeness": "complete",
     "hashed_files": 9
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -675,6 +1060,18 @@
     "manifest_sha256": "3eebe3e40e89741c6bdc7d8057470db8fb357dc2e3b5b8cacb41b79b6cd886cd",
     "completeness": "complete",
     "hashed_files": 119
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -695,6 +1092,18 @@
     "manifest_sha256": "52a7efde644c3745cac3c957f58abd7beec728ed3290ed2df2f1f60fecc111a9",
     "completeness": "complete",
     "hashed_files": 39
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -715,6 +1124,18 @@
     "manifest_sha256": "6e51ec26c4d9401efdd30892ca03d472b6aae0d99a4d79e4897724665aa7a306",
     "completeness": "complete",
     "hashed_files": 11
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -735,6 +1156,18 @@
     "manifest_sha256": "bfd32c006ce2fdcfcd522706eda43a86f3ccc71e3f5cb5dd2fc01008f476b525",
     "completeness": "complete",
     "hashed_files": 4
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -755,6 +1188,18 @@
     "manifest_sha256": "a2ea951d145dc607d09852dfa51c5d05e566490a390cc8c9cc2388e860cd361c",
     "completeness": "complete",
     "hashed_files": 27
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -775,6 +1220,18 @@
     "sha256": "c02da7e2bc1bac9dfe40aa51fb3ae35bd1d8ca0ea6e148796eefe8c8b36de2a2",
     "completeness": "complete",
     "hashed_files": 1
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -795,6 +1252,18 @@
     "manifest_sha256": "72aa22d41062432dfd86c45d87ecca7bb574b42a2b04fb732521855c9cd12992",
     "completeness": "complete",
     "hashed_files": 1334
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -815,6 +1284,18 @@
     "manifest_sha256": "96f7f964a30b5acefa78e8e21d9a30d5bc9668a3b6de14c2f2895a6dc2ef0ff8",
     "completeness": "complete",
     "hashed_files": 8279
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -835,6 +1316,18 @@
     "manifest_sha256": "486e540571b26e91efe84734da4fba849197826562944b1e8d17a6facd2960b1",
     "completeness": "complete",
     "hashed_files": 135
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -855,6 +1348,18 @@
     "manifest_sha256": "2cd38e60ce097b1342aaf5b276b4a9824197fec2df2b14d9ee2c3c12332061b4",
     "completeness": "complete",
     "hashed_files": 135
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -875,6 +1380,18 @@
     "manifest_sha256": "ef35950581f2917562be61e077f3e1026f66296d538d1bfc28cef7f2de3fe66e",
     "completeness": "complete",
     "hashed_files": 300
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -895,6 +1412,18 @@
     "manifest_sha256": "f0fd792fe203f168213a9453be97210896fc3d7b480001a9e60088e9d6ef7d3e",
     "completeness": "complete",
     "hashed_files": 33
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -915,6 +1444,18 @@
     "manifest_sha256": "101144a6daa5f6baa40e47d542acea627ef8fb8071289e61a5a41911f302b44f",
     "completeness": "complete",
     "hashed_files": 5
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -937,6 +1478,18 @@
     "manifest_sha256": "0eb5d89103033888be86808adc8fa8468e95a3deee796397ca9f3a17312ad8cb",
     "completeness": "complete",
     "hashed_files": 21091
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -957,6 +1510,18 @@
     "manifest_sha256": "c4acea4f3b1ae664b3be05ef69e7c644e25bb9e641c7bab7b9ea6af5f64b1cd5",
     "completeness": "complete",
     "hashed_files": 704
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -977,6 +1542,18 @@
     "manifest_sha256": "33af89849b6f420e3ee58d251d702ef6a753c2588357d478d8bbea1495c545a7",
     "completeness": "complete",
     "hashed_files": 1975
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -997,6 +1574,18 @@
     "manifest_sha256": "5c9f5e4a75cc081a6b13e8912b99357e412867871e6eb341afb80f29756be0e0",
     "completeness": "complete",
     "hashed_files": 207
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1017,6 +1606,18 @@
     "manifest_sha256": "4f7375a2eb960260022028eb145215a439b5452cd1fb8532086d9eb1b025ed75",
     "completeness": "complete",
     "hashed_files": 4013
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1037,6 +1638,18 @@
     "manifest_sha256": "211a499a160a504dd416684fd259d1eca071bc28ed4eba946a706d7672a7da05",
     "completeness": "complete",
     "hashed_files": 78
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1057,6 +1670,18 @@
     "manifest_sha256": "2a6fec13eaf5eac23666eb8d41843b8140fa39ac82c3bd21d3a38edd2a0d38de",
     "completeness": "complete",
     "hashed_files": 571
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1077,6 +1702,18 @@
     "manifest_sha256": "ffff03fda3654858bbfc20308efb2a1c1b218ebcad65908d5564327d16006edc",
     "completeness": "complete",
     "hashed_files": 424
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1097,6 +1734,18 @@
     "manifest_sha256": "b741df3e65ff3871e72b021382320f45ae1196b674078a36b09947fcbda19866",
     "completeness": "complete",
     "hashed_files": 76
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1117,6 +1766,18 @@
     "manifest_sha256": "feadb0533a2ba535e967ede7261afc34bfe19f82b4354e24bae7beae2830e8cf",
     "completeness": "complete",
     "hashed_files": 123
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1137,6 +1798,18 @@
     "manifest_sha256": "15b784f27569a5b36639c56b7ca7f0acc10d1564c50d956c09daf053dda1bd94",
     "completeness": "complete",
     "hashed_files": 10175
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1157,6 +1830,18 @@
     "manifest_sha256": "24f4fdb97edc1b03d8f8e579743b312f2e095fc71838661483eabbec74deba01",
     "completeness": "complete",
     "hashed_files": 10867
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1177,6 +1862,18 @@
     "manifest_sha256": "b5fff334c86112f79394476093108b3e6ae1c6243c7e00ca52180f310ca08919",
     "completeness": "complete",
     "hashed_files": 178
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1197,6 +1894,18 @@
     "manifest_sha256": "96842d551bb2b326daffdee52d996eacb0ddf48ceff7ab2d9fcd7611359ed2df",
     "completeness": "complete",
     "hashed_files": 1177
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1217,6 +1926,18 @@
     "manifest_sha256": "c13794e63c642c1b7f0985e75a70711649afe33418b39025b08bfb753fc09164",
     "completeness": "complete",
     "hashed_files": 1
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1237,6 +1958,18 @@
     "manifest_sha256": "276d8179d7cec947449d459902e72f3b5372a6ae0033675bdc57af9ca4d3c7dd",
     "completeness": "complete",
     "hashed_files": 3377
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1257,6 +1990,18 @@
     "manifest_sha256": "7c161a30d76294413cd2ca41e3d14f67fbb35c187cb30b2c5f1bed731393674a",
     "completeness": "complete",
     "hashed_files": 7
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1277,6 +2022,18 @@
     "manifest_sha256": "6baa6c91677db3cf263e90abb30937f70ba7b423f04d625e6f347cf8881e3a0c",
     "completeness": "complete",
     "hashed_files": 17
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1297,6 +2054,18 @@
     "manifest_sha256": "a5e00b51ef07319f447d8a62644af642e30a1887fe65ddad8d290baa962a4898",
     "completeness": "complete",
     "hashed_files": 5
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1317,6 +2086,18 @@
     "manifest_sha256": "c9bc9dd753efdf289ed725d9e71582fba59b4c6a2f484c633f3242549e598153",
     "completeness": "complete",
     "hashed_files": 94
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1337,6 +2118,18 @@
     "manifest_sha256": "964834783bd909f89fe18193c98f3b3d7ac941b309c2ddb33d5d4cd16c8a695a",
     "completeness": "complete",
     "hashed_files": 94
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1381,7 +2174,19 @@
     "hashed_files": 2050
    },
    "excluded_size_bytes": 1106913178,
-   "excluded_file_count": 2299
+   "excluded_file_count": 2299,
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "ART-r004-cx7r-20261104-01a19f8b",
@@ -1426,7 +2231,19 @@
    },
    "notes": "safe manifest SHA-256 ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01（Codex 11-08）；size_bytes 依路徑逐檔相加，hardlink 檔案重複計算，實際配置用量較小",
    "excluded_size_bytes": 1603182,
-   "excluded_file_count": 34
+   "excluded_file_count": 34,
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "ART-r004-graphs-proposed-20261021",
@@ -1446,6 +2263,18 @@
     "manifest_sha256": "d7756a67e06151f9d563eca410923c87049512a638861da51f62ddf8120ea987",
     "completeness": "complete",
     "hashed_files": 31
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1466,6 +2295,18 @@
     "manifest_sha256": "2eb92d4f6cbcf61f8dcee4e949e6521dcf2d007e0c8b386f5e88b885ce3bbe61",
     "completeness": "complete",
     "hashed_files": 3
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1486,6 +2327,18 @@
     "manifest_sha256": "e44595d405ef11c6245daf07312aa06c69ecfe71890c1d9c417b171ced7636b3",
     "completeness": "complete",
     "hashed_files": 74
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1506,6 +2359,18 @@
     "manifest_sha256": "0bb09a95c7004b53fe40a76e4865415487cfe6eb125e1e6dabd0d4f681bd58ec",
     "completeness": "complete",
     "hashed_files": 83
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1526,6 +2391,18 @@
     "manifest_sha256": "79f709d9afef599c4777bb9ef0c6ea083d4eecf2f8872ef663951e542fbb1703",
     "completeness": "complete",
     "hashed_files": 15
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1546,6 +2423,18 @@
     "manifest_sha256": "d6299d95db19e38191d01e831acd97cbeec6c542549dd50ef3be35c323f5b1d2",
     "completeness": "complete",
     "hashed_files": 13
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1566,6 +2455,18 @@
     "manifest_sha256": "9d7c1c63e85b300e2ba42aa8ca6fa2cdf47de0e52651eb8248355a4e88842ae2",
     "completeness": "complete",
     "hashed_files": 17
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1586,6 +2487,18 @@
     "manifest_sha256": "7e9e28e8f27e3613f2ed72a79ba16eef104df2bd697028cfc5d014179930a680",
     "completeness": "complete",
     "hashed_files": 33
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1606,6 +2519,18 @@
     "sha256": "4e6a5e49e512bde5b286c0679b2cc091ddd12b7c5d0543e0df195eaaad99a189",
     "completeness": "complete",
     "hashed_files": 1
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1626,6 +2551,18 @@
     "sha256": "ce99015f95b8729c7fe0deecc7f9b9512899702e5e76d848b2ea7c9a1b62d523",
     "completeness": "complete",
     "hashed_files": 1
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1644,6 +2581,18 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1662,6 +2611,18 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1680,6 +2641,29 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "只是 npm 下載快取，沒有任何程式、config、CI 或 demo 啟動器引用 ~/.npm",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -E -n \"npm_config_cache\" 2616661 + 103 heads → 0 筆；`\\.npm` 的命中只是 registry.npmjs.org 的 URL（package-lock.json，非 ~/.npm 路徑）",
+     "lsof -nP | grep -cF -- \".npm\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline） 無新增引用",
+     "非原始資產、非證據；owned demo 以 repo 的 lock 離線安裝，不依賴 ~/.npm"
+    ],
+    "verify_commands": [
+     "git grep -n \"npm_config_cache\" 2616661 -- .  # 0 筆",
+     "lsof -nP | grep -cF -- \"/.npm\"  # 0"
+    ],
+    "restore": "重新 npm ci（需網路）自動重建；內容可由 package-lock.json 重新取得"
    }
   },
   {
@@ -1698,6 +2682,18 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1721,6 +2717,18 @@
      "dirty_count": 7
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1744,6 +2752,18 @@
      "dirty_count": 0
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1767,6 +2787,21 @@
      "dirty_count": 0
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "fail",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "8785 服務（PID 21060）執行中：cwd ~/amidst-demo-20261104，載入 ~/amidst-artifacts/demo-owned-v1/runtime/python 的 python3.12；runtime、venv、資料與 config 一律 KEEP",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "lsof -nP -iTCP:8785 -sTCP:LISTEN；lsof -nP -p 21060"
+    ]
    }
   },
   {
@@ -1790,6 +2825,18 @@
      "dirty_count": 50
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1813,6 +2860,18 @@
      "dirty_count": 0
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1836,6 +2895,18 @@
      "dirty_count": 1
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1865,6 +2936,18 @@
      "dirty_count": 3
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1888,6 +2971,18 @@
      "dirty_count": 0
     },
     "completeness": "not_applicable"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1906,6 +3001,18 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1924,6 +3031,18 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1942,6 +3061,21 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "fail",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "8785 服務（PID 21060）執行中：cwd ~/amidst-demo-20261104，載入 ~/amidst-artifacts/demo-owned-v1/runtime/python 的 python3.12；runtime、venv、資料與 config 一律 KEEP",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "lsof -nP -iTCP:8785 -sTCP:LISTEN；lsof -nP -p 21060"
+    ]
    }
   },
   {
@@ -1962,6 +3096,18 @@
     "manifest_sha256": "e01e3010c32cf8b32ad2cddf165b0345c99e4a3da34d80d7f68aca2b691be6b9",
     "completeness": "complete",
     "hashed_files": 1121
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -1982,6 +3128,18 @@
     "manifest_sha256": "a24f962b1f5cb3a884f80f5a173d556eb319311dff9ae21d2aa85874da9f75be",
     "completeness": "complete",
     "hashed_files": 273
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2004,7 +3162,19 @@
     "completeness": "complete",
     "hashed_files": 777
    },
-   "parent_id": "LOC-clean-data"
+   "parent_id": "LOC-clean-data",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "LOC-fin-DEMO_V1",
@@ -2024,6 +3194,18 @@
     "sha256": "67440fb25c3d5586e23a9f1a2cfbc95c14431c747dba571910cf3b8e3cdc36d7",
     "completeness": "complete",
     "hashed_files": 1
+   },
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2053,6 +3235,18 @@
     "manifest_sha256": "a86c10e6b4cefd01c276905f0cec75bbd76c9e8df9a31b86ce2d988d47345af1",
     "completeness": "complete",
     "hashed_files": 13860
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2079,6 +3273,18 @@
     "manifest_sha256": "fdf52df0df90901d92d95a013496442c48c6585da9a1a2c12df2719b980d11dd",
     "completeness": "complete",
     "hashed_files": 299
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2097,6 +3303,27 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -E -n \"\\.pytest_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
+     "lsof -nP | grep -cF -- \"/Developer/amidst/.local-worktrees/phase1-finalization/.pytest_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
+     "非原始資產；快取"
+    ],
+    "verify_commands": [
+     "git grep -n -E \"\\.pytest_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+    ],
+    "restore": "下次 pytest／ruff 執行時自動重建"
    }
   },
   {
@@ -2115,6 +3342,27 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -E -n \"\\.ruff_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
+     "lsof -nP | grep -cF -- \"/Developer/amidst/.local-worktrees/phase1-finalization/.ruff_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
+     "非原始資產；快取"
+    ],
+    "verify_commands": [
+     "git grep -n -E \"\\.ruff_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+    ],
+    "restore": "下次 pytest／ruff 執行時自動重建"
    }
   },
   {
@@ -2136,7 +3384,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "Codex 記錄 SHA-256 26bac8d3f93b351e23c865f3bef2bda3a099c82cef190788809c754560f2ab70"
+   "notes": "Codex 記錄 SHA-256 26bac8d3f93b351e23c865f3bef2bda3a099c82cef190788809c754560f2ab70",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "LOC-fin-untracked-start_local_demo",
@@ -2157,7 +3417,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "Codex 記錄 SHA-256 e927310b668814ceff1464b3f11df41bb367aecef6242075bb515b9521efb4b3；建議以 patch 封存而非進 mainline"
+   "notes": "Codex 記錄 SHA-256 e927310b668814ceff1464b3f11df41bb367aecef6242075bb515b9521efb4b3；建議以 patch 封存而非進 mainline",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "LOC-formal-data",
@@ -2178,6 +3450,18 @@
     "manifest_sha256": "43f31a5af145e7775ee6166cbcf57440701fc6f2df4d4a9e2757640c5d0527d7",
     "completeness": "complete",
     "hashed_files": 3298
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2198,6 +3482,18 @@
     "manifest_sha256": "3019b671f892b5489bcd8fbf39feccffe52f81372aa6602f247a872b14fb3a04",
     "completeness": "complete",
     "hashed_files": 289
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2219,7 +3515,19 @@
     "completeness": "complete",
     "hashed_files": 2891
    },
-   "parent_id": "LOC-formal-data"
+   "parent_id": "LOC-formal-data",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "LOC-main-blender",
@@ -2241,7 +3549,19 @@
     "completeness": "complete",
     "hashed_files": 4
    },
-   "notes": "只算 SHA 與大小，未開啟 .blend"
+   "notes": "只算 SHA 與大小，未開啟 .blend",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "LOC-main-data",
@@ -2261,6 +3581,18 @@
     "manifest_sha256": "d24edcf233960d88b22f99d52c3304e5a2849adc7a050fdfd93985acb3f0ae51",
     "completeness": "complete",
     "hashed_files": 4385
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2281,6 +3613,18 @@
     "manifest_sha256": "a586d2bd0ff87a3df9bd56c4a0720f16471cbc469335ac21d34c22853cd2974d",
     "completeness": "complete",
     "hashed_files": 6
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2299,6 +3643,27 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -E -n \"\\.pytest_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
+     "lsof -nP | grep -cF -- \"/Developer/amidst/.pytest_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
+     "非原始資產；快取"
+    ],
+    "verify_commands": [
+     "git grep -n -E \"\\.pytest_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+    ],
+    "restore": "下次 pytest／ruff 執行時自動重建"
    }
   },
   {
@@ -2317,6 +3682,27 @@
    "hash": {
     "policy": "none",
     "completeness": "not_computed"
+   },
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "工具快取，.gitignore 已排除；只有文字清單提到名稱",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -E -n \"\\.ruff_cache\" 2616661 -- . \":!docs/history\" → 僅 .gitignore 與 docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json（排除清單文字），無程式／tests／scripts／configs／CI／start_445_demo.command 引用；其他 heads 無新增引用",
+     "lsof -nP | grep -cF -- \"/Developer/amidst/.ruff_cache\"  → 0（2026-11-09 18:53，所有本機行程；8785：PID 21060，cwd ~/amidst-demo-20261104，runtime ~/amidst-artifacts/demo-owned-v1/runtime/python）",
+     "非原始資產；快取"
+    ],
+    "verify_commands": [
+     "git grep -n -E \"\\.ruff_cache\" 2616661 -- . \":!.gitignore\" \":!docs\"  # 0 筆"
+    ],
+    "restore": "下次 pytest／ruff 執行時自動重建"
    }
   },
   {
@@ -2337,6 +3723,18 @@
     "manifest_sha256": "ee6aa26933e6d20ccbcb12e6edea4a4c8bd9befc5dea64944e7faf994787203d",
     "completeness": "complete",
     "hashed_files": 2
+   },
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "使用中的 checkout／環境／模型，保留",
+    "checked_at": "2026-11-09"
    }
   },
   {
@@ -2358,7 +3756,23 @@
     "completeness": "complete",
     "hashed_files": 806
    },
-   "notes": "已複製範圍：Amidst P1 最終測試 398 檔／149,497,111 bytes"
+   "notes": "已複製範圍：Amidst P1 最終測試 398 檔／149,497,111 bytes",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "fail",
+     "running_services": "pass",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "unknown"
+    },
+    "reason": "主線 runbook 仍以此路徑為 P1_BUNDLE：docs/operations/DEMO_RUNBOOK_20261104.md:26、:52、:60；EVENT_NAMES.md:9；COORDINATOR_HANDOFF_20261026.md:80；DEMO_OWNED_DEPENDENCIES_20261108.md:33。可封存（壓縮副本），不可刪原件",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -n \"amidst-p1-clean-room\" 2616661 -- . \":!docs/history\" → 7 檔"
+    ],
+    "restore": "壓縮封存後原件仍保留"
+   }
   },
   {
    "id": "REF-codex--controlled-scene-real-v2-2a",
@@ -2383,7 +3797,19 @@
     "completeness": "not_applicable"
    },
    "notes": "建議刪任何東西前先 push 備份（見 CLEANUP_CANDIDATES_D138.md）",
-   "ref": "refs/heads/codex/controlled-scene-real-v2-2a"
+   "ref": "refs/heads/codex/controlled-scene-real-v2-2a",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "REF-phase1--physical-policy-approval",
@@ -2408,7 +3834,19 @@
     "completeness": "not_applicable"
    },
    "notes": "建議刪任何東西前先 push 備份（見 CLEANUP_CANDIDATES_D138.md）",
-   "ref": "refs/heads/phase1/physical-policy-approval"
+   "ref": "refs/heads/phase1/physical-policy-approval",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "未被任何現存 GitHub 分支包含；分支一律不刪（D157），備份前不可動",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "REF-phase1--pilot-robustness-validation",
@@ -2433,7 +3871,19 @@
     "completeness": "not_applicable"
    },
    "notes": "建議刪任何東西前先 push 備份（見 CLEANUP_CANDIDATES_D138.md）",
-   "ref": "refs/heads/phase1/pilot-robustness-validation"
+   "ref": "refs/heads/phase1/pilot-robustness-validation",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "未被任何現存 GitHub 分支包含；分支一律不刪（D157），備份前不可動",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "REF-phase1--projection-conditioning-mitigation",
@@ -2458,7 +3908,19 @@
     "completeness": "not_applicable"
    },
    "notes": "建議刪任何東西前先 push 備份（見 CLEANUP_CANDIDATES_D138.md）",
-   "ref": "refs/heads/phase1/projection-conditioning-mitigation"
+   "ref": "refs/heads/phase1/projection-conditioning-mitigation",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "未被任何現存 GitHub 分支包含；分支一律不刪（D157），備份前不可動",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "REF-phase1--projection-model-upgrade",
@@ -2483,7 +3945,19 @@
     "completeness": "not_applicable"
    },
    "notes": "建議刪任何東西前先 push 備份（見 CLEANUP_CANDIDATES_D138.md）",
-   "ref": "refs/heads/phase1/projection-model-upgrade"
+   "ref": "refs/heads/phase1/projection-model-upgrade",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "未被任何現存 GitHub 分支包含；分支一律不刪（D157），備份前不可動",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "REF-phase1--projection-sensitivity",
@@ -2508,7 +3982,19 @@
     "completeness": "not_applicable"
    },
    "notes": "建議刪任何東西前先 push 備份（見 CLEANUP_CANDIDATES_D138.md）",
-   "ref": "refs/heads/phase1/projection-sensitivity"
+   "ref": "refs/heads/phase1/projection-sensitivity",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "未被任何現存 GitHub 分支包含；分支一律不刪（D157），備份前不可動",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "SCR-claude-scratch-root",
@@ -2527,7 +4013,23 @@
     "policy": "none",
     "completeness": "not_computed"
    },
-   "notes": "11-09 盤點：1a05815b 1,609 MiB、423172de 324 MiB 為最大；現在刪會中斷使用中的 session；整個 /private/tmp/claude-501 不可一次刪除，只能逐個已結束 session 的 scratchpad 處理"
+   "notes": "11-09 盤點：1a05815b 1,609 MiB、423172de 324 MiB 為最大；現在刪會中斷使用中的 session；整個 /private/tmp/claude-501 不可一次刪除，只能逐個已結束 session 的 scratchpad 處理",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "fail",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "8785 的 log（serve8785.log）在 /private/tmp/claude-501/.../1a05815b-.../scratchpad；PID 34710 正在使用 0f3ae16a-... 的 venv 與 clone；其他 session 仍在寫入。不可整批刪",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "lsof -nP -p 21060 | grep serve8785.log",
+     "lsof -nP -p 34710"
+    ]
+   }
   },
   {
    "id": "UNT-Google_Drive_Q3_20261020",
@@ -2549,7 +4051,19 @@
     "hashed_files": 6
    },
    "parent_id": "LOC-main-gdrive",
-   "notes": "展開 5 檔；raw／人審界線，未做內容比對（不開媒體／GT）"
+   "notes": "展開 5 檔；raw／人審界線，未做內容比對（不開媒體／GT）",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-configs--q1q5",
@@ -2570,7 +4084,31 @@
     "completeness": "complete",
     "hashed_files": 11
    },
-   "notes": "untracked／modified 展開 11 檔；與 mainline/q1q5@2616661 同路徑比較：相同 11、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 11 檔；與 mainline/q1q5@2616661 同路徑比較：相同 11、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-configs--q1q5",
+     "check \"configs/q1q5\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-data--engineering--contact_control_20261016_v1",
@@ -2592,7 +4130,19 @@
     "hashed_files": 11
    },
    "parent_id": "LOC-main-data",
-   "notes": "展開 11 檔；raw／人審界線，未做內容比對（不開媒體／GT）"
+   "notes": "展開 11 檔；raw／人審界線，未做內容比對（不開媒體／GT）",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-data--engineering--office_person_20261016_v1",
@@ -2614,7 +4164,19 @@
     "hashed_files": 5
    },
    "parent_id": "LOC-main-data",
-   "notes": "展開 5 檔；raw／人審界線，未做內容比對（不開媒體／GT）"
+   "notes": "展開 5 檔；raw／人審界線，未做內容比對（不開媒體／GT）",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-data--engineering--q1q5_linked_rgb_20261024_v1",
@@ -2636,7 +4198,19 @@
     "hashed_files": 4
    },
    "parent_id": "LOC-main-data",
-   "notes": "展開 4 檔；raw／人審界線，未做內容比對（不開媒體／GT）"
+   "notes": "展開 4 檔；raw／人審界線，未做內容比對（不開媒體／GT）",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "fail"
+    },
+    "reason": "原始資產、證據或使用中項目，保留原件（D157：Blender／影片／資料集／calibration／GT 一律 KEEP）",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--README.md",
@@ -2657,7 +4231,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--FINALIZATION_DECOUPLING_PLAN_20261020.md",
@@ -2678,7 +4264,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_BASELINE_ACCEPTANCE.md",
@@ -2699,7 +4297,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_ACCEPTANCE.md",
+     "check \"docs/engineering/Q1Q5_BASELINE_ACCEPTANCE.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_BASELINE_DECISIONS.md",
@@ -2720,7 +4342,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_DECISIONS.md",
+     "check \"docs/engineering/Q1Q5_BASELINE_DECISIONS.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_BASELINE_RUNNER.md",
@@ -2741,7 +4387,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_RUNNER.md",
+     "check \"docs/engineering/Q1Q5_BASELINE_RUNNER.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_BASELINE_V1_PROTOCOL.md",
@@ -2762,7 +4432,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_BASELINE_V1_PROTOCOL.md",
+     "check \"docs/engineering/Q1Q5_BASELINE_V1_PROTOCOL.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_DYNAMIC_BASELINE.md",
@@ -2783,7 +4477,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_DYNAMIC_BASELINE_RESULTS.json",
@@ -2804,7 +4510,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_LINKED_ACCEPTANCE.md",
@@ -2825,7 +4543,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_LINKED_ACCEPTANCE.md",
+     "check \"docs/engineering/Q1Q5_LINKED_ACCEPTANCE.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_LINKED_RUNTIME.md",
@@ -2846,7 +4588,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_PARAMETER_PROPOSAL.md",
@@ -2867,7 +4621,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_PLAYBACK_CONTINUITY.md",
@@ -2888,7 +4654,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_PRODUCTION_PREPARATION.md",
@@ -2909,7 +4687,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_PRODUCTION_PREPARATION.md",
+     "check \"docs/engineering/Q1Q5_PRODUCTION_PREPARATION.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q1Q5_REVIEWED_INPUTS.md",
@@ -2930,7 +4732,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--engineering--Q1Q5_REVIEWED_INPUTS.md",
+     "check \"docs/engineering/Q1Q5_REVIEWED_INPUTS.md\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q5_STATECHART.md",
@@ -2951,7 +4777,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q5_STATECHART_STAGE1_REVIEW.md",
@@ -2972,7 +4810,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q5_STATECHART_STAGE2_EVIDENCE.json",
@@ -2993,7 +4843,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--Q5_STATECHART_STAGE2_RESULTS.md",
@@ -3014,7 +4876,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--R004_SCENE_CHANGE_PROPOSAL.md",
@@ -3035,7 +4909,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--engineering--SCENE_Q1_Q2_PLAN_20261020.md",
@@ -3056,7 +4942,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--evaluation",
@@ -3077,7 +4975,31 @@
     "completeness": "complete",
     "hashed_files": 2
    },
-   "notes": "untracked／modified 展開 2 檔；與 mainline/q1q5@2616661 同路徑比較：相同 2、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 2 檔；與 mainline/q1q5@2616661 同路徑比較：相同 2、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--evaluation",
+     "check \"docs/evaluation\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--history--DISK_AUDIT_20261015.md",
@@ -3098,7 +5020,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--history--Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json",
@@ -3119,7 +5053,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--history--Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json",
+     "check \"docs/history/Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--history--Q1Q5_LINKED_ACCEPTANCE_20261024.json",
@@ -3140,7 +5098,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-docs--history--Q1Q5_LINKED_ACCEPTANCE_20261024.json",
+     "check \"docs/history/Q1Q5_LINKED_ACCEPTANCE_20261024.json\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-docs--history--Q1Q5_PLAYBACK_ACCEPTANCE_20261024.json",
@@ -3161,7 +5143,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--history--WORKTREE_RETIREMENT_ASSESSMENT_20261020.md",
@@ -3182,7 +5176,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--history--disk_cleanup_receipt_20261015.json",
@@ -3203,7 +5209,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 1",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "pass"
+    },
+    "reason": "尚未收進主線的唯一副本（或未推送 commit），必須先保存再談其他處置",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-docs--history--storage_cleanup_20261014",
@@ -3224,7 +5242,23 @@
     "completeness": "complete",
     "hashed_files": 384
    },
-   "notes": "untracked／modified 展開 379 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 379"
+   "notes": "untracked／modified 展開 379 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 0、無同路徑 379",
+   "safety": {
+    "status": "KEEP",
+    "checks": {
+     "refs_mainline": "fail",
+     "running_services": "pass",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "fail",
+     "raw_assets": "pass"
+    },
+    "reason": "主線文件稱此目錄「原位保留」：data/README.md:10、docs/operations/PHASE1_ARTIFACT_CLEANUP.md:9、docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:225；只可壓縮副本，不可刪原件",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "git grep -n \"storage_cleanup_20261014\" 2616661 -- . \":!docs/history\" → 3 檔"
+    ],
+    "restore": "—"
+   }
   },
   {
    "id": "UNT-frontend--workbench-v2",
@@ -3245,7 +5279,19 @@
     "completeness": "complete",
     "hashed_files": 12
    },
-   "notes": "untracked／modified 展開 12 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 11、無同路徑 0"
+   "notes": "untracked／modified 展開 12 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 11、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-scripts--accept_q1q5_linked_baseline.py",
@@ -3266,7 +5312,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--accept_q1q5_linked_baseline.py",
+     "check \"scripts/accept_q1q5_linked_baseline.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--build_q1q5_detection_index.py",
@@ -3287,7 +5357,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-scripts--build_q1q5_pinned_index.py",
@@ -3308,7 +5390,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--build_q1q5_pinned_index.py",
+     "check \"scripts/build_q1q5_pinned_index.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--import_q3_minimum_review.py",
@@ -3329,7 +5435,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--import_q3_minimum_review.py",
+     "check \"scripts/import_q3_minimum_review.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--measure_q1q5_dynamic_rgb.py",
@@ -3350,7 +5480,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--measure_q1q5_dynamic_rgb.py",
+     "check \"scripts/measure_q1q5_dynamic_rgb.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--preflight_q1q5_production.py",
@@ -3371,7 +5525,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--preflight_q1q5_production.py",
+     "check \"scripts/preflight_q1q5_production.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--prepare_q1q5_baseline_source.py",
@@ -3392,7 +5570,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--prepare_q1q5_baseline_source.py",
+     "check \"scripts/prepare_q1q5_baseline_source.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--prepare_q1q5_synthetic_registry.py",
@@ -3413,7 +5615,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-scripts--render_q1q5_dynamic_rgb.py",
@@ -3434,7 +5648,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-scripts--replay_q1q5_dynamic_evidence.py",
@@ -3455,7 +5681,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--replay_q1q5_dynamic_evidence.py",
+     "check \"scripts/replay_q1q5_dynamic_evidence.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--run_q1q5_baseline.py",
@@ -3476,7 +5726,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-scripts--run_q1q5_linked_baseline.py",
@@ -3497,7 +5759,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-scripts--run_q1q5_linked_baseline.py",
+     "check \"scripts/run_q1q5_linked_baseline.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-scripts--serve_q1q5_linked_workbench.py",
@@ -3518,7 +5804,19 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 0、bytes 不同 1、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-src--amidst--evaluation--q3_review_import.py",
@@ -3539,7 +5837,31 @@
     "completeness": "complete",
     "hashed_files": 1
    },
-   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0"
+   "notes": "untracked／modified 展開 1 檔；與 mainline/q1q5@2616661 同路徑比較：相同 1、bytes 不同 0、無同路徑 0",
+   "safety": {
+    "status": "SAFE",
+    "checks": {
+     "refs_mainline": "pass",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
+     "raw_assets": "pass"
+    },
+    "reason": "重複副本：主線已有同路徑、同 bytes 的版本，且沒有行程以 ~/Developer/amidst 為 repo 根",
+    "checked_at": "2026-11-09",
+    "evidence": [
+     "與 mainline/q1q5@2616661 同路徑 byte 相同（git hash-object 對 git ls-tree；台帳 manifest SHA-256 完整）",
+     "git grep -E \"Developer/amidst/(configs|docs|scripts|src|tests|frontend)\" 2616661 -- . \":!docs/history\" → 僅 data/reports 的歷史 fixture 路徑字串，沒有指向這些檔案的程式／CI／啟動器引用",
+     "沒有任何行程的 cwd 在 ~/Developer/amidst（lsof -nP | grep \" cwd \" → 0）；lsof 無開啟檔案於這些路徑",
+     "unmerged：#503（本 PR）、#490 epic-d-agentic、#488 experiment-record-latex（gh pr list --state open；#501、#502 已合併進 mainline）；其他 codex/*、claude/* heads 都已含相同路徑的 repo 版本（byte 相同）",
+     "不是原始資產（程式／文件／測試）"
+    ],
+    "verify_commands": [
+     "python3 scripts/artifact_ledger.py verify --only UNT-src--amidst--evaluation--q3_review_import.py",
+     "check \"src/amidst/evaluation/q3_review_import.py\"  # 見清單文件的 check()：blob 與 mainline 相同"
+    ],
+    "restore": "可由 git 重建：git -C <repo> show mainline/q1q5:<path>；台帳 SHA-256 可驗證"
+   }
   },
   {
    "id": "UNT-src--amidst--q1q5",
@@ -3560,7 +5882,19 @@
     "completeness": "complete",
     "hashed_files": 17
    },
-   "notes": "untracked／modified 展開 17 檔；與 mainline/q1q5@2616661 同路徑比較：相同 8、bytes 不同 9、無同路徑 0"
+   "notes": "untracked／modified 展開 17 檔；與 mainline/q1q5@2616661 同路徑比較：相同 8、bytes 不同 9、無同路徑 0",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   },
   {
    "id": "UNT-tests--q1q5",
@@ -3581,7 +5915,19 @@
     "completeness": "complete",
     "hashed_files": 24
    },
-   "notes": "untracked／modified 展開 24 檔；與 mainline/q1q5@2616661 同路徑比較：相同 13、bytes 不同 7、無同路徑 4"
+   "notes": "untracked／modified 展開 24 檔；與 mainline/q1q5@2616661 同路徑比較：相同 13、bytes 不同 7、無同路徑 4",
+   "safety": {
+    "status": "UNKNOWN",
+    "checks": {
+     "refs_mainline": "unknown",
+     "running_services": "unknown",
+     "unmerged_work": "unknown",
+     "evidence_preservation": "unknown",
+     "raw_assets": "unknown"
+    },
+    "reason": "尚未完成五項檢查，或使用狀態無法確認，標 UNKNOWN，不列入可執行清單",
+    "checked_at": "2026-11-09"
+   }
   }
  ]
 }

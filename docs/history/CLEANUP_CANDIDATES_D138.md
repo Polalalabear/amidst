@@ -11,37 +11,71 @@
 
 注意：D138 第一類「finalization 的 `.venv`：先把舊 Office launcher 改成用 repo lock 再刪」的前置條件**尚未做**就已刪除。`start-office-demo.command:7` 仍把 evidence repo 預設指向 `.local-worktrees/phase1-finalization`（evidence 而非 venv）；該 launcher 是否還需要那個 `.venv` 是 **UNKNOWN**。venv 可依 `uv.lock` 重建（約 0.8 GiB、需網路）。
 
-## 1. 可刪除項目與指令（未執行）
+## 1. SAFE 項目：不影響專案的證據與刪除指令（未執行）
 
-| ID | 路徑 | 大小 | 風險 | 刪除後能否重建 |
+D157：只有五項檢查**全部**通過的項目才標 SAFE；無法確認標 UNKNOWN，不能標 SAFE。檢查基準：`mainline/q1q5@2616661`、目前 tip `1026b84`（已含 #501、#502）、其餘 103 個 origin heads；open PR：#503（本 PR）、#490、#488。
+
+### 1.1 五項檢查與實際結果
+
+| 檢查 | 指令 | 結果 |
+| --- | --- | --- |
+| 1 引用（程式、tests、scripts、configs、CI、docs、README、`start_445_demo.command`） | `git grep -n -E "npm_config_cache" 2616661 -- .` | **0 筆** |
+| 1 | `git grep -n -E "(\.npm\b\|npm_config_cache\|\.pytest_cache\|\.ruff_cache\|d133-playback\|amidst-p1-clean-room\|Developer/amidst/)" 2616661 -- .github start_445_demo.command README.md`（同指令對 `1026b84` 也跑） | **0 筆**（CI workflow `.github/ci.yml`、`ci-linux-deselect.txt`、`start_445_demo.command`、README 都沒有引用） |
+| 1 | `git grep -n -E "\.pytest_cache\|\.ruff_cache" 2616661 -- . ":!docs/history"` | 只有 `.gitignore:3-4` 與 `docs/operations/q1q5_local_handoff_20261025/LOCAL_ARTIFACTS.json:364-365`（排除清單的文字），沒有任何程式讀取 |
+| 1 | `git grep -n -E "\.npm" 2616661 -- . ":!docs/history"` | 3 筆，全是 `package-lock.json` 的 `registry.npmjs.org` URL（誤判，非 `~/.npm` 路徑） |
+| 1（主庫副本） | `git grep -E -l "Developer/amidst/(configs\|docs\|scripts\|src\|tests\|frontend)" 2616661 -- . ":!docs/history"`（`1026b84` 同） | 只有 `data/reports/benchmark/mock_comparison/benchmark_summary.json`（歷史 fixture 路徑字串，不是這 20 個檔案）；`*.py *.mjs *.sh *.command *.yml` 中 `Developer/amidst` 的引用：0 筆 |
+| 2 執行中的服務 | `lsof -nP -iTCP:8785 -sTCP:LISTEN`；`lsof -nP -p 21060` | 8785：PID 21060，cwd `~/amidst-demo-20261104`，載入 `~/amidst-artifacts/demo-owned-v1/runtime/python`；serve8785.log 在 scratchpad `1a05815b-…`（這些全部 **KEEP**，見 1.3） |
+| 2 | `lsof -nP \| grep -cF -- "<候選路徑>"`（`.npm`、`.pytest_cache`、`.ruff_cache`、`/Developer/amidst/{docs,scripts,src,tests,configs,frontend}`） | 各 **0**；`lsof -nP \| grep " cwd " \| grep -F "/Developer/amidst"`（排除 amidst-claude、amidst-q1q5）：**0** 個行程 |
+| 3 未合併的工作 | 上列 `git grep` 對 `origin/*` 全部 heads（104 個 revision，含 #490、#488、#503、codex/*、claude/*）逐一計數，與 `2616661` 比較 | `.npm`、`npm_config_cache`、cache 與主庫副本：**沒有任何 head 比主線多引用**（#503 自己的台帳文字除外）；`d133-playback-proxies` 有 19 個 heads 引用 → 該項標 KEEP |
+| 4 證據保全 | 候選全部是快取或 byte 相同的副本；與研究紀錄 v3、量測 B、#479、#445、#93 引用的產物無交集（那些在 `amidst-artifacts`、`demo-owned-v1`，皆 KEEP） | pass |
+| 5 原始資產 | 候選不含 Blender、影片、資料集、calibration、GT（`raw_data` 類型不可能是 SAFE，`validate` 強制） | pass |
+
+各 head 的原始計數在 `scratchpad/grep_results.txt`（LOCAL，未進 repo）；結果會過期，執行前要重跑。
+
+### 1.2 SAFE 清單（25 項，共 401.15 MiB）
+
+| ID | 路徑 | 大小 | SHA-256（檔案）／manifest（目錄）；檔案數 | 還原方式 |
 | --- | --- | ---: | --- | --- |
-| `ART-d133-proxies-v2-jpeg` | `~/amidst-artifacts/d133-playback-proxies-v2/jpeg` | 105.49 MiB | 低。舊 benchmark 重現命令需先重建圖；manifest.json 與量測收據不動 | 可由保留的 PNG 重新編碼（Pillow 12.3.0／參數在 manifest）；byte 完全相同**未驗證** |
-| `ART-d133-proxies-v2-webp` | `~/amidst-artifacts/d133-playback-proxies-v2/webp` | 58.78 MiB | 低。同上 | 同上 |
-| `CACHE-npm` | `~/.npm` | 400.11 MiB | 低。下次 `npm ci` 要重新下載；有 session 正在 `npm ci` 時先等 | 可 |
-| `LOC-fin-pytest_cache` | `~/Developer/amidst/.local-worktrees/phase1-finalization/.pytest_cache` | 431.10 KiB | 無 | 可 |
-| `LOC-fin-ruff_cache` | `~/Developer/amidst/.local-worktrees/phase1-finalization/.ruff_cache` | 85.75 KiB | 無 | 可 |
-| `LOC-main-pytest_cache` | `~/Developer/amidst/.pytest_cache` | 90.11 KiB | 無 | 可 |
-| `LOC-main-ruff_cache` | `~/Developer/amidst/.ruff_cache` | 15.74 KiB | 無 | 可 |
-| `UNT-*`（20 筆） | `~/Developer/amidst` 未追蹤檔 | 441.32 KiB | 低。逐檔與 `mainline/q1q5@2616661` 同路徑 byte 相同；刪掉只改變該 checkout 的 `git status`，主庫其他 worktree 不受影響 | 可（`git checkout` 該 mainline 版本即得） |
+| `CACHE-npm` | `~/.npm` | 400.11 MiB | （快取，未算 SHA）；42095 檔 | 重新 npm ci（需網路）自動重建 |
+| `LOC-fin-pytest_cache` | `~/Developer/amidst/.local-worktrees/phase1-finalization/.pytest_cache` | 431.10 KiB | （快取，未算 SHA）；5 檔 | 下次 pytest／ruff 執行時自動重建 |
+| `LOC-fin-ruff_cache` | `~/Developer/amidst/.local-worktrees/phase1-finalization/.ruff_cache` | 85.75 KiB | （快取，未算 SHA）；43 檔 | 下次 pytest／ruff 執行時自動重建 |
+| `LOC-main-pytest_cache` | `~/Developer/amidst/.pytest_cache` | 90.11 KiB | （快取，未算 SHA）；5 檔 | 下次 pytest／ruff 執行時自動重建 |
+| `LOC-main-ruff_cache` | `~/Developer/amidst/.ruff_cache` | 15.74 KiB | （快取，未算 SHA）；54 檔 | 下次 pytest／ruff 執行時自動重建 |
+| `UNT-configs--q1q5` | `~/Developer/amidst/configs/q1q5` | 353.17 KiB | `b6d12b87137424fb8fa6a365d3f3f8c2ac5aa190c18bf23cf63e70346ed32c1a`；11 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_BASELINE_ACCEPTANCE.md` | `~/Developer/amidst/docs/engineering/Q1Q5_BASELINE_ACCEPTANCE.md` | 5.59 KiB | `e6a6de7f189195d95655f5602fbb7387c645de49c1479e47cce80a6cb1d1636d`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_BASELINE_DECISIONS.md` | `~/Developer/amidst/docs/engineering/Q1Q5_BASELINE_DECISIONS.md` | 3.47 KiB | `27c8930dbb28fccce6cbd8ec96b7c8c3ae9d805bb109a2e4024a32cfabf534db`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_BASELINE_RUNNER.md` | `~/Developer/amidst/docs/engineering/Q1Q5_BASELINE_RUNNER.md` | 9.87 KiB | `e16daed41e3493e9448ab746962f397d5516c53d44f8957a85ff4a2bd902d18c`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_BASELINE_V1_PROTOCOL.md` | `~/Developer/amidst/docs/engineering/Q1Q5_BASELINE_V1_PROTOCOL.md` | 15.59 KiB | `31c49330a682021b242c07c2bd3f86b34b09195e8e16b7421f02a8f0266ec89d`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_LINKED_ACCEPTANCE.md` | `~/Developer/amidst/docs/engineering/Q1Q5_LINKED_ACCEPTANCE.md` | 6.72 KiB | `55330e00bb5be9ddcd7f77d0cdcc0ec5a06396c5a57b7d77b4ab917023448137`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_PRODUCTION_PREPARATION.md` | `~/Developer/amidst/docs/engineering/Q1Q5_PRODUCTION_PREPARATION.md` | 3.01 KiB | `f5f1f1802f20af196cde6c49853a4c66e21cdd6407d1570174bbf430f72e745b`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--engineering--Q1Q5_REVIEWED_INPUTS.md` | `~/Developer/amidst/docs/engineering/Q1Q5_REVIEWED_INPUTS.md` | 3.27 KiB | `b65e90df3395776183098bb1e29c4b370a0036d2df2ea39618f3fecc67bee9b0`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--evaluation` | `~/Developer/amidst/docs/evaluation` | 3.16 KiB | `89d316dea0214730529f6e878076346fd276162eac858d45f1e82c42fd6aee04`；2 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--history--Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json` | `~/Developer/amidst/docs/history/Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json` | 4.14 KiB | `275a4e1101eb6cf015428bde416290a7b41b6c03ec2da3fa6b4fa837e10f15d4`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-docs--history--Q1Q5_LINKED_ACCEPTANCE_20261024.json` | `~/Developer/amidst/docs/history/Q1Q5_LINKED_ACCEPTANCE_20261024.json` | 5.81 KiB | `5826fb3dea4bb7f18a852d84b46d29771318f275576757f347ec38f4fc49c82d`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--accept_q1q5_linked_baseline.py` | `~/Developer/amidst/scripts/accept_q1q5_linked_baseline.py` | 1.33 KiB | `64aeeea9ab29848c71f4b1eb955f663f8ed70dcf39bb483678e40f56858b9a21`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--build_q1q5_pinned_index.py` | `~/Developer/amidst/scripts/build_q1q5_pinned_index.py` | 1.11 KiB | `41f465691d98a26712782b3d2c98ee3ca0ea6e94f06c9bf5fa7c2482cd7c28e2`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--import_q3_minimum_review.py` | `~/Developer/amidst/scripts/import_q3_minimum_review.py` | 2.75 KiB | `8ce5f1aa58f37067867e4d2eefe000382e50d5455b930e85d60ca40144f76253`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--measure_q1q5_dynamic_rgb.py` | `~/Developer/amidst/scripts/measure_q1q5_dynamic_rgb.py` | 3.21 KiB | `a3d5aa3b47afe48c14fc1d1d072fdf3008e9035180882693e1bd5c36748f3729`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--preflight_q1q5_production.py` | `~/Developer/amidst/scripts/preflight_q1q5_production.py` | 2.19 KiB | `b9329bac83d2f670cda70c909d0ba9457508f9472a1c02b812c40a3337415e1d`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--prepare_q1q5_baseline_source.py` | `~/Developer/amidst/scripts/prepare_q1q5_baseline_source.py` | 1.11 KiB | `eaa4074d9a41d7741fa19ab30dabe73bc24a75b88fe1f09add78afee94e743e9`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--replay_q1q5_dynamic_evidence.py` | `~/Developer/amidst/scripts/replay_q1q5_dynamic_evidence.py` | 4.25 KiB | `1b46a491188f5faadb72d0cc46c776afb085761b02cce16729a7fae7446dbf89`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-scripts--run_q1q5_linked_baseline.py` | `~/Developer/amidst/scripts/run_q1q5_linked_baseline.py` | 2.03 KiB | `8982ec819204dbeddfd1b6b4fd8916c09592b6b8b5d0d293711c563f3e7b8cf8`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
+| `UNT-src--amidst--evaluation--q3_review_import.py` | `~/Developer/amidst/src/amidst/evaluation/q3_review_import.py` | 9.53 KiB | `5db6c4d742a7997d493cc67cdf99c20b6db7f4558d175590d61289ced40603aa`；1 檔 | 可由 git 重建：git -C <repo> show mainline/q1q5:<path> |
 
-**快取與衍生圖（先 verify 再刪）：**
+每筆的 `safety.evidence`、`verify_commands`、`restore` 完整內容在台帳 JSON。
+
+**指令（未執行；每一段前先 `verify`，不一致就中止）：**
 
 ```bash
-PY=python3
-$PY scripts/artifact_ledger.py verify --only ART-d133-proxies-v2-jpeg,ART-d133-proxies-v2-webp
-rm -r -- "$HOME/amidst-artifacts/d133-playback-proxies-v2/jpeg" "$HOME/amidst-artifacts/d133-playback-proxies-v2/webp"
-```
-
-```bash
-npm cache clean --force
+npm cache clean --force   # CACHE-npm（也可 rm -r -- "$HOME/.npm"）
 rm -r -- "$HOME/Developer/amidst/.pytest_cache" "$HOME/Developer/amidst/.ruff_cache"
 rm -r -- "$HOME/Developer/amidst/.local-worktrees/phase1-finalization/.pytest_cache" "$HOME/Developer/amidst/.local-worktrees/phase1-finalization/.ruff_cache"
 ```
 
-**主庫未追蹤、與 mainline 相同的檔案**（`cd ~/Developer/amidst` 後執行；先 verify，再逐檔比對 blob，不一致就中止）：
+主庫未追蹤、與 mainline 相同的 20 筆（先 verify，再逐項比對 blob，不一致就中止）：
 
 ```bash
-REPO="$HOME/Developer/amidst-q1q5"   # clean clone at mainline/q1q5 (含本 PR 的工具時請改指到含 scripts/artifact_ledger.py 的 checkout)
+REPO="$HOME/Developer/amidst-q1q5"   # 含 scripts/artifact_ledger.py 的 mainline checkout
 python3 "$REPO/scripts/artifact_ledger.py" verify --ledger "$REPO/configs/provenance/artifact_ledger_v1.json" --only UNT-configs--q1q5,UNT-docs--engineering--Q1Q5_BASELINE_ACCEPTANCE.md,UNT-docs--engineering--Q1Q5_BASELINE_DECISIONS.md,UNT-docs--engineering--Q1Q5_BASELINE_RUNNER.md,UNT-docs--engineering--Q1Q5_BASELINE_V1_PROTOCOL.md,UNT-docs--engineering--Q1Q5_LINKED_ACCEPTANCE.md,UNT-docs--engineering--Q1Q5_PRODUCTION_PREPARATION.md,UNT-docs--engineering--Q1Q5_REVIEWED_INPUTS.md,UNT-docs--evaluation,UNT-docs--history--Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json,UNT-docs--history--Q1Q5_LINKED_ACCEPTANCE_20261024.json,UNT-scripts--accept_q1q5_linked_baseline.py,UNT-scripts--build_q1q5_pinned_index.py,UNT-scripts--import_q3_minimum_review.py,UNT-scripts--measure_q1q5_dynamic_rgb.py,UNT-scripts--preflight_q1q5_production.py,UNT-scripts--prepare_q1q5_baseline_source.py,UNT-scripts--replay_q1q5_dynamic_evidence.py,UNT-scripts--run_q1q5_linked_baseline.py,UNT-src--amidst--evaluation--q3_review_import.py
 cd "$HOME/Developer/amidst"
 check() { find "$1" -type f ! -name .DS_Store | while IFS= read -r f; do [ "$(git hash-object -- "$f")" = "$(git -C "$REPO" rev-parse "mainline/q1q5:$f" 2>/dev/null)" ] || { echo "DIFFERS: $f"; exit 1; }; done; }
@@ -67,16 +101,23 @@ check "scripts/run_q1q5_linked_baseline.py" && rm -- "scripts/run_q1q5_linked_ba
 check "src/amidst/evaluation/q3_review_import.py" && rm -- "src/amidst/evaluation/q3_review_import.py"
 ```
 
-以上共 20 筆 `rm`。刪除前要確認 `git -C ~/Developer/amidst status --porcelain` 沒有其他人剛新增的檔案被誤算（verify 會擋住 bytes 變動）。
+### 1.3 明確標 KEEP／UNKNOWN 的項目（D157 第 2–6 點）
 
-**條件式（目前不可執行，需先確認前提）：**
+| 項目 | 狀態 | 原因（證據） |
+| --- | --- | --- |
+| `ART-d133-proxies-v2-jpeg` | KEEP | 主線文件把整個 d133-playback-proxies-v2 當 benchmark 輸入：docs/engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md:65、:69、:84 與 d133_playback_latency_20261108.json:2176；刪掉 jpeg/webp 會讓量測無法重現 |
+| `ART-d133-proxies-v2-webp` | KEEP | 主線文件把整個 d133-playback-proxies-v2 當 benchmark 輸入：docs/engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md:65、:69、:84 與 d133_playback_latency_20261108.json:2176；刪掉 jpeg/webp 會讓量測無法重現 |
+| `ART-demo-owned-v1` | KEEP | 8785 服務（PID 21060）執行中：cwd ~/amidst-demo-20261104，載入 ~/amidst-artifacts/demo-owned-v1/runtime/python 的 python3.12；runtime、venv、資料與 config 一律 KEEP |
+| `CO-demo` | KEEP | 8785 服務（PID 21060）執行中：cwd ~/amidst-demo-20261104，載入 ~/amidst-artifacts/demo-owned-v1/runtime/python 的 python3.12；runtime、venv、資料與 config 一律 KEEP |
+| `ENV-demo-venv` | KEEP | 8785 服務（PID 21060）執行中：cwd ~/amidst-demo-20261104，載入 ~/amidst-artifacts/demo-owned-v1/runtime/python 的 python3.12；runtime、venv、資料與 config 一律 KEEP |
+| `LOC-shared-cleanroom` | KEEP | 主線 runbook 仍以此路徑為 P1_BUNDLE：docs/operations/DEMO_RUNBOOK_20261104.md:26、:52、:60；EVENT_NAMES.md:9；COORDINATOR_HANDOFF_20261026.md:80；DEMO_OWNED_DEPENDENCIES_20261108.md:33。可封存（壓縮副本），不可刪原件 |
+| `SCR-claude-scratch-root` | KEEP | 8785 的 log（serve8785.log）在 /private/tmp/claude-501/.../1a05815b-.../scratchpad；PID 34710 正在使用 0f3ae16a-... 的 venv 與 clone；其他 session 仍在寫入。不可整批刪 |
+| `UNT-docs--history--storage_cleanup_20261014` | KEEP | 主線文件稱此目錄「原位保留」：data/README.md:10、docs/operations/PHASE1_ARTIFACT_CLEANUP.md:9、docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:225；只可壓縮副本，不可刪原件 |
+| `ENV-d139-venv`、所有 `CO-*`、`REF-*` | KEEP | Codex 的 D147/D149 分支與各 checkout 使用中；分支一律不刪（D157） |
+| `ART-*`（除上列）、`LOC-main-blender`、`LOC-main-data`、worktree `data/`、人審與正式 release | KEEP | Blender、資料集、calibration、GT、原 run、驗收證據；不列入候選；`gt_private` 完全未開啟 |
+| 其餘 44 筆（review pack、小型規劃交接、bytes 不同的未追蹤檔、Codex 資料等） | UNKNOWN | 使用狀態無法確認；不能標 SAFE，需使用者決定 |
 
-- `ENV-demo-venv`（0.72 GiB）：8785 服務停止、demo 改用新 checkout 後才可刪；可依 `uv.lock` 與 `scripts/setup_env.sh`／`setup_owned_demo.py` 重建。
-- `ENV-d139-venv`（0.73 GiB）：Codex 的 D147/D149 結束後才可刪。
-- scratchpad：`/private/tmp/claude-501/<專案>/<session-id>/scratchpad`，只能逐個**已結束** session 刪（11-09 最大兩個合計 1.9 GiB 當時仍在使用）。先把 e2e／log 證據複製到 `coordinator-20261109`。**不要**一次刪整個 `/private/tmp/claude-501`。
-- 27 個追蹤已刪遠端分支的本機分支與 131 個同名遠端已不存在的本機分支名稱：見第 2 節。
-
-總計可刪除（上表，不含條件式）：**565.42 MiB**。
+已被 11-09 清除、不再列入的項目見第 0 節。D133 的 `jpeg/`、`webp/`（約 164 MiB）在前一版清單中是「可刪除」，這次因為 D133 量測文件的重現命令引用（`D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md:65,69,84`）改為 **KEEP／需使用者決定**；`/Users/Shared` clean-room 與 `storage_cleanup_20261014/` 因主線 runbook／README 引用，只可壓縮副本、不可刪原件。
 
 ## 2. `~/Developer/amidst` 的本機分支：哪些有價值、要先 push 備份
 
@@ -235,9 +276,34 @@ done
 
 bytes 不同的 41 檔**不在**此表：mainline 較新，預設視為已被取代，除非 diff 顯示有缺漏的功能。
 
-## 6. 未驗證與 UNKNOWN
+## 6. 驗證關卡：在 scratchpad clone 移除 SAFE 項目後必須全部通過
 
-- 沒有執行任何刪除、搬移、壓縮、push、fetch --prune 或 git clean；所有指令都未執行。
+SAFE 項目大多在 repo 外（快取、主庫的未追蹤副本），所以關卡用「乾淨的 mainline scratchpad clone ＋ 不含這些項目的環境」模擬移除。scratchpad clone 本來就沒有主庫那 20 個未追蹤檔，等於已移除；快取則用空目錄取代。**以下全部通過才算可執行；任何一項失敗就中止、不刪。**
+
+```bash
+SCR="<scratchpad>"; git clone --shared "$HOME/Developer/amidst-q1q5" "$SCR/gate" && cd "$SCR/gate"
+git fetch origin mainline/q1q5 && git checkout -B gate origin/mainline/q1q5
+# 模擬已移除：空的 npm 快取、不寫入 pytest／ruff 快取
+export npm_config_cache="$(mktemp -d)" RUFF_CACHE_DIR="$(mktemp -d)" PYTEST_ADDOPTS="-p no:cacheprovider"
+```
+
+| # | 關卡 | 指令 | 通過條件 |
+| --- | --- | --- | --- |
+| 1 | 單元測試 | `AMIDST_REQUIRE_IMPL=1 PYTHONPATH=src python -m pytest -o addopts= -q tests/q1q5 tests/evaluation tests/operations`；`node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs` | exit 0；pytest／node 的 pass 數 ≥ 移除前在同一 clone 記錄的基準（基準在關卡前先跑一次存檔：未移除版本） |
+| 2 | core-e2e | `CORE_SOURCE="$PWD" CORE_INTEGRATION_HEAD="$(git rev-parse HEAD)" CHROME_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' node tests/browser/core-preview/core-e2e.mjs` | exit 0；checks 數與基準相同（#486 留言記錄 49 checks／16 PNG；以當時 mainline 重跑的基準為準）；clean/head 守門啟用 |
+| 3 | real-e2e | `node tests/browser/core-preview/real-e2e.mjs`（用 owned runtime／`AMIDST_DEMO_HOME`） | exit 0；0 page errors／0 failed API；checks 數與基準相同 |
+| 4 | CI 綠燈 | 把同一個 commit 推到不會被合併的測試分支，等 GitHub Actions `ci.yml` 完成 | guard PASS、node 0 fail、pytest 0 fail（ubuntu 的 deselect 清單以 `.github/ci-linux-deselect.txt` 為準）；**push 需使用者授權** |
+| 5 | 8785 不受影響 | 動手前後各跑：`lsof -nP -iTCP:8785 -sTCP:LISTEN`、`curl -fsS http://127.0.0.1:8785/ -o /dev/null -w "%{http_code}\n"`、`python scripts/check_demo_dependencies.py --smoke`（在 demo checkout，用 owned runtime） | 8785 仍由 **PID 21060** 監聽、HTTP 200、依賴 smoke 與 4,788 項 bytes/hash PASS；`~/amidst-artifacts/demo-owned-v1` 與 `~/amidst-demo-20261104` 的 `git status` 為 clean 且 HEAD 不變 |
+| 6 | 台帳一致 | `python3 scripts/artifact_ledger.py verify --only <SAFE 的 ID>`；`python3 scripts/artifact_ledger.py validate`；`scripts/check_architecture_guard.py --base 46835218c600d99b8c973e52f62e8dd95e79ff15` | 無 MISMATCH；validate PASS；guard PASS |
+
+執行順序：先在未移除的 clone 記錄基準 → 套用「模擬移除」→ 關卡 1–3、6 → 使用者授權後推測試分支跑關卡 4 → 關卡 5 在**真正**刪除前後各做一次。**真正執行刪除要等使用者另外授權（#431）；本 PR 與本文件不執行任何刪除。**
+
+## 7. 未驗證與 UNKNOWN
+
+- 沒有執行任何刪除、搬移、壓縮、push、fetch --prune 或 git clean；所有指令都未執行。第 6 節的驗證關卡**也沒有跑**（只提出，等授權）。
+- 引用檢查是字串／regex 計數（`git grep`），不是語意分析：動態組出的路徑、環境變數展開後的路徑、或不在 git 裡的本機腳本不會被抓到；Codex 本機 checkout 內未推送的檔案同理（Codex 的 `codex/*` 只檢查了已 push 的 heads）。
+- `lsof` 只看得到目前使用者、目前正在跑的行程；之後才啟動的 session 或排程不在內，所以關卡 5 與檢查 2 要在刪除當下重跑。
+- 檢查基準是 2026-11-09 18:53 的狀態；mainline 已前進到 `1026b84`（#501、#502），結果對該 tip 也跑過，但之後再有 merge 就要重跑。
 - 台帳內的引用行號（44 筆 `檔案:行`）只核對檔案是否存在與行數是否足夠（36 筆通過，8 筆指向 mainline 沒有的檔案），**沒有逐行比對內容**。
 - r004-cx7*、q1q5-* 等「保留原件」項目是否仍被驗收／yyin 流程引用，來源盤點為 UNKNOWN；台帳因此保守地全部保留。
 - worktree `data/` 的備份狀態（是否別處另有副本）UNKNOWN；`phase1-case23-clean` 的 detached HEAD `c4a8a0a` 是否在遠端，本 PR 的 clone 沒有核對。

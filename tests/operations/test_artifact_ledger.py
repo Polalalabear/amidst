@@ -40,8 +40,10 @@ def test_schema_enums_match_tool():
     assert schema['properties']['schema_version']['const'] == tool.SCHEMA_VERSION == VALUE
     # every field the tool requires is required by the schema too
     for key in ('id', 'path', 'type', 'disposition', 'purpose', 'referenced_by', 'retain_reason', 'rebuildable',
-                'size_bytes', 'file_count', 'hash'):
+                'size_bytes', 'file_count', 'hash', 'safety'):
         assert key in entry['required']
+    assert tuple(props['safety']['properties']['status']['enum']) == tool.SAFETY_STATUS
+    assert tuple(props['safety']['properties']['checks']['required']) == tool.SAFETY_CHECKS
 
 
 def test_schema_registered_with_existing_sources():
@@ -117,7 +119,8 @@ def test_verify_detects_mismatch(tmp_path):
     (root / 'f.txt').write_bytes(b'one')
     entry = {'id': 'ART-test', 'path': str(root), 'type': 'derived_data', 'disposition': 'keep_original',
              'purpose': 'p', 'referenced_by': ['UNKNOWN'], 'retain_reason': 'r', 'rebuildable': 'yes',
-             'size_bytes': None, 'file_count': None, 'hash': {'policy': 'full', 'completeness': 'not_computed'}}
+             'size_bytes': None, 'file_count': None, 'hash': {'policy': 'full', 'completeness': 'not_computed'},
+             'safety': {'status': 'KEEP', 'reason': 'x', 'checks': {k: 'unknown' for k in tool.SAFETY_CHECKS}}}
     ledger = {'schema_version': VALUE, 'generated_at': '2026-11-09', 'issue_ref': '#93', 'decision_ref': 'D138',
               'baseline_ref': '0' * 40, 'rules': {}, 'entries': [entry]}
     path = tmp_path / 'ledger.json'
@@ -135,3 +138,42 @@ def test_validate_rejects_bad_entries(ledger):
     bad['entries'][1]['hash']['sha256'] = 'xyz'
     errors = tool.validate(bad)
     assert any('disposition' in e for e in errors) and any('sha256' in e for e in errors)
+
+
+def test_safety_rules(ledger):
+    for e in ledger['entries']:
+        sf = e['safety']
+        assert sf['status'] in tool.SAFETY_STATUS
+        assert set(sf['checks']) == set(tool.SAFETY_CHECKS)
+        if e['disposition'] == 'deletable':
+            assert sf['status'] == 'SAFE', e['id']
+        if sf['status'] == 'SAFE':
+            assert all(v == 'pass' for v in sf['checks'].values()), e['id']
+            assert sf['verify_commands'] and sf['restore'], e['id']
+            assert e['type'] not in ('raw_data', 'evidence', 'code_checkout', 'git_ref'), e['id']
+        if e['type'] in ('raw_data', 'code_checkout', 'git_ref'):
+            assert sf['status'] != 'SAFE', e['id']
+    keep = {e['id']: e for e in ledger['entries']}
+    # D157: running 8785 service and owned package, and referenced D133 proxies, are never SAFE
+    for key in ('ART-demo-owned-v1', 'CO-demo', 'ENV-demo-venv', 'ART-d133-proxies-v2-jpeg', 'ART-d133-proxies-v2-webp',
+                'LOC-shared-cleanroom', 'SCR-claude-scratch-root'):
+        assert keep[key]['safety']['status'] == 'KEEP', key
+        assert keep[key]['disposition'] != 'deletable', key
+
+
+def test_validate_safety_rejects_unsafe_deletable(ledger):
+    bad = json.loads(json.dumps(ledger))
+    target = next(e for e in bad['entries'] if e['disposition'] == 'deletable')
+    target['safety']['status'] = 'KEEP'
+    assert any('deletable requires safety SAFE' in x for x in tool.validate(bad))
+    bad = json.loads(json.dumps(ledger))
+    target = next(e for e in bad['entries'] if e['safety']['status'] == 'SAFE')
+    target['safety']['checks']['running_services'] = 'unknown'
+    assert any('SAFE requires all checks pass' in x for x in tool.validate(bad))
+    bad = json.loads(json.dumps(ledger))
+    target = next(e for e in bad['entries'] if e['safety']['status'] == 'SAFE')
+    target['safety'].pop('restore')
+    assert any('verify_commands and restore' in x for x in tool.validate(bad))
+    bad = json.loads(json.dumps(ledger))
+    next(e for e in bad['entries'] if e['type'] == 'raw_data')['safety']['status'] = 'SAFE'
+    assert any('raw_data can never be SAFE' in x for x in tool.validate(bad))
