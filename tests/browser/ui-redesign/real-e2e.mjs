@@ -16,6 +16,9 @@ const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png'
 // D139: blank times select the full recording. A later snapshot must stay hidden at an earlier playhead; endpoint persistence is recorded separately as a review finding.
 const seek=async(p,t)=>{await p.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await p.locator('#ui-scrub').inputValue())===t,'range input preserves requested timestamp');};
 const decoded=async(p,selector,n)=>{await p.waitForFunction(({selector,n})=>{const xs=[...document.querySelectorAll(selector)];return xs.length===n&&xs.every(i=>!i.hidden&&i.complete&&i.naturalWidth>0);},{selector,n});check(true,selector+' decoded RGB');};
+// The receipt is an IMPLEMENTATION_REGRESSION_PIN: recorded by scripts/record_d147_backend_receipt.py from this
+// same implementation, so it only catches regressions. Correctness is guarded by recall and the camera-switch
+// ratio, not by this match. Re-record the receipt whenever parameters or producer files change.
 const pinnedEvidence=JSON.parse(await readFile(new URL('../../../tests/q1q5/fixtures/d147-d149-track-receipt.engineering.json',import.meta.url),'utf8'));
 const checkZoom=async(p,event,screen)=>{
  const metrics=[];

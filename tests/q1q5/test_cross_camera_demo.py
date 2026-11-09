@@ -162,3 +162,12 @@ def test_reacquisition_cannot_interrupt_a_current_sample_before_its_interval_end
     result, events, audit = replay([track('A', [0]), track('B', [100_000])])
     assert not events and audit[0]['reason'] == 'CURRENT_CAMERA_STILL_OBSERVED'
     assert result['single_view'][0]['range_us'] == [0, 200_000]
+
+
+def test_local_track_min_score_is_applied():
+    obs = Track('A', 'synthetic:A', (Observation('A', 0, 'A:0', .35, frozenset(['red'])),))
+    ok = model.associate([obs], {}, as_of_us=200_000, parameters=Parameters(local_track_min_score=.3))
+    assert ok is not None
+    with pytest.raises(ValueError, match='LOCAL_TRACK_INVALID'):
+        model.associate([obs], {}, as_of_us=200_000, parameters=Parameters(local_track_min_score=.4))
+    assert Parameters().local_track_min_score == .3 and Parameters().min_score == .4

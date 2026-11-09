@@ -1,4 +1,6 @@
 {
+  "receipt_role": "IMPLEMENTATION_REGRESSION_PIN",
+  "receipt_role_note": "Recorded from this implementation; catches regressions, does not prove correctness. Re-record after any parameter or producer change.",
   "decision_refs": [
     "#93 D147",
     "#93 D148",
@@ -7,8 +9,8 @@
   ],
   "base_commit": "5c901e5dff96c5e324a747987747c47623c3b15a",
   "source_files_sha256": {
-    "scripts/serve_demo_integration.py": "bd3c5565f8b48de9cefaee46e13a1fc44039ed4919ac8913125e900962c2f028",
-    "src/amidst/q1q5/cross_camera_demo.py": "930768abd256d9c30f08c91d736f514474b5c5806b03287387e6391111e8890c",
+    "scripts/serve_demo_integration.py": "cf84106fdfe6b7e7cd606763838ceff07c94ea7f2dee8375b9b40fc1592c90bb",
+    "src/amidst/q1q5/cross_camera_demo.py": "94b80b5f6757af022738c39e306e9358211caecbcef292c72df4a6641f8efed3",
     "src/amidst/q1q5/demo_local_tracks.py": "82ddfc0d6a6a2190e79e947fcbd81e0e03a281f9bd43741cc6bea5432b260991"
   },
   "inference_run": false,
