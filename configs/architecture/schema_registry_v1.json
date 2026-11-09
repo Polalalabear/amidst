@@ -2612,6 +2612,16 @@
       ],
       "issue_ref": "#486",
       "status": "PROVENANCE_RECORD_ONLY"
+    },
+    {
+      "value": "q-core.agent-decision-params.v1",
+      "source_paths": [
+        "configs/q1q5/agent_decision_params_v1.json",
+        "configs/q1q5/agent_decision_params_v1_exploratory.json",
+        "docs/contracts/schemas/q-core.agent-decision-params.v1.schema.json"
+      ],
+      "issue_ref": "#489",
+      "status": "AGENT_DECISION_WP1_PARAMS_DEFAULT_OFF"
     }
   ]
 }
