@@ -19,11 +19,11 @@ const decoded=async(p,selector,n)=>{await p.waitForFunction(({selector,n})=>{con
 const pinnedEvidence=JSON.parse(await readFile(new URL('../../../tests/q1q5/fixtures/d139-index-diagnostics.engineering.json',import.meta.url),'utf8'));
 const checkZoom=async(p,event,screen)=>{
  const metrics=[];
- for(const z of [80,90,100,110,125]){
+ for(const z of [60,80,100,125,150]){
   await p.locator('#ui-zoom').selectOption(String(z));await p.waitForTimeout(100);
   const m=await p.evaluate(()=>{const scr=document.querySelector('.ui-screens'),top=[...document.querySelectorAll('.ui-top-right > *')].filter(n=>n.getClientRects().length).map(n=>n.getBoundingClientRect().right);return {pageH:document.documentElement.scrollWidth>innerWidth,screensH:scr.scrollWidth>scr.clientWidth+1,topRight:Math.max(...top),vw:innerWidth};});
   metrics.push({zoom:z,...m});check(!m.pageH&&!m.screensH&&m.topRight<=m.vw+.5,`${event} ${screen} ${z}% has no horizontal overflow`);
-  if(z===80||z===125)await capture(p,`${event}-${screen}-zoom-${z}`);
+  if(z===60||z===150)await capture(p,`${event}-${screen}-zoom-${z}`);
  }
  await p.locator('#ui-zoom').selectOption('100');d146Review.push({event,kind:'zoom',screen,metrics});
 };

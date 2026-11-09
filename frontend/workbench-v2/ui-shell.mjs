@@ -10,7 +10,7 @@ import {
   stagesModel, wallCards, cardChips, cameraTimeline, initialPlayheadUs, blindShare, floorPlan, trackStateChip, trackJournal,
   parseRoute, nextAfterCover, blindReacquire, reacquireMarker, stagePlan, classGroups, featuredClasses, CAMERA_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
-import {ZOOM_LEVELS, ZOOM_STORAGE_KEY, normalizeZoom} from './ui-zoom-model.mjs';
+import {ZOOM_LEVELS, ZOOM_STORAGE_KEY, normalizeZoom, wallColumns} from './ui-zoom-model.mjs';
 import {PLAIN, cameraName, plainState, gapNote, lostNote, pendingNote, gapLiveNote, lostLiveNote, pendingLiveNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
 import {countsFromSearch, HISTORY_LIMIT} from './admin-overview-model.mjs';
 import {createPhaseStore, progressPercent} from './search-phase-model.mjs';
@@ -149,14 +149,14 @@ export function mountUi(ctx) {
 
   // ---- query windows ----------------------------------------------------------------------------------------------
   const chipBtn = (label, on, cls = '') => { const b = el('button', label, `ui-chip-btn ${cls}`.trim(), {type: 'button'}); b.setAttribute('aria-pressed', String(on)); return b; };
-  // D139 whole-interface scale (display only): the front-desk root is zoomed as one piece; remembered in localStorage when it works.
+  // D147: camera-picture scale (display only); remembered in localStorage when it works. Text and layout are not scaled.
   let zoom = normalizeZoom((() => { try { return storage?.getItem(ZOOM_STORAGE_KEY); } catch { return null; } })());
-  const zoomSelect = el('select', undefined, 'ui-input ui-small ui-zoom-select', {'aria-label': '介面縮放', title: '整個介面的縮放比例'}); zoomSelect.id = 'ui-zoom';
+  const zoomSelect = el('select', undefined, 'ui-input ui-small ui-zoom-select', {'aria-label': '畫面大小', title: '攝像頭畫面的大小'}); zoomSelect.id = 'ui-zoom';
   for (const z of ZOOM_LEVELS) zoomSelect.append(el('option', `${z}%`, undefined, {value: String(z)}));
-  const applyZoom = () => { host.style.setProperty('--ui-zoom', String(zoom / 100)); host.dataset.zoom = String(zoom); zoomSelect.value = String(zoom); };
+  const applyZoom = () => { host.style.setProperty('--cam-zoom', String(zoom / 100)); host.style.setProperty('--wall-cols', String(wallColumns(zoom))); host.dataset.zoom = String(zoom); zoomSelect.value = String(zoom); };
   zoomSelect.addEventListener('change', () => { zoom = normalizeZoom(zoomSelect.value); try { storage?.setItem(ZOOM_STORAGE_KEY, String(zoom)); } catch {} applyZoom(); });
   topRight.prepend(zoomSelect); applyZoom();
-  disposers.push(() => { host.style.removeProperty('--ui-zoom'); delete host.dataset.zoom; });
+  disposers.push(() => { host.style.removeProperty('--cam-zoom'); host.style.removeProperty('--wall-cols'); delete host.dataset.zoom; });
   // ⓘ: technical detail shown on hover / keyboard focus (CSS). Empty text → no icon.
   const info = (text, label = '技術資訊') => { if (!text) return null; const n = el('span', 'ⓘ', 'ui-info', {tabindex: '0', role: 'img', 'aria-label': `${label}：${text}`, 'data-info': text}); n.append(el('span', text, 'ui-info-pop', {role: 'tooltip'})); return n; };
   const field = (label, ...kids) => { const l = el('label', undefined, 'ui-field'); l.append(el('span', label, 'ui-label'), ...kids); return l; };
