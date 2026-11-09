@@ -486,6 +486,7 @@ export function buildSearchResultsWallModel(searchResponse, options = {}) {
         const colorPart = b.color_label ? ` / ${b.color_label}` : '';
         return `特徵: ${b.class_label ?? '物件'}${colorPart} (${b.evidence_state ?? 'OBSERVED'})`;
       }
+      if (b.kind === 'SCENE_ANNOTATION') return `場景標註: ${b.class_label ?? '物件'} (非偵測)`;   // D149
       return `${b.kind}`;
     });
 

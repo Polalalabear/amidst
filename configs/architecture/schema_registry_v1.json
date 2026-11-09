@@ -2581,6 +2581,15 @@
       ],
       "issue_ref": "#93",
       "status": "EVALUATION_REFERENCE_ONLY"
+    },
+    {
+      "value": "q-demo.scene-annotations.v1",
+      "source_paths": [
+        "configs/q1q5/scene_annotations_v1.json",
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_D149"
     }
   ]
 }

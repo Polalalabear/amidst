@@ -216,11 +216,12 @@ export function mountUi(ctx) {
       const classChip = (c, extra = {}) => {
         const b = chipBtn(c ? classDisplay(c, cat.aliases) : '不限', form.classLabel === c); b.dataset.value = c;
         if (extra.count !== null && extra.count !== undefined) { b.append(el('span', ` ${extra.count}`, 'ui-class-count ui-mono')); b.dataset.cameras = String(extra.count); }   // search window only: number of cameras that saw it
+        if (extra.annotated) { b.dataset.annotated = 'true'; b.title = '鏡頭數含場景標註（非偵測）'; }
         if (extra.disabled) { b.disabled = true; b.title = '追蹤目前只支援人物'; b.dataset.unsupported = 'true'; }
         else b.addEventListener('click', () => pickClass(c));
         b.classList.toggle('on', form.classLabel === c); return b;
       };
-      const full = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined, featuredClasses(cat.run?.run_id)), keep = new Set(visible);
+      const full = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined, featuredClasses(cat.run?.run_id), cat.run?.scene_annotations), keep = new Set(visible);
       const groups = {grouped: full.grouped, featured: !!full.featured, detected: full.detected.filter(d => keep.has(d.label)), others: full.others.filter(o => keep.has(o.label))};   // groups survive filtering
       if (filtering && !visible.length) classBox.append(el('p', '沒有符合的特徵', 'ui-note ui-small ui-feat-empty', {role: 'status'}));
       else if (!groups.grouped) { for (const c of classes) classBox.append(classChip(c)); }
@@ -231,7 +232,7 @@ export function mountUi(ctx) {
         const headRow = el('div', undefined, 'ui-class-head ui-small ui-faint'); headRow.append(el('span', groups.featured ? '本場景物件' : '本場景偵測到'));
         if (!groups.detected.length) top.append(el('span', '（沒有符合的偵測類別）', 'ui-faint ui-small'));
         const showCams = w.kind === 'search' && groups.detected.some(d => d.cameraCount !== null && d.cameraCount !== undefined), countInfo = showCams ? info(CAMERA_COUNT_NOTE, '鏡頭數') : null; if (countInfo) headRow.append(countInfo);
-        for (const d of groups.detected) top.append(classChip(d.label, {count: showCams && d.cameraCount !== null ? d.cameraCount : null, disabled: !d.supported}));   // never the detection count posing as a camera count
+        for (const d of groups.detected) top.append(classChip(d.label, {count: showCams && d.cameraCount !== null ? d.cameraCount : null, disabled: !d.supported, annotated: !!d.annotated}));   // never the detection count posing as a camera count
         classBox.append(headRow, top);
         if (groups.others.length) {
           const sep = el('hr', undefined, 'ui-class-sep'); const open = w.othersOpen || filtering || groups.others.some(o => o.label === form.classLabel);

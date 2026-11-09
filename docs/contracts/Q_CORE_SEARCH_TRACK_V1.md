@@ -333,3 +333,24 @@ Demo `sightings[].link_kind` 明列 `LOCAL_SEED`、`SAME_CAMERA_REACQUISITION` �
 不能把相鄰 ON_CAMERA 顯示合併當成相同身分。回應的 `association_audit` 與獨立 events 同步記錄 link_kind、
 from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us。
 此授權不放寬 6 秒窗、不核准圖、不觸發重新推論、不改 formal_eligible=false。
+
+### D147／D148：跟丟後全程重掃、短缺口合併、不分類別框接續（2026-11-09，草案，待 Codex 確認）
+
+只適用 DEMO_DEFAULT replay（同 D145 範圍）。驗收測試：`tests/q1q5/test_d147_acceptance.py`。
+
+- **全程重掃（D147-1）**：跟丟（LOST）或遇到歧義後，查詢時段剩下的每一格都重新檢查所有鏡頭。第一個通過既有分數與顏色條件的候選就採用，不受 6 秒窗限制，也不需要圖邊。`sightings[].link_kind` 以 `REACQUISITION` 結尾（同鏡頭沿用 `SAME_CAMERA_REACQUISITION`；跨鏡頭用 `CROSS_CAMERA_REACQUISITION`）；`identity_verdict = UNCONFIRMED`、`physical_navigation = UNKNOWN`。歧義照樣寫進 `association_audit` 與 `reasons`，但追蹤繼續。6 秒窗內、有圖邊的接手仍標 `CROSS_CAMERA_HANDOFF`。
+- **短缺口合併（D147-1）**：同一鏡頭相鄰的 ON_CAMERA 之間，缺口 ≤ 600000 µs 時，`single_view` 合併成一段。`sightings` 仍保留各自的 track_ref；這是顯示上的合併，不代表身分相同（D145 的限制不變）。
+- **不分類別框接續（D148）**：camera-local 候選的起點是 person、分數 ≥ 0.3（索引下限），而且要有顏色判定（STRONG／WEAK）。之後任何類別、分數 ≥ 0.3 的框，只要 IoU ≥ 0.2 或中心距離 ≤ 0.6 倍參考框高，且面積在參考框的 1/12～12 倍之間，就可以接續。多個框符合時，取成本 `(1−IoU) + |ln(面積比)|/2 + 中心距離/框高` 最低者，成本相同時優先 person。參考框取勝出框的中心，尺寸只往新框移動一半。連續 2 格沒對到就結束。參考實作：`src/amidst/evaluation/track_recall.py::box_continuation_frames`（q1q5 不得 import 它，需要自行實作）。
+- 由非 person 框接續的觀測，在 `association_audit` 標 `evidence_kind: "BOX_CONTINUATION"`，並附原始 `class_label`；顏色寫 `NOT_EVALUATED`，不能算顏色相符。`single_view` 照常為 ON_CAMERA。
+- 驗收門檻：`configs/evaluation/d147_human_reference_v1.json` 每個參考段的召回率 ≥ 0.75（以 `score_single_view` 計算）。人工參考只用來評估，q1q5 不得讀取。
+
+### D149：場景標註的靜態物件（2026-11-09，草案，待 Codex 確認）
+
+偵測器認不出場景裡的方塊車（A4 CAM_EXT_CAR，250 格中沒有任何 car）。使用者決定改用場景標註：`configs/q1q5/scene_annotations_v1.json`（`q-demo.scene-annotations.v1`）。
+
+- **查找**：`feature.class_label` 等於某筆標註的 `class_label`，且標註的 `run_id`、`camera_id` 在查詢範圍內時，回一筆命中：`target_observed: true`；`source_range_us` 取標註範圍與查詢時段的交集；`segments` 為一段，`representative` 取交集內第一格的 `frame_ref` 與 `media_token`（`observation_ids: []`）。`basis` 新增一種：
+  `{"kind": "SCENE_ANNOTATION", "class_label": "car", "annotation_id": "…", "annotation_set_sha256": "<設定檔 SHA-256>", "evidence_state": "ANNOTATED"}`。
+  同一鏡頭若同時有偵測命中，兩種 basis 都列。有地點條件時，依 §2.2 與地點命中取交集。
+- **不混入偵測**：標註不進 `detected_class_counts`、不進索引，追蹤、排序與身分判斷都不使用。bootstrap 每個 run 另外列 `scene_annotations: [{"annotation_id", "class_label", "camera_ids"}]`（沒有時為 `[]`）。
+- **前端**：命中卡片顯示「場景標註：車輛（非偵測）」；查找窗的場景物件鏡頭數，取偵測鏡頭與標註鏡頭的聯集，提示文字註明含場景標註。
+- 標註框只用於顯示，不得當成偵測或位置證據；`identity_verdict` 仍為 `UNCONFIRMED`。

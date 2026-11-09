@@ -94,7 +94,14 @@ export const SCENE_FEATURED_CLASSES = Object.freeze({
   'ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1': Object.freeze(['person']),       // B4-1
 });
 export function featuredClasses(runId) { return SCENE_FEATURED_CLASSES[runId] ?? null; }
-export function classGroups(classes, counts, supports = () => true, featured = null) {
+// D149: `annotations` is the bootstrap run's scene_annotations ([{annotation_id, class_label, camera_ids}]); a featured class's
+// camera count becomes the union of detected and annotated cameras, flagged `annotated` so the chip can say it is not a detection.
+export function annotatedCameras(annotations, label) {
+  const ids = new Set();
+  for (const a of Array.isArray(annotations) ? annotations : []) if (a?.class_label === label && Array.isArray(a.camera_ids)) for (const c of a.camera_ids) if (typeof c === 'string' && c) ids.add(c);
+  return ids;
+}
+export function classGroups(classes, counts, supports = () => true, featured = null, annotations = null) {
   const all = (Array.isArray(classes) ? classes : []).filter(c => typeof c === 'string' && c);
   const known = new Set(all), seen = new Set(), detected = [];
   if (Array.isArray(counts)) for (const r of counts) {
@@ -106,7 +113,16 @@ export function classGroups(classes, counts, supports = () => true, featured = n
   const pick = Array.isArray(featured) ? [...new Set(featured.filter(c => known.has(c)))] : [];
   if (pick.length) {
     // featured scene classes on top, in the declared order; a featured class the detector never saw shows 0 cameras rather than hiding.
-    const byLabel = new Map(detected.map(d => [d.label, d])), top = pick.map(label => byLabel.get(label) ?? { label, count: 0, cameraCount: Array.isArray(counts) ? 0 : null, supported: supports(label) !== false });
+    const byLabel = new Map(detected.map(d => [d.label, d]));
+    const top = pick.map(label => {
+      const d = byLabel.get(label) ?? { label, count: 0, cameraCount: Array.isArray(counts) ? 0 : null, supported: supports(label) !== false };
+      const ann = annotatedCameras(annotations, label); if (!ann.size) return d;
+      const row = Array.isArray(counts) ? counts.find(r => r?.class_label === label) : null, seen = new Set(Array.isArray(row?.camera_ids) ? row.camera_ids : []);
+      const union = new Set([...seen, ...ann]);
+      // without detected camera ids the union cannot be computed exactly; never under-count the annotation
+      const cameraCount = seen.size || !d.cameraCount ? union.size : Math.max(d.cameraCount, ann.size);
+      return { ...d, cameraCount, annotated: true };
+    });
     const rest = [...detected.filter(d => !pick.includes(d.label)).map(d => d.label), ...all.filter(c => !seen.has(c) && !pick.includes(c))];
     return { grouped: true, featured: true, detected: top, others: rest.map(label => ({ label, supported: supports(label) !== false })) };
   }
@@ -200,6 +216,7 @@ export function cardChips(card, aliases = {}) {
   for (const b of card?.basis ?? []) {
     if (b.kind === 'LOCATION') chips.push({ text: '地點覆蓋', tone: 'observed' });
     else if (b.kind === 'OBJECT') chips.push({ text: `偵測：${classDisplay(b.class_label ?? '物件', aliases)}${b.color_label ? ' · ' + colorDisplay(b.color_label) : ''}`, tone: 'observed' });
+    else if (b.kind === 'SCENE_ANNOTATION') chips.push({ text: `場景標註：${classDisplay(b.class_label ?? '物件', aliases)}（非偵測）`, tone: 'neutral' });   // D149
   }
   return chips;
 }

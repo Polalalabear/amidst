@@ -33,3 +33,18 @@ test('D147-3 frameTUs snaps to the source frame grid and leaves unusable input a
   const shifted = {sampling: {per_camera: [{camera_id: 'C', index_grid_origin_frame: 2, source_frame_interval_us: 100}]}};
   assert.equal(frameTUs(shifted, 'C', 350), 300); assert.equal(frameTUs(shifted, 'C', 150), 150);
 });
+
+test('D149 scene annotation: card chip says 非偵測; featured camera count is the union and flagged', async () => {
+  const {cardChips, annotatedCameras} = await import('./ui-model.mjs');
+  assert.deepEqual(cardChips({basis: [{kind: 'SCENE_ANNOTATION', class_label: 'car', annotation_id: 'a', annotation_set_sha256: 'f'.repeat(64), evidence_state: 'ANNOTATED'}]}),
+    [{text: '場景標註：車輛（非偵測）', tone: 'neutral'}]);
+  const ann = [{annotation_id: 'a', class_label: 'car', camera_ids: ['CAM_EXT_CAR']}, {annotation_id: 'b', class_label: 'bench', camera_ids: ['X']}];
+  assert.deepEqual([...annotatedCameras(ann, 'car')], ['CAM_EXT_CAR']); assert.equal(annotatedCameras(null, 'car').size, 0);
+  const classes = ['person', 'car', 'clock'];
+  const counts = [{class_label: 'person', detection_count: 125, camera_count: 3, camera_ids: ['A', 'B', 'CAM_EXT_CAR']}, {class_label: 'clock', detection_count: 9, camera_count: 1, camera_ids: ['A']}];
+  const g = classGroups(classes, counts, undefined, ['person', 'car'], ann);
+  assert.deepEqual(g.detected.map(d => [d.label, d.cameraCount, !!d.annotated]), [['person', 3, false], ['car', 1, true]]);
+  const both = classGroups(classes, [...counts, {class_label: 'car', detection_count: 2, camera_count: 2, camera_ids: ['CAM_EXT_CAR', 'B']}], undefined, ['person', 'car'], ann);
+  assert.equal(both.detected[1].cameraCount, 2);   // union, not a sum
+  assert.equal(classGroups(classes, counts, undefined, ['person', 'car'], []).detected[1].cameraCount, 0);   // no annotation: still 0
+});

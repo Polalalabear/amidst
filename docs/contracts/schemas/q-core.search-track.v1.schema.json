@@ -55,7 +55,13 @@
                         "color_label": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/nonEmptyString"}]},
                         "evidence_state": {"const": "OBSERVED"},
                         "observation_ids": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}, "minItems": 1},
-                        "detection_index_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}
+                        "detection_index_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+        {"type": "object", "additionalProperties": false,
+         "required": ["kind", "class_label", "annotation_id", "annotation_set_sha256", "evidence_state"],
+         "properties": {"kind": {"const": "SCENE_ANNOTATION"}, "class_label": {"$ref": "#/$defs/nonEmptyString"},
+                        "annotation_id": {"$ref": "#/$defs/nonEmptyString"},
+                        "annotation_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                        "evidence_state": {"const": "ANNOTATED"}}}
       ]
     },
     "searchHit": {
