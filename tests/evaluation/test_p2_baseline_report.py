@@ -23,7 +23,7 @@ spec.loader.exec_module(m)
 def sample(tmp_path):
     folder = tmp_path / "SYNTHETIC"
     shutil.copytree(ROOT / "tests/fixtures/p2_report/SYNTHETIC", folder)
-    return folder, folder / "receipt.json", folder / "report.json"
+    return folder, folder / "receipt-v1_2.json", folder / "report-v1_2.json"
 
 
 def read(path):
