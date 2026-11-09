@@ -428,6 +428,56 @@ def test_row_invalid_response():
     assert record['fallback_reason'] == 'INVALID_RESPONSE' and record['attempts'][-1]['outcome'] == 'INVALID_RESPONSE'
 
 
+def _deep(n):
+    node = 'x'
+    for _ in range(n):
+        node = [node]
+    return node
+
+
+@pytest.mark.parametrize('name,payload', [
+    ('nan', lambda: dict(select(), rationale=float('nan'))),
+    ('infinity', lambda: dict(select(), rationale=float('inf'))),
+    ('neg_infinity', lambda: dict(select(), rationale=float('-inf'))),
+    ('set', lambda: dict(select(), reason_codes={'A'})),
+    ('unserializable_object', lambda: dict(select(), rationale=object())),
+    ('bytes', lambda: dict(select(), rationale=b'x')),
+    ('non_string_key', lambda: {1: 'x'}),
+    ('nesting_33', lambda: {'x': _deep(32)}),
+    ('nesting_5000', lambda: {'x': _deep(5000)}),
+])
+def test_row_hostile_response_falls_back_instead_of_raising(name, payload):
+    record = run(dp1(), Script(ok(payload())))
+    assert record['decision_source'] == 'RULE_FALLBACK' and record['fallback_reason'] == 'INVALID_RESPONSE'
+    assert record['attempts'][-1]['outcome'] == 'INVALID_RESPONSE'
+    assert record['attempts'][-1]['response_sha256'] is None
+
+
+def test_response_nesting_limit_boundary():
+    ad.check_json_safe({'x': _deep(ad.MAX_RESPONSE_NESTING - 2)})
+    with pytest.raises(AgentDecisionError, match='nesting'):
+        ad.check_json_safe({'x': _deep(ad.MAX_RESPONSE_NESTING - 1)})
+
+
+@pytest.mark.parametrize('path,value', [
+    (('per_call', 'timeout_ms'), 60_001), (('per_call', 'max_output_tokens'), 4097),
+    (('per_step', 'budget_ms'), 60_001), (('per_session', 'max_rounds'), 101),
+    (('prompt_tokens_per_call_estimate',), 200_001),
+])
+def test_params_upper_bounds(path, value):
+    bad = copy.deepcopy(FORMAL)
+    node = bad
+    for key in path[:-1]:
+        node = node[key]
+    node[path[-1]] = value
+    with pytest.raises(AgentDecisionError, match='above maximum'):
+        ad.validate_params(bad)
+    spec = PARAMS_SCHEMA['properties']
+    for key in path:  # the schema carries the same maximum as the validator
+        spec = spec[key] if key in spec else spec['properties'][key]
+    assert spec['maximum'] == value - 1
+
+
 def test_row_illegal_candidate():
     record = run(dp1(), Script(ok(select('Z9'))))
     assert record['fallback_reason'] == 'ILLEGAL_CANDIDATE' and record['final_answer'] == 'B1'

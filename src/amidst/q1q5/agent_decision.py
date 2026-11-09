@@ -47,6 +47,9 @@ RATIONALE_MAX = 240
 MAX_CANDIDATES = 8
 MAX_EDGES = 64
 MAX_REASON_CODES = 4
+MAX_RESPONSE_NESTING = 32  # provider JSON nesting limit, checked before any recursive walk or hashing
+PARAM_MAX = {'timeout_ms': 60_000, 'max_output_tokens': 4096, 'budget_ms': 60_000,
+             'session_max_rounds': 100, 'prompt_tokens_per_call_estimate': 200_000}
 
 DECISION_SOURCES = ('AGENT', 'RULE_FALLBACK', 'RULE_ONLY')
 # Values shared with common.v2 $defs/fallback_reason ...
@@ -144,6 +147,31 @@ def _is_int(value) -> bool:
 
 def _is_number(value) -> bool:
     return type(value) in (int, float) and value == value and value not in (float('inf'), float('-inf'))
+
+
+def check_json_safe(value, code: str = 'INVALID_RESPONSE', _level: int = 1) -> None:
+    """Raise AgentDecisionError(code) unless ``value`` is finite plain JSON within the nesting limit.
+
+    Nesting is checked first, so hostile input never reaches a recursive walk or json.dumps."""
+    if _level > MAX_RESPONSE_NESTING:
+        raise AgentDecisionError(code, f'nesting deeper than {MAX_RESPONSE_NESTING}')
+    if value is None or type(value) in (bool, int, str):
+        return
+    if type(value) is float:
+        if value != value or value in (float('inf'), float('-inf')):
+            raise AgentDecisionError(code, 'NaN/Infinity')
+        return
+    if type(value) is list:
+        for item in value:
+            check_json_safe(item, code, _level + 1)
+        return
+    if type(value) is dict:
+        for key, item in value.items():
+            if type(key) is not str:
+                raise AgentDecisionError(code, 'non-string key')
+            check_json_safe(item, code, _level + 1)
+        return
+    raise AgentDecisionError(code, f'not JSON-serializable: {type(value).__name__}')
 
 
 def _forbidden_scan(value, code: str) -> None:
@@ -284,6 +312,7 @@ def validate_response(response, request) -> str:
     ``request`` must already be valid. Identity fields and any extra key are INVALID_RESPONSE.
     """
     code = 'INVALID_RESPONSE'
+    check_json_safe(response, code)
     _forbidden_scan(response, code)
     _keys(response, RESPONSE_REQUIRED, RESPONSE_KEYS, code, 'response')
     action = response['action']
@@ -372,17 +401,25 @@ def validate_params(params) -> None:
     _keys(per_call, k, k, 'PARAMS_INVALID', 'per_call')
     positive(per_call, 'timeout_ms', 'per_call')
     positive(per_call, 'max_output_tokens', 'per_call')
+    if per_call['timeout_ms'] > PARAM_MAX['timeout_ms']:
+        _fail('per_call.timeout_ms above maximum')
+    if per_call['max_output_tokens'] > PARAM_MAX['max_output_tokens']:
+        _fail('per_call.max_output_tokens above maximum')
     if per_call['max_retries_on_429_5xx'] not in (0, 1) or type(per_call['max_retries_on_429_5xx']) is not int:
         _fail('per_call.max_retries_on_429_5xx')
     per_step = params['per_step']
     k = frozenset({'budget_ms', 'max_rounds'})
     _keys(per_step, k, k, 'PARAMS_INVALID', 'per_step')
     positive(per_step, 'budget_ms', 'per_step')
+    if per_step['budget_ms'] > PARAM_MAX['budget_ms']:
+        _fail('per_step.budget_ms above maximum')
     if not _is_int(per_step['max_rounds']) or not 1 <= per_step['max_rounds'] <= 3:
         _fail('per_step.max_rounds')
     per_session = params['per_session']
     _keys(per_session, frozenset({'max_rounds'}), frozenset({'max_rounds'}), 'PARAMS_INVALID', 'per_session')
     positive(per_session, 'max_rounds', 'per_session')
+    if per_session['max_rounds'] > PARAM_MAX['session_max_rounds']:
+        _fail('per_session.max_rounds above maximum')
     rate = params['rate']
     k = frozenset({'max_concurrent', 'max_requests_per_minute'})
     _keys(rate, k, k, 'PARAMS_INVALID', 'rate')
@@ -393,6 +430,8 @@ def validate_params(params) -> None:
     if not _is_number(params['budget_usd']) or not 0 <= params['budget_usd'] <= 100:
         _fail('budget_usd')
     positive(params, 'prompt_tokens_per_call_estimate', 'params')
+    if params['prompt_tokens_per_call_estimate'] > PARAM_MAX['prompt_tokens_per_call_estimate']:
+        _fail('prompt_tokens_per_call_estimate above maximum')
     table = params['price_table']
     if table is not None:
         k = frozenset({'date', 'source', 'currency', 'models'})
@@ -629,6 +668,17 @@ def _record(request, sha, mode, source, reason, layer, final, rule, provider, pa
     }
 
 
+def _response_sha256(response) -> str | None:
+    """Hash of a well-formed provider response; None when absent or not safely hashable."""
+    if response is None:
+        return None
+    try:
+        check_json_safe(response)
+    except AgentDecisionError:
+        return None  # validate_response rejects it as INVALID_RESPONSE right after
+    return hashlib.sha256(canonical(response)).hexdigest()
+
+
 def decide(request: Mapping, *, mode: str = DEFAULT_MODE, params: Mapping, budget: CallBudget | None = None,
            model: str | None = None, call: Provider | None = None, provider_kind: str = 'NONE',
            provider_meta: Mapping | None = None) -> dict:
@@ -695,8 +745,7 @@ def decide(request: Mapping, *, mode: str = DEFAULT_MODE, params: Mapping, budge
         budget.charge(model, result.prompt_tokens, result.completion_tokens, live=live)
         elapsed += result.wall_ms
         row = {'wall_ms': result.wall_ms, 'timeout_ms': timeout, 'outcome': None,
-               'response_sha256': (hashlib.sha256(canonical(result.response)).hexdigest()
-                                   if result.response is not None else None),
+               'response_sha256': _response_sha256(result.response),
                'prompt_tokens': result.prompt_tokens, 'completion_tokens': result.completion_tokens}
         attempts.append(row)
         if result.outcome == CALL_REPLAY_MISS:
