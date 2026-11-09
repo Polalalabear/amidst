@@ -3,8 +3,7 @@
 User decision D149 (#93, 2026-11-09): COCO RT-DETR never finds the box-model car, so 查找 returns it from the
 hand-drawn annotation ``configs/q1q5/scene_annotations_v1.json``. The hit carries a ``SCENE_ANNOTATION`` basis
 (evidence_state ``ANNOTATED``), is shown as 場景標註（非偵測）, and is never counted as a detection, never used by
-tracking, ranking or identity. Tests marked ``PENDING`` are ``xfail(strict=True)``; remove each marker in the change
-that makes it pass. Real-data tests need ``AMIDST_DEMO_HOME`` (and >= 8 GiB free disk).
+tracking, ranking or identity. Real-data tests need ``AMIDST_DEMO_HOME`` (and >= 8 GiB free disk).
 """
 import hashlib
 import json
@@ -15,7 +14,6 @@ import pytest
 
 from test_bootstrap_class_counts import recorded_demo  # noqa: F401
 
-PENDING = pytest.mark.xfail(strict=True, reason='D149 pending Codex implementation')
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / 'configs/q1q5/scene_annotations_v1.json'
 SCHEMA = ROOT / 'docs/contracts/schemas/q-core.search-track.v1.schema.json'
@@ -60,10 +58,9 @@ def search_car(api, run):
     from amidst.q1q5.core_query import execute_core_search
     from test_core_search_track_t import full_wall
     request = search_request(run, feature={'class_label': 'car', 'color_label': None}, time=full_wall(run))
-    return execute_core_search(request, run)
+    return execute_core_search(request, run, media_token_for_frame=lambda _: "SYNTHETIC_ANNOTATION_MEDIA")
 
 
-@PENDING
 def test_a4_search_for_car_returns_the_annotated_hit(recorded_demo):
     api, run = a4(recorded_demo)
     result = search_car(api, run)
@@ -78,7 +75,6 @@ def test_a4_search_for_car_returns_the_annotated_hit(recorded_demo):
         'the annotation must not be dressed up as a detection'
 
 
-@PENDING
 def test_bootstrap_exposes_scene_annotations_but_counts_stay_detection_only(recorded_demo):
     api, run = a4(recorded_demo)
     row = next(r for r in api.bootstrap()['runs'] if r['run_id'] == A4_RUN)
@@ -97,3 +93,37 @@ def test_tracking_never_reads_the_annotation(recorded_demo):
     from amidst.q1q5.core_query import execute_core_track
     result = execute_core_track(track_request(run, feature={'class_label': 'car', 'color_label': None}), run)
     assert 'SCENE_ANNOTATION' not in json.dumps(result)
+
+
+def test_annotation_search_respects_time_location_and_colour(recorded_demo):
+    from amidst.q1q5.core_query import execute_core_search
+    from test_core_query_regressions import search_request
+    api, run = a4(recorded_demo)
+    def query(**changes):
+        payload = search_request(run, feature={'class_label': 'car', 'color_label': None}, **changes)
+        return execute_core_search(payload, run, media_token_for_frame=lambda _: 'SYNTHETIC_ANNOTATION_MEDIA')
+    time = {'kind': 'WALL', 'timezone': 'Asia/Taipei',
+            'wall_range': [run.bindings.clock.source_to_wall(1_000_001), run.bindings.clock.source_to_wall(2_000_000)]}
+    [hit] = query(time=time)['hits']
+    assert hit['source_range_us'] == [1_000_001, 2_000_000]
+    assert hit['segments'][0]['representative']['frame_ref'].endswith(':6')
+    assert hit['segments'][0]['representative']['observation_ids'] == []
+    coloured = search_request(run, feature={'class_label': 'car', 'color_label': 'red'}, time=time)
+    from amidst.q1q5.core_query import CoreRequestError
+    with pytest.raises(CoreRequestError, match='UNSUPPORTED_CONDITION'):
+        execute_core_search(coloured, run)
+    for region in run.catalog['region_ids']:
+        result = query(time=time, region_ids=[region])
+        for h in result['hits']:
+            assert {b['kind'] for b in h['basis']} == {'LOCATION', 'SCENE_ANNOTATION'}
+
+
+def test_annotation_rgb_pin_tampering_fails_closed(recorded_demo, tmp_path):
+    from amidst.q1q5.scene_annotations import bind_annotations
+    _, run = a4(recorded_demo)
+    doc = annotations()
+    doc['annotations'][0]['checked_frames'][0]['rgb_file_sha256'] = '0' * 64
+    path = tmp_path / 'annotations.json'
+    path.write_text(json.dumps(doc))
+    with pytest.raises(ValueError, match='SCENE_ANNOTATION_RGB_PIN_MISMATCH'):
+        bind_annotations(run, path)

@@ -1266,7 +1266,8 @@
     {
       "value": "q-demo.api-bootstrap.v1",
       "source_paths": [
-        "src/amidst/q1q5/api.py"
+        "src/amidst/q1q5/api.py",
+        "docs/contracts/schemas/q-demo.api-bootstrap.v1.schema.json"
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
@@ -2586,10 +2587,11 @@
       "value": "q-demo.scene-annotations.v1",
       "source_paths": [
         "configs/q1q5/scene_annotations_v1.json",
-        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+        "src/amidst/q1q5/scene_annotations.py"
       ],
       "issue_ref": "#93",
-      "status": "PROPOSED_D149"
+      "status": "REGISTERED_D149_SEARCH_DISPLAY_ONLY"
     }
   ]
 }

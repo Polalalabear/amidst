@@ -161,3 +161,38 @@ def score_single_view(records, reference_run, single_view):
         cam = interval['camera_id']
         by_camera[cam] = single_view_frames(single_view, cam, camera_frames(records, cam))
     return score_frames(records, reference_run, by_camera)
+
+
+def score_sightings(records, reference_run, sightings):
+    """D150 per-camera source observations, including simultaneous local hypotheses.
+
+    Score actual sighting coverage only; display gap merging does not earn recall.
+    """
+    frames = {}
+    for interval in reference_run['intervals']:
+        camera = interval['camera_id']
+        spans = [s['range_us'] for s in sightings if s['camera_id'] == camera]
+        frames[camera] = {t for t in camera_frames(records, camera) if any(a <= t < b for a, b in spans)}
+    return score_frames(records, reference_run, frames)
+
+
+def score_single_view_switching(reference_run, single_view):
+    """D150 time-weighted correct-camera coverage over the reference time union.
+
+    Split at every reference/display endpoint so overlaps never double-count.
+    Any camera covered by a reference interval at that time earns credit.
+    """
+    intervals = reference_run['intervals']
+    boundaries = sorted({t for r in intervals for t in r['range_us']} |
+                        {t for s in single_view for t in s['range_us']})
+    total = covered = 0
+    for start, end in zip(boundaries, boundaries[1:]):
+        cameras = {r['camera_id'] for r in intervals if r['range_us'][0] <= start < r['range_us'][1]}
+        if not cameras:
+            continue
+        total += end - start
+        if any(s.get('kind') == 'ON_CAMERA' and s['camera_id'] in cameras
+               and s['range_us'][0] <= start < s['range_us'][1] for s in single_view):
+            covered += end - start
+    return {'reference_union_us': total, 'covered_us': covered,
+            'ratio': round(covered / total, 4) if total else None}

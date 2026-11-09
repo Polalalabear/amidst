@@ -20,6 +20,7 @@ from amidst.q1q5.p1_workbench import P1, binary, public_png, require, server
 from amidst.q1q5.q3_parse import ParseSettings
 from amidst.q1q5.q5_controller import RuntimeBindings
 from amidst.q1q5.scene_graphs import load_scene_graphs
+from amidst.q1q5.scene_annotations import bind_annotations
 from amidst.q1q5.store import DetectionSnapshot, DocumentPin, JsonRunStore, canonical_hash
 from run_cross_camera_demo import read_pin, loads, load_run
 from demo_dependency_config import configuration, owned_path, resolve_job, install_owned_io_guard
@@ -184,6 +185,7 @@ class Demo(P1):
                 by_camera[f['camera_id']][f['frame_index']] = (media_root/name, pin)
             self.rgb.frames[key] = 200_000, by_camera, m['clock_id']
         self.add_static(artifacts, runs)
+        runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
         self.api = QAPI(runs, max_responses=128, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
         self.scenes = {r.catalog['scene_id'] for r in runs}
 
@@ -269,7 +271,9 @@ class Demo(P1):
             parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256)
         doc['resolved_scope'] = {'scene_id': key[0], 'run_id': key[1], 'detection_index_sha256': b.index_sha256}
         doc['provenance'] = {'producer': 'demo-cross-camera-local-linker', 'gt_read': False,
-            'parameter_mode': 'DEMO_DEFAULT', 'formal_eligible': False, 'seed_policy': 'AUTOMATIC_EARLIEST_LOCAL_SEED'}
+            'parameter_mode': 'DEMO_DEFAULT', 'formal_eligible': False, 'seed_policy': 'AUTOMATIC_EARLIEST_LOCAL_SEED',
+            'replay_policy': 'D147_D148', 'seed_min_score': .3, 'continuation_min_score': .3,
+            'max_area_ratio': 12, 'same_camera_merge_gap_us': 600_000}
         if doc['single_view'] and doc['single_view'][-1]['kind'] in {'GAP', 'LOST'}:
             doc['blind'] = _blind_for_track(run, doc['sightings'], stamp, self.positions[key])
         doc['output_sha256'] = canonical_hash(doc, exclude=('output_sha256', 'stats'))

@@ -20,7 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from amidst.evaluation.track_recall import (  # noqa: E402
-    box_continuation_frames, camera_frames, load_reference, person_frames, score_frames, score_single_view)
+    box_continuation_frames, camera_frames, load_reference, person_frames, score_frames, score_single_view, score_sightings, score_single_view_switching)
 
 # D147 prototype candidate: person seed at the index floor, any-class continuation that may shrink to a part box.
 RECOMMENDED = {'seed_score': 0.3, 'max_area_ratio': 12.0}
@@ -63,7 +63,7 @@ def main():
     tracks = dict(item.split('=', 1) for item in args.track)
     result = {'reference': {'path': os.path.relpath(args.reference, ROOT), 'sha256': sha256(args.reference)},
               'inference_run': False, 'runs': []}
-    lines = ['| 場景 | 段落 | 鏡頭 | 參考格數 | ' + ' | '.join(['現行 ≥0.4', '≥0.3', '不分類別接續（起點 ≥0.4）', '建議：起點 ≥0.3＋接續（框可縮 12 倍）', '實際追蹤']) + ' |',
+    lines = ['| 場景 | 段落 | 鏡頭 | 參考格數 | ' + ' | '.join(['現行 ≥0.4', '≥0.3', '不分類別接續（起點 ≥0.4）', '建議：起點 ≥0.3＋接續（框可縮 12 倍）', '實際 sightings 召回']) + ' |',
              '|---|---|---|---:|---:|---:|---:|---:|---:|']
     for run in reference['runs']:
         manifest, records = load_records(args.home, run['label'])
@@ -80,7 +80,9 @@ def main():
         if run['label'] in tracks:
             path = tracks[run['label']]
             response = json.loads(Path(path).read_text())
-            actual = score_single_view(records, run, response['single_view'])
+            actual = score_sightings(records, run, response['sightings'])
+            entry['single_view_switching'] = score_single_view_switching(run, response['single_view'])
+            entry['single_view_per_camera_diagnostic'] = score_single_view(records, run, response['single_view'])
             entry['track_response'] = {'path': path, 'sha256': sha256(path), 'scores': actual}
         result['runs'].append(entry)
         for i, interval in enumerate(run['intervals']):
@@ -91,6 +93,11 @@ def main():
                          + ' | '.join(pct(c) for c in cells) + f' | {act} |')
     Path(args.out).write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
     print('\n'.join(lines))
+    print('\n| 場景 | 參考時間聯集 (s) | 正確切鏡 (s) | 單畫面切鏡比例 |\n|---|---:|---:|---:|')
+    for entry in result['runs']:
+        score = entry.get('single_view_switching')
+        if score:
+            print(f"| {entry['label']} | {score['reference_union_us']/1e6:g} | {score['covered_us']/1e6:g} | {score['ratio']:.2%} |")
 
 
 if __name__ == '__main__':

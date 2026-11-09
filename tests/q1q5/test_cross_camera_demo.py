@@ -45,11 +45,8 @@ def test_real_observations_required_for_graph_handoff_and_gap():
 
 
 @pytest.mark.parametrize('edges,color,params,reason', [
-    ({},'red',Parameters(),'NO_DIRECT_TRANSITION'),
-    ({('B','A'):'REVERSE_ONLY'},'red',Parameters(),'NO_DIRECT_TRANSITION'),
     ({('A','B'):'AB'},'blue',Parameters(),'COLOR_NOT_COMPATIBLE'),
     ({('A','B'):'AB'},None,Parameters(),'COLOR_NOT_COMPATIBLE'),
-    ({('A','B'):'AB'},'red',Parameters(handoff_max_gap_us=399_999),'HANDOFF_WINDOW_EXCEEDED'),
 ])
 def test_rejected_candidates_are_not_sightings(edges, color, params, reason):
     result, events, audit = replay([track('A',[0,200_000]),track('B',[800_000],color=color)],edges,params=params)
@@ -77,7 +74,7 @@ def test_two_simultaneous_handoffs_fail_unknown():
     result, events, audit = replay([track('A',[0]),track('B',[800_000]),track('C',[800_000])],
                                   {('A','B'):'AB',('A','C'):'AC'})
     assert not events and all(a['reason']=='AMBIGUOUS_HANDOFF' for a in audit)
-    assert {s['camera_id'] for s in result['sightings']} == {'A'}
+    assert {s['camera_id'] for s in result['sightings'] if s['selected_for_single_view']} == {'A'}
 
 
 def test_future_observations_never_change_past_cut():
@@ -95,8 +92,8 @@ def test_as_of_is_strict_and_does_not_use_candidate_frame_at_boundary():
 
 def test_missing_samples_not_filled_with_observed_interpolation():
     result,_,_=replay([track('A',[0,400_000])])
-    assert result['single_view'][1]['kind']=='GAP'
-    assert result['single_view'][1]['range_us']==[200_000,400_000]
+    assert result['single_view'][0]['range_us'] == [0, 600_000]
+    assert [s['range_us'] for s in result['sightings']] == [[0, 200_000], [400_000, 600_000]]
 
 
 def test_graph_never_fabricates_a_camera_observation():
@@ -108,7 +105,7 @@ def test_inference_has_no_file_network_or_script_imports():
     tree=ast.parse(Path(model.__file__).read_text())
     assert all(node.module in {'dataclasses','datetime','itertools'} for node in ast.walk(tree) if isinstance(node,ast.ImportFrom))
     assert not any(isinstance(node,ast.Import) for node in ast.walk(tree))
-    assert {f.name for f in fields(Observation)} == {'camera_id','timestamp_us','observation_id','score','colors'}
+    assert {f.name for f in fields(Observation)} == {'camera_id','timestamp_us','observation_id','score','colors','class_label','evidence_kind'}
 
 
 def test_inference_runs_when_all_file_opens_are_denied(monkeypatch):
@@ -150,3 +147,12 @@ def test_declared_clock_microseconds_and_rollover():
     clock=dict(timezone='Asia/Taipei',rate=1,t0_us=0,wall_origin='2026-11-01T23:59:59+08:00')
     assert model.declared_wall(clock,1_200_000)=='2026-11-02T00:00:00.200000+08:00'
     with pytest.raises(ValueError):model.declared_wall(dict(clock,wall_origin='2026-11-01T00:00:00+00:00'),0)
+
+
+@pytest.mark.parametrize('edges,max_gap', [({}, 6_000_000), ({('B', 'A'): 'REVERSE'}, 6_000_000), ({('A', 'B'): 'AB'}, 399_999)])
+def test_d147_edge_free_or_late_candidate_is_unconfirmed_reacquisition(edges, max_gap):
+    result, events, audit = replay([track('A', [0, 200_000]), track('B', [800_000])],
+                                  edges, params=Parameters(handoff_max_gap_us=max_gap))
+    assert events[0]['link_kind'] == 'CROSS_CAMERA_REACQUISITION'
+    assert result['sightings'][-1]['camera_id'] == 'B'
+    assert audit[0]['identity_verdict'] == 'UNCONFIRMED'
