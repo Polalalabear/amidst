@@ -1,0 +1,216 @@
+{
+  "_comment": "D176 branch tidy-up. Phase of each remote branch (2026-11-09 snapshot), key tags pointing at real commits, and branches kept with the reason. Phase-end tags of type 'archive-merge' point at a synthetic merge commit whose parents are the tips of that phase's deleted branches that were not otherwise reachable.",
+  "mainline": "origin/mainline/q1q5",
+  "main": "origin/main",
+  "phases": {
+    "p1": {
+      "title": "第一階段：學校場景模擬與整合強化",
+      "end_tag": "archive/p1-school-scene-end",
+      "branches": [
+        "phase2/integration-hardening",
+        "codex/phase1-case23-formal",
+        "codex/simulation-engineering",
+        "phase1/finalization-sprint"
+      ]
+    },
+    "office": {
+      "title": "Office demo K1–K7 與受控場景 r003",
+      "end_tag": "archive/office-k1-k7-end",
+      "branches": [
+        "docs/workbench-root-cause-audit",
+        "docs/auditorium-geometry-audit",
+        "codex/mvp-backend-integration",
+        "codex/c6-multicamera-feasibility",
+        "claude/office-demo-qa",
+        "codex/c3b-review-followup",
+        "claude/docs-handoff-20261017",
+        "claude/k8-synthetic-design",
+        "claude/k8a-synthetic-method",
+        "claude/k8b-synthetic-fixture",
+        "codex/k5-frame-wall-fixtures",
+        "codex/k8a-c4b-presync",
+        "codex/rehearsal-readiness",
+        "claude/rehearsal-20261018",
+        "claude/contracts-v1-1",
+        "claude/office-demo-visualization",
+        "claude/workbench-v2-design",
+        "claude/docs-qa",
+        "claude/thresholds-proposal",
+        "codex/office-demo-rehearsal-docs",
+        "claude/cs-b-review-page",
+        "claude/docs-handoff-20261018",
+        "codex/controlled-scene-d47-screening",
+        "claude/e-pkg-validator",
+        "claude/batch2-integration-spec",
+        "claude/controlled-scene-a",
+        "claude/k7-r003-verification"
+      ]
+    },
+    "q1q5": {
+      "title": "Q1–Q5 問題轉向與 L2 評分",
+      "end_tag": "archive/q1q5-pivot-end",
+      "branches": [
+        "codex/q1q5-search-budget-proposal",
+        "codex/q1q5-hsv-proposal",
+        "codex/q5-statechart-stage2",
+        "codex/q1q5-d91-archive",
+        "claude/team-onboarding-docs",
+        "codex/l2-linker-controller-contract",
+        "codex/l2-engineering-scene-plan",
+        "codex/l2-detection-offline-options",
+        "codex/cq32-tests",
+        "codex/cq33-tests",
+        "codex/cq36-tests",
+        "codex/cq32-q5-switch-eval-v2",
+        "codex/cq33-l2-script-adapter-v2",
+        "claude/l2-1-scorer-design",
+        "claude/l2-2-scenario-cards-v2",
+        "claude/research-related-work",
+        "claude/rules-d108",
+        "claude/g4-option-a-t",
+        "claude/q1q5-architecture-spec"
+      ]
+    },
+    "r004": {
+      "title": "r004 受控場景、yyin 標註包與 r005",
+      "end_tag": "archive/r004-controlled-scene-end",
+      "branches": [
+        "codex/r004-static-graph-proposal",
+        "codex/r004-l2-static-feasibility",
+        "codex/r004-graph-v4-draft",
+        "codex/cq22-r004-confirmation-overlays",
+        "codex/cq21a-receipt-binding-contract",
+        "codex/cq21-t-tests",
+        "codex/cq27-yyin-main-pack",
+        "codex/cq02-g4-receipt-draft",
+        "claude/yyin-q1q3-pack-design",
+        "codex/467-r005-person-clip-proposal"
+      ]
+    },
+    "demo1104": {
+      "title": "11/04 demo 整合",
+      "end_tag": "archive/demo1104-integration-end",
+      "branches": [
+        "codex/feat-4-complex",
+        "codex/feat-8-stretch",
+        "claude/project-docs-pack"
+      ]
+    },
+    "core": {
+      "title": "核心：追蹤與搜尋（D126、Argon 拉取佇列）",
+      "end_tag": "archive/core-track-search-end",
+      "branches": [
+        "codex/d126-core-search-track",
+        "codex/412-review-argon-411",
+        "codex/415-local-build-scripts",
+        "codex/416-safe-packs",
+        "codex/448-local-cleanup-inventory",
+        "codex/461-tracking-evaluation",
+        "argon/419-windows-clean-clone-baseline",
+        "argon/422-non-person-track-o3",
+        "argon/427-research-report-figures",
+        "argon/428-project-docs-alignment",
+        "argon/430-cleanup-inventory-candidates",
+        "argon/424-colab-oneclick-notebook",
+        "argon/425-research-m1-m4-baseline",
+        "argon/426-q4-tf-eval-tool",
+        "argon/429-windows-demo-start-eval",
+        "codex/445-independent-previews"
+      ]
+    },
+    "accept": {
+      "title": "新介面、D147–D149、驗收 A 與第一期收尾",
+      "end_tag": "archive/accept-phase1-done",
+      "end_tag_target": "origin/mainline/q1q5",
+      "branches": [
+        "claude/ui-redesign-spec",
+        "claude/487-p2p3",
+        "claude/epic-c-cleanup",
+        "claude/readme-20261108",
+        "codex/486-vendor-deps",
+        "codex/d139-class-counts",
+        "codex/d139-track-handoff",
+        "codex/d147-d149-backend",
+        "claude/measurement-b-tool",
+        "claude/ui-admin-names",
+        "claude/ui-d139",
+        "claude/fix-response-limit",
+        "claude/ui-redesign-v1",
+        "claude/445-demo-integration",
+        "claude/experiment-record-latex",
+        "claude/phase1-ci-provenance",
+        "claude/agent-decision-design",
+        "claude/d138-artifact-ledger",
+        "claude/phase1-p2-fixes",
+        "claude/agent-wp1-contract",
+        "claude/followup-flaky-recall",
+        "claude/cleanup-gate-d163",
+        "main",
+        "mainline/q1q5"
+      ]
+    },
+    "paused": {
+      "title": "暫停或放棄的路線",
+      "end_tag": null,
+      "branches": [
+        "archive/3d-line",
+        "claude/model-experiment-plan",
+        "claude/epic-d-agentic"
+      ]
+    }
+  },
+  "key_tags": {
+    "archive/office-k7-r003-verification": {
+      "target": "6e689f9f",
+      "message": "K7 map verification of controlled-scene r003 static geometry (O10), PR #82, never merged."
+    },
+    "archive/q1q5-q5-switch-eval-v2": {
+      "target": "a7bf25d8",
+      "message": "Fail-closed Q5 v2 switch scorer (CQ-32, PR #366), cited in #93."
+    },
+    "archive/r004-yyin-main-pack": {
+      "target": "3deee9e2",
+      "message": "CQ-27/CQ-28 yyin main annotation pack with pinned offline review form (PR #361)."
+    },
+    "archive/r004-g4-receipt": {
+      "target": "0502225b",
+      "message": "D101 option A selected G4 receipt draft (CQ-02, PR #348)."
+    },
+    "archive/demo1104-feat-4-complex": {
+      "target": "1ff272ff",
+      "message": "FEAT-4 complex scenario work for the 11/04 demo (PR #396), cited in project records."
+    },
+    "archive/core-d126-search-track": {
+      "target": "35bafff5",
+      "message": "First D126 core search and track implementation with CX-8 tracking adapter (PR #411)."
+    },
+    "archive/accept-ui-487-p2p3": {
+      "target": "256d1d52",
+      "message": "P2/P3 UI fixes for the redesign (PR #492) cited in #93 and #445."
+    },
+    "archive/paused-3d-line": {
+      "target": "6db45a7a",
+      "message": "Archived 3D line from PR #81 under D63; route paused."
+    },
+    "archive/paused-model-experiment-plan": {
+      "target": "e6c6ad02",
+      "message": "Model experiment plan #397 with section E event design; plan paused."
+    },
+    "archive/accept-ui-redesign-spec": {
+      "target": "e3fdc1cf",
+      "message": "PROPOSED workbench UI redesign v1 spec (PR #484, closed); the design later built on claude/ui-redesign-v1."
+    }
+  },
+  "keep": {
+    "main": "protected default branch; not touched",
+    "mainline/q1q5": "integration branch",
+    "claude/ui-redesign-v1": "8785 demo server runs from it",
+    "claude/445-demo-integration": "base of open PRs #488 and #490 (deleting it would close them)"
+  },
+  "keep_recent_owner_days": 3,
+  "keep_recent_prefixes": [
+    "codex/",
+    "argon/"
+  ],
+  "snapshot_date": "2026-11-09"
+}

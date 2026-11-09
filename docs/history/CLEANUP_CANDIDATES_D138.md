@@ -1,6 +1,7 @@
 # 本機清理候選清單（D138，只列不執行）
 
 - 依據：[ARTIFACT_LEDGER.md](ARTIFACT_LEDGER.md) 與 `configs/provenance/artifact_ledger_v1.json`（2026-11-09 狀態）；baseline `mainline/q1q5` @ `2616661`。
+- **D163 更新（2026-11-09）**：證據已對 `e85b51e` 重驗、§6 驗證關卡已在 scratchpad clone 跑完，結果與最終刪除清單、封存後刪除腳本見 [CLEANUP_GATE_D163.md](CLEANUP_GATE_D163.md)；25 項 SAFE 全部維持、44 項 UNKNOWN 全部維持。**仍然沒有刪除任何東西**。
 - **本文件與其 PR 不刪、不改、不搬任何東西**。所有指令都只是寫在文件裡，供使用者授權 #431 時使用；執行順序依 D138：驗收 A → 台帳 → 收進主線 → 刪除 → 分支（先打 archive tag 再刪）。
 - 每個指令區塊前先跑 `verify`（檢查要動的項目與台帳記錄相同），沒有 MISMATCH 再動手；刪除一律用明確路徑，不用萬用字元，不用 `sudo`。
 - 空間是逐檔 `st_size` 加總（十進位以外為 GiB／MiB 二進位）；APFS clone／snapshot 會讓實際釋放量不同，**UNKNOWN**。
@@ -287,23 +288,23 @@ git fetch origin mainline/q1q5 && git checkout -B gate origin/mainline/q1q5
 export npm_config_cache="$(mktemp -d)" RUFF_CACHE_DIR="$(mktemp -d)" PYTEST_ADDOPTS="-p no:cacheprovider"
 ```
 
-| # | 關卡 | 指令 | 通過條件 |
-| --- | --- | --- | --- |
-| 1 | 單元測試 | `AMIDST_REQUIRE_IMPL=1 PYTHONPATH=src python -m pytest -o addopts= -q tests/q1q5 tests/evaluation tests/operations`；`node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs` | exit 0；pytest／node 的 pass 數 ≥ 移除前在同一 clone 記錄的基準（基準在關卡前先跑一次存檔：未移除版本） |
-| 2 | core-e2e | `CORE_SOURCE="$PWD" CORE_INTEGRATION_HEAD="$(git rev-parse HEAD)" CHROME_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' node tests/browser/core-preview/core-e2e.mjs` | exit 0；checks 數與基準相同（#486 留言記錄 49 checks／16 PNG；以當時 mainline 重跑的基準為準）；clean/head 守門啟用 |
-| 3 | real-e2e | `node tests/browser/core-preview/real-e2e.mjs`（用 owned runtime／`AMIDST_DEMO_HOME`） | exit 0；0 page errors／0 failed API；checks 數與基準相同 |
-| 4 | CI 綠燈 | 把同一個 commit 推到不會被合併的測試分支，等 GitHub Actions `ci.yml` 完成 | guard PASS、node 0 fail、pytest 0 fail（ubuntu 的 deselect 清單以 `.github/ci-linux-deselect.txt` 為準）；**push 需使用者授權** |
-| 5 | 8785 不受影響 | 動手前後各跑：`lsof -nP -iTCP:8785 -sTCP:LISTEN`、`curl -fsS http://127.0.0.1:8785/ -o /dev/null -w "%{http_code}\n"`、`python scripts/check_demo_dependencies.py --smoke`（在 demo checkout，用 owned runtime） | 8785 仍由 **PID 21060** 監聽、HTTP 200、依賴 smoke 與 4,788 項 bytes/hash PASS；`~/amidst-artifacts/demo-owned-v1` 與 `~/amidst-demo-20261104` 的 `git status` 為 clean 且 HEAD 不變 |
-| 6 | 台帳一致 | `python3 scripts/artifact_ledger.py verify --only <SAFE 的 ID>`；`python3 scripts/artifact_ledger.py validate`；`scripts/check_architecture_guard.py --base 46835218c600d99b8c973e52f62e8dd95e79ff15` | 無 MISMATCH；validate PASS；guard PASS |
+| # | 關卡 | 指令 | 通過條件 | D163 結果（e85b51e） |
+| --- | --- | --- | --- | --- |
+| 1 | 單元測試 | `PYTHONPATH=src python -m pytest -o addopts= -q tests/q1q5 tests/evaluation tests/operations`；`node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs`（D163 修正：pytest 不設 `AMIDST_REQUIRE_IMPL`，與 CI 相同）| exit 0；pytest／node 的 pass 數 ≥ 移除前在同一 clone 記錄的基準（基準在關卡前先跑一次存檔：未移除版本） | **PASS**：基準 pytest 2228 passed／56 skipped／0 failed、node 544／0／0；移除模擬相同（需 ≥ 8 GiB 可用空間，見 D163 §3.1） |
+| 2 | core-e2e | `CORE_SOURCE="$PWD" CORE_INTEGRATION_HEAD="$(git rev-parse HEAD)" CHROME_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' node tests/browser/core-preview/core-e2e.mjs` | exit 0；checks 數與基準相同（#486 留言記錄 49 checks／16 PNG；以當時 mainline 重跑的基準為準）；clean/head 守門啟用 | **PASS**：130 checks、16 PNG＋1 JSON、0 page errors |
+| 3 | real-e2e | `node tests/browser/core-preview/real-e2e.mjs`（用 owned runtime／`AMIDST_DEMO_HOME`） | exit 0；0 page errors／0 failed API；checks 數與基準相同 | 新 UI `ui-redesign/real-e2e.mjs` **PASS**（347 checks、61 PNG、0 error）；舊版 `core-preview/real-e2e.mjs` **FAIL 第 21 檢查（UNKNOWN，與移除無關）** |
+| 4 | CI 綠燈 | 把同一個 commit 推到不會被合併的測試分支，等 GitHub Actions `ci.yml` 完成 | guard PASS、node 0 fail、pytest 0 fail（ubuntu 的 deselect 清單以 `.github/ci-linux-deselect.txt` 為準）；**push 需使用者授權** | **PASS**：run 42615223193，guard PASS、node 544／0／0、pytest 2211 passed／56 skipped／17 deselected；測試分支已刪 |
+| 5 | 8785 不受影響 | 動手前後各跑：`lsof -nP -iTCP:8785 -sTCP:LISTEN`、`curl -fsS http://127.0.0.1:8785/ -o /dev/null -w "%{http_code}\n"`、`python scripts/check_demo_dependencies.py --smoke`（在 demo checkout，用 owned runtime） | 8785 仍由 **PID 21060** 監聽、HTTP 200、依賴 smoke 與 4,788 項 bytes/hash PASS；`~/amidst-artifacts/demo-owned-v1` 與 `~/amidst-demo-20261104` 的 `git status` 為 clean 且 HEAD 不變 | **PASS**：PID 21060 不變、HTTP 200、smoke PASS（4788 entries／2,756,614,124 B） |
+| 6 | 台帳一致 | `python3 scripts/artifact_ledger.py verify --only <SAFE 的 ID>`；`python3 scripts/artifact_ledger.py validate`；`scripts/check_architecture_guard.py --base 46835218c600d99b8c973e52f62e8dd95e79ff15` | 無 MISMATCH；validate PASS；guard PASS | **PASS**：verify PASS、validate PASS（169）、guard PASS |
 
 執行順序：先在未移除的 clone 記錄基準 → 套用「模擬移除」→ 關卡 1–3、6 → 使用者授權後推測試分支跑關卡 4 → 關卡 5 在**真正**刪除前後各做一次。**真正執行刪除要等使用者另外授權（#431）；本 PR 與本文件不執行任何刪除。**
 
 ## 7. 未驗證與 UNKNOWN
 
-- 沒有執行任何刪除、搬移、壓縮、push、fetch --prune 或 git clean；所有指令都未執行。第 6 節的驗證關卡**也沒有跑**（只提出，等授權）。
+- 沒有執行任何刪除、搬移、壓縮、push、fetch --prune 或 git clean；所有指令都未執行。第 6 節的驗證關卡已由 D163 在 scratchpad clone 跑完（結果見 [CLEANUP_GATE_D163.md](CLEANUP_GATE_D163.md)；仍然沒有刪除任何東西）。
 - 引用檢查是字串／regex 計數（`git grep`），不是語意分析：動態組出的路徑、環境變數展開後的路徑、或不在 git 裡的本機腳本不會被抓到；Codex 本機 checkout 內未推送的檔案同理（Codex 的 `codex/*` 只檢查了已 push 的 heads）。
 - `lsof` 只看得到目前使用者、目前正在跑的行程；之後才啟動的 session 或排程不在內，所以關卡 5 與檢查 2 要在刪除當下重跑。
-- 檢查基準是 2026-11-09 18:53 的狀態；mainline 已前進到 `1026b84`（#501、#502），結果對該 tip 也跑過，但之後再有 merge 就要重跑。
+- 檢查基準是 2026-11-09 18:53 的狀態；D163 已對 `e85b51e`（#503、#504 之後）全部重跑；之後再有 merge 就要重跑。
 - 台帳內的引用行號（44 筆 `檔案:行`）只核對檔案是否存在與行數是否足夠（36 筆通過，8 筆指向 mainline 沒有的檔案），**沒有逐行比對內容**。
 - r004-cx7*、q1q5-* 等「保留原件」項目是否仍被驗收／yyin 流程引用，來源盤點為 UNKNOWN；台帳因此保守地全部保留。
 - worktree `data/` 的備份狀態（是否別處另有副本）UNKNOWN；`phase1-case23-clean` 的 detached HEAD `c4a8a0a` 是否在遠端，本 PR 的 clone 沒有核對。
