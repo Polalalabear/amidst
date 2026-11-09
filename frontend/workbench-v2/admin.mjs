@@ -3,6 +3,8 @@ import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {createSettingsStore,resolveRun,wallCameras,SETTINGS_KEY} from './monitor-room-model.mjs';
 import {mountMonitorRoom} from './monitor-room-view.mjs';
 import {mountTabs,mountOverview,mountSettings} from './admin-ui.mjs';
+import {loadSettings} from './ui-model.mjs';
+import {eventDisplayName} from './event-names.mjs';
 import {runCatalog,recordingCatalog,filterRuns,filterRecordings,parseTimecode,formatDuration,selectionFor,isSelected} from './admin.model.mjs';
 
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -22,9 +24,12 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
     if(sel?.kind==='recording'&&!scopes.has(sel.recording_id)){const r=await api.replay(sel.recording_id);const sc=r.ok?r.data?.resolved_scope:null;scopes.set(sel.recording_id,sc?{scene_id:sc.scene_id,run_id:sc.run_ids?.[0]}:null);}
     return resolveRun(data,sel,id=>scopes.get(id)??null);
   }
+  // D139: while the front desk is in presentation mode the admin shows the same short event names (read live from the saved settings).
+  const present=()=>loadSettings(storage).presentationMode!==false;
+  const nameOf=item=>eventDisplayName({run_id:item.run_id,recording_id:item.recording_id,title:item.title},{present:present(),index:item.kind==='recording'?runs.length+(item.index??0):(item.index??0)});
   function row(item){
     const tr=el('tr');tr.dataset.key=item.key;tr.setAttribute('aria-selected',String(isSelected(item,settings.get().selection)));
-    const name=el('td');name.append(el('div',item.title));if(item.titleMissing)name.append(el('div','（尚無可讀名稱，顯示 ID）','note'));
+    const name=el('td');name.append(el('div',nameOf(item)));if(item.titleMissing&&!present())name.append(el('div','（尚無可讀名稱，顯示 ID）','note'));
     const kind=el('td',item.kind==='run'?'場景':'錄製回應'),src=el('td'),act=el('td'),pick=el('button','播放','ibtn primary'),see=el('button','預覽','ibtn');
     src.append(el('span',item.source_kind,'badge'));
     pick.onclick=()=>settings.set({selection:selectionFor(item),cameras:null,restart:settings.get().restart+1});
@@ -44,7 +49,7 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
   async function draw(){
     const s=settings.get(),sel=s.selection;
     $('#admin-event-rows').replaceChildren(...[...runs,...recs].map(row));
-    $('#admin-current').textContent=!sel?'自動（鏡頭最多的來源）':sel.kind==='run'?`場景 ${sel.scene_id} · ${sel.run_id}`:`錄製 ${sel.recording_id}`;
+    $('#admin-current').textContent=!sel?'自動（鏡頭最多的來源）':present()?eventDisplayName({run_id:sel.run_id,recording_id:sel.recording_id},{present:true,index:Math.max(0,runs.findIndex(r=>r.run_id===sel.run_id))}):sel.kind==='run'?`場景 ${sel.scene_id} · ${sel.run_id}`:`錄製 ${sel.recording_id}`;
     $('#admin-play').textContent=s.playing?'Ⅱ 暫停':'▶ 播放';$('#admin-speed').value=String(s.speed);$('#admin-loop').checked=s.loop;
     const run=await runOf(sel),box=$('#admin-cameras');box.replaceChildren();
     for(const c of run?.camera_ids??[]){const lab=el('label'),cb=el('input');cb.type='checkbox';cb.checked=!s.cameras||s.cameras.includes(c);
@@ -59,7 +64,7 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
   $('#admin-auto').onclick=()=>settings.set({selection:null,cameras:null,restart:settings.get().restart+1});
   $('#admin-start').onchange=e=>{const us=parseTimecode(e.target.value);$('#admin-start-note').textContent=us===null&&e.target.value?'格式：m:ss 或秒數':'';if(us!==null||!e.target.value)settings.set({startUs:us??0,restart:settings.get().restart+1});};
   for(const id of ['#f-scene','#f-camera','#f-from','#f-rec-from','#f-rec-to','#f-kind'])$(id).addEventListener('input',drawRecords);
-  const unsubscribe=settings.subscribe(draw);await draw();
-  return {settings,wall,preview,destroy(){tabs.destroy();unsubscribe();wall.destroy();settings.destroy();preview.destroy();}};
+  const unsubscribe=settings.subscribe(draw);globalThis.addEventListener?.('hashchange',draw);await draw();
+  return {settings,wall,preview,destroy(){tabs.destroy();unsubscribe();globalThis.removeEventListener?.('hashchange',draw);wall.destroy();settings.destroy();preview.destroy();}};
 }
 if(typeof document!=='undefined'&&document.getElementById('admin-root'))bootstrap();

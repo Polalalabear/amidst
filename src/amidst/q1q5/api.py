@@ -11,6 +11,7 @@ import re
 import secrets
 import stat
 import threading
+from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -120,6 +121,8 @@ class QRun:
     agent_factory: object | None
     source_kind: str
     title: str | None = None
+    scene_annotations: tuple = ()
+    annotation_set_sha256: str | None = None
 
 
 class RecordingStore:
@@ -187,14 +190,32 @@ class QAPI:
             check(run.catalog['scene_id']==m['scene_id'] and run.catalog['run_id']==m['run_id'],'DataIntegrityError',409)
             b=run.bindings
             owned=replace(b,index=deepcopy(b.index),graphs=deepcopy(b.graphs),parameter_set=deepcopy(b.parameter_set),media_ranges_by_camera=deepcopy(b.media_ranges_by_camera))
-            self.runs[key]=replace(run,bindings=owned,aliases=deepcopy(run.aliases),catalog=deepcopy(run.catalog),q3_options=dict(run.q3_options))
+            self.runs[key]=replace(run,bindings=owned,aliases=deepcopy(run.aliases),catalog=deepcopy(run.catalog),q3_options=dict(run.q3_options),scene_annotations=deepcopy(run.scene_annotations))
         for pin in recordings:
             check(recording_store is not None,'DataIntegrityError',409);data=recording_store.load(pin)
             self._verify_bundle(data);self.recordings[pin['recording_id']]=(deepcopy(pin),data)
         for doc in camera_maps:
             self._register_camera_map(doc)
 
+    @staticmethod
+    def _detected_class_counts(run):
+        # Derived display statistics only: read indexed detections, never scene truth.
+        supported=set(run.aliases['class_labels']); counts=Counter(); cameras={}
+        allowed_cameras={row['camera_id'] for row in run.bindings.index.manifest['sampling']['per_camera']}
+        for record in run.bindings.index.records:
+            for detection in record['detections'] or ():
+                label=detection['class_label']
+                check(isinstance(label,str) and label in supported,'DataIntegrityError',409)
+                camera_id=record['camera_id']
+                check(isinstance(camera_id,str) and camera_id in allowed_cameras,'DataIntegrityError',409)
+                counts[label]+=1
+                cameras.setdefault(label,set()).add(camera_id)
+        return [{'class_label':label,'detection_count':count,
+                 'camera_count':len(cameras[label]),'camera_ids':sorted(cameras[label])}
+                for label,count in sorted(counts.items(),key=lambda item:(-item[1],item[0]))]
+
     def bootstrap(self):
+        from amidst.q1q5.scene_annotations import bootstrap_annotations
         rows=[]
         for (scene,run_id),run in sorted(self.runs.items()):
             m=run.bindings.index.manifest
@@ -202,6 +223,8 @@ class QAPI:
                 'title':run.title,'title_source':'RUN_REGISTRY' if run.title is not None else 'UNTITLED',
                 'regions':[{'region_id':r['region_id'],'display_name':r.get('display_name',r['region_id']),'kind':r.get('kind')}
                            for r in (run.bindings.graphs.region.get('regions',[]) if run.bindings.graphs else [])],
+                'detected_class_counts':self._detected_class_counts(run),
+                'scene_annotations':bootstrap_annotations(run),
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
                 'region_catalog':region_catalog(run),

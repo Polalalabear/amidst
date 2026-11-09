@@ -8,6 +8,7 @@ Tests:
 """
 from __future__ import annotations
 
+import os
 import hashlib
 import json
 from pathlib import Path
@@ -198,7 +199,7 @@ def test_verify_clean_clone_diff_check() -> None:
 
 
 def test_verify_clean_clone_architecture_guard() -> None:
-    arch_res = check_architecture(REPO_ROOT, base="origin/mainline/q1q5")
+    arch_res = check_architecture(REPO_ROOT, base=os.environ.get("AMIDST_ARCHITECTURE_BASE", "46835218c600d99b8c973e52f62e8dd95e79ff15"))
     assert arch_res["status"] == "PASS"
     assert arch_res["returncode"] == 0
 
@@ -206,13 +207,13 @@ def test_verify_clean_clone_architecture_guard() -> None:
 def test_verify_clean_clone_quick_skip_tests() -> None:
     receipt = run_clean_clone_verification(
         repo=REPO_ROOT,
-        base="origin/mainline/q1q5",
+        base=os.environ.get("AMIDST_ARCHITECTURE_BASE", "46835218c600d99b8c973e52f62e8dd95e79ff15"),
         quick=True,
         skip_tests=True,
         min_free_gib=0.001,
     )
     assert receipt["repo"] == str(REPO_ROOT)
-    assert receipt["base"] == "origin/mainline/q1q5"
+    assert receipt["base"] == os.environ.get("AMIDST_ARCHITECTURE_BASE", "46835218c600d99b8c973e52f62e8dd95e79ff15")
     assert receipt["quick"] is True
     assert receipt["skip_tests"] is True
     assert "environment" in receipt["checks"]

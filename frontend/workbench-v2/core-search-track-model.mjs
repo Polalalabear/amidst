@@ -399,7 +399,7 @@ export const TRACKING_STATUS_TEXT = Object.freeze({
   UNKNOWN: '資料不足，無法判定追蹤狀態',
 });
 
-export const SUPPORTED_SPEEDS = Object.freeze([1, 1.5, 2]);
+export const SUPPORTED_SPEEDS = Object.freeze([0.5, 1, 1.5, 2]);
 
 export const CORE_IDENTITY_VERDICT = 'UNCONFIRMED';
 export const CORE_IDENTITY_BADGE = '身分未確認 · 條件相符之候選';
@@ -486,6 +486,7 @@ export function buildSearchResultsWallModel(searchResponse, options = {}) {
         const colorPart = b.color_label ? ` / ${b.color_label}` : '';
         return `特徵: ${b.class_label ?? '物件'}${colorPart} (${b.evidence_state ?? 'OBSERVED'})`;
       }
+      if (b.kind === 'SCENE_ANNOTATION') return `場景標註: ${b.class_label ?? '物件'} (非偵測)`;   // D149
       return `${b.kind}`;
     });
 
@@ -609,7 +610,10 @@ export function buildCoreTrackingViewModel(trackResponse, {
     }
   }
 
-  const segmentKind = activeSegment?.kind ?? (status === 'LOST' ? 'LOST' : 'UNKNOWN');
+  // Before the first sighting the target has not appeared yet: that is not LOST (nothing was observed, so nothing was lost).
+  const firstStartUs = singleViewList.length > 0 ? Math.min(...singleViewList.map(x => x.range_us[0])) : null;
+  const beforeFirstSighting = !activeSegment && firstStartUs !== null && currentTUs < firstStartUs;
+  const segmentKind = activeSegment?.kind ?? (beforeFirstSighting ? 'PENDING' : status === 'LOST' ? 'LOST' : 'UNKNOWN');
   const activeCameraId = segmentKind === 'ON_CAMERA' ? activeSegment.camera_id : null;
   const evidenceState = segmentKind === 'ON_CAMERA' ? 'OBSERVED' : 'UNKNOWN';
 
@@ -620,6 +624,8 @@ export function buildCoreTrackingViewModel(trackResponse, {
     badge = '盲區間隔（未見目標）';
   } else if (segmentKind === 'LOST') {
     badge = '目標遺失（LOST）';
+  } else if (segmentKind === 'PENDING') {
+    badge = '目標尚未出現（未見目標）';
   } else {
     badge = 'UNKNOWN 未知狀態';
   }
