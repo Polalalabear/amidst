@@ -17,8 +17,10 @@ const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png'
 const seek=async(p,t)=>{await p.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await p.locator('#ui-scrub').inputValue())===t,'range input preserves requested timestamp');};
 const decoded=async(p,selector,n)=>{await p.waitForFunction(({selector,n})=>{const xs=[...document.querySelectorAll(selector)];return xs.length===n&&xs.every(i=>!i.hidden&&i.complete&&i.naturalWidth>0);},{selector,n});check(true,selector+' decoded RGB');};
 // The receipt is an IMPLEMENTATION_REGRESSION_PIN: recorded by scripts/record_d147_backend_receipt.py from this
-// same implementation, so it only catches regressions. Correctness is guarded by recall and the camera-switch
-// ratio, not by this match. Re-record the receipt whenever parameters or producer files change.
+// same implementation, so it only catches regressions. This e2e does NOT compute recall or the switching ratio:
+// it has neither the detection-index records nor the human reference. Correctness (D150 per-camera recall >= 0.75,
+// single_view switching ratio >= 0.75, same-camera GAP > 0.6 s) is asserted in tests/q1q5/test_d147_acceptance.py
+// (real runs need AMIDST_DEMO_HOME; they skip without it). Re-record the receipt whenever parameters or producer files change.
 const pinnedEvidence=JSON.parse(await readFile(new URL('../../../tests/q1q5/fixtures/d147-d149-track-receipt.engineering.json',import.meta.url),'utf8'));
 const checkZoom=async(p,event,screen)=>{
  const metrics=[];
