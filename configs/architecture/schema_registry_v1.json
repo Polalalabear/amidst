@@ -2572,6 +2572,15 @@
       ],
       "issue_ref": "#486",
       "status": "LOCAL_DEPENDENCY_MANIFEST_ONLY"
+    },
+    {
+      "value": "amidst.human-track-reference.v1",
+      "source_paths": [
+        "configs/evaluation/d147_human_reference_v1.json",
+        "src/amidst/evaluation/track_recall.py"
+      ],
+      "issue_ref": "#93",
+      "status": "EVALUATION_REFERENCE_ONLY"
     }
   ]
 }
