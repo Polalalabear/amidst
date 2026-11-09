@@ -8,7 +8,7 @@ import {
   loadSettings, readJson, writeJson, SNAPSHOT_KEY, EVENTLOG_KEY, pushEvent, normalizeLog,
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, filterClasses, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, initialPlayheadUs, blindShare, floorPlan, trackStateChip, trackJournal,
-  parseRoute, nextAfterCover, blindReacquire, reacquireMarker, stagePlan, classGroups, CAMERA_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
+  parseRoute, nextAfterCover, blindReacquire, reacquireMarker, stagePlan, classGroups, featuredClasses, CAMERA_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
 } from './ui-model.mjs';
 import {ZOOM_LEVELS, ZOOM_STORAGE_KEY, normalizeZoom} from './ui-zoom-model.mjs';
 import {PLAIN, cameraName, plainState, gapNote, lostNote, pendingNote, gapLiveNote, lostLiveNote, pendingLiveNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
@@ -30,6 +30,14 @@ const MEDIA = /^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/;
 
 // One in-flight frame request per image slot, always for the newest wanted frame. The previous picture stays on screen while the next
 // one loads, so playback never blinks to empty and a slow response is never thrown away because the playhead already moved on.
+// D147-3: snap a playhead time to the source frame it shows (the run's declared per-camera frame grid), so scrubbing or playing inside one
+// frame never asks for a new picture. Without a usable grid the time is returned unchanged.
+export function frameTUs(run, cameraId, t) {
+  const per = run?.sampling?.per_camera?.find(c => c?.camera_id === cameraId) ?? run?.sampling?.per_camera?.[0], step = per?.source_frame_interval_us;
+  if (!Number.isSafeInteger(t) || !Number.isSafeInteger(step) || step <= 0) return t;
+  const origin = Number.isSafeInteger(per.index_grid_origin_frame) ? per.index_grid_origin_frame * step : 0;
+  return t < origin ? t : origin + Math.floor((t - origin) / step) * step;
+}
 export function createFrameLoader(fetchFrame, apply) {
   let inflight = false, want = null, dead = false;
   const pump = () => {
@@ -207,23 +215,23 @@ export function mountUi(ctx) {
       const pickClass = c => { form.classLabel = form.classLabel === c && c !== '' ? '' : c; if (form.classLabel !== 'person') form.colorLabel = ''; renderCatalog(); };
       const classChip = (c, extra = {}) => {
         const b = chipBtn(c ? classDisplay(c, cat.aliases) : '不限', form.classLabel === c); b.dataset.value = c;
-        if (extra.count) { b.append(el('span', ` ${extra.count}`, 'ui-class-count ui-mono')); b.dataset.cameras = String(extra.count); }   // search window only: number of cameras that saw it
+        if (extra.count !== null && extra.count !== undefined) { b.append(el('span', ` ${extra.count}`, 'ui-class-count ui-mono')); b.dataset.cameras = String(extra.count); }   // search window only: number of cameras that saw it
         if (extra.disabled) { b.disabled = true; b.title = '追蹤目前只支援人物'; b.dataset.unsupported = 'true'; }
         else b.addEventListener('click', () => pickClass(c));
         b.classList.toggle('on', form.classLabel === c); return b;
       };
-      const full = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined), keep = new Set(visible);
-      const groups = {grouped: full.grouped, detected: full.detected.filter(d => keep.has(d.label)), others: full.others.filter(o => keep.has(o.label))};   // groups survive filtering
+      const full = classGroups(cat.classes, cat.run?.detected_class_counts, w.kind === 'track' ? c => trackClassSupport(c) === 'SUPPORTED' : undefined, featuredClasses(cat.run?.run_id)), keep = new Set(visible);
+      const groups = {grouped: full.grouped, featured: !!full.featured, detected: full.detected.filter(d => keep.has(d.label)), others: full.others.filter(o => keep.has(o.label))};   // groups survive filtering
       if (filtering && !visible.length) classBox.append(el('p', '沒有符合的特徵', 'ui-note ui-small ui-feat-empty', {role: 'status'}));
       else if (!groups.grouped) { for (const c of classes) classBox.append(classChip(c)); }
       else {
         // D139-1: detected classes (with counts, most first) · divider · other classes (faded, collapsed)
         const top = el('div', undefined, 'ui-chips ui-class-group'); top.dataset.group = 'detected';
         if (w.kind === 'search' && !filtering) top.append(classChip(''));
-        const headRow = el('div', undefined, 'ui-class-head ui-small ui-faint'); headRow.append(el('span', '本場景偵測到'));
+        const headRow = el('div', undefined, 'ui-class-head ui-small ui-faint'); headRow.append(el('span', groups.featured ? '本場景物件' : '本場景偵測到'));
         if (!groups.detected.length) top.append(el('span', '（沒有符合的偵測類別）', 'ui-faint ui-small'));
-        const showCams = w.kind === 'search' && groups.detected.some(d => d.cameraCount), countInfo = showCams ? info(CAMERA_COUNT_NOTE, '鏡頭數') : null; if (countInfo) headRow.append(countInfo);
-        for (const d of groups.detected) top.append(classChip(d.label, {count: showCams ? d.cameraCount : null, disabled: !d.supported}));   // never the detection count posing as a camera count
+        const showCams = w.kind === 'search' && groups.detected.some(d => d.cameraCount !== null && d.cameraCount !== undefined), countInfo = showCams ? info(CAMERA_COUNT_NOTE, '鏡頭數') : null; if (countInfo) headRow.append(countInfo);
+        for (const d of groups.detected) top.append(classChip(d.label, {count: showCams && d.cameraCount !== null ? d.cameraCount : null, disabled: !d.supported}));   // never the detection count posing as a camera count
         classBox.append(headRow, top);
         if (groups.others.length) {
           const sep = el('hr', undefined, 'ui-class-sep'); const open = w.othersOpen || filtering || groups.others.some(o => o.label === form.classLabel);
@@ -504,9 +512,10 @@ export function mountUi(ctx) {
     const jumpNote = el('span', undefined, 'ui-mono ui-faint ui-small'); jumpNote.id = 'ui-jump-note'; jumpNote.hidden = true;
     const scrub = el('input', undefined, 'ui-scrub', {type: 'range', 'aria-label': '來源時間', step: '1'}); scrub.id = 'ui-scrub';
     scrub.addEventListener('input', () => { const tUs = Number(scrub.value); store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); });
-    ctl.append(play, speedSel, actual, jumpNote);   // one timeline only: the scrubber is laid over the camera timeline row
+    const nowClock = el('span', '', 'ui-mono ui-track-clock', {'aria-live': 'off', title: '目前播放時間'}); nowClock.id = 'ui-track-clock';   // D147-4: the playhead's wall-clock time
+    ctl.append(play, nowClock, speedSel, actual, jumpNote);   // one timeline only: the scrubber is laid over the camera timeline row
     ctl.append(stopButton(false));
-    Object.assign(trackParts, {play, actual, jumpNote, scrub});
+    Object.assign(trackParts, {play, actual, jumpNote, scrub, nowClock});
     scrub.className = 'ui-scrub ui-scrub-overlay';
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
@@ -549,10 +558,10 @@ export function mountUi(ctx) {
       P.stage.dataset.kind = kind;
       const prev = [...sv.transitions].reverse().find(x => x.switch_at_us <= t && x.to_camera === sv.activeCameraId && x.from_camera);
       P.cur = {kind, cam, last: plan.last, t, cm, clock, chip, locked, observed: plan.observed, prev};
-      const fk = `${cam}|${t}|${plan.observed}`;
-      if (P.frameKey !== fk) {   // one media request per frame, never one per store tick; the previous picture stays until the new one arrives
+      const ft = cam ? frameTUs(s.activeRun, cam, t) : t, fk = `${cam}|${ft}|${plan.observed}`;
+      if (P.frameKey !== fk) {   // one media request per source frame (D147-3), never one per store tick or scrub step; the previous picture stays until the new one arrives
         P.frameKey = fk;
-        if (cam) P.loader.request({cam, t, seg: plan.observed ? 'ON_CAMERA' : 'CANDIDATE'});
+        if (cam) P.loader.request({cam, t: ft, seg: plan.observed ? 'ON_CAMERA' : 'CANDIDATE'});
         else { P.shown = null; P.failed = false; P.loader.cancel(); }
       }
       paintStage();
@@ -560,24 +569,36 @@ export function mountUi(ctx) {
     if (trackParts.multi) for (const cam of view.multiView.cameras) {
       const part = trackParts.multi.get(cam.cameraId); if (!part) continue;
       part.tile.dataset.active = String(cam.isActive); part.tile.dataset.current = String(cam.cameraId === stagePlan(resp.single_view, t).cam); part.cap.lastChild.textContent = cam.badge;
-      const fk = `${t}|${cam.isActive}`; if (part.key === fk) continue; part.key = fk;
-      part.loader.request({cam: cam.cameraId, t, seg: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE'});
+      const ft = frameTUs(s.activeRun, cam.cameraId, t), fk = `${ft}|${cam.isActive}`; if (part.key === fk) continue; part.key = fk;
+      part.loader.request({cam: cam.cameraId, t: ft, seg: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE'});
     }
     // camera timeline
     const tl = cameraTimeline(resp.single_view, {startUs: start, asOfUs: asOf, currentUs: t});
-    const tlKey = JSON.stringify([tl.segments.map(x => [x.kind, x.cameraId, x.flex, x.current]), tl.marker.toFixed(3)]);
-    if (trackParts.tlKey !== tlKey) {
-      trackParts.tlKey = tlKey; const box = trackParts.timeline; box.replaceChildren();
-      const labels = el('div', undefined, 'ui-tl-labels ui-mono'); labels.append(el('span', wallClockText(cm, start) ?? `${(start / 1e6).toFixed(1)} s`), el('span', '鏡頭時間軸'), el('span', wallClockText(cm, asOf) ?? `${(asOf / 1e6).toFixed(1)} s`));
-      const row = el('div', undefined, 'ui-tl-row');
-      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : seg.kind === 'PENDING' ? 'pending' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : seg.kind === 'PENDING' ? '尚未出現' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; if (seg.current) b.classList.add('current'); b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); row.append(b); }
-      if (tl.uncovered > 0.001) { const rest = el('span', undefined, 'ui-tl-seg is-empty'); rest.style.flex = `${tl.uncovered} 1 0`; row.append(rest); }
-      const marker = el('span', undefined, 'ui-tl-marker'); marker.style.left = (tl.marker * 100).toFixed(2) + '%'; row.append(marker, trackParts.scrub); box.append(labels, row);
+    // D147-3: the row, the marker and the scrubber are built once and never moved; a drag in progress must not see its <input> detached
+    // (that dropped the drag and snapped back to the press point). Only the segment spans are rebuilt, and only when the segments change.
+    const P2 = trackParts;
+    if (!P2.tlRow) {
+      P2.tlLabels = el('div', undefined, 'ui-tl-labels ui-mono'); P2.tlRow = el('div', undefined, 'ui-tl-row');
+      P2.tlMarker = el('span', undefined, 'ui-tl-marker'); P2.tlRow.append(P2.tlMarker, P2.scrub); P2.timeline.replaceChildren(P2.tlLabels, P2.tlRow);
     }
+    const labelKey = JSON.stringify([start, asOf]);
+    if (P2.tlLabelKey !== labelKey) { P2.tlLabelKey = labelKey; P2.tlLabels.replaceChildren(el('span', wallClockText(cm, start) ?? `${(start / 1e6).toFixed(1)} s`), el('span', '鏡頭時間軸'), el('span', wallClockText(cm, asOf) ?? `${(asOf / 1e6).toFixed(1)} s`)); }
+    const tlKey = JSON.stringify([tl.segments.map(x => [x.kind, x.cameraId, x.flex]), tl.uncovered > 0.001 ? tl.uncovered : 0, presentOn()]);
+    if (P2.tlKey !== tlKey) {
+      P2.tlKey = tlKey; for (const old of [...P2.tlRow.querySelectorAll('.ui-tl-seg')]) old.remove();
+      const frag = doc.createDocumentFragment();
+      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : seg.kind === 'PENDING' ? 'pending' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : seg.kind === 'PENDING' ? '尚未出現' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); frag.append(b); }
+      if (tl.uncovered > 0.001) { const rest = el('span', undefined, 'ui-tl-seg is-empty'); rest.style.flex = `${tl.uncovered} 1 0`; frag.append(rest); }
+      P2.tlRow.insertBefore(frag, P2.tlMarker);
+    }
+    const segEls = P2.tlRow.querySelectorAll('.ui-tl-seg:not(.is-empty)');
+    tl.segments.forEach((seg, i) => segEls[i]?.classList.toggle('current', !!seg.current));
+    P2.tlMarker.style.left = (tl.marker * 100).toFixed(2) + '%';
     // controls
     trackParts.play.textContent = s.playing ? '❚❚' : '▶'; trackParts.play.disabled = !canPlayNow(s);
     trackParts.play.title = canPlayNow(s) ? '' : '請先載入可播放的來源片段';
     trackParts.speedSel.value = String(s.speed);
+    { const endTxt = wallClockText(cm, asOf) ?? `${(asOf / 1e6).toFixed(1)} s`, txt = `${clock} / ${endTxt}`; if (trackParts.nowClock.textContent !== txt) trackParts.nowClock.textContent = txt; }
     trackParts.actual.textContent = shownSpeedNote();
     trackParts.jumpNote.hidden = jumpUs === null; trackParts.jumpNote.textContent = jumpUs === null ? '' : `已跳到第一次出現（${wallClockText(cm, jumpUs) ?? `${(jumpUs / 1e6).toFixed(1)} s`}）`;
     trackParts.scrub.min = String(start); trackParts.scrub.max = String(asOf); trackParts.scrub.value = String(s.tUs);
@@ -674,7 +695,7 @@ export function mountUi(ctx) {
   }
   function buildWallTransport() {
     const bar = el('div', undefined, 'transport ui-wall-transport');
-    const play = el('button', '播放', 'ui-btn ui-btn-ghost', {type: 'button'}); play.id = 'ui-wall-play';
+    const play = el('button', '▶', 'ui-play', {type: 'button', 'aria-label': '播放或暫停'}); play.id = 'ui-wall-play';   // D147-5: same icon button as tracking
     const clock = el('span', '', 'ui-mono'), speeds = new Map();
     play.addEventListener('click', () => { const value = ctx.wallPlayback?.get(); if (value) ctx.wallPlayback.set({playing: !value.playing}); updateWallTransport(); });
     bar.append(play, clock);
@@ -688,7 +709,7 @@ export function mountUi(ctx) {
   }
   function updateWallTransport() {
     if (!wallParts) return; const value = ctx.wallPlayback?.get(); if (!value) return;
-    wallParts.play.textContent = value.playing ? '暫停' : '播放'; wallParts.play.disabled = !(value.durationUs > 0);
+    wallParts.play.textContent = value.playing ? '❚❚' : '▶'; wallParts.play.title = value.playing ? '暫停' : '播放'; wallParts.play.disabled = !(value.durationUs > 0);
     const cm = store.getState().activeRun?.clock_mapping, t0 = cm?.t0_us ?? 0, at = wallClockText(cm, t0 + value.tUs), endAt = wallClockText(cm, t0 + value.durationUs);
     wallParts.clock.textContent = at && endAt ? `${at} / ${endAt}` : `${(value.tUs/1e6).toFixed(2)} s / ${(value.durationUs/1e6).toFixed(2)} s`;
     wallParts.scrub.max = String(Math.max(0,value.durationUs-1)); wallParts.scrub.value = String(value.tUs);

@@ -86,7 +86,15 @@ export function validateTrackForm({ classLabel = '' } = {}) {
 // classes the current operation cannot use (tracking: person only); they stay listed but disabled.
 export const DETECTION_COUNT_NOTE = '模型偵測筆數，含誤判，不是實際物件數';
 export const CAMERA_COUNT_NOTE = '照到這個類別的鏡頭數（模型偵測，可能含誤判）';
-export function classGroups(classes, counts, supports = () => true) {
+// D147-1: the classes each scene actually contains, as declared by the user from the authored scenes (2026-11-09). Presentation only:
+// it decides which chips sit in the top group; it never filters detections, ranks results or feeds inference. Runs not listed keep D139-1.
+export const SCENE_FEATURED_CLASSES = Object.freeze({
+  ENGINEERING_DYNAMIC_RUN_20261025: Object.freeze(['person']),              // B-05
+  'ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1': Object.freeze(['person', 'car']), // A4-1
+  'ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1': Object.freeze(['person']),       // B4-1
+});
+export function featuredClasses(runId) { return SCENE_FEATURED_CLASSES[runId] ?? null; }
+export function classGroups(classes, counts, supports = () => true, featured = null) {
   const all = (Array.isArray(classes) ? classes : []).filter(c => typeof c === 'string' && c);
   const known = new Set(all), seen = new Set(), detected = [];
   if (Array.isArray(counts)) for (const r of counts) {
@@ -94,8 +102,15 @@ export function classGroups(classes, counts, supports = () => true) {
     if (typeof label !== 'string' || !known.has(label) || seen.has(label) || !Number.isInteger(n) || n <= 0) continue;
     const cc = r?.camera_count; seen.add(label); detected.push({ label, count: n, cameraCount: Number.isInteger(cc) && cc > 0 ? cc : null, supported: supports(label) !== false });
   }
-  if (!detected.length) return { grouped: false, detected: [], others: all.map(label => ({ label, supported: supports(label) !== false })) };
   detected.sort((a, b) => b.count - a.count || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+  const pick = Array.isArray(featured) ? [...new Set(featured.filter(c => known.has(c)))] : [];
+  if (pick.length) {
+    // featured scene classes on top, in the declared order; a featured class the detector never saw shows 0 cameras rather than hiding.
+    const byLabel = new Map(detected.map(d => [d.label, d])), top = pick.map(label => byLabel.get(label) ?? { label, count: 0, cameraCount: Array.isArray(counts) ? 0 : null, supported: supports(label) !== false });
+    const rest = [...detected.filter(d => !pick.includes(d.label)).map(d => d.label), ...all.filter(c => !seen.has(c) && !pick.includes(c))];
+    return { grouped: true, featured: true, detected: top, others: rest.map(label => ({ label, supported: supports(label) !== false })) };
+  }
+  if (!detected.length) return { grouped: false, detected: [], others: all.map(label => ({ label, supported: supports(label) !== false })) };
   return { grouped: true, detected, others: all.filter(c => !seen.has(c)).map(label => ({ label, supported: supports(label) !== false })) };
 }
 // D139 feature search: case-insensitive substring over the English label, the Chinese display name and any alias.

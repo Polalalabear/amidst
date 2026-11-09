@@ -241,3 +241,4 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .ui-zoom-select{padding:6px 10px;width:auto;flex:0 0 auto}
 /* D146: the stage keeps playing live video while the target is out of view; a plain note says so (never styled as observed) */
 .ui-live-note{position:absolute;left:16px;bottom:14px;max-width:calc(100% - 32px);font-size:13px;background:rgba(20,20,19,.82);color:var(--inferred);border:1px solid var(--inferred);padding:4px 10px;border-radius:6px}
+#ui-v1 .ui-track-clock{font-size:13px;color:var(--text);min-width:15ch}
