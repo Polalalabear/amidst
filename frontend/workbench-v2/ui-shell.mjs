@@ -20,6 +20,7 @@ import {canPlay} from './q-playback.mjs';
 import {
   AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
 } from './core-search-track-model.mjs';
+import {eventDisplayName} from './event-names.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
 // Same range the player uses (app.mjs playbackBounds); kept here so this module does not import the composition root.
@@ -58,6 +59,7 @@ export function mountUi(ctx) {
   let settings = loadSettings(storage);
   // D139: presentation mode is on by default for the front desk; ?present=0 or the admin setting turns it off.
   const presentOn = () => settings.presentationMode !== false && new URL(url).searchParams.get('present') !== '0';
+  const runIndex = run => Math.max(0, (store.getState().bootstrap?.runs ?? []).findIndex(r => r.run_id === run?.run_id));
   const stateWord = code => presentOn() ? plainState(code) : code;
   const route = parseRoute(new URL(url).search, settings);
   const coreDeepLink = ['search', 'track-single', 'track-multi', 'blind'].includes(new URL(url).searchParams.get('screen'));
@@ -661,13 +663,13 @@ export function mountUi(ctx) {
     return new URL(url).searchParams.get('recording') === B05B_RECORDING_ID ? 'b05b' : 'wall';
   }
   function mountCase3() {
-    const s = store.getState(), scope = JSON.stringify([integration(), s.activeRun?.run_id, s.bootstrap?.runs?.map(r => r.run_id)]);
+    const s = store.getState(), scope = JSON.stringify([integration(), presentOn(), s.activeRun?.run_id, s.bootstrap?.runs?.map(r => r.run_id)]);
     if (case3Scope !== scope) { case3Built = false; case3Scope = scope; }
     if (!case3Built) {
       case3Built = true; sCase3.replaceChildren();
       const bar = el('div', undefined, 'ui-events'); bar.id = 'ui-events'; bar.setAttribute('role', 'tablist');
       const cur = currentEventId();
-      const entries = integration() ? (s.bootstrap?.runs ?? []).map(run => ({id: run.run_id, label: run.title ?? run.run_id, kind: 'page', run})) : EVENTS;
+      const entries = integration() ? (s.bootstrap?.runs ?? []).map((run, i) => ({id: run.run_id, label: eventDisplayName(run, {present: presentOn(), index: i}), kind: 'page', run})) : EVENTS;
       for (const e of entries) {
         const ok = available(e, cfg), b = el('button', ok ? eventLabel(e) : `${eventLabel(e)}（未啟動）`, 'ui-pillbtn', {type: 'button', 'data-event': e.id, role: 'tab'});
         b.disabled = !ok; b.setAttribute('aria-pressed', String(e.id === cur)); b.classList.toggle('on', e.id === cur);
@@ -720,8 +722,8 @@ export function mountUi(ctx) {
     const e = EVENTS.find(x => x.id === id) ?? EVENTS[0], stage = sCase3.querySelector('#ui-case3-stage'), embedded = e.kind === 'embed';
     for (const b of sCase3.querySelectorAll('[data-event]')) { const current = integration() ? b.dataset.event === store.getState().activeRun?.run_id : b.dataset.event === e.id; b.classList.toggle('on', current); b.setAttribute('aria-pressed', String(current)); }
     const noteBox = sCase3.querySelector('#ui-event-note'), run = store.getState().activeRun;
-    if (integration() && presentOn()) { noteBox.replaceChildren(`${run?.title ?? ''} · ${PLAIN.identity} `, info(techSummary([run?.source_kind ?? 'UNKNOWN', '物理通行與碰撞 UNKNOWN'])) ?? ''); }
-    else noteBox.textContent = integration() ? `${run?.title ?? ''} · ${run?.source_kind ?? 'UNKNOWN'} · 身分未確認 · 物理通行與碰撞 UNKNOWN` : e.note;
+    if (integration() && presentOn()) { noteBox.replaceChildren(`${eventDisplayName(run, {present: true, index: runIndex(run)})} · ${PLAIN.identity} `, info(techSummary([run?.source_kind ?? 'UNKNOWN', '物理通行與碰撞 UNKNOWN'])) ?? ''); }
+    else noteBox.textContent = integration() ? `${eventDisplayName(run, {present: false})} · ${run?.source_kind ?? 'UNKNOWN'} · 身分未確認 · 物理通行與碰撞 UNKNOWN` : e.note;
     const src = embedded ? embedSrc(e, cfg, 'system', modeOf(e, cfg)) : null;
     frame.hidden = !embedded || !src;
     if (src && frame.getAttribute('src') !== src) frame.setAttribute('src', src); if (!src) frame.removeAttribute('src');
@@ -739,8 +741,8 @@ export function mountUi(ctx) {
   // ---- header context + badge -------------------------------------------------------------------------------------
   function renderHeader() {
     const s = store.getState();
-    const runs = s.bootstrap?.runs ?? [], key = JSON.stringify(runs.map(r => [r.run_id, r.title]));
-    if (sourceKey !== key) { sourceKey = key; sourceSelect.replaceChildren(...runs.map(r => el('option', r.title ?? r.run_id, undefined, {value: r.run_id}))); }
+    const runs = s.bootstrap?.runs ?? [], key = JSON.stringify([presentOn(), runs.map(r => [r.run_id, r.title])]);
+    if (sourceKey !== key) { sourceKey = key; sourceSelect.replaceChildren(...runs.map((r, i) => el('option', eventDisplayName(r, {present: presentOn(), index: i}), undefined, {value: r.run_id}))); }
     sourceSelect.hidden = runs.length < 2; sourceSelect.value = s.activeRun?.run_id ?? '';
     const origin = s.responseOrigin ?? s.bootstrap?.data_origin ?? 'UNAVAILABLE', pres = sourcePresentation(origin, s.recordedKind ?? s.activeRun?.source_kind);
     const text = /SYNTHETIC/.test(pres.label) ? 'SYNTHETIC' : /PILOT/.test(pres.label) ? 'PILOT' : origin === 'RECORDED' ? 'REPLAY' : origin;
