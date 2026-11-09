@@ -856,6 +856,14 @@
       "count": 1,
       "issue_ref": "#307",
       "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/scene_graphs.py",
+      "kind": "python_string",
+      "sha256": "e87ba08de0ef367ef7eac4f0fa54dde126fe604a03b335592696624e567816ed",
+      "count": 4,
+      "issue_ref": "#457",
+      "reason": "Exact visibility_ref key only: pending skeleton requires null; location_coverage preserves the #410 static MANUAL provenance field for r004. No visibility data is loaded, generated, or ranked; no renderer input authority. Signature/count exception only."
     }
   ]
 }

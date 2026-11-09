@@ -6,6 +6,7 @@ import { classifyT, formatFrame, formatSeconds, frameIndexAt, sampleAgeMs, stepT
 import { NARROW_PX, MAIN_PADDING_PX, fitTiles } from './layout.mjs';
 import { IDENTITY_LEGEND, legendItems } from './tokens.mjs';
 import {sourcePresentation} from './q-tokens.mjs';
+import {ERROR_TEXT} from './core-search-track-model.mjs';
 
 export const RAIL_STORAGE_KEY = 'amidst.wb2.rail';
 
@@ -288,17 +289,18 @@ export function mountQShell(root,store,handlers={}) {
     $('#q-switch').value=s.switchMode;$('#q-switch option[value="AGENT_SEQUENTIAL"]').disabled=!s.activeRun?.agent_available;
     if(s.bootstrap!==lastBootstrap){lastBootstrap=s.bootstrap;
       const select=$('#q-run');select.replaceChildren();
-      for(const [index,run] of (s.bootstrap?.runs??[]).entries()){const option=document.createElement('option');option.value=String(index);option.textContent=`${run.scene_id} · ${run.run_id}`;select.append(option);}
+      for(const [index,run] of (s.bootstrap?.runs??[]).entries()){const option=document.createElement('option');option.value=String(index);option.textContent=run.title??`${run.scene_id} · ${run.run_id}`;select.append(option);}
       select.disabled=!(s.bootstrap?.runs.length);
       if(!select.options.length){const option=document.createElement('option');option.textContent='尚無可用來源';select.append(option);}
       const recorded=$('#q-recordings');recorded.replaceChildren();for(const item of s.bootstrap?.recordings??[]){const option=document.createElement('option');option.value=item.recording_id;option.textContent=`${item.switch_mode??item.response_kind} · ${item.source_kind} · ${item.recorded_at}`;recorded.append(option);}
       $('#q-recordings-section').hidden=!(s.bootstrap?.recordings.length);
     }
+    const activeIndex=s.bootstrap?.runs.indexOf(s.activeRun)??-1;if(activeIndex>=0)$('#q-run').value=String(activeIndex);
     const origin=s.responseOrigin??s.bootstrap?.data_origin??'UNAVAILABLE',presentation=sourcePresentation(origin,s.recordedKind??s.activeRun?.source_kind);
     $('#q-origin').textContent=presentation.label;$('#q-origin-note').textContent=presentation.note;
     $('#synth').hidden=!presentation.visible;$('#q-fixtures').hidden=origin!=='SYNTHETIC_FIXTURE';
     $('#q-source-state').textContent=s.activeRun?`${s.activeRun.run_id} · ${s.activeRun.source_kind}`:'尚無可用來源';
-    $('#q-notice').textContent=s.loading?'處理中…':s.error?(s.reviewMode?`UNKNOWN · ${s.error.code??s.error}`:'目前無法取得資料，請確認來源狀態。'):s.seeds?'請選擇起點觀測':s.bootstrap?.status==='NOT_READY'?'資料尚未準備好':(s.q1||s.q2||s.q3)?(s.reviewMode?`回應已載入 · ${(s.q1??s.q2??s.q3).status}`:'回應已載入；身分未確認。'):s.bootstrap?'已載入來源；觀測與推論保持分開。':'載入中…';
+    $('#q-notice').textContent=s.loading?'處理中…':s.error?(ERROR_TEXT[s.error.code]??(s.reviewMode?`UNKNOWN · ${s.error.code??s.error}`:'目前無法取得資料，請確認來源狀態。')):s.seeds?'請選擇起點觀測':s.bootstrap?.status==='NOT_READY'?'資料尚未準備好':(s.q1||s.q2||s.q3)?(s.reviewMode?`回應已載入 · ${(s.q1??s.q2??s.q3).status}`:'回應已載入；身分未確認。'):s.bootstrap?'已載入來源；觀測與推論保持分開。':'載入中…';
     $('#q-main-view').dataset.loading=String(s.loading);
     if(s.railPref!==lastSource){lastSource=s.railPref;saveRailPref(s.railPref);}
   }

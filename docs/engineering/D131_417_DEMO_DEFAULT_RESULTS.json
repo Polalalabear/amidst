@@ -1,0 +1,138 @@
+{
+  "profile": "DEMO_DEFAULT",
+  "formal_eligible": false,
+  "production_gate": "NOT_RUN",
+  "cross_camera_association": "NOT_EVALUATED",
+  "runs": [
+    {
+      "label": "A4-1",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "clock_id": "clock:r004:a4:declared-demo:v1:d124-v1",
+      "frames": 1000,
+      "inferred": 1000,
+      "model_calls": 1000,
+      "detector_candidates": 1160,
+      "person_candidates": 125,
+      "minimum_free_bytes": 15583313920,
+      "seconds_by_stage": {
+        "rgb_read": 2.0284290559999993,
+        "rgb_hash": 0.38602576299999974,
+        "rgb_decode": 10.63050765799999,
+        "detector_preprocess": 4.738968552999997,
+        "detector_forward": 276.93674126499985,
+        "detector_postprocess": 0.34097146599999995,
+        "upper_hsv": 0.5373204200000001,
+        "index_encode": 0.010356708
+      },
+      "index_id": "detidx:r004:ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1:fb8eb393750bc058",
+      "source_execution_head": "5831cf5b0ed5463b2b026d3b6b0fa4d5433208c0",
+      "source_execution_files": {
+        "scripts/run_d124_demo_default.py": "acdb71c38709f0be69592bf853558a27bdbf9b186c6905b20eb6f8d7401e9ec9",
+        "src/amidst/q1q5/demo_default_index.py": "2f2f87f32bd2fe9373988eafdf1e871f184d5602cab6f2d4a3f5f0695983c5f8",
+        "src/amidst/q1q5/detection_index.py": "444f918cd5a977e2168073825bf0c33911a52e3b879d864b0ae654a5e0d8cbd2",
+        "src/amidst/q1q5/hsv_color.py": "7d344bdcc167b91c1f860a3b4fe069301d7a4ac8b4862c35ee3d04a44dcb3c10"
+      },
+      "config_file_sha256": "37bbd88ba1a0826da1e2e1e9a421caac98f3040f605c18f6de96d394acbf166c",
+      "files": {
+        "observer.jsonl": {
+          "bytes": 376780,
+          "sha256": "bf24e4b82b20024dadd15fe1fceaad944b353b176cf2834ae2672d1ff293cc27"
+        },
+        "cx8_rule_only.json": {
+          "bytes": 22021,
+          "sha256": "6fe9c482c9a08966628bff6af2daff497ef1c9ce565d8c61dc175174b16d4ce8"
+        },
+        "detection_index.records.jsonl": {
+          "bytes": 601214,
+          "sha256": "462388425ea6c38ba0f13c2738f57d5f2feca3d5e2ea9ad354e6b087d30809f0"
+        },
+        "detection_index.json": {
+          "bytes": 3220,
+          "sha256": "b6f708fb743c346ab2b07a21a5293e08b1f595ea3328b00011550827ab1acf67"
+        },
+        "demo_default_receipt.json": {
+          "bytes": 14901,
+          "sha256": "3ecbe7a02ddb67a8cfd188dd3e65ca11c94f0a228cc931b5f67822f564ab33a7"
+        },
+        "demo_checker.json": {
+          "bytes": 5019,
+          "sha256": "95cf5bb6fad050f6fbb973d6babedb9f60ad544d2c56d3f7d4fdac259b311639"
+        }
+      },
+      "QT25_DEMO_checks_passed": 17,
+      "CX8_DEMO": {
+        "camera_tracks": 4,
+        "cross_camera_association": "NOT_EVALUATED",
+        "local_segments": 3,
+        "scope": "CAMERA_LOCAL_SELECTED_SEED",
+        "status": "PASS",
+        "steps": 25
+      }
+    },
+    {
+      "label": "B4-1",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "clock_id": "clock:r004:b4:declared-demo:v1:d124-v1",
+      "frames": 1050,
+      "inferred": 1050,
+      "model_calls": 1050,
+      "detector_candidates": 2158,
+      "person_candidates": 121,
+      "minimum_free_bytes": 15629234176,
+      "seconds_by_stage": {
+        "rgb_read": 2.1615942980000002,
+        "rgb_hash": 0.3967887210000002,
+        "rgb_decode": 10.724469985999967,
+        "detector_preprocess": 4.907461377000003,
+        "detector_forward": 296.3288992270001,
+        "detector_postprocess": 0.36431038599999965,
+        "upper_hsv": 0.4690430829999998,
+        "index_encode": 0.013234083
+      },
+      "index_id": "detidx:r004:ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1:3377ccb3194b8767",
+      "source_execution_head": "bf03add10f496ecd18c9554ce6a42dce22168d72",
+      "source_execution_files": {
+        "scripts/run_d124_demo_default.py": "acdb71c38709f0be69592bf853558a27bdbf9b186c6905b20eb6f8d7401e9ec9",
+        "src/amidst/q1q5/demo_default_index.py": "7f28aef3689ae543db23e4392e94f4f9a39ff517589b76c4372a1c1fba8018da",
+        "src/amidst/q1q5/detection_index.py": "444f918cd5a977e2168073825bf0c33911a52e3b879d864b0ae654a5e0d8cbd2",
+        "src/amidst/q1q5/hsv_color.py": "7d344bdcc167b91c1f860a3b4fe069301d7a4ac8b4862c35ee3d04a44dcb3c10"
+      },
+      "config_file_sha256": "f8578fc203a6fe929ff17b695f62e12c2ec9bdb7c3428dd8eb5df71908b81494",
+      "files": {
+        "observer.jsonl": {
+          "bytes": 394868,
+          "sha256": "39fa12b75f9646a8ec2ce9cc1fa3c65d6ef597f44abe4b5d70e3fa8f84a2905e"
+        },
+        "cx8_rule_only.json": {
+          "bytes": 48849,
+          "sha256": "4ba6ed7c77e2f92c50ba9ddb6adcb65143be3ffa23e8d7d3b87ed98f9b1703d6"
+        },
+        "detection_index.records.jsonl": {
+          "bytes": 837465,
+          "sha256": "c2b8bfa02db34104aca22d76bdc4ae30f7b6254506ea56a54ccb36993b2a524f"
+        },
+        "detection_index.json": {
+          "bytes": 3436,
+          "sha256": "f92e22f1f55cfb772149fe86279eaa9b6b8f14d71d4ca6a423cf9109b2570379"
+        },
+        "demo_default_receipt.json": {
+          "bytes": 16025,
+          "sha256": "59f4ddf3b76e49255183fb823a976670746f843558ecfd32e6be5684fcab4ada"
+        },
+        "demo_checker.json": {
+          "bytes": 5019,
+          "sha256": "73f048c98d0dabd8e31befe0fbec39d6a228522ec894ec0d23651f69e80decbf"
+        }
+      },
+      "QT25_DEMO_checks_passed": 17,
+      "CX8_DEMO": {
+        "camera_tracks": 5,
+        "cross_camera_association": "NOT_EVALUATED",
+        "local_segments": 4,
+        "scope": "CAMERA_LOCAL_SELECTED_SEED",
+        "status": "PASS",
+        "steps": 65
+      }
+    }
+  ]
+}

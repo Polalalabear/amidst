@@ -41,15 +41,36 @@ export function stepUs(t,interval,direction,duration) {
   return Math.max(0,Math.min(Math.floor((duration-1)/interval)*interval,(Math.floor(t/interval)+direction)*interval));
 }
 export function advanceUs(t,deltaMs,speed,duration,carry=0) {
-  check(integer(t)&&Number.isFinite(deltaMs)&&deltaMs>=0&&[.5,1,2].includes(speed)&&integer(duration)&&Number.isFinite(carry)&&carry>=0,'PLAYBACK_CLOCK_INVALID');
+  check(integer(t)&&Number.isFinite(deltaMs)&&deltaMs>=0&&[.5,1,1.5,2].includes(speed)&&integer(duration)&&Number.isFinite(carry)&&carry>=0,'PLAYBACK_CLOCK_INVALID');
   const amount=deltaMs*1000*speed+carry;const whole=Math.floor(amount);
   return {tUs:Math.min(duration,t+whole),carry:amount-whole,ended:t+whole>=duration};
 }
 // Display only: seconds to two decimals, truncated (never shown later than the real instant). Data and comparisons keep the full integer µs.
 export function formatSource(t){check(integer(t),'SOURCE_INTEGER_REQUIRED');return `${Math.floor(t/1000000)}.${String(Math.floor(t%1000000/10000)).padStart(2,'0')} s`;}
+// Virtual-world time for display: declared start + source time (never the wall clock of this machine, never GT or rendered time).
+// Returns {text:'YYYY-MM-DD HH:MM:SS.ff' (truncated to 10 ms), tz:'UTC+8', declared:boolean} or null when the clock or time is missing / invalid.
+export function virtualTime(t,mapping) {
+  if(!mapping||!integer(t))return null;
+  try {
+    const us=sourceToWallUs(t,mapping),ms=msFloor(us),when=new Date(ms),frac=Number(((us%1000000n)+1000000n)%1000000n)/10000|0;
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:mapping.timezone,calendar:'iso8601',numberingSystem:'latn',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(when).map(p=>[p.type,p.value]));
+    const off=new Intl.DateTimeFormat('en-US',{timeZone:mapping.timezone,timeZoneName:'longOffset'}).formatToParts(when).find(p=>p.type==='timeZoneName')?.value??'';
+    const m=off.match(/^GMT([+-])(\d{2}):(\d{2})$/),tz=off==='GMT'?'UTC+0':m?`UTC${m[1]}${Number(m[2])}${m[3]==='00'?'':':'+m[3]}`:null;
+    if(!tz)return null;
+    return {text:`${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}.${String(frac).padStart(2,'0')}`,tz,declared:mapping.mapping_kind==='DECLARED_DEMO_CLOCK'};
+  } catch {return null;}
+}
+export const DECLARED_TAG='DECLARED_DEMO_CLOCK';
+export function formatVirtual(t,mapping) {const v=virtualTime(t,mapping);return v?`${v.text}（${v.tz}）`:'UNKNOWN';}
+// Transport readout: virtual time first, with the declared-clock tag; a missing or invalid clock stays UNKNOWN.
 export function displayClock(t,mapping) {
   if(!mapping)return 'UNKNOWN · CLOCK_MAPPING_MISSING';
-  try {
-    const us=sourceToWallUs(t,mapping);return new Intl.DateTimeFormat('zh-TW',{timeZone:mapping.timezone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date(msFloor(us)))+' · 展示時鐘';
-  } catch {return 'UNKNOWN · CLOCK_MAPPING_INVALID';}
+  const v=virtualTime(t,mapping);
+  return v?`${v.text}（${v.tz}）${v.declared?` · ${DECLARED_TAG}`:''}`:'UNKNOWN · CLOCK_MAPPING_INVALID';
+}
+// Offset literal of the declared origin ("+08:00"), used to turn a typed virtual time back into source µs.
+export function virtualToSourceUs(text,mapping) {
+  const m=String(text??'').trim().match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?)$/),zone=String(mapping?.wall_origin??'').match(/(Z|[+-]\d{2}:\d{2})$/)?.[1];
+  check(m&&zone,'TIME_INVALID');
+  try {return wallToSourceUs(`${m[1]}T${m[2]}${zone}`,mapping);} catch {throw new Error('TIME_INVALID');}
 }

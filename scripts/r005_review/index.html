@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>r005 六相機靜態畫面確認</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">LOCAL · r005 · ENGINEERING ONLY</div>
+    <h1>六相機靜態畫面確認</h1>
+    <p>原始 STATIC_CAMERA_RGB 畫面與 RT-DETR 候選框分開呈現。框和標籤是模型候選，走廊誤檢也保留原標籤；不視為人工真值或區域 coverage。</p>
+    <div class="meta" id="meta"></div>
+  </header>
+  <nav aria-label="頁面區段">
+    <button class="tab active" id="tab-preview" type="button" aria-controls="preview" aria-selected="true">原圖與候選框</button>
+    <button class="tab" id="tab-confirm" type="button" aria-controls="confirm" aria-selected="false">人工 coverage 回件</button>
+  </nav>
+  <main>
+    <section id="preview">
+      <div class="section-head">
+        <div><h2>原圖預覽</h2><p>六張原圖固定來源；顯示門檻 0.30，合計 33 個候選。</p></div>
+        <label class="toggle"><input id="show-boxes" type="checkbox"> 顯示模型候選框</label>
+      </div>
+      <div id="preview-grid" class="grid"></div>
+    </section>
+    <section id="confirm" hidden>
+      <div class="section-head"><div><h2>人工 coverage 確認</h2><p>所有相機預設 <strong>NOT_EVALUATED</strong>。請依原圖逐鏡頭勾選；UNKNOWN 與已知區域互斥。匯出只產生本機 DRAFT JSON，不會寫入 graph 或自動取得核定狀態。</p></div></div>
+      <div class="reviewer">
+        <label>審閱者 <input id="reviewer" type="text" autocomplete="name" placeholder="必填後可匯出"></label>
+        <label>審閱日期 <input id="review-date" type="date"></label>
+      </div>
+      <div id="confirm-grid" class="grid"></div>
+      <div class="export-row">
+        <p id="validation" role="status" aria-live="polite">尚未匯出。表單只儲存在此瀏覽器的 localStorage。</p>
+        <button id="download" type="button">下載 DRAFT JSON 回件</button>
+      </div>
+    </section>
+  </main>
+  <footer>來源 pin 與 frame SHA-256 會寫入回件。原圖未複製或修改；此頁不讀取 human layout、overhead、Ground Truth 或 private producer。</footer>
+</body>
+</html>

@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "q-core.search-track.v1",
+  "title": "q-core.search-track.v1",
+  "description": "PROPOSED (D126, #93) wire shapes for the two core features: search (q_core_search) and track (q_core_track), plus the blind-interval estimate. Contract: docs/contracts/Q_CORE_SEARCH_TRACK_V1.md. Registration grants no approval. Ground Truth, renderer trajectories, visibility, depth and script keyframes never appear in any of these documents.",
+  "x-contract-status": "PROPOSED",
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "sourceUs": {"type": "integer", "minimum": 0},
+    "rangeUs": {"type": "array", "prefixItems": [{"$ref": "#/$defs/sourceUs"}, {"$ref": "#/$defs/sourceUs"}], "minItems": 2, "maxItems": 2},
+    "isoWithOffset": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,6})?[+-]\\d{2}:\\d{2}$"},
+    "wallTime": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "timezone", "wall_range"],
+      "properties": {
+        "kind": {"const": "WALL"},
+        "timezone": {"$ref": "#/$defs/nonEmptyString"},
+        "wall_range": {"type": "array", "items": {"$ref": "#/$defs/isoWithOffset"}, "minItems": 2, "maxItems": 2}
+      }
+    },
+    "regionIds": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}, "uniqueItems": true},
+    "feature": {
+      "type": "object", "additionalProperties": false,
+      "required": ["class_label", "color_label"],
+      "properties": {
+        "class_label": {"$ref": "#/$defs/nonEmptyString"},
+        "color_label": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/nonEmptyString"}]}
+      }
+    },
+    "evidenceState": {"enum": ["OBSERVED", "INFERRED", "MISSING", "UNKNOWN"]},
+    "searchRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "session_ref", "scene_id", "run_id", "time", "region_ids", "feature"],
+      "properties": {
+        "schema_version": {"const": "q-core.search-request.v1"},
+        "session_ref": {"$ref": "#/$defs/nonEmptyString"},
+        "scene_id": {"$ref": "#/$defs/nonEmptyString"},
+        "run_id": {"$ref": "#/$defs/nonEmptyString"},
+        "time": {"$ref": "#/$defs/wallTime"},
+        "region_ids": {"$ref": "#/$defs/regionIds"},
+        "feature": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/feature"}]}
+      },
+      "x-rule": "region_ids empty AND feature null -> 422 LOCATION_OR_FEATURE_REQUIRED"
+    },
+    "hitBasis": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false,
+         "required": ["kind", "region_id", "coverage_basis", "visibility_ref"],
+         "properties": {"kind": {"const": "LOCATION"}, "region_id": {"$ref": "#/$defs/nonEmptyString"},
+                        "coverage_basis": {"const": "MANUAL_ON_STATIC_FRAME"},
+                        "visibility_ref": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/nonEmptyString"}]}}},
+        {"type": "object", "additionalProperties": false,
+         "required": ["kind", "class_label", "color_label", "evidence_state", "observation_ids", "detection_index_sha256"],
+         "properties": {"kind": {"const": "OBJECT"}, "class_label": {"$ref": "#/$defs/nonEmptyString"},
+                        "color_label": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/nonEmptyString"}]},
+                        "evidence_state": {"const": "OBSERVED"},
+                        "observation_ids": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}, "minItems": 1},
+                        "detection_index_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+        {"type": "object", "additionalProperties": false,
+         "required": ["kind", "class_label", "annotation_id", "annotation_set_sha256", "evidence_state"],
+         "properties": {"kind": {"const": "SCENE_ANNOTATION"}, "class_label": {"$ref": "#/$defs/nonEmptyString"},
+                        "annotation_id": {"$ref": "#/$defs/nonEmptyString"},
+                        "annotation_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                        "evidence_state": {"const": "ANNOTATED"}}}
+      ]
+    },
+    "searchHit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rank", "camera_id", "target_observed", "source_range_us", "wall_range", "segments", "basis"],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 1},
+        "camera_id": {"$ref": "#/$defs/nonEmptyString"},
+        "target_observed": {"type": "boolean"},
+        "source_range_us": {"$ref": "#/$defs/rangeUs"},
+        "wall_range": {"type": "array", "items": {"$ref": "#/$defs/isoWithOffset"}, "minItems": 2, "maxItems": 2},
+        "segments": {"type": "array"},
+        "basis": {"type": "array", "items": {"$ref": "#/$defs/hitBasis"}, "minItems": 1}
+      }
+    },
+    "searchResponse": {
+      "type": "object",
+      "required": ["schema_version", "status", "reasons", "query_id", "normalized_request", "resolved_time", "resolved_scope",
+                   "hits", "not_evaluated_cameras", "identity_verdict", "provenance", "output_sha256"],
+      "properties": {
+        "schema_version": {"const": "q-core.search-response.v1"},
+        "status": {"enum": ["READY", "NO_MATCH", "PARTIAL", "OUT_OF_RANGE", "UNKNOWN"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "hits": {"type": "array", "items": {"$ref": "#/$defs/searchHit"}},
+        "not_evaluated_cameras": {"type": "array", "items": {"type": "object", "required": ["camera_id", "reason"]}},
+        "identity_verdict": {"const": "UNCONFIRMED"},
+        "provenance": {"type": "object", "required": ["producer", "gt_read"], "properties": {"gt_read": {"const": false}}},
+        "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "trackRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "session_ref", "scene_id", "run_id", "feature", "region_ids", "time"],
+      "properties": {
+        "schema_version": {"const": "q-core.track-request.v1"},
+        "session_ref": {"$ref": "#/$defs/nonEmptyString"},
+        "scene_id": {"$ref": "#/$defs/nonEmptyString"},
+        "run_id": {"$ref": "#/$defs/nonEmptyString"},
+        "feature": {"$ref": "#/$defs/feature"},
+        "region_ids": {"$ref": "#/$defs/regionIds"},
+        "time": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/wallTime"}]},
+        "playback_now_us": {"$ref": "#/$defs/sourceUs"}
+      },
+      "x-rule": "time null requires playback_now_us (422 NOW_REQUIRED); feature missing/null -> 422 FEATURE_REQUIRED"
+    },
+    "sighting": {
+      "type": "object",
+      "required": ["camera_id", "range_us", "evidence_state", "observation_ids"],
+      "properties": {"camera_id": {"$ref": "#/$defs/nonEmptyString"}, "range_us": {"$ref": "#/$defs/rangeUs"},
+                     "evidence_state": {"const": "OBSERVED"},
+                     "track_ref": {"type": "string"},
+                     "selected_for_single_view": {"type": "boolean"},
+                     "association_state": {"enum": ["SELECTED_HYPOTHESIS", "UNASSOCIATED_LOCAL_CANDIDATE"]},
+                     "link_kind": {"enum": ["LOCAL_SEED", "SAME_CAMERA_REACQUISITION", "CROSS_CAMERA_HANDOFF", "CROSS_CAMERA_REACQUISITION"]},
+                     "observation_ids": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}, "minItems": 1}}
+    },
+    "singleViewSegment": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["kind", "camera_id", "range_us", "evidence_state"],
+         "properties": {"kind": {"const": "ON_CAMERA"}, "camera_id": {"$ref": "#/$defs/nonEmptyString"},
+                        "range_us": {"$ref": "#/$defs/rangeUs"}, "evidence_state": {"const": "OBSERVED"}}},
+        {"type": "object", "additionalProperties": false, "required": ["kind", "camera_id", "range_us", "evidence_state"],
+         "properties": {"kind": {"enum": ["GAP", "LOST"]}, "camera_id": {"type": "null"},
+                        "range_us": {"$ref": "#/$defs/rangeUs"}, "evidence_state": {"const": "UNKNOWN"}}}
+      ]
+    },
+    "blindEstimate": {
+      "type": "object",
+      "required": ["schema_version", "evidence_state", "confidence", "used_for", "as_of_us", "last_observed", "overhead",
+                   "curve", "candidates", "prediction_ref", "identity_verdict", "physical_navigation", "gt_read", "content_sha256"],
+      "properties": {
+        "schema_version": {"const": "q-core.blind-estimate.v1"},
+        "evidence_state": {"const": "INFERRED"},
+        "confidence": {"enum": ["LOW", "UNKNOWN"]},
+        "used_for": {"const": "DISPLAY_ONLY"},
+        "as_of_us": {"$ref": "#/$defs/sourceUs"},
+        "curve": {"type": "object", "required": ["basis", "points"],
+                  "properties": {"basis": {"enum": ["DISPLAY_POSITIONS_STRAIGHT_LINE", "NODE_GRAPH_ONLY"]}, "points": {"type": "array"}}},
+        "candidates": {"type": "array", "items": {"type": "object", "required": ["camera_id", "rank", "confidence", "model_confidence"],
+                       "properties": {"confidence": {"enum": ["LOW", "UNKNOWN"]}}}},
+        "identity_verdict": {"const": "UNCONFIRMED"},
+        "physical_navigation": {"const": "UNKNOWN"},
+        "gt_read": {"const": false}
+      }
+    },
+    "blind": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "additionalProperties": false, "required": ["status", "reason", "estimate"],
+         "properties": {"status": {"const": "UNAVAILABLE"}, "reason": {"const": "PREDICTION_UNAVAILABLE"}, "estimate": {"type": "null"}}},
+        {"type": "object", "additionalProperties": false, "required": ["status", "reason", "estimate"],
+         "properties": {"status": {"const": "ESTIMATED"}, "reason": {"type": "null"}, "estimate": {"$ref": "#/$defs/blindEstimate"}}}
+      ]
+    },
+    "trackResponse": {
+      "type": "object",
+      "required": ["schema_version", "status", "reasons", "as_of_us", "resolved_time", "sightings", "multi_view", "single_view",
+                   "blind", "identity_verdict", "physical_navigation", "provenance", "output_sha256"],
+      "properties": {
+        "schema_version": {"const": "q-core.track-response.v1"},
+        "status": {"enum": ["TRACKING", "LOST", "NO_SIGHTING", "UNSUPPORTED", "PARTIAL", "UNKNOWN"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "as_of_us": {"$ref": "#/$defs/sourceUs"},
+        "sightings": {"type": "array", "items": {"$ref": "#/$defs/sighting"}},
+        "association_audit": {"type": "array", "description": "Optional DEMO_DEFAULT candidate decisions, including D145 same-camera reacquisition",
+          "items": {"type": "object", "required": ["reason", "timestamp_us"],
+            "properties": {"reason": {"type": "string"}, "timestamp_us": {"$ref": "#/$defs/sourceUs"},
+              "link_kind": {"enum": ["SAME_CAMERA_REACQUISITION", "CROSS_CAMERA_HANDOFF", "CROSS_CAMERA_REACQUISITION"]},
+              "identity_verdict": {"const": "UNCONFIRMED"}}}},
+        "multi_view": {"type": "array", "items": {"type": "object", "required": ["camera_id", "first_us", "last_us"]}},
+        "single_view": {"type": "array", "items": {"$ref": "#/$defs/singleViewSegment"}},
+        "blind": {"$ref": "#/$defs/blind"},
+        "identity_verdict": {"const": "UNCONFIRMED"},
+        "physical_navigation": {"const": "UNKNOWN"},
+        "provenance": {"type": "object", "required": ["producer", "gt_read"], "properties": {"gt_read": {"const": false}}},
+        "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

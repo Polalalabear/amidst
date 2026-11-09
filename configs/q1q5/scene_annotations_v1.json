@@ -1,0 +1,41 @@
+{
+  "schema_version": "q-demo.scene-annotations.v1",
+  "annotation_set_id": "d149-scene-annotations-v1",
+  "decision_ref": "https://github.com/Polalalabear/amidst/issues/93 (D149, 2026-11-09)",
+  "purpose": "Static scene objects the detector cannot recognise, marked by hand so 查找 can return them. Shown as 場景標註（非偵測）; never counted as detections, never used by tracking, ranking or identity.",
+  "annotations": [
+    {
+      "annotation_id": "A4-1:CAM_EXT_CAR:car:static",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "camera_id": "CAM_EXT_CAR",
+      "class_label": "car",
+      "bbox_xyxy_px": [
+        245,
+        200,
+        648,
+        470
+      ],
+      "frame_size_px": [
+        960,
+        540
+      ],
+      "range_us": [
+        0,
+        50000000
+      ],
+      "motion": "STATIC",
+      "method": "Coordinator drew the box on the rendered RGB and checked it on the first and last frames.",
+      "checked_frames": [
+        {
+          "frame_index": 0,
+          "rgb_file_sha256": "b8759c91aab84708c7b9c346296539e2866766ea599cc1f5834439c80c3dc699"
+        },
+        {
+          "frame_index": 249,
+          "rgb_file_sha256": "7c271dcadc0f7165fffc742e2863a1eebe9e03bf8f103d24c17cc84b4bd54d7f"
+        }
+      ],
+      "why": "The car is a box model (two cuboids and four wheels); COCO RT-DETR finds no car in any of the 250 CAM_EXT_CAR frames."
+    }
+  ]
+}

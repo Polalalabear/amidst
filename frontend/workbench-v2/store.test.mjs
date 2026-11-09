@@ -128,11 +128,12 @@ test('time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops pl
   assert.equal(s.tMs, 9999); assert.equal(s.playing, false);
 });
 
-test('play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds', () => {
+test('play/pause/speed; PLAY needs a run; only configured playback speeds', () => {
   assert.equal(reduce(initialState(), { type: 'PLAY' }).playing, false);
   let s = run(base(), { type: 'TOGGLE_PLAY' }); assert.equal(s.playing, true);
   s = reduce(s, { type: 'TOGGLE_PLAY' }); assert.equal(s.playing, false);
   assert.equal(reduce(s, { type: 'SET_SPEED', speed: 2 }).speed, 2);
+  assert.equal(reduce(s, { type: 'SET_SPEED', speed: 1.5 }).speed, 1.5);
   assert.equal(reduce(s, { type: 'SET_SPEED', speed: 3 }), s);
 });
 
@@ -210,4 +211,12 @@ test('validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a dif
       assert.equal(store.getState(),stored,'an unknown or unvalidated response must not modify state');
     }
   }
+});
+
+test('front-end stop clears tracking and playback while retaining the selected source and search', () => {
+  const source = {run_id: 'LOCAL_SOURCE'}, search = {query_id: 'search'};
+  const state = {...initialState(), activeRun: source, coreSearchResponse: search, coreTrackResponse: {query_id: 'track'}, coreTrackingView: {}, coreSelection: {}, playing: true};
+  const stopped = reduce(state, {type: 'STOP_CORE_TRACKING'});
+  assert.equal(stopped.playing, false); assert.equal(stopped.coreTrackResponse, null); assert.equal(stopped.coreTrackingView, null); assert.equal(stopped.coreSelection, null);
+  assert.equal(stopped.activeRun, source); assert.equal(stopped.coreSearchResponse, search); assert.equal(state.playing, true);
 });

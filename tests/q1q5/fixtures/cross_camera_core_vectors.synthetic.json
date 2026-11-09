@@ -1,0 +1,791 @@
+{
+ "fixture_id": "core-single-view-vectors-synthetic-v1",
+ "data_origin": "SYNTHETIC",
+ "gt_read": false,
+ "note": "Hand-written SYNTHETIC sightings for Q_CORE_SEARCH_TRACK_V1 section 3.5; shared by Python and node tests. Camera ids are placeholders, not tied to any scene, Ground Truth, renderer trajectory or script. Times are integer microseconds.",
+ "vectors": [
+  {
+   "id": "still_visible_at_as_of",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    }
+   ],
+   "as_of_us": 10000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "visible_then_lost",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    }
+   ],
+   "as_of_us": 20000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "LOST",
+     "camera_id": null,
+     "range_us": [
+      10000000,
+      20000000
+     ],
+     "evidence_state": "UNKNOWN"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    }
+   ],
+   "expected_track_status": "LOST"
+  },
+  {
+   "id": "overlap_stays_on_current_then_hands_off",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      5000000,
+      20000000
+     ]
+    }
+   ],
+   "as_of_us": 20000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_B",
+     "range_us": [
+      10000000,
+      20000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 5000000,
+     "last_us": 20000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "gap_then_reacquire_then_lost",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      15000000,
+      25000000
+     ]
+    }
+   ],
+   "as_of_us": 30000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "GAP",
+     "camera_id": null,
+     "range_us": [
+      10000000,
+      15000000
+     ],
+     "evidence_state": "UNKNOWN"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_B",
+     "range_us": [
+      15000000,
+      25000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "LOST",
+     "camera_id": null,
+     "range_us": [
+      25000000,
+      30000000
+     ],
+     "evidence_state": "UNKNOWN"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 15000000,
+     "last_us": 25000000
+    }
+   ],
+   "expected_track_status": "LOST"
+  },
+  {
+   "id": "same_start_prefers_latest_end",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      0,
+      12000000
+     ]
+    }
+   ],
+   "as_of_us": 12000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_B",
+     "range_us": [
+      0,
+      12000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 0,
+     "last_us": 12000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "full_tie_prefers_smallest_camera_id",
+   "sightings": [
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    }
+   ],
+   "as_of_us": 10000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 0,
+     "last_us": 10000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "evidence_after_as_of_is_clipped",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      8000000,
+      30000000
+     ]
+    }
+   ],
+   "as_of_us": 15000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_B",
+     "range_us": [
+      10000000,
+      15000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 8000000,
+     "last_us": 15000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "sighting_starting_after_as_of_is_dropped",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      5000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      20000000,
+      30000000
+     ]
+    }
+   ],
+   "as_of_us": 10000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      5000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "LOST",
+     "camera_id": null,
+     "range_us": [
+      5000000,
+      10000000
+     ],
+     "evidence_state": "UNKNOWN"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 5000000
+    }
+   ],
+   "expected_track_status": "LOST"
+  },
+  {
+   "id": "no_sightings",
+   "sightings": [],
+   "as_of_us": 10000000,
+   "single_view": [],
+   "multi_view": [],
+   "expected_track_status": "NO_SIGHTING"
+  },
+  {
+   "id": "handoff_picks_latest_end",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      5000000,
+      12000000
+     ]
+    },
+    {
+     "camera_id": "CAM_C",
+     "range_us": [
+      8000000,
+      20000000
+     ]
+    }
+   ],
+   "as_of_us": 20000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_C",
+     "range_us": [
+      10000000,
+      20000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 5000000,
+     "last_us": 12000000
+    },
+    {
+     "camera_id": "CAM_C",
+     "first_us": 8000000,
+     "last_us": 20000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "adjacent_same_camera_merges",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      10000000,
+      20000000
+     ]
+    }
+   ],
+   "as_of_us": 20000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      20000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 20000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "overlapping_same_camera_merges",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      5000000,
+      15000000
+     ]
+    }
+   ],
+   "as_of_us": 15000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      15000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 15000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "same_camera_after_gap_is_not_merged",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      5000000
+     ]
+    },
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      8000000,
+      12000000
+     ]
+    }
+   ],
+   "as_of_us": 12000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      5000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "GAP",
+     "camera_id": null,
+     "range_us": [
+      5000000,
+      8000000
+     ],
+     "evidence_state": "UNKNOWN"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      8000000,
+      12000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 12000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "unsorted_input",
+   "sightings": [
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      15000000,
+      25000000
+     ]
+    },
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    }
+   ],
+   "as_of_us": 25000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "GAP",
+     "camera_id": null,
+     "range_us": [
+      10000000,
+      15000000
+     ],
+     "evidence_state": "UNKNOWN"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_B",
+     "range_us": [
+      15000000,
+      25000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 15000000,
+     "last_us": 25000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "touching_handoff_has_no_gap",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      10000000,
+      20000000
+     ]
+    }
+   ],
+   "as_of_us": 20000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      10000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_B",
+     "range_us": [
+      10000000,
+      20000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 10000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 10000000,
+     "last_us": 20000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  },
+  {
+   "id": "after_gap_same_start_prefers_latest_end",
+   "sightings": [
+    {
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      5000000
+     ]
+    },
+    {
+     "camera_id": "CAM_B",
+     "range_us": [
+      10000000,
+      15000000
+     ]
+    },
+    {
+     "camera_id": "CAM_C",
+     "range_us": [
+      10000000,
+      20000000
+     ]
+    }
+   ],
+   "as_of_us": 20000000,
+   "single_view": [
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_A",
+     "range_us": [
+      0,
+      5000000
+     ],
+     "evidence_state": "OBSERVED"
+    },
+    {
+     "kind": "GAP",
+     "camera_id": null,
+     "range_us": [
+      5000000,
+      10000000
+     ],
+     "evidence_state": "UNKNOWN"
+    },
+    {
+     "kind": "ON_CAMERA",
+     "camera_id": "CAM_C",
+     "range_us": [
+      10000000,
+      20000000
+     ],
+     "evidence_state": "OBSERVED"
+    }
+   ],
+   "multi_view": [
+    {
+     "camera_id": "CAM_A",
+     "first_us": 0,
+     "last_us": 5000000
+    },
+    {
+     "camera_id": "CAM_B",
+     "first_us": 10000000,
+     "last_us": 15000000
+    },
+    {
+     "camera_id": "CAM_C",
+     "first_us": 10000000,
+     "last_us": 20000000
+    }
+   ],
+   "expected_track_status": "TRACKING"
+  }
+ ]
+}

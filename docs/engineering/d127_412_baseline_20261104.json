@@ -1,0 +1,70 @@
+{
+  "reviewed_head": "35bafff5a6c65343d374176412a92a88fb7ca147",
+  "base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "date": "2026-11-04",
+  "environment": {
+    "os": "macOS arm64",
+    "python": "3.12.12",
+    "pytest": "9.2.0",
+    "node": "26.0.0",
+    "uv": "0.9.26",
+    "powershell": "NOT_AVAILABLE",
+    "dependencies": "uv --no-project --offline --with pytest --with pillow (cached); not a full uv.lock environment"
+  },
+  "clean_clone": true,
+  "gt_or_original_media_read": false,
+  "external_model_calls": 0,
+  "results": {
+    "pytest_normal": {
+      "passed": 213,
+      "failed": 0,
+      "skipped": 6,
+      "seconds": 5.58,
+      "exit_code": 0,
+      "skip_reasons": {
+        "SCENE_ROOM_COVERAGE_PENDING": 1,
+        "CAMERA_MAP_IMPLEMENTATION_MISSING": 3,
+        "PowerShell not available": 2
+      }
+    },
+    "pytest_required": {
+      "passed": 213,
+      "failed": 4,
+      "skipped": 2,
+      "seconds": 5.94,
+      "exit_code": 1,
+      "failure_reasons": {
+        "SCENE_ROOM_COVERAGE_PENDING": 1,
+        "CAMERA_MAP_IMPLEMENTATION_MISSING": 3
+      },
+      "skip_reasons": {
+        "PowerShell not available": 2
+      }
+    },
+    "node_required": {
+      "passed": 50,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 0.1935835,
+      "exit_code": 0
+    },
+    "architecture": {
+      "status": "PASS",
+      "authority_findings": 0,
+      "inference_findings": 0,
+      "schema_findings": 0,
+      "allow": []
+    },
+    "diff_check": {
+      "worktree": "PASS",
+      "base_to_head": "PASS"
+    }
+  },
+  "pytest_command": "uv run --no-project --offline --python /Users/polalabear/.local/bin/python3.12 --with pytest --with pillow python -m pytest -o pythonpath=src -o addopts= -q -ra tests/q1q5/test_core_search_track_t.py tests/q1q5/test_demo_camera_map_t.py tests/q1q5/test_demo_recording_title_t.py tests/q1q5/test_demo_candidate_view_t.py tests/q1q5/test_openai_prediction_t.py tests/q1q5/test_physical_prediction.py tests/q1q5/test_cx8_tracking_adapter.py tests/q1q5/test_cross_platform_scripts.py",
+  "node_command": "AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/core-search-track.test.mjs frontend/workbench-v2/search-dialog.test.mjs frontend/workbench-v2/event-menu.test.mjs",
+  "guard_command": "uv run --no-project --offline --python /Users/polalabear/.local/bin/python3.12 python scripts/check_architecture_guard.py --repo . --base origin/mainline/q1q5",
+  "limits": [
+    "Original #411 head, not repaired branch.",
+    "No Windows execution, full suite, render, production index, original media, live external transport or formal research acceptance."
+  ]
+}

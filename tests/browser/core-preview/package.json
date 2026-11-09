@@ -1,0 +1,15 @@
+{
+  "name": "amidst-core-preview-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node core-e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "npm@11.12.1"
+}

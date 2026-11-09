@@ -1,0 +1,181 @@
+{
+  "scene_id": "office_expanded_r005",
+  "scene_revision": "r005",
+  "approval_status": "DRAFT",
+  "approval_ref": null,
+  "inputs": [
+    {
+      "ref": "static:office_expanded_r005",
+      "sha256": "43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569"
+    },
+    {
+      "ref": "calibration:office_expanded_r005",
+      "sha256": "1df1de3072375cc8134d53acf3396dc5538c65c8603c0e82788ec2cb514803bf"
+    },
+    {
+      "ref": "static-review:office_expanded_r005",
+      "sha256": "6cdab6afcdf57ff063ad9474eee9fd87d1c5d531b1988e4b260a9b9b9188cba2"
+    },
+    {
+      "ref": "build-receipt:office_expanded_r005",
+      "sha256": "79c5a9020fd78c19427c54a5c776f1344733eacc71d0b3f8226e9290f493fdc0"
+    },
+    {
+      "ref": "authoring-parameters:office_expanded_r005",
+      "sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26"
+    }
+  ],
+  "schema_version": "q-demo.region-graph.v1",
+  "scene_static_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "regions": [
+    {
+      "region_id": "CORR_W",
+      "kind": "CORRIDOR_SEGMENT",
+      "floor_id": "FLOOR_GROUND",
+      "walk_ids": [
+        "floor_CORR_W"
+      ],
+      "polygon_ref": "static-polygon:CORR_W",
+      "polygon_sha256": "a2bb18f6a0fda9f6f2aa9631d703dd51fedef6d55ad0bc6c3f96ae321baee35b"
+    },
+    {
+      "region_id": "CORR_E",
+      "kind": "CORRIDOR_SEGMENT",
+      "floor_id": "FLOOR_GROUND",
+      "walk_ids": [
+        "floor_CORR_E"
+      ],
+      "polygon_ref": "static-polygon:CORR_E",
+      "polygon_sha256": "aceaf1dd9751ecf93feabf86f2904eebeae66112d413a5a2be12601b392714ac"
+    },
+    {
+      "region_id": "R101",
+      "kind": "ROOM",
+      "floor_id": "FLOOR_GROUND",
+      "walk_ids": [
+        "floor_R101"
+      ],
+      "polygon_ref": "static-polygon:R101",
+      "polygon_sha256": "6387433bc1d9206e0344aac487ab0b23be07c8fd733d826e3a7b900d94323065"
+    },
+    {
+      "region_id": "R102",
+      "kind": "ROOM",
+      "floor_id": "FLOOR_GROUND",
+      "walk_ids": [
+        "floor_R102"
+      ],
+      "polygon_ref": "static-polygon:R102",
+      "polygon_sha256": "83049b67a124f23d17af59f2e71520cf6075a09e89e35bc721880ac9f885f44c"
+    },
+    {
+      "region_id": "R103",
+      "kind": "ROOM",
+      "floor_id": "FLOOR_GROUND",
+      "walk_ids": [
+        "floor_R103"
+      ],
+      "polygon_ref": "static-polygon:R103",
+      "polygon_sha256": "c7bb80ced9bb24238b9cc4a4c12a48a8ec6273a9220ea3ef7aea5a2bd6a2217c"
+    },
+    {
+      "region_id": "R104",
+      "kind": "ROOM",
+      "floor_id": "FLOOR_GROUND",
+      "walk_ids": [
+        "floor_R104"
+      ],
+      "polygon_ref": "static-polygon:R104",
+      "polygon_sha256": "957ce9dc0ac235dd96fc64f8a7750d1a282d64ba38bb5098455bbe359fbfa77a"
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "E_R101",
+      "regions": [
+        "R101",
+        "CORR_W"
+      ],
+      "via": {
+        "kind": "PORTAL",
+        "ref": "static:E_R101"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "UNKNOWN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "basis_refs": [
+        "static:43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569"
+      ]
+    },
+    {
+      "edge_id": "E_R102",
+      "regions": [
+        "R102",
+        "CORR_E"
+      ],
+      "via": {
+        "kind": "PORTAL",
+        "ref": "static:E_R102"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "UNKNOWN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "basis_refs": [
+        "static:43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569"
+      ]
+    },
+    {
+      "edge_id": "E_R103",
+      "regions": [
+        "R103",
+        "CORR_W"
+      ],
+      "via": {
+        "kind": "PORTAL",
+        "ref": "static:E_R103"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "UNKNOWN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "basis_refs": [
+        "static:43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569"
+      ]
+    },
+    {
+      "edge_id": "E_R104",
+      "regions": [
+        "R104",
+        "CORR_E"
+      ],
+      "via": {
+        "kind": "PORTAL",
+        "ref": "static:E_R104"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "UNKNOWN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "basis_refs": [
+        "static:43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569"
+      ]
+    },
+    {
+      "edge_id": "E_CORR_JOIN",
+      "regions": [
+        "CORR_W",
+        "CORR_E"
+      ],
+      "via": {
+        "kind": "ADJACENT",
+        "ref": "static:E_CORR_JOIN"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "UNKNOWN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "basis_refs": [
+        "static:43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569"
+      ]
+    }
+  ],
+  "content_sha256": "02a469ae401022105de4303eab5d545b263636e9ce6984b5911dc4da8064d1b5",
+  "graph_id": "rgraph:r005:static:02a469ae40102210"
+}

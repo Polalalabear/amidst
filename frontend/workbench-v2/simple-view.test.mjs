@@ -83,12 +83,17 @@ test('simple view CSS hides every annotation the system view draws',()=>{
   const annotations=[ // OBS boxes, source-time labels, candidate/evidence column, state badges, 俯視圖, bands/curves, log, legend, text marks
     '.q2-box','.q1-box','.q2-state','.q2-candidates','.q2-camera>h3','.q1-card>h3','.q1-flag','.q1-provenance','.q1-coverage','.q1-segment>span','.q1-none',
     '#track-map-slot','.tm-float','#track-map-toggle','#q-timeline-slot','#q5-slot','#q-notice','.legend','.synth','aside.panel','#q3-slot',
-    '.mr-label','.mr-state','.mr-clock','.mr-head','.mr-meta','.mr-stats','#q-time','#q-wall','#q-stop','#q-manual-controls','.icons','.vhead',
-    '[data-stamp]::before',
+    '.mr-label','.mr-state','.mr-clock','.mr-head','.mr-meta','.mr-stats','#q-time','#q-stop','#q-manual-controls','.icons','.vhead',
   ];
   for(const sel of annotations)assert.ok(hidden(sel),`not hidden in simple view: ${sel}`);
   // The controls needed to pick a target and to play must stay visible.
   for(const keep of ['#q-play','#q-scrub','#search-open','#view-seg','.q1-segment button','.q2-media','.q1-media','.mr-media'])assert.ok(!removes(keep),`must stay visible: ${keep}`);
+});
+
+test('simple view keeps the virtual-world time: the corner stamp shows only camera + time, and the transport clock stays',()=>{
+  const css=read('simple-view.css');
+  assert.match(css,/body\.view-simple \[data-stamp\]::before\{content:attr\(data-stamp-simple\)\}/);
+  assert.doesNotMatch(css.split('\n').filter(l=>l.startsWith('body.view-simple')).join('\n'),/#q-wall[^{]*\{display:none/);
 });
 
 test('wiring: stylesheet linked, toggle mounted from app.mjs, class names exist in the sources they hide',()=>{

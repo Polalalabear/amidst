@@ -1266,7 +1266,8 @@
     {
       "value": "q-demo.api-bootstrap.v1",
       "source_paths": [
-        "src/amidst/q1q5/api.py"
+        "src/amidst/q1q5/api.py",
+        "docs/contracts/schemas/q-demo.api-bootstrap.v1.schema.json"
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
@@ -2486,6 +2487,111 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-search.region-skeleton.v1",
+      "source_paths": [
+        "src/amidst/q1q5/scene_graphs.py",
+        "configs/q1q5/graphs/office_expanded_r005/search_skeleton/region_graph.json"
+      ],
+      "issue_ref": "#457",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "office-search.camera-skeleton.v1",
+      "source_paths": [
+        "src/amidst/q1q5/scene_graphs.py",
+        "configs/q1q5/graphs/office_expanded_r005/search_skeleton/camera_graph.json"
+      ],
+      "issue_ref": "#457",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.track-response.v1",
+      "source_paths": [
+        "src/amidst/q1q5/cross_camera_demo.py",
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#417",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.blind-estimate.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.search-request.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.search-response.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.track-request.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-demo.candidate-view.v1",
+      "source_paths": [
+        "docs/contracts/DEMO_UI_SUPPORT_V1.md",
+        "src/amidst/q1q5/candidate_view.py"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "amidst.demo-dependency-inventory.v1",
+      "source_paths": [
+        "docs/engineering/DEMO_DEPENDENCY_INVENTORY_20261108.json"
+      ],
+      "issue_ref": "#486",
+      "status": "LOCAL_TEXT_INVENTORY_ONLY"
+    },
+    {
+      "value": "amidst.demo-owned-files.v1",
+      "source_paths": [
+        "configs/demo_dependencies_manifest_v1.json",
+        "scripts/export_demo_dependency_manifest.py",
+        "scripts/check_demo_dependencies.py"
+      ],
+      "issue_ref": "#486",
+      "status": "LOCAL_DEPENDENCY_MANIFEST_ONLY"
+    },
+    {
+      "value": "amidst.human-track-reference.v1",
+      "source_paths": [
+        "configs/evaluation/d147_human_reference_v1.json",
+        "src/amidst/evaluation/track_recall.py"
+      ],
+      "issue_ref": "#93",
+      "status": "EVALUATION_REFERENCE_ONLY"
+    },
+    {
+      "value": "q-demo.scene-annotations.v1",
+      "source_paths": [
+        "configs/q1q5/scene_annotations_v1.json",
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+        "src/amidst/q1q5/scene_annotations.py"
+      ],
+      "issue_ref": "#93",
+      "status": "REGISTERED_D149_SEARCH_DISPLAY_ONLY"
     }
   ]
 }

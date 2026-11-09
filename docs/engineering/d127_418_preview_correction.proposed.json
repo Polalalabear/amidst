@@ -1,0 +1,24 @@
+{
+  "issue": 418,
+  "status": "USER_APPROVAL_PENDING",
+  "base_parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "evidence_source_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "reason": "Actual static previews have clipped indoor highlights, dim corridor, cropped overhead and mirrored door signs.",
+  "overrides": {
+    "view_exposure_ev": -4,
+    "human_overhead_orthographic_scale_m": 26,
+    "corridor_area_lights": [
+      {"position_xyz_m": [4, 1, 2.8], "energy_w": 400, "size_m": 3, "direction": "NEG_Z"},
+      {"position_xyz_m": [12, 1, 2.8], "energy_w": 400, "size_m": 3, "direction": "NEG_Z"}
+    ],
+    "door_sign_orientation": "Face corridor with text baseline horizontal and text-up world +Z"
+  },
+  "output_root_local": "/Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005-preview-v2",
+  "scope": {"camera_static_pngs": 6, "human_overhead_pngs": 1, "actors": 0, "animation": false, "video": false},
+  "retain_first_preview": true,
+  "minimum_free_start_gib": 8.5,
+  "hard_floor_gib": 8,
+  "max_new_bytes": 268435456,
+  "approved": false,
+  "executed": false
+}

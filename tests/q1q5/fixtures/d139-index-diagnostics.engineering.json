@@ -1,0 +1,1553 @@
+{
+  "data_origin": "INDEX_DERIVED_ENGINEERING_EVIDENCE",
+  "gt_read": false,
+  "decision": "D145",
+  "base_head": "5d6afd239f8e14a3d49e11843acc0084d77d6aff",
+  "job_file_sha256": "651906f9ca18a02d8efd300eb9cef57877ad8da758d9a323b590f82feb86d49e",
+  "source_files_sha256": {
+    "scripts/run_cross_camera_demo.py": "fb8c8baa051c30a58b0e9be4ece88b4e5981c6c55dec589e6352244a83d6357a",
+    "src/amidst/q1q5/demo_local_tracks.py": "67e2b6f8b407645cb682b536016e8dc3bbebaac6a3508a07515af2544e74ab28",
+    "src/amidst/q1q5/cross_camera_demo.py": "8dc969f18a27d5370318eb4bd152d6eceea9a72829225f10afa6f89a2280906a",
+    "src/amidst/q1q5/linker.py": "92d0e70e7ea15e377bfc8a604bf56133b4bf75db68b180671799b56ddaf0a33b",
+    "src/amidst/q1q5/api.py": "0d94fda3253e7c57ef834053652ac3826e8443004fdcbc709b5cabda498b28a0"
+  },
+  "method": "Fresh in-process Demo; pinned index records, local replay, existing static graph. No HTTP, images, models, GT, script or renderer data read for diagnosis. Statistics time bins are report bins only, never query parameters.",
+  "runs": [
+    {
+      "label": "A4-1",
+      "scene_id": "controlled-l-corridor",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "duration_us": 50000000,
+      "index_content_sha256": "1a6bfa206a1bb3b5c67e7f8dd9aabf1675bee70145b89772854f0dc83a7d55b1",
+      "input_byte_pins": {
+        "index": {
+          "path": "data/indexes/A4-1/detection_index.json",
+          "sha256": "b6f708fb743c346ab2b07a21a5293e08b1f595ea3328b00011550827ab1acf67"
+        },
+        "records": {
+          "path": "data/indexes/A4-1/detection_index.records.jsonl",
+          "sha256": "462388425ea6c38ba0f13c2738f57d5f2feca3d5e2ea9ad354e6b087d30809f0"
+        },
+        "local_tracks": {
+          "path": "data/indexes/A4-1/cx8_rule_only.json",
+          "sha256": "6fe9c482c9a08966628bff6af2daff497ef1c9ce565d8c61dc175174b16d4ce8"
+        },
+        "receipt": {
+          "path": "data/indexes/A4-1/demo_default_receipt.json",
+          "sha256": "3ecbe7a02ddb67a8cfd188dd3e65ca11c94f0a228cc931b5f67822f564ab33a7"
+        },
+        "config": {
+          "path": "metadata/config/A4-1-config.json",
+          "sha256": "37bbd88ba1a0826da1e2e1e9a421caac98f3040f605c18f6de96d394acbf166c"
+        },
+        "clock": {
+          "path": "data/artifacts/r004-cx7r-20261104-01a19f8b/bundle/safe_bundle/clocks/r004_a4_d124_v1.json",
+          "sha256": "0f69b149841f38fc5fe9c282a0cff5bcd1855fe61f2afcff1be3ef7557c2db26"
+        }
+      },
+      "clock_content_sha256": "885a051e370f5a318717c74a1e943d87832f8a97bc4e3165b2d0425da3943fac",
+      "graph_file_pin": {
+        "path": "metadata/graphs/camera_graph_v3_1.json",
+        "sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409"
+      },
+      "graph_binding": {
+        "index_scene_id": "controlled-l-corridor",
+        "graph_scene_id": "controlled_scene_v1_s001",
+        "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+      },
+      "loaded_graph_camera_sha256": "b866d5ceefaad6770396c63eff2b9be8e22e11413307512db3bb62b0c5318d5c",
+      "loaded_graph_region_sha256": "f6b2fe43221d79a6816439d220fb49cbc57181abc9b86e0785f5c037749bf27a",
+      "graph_approval_status": "DRAFT",
+      "graph_edges": [
+        [
+          "CAM_EXT_CLEAR",
+          "CAM_W1",
+          "T_CAM_EXT_CLEAR__CAM_W1"
+        ],
+        [
+          "CAM_W1",
+          "CAM_EXT_CAR",
+          "T_CAM_W1__CAM_EXT_CAR"
+        ]
+      ],
+      "parameters": {
+        "sample_interval_us": 200000,
+        "handoff_max_gap_us": 6000000,
+        "min_score": 0.4,
+        "color_rule": "NOT_NONE",
+        "parameter_mode": "DEMO_DEFAULT"
+      },
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY",
+          "frame_records": 250,
+          "frame_states": {
+            "INFERRED": 250
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                24000000,
+                50000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            }
+          ],
+          "legacy_candidate_segments": 0,
+          "legacy_candidate_observations": 0,
+          "new_candidate_segments": 0,
+          "new_candidate_observations": 0,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {},
+          "segments": [],
+          "selected_sightings": 0,
+          "selected_observations": 0
+        },
+        {
+          "camera_id": "CAM_EXT_CAR",
+          "frame_records": 250,
+          "frame_states": {
+            "INFERRED": 250
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 7,
+              "score_at_least_0_4": 0,
+              "below_link_score": 7
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                24000000,
+                50000000
+              ],
+              "raw_person_detections": 10,
+              "score_at_least_0_4": 2,
+              "below_link_score": 8
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 2,
+          "new_candidate_segments": 1,
+          "new_candidate_observations": 2,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 3
+          },
+          "segments": [
+            {
+              "track_ref": "local:68a8e64e03a8c8f2",
+              "first_us": 27400000,
+              "last_sample_end_us": 27800000,
+              "observations": 2
+            }
+          ],
+          "selected_sightings": 0,
+          "selected_observations": 0
+        },
+        {
+          "camera_id": "CAM_EXT_CLEAR",
+          "frame_records": 250,
+          "frame_states": {
+            "INFERRED": 250
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 19,
+              "score_at_least_0_4": 16,
+              "below_link_score": 3
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                24000000,
+                50000000
+              ],
+              "raw_person_detections": 44,
+              "score_at_least_0_4": 44,
+              "below_link_score": 0
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 16,
+          "new_candidate_segments": 5,
+          "new_candidate_observations": 60,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 15
+          },
+          "segments": [
+            {
+              "track_ref": "local:614e6c2396c66f70",
+              "first_us": 5800000,
+              "last_sample_end_us": 9000000,
+              "observations": 16
+            },
+            {
+              "track_ref": "local:cc27e5d22a0f22cc",
+              "first_us": 28200000,
+              "last_sample_end_us": 28400000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:4b6bcbe256af6fe5",
+              "first_us": 28400000,
+              "last_sample_end_us": 28600000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:aeb1b2cbd127992f",
+              "first_us": 28600000,
+              "last_sample_end_us": 28800000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:7c1428a120c563b4",
+              "first_us": 28800000,
+              "last_sample_end_us": 37000000,
+              "observations": 41
+            }
+          ],
+          "selected_sightings": 1,
+          "selected_observations": 16
+        },
+        {
+          "camera_id": "CAM_W1",
+          "frame_records": 250,
+          "frame_states": {
+            "INFERRED": 250
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 2,
+              "score_at_least_0_4": 1,
+              "below_link_score": 1
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 39,
+              "score_at_least_0_4": 28,
+              "below_link_score": 11
+            },
+            {
+              "range_us": [
+                24000000,
+                50000000
+              ],
+              "raw_person_detections": 4,
+              "score_at_least_0_4": 2,
+              "below_link_score": 2
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 1,
+          "new_candidate_segments": 7,
+          "new_candidate_observations": 30,
+          "eligible_not_represented": [
+            "obs:fb8eb393750bc058:CAM_W1:85:0"
+          ],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 25,
+            "AMBIGUOUS_LINK": 2
+          },
+          "segments": [
+            {
+              "track_ref": "local:9093a96bdb718256",
+              "first_us": 10200000,
+              "last_sample_end_us": 10400000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:2363e3f0d6cdb4a2",
+              "first_us": 14800000,
+              "last_sample_end_us": 15000000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:7dc2785ade6274fc",
+              "first_us": 15400000,
+              "last_sample_end_us": 17000000,
+              "observations": 6
+            },
+            {
+              "track_ref": "local:4f1364df1da88d4f",
+              "first_us": 16800000,
+              "last_sample_end_us": 17000000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:360e69e0d8e2684b",
+              "first_us": 17400000,
+              "last_sample_end_us": 22800000,
+              "observations": 19
+            },
+            {
+              "track_ref": "local:668fc78911680503",
+              "first_us": 27400000,
+              "last_sample_end_us": 27600000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:0fadc621144eb905",
+              "first_us": 38200000,
+              "last_sample_end_us": 38400000,
+              "observations": 1
+            }
+          ],
+          "selected_sightings": 11,
+          "selected_observations": 27
+        }
+      ],
+      "before_single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CLEAR",
+          "range_us": [
+            5800000,
+            9000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            9000000,
+            10200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            10200000,
+            10400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "LOST",
+          "camera_id": null,
+          "range_us": [
+            10400000,
+            50000000
+          ],
+          "evidence_state": "UNKNOWN"
+        }
+      ],
+      "after_single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CLEAR",
+          "range_us": [
+            5800000,
+            9000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            9000000,
+            10200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            10200000,
+            10400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            10400000,
+            14800000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            14800000,
+            15000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            15000000,
+            15400000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            15400000,
+            15600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            15600000,
+            15800000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            15800000,
+            16000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            16000000,
+            16200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            16200000,
+            17000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            17000000,
+            17400000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            17400000,
+            17800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            17800000,
+            18200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            18200000,
+            19600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            19600000,
+            19800000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            19800000,
+            21000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            21000000,
+            21400000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            21400000,
+            21600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            21600000,
+            21800000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            21800000,
+            22200000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            22200000,
+            22600000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            22600000,
+            22800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "LOST",
+          "camera_id": null,
+          "range_us": [
+            22800000,
+            50000000
+          ],
+          "evidence_state": "UNKNOWN"
+        }
+      ],
+      "response_status": "LOST",
+      "response_reasons": [
+        "DEMO_DEFAULT",
+        "GRAPH_NOT_APPROVED",
+        "ASSOCIATION_IDENTITY_UNCONFIRMED",
+        "SAME_CAMERA_REACQUISITION",
+        "ASSOCIATION_AMBIGUOUS"
+      ],
+      "events": [
+        {
+          "from_camera_id": "CAM_EXT_CLEAR",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 10200000,
+          "transition_id": "T_CAM_EXT_CLEAR__CAM_W1",
+          "gap_us": 1200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:614e6c2396c66f70",
+          "to_track_ref": "local:9093a96bdb718256",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED",
+          "first_grid_as_of_us": 10400000
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 14800000,
+          "transition_id": null,
+          "gap_us": 4400000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:9093a96bdb718256",
+          "to_track_ref": "local:2363e3f0d6cdb4a2",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED",
+          "first_grid_as_of_us": 15000000
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 15400000,
+          "transition_id": null,
+          "gap_us": 400000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:2363e3f0d6cdb4a2",
+          "to_track_ref": "local:7dc2785ade6274fc",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED",
+          "first_grid_as_of_us": 15600000
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 17400000,
+          "transition_id": null,
+          "gap_us": 400000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:7dc2785ade6274fc",
+          "to_track_ref": "local:360e69e0d8e2684b",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED",
+          "first_grid_as_of_us": 17600000
+        }
+      ],
+      "association_audit": [
+        {
+          "from_camera_id": "CAM_EXT_CLEAR",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 10200000,
+          "transition_id": "T_CAM_EXT_CLEAR__CAM_W1",
+          "gap_us": 1200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:614e6c2396c66f70",
+          "to_track_ref": "local:9093a96bdb718256",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 14800000,
+          "transition_id": null,
+          "gap_us": 4400000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:9093a96bdb718256",
+          "to_track_ref": "local:2363e3f0d6cdb4a2",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 15400000,
+          "transition_id": null,
+          "gap_us": 400000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:2363e3f0d6cdb4a2",
+          "to_track_ref": "local:7dc2785ade6274fc",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 16800000,
+          "transition_id": null,
+          "gap_us": -200000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:7dc2785ade6274fc",
+          "to_track_ref": "local:4f1364df1da88d4f",
+          "reason": "CURRENT_CAMERA_STILL_OBSERVED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 17400000,
+          "transition_id": null,
+          "gap_us": 400000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:7dc2785ade6274fc",
+          "to_track_ref": "local:360e69e0d8e2684b",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_EXT_CAR",
+          "timestamp_us": 27400000,
+          "transition_id": "T_CAM_W1__CAM_EXT_CAR",
+          "gap_us": 4600000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:360e69e0d8e2684b",
+          "to_track_ref": "local:68a8e64e03a8c8f2",
+          "reason": "AMBIGUOUS_HANDOFF",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 27400000,
+          "transition_id": null,
+          "gap_us": 4600000,
+          "link_kind": "SAME_CAMERA_REACQUISITION",
+          "from_track_ref": "local:360e69e0d8e2684b",
+          "to_track_ref": "local:668fc78911680503",
+          "reason": "AMBIGUOUS_HANDOFF",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        }
+      ],
+      "identity_verdict": "UNCONFIRMED",
+      "physical_navigation": "UNKNOWN",
+      "graph_transition_count": 22
+    },
+    {
+      "label": "B4-1",
+      "scene_id": "controlled-l-corridor",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "duration_us": 42000000,
+      "index_content_sha256": "24944adfa947b2421f3073d29d3e1d8397bd916af4ba422ea22d880f4edee0fe",
+      "input_byte_pins": {
+        "index": {
+          "path": "data/indexes/B4-1/detection_index.json",
+          "sha256": "f92e22f1f55cfb772149fe86279eaa9b6b8f14d71d4ca6a423cf9109b2570379"
+        },
+        "records": {
+          "path": "data/indexes/B4-1/detection_index.records.jsonl",
+          "sha256": "c2b8bfa02db34104aca22d76bdc4ae30f7b6254506ea56a54ccb36993b2a524f"
+        },
+        "local_tracks": {
+          "path": "data/indexes/B4-1/cx8_rule_only.json",
+          "sha256": "4ba6ed7c77e2f92c50ba9ddb6adcb65143be3ffa23e8d7d3b87ed98f9b1703d6"
+        },
+        "receipt": {
+          "path": "data/indexes/B4-1/demo_default_receipt.json",
+          "sha256": "59f4ddf3b76e49255183fb823a976670746f843558ecfd32e6be5684fcab4ada"
+        },
+        "config": {
+          "path": "metadata/config/B4-1-config.json",
+          "sha256": "f8578fc203a6fe929ff17b695f62e12c2ec9bdb7c3428dd8eb5df71908b81494"
+        },
+        "clock": {
+          "path": "data/artifacts/r004-cx7r-20261104-01a19f8b/bundle/safe_bundle/clocks/r004_b4_d124_v1.json",
+          "sha256": "91bd3fe34adddcec11d1f9389dda4372e7feb40121d4fc2a32edf09e0f3229d2"
+        }
+      },
+      "clock_content_sha256": "d5e3ab68b7c0f8ec3703f2bbfaf0d1a41b59ea44bd9e1f9d88d4cc9820c0328d",
+      "graph_file_pin": {
+        "path": "metadata/graphs/camera_graph_v3_1.json",
+        "sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409"
+      },
+      "graph_binding": {
+        "index_scene_id": "controlled-l-corridor",
+        "graph_scene_id": "controlled_scene_v1_s001",
+        "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+      },
+      "loaded_graph_camera_sha256": "b866d5ceefaad6770396c63eff2b9be8e22e11413307512db3bb62b0c5318d5c",
+      "loaded_graph_region_sha256": "f6b2fe43221d79a6816439d220fb49cbc57181abc9b86e0785f5c037749bf27a",
+      "graph_approval_status": "DRAFT",
+      "graph_edges": [
+        [
+          "CAM_W1",
+          "CAM_R101_IN",
+          "T_CAM_W1__CAM_R101_IN"
+        ],
+        [
+          "CAM_W1",
+          "CAM_W2",
+          "T_CAM_W1__CAM_W2"
+        ],
+        [
+          "CAM_W1",
+          "CAM_WIDE",
+          "T_CAM_W1__CAM_WIDE"
+        ],
+        [
+          "CAM_W2",
+          "CAM_W1",
+          "T_CAM_W2__CAM_W1"
+        ]
+      ],
+      "parameters": {
+        "sample_interval_us": 200000,
+        "handoff_max_gap_us": 6000000,
+        "min_score": 0.4,
+        "color_rule": "NOT_NONE",
+        "parameter_mode": "DEMO_DEFAULT"
+      },
+      "cameras": [
+        {
+          "camera_id": "CAM_BRANCH",
+          "frame_records": 210,
+          "frame_states": {
+            "INFERRED": 210
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 5,
+              "score_at_least_0_4": 0,
+              "below_link_score": 5
+            },
+            {
+              "range_us": [
+                24000000,
+                42000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            }
+          ],
+          "legacy_candidate_segments": 0,
+          "legacy_candidate_observations": 0,
+          "new_candidate_segments": 0,
+          "new_candidate_observations": 0,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {},
+          "segments": [],
+          "selected_sightings": 0,
+          "selected_observations": 0
+        },
+        {
+          "camera_id": "CAM_R101_IN",
+          "frame_records": 210,
+          "frame_states": {
+            "INFERRED": 210
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 5,
+              "score_at_least_0_4": 2,
+              "below_link_score": 3
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                24000000,
+                42000000
+              ],
+              "raw_person_detections": 7,
+              "score_at_least_0_4": 1,
+              "below_link_score": 6
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 1,
+          "new_candidate_segments": 3,
+          "new_candidate_observations": 3,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 9
+          },
+          "segments": [
+            {
+              "track_ref": "local:d78a90869919d085",
+              "first_us": 3400000,
+              "last_sample_end_us": 3600000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:37fc919b6c4d841b",
+              "first_us": 4000000,
+              "last_sample_end_us": 4200000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:304ae2f5a86bdcb9",
+              "first_us": 26600000,
+              "last_sample_end_us": 26800000,
+              "observations": 1
+            }
+          ],
+          "selected_sightings": 0,
+          "selected_observations": 0
+        },
+        {
+          "camera_id": "CAM_W1",
+          "frame_records": 210,
+          "frame_states": {
+            "INFERRED": 210
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 20,
+              "score_at_least_0_4": 13,
+              "below_link_score": 7
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                24000000,
+                42000000
+              ],
+              "raw_person_detections": 3,
+              "score_at_least_0_4": 0,
+              "below_link_score": 3
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 13,
+          "new_candidate_segments": 1,
+          "new_candidate_observations": 13,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 5
+          },
+          "segments": [
+            {
+              "track_ref": "local:230c1748a43fb3a5",
+              "first_us": 2200000,
+              "last_sample_end_us": 5200000,
+              "observations": 13
+            }
+          ],
+          "selected_sightings": 3,
+          "selected_observations": 13
+        },
+        {
+          "camera_id": "CAM_W2",
+          "frame_records": 210,
+          "frame_states": {
+            "INFERRED": 210
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 26,
+              "score_at_least_0_4": 17,
+              "below_link_score": 9
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                24000000,
+                42000000
+              ],
+              "raw_person_detections": 21,
+              "score_at_least_0_4": 19,
+              "below_link_score": 2
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 10,
+          "new_candidate_segments": 5,
+          "new_candidate_observations": 36,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 15
+          },
+          "segments": [
+            {
+              "track_ref": "local:c0c3acc35fd61828",
+              "first_us": 0,
+              "last_sample_end_us": 2000000,
+              "observations": 10
+            },
+            {
+              "track_ref": "local:4254ab4db0538d5c",
+              "first_us": 2800000,
+              "last_sample_end_us": 4200000,
+              "observations": 7
+            },
+            {
+              "track_ref": "local:53e62f834040211d",
+              "first_us": 25400000,
+              "last_sample_end_us": 25600000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:9f63fe8ec33a2445",
+              "first_us": 26800000,
+              "last_sample_end_us": 30200000,
+              "observations": 17
+            },
+            {
+              "track_ref": "local:295229747cd9c243",
+              "first_us": 30400000,
+              "last_sample_end_us": 30600000,
+              "observations": 1
+            }
+          ],
+          "selected_sightings": 1,
+          "selected_observations": 10
+        },
+        {
+          "camera_id": "CAM_WIDE",
+          "frame_records": 210,
+          "frame_states": {
+            "INFERRED": 210
+          },
+          "time_bins": [
+            {
+              "range_us": [
+                0,
+                10400000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            },
+            {
+              "range_us": [
+                10400000,
+                24000000
+              ],
+              "raw_person_detections": 34,
+              "score_at_least_0_4": 33,
+              "below_link_score": 1
+            },
+            {
+              "range_us": [
+                24000000,
+                42000000
+              ],
+              "raw_person_detections": 0,
+              "score_at_least_0_4": 0,
+              "below_link_score": 0
+            }
+          ],
+          "legacy_candidate_segments": 1,
+          "legacy_candidate_observations": 31,
+          "new_candidate_segments": 3,
+          "new_candidate_observations": 33,
+          "eligible_not_represented": [],
+          "local_step_reason_counts": {
+            "NO_CANDIDATE": 9
+          },
+          "segments": [
+            {
+              "track_ref": "local:0eab3488aa15b664",
+              "first_us": 14000000,
+              "last_sample_end_us": 20200000,
+              "observations": 31
+            },
+            {
+              "track_ref": "local:0070f591af8286da",
+              "first_us": 20200000,
+              "last_sample_end_us": 20400000,
+              "observations": 1
+            },
+            {
+              "track_ref": "local:a41fa25732180b6d",
+              "first_us": 20400000,
+              "last_sample_end_us": 20600000,
+              "observations": 1
+            }
+          ],
+          "selected_sightings": 0,
+          "selected_observations": 0
+        }
+      ],
+      "before_single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W2",
+          "range_us": [
+            0,
+            2000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2000000,
+            2200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2200000,
+            2400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2400000,
+            2600000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2600000,
+            4800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            4800000,
+            5000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            5000000,
+            5200000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "LOST",
+          "camera_id": null,
+          "range_us": [
+            5200000,
+            42000000
+          ],
+          "evidence_state": "UNKNOWN"
+        }
+      ],
+      "after_single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W2",
+          "range_us": [
+            0,
+            2000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2000000,
+            2200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2200000,
+            2400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2400000,
+            2600000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2600000,
+            4800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            4800000,
+            5000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            5000000,
+            5200000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "LOST",
+          "camera_id": null,
+          "range_us": [
+            5200000,
+            42000000
+          ],
+          "evidence_state": "UNKNOWN"
+        }
+      ],
+      "response_status": "LOST",
+      "response_reasons": [
+        "DEMO_DEFAULT",
+        "GRAPH_NOT_APPROVED",
+        "ASSOCIATION_IDENTITY_UNCONFIRMED"
+      ],
+      "events": [
+        {
+          "from_camera_id": "CAM_W2",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 2200000,
+          "transition_id": "T_CAM_W2__CAM_W1",
+          "gap_us": 200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:c0c3acc35fd61828",
+          "to_track_ref": "local:230c1748a43fb3a5",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED",
+          "first_grid_as_of_us": 2400000
+        }
+      ],
+      "association_audit": [
+        {
+          "from_camera_id": "CAM_W2",
+          "to_camera_id": "CAM_W1",
+          "timestamp_us": 2200000,
+          "transition_id": "T_CAM_W2__CAM_W1",
+          "gap_us": 200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:c0c3acc35fd61828",
+          "to_track_ref": "local:230c1748a43fb3a5",
+          "reason": "DEMO_ASSOCIATION_HYPOTHESIS",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W2",
+          "timestamp_us": 2800000,
+          "transition_id": "T_CAM_W1__CAM_W2",
+          "gap_us": -200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:4254ab4db0538d5c",
+          "reason": "CURRENT_CAMERA_STILL_OBSERVED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_R101_IN",
+          "timestamp_us": 3400000,
+          "transition_id": "T_CAM_W1__CAM_R101_IN",
+          "gap_us": -200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:d78a90869919d085",
+          "reason": "CURRENT_CAMERA_STILL_OBSERVED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_R101_IN",
+          "timestamp_us": 4000000,
+          "transition_id": "T_CAM_W1__CAM_R101_IN",
+          "gap_us": -200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:37fc919b6c4d841b",
+          "reason": "CURRENT_CAMERA_STILL_OBSERVED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_WIDE",
+          "timestamp_us": 14000000,
+          "transition_id": "T_CAM_W1__CAM_WIDE",
+          "gap_us": 8800000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:0eab3488aa15b664",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_WIDE",
+          "timestamp_us": 20200000,
+          "transition_id": "T_CAM_W1__CAM_WIDE",
+          "gap_us": 15000000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:0070f591af8286da",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_WIDE",
+          "timestamp_us": 20400000,
+          "transition_id": "T_CAM_W1__CAM_WIDE",
+          "gap_us": 15200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:a41fa25732180b6d",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W2",
+          "timestamp_us": 25400000,
+          "transition_id": "T_CAM_W1__CAM_W2",
+          "gap_us": 20200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:53e62f834040211d",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_R101_IN",
+          "timestamp_us": 26600000,
+          "transition_id": "T_CAM_W1__CAM_R101_IN",
+          "gap_us": 21400000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:304ae2f5a86bdcb9",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W2",
+          "timestamp_us": 26800000,
+          "transition_id": "T_CAM_W1__CAM_W2",
+          "gap_us": 21600000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:9f63fe8ec33a2445",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        },
+        {
+          "from_camera_id": "CAM_W1",
+          "to_camera_id": "CAM_W2",
+          "timestamp_us": 30400000,
+          "transition_id": "T_CAM_W1__CAM_W2",
+          "gap_us": 25200000,
+          "link_kind": "CROSS_CAMERA_HANDOFF",
+          "from_track_ref": "local:230c1748a43fb3a5",
+          "to_track_ref": "local:295229747cd9c243",
+          "reason": "HANDOFF_WINDOW_EXCEEDED",
+          "evidence_state": "INFERRED",
+          "confidence": "LOW",
+          "identity_verdict": "UNCONFIRMED"
+        }
+      ],
+      "identity_verdict": "UNCONFIRMED",
+      "physical_navigation": "UNKNOWN",
+      "graph_transition_count": 22
+    }
+  ],
+  "bootstrap_examples": [
+    {
+      "title": "B-05 \u00b7 P1 v4 \u00b7 SYNTHETIC RGB",
+      "run_id": "ENGINEERING_DYNAMIC_RUN_20261025",
+      "detection_index_sha256": "302655b01273a72dd29356d2b6f888bd2f2dcf79266c05c8bdbc73aad31f0e5c",
+      "detected_class_counts": [
+        {
+          "class_label": "person",
+          "detection_count": 89,
+          "camera_count": 2,
+          "camera_ids": [
+            "A",
+            "B"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "A4-1 \u00b7 D124 \u00b7 ACTUAL_BLENDER \u00b7 \u81ea\u52d5\u7a2e\u5b50",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "detection_index_sha256": "1a6bfa206a1bb3b5c67e7f8dd9aabf1675bee70145b89772854f0dc83a7d55b1",
+      "detected_class_counts": [
+        {
+          "class_label": "person",
+          "detection_count": 125,
+          "camera_count": 3,
+          "camera_ids": [
+            "CAM_EXT_CAR",
+            "CAM_EXT_CLEAR",
+            "CAM_W1"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "B4-1 \u00b7 D124 \u00b7 ACTUAL_BLENDER \u00b7 \u81ea\u52d5\u7a2e\u5b50",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "detection_index_sha256": "24944adfa947b2421f3073d29d3e1d8397bd916af4ba422ea22d880f4edee0fe",
+      "detected_class_counts": [
+        {
+          "class_label": "person",
+          "detection_count": 121,
+          "camera_count": 5,
+          "camera_ids": [
+            "CAM_BRANCH",
+            "CAM_R101_IN",
+            "CAM_W1",
+            "CAM_W2",
+            "CAM_WIDE"
+          ]
+        }
+      ]
+    }
+  ]
+}

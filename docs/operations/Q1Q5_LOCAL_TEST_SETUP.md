@@ -35,11 +35,12 @@
 不要動正在執行的 63408 服務。換一個沒被占用的埠，並用全新的私有目錄：
 
 ```sh
+REPO="<本 repo 的 clone 路徑；先在其中執行 scripts/setup_env.sh>"
 BUNDLE="$HOME/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025"
 TEST="$HOME/amidst-artifacts/wb-test-$(date +%Y%m%d-%H%M%S)"   # 必須是不存在的新目錄
 lsof -nP -iTCP:63418 -sTCP:LISTEN                                # 有輸出就換一個埠
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$BUNDLE/delivery-source/src" \
-  "$HOME/Developer/amidst-claude/.venv/bin/python3" \
+  "$REPO/.venv/bin/python3" \
   "$BUNDLE/delivery-source/scripts/serve_q1q5_linked_workbench.py" \
   --rgb "$BUNDLE/dynamic-rgb-v2/safe/rgb.json" --rgb-sha256 0fe6de8c3bedcc31463fd219a51e191805e8b0872e719c0a96ec8bad49b848da \
   --registry "$BUNDLE/run/prepared/registry.json" --registry-sha256 3bba08d41d9e69337290c9753d703795b2e04f9d7b2d162854005c7bb533c623 \

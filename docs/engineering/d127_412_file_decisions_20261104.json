@@ -1,0 +1,576 @@
+{
+  "reviewed_pr": 411,
+  "reviewed_head": "35bafff5a6c65343d374176412a92a88fb7ca147",
+  "base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "date": "2026-11-04",
+  "scope": "Original head decisions. ADOPT is bounded technical reuse, not merge authorization/formal acceptance; inherited-408 REJECT concerns combined-PR inclusion.",
+  "files": [
+    {
+      "path": "configs/architecture/schema_registry_v1.json",
+      "status": "modified",
+      "added_lines": 49,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "registry",
+      "reason": "Literal registration only; no contract adoption or authority approval."
+    },
+    {
+      "path": "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+      "status": "added",
+      "added_lines": 314,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "proposed-contract-tests",
+      "reason": "Unchanged #410 verification reference, PROPOSED only; no merged history or relaxed assertions."
+    },
+    {
+      "path": "docs/contracts/schemas/q-core.search-track.v1.schema.json",
+      "status": "added",
+      "added_lines": 169,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "proposed-contract-tests",
+      "reason": "Unchanged #410 verification reference, PROPOSED only; no merged history or relaxed assertions."
+    },
+    {
+      "path": "docs/engineering/D126_CORE_DELIVERY_RECEIPT_20261104.md",
+      "status": "added",
+      "added_lines": 161,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "delivery-claims",
+      "reason": "Strict completion claim contradicted by 4 failures; align with D127 actual scope."
+    },
+    {
+      "path": "docs/operations/DEMO_RUNBOOK_20261104.md",
+      "status": "modified",
+      "added_lines": 54,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "docs/project/BUILD_FROM_SCRATCH.md",
+      "status": "added",
+      "added_lines": 364,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/DECISIONS.md",
+      "status": "added",
+      "added_lines": 25,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/GLOSSARY.md",
+      "status": "added",
+      "added_lines": 52,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/PRD.md",
+      "status": "added",
+      "added_lines": 100,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/README.md",
+      "status": "added",
+      "added_lines": 53,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/ROADMAP.md",
+      "status": "added",
+      "added_lines": 56,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/SPEC.md",
+      "status": "added",
+      "added_lines": 160,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "docs/project/SYSTEM_ARCH.md",
+      "status": "added",
+      "added_lines": 157,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "project-docs",
+      "reason": "Keep #409 independent; reconcile claims/contracts/Windows evidence under #428."
+    },
+    {
+      "path": "frontend/event-viewer/app.mjs",
+      "status": "modified",
+      "added_lines": 38,
+      "deleted_lines": 9,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/event-viewer/index.html",
+      "status": "modified",
+      "added_lines": 3,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/event-viewer/runs.mjs",
+      "status": "modified",
+      "added_lines": 5,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/event-viewer/server.mjs",
+      "status": "modified",
+      "added_lines": 3,
+      "deleted_lines": 2,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/event-viewer/style.css",
+      "status": "modified",
+      "added_lines": 10,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/event-viewer/sync.mjs",
+      "status": "modified",
+      "added_lines": 90,
+      "deleted_lines": 5,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/event-viewer/viewer.test.mjs",
+      "status": "modified",
+      "added_lines": 103,
+      "deleted_lines": 9,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/admin.html",
+      "status": "modified",
+      "added_lines": 1,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/app.mjs",
+      "status": "modified",
+      "added_lines": 14,
+      "deleted_lines": 4,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/cam-stamp.mjs",
+      "status": "modified",
+      "added_lines": 12,
+      "deleted_lines": 5,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/cam-stamp.test.mjs",
+      "status": "modified",
+      "added_lines": 26,
+      "deleted_lines": 10,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/clock.mjs",
+      "status": "modified",
+      "added_lines": 1,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track-model.mjs",
+      "status": "added",
+      "added_lines": 362,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "frontend-core",
+      "reason": "Preserve source microseconds and validate calendar days; full UI belongs to #423."
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track.test.mjs",
+      "status": "added",
+      "added_lines": 125,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "proposed-contract-tests",
+      "reason": "Unchanged #410 verification reference, PROPOSED only; no merged history or relaxed assertions."
+    },
+    {
+      "path": "frontend/workbench-v2/event-menu.css",
+      "status": "added",
+      "added_lines": 35,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/event-menu.mjs",
+      "status": "added",
+      "added_lines": 154,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/event-menu.test.mjs",
+      "status": "added",
+      "added_lines": 230,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "cx8-and-inherited-ui",
+      "reason": "Validate status/event/run/clock/hash and receipt references; keep #408 UI independent."
+    },
+    {
+      "path": "frontend/workbench-v2/index.html",
+      "status": "modified",
+      "added_lines": 2,
+      "deleted_lines": 2,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/monitor-room-model.mjs",
+      "status": "modified",
+      "added_lines": 1,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/q-time.mjs",
+      "status": "modified",
+      "added_lines": 25,
+      "deleted_lines": 4,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/q-time.test.mjs",
+      "status": "modified",
+      "added_lines": 18,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-model.mjs",
+      "status": "modified",
+      "added_lines": 32,
+      "deleted_lines": 5,
+      "decision": "REVISE",
+      "group": "dialog",
+      "reason": "Blank now=0 reads future; actual form still uses legacy Q1/Q2. Omit delta until #423."
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-model.test.mjs",
+      "status": "modified",
+      "added_lines": 13,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-view.mjs",
+      "status": "modified",
+      "added_lines": 82,
+      "deleted_lines": 10,
+      "decision": "REVISE",
+      "group": "dialog",
+      "reason": "Blank now=0 reads future; actual form still uses legacy Q1/Q2. Omit delta until #423."
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-view.test.mjs",
+      "status": "added",
+      "added_lines": 12,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog.test.mjs",
+      "status": "added",
+      "added_lines": 101,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "dialog",
+      "reason": "Blank now=0 reads future; actual form still uses legacy Q1/Q2. Omit delta until #423."
+    },
+    {
+      "path": "frontend/workbench-v2/simple-view.css",
+      "status": "modified",
+      "added_lines": 5,
+      "deleted_lines": 2,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/simple-view.test.mjs",
+      "status": "modified",
+      "added_lines": 7,
+      "deleted_lines": 2,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/speed-meter.mjs",
+      "status": "added",
+      "added_lines": 30,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/speed.test.mjs",
+      "status": "added",
+      "added_lines": 60,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/style.css",
+      "status": "modified",
+      "added_lines": 6,
+      "deleted_lines": 1,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "frontend/workbench-v2/tracking-source.mjs",
+      "status": "added",
+      "added_lines": 42,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "cx8-and-inherited-ui",
+      "reason": "Validate status/event/run/clock/hash and receipt references; keep #408 UI independent."
+    },
+    {
+      "path": "scripts/build_office_expanded_scene.py",
+      "status": "added",
+      "added_lines": 434,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "synthetic-builder",
+      "reason": "JSON-only tool is not a real Office builder; remove false manual authority, fix hashes/no-clobber."
+    },
+    {
+      "path": "scripts/build_q1q5_detection_index.py",
+      "status": "modified",
+      "added_lines": 11,
+      "deleted_lines": 3,
+      "decision": "ADOPT",
+      "group": "disk-portability",
+      "reason": "Narrow shutil.disk_usage replacement; no real r004 index acceptance."
+    },
+    {
+      "path": "scripts/ensure_env.py",
+      "status": "added",
+      "added_lines": 246,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "environment",
+      "reason": "Align Python>=3.12; report actual environment/cleanliness/test scope."
+    },
+    {
+      "path": "scripts/run_cx8_rule_tracking.py",
+      "status": "added",
+      "added_lines": 104,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "cx8",
+      "reason": "Reject unbound run/class/target; no invented cross-camera target handoff."
+    },
+    {
+      "path": "scripts/verify_clean_clone.py",
+      "status": "added",
+      "added_lines": 311,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "environment",
+      "reason": "Align Python>=3.12; report actual environment/cleanliness/test scope."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "status": "modified",
+      "added_lines": 114,
+      "deleted_lines": 16,
+      "decision": "REVISE",
+      "group": "api",
+      "reason": "Missing camera-map route; external route always disabled; require scope bindings."
+    },
+    {
+      "path": "src/amidst/q1q5/camera_map.py",
+      "status": "added",
+      "added_lines": 288,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "camera-map-pure",
+      "reason": "Pure projection only; does not establish API delivery."
+    },
+    {
+      "path": "src/amidst/q1q5/candidate_view.py",
+      "status": "added",
+      "added_lines": 90,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "candidate-view",
+      "reason": "Read-only whitelist; retain recording ownership, source time and hash validation."
+    },
+    {
+      "path": "src/amidst/q1q5/core_query.py",
+      "status": "added",
+      "added_lines": 857,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "core",
+      "reason": "Use actual local linking; preserve incomplete evidence and single-view parity."
+    },
+    {
+      "path": "src/amidst/q1q5/demo_launcher.py",
+      "status": "modified",
+      "added_lines": 1,
+      "deleted_lines": 1,
+      "decision": "ADOPT",
+      "group": "candidate-view",
+      "reason": "Read-only whitelist; retain recording ownership, source time and hash validation."
+    },
+    {
+      "path": "src/amidst/q1q5/openai_prediction.py",
+      "status": "added",
+      "added_lines": 599,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "external-display",
+      "reason": "Fix changed-request cache provenance and API/replay integration."
+    },
+    {
+      "path": "start_all_demo.command",
+      "status": "added",
+      "added_lines": 121,
+      "deleted_lines": 0,
+      "decision": "REJECT",
+      "group": "inherited-408",
+      "reason": "Reject combined-PR inclusion only; original #408 preserved, incremental review belongs to #413."
+    },
+    {
+      "path": "start_all_demo.ps1",
+      "status": "added",
+      "added_lines": 269,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "scripts-and-windows",
+      "reason": "CheckOnly must validate assets; synthetic tests do not prove Blender or Windows startup."
+    },
+    {
+      "path": "tests/q1q5/fixtures/core_multi_room.synthetic.json",
+      "status": "added",
+      "added_lines": 218,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "proposed-contract-tests",
+      "reason": "Unchanged #410 verification reference, PROPOSED only; no merged history or relaxed assertions."
+    },
+    {
+      "path": "tests/q1q5/fixtures/core_single_view_vectors.synthetic.json",
+      "status": "added",
+      "added_lines": 791,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "proposed-contract-tests",
+      "reason": "Unchanged #410 verification reference, PROPOSED only; no merged history or relaxed assertions."
+    },
+    {
+      "path": "tests/q1q5/test_core_search_track_t.py",
+      "status": "added",
+      "added_lines": 567,
+      "deleted_lines": 0,
+      "decision": "ADOPT",
+      "group": "proposed-contract-tests",
+      "reason": "Unchanged #410 verification reference, PROPOSED only; no merged history or relaxed assertions."
+    },
+    {
+      "path": "tests/q1q5/test_cross_platform_scripts.py",
+      "status": "added",
+      "added_lines": 358,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "scripts-and-windows",
+      "reason": "CheckOnly must validate assets; synthetic tests do not prove Blender or Windows startup."
+    },
+    {
+      "path": "tests/q1q5/test_cx8_tracking_adapter.py",
+      "status": "added",
+      "added_lines": 76,
+      "deleted_lines": 0,
+      "decision": "REVISE",
+      "group": "cx8",
+      "reason": "Reject unbound run/class/target; no invented cross-camera target handoff."
+    }
+  ]
+}

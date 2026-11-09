@@ -1,0 +1,240 @@
+{
+  "profile": "DEMO_DEFAULT",
+  "formal_eligible": false,
+  "source_475_head": "a786bde58c616f12766c55bb3172c37728c65ef8",
+  "executed_source_head": "cd87c5b16d49c9ca3ccbeb8e41502c746f46d747",
+  "executed_source_code_sha256": {
+    "scripts/run_cross_camera_demo.py": "53b5123d247d5eebdc81be8637bbb22e8c7686e5049e6575075681a668080c37",
+    "src/amidst/q1q5/cross_camera_demo.py": "eaab491d611b2d7dc2451b1ffb9b34ff16cb1d335ebd93310915fd3468f48415"
+  },
+  "source_graph_commit": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "graph_byte_sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+  "graph_content_sha256": "708586a29ef610190c012c746c217226fc989e57caaf203b09d7000e4dcfba48",
+  "graph_binding": {
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "graph_scene_id": "controlled_scene_v1_s001",
+    "index_scene_id": "controlled-l-corridor"
+  },
+  "graph_approval_status": "DRAFT",
+  "parameters": {
+    "color_rule": "NOT_NONE",
+    "handoff_max_gap_us": 6000000,
+    "min_score": 0.4,
+    "parameter_mode": "DEMO_DEFAULT",
+    "sample_interval_us": 200000
+  },
+  "job_locator": "$AMIDST_ARTIFACTS/d131-previews/cross-camera-job.json",
+  "job_sha256": "8586dce9a965193edc456e5a6bed48e331de874f678f85e5b5b20b7449dd71f7",
+  "outputs_locator": "$AMIDST_ARTIFACTS/d131-previews/cross-camera",
+  "consumer_check": {
+    "status": "PASS",
+    "source_head": "088252833665a4bca9fcfbf31597b4bb296fb549",
+    "checked_as_of_responses": 462,
+    "runs": [
+      {
+        "label": "A4-1",
+        "as_of_responses": 251
+      },
+      {
+        "label": "B4-1",
+        "as_of_responses": 211
+      }
+    ]
+  },
+  "runs": [
+    {
+      "label": "A4-1",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "switches": 1,
+      "single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CLEAR",
+          "range_us": [
+            5800000,
+            9000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            9000000,
+            10200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            10200000,
+            10400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "LOST",
+          "camera_id": null,
+          "range_us": [
+            10400000,
+            50000000
+          ],
+          "evidence_state": "UNKNOWN"
+        }
+      ],
+      "timeline_points": 251,
+      "status": "LOST",
+      "files": {
+        "track-response.json": {
+          "bytes": 2526,
+          "sha256": "a81fd5b30e78422f39e98462bd45ae948f28c4b42476365e4dad60813e609ceb"
+        },
+        "single-view.json": {
+          "bytes": 389,
+          "sha256": "648da03555767e7e404677fb00e2855ffab10adc84b0fa53a2ed0e2f86e25ec5"
+        },
+        "switch-events.json": {
+          "bytes": 350,
+          "sha256": "2c281dedcf3e58ed8734a04aa595392bad993d24d1e88b98c71c440c7b235df3"
+        },
+        "association-audit.json": {
+          "bytes": 517,
+          "sha256": "f24e215694b27e57088544ad9f7ca6c034394c801dea6db33d814e74a03c5df1"
+        },
+        "timeline.jsonl": {
+          "bytes": 59133,
+          "sha256": "7acc2a4b8944d50b01bfcef92bb8affac9c7447bee9ffc99d0cc0cedd380e8a0"
+        },
+        "responses.jsonl": {
+          "bytes": 567903,
+          "sha256": "bb3fbb6cddb7b853578b0ef46209603de57fc937f5a564f15753d77bc10d93e0"
+        },
+        "receipt.json": {
+          "bytes": 3001,
+          "sha256": "7157f1674dbd9a873085d6a9de976053ade5fd021a713ce44e8231cfe2898e04"
+        }
+      }
+    },
+    {
+      "label": "B4-1",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "switches": 1,
+      "single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W2",
+          "range_us": [
+            0,
+            2000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2000000,
+            2200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2200000,
+            2400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2400000,
+            2600000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2600000,
+            4800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            4800000,
+            5000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            5000000,
+            5200000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "LOST",
+          "camera_id": null,
+          "range_us": [
+            5200000,
+            42000000
+          ],
+          "evidence_state": "UNKNOWN"
+        }
+      ],
+      "timeline_points": 211,
+      "status": "LOST",
+      "files": {
+        "track-response.json": {
+          "bytes": 3249,
+          "sha256": "3c7afbaea5e07b696783f4611a96c0e0a15c0109337a815b43cea6058d11ae9e"
+        },
+        "single-view.json": {
+          "bytes": 746,
+          "sha256": "9993c2ed5befc9a4a1821572b776b9363f33414c98b08e9bfd57e8f76b148ed9"
+        },
+        "switch-events.json": {
+          "bytes": 333,
+          "sha256": "681075784e364b0d738c587d3c81157ef5dea003647c27e19646ce9e337d3af1"
+        },
+        "association-audit.json": {
+          "bytes": 752,
+          "sha256": "01b172a242494582d115da31b33a92ff98838e495e3cd58de0a735864eb31b8e"
+        },
+        "timeline.jsonl": {
+          "bytes": 49379,
+          "sha256": "230e7072b4c1e0cd72cfea949407a2f4c666646558499d6890566cf0b6593b06"
+        },
+        "responses.jsonl": {
+          "bytes": 652170,
+          "sha256": "3a8169730427fc291eccc10a4ce8ea8651f5cea620e24a8b8fd0ca97ba5cb225"
+        },
+        "receipt.json": {
+          "bytes": 3001,
+          "sha256": "8bfc224caf884eea7c66334a5cdaeabc792ec294f545c891d2faa96a21383d73"
+        }
+      }
+    }
+  ],
+  "identity_verdict": "UNCONFIRMED",
+  "not_verified": [
+    "identity association accuracy",
+    "formal parameters",
+    "physical navigation",
+    "full #445 runtime",
+    "timeout-based confirmed LOST semantics"
+  ]
+}

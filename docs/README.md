@@ -16,6 +16,7 @@
 
 ### 契約
 
+- [Demo bootstrap 偵測類別統計](contracts/Q_DEMO_API_BOOTSTRAP_V1.md)：D139 `detected_class_counts`、索引 pin 與衍生統計邊界。
 - [Q1–Q5 第一版契約](contracts/Q1_Q2_FIRST_DEMO_V1.md)：現行版在 `codex/q1q5-staging`（契約 B，[#237](https://github.com/Polalalabear/amidst/pull/237)）；mainline 的副本不手改。
 
 ### Line 1：r004 baseline
@@ -36,9 +37,11 @@
 
 ### 營運與交接
 
+- [C／#486 自有依賴與主線交接](operations/DEMO_OWNED_DEPENDENCIES_20261108.md)：單一設定、鎖定、manifest、舊路徑對照與驗證命令
 - [最新協調者交接（2026-10-27）](agents/COORDINATOR_HANDOFF_20261027.md)；前一份 [2026-10-26](agents/COORDINATOR_HANDOFF_20261026.md)
 - [Q1–Q5 進度導覽](operations/Q1Q5_PROGRESS.md)：全部 PR 與 issue 的分類
 - [本機測試設定](operations/Q1Q5_LOCAL_TEST_SETUP.md)
+- [D133 LOCAL 播放代理與 Mac 切鏡量測](engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md)：#444／#479 的工程收據，無整合 merge
 
 ### 封存
 
