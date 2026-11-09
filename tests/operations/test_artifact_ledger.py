@@ -177,3 +177,13 @@ def test_validate_safety_rejects_unsafe_deletable(ledger):
     bad = json.loads(json.dumps(ledger))
     next(e for e in bad['entries'] if e['type'] == 'raw_data')['safety']['status'] = 'SAFE'
     assert any('raw_data can never be SAFE' in x for x in tool.validate(bad))
+
+
+def test_expand_relative_and_legacy_locators(tmp_path, monkeypatch):
+    monkeypatch.setenv('AMIDST_ROOT', str(tmp_path / 'root'))
+    assert tool.expand('local/data/x') == (tmp_path / 'root').resolve() / 'local/data/x'
+    home = tmp_path / 'home'
+    (tmp_path / 'root/local/evidence/pack').mkdir(parents=True)
+    # old place gone: the D171 map points ~/amidst-artifacts/<name> into local/…
+    assert tool.expand('~/amidst-artifacts/pack', home=str(home)).name == 'pack'
+    assert tool.expand('~/never-heard-of-it', home=str(home)) == home / 'never-heard-of-it'

@@ -20,7 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 PARAMETERS = ROOT / 'docs/engineering/d127_418_parameters.proposed.json'
 PARAMETER_SHA = '57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26'
 APPROVAL = 'https://github.com/Polalalabear/amidst/issues/418#issuecomment-6634899000'
-OUTPUT = Path('/Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005')
+sys.path.insert(0, str(ROOT / 'src'))
+from amidst.paths import data_dir  # noqa: E402
+
+OUTPUT = data_dir() / 'd127-418-office-expanded-r005'
 GIB = 1024**3
 
 
@@ -308,7 +311,7 @@ def main(argv=None):
     args=p.parse_args(argv)
     require(args.check_only or (args.execute and args.authorization_ref==APPROVAL), 'EXPLICIT_AUTHORIZATION_REQUIRED')
     require(not (args.check_only and args.execute),'MODE_CONFLICT')
-    data=parameters(args.parameters);output=new_output(args.output)
+    data=parameters(args.parameters);output=new_output(args.output,approved=args.output)  # --output redefines the approved location
     snapshot=disk_record(output,'preflight',start=True)
     if args.check_only:
         print(json.dumps({'status':'APPROVED_INPUTS_VERIFIED','parameter_sha256':PARAMETER_SHA,'disk':snapshot}))

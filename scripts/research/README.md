@@ -6,7 +6,7 @@
 指令一律用專案 venv 的 Python；腳本只讀自己的輸入檔，不讀 GT、錄製或影像。
 
 ```bash
-PY=/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python
+PY=.venv/bin/python   # repo venv (uv sync --frozen --all-groups); run from the repo root
 ```
 
 ## 腳本

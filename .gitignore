@@ -75,3 +75,6 @@ tests/browser/core-preview/node_modules/
 
 # Locked Node installs (#491).
 node_modules/
+
+# D171: all non-git content (data, evidence, archive, logs, env templates, demo pin) lives here.
+/local/

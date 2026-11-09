@@ -19,6 +19,8 @@ from copy import deepcopy
 from html import escape
 from pathlib import Path
 
+from amidst.paths import local_dir
+
 
 class ReviewError(ValueError):
     pass
@@ -29,7 +31,7 @@ def source_blend_locator(value):
     path = Path(value)
     if path.is_absolute():
         return path  # Historical local plans; newly published plans are relative.
-    root = Path(os.environ.get("AMIDST_ARTIFACTS", Path.home() / "amidst-artifacts")).absolute()
+    root = Path(os.environ["AMIDST_ARTIFACTS"]).absolute() if os.environ.get("AMIDST_ARTIFACTS") else local_dir()
     result = root / path
     if root.resolve() != root or result.resolve() != result or not result.is_relative_to(root):
         raise ReviewError("Source locator must stay within AMIDST_ARTIFACTS")

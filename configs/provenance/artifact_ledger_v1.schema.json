@@ -68,7 +68,7 @@
         },
         "path": {
           "type": "string",
-          "pattern": "^(~/|/)"
+          "pattern": "^(~/|/|local/)"
         },
         "type": {
           "enum": [

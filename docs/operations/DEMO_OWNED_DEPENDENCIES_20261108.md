@@ -4,13 +4,13 @@
 
 ## 啟動與重現
 
-固定 LOCAL 根目錄為 `~/amidst-artifacts/demo-owned-v1`，可用 **單一** `AMIDST_DEMO_HOME` 改到另一個 canonical 目錄。設定集中於 `configs/demo_integration_local.json`。移機時傳送自有 package 的 data、metadata、models、runtime 與 provenance，校驗 repo manifest；不從舊 checkout 或臨時資料夾補檔。raw RGB、模型與環境不進 Git。這次保存的 Python runtime profile 是 **Mac darwin-arm64**；Windows／Linux runtime 與整個 C 的其他清單仍屬獨立平台驗收，不能把本機 PASS 當它們的結果。
+預設 LOCAL 根目錄為 repo 根目錄之下的 `local/data/demo-owned-v1`（D171；`local/` 已被 `.gitignore`，根目錄可用 `AMIDST_ROOT` 改；找不到時報 `OWNED_ROOT_NOT_FOUND`），可用 **單一** `AMIDST_DEMO_HOME` 改到另一個 canonical 目錄。設定集中於 `configs/demo_integration_local.json`。移機時傳送自有 package 的 data、metadata、models、runtime 與 provenance，校驗 repo manifest；不從舊 checkout 或臨時資料夾補檔。raw RGB、模型與環境不進 Git。這次保存的 Python runtime profile 是 **Mac darwin-arm64**；Windows／Linux runtime 與整個 C 的其他清單仍屬獨立平台驗收，不能把本機 PASS 當它們的結果。
 
 在 demo checkout：
 
 ```sh
 # 第一次建立／按鎖定同步；有完整 cache 時可加 --offline。
-export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$HOME/amidst-artifacts/demo-owned-v1}"
+export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$PWD/local/data/demo-owned-v1}"
 PYTHONPATH=src uv run --offline --no-project \
   --python "$AMIDST_DEMO_HOME/runtime/python/bin/python3.12" \
   python -B scripts/setup_owned_demo.py
@@ -18,7 +18,7 @@ PYTHONPATH=src uv run --offline --no-project \
 ./start_445_demo.command --port 8785
 ```
 
-若沒有設定環境變數，第一個命令的 Python 改用 `~/amidst-artifacts/demo-owned-v1/runtime/python/bin/python3.12`。第二個命令會自己讀同一設定，不需要任何舊環境參數。setup 僅使用 repo `uv.lock` 和 `tests/browser/core-preview/package-lock.json`；venv 在 checkout `.venv`，`uv sync --frozen --no-install-project --link-mode copy --no-python-downloads`，專案由 `PYTHONPATH=src` 讀取。Node 依 `.node-version` 為 26.0.0，npm 本次為 11.12.1，Playwright **devDependency** 鎖 1.56.0；`npm ci --ignore-scripts --no-audit --no-fund` 安裝於 repo 下，無 TMP fallback。Python `.python-version` 採 #491 原值 `3.12`；Mac 自有 runtime 由 config／逐檔 manifest 固定為 **3.12.12**。
+若沒有設定環境變數，第一個命令的 Python 改用 `local/data/demo-owned-v1/runtime/python/bin/python3.12`（repo 根目錄下）。第二個命令會自己讀同一設定，不需要任何舊環境參數。setup 僅使用 repo `uv.lock` 和 `tests/browser/core-preview/package-lock.json`；venv 在 checkout `.venv`，`uv sync --frozen --no-install-project --link-mode copy --no-python-downloads`，專案由 `PYTHONPATH=src` 讀取。Node 依 `.node-version` 為 26.0.0，npm 本次為 11.12.1，Playwright **devDependency** 鎖 1.56.0；`npm ci --ignore-scripts --no-audit --no-fund` 安裝於 repo 下，無 TMP fallback。Python `.python-version` 採 #491 原值 `3.12`；Mac 自有 runtime 由 config／逐檔 manifest 固定為 **3.12.12**。
 
 服務會拒絕讀取 checkout／owned package 以外的 home、Shared、TMP 輸入，並拒絕模型子程序與外連。immutable JSON 裡的舊來源字串只作 provenance；不被解析成活的讀檔路徑。圖、index、clock、records、local tracks、r005 人工回條及 RGB 原始 bytes/pins 均不改；新 job 只有 locator 換成相對路徑。state／證據落在 owned 根目錄；uv cache 在 checkout `.local/demo-cache/uv`。
 

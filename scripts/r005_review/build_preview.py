@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
-PROBE = (Path.home() / 'amidst-artifacts/d129-464-r005-probe-20261105-a')
-RGB = (Path.home() / 'amidst-artifacts/d127-418-office-expanded-r005-preview-v2/rgb')
+sys.path.insert(0, str(HERE.parents[1] / 'src'))
+from amidst.paths import locate_artifact  # noqa: E402
+PROBE = locate_artifact('d129-464-r005-probe-20261105-a')
+RGB = locate_artifact('d127-418-office-expanded-r005-preview-v2/rgb')
 PR473 = '978bf6ce9e955700022af235b284aa5ff4c8a73f'
 PR447 = '39b9c4323288cae8c52532277cdd6dc75b63a965'
 def sha(raw: bytes) -> str:

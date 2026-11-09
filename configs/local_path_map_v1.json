@@ -1,0 +1,843 @@
+{
+ "schema_version": "amidst.local-path-map.v2",
+ "layout_version": 2,
+ "decision_ref": "D169/D171",
+ "root": "repository root (AMIDST_ROOT overrides)",
+ "match": "longest old prefix on a path-component boundary; ~ = the user's home",
+ "entries": [
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8.zip",
+   "new": "local/evidence/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8.zip",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/team_review_pack_v0-pilot_20261021.df-before.txt",
+   "new": "local/archive/team_review_pack_v0-pilot_20261021.df-before.txt",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/team_review_pack_v0-pilot_20261021.df-after.txt",
+   "new": "local/archive/team_review_pack_v0-pilot_20261021.df-after.txt",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8",
+   "new": "local/evidence/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-demo-20261104/tests/browser/core-preview/node_modules",
+   "new": "tests/browser/core-preview/node_modules"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-rc5-rerecord-20261027-d92-validation",
+   "new": "local/archive/q1q5-rc5-rerecord-20261027-d92-validation",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005-preview-v2",
+   "new": "local/data/d127-418-office-expanded-r005-preview-v2",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-qwen3-untruncated_20261026_01a1735f",
+   "new": "local/evidence/q1q5-qwen3-untruncated_20261026_01a1735f",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-workbench-reopen_20261025T175011",
+   "new": "local/archive/q1q5-workbench-reopen_20261025T175011",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-baseline-acceptance-v1_20261024",
+   "new": "local/evidence/q1q5-baseline-acceptance-v1_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-playback-continuity-v2_20261024",
+   "new": "local/archive/q1q5-playback-continuity-v2_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-search-budget-proposal-20261020",
+   "new": "local/archive/q1q5-search-budget-proposal-20261020",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-baseline-telemetry-v1_20261024",
+   "new": "local/archive/q1q5-baseline-telemetry-v1_20261024",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-baseline-telemetry-v2_20261024",
+   "new": "local/evidence/q1q5-baseline-telemetry-v2_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8.zip",
+   "new": "local/evidence/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8.zip",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/team_review_pack_v0-pilot_20261021",
+   "new": "local/evidence/team_review_pack_v0-pilot_20261021",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025",
+   "new": "local/data/q1q5-dynamic-baseline-v1_20261025",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-baseline-runner-v1_20261024",
+   "new": "local/archive/q1q5-baseline-runner-v1_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-baseline-telemetry-20261024",
+   "new": "local/archive/q1q5-baseline-telemetry-20261024",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-linked-baseline-v1_20261024",
+   "new": "local/evidence/q1q5-linked-baseline-v1_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-review-closeout-v1_20261025",
+   "new": "local/archive/q1q5-review-closeout-v1_20261025",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/team_review_pack_v0-pilot_20261021.df-before.txt",
+   "new": "local/archive/team_review_pack_v0-pilot_20261021.df-before.txt",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/demo-launcher_20261102_01a199f8",
+   "new": "local/archive/demo-launcher_20261102_01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8",
+   "new": "local/evidence/r004-cx7-d115-20261102-01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-prereview-team-v1_20261023",
+   "new": "local/evidence/r004-prereview-team-v1_20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-prereview-team-v2_20261024",
+   "new": "local/evidence/r004-prereview-team-v2_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/team_review_pack_v0-pilot_20261021.df-after.txt",
+   "new": "local/archive/team_review_pack_v0-pilot_20261021.df-after.txt",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d129-464-r005-probe-20261105-a",
+   "new": "local/data/d129-464-r005-probe-20261105-a",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/demo-all-events-shots-20261104",
+   "new": "local/archive/demo-all-events-shots-20261104",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8",
+   "new": "local/evidence/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-qwen3-contention-20261023",
+   "new": "local/evidence/q1q5-qwen3-contention-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-rc5-rerecord-20261027-d92",
+   "new": "local/evidence/q1q5-rc5-rerecord-20261027-d92",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005",
+   "new": "local/evidence/d127-418-office-expanded-r005",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-rc3-rerecord-v1_20261026",
+   "new": "local/evidence/q1q5-rc3-rerecord-v1_20261026",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-graphs-proposed-20261021",
+   "new": "local/archive/r004-graphs-proposed-20261021",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023",
+   "new": "local/evidence/q1q5-qwen-diagnosis-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-hfov-selection-20261021",
+   "new": "local/evidence/r004-hfov-selection-20261021",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-workbench-measurements",
+   "new": "local/archive/d133-workbench-measurements",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/demo-ui-f_20261102_01a199f8",
+   "new": "local/archive/demo-ui-f_20261102_01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-model-compare-20261023",
+   "new": "local/evidence/q1q5-model-compare-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b",
+   "new": "local/data/r004-cx7r-20261104-01a19f8b",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "~/amidst-demo-20261104/tests/browser/core-preview/node_modules",
+   "new": "tests/browser/core-preview/node_modules"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-playback-measurements",
+   "new": "local/archive/d133-playback-measurements",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/experiment-record-20261108",
+   "new": "local/evidence/experiment-record-20261108",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023",
+   "new": "local/evidence/q1q5-qwen-runtime-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023",
+   "new": "local/evidence/q1q5-qwen3-switch-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-scene-change-proposal",
+   "new": "local/archive/r004-scene-change-proposal",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/team-handoff-yyin-20261025",
+   "new": "local/evidence/team-handoff-yyin-20261025",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-event-modes-20261022",
+   "new": "local/evidence/q1q5-event-modes-20261022",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-rc5-rerecord-20261027-d92-validation",
+   "new": "local/archive/q1q5-rc5-rerecord-20261027-d92-validation",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/research-plan-ui-20261108",
+   "new": "local/archive/research-plan-ui-20261108",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/d127-418-office-expanded-r005-preview-v2",
+   "new": "local/data/d127-418-office-expanded-r005-preview-v2",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-playback-proxies-v2",
+   "new": "local/evidence/d133-playback-proxies-v2",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q2-plan-x2-x3-20261020",
+   "new": "local/archive/q1q2-plan-x2-x3-20261020",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-qwen3-untruncated_20261026_01a1735f",
+   "new": "local/evidence/q1q5-qwen3-untruncated_20261026_01a1735f",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q4-eval-program-20261021",
+   "new": "local/archive/q4-eval-program-20261021",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-measurement-report",
+   "new": "local/evidence/d133-measurement-report",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-workbench-pilot-v2",
+   "new": "local/archive/d133-workbench-pilot-v2",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-build-v2-20261021",
+   "new": "local/data/r004-build-v2-20261021",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-playback-proxies",
+   "new": "local/evidence/d133-playback-proxies",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/hsv-proposal-20261021",
+   "new": "local/archive/hsv-proposal-20261021",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/project-docs-20261104",
+   "new": "local/evidence/project-docs-20261104",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-contract-1d1e061",
+   "new": "local/archive/q1q5-contract-1d1e061",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-staging-20261021",
+   "new": "local/evidence/q1q5-staging-20261021",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-workbench-reopen_20261025T175011",
+   "new": "local/archive/q1q5-workbench-reopen_20261025T175011",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/coordinator-20261025",
+   "new": "local/archive/coordinator-20261025",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/coordinator-20261108",
+   "new": "local/archive/coordinator-20261108",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/coordinator-20261109",
+   "new": "local/evidence/coordinator-20261109",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-switch-baseline",
+   "new": "local/archive/d133-switch-baseline",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-switch-headless",
+   "new": "local/archive/d133-switch-headless",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-switch-pilot-v2",
+   "new": "local/archive/d133-switch-pilot-v2",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-workbench-pilot",
+   "new": "local/archive/d133-workbench-pilot",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d134-445-integration",
+   "new": "local/evidence/d134-445-integration",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-baseline-acceptance-v1_20261024",
+   "new": "local/evidence/q1q5-baseline-acceptance-v1_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-playback-continuity-v2_20261024",
+   "new": "local/archive/q1q5-playback-continuity-v2_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-search-budget-proposal-20261020",
+   "new": "local/archive/q1q5-search-budget-proposal-20261020",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-baseline-telemetry-v1_20261024",
+   "new": "local/archive/q1q5-baseline-telemetry-v1_20261024",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-baseline-telemetry-v2_20261024",
+   "new": "local/evidence/q1q5-baseline-telemetry-v2_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/r004-build-20261021",
+   "new": "local/data/r004-build-20261021",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5-clock-mapping",
+   "new": "local/archive/q1q5-clock-mapping",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/team_review_pack_v0-pilot_20261021",
+   "new": "local/evidence/team_review_pack_v0-pilot_20261021",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-switch-pilot",
+   "new": "local/archive/d133-switch-pilot",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025",
+   "new": "local/data/q1q5-dynamic-baseline-v1_20261025",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d133-bench-pilot",
+   "new": "local/archive/d133-bench-pilot",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/epicd-b-20261108",
+   "new": "local/archive/epicd-b-20261108",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-baseline-runner-v1_20261024",
+   "new": "local/archive/q1q5-baseline-runner-v1_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-baseline-telemetry-20261024",
+   "new": "local/archive/q1q5-baseline-telemetry-20261024",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-linked-baseline-v1_20261024",
+   "new": "local/evidence/q1q5-linked-baseline-v1_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-review-closeout-v1_20261025",
+   "new": "local/archive/q1q5-review-closeout-v1_20261025",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d135-487-mac-ui",
+   "new": "local/evidence/d135-487-mac-ui",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/demo-launcher_20261102_01a199f8",
+   "new": "local/archive/demo-launcher_20261102_01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/q1q5_acceptance",
+   "new": "local/evidence/q1q5_acceptance",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-cx7-d115-20261102-01a199f8",
+   "new": "local/evidence/r004-cx7-d115-20261102-01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-prereview-team-v1_20261023",
+   "new": "local/evidence/r004-prereview-team-v1_20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-prereview-team-v2_20261024",
+   "new": "local/evidence/r004-prereview-team-v2_20261024",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d129-464-r005-probe-20261105-a",
+   "new": "local/data/d129-464-r005-probe-20261105-a",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "~/amidst-artifacts/demo-all-events-shots-20261104",
+   "new": "local/archive/demo-all-events-shots-20261104",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-qwen3-contention-20261023",
+   "new": "local/evidence/q1q5-qwen3-contention-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-rc5-rerecord-20261027-d92",
+   "new": "local/evidence/q1q5-rc5-rerecord-20261027-d92",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d127-418-office-expanded-r005",
+   "new": "local/evidence/d127-418-office-expanded-r005",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d131-previews",
+   "new": "local/evidence/d131-previews",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/demo-20261104",
+   "new": "local/evidence/demo-20261104",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/demo-owned-v1",
+   "new": "local/data/demo-owned-v1",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-rc3-rerecord-v1_20261026",
+   "new": "local/evidence/q1q5-rc3-rerecord-v1_20261026",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-graphs-proposed-20261021",
+   "new": "local/archive/r004-graphs-proposed-20261021",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-qwen-diagnosis-20261023",
+   "new": "local/evidence/q1q5-qwen-diagnosis-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-hfov-selection-20261021",
+   "new": "local/evidence/r004-hfov-selection-20261021",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-workbench-measurements",
+   "new": "local/archive/d133-workbench-measurements",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/demo-ui-f_20261102_01a199f8",
+   "new": "local/archive/demo-ui-f_20261102_01a199f8",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-model-compare-20261023",
+   "new": "local/evidence/q1q5-model-compare-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-cx7r-20261104-01a19f8b",
+   "new": "local/data/r004-cx7r-20261104-01a19f8b",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-playback-measurements",
+   "new": "local/archive/d133-playback-measurements",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/experiment-record-20261108",
+   "new": "local/evidence/experiment-record-20261108",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-qwen-runtime-20261023",
+   "new": "local/evidence/q1q5-qwen-runtime-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-qwen3-switch-20261023",
+   "new": "local/evidence/q1q5-qwen3-switch-20261023",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-scene-change-proposal",
+   "new": "local/archive/r004-scene-change-proposal",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/team-handoff-yyin-20261025",
+   "new": "local/evidence/team-handoff-yyin-20261025",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/amidst-demo-20261104/.local",
+   "new": ".local"
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/.DS_Store",
+   "new": "local/archive/amidst-artifacts-root/.DS_Store",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-event-modes-20261022",
+   "new": "local/evidence/q1q5-event-modes-20261022",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/research-plan-ui-20261108",
+   "new": "local/archive/research-plan-ui-20261108",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-demo-20261104/.venv",
+   "new": ".venv"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-playback-proxies-v2",
+   "new": "local/evidence/d133-playback-proxies-v2",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q2-plan-x2-x3-20261020",
+   "new": "local/archive/q1q2-plan-x2-x3-20261020",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q4-eval-program-20261021",
+   "new": "local/archive/q4-eval-program-20261021",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/Shared/amidst-p1-clean-room-20261026",
+   "new": "local/archive/p1-clean-room-20261026"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-measurement-report",
+   "new": "local/evidence/d133-measurement-report",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-workbench-pilot-v2",
+   "new": "local/archive/d133-workbench-pilot-v2",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-build-v2-20261021",
+   "new": "local/data/r004-build-v2-20261021",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/Developer/amidst-claude",
+   "new": "local/archive/checkouts/amidst-claude"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-playback-proxies",
+   "new": "local/evidence/d133-playback-proxies",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/hsv-proposal-20261021",
+   "new": "local/archive/hsv-proposal-20261021",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/project-docs-20261104",
+   "new": "local/evidence/project-docs-20261104",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-contract-1d1e061",
+   "new": "local/archive/q1q5-contract-1d1e061",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-staging-20261021",
+   "new": "local/evidence/q1q5-staging-20261021",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/coordinator-20261025",
+   "new": "local/archive/coordinator-20261025",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/coordinator-20261108",
+   "new": "local/archive/coordinator-20261108",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/coordinator-20261109",
+   "new": "local/evidence/coordinator-20261109",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-switch-baseline",
+   "new": "local/archive/d133-switch-baseline",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-switch-headless",
+   "new": "local/archive/d133-switch-headless",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-switch-pilot-v2",
+   "new": "local/archive/d133-switch-pilot-v2",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-workbench-pilot",
+   "new": "local/archive/d133-workbench-pilot",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/d134-445-integration",
+   "new": "local/evidence/d134-445-integration",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/Developer/amidst-q1q5",
+   "new": ""
+  },
+  {
+   "old": "/Users/polalabear/amidst-artifacts/d67",
+   "new": "local/evidence/d67",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/r004-build-20261021",
+   "new": "local/data/r004-build-20261021",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/amidst-demo-20261104",
+   "new": "local/archive/checkouts/amidst-demo-20261104"
+  },
+  {
+   "old": "/Users/polalabear/amidst-d139-20261108",
+   "new": "local/archive/checkouts/amidst-d139-20261108"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5-clock-mapping",
+   "new": "local/archive/q1q5-clock-mapping",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-switch-pilot",
+   "new": "local/archive/d133-switch-pilot",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/d133-bench-pilot",
+   "new": "local/archive/d133-bench-pilot",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-artifacts/epicd-b-20261108",
+   "new": "local/archive/epicd-b-20261108",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "/Users/polalabear/amidst-demo-state",
+   "new": "local/data/demo-state"
+  },
+  {
+   "old": "~/amidst-artifacts/d135-487-mac-ui",
+   "new": "local/evidence/d135-487-mac-ui",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/q1q5_acceptance",
+   "new": "local/evidence/q1q5_acceptance",
+   "generation": "CITED"
+  },
+  {
+   "old": "/Users/polalabear/Developer/amidst",
+   "new": "local/archive/office-canonical"
+  },
+  {
+   "old": "~/amidst-artifacts/d131-previews",
+   "new": "local/evidence/d131-previews",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/demo-20261104",
+   "new": "local/evidence/demo-20261104",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-artifacts/demo-owned-v1",
+   "new": "local/data/demo-owned-v1",
+   "generation": "CURRENT"
+  },
+  {
+   "old": "/Users/polalabear/Models/amidst",
+   "new": "local/data/models-amidst"
+  },
+  {
+   "old": "~/amidst-demo-20261104/.local",
+   "new": ".local"
+  },
+  {
+   "old": "~/amidst-artifacts/.DS_Store",
+   "new": "local/archive/amidst-artifacts-root/.DS_Store",
+   "generation": "OBSOLETE"
+  },
+  {
+   "old": "~/amidst-demo-20261104/.venv",
+   "new": ".venv"
+  },
+  {
+   "old": "~/Developer/amidst-claude",
+   "new": "local/archive/checkouts/amidst-claude"
+  },
+  {
+   "old": "~/Developer/amidst-q1q5",
+   "new": ""
+  },
+  {
+   "old": "~/amidst-artifacts/d67",
+   "new": "local/evidence/d67",
+   "generation": "CITED"
+  },
+  {
+   "old": "~/amidst-demo-20261104",
+   "new": "local/archive/checkouts/amidst-demo-20261104"
+  },
+  {
+   "old": "~/amidst-d139-20261108",
+   "new": "local/archive/checkouts/amidst-d139-20261108"
+  },
+  {
+   "old": "~/amidst-demo-state",
+   "new": "local/data/demo-state"
+  },
+  {
+   "old": "~/Developer/amidst",
+   "new": "local/archive/office-canonical"
+  },
+  {
+   "old": "~/Models/amidst",
+   "new": "local/data/models-amidst"
+  }
+ ]
+}

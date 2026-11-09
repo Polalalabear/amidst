@@ -4,7 +4,7 @@
 Reads the owned detection indexes (read-only, no inference) and, optionally, real
 track-response JSON files from a real-e2e run. Prints a Markdown table and writes JSON.
 
-    AMIDST_DEMO_HOME=~/amidst-artifacts/demo-owned-v1 \
+    AMIDST_DEMO_HOME=<owned root, default local/data/demo-owned-v1> \
     python3 -B scripts/eval_d147_recall.py --out /tmp/d147.json \
         --track A4-1=<dir>/A4-1-track-response.json --track B4-1=<dir>/B4-1-track-response.json
 """
@@ -19,6 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
+from amidst.paths import demo_owned_root  # noqa: E402
 from amidst.evaluation.track_recall import (  # noqa: E402
     box_continuation_frames, camera_frames, load_reference, person_frames, score_frames, score_single_view, score_sightings, score_single_view_switching)
 
@@ -67,11 +68,13 @@ def load_track_response(path, *, run_id, index_sha256):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--home', default=os.environ.get('AMIDST_DEMO_HOME', '~/amidst-artifacts/demo-owned-v1'))
+    ap.add_argument('--home', default=None, help='owned root (default: AMIDST_DEMO_HOME or the configured owned_root)')
     ap.add_argument('--reference', default=str(DEFAULT_REFERENCE))
     ap.add_argument('--track', action='append', default=[], help='LABEL=path to a q_core_track response JSON')
     ap.add_argument('--out', required=True)
     args = ap.parse_args()
+    if args.home is None:
+        args.home = str(demo_owned_root())
     reference = load_reference(args.reference)
     tracks = dict(item.split('=', 1) for item in args.track)
     result = {'reference': {'path': os.path.relpath(args.reference, ROOT), 'sha256': sha256(args.reference)},

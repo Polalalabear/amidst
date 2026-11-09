@@ -153,6 +153,15 @@
       "status": "PROPOSED_REGISTRATION_ONLY"
     },
     {
+      "value": "amidst.local-path-map.v2",
+      "source_paths": [
+        "configs/local_path_map_v1.json",
+        "src/amidst/paths.py"
+      ],
+      "issue_ref": "#486",
+      "status": "LOCAL_PATH_MAP_ONLY"
+    },
+    {
       "value": "architectural-scale-v1",
       "source_paths": [
         "configs/architectural_scale_school_v3.json"

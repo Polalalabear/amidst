@@ -5,7 +5,7 @@ CX-7 的 A4-1（4 鏡頭）與 B4-1（5 鏡頭）safe RGB 同步播放頁。ENGI
 ## Demo 當日啟動（一行）
 
 ```bash
-node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8" --port 8765
+node frontend/event-viewer/server.mjs --root "$PWD/local/evidence/r004-cx7-d115-20261102-01a199f8" --port 8765
 ```
 
 再開 <http://127.0.0.1:8765/>。`--root` 是 LOCAL 的 CX-7 輸出根目錄；server 只讀 `<run>/safe/media/<camera>/<index>.png`，其餘路徑（含 `gt_private/`）、`..`、symlink 一律 404，且只綁 127.0.0.1。

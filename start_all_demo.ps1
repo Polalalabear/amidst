@@ -35,21 +35,22 @@ if ([string]::IsNullOrWhiteSpace($P1Bundle)) {
     if ($env:P1_BUNDLE) {
         $P1Bundle = $env:P1_BUNDLE
     } else {
-        $P1Bundle = Join-Path (Join-Path $HOME "amidst-p1-clean-room-20261026") $p1DefaultFolder
+        # D171: under this repo's local/ (Windows clones put local/ beside the code).
+        $P1Bundle = Join-Path (Join-Path (Join-Path $ROOT "local\archive") "p1-clean-room-20261026") $p1DefaultFolder
     }
 }
 if ([string]::IsNullOrWhiteSpace($CX7Root)) {
     if ($env:CX7_ROOT) {
         $CX7Root = $env:CX7_ROOT
     } else {
-        $CX7Root = Join-Path $HOME "amidst-artifacts\r004-cx7-d115-20261102-01a199f8"
+        $CX7Root = Join-Path $ROOT "local\evidence\r004-cx7-d115-20261102-01a199f8"
     }
 }
 if ([string]::IsNullOrWhiteSpace($StateParent)) {
     if ($env:STATE_PARENT) {
         $StateParent = $env:STATE_PARENT
     } else {
-        $StateParent = Join-Path $HOME "amidst-demo-state"
+        $StateParent = Join-Path $ROOT "local\data\demo-state"
     }
 }
 if ($env:PYTHON -and $Python -eq "python") {
