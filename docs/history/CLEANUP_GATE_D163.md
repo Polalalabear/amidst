@@ -92,6 +92,33 @@ done
 4. 之後的兩次移除模擬：一次 107 failed（可用空間降到 7.6 GiB，錯誤碼全是 `DISK_BELOW_8_GIB`／`DISK_SPACE_BELOW_8_GIB`／`LOW_DISK`）；另一次 1 failed（`test_check_event_run_bundle.py::test_d119_resealing_valid_replacement_pixels_cannot_override_producer`），單獨重跑 2 次都 PASS，當時可用空間也在 8 GiB 附近波動，原因**無法單獨證明**，記為 UNKNOWN（暫時性）。等別的 session 的 pytest 結束、可用空間 ≥ 9 GiB 後重跑，才得到 §3 表中的 0 failed。已知 flaky 的 `test_baseline_runner.py` 在最後兩次完整執行中都沒有失敗（基準與移除模擬各一次）；在低空間的執行中它因 `DISK_*` 失敗。
 5. 診斷時發現 `sandbox-exec` 預設會擋 `/bin/ps`，造成 15 個測試的 `PermissionError`；已在沙箱設定允許 `ps`，與專案無關。
 
+### 3.3 單一失敗測試的 A/B 重跑與各次剩餘空間（協調者要求）
+
+`tests/q1q5/test_check_event_run_bundle.py::test_d119_resealing_valid_replacement_pixels_cannot_override_producer`（曾失敗 1 次，錯誤 FRAME_PIN_MISMATCH）：在 e85b51e 的新 clone 各跑 5 次，基準（快取開啟）與移除模擬（空 npm 快取、無 pytest／ruff 快取）交錯執行，沙箱禁寫，真實 owned root 唯讀。
+
+| 次 | 基準 | 移除模擬 | 剩餘空間（前→後，GiB） |
+| --- | --- | --- | --- |
+| 1 | PASS | PASS | 9.17→9.44／9.44→9.43 |
+| 2 | PASS | PASS | 9.43→9.43／9.43→9.43 |
+| 3 | PASS | PASS | 9.43→9.42／9.42→9.42 |
+| 4 | PASS | PASS | 9.42→9.42／9.42→9.41 |
+| 5 | PASS | PASS | 9.41→9.41／9.41→9.41 |
+
+10／10 PASS，兩種環境沒有差異 → 該失敗**不是被移除造成**，SAFE 項目不降級。它只在剩餘空間低或波動時出現過；那次單獨失敗當時的剩餘空間**沒有逐次記錄（UNKNOWN）**。
+
+整份完整測試各次執行時的剩餘空間（`shutil.disk_usage` 與 `df` 一致；有量到才寫）：
+
+| 執行 | 剩餘空間 | 結果 |
+| --- | --- | --- |
+| 基準（低空間，真實 home）／移除（正式） | 約 6.5→6.26 | 各 222 failed，失敗集合相同（DISK 守門＋15 個 `ps` 沙箱問題） |
+| 診斷（假裝 ≥9 GiB，非通過） | 6.26–6.48 | 基準與移除各 110 failed，集合相同 |
+| 移除 A | 約 8.6（跑完） | 2227 passed／1 failed（即上面那個測試） |
+| 基準（正式） | 8.45（跑完） | 2228 passed／0 failed |
+| 移除 B | 7.6（跑完） | 107 failed，全是 DISK 錯誤碼 |
+| 移除 C（最終） | 最低 9.03 | 2228 passed／0 failed |
+
+判定方法（給搬遷計畫沿用）：`DISK_BELOW_8_GIB`／`DISK_SPACE_BELOW_8_GIB`／`LOW_DISK` 的失敗是環境，不算移除造成也不算通過；基準與移除要在同樣的磁碟條件（≥ 9 GiB 且穩定）各跑一次再比較；跑之前確認沒有別的 session 在跑 pytest／clone。
+
 ### 3.2 對真實檔案的影響（要誠實記錄）
 
 - `check_demo_dependencies.py --smoke` 的設計會在 `~/amidst-artifacts/demo-owned-v1/state/` 建立 `dependency-check-<random>/`（4 KB、內含 `state/registry.json` 與 `recordings/`）；這次在 `state/dependency-check-x_06b2ej` 留下一個（11-08、11-09 前已有 4 個同類目錄）。這是 §6 關卡 5 指定的指令的正常行為，我只開放沙箱寫這個目錄前綴，**沒有刪除它**（本步驟不刪任何東西）。是否清理由使用者決定。
