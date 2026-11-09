@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Amidst artifact ledger v1 (D138)",
+  "description": "Machine-readable ledger of local artifacts outside the repository. Registration is not approval; dispositions other than keep_original need user authorization (#431) before any action. scripts/artifact_ledger.py validate implements these constraints without a jsonschema dependency; tests keep both in sync.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "issue_ref", "decision_ref", "baseline_ref", "rules", "entries"],
+  "properties": {
+    "schema_version": {"const": "amidst.artifact-ledger.v1"},
+    "generated_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "issue_ref": {"type": "string", "pattern": "^#\\d+$"},
+    "decision_ref": {"type": "string"},
+    "baseline_ref": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "rules": {"type": "object"},
+    "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "entry": {
+      "type": "object",
+      "required": ["id", "path", "type", "disposition", "purpose", "referenced_by", "retain_reason", "rebuildable", "size_bytes", "file_count", "hash"],
+      "properties": {
+        "id": {"type": "string"},
+        "path": {"type": "string", "pattern": "^(~/|/)"},
+        "type": {"enum": ["raw_data", "derived_data", "evidence", "cache", "code_checkout", "model", "environment", "tool", "doc", "scratch", "untracked_source", "git_ref"]},
+        "disposition": {"enum": ["keep_original", "move_to_mainline", "archivable", "deletable", "user_decision"]},
+        "purpose": {"type": "string"},
+        "referenced_by": {"type": "array", "items": {"type": "string"}, "description": "file:line references, or the single item UNKNOWN"},
+        "retain_reason": {"type": ["string", "null"]},
+        "rebuildable": {"enum": ["yes", "partial", "no", "unknown"]},
+        "size_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "file_count": {"type": ["integer", "null"], "minimum": 0},
+        "excluded_size_bytes": {"type": "integer", "minimum": 0},
+        "excluded_file_count": {"type": "integer", "minimum": 0},
+        "parent_id": {"type": "string", "description": "entry is contained in the parent path; do not add both to totals"},
+        "ref": {"type": "string"},
+        "notes": {"type": ["string", "null"]},
+        "hash": {
+          "type": "object",
+          "required": ["policy", "completeness"],
+          "properties": {
+            "policy": {"enum": ["full", "files_only", "none", "git_head", "path_size_only"]},
+            "completeness": {"enum": ["complete", "partial", "not_computed", "not_applicable"]},
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "hashed_files": {"type": "integer", "minimum": 0},
+            "git": {"type": "object", "required": ["head"], "properties": {"head": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "branch": {"type": "string"}, "dirty_count": {"type": "integer", "minimum": 0}}},
+            "excluded": {"type": "array", "items": {"type": "object", "required": ["path", "size_bytes", "file_count", "reason"]}},
+            "note": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+}
