@@ -33,7 +33,13 @@ export const ERROR_TEXT = Object.freeze({
   UNSUPPORTED_CONDITION: '僅人物類別支援指定顏色',
   FEATURE_REQUIRED: '請指定特徵',
   NOW_REQUIRED: '需提供非負整數的目前回放時間',
+  Q_RESPONSE_EXPIRED: '這筆結果已過期，請重新查詢',
 });
+
+// Server-side failures: a known code gets its plain-language text; anything else stays an explicit UNKNOWN.
+export function failureText(code, fallback = 'REQUEST_FAILED') {
+  return ERROR_TEXT[code] ?? `UNKNOWN · ${code ?? fallback}`;
+}
 
 function resolveWallTime(rawTime, clockMapping) {
   if (rawTime === null || rawTime === undefined || String(rawTime).trim() === '') {
