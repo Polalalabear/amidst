@@ -29,7 +29,8 @@ class Track:
 class Parameters:
     sample_interval_us: int = 200_000
     handoff_max_gap_us: int = 6_000_000
-    min_score: float = 0.4
+    min_score: float = 0.4  # link threshold; enforced upstream by the runner's detection filter
+    local_track_min_score: float = 0.3  # D148 seed/continuation floor for every local-track observation
     color_rule: str = 'NOT_NONE'
     parameter_mode: str = 'DEMO_DEFAULT'
 
@@ -37,6 +38,7 @@ class Parameters:
         if (type(self.sample_interval_us) is not int or self.sample_interval_us <= 0
                 or type(self.handoff_max_gap_us) is not int or self.handoff_max_gap_us < 0
                 or type(self.min_score) not in (int, float) or not 0 <= self.min_score <= 1
+                or type(self.local_track_min_score) not in (int, float) or not 0 <= self.local_track_min_score <= 1
                 or self.color_rule != 'NOT_NONE' or self.parameter_mode != 'DEMO_DEFAULT'):
             raise ValueError('DEMO_PARAMETERS_INVALID')
 
@@ -102,7 +104,7 @@ def associate(tracks, transitions, *, as_of_us, parameters):
     for track in tracks:
         observations = tuple(o for o in track.observations if o.timestamp_us < as_of_us)
         if observations:
-            if (any(o.camera_id != track.camera_id or o.score < .3 for o in observations)
+            if (any(o.camera_id != track.camera_id or o.score < parameters.local_track_min_score for o in observations)
                     or any(a.timestamp_us >= b.timestamp_us for a, b in zip(observations, observations[1:]))):
                 raise ValueError('LOCAL_TRACK_INVALID')
             available.append(Track(track.camera_id, track.track_ref, observations))

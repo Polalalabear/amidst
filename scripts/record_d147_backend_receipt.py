@@ -25,7 +25,10 @@ def record(output):
     demo = Demo(owned_path(home, config['artifacts_root']), owned_path(home, config['p1_bundle']), state,
                 job_path=owned_path(home, config['cross_camera_job']),
                 job_pin=config['cross_camera_job_sha256'], owned_root=home)
-    receipt = {'decision_refs': ['#93 D147', '#93 D148', '#93 D149', '#93 D150'],
+    receipt = {'receipt_role': 'IMPLEMENTATION_REGRESSION_PIN',
+               'receipt_role_note': 'Recorded from this implementation; catches regressions, does not prove '
+                                    'correctness. Re-record after any parameter or producer change.',
+               'decision_refs': ['#93 D147', '#93 D148', '#93 D149', '#93 D150'],
                'base_commit': '5c901e5dff96c5e324a747987747c47623c3b15a',
                'source_files_sha256': {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in PRODUCERS},
                'inference_run': False, 'formal_eligible': False, 'runs': []}
