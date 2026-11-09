@@ -107,6 +107,7 @@ export function mountMonitorRoom(host,{api,settings,controls=true}){
     // UI-A hides the wall while searching: hidden = no clock, no requests, memory kept until destroy().
     setVisible(v){visible=!!v;host.hidden=!visible;if(visible)last=null;},
     isVisible:()=>visible,
+    clockState:()=>({tUs:lastStamp??0,durationUs:durationUs(run),playing:current().playing}),
     metrics:()=>({...metrics,cameras:cameras.length,tiles:[...tiles.keys()]}),
     report,
     destroy(){dead=true;cancelAnimationFrame(raf);unsub();buffer.destroy();host.replaceChildren();host.classList.remove('monitor-room');},

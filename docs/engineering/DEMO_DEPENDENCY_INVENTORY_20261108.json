@@ -1,0 +1,898 @@
+{
+  "schema_version": "amidst.demo-dependency-inventory.v1",
+  "scope": "#445 entrypoint at 1fdc1a4; explicit safe dependency copies; no protected asset reads",
+  "source_head": "1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb",
+  "runtime_configuration": "configs/demo_integration_local.json",
+  "owned_manifest": "configs/demo_dependencies_manifest_v1.json",
+  "active_copy_groups": [
+    {
+      "group": "CROSS_CAMERA",
+      "entries": 12,
+      "copied_bytes": 1605219,
+      "old_files": [
+        {
+          "path": "~/amidst-artifacts/d131-previews/cross-camera-job.json",
+          "new_path": "provenance/original-cross-camera-job.json",
+          "bytes": 3402
+        },
+        {
+          "path": "~/amidst-artifacts/d131-previews/checkouts/pr477/configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+          "new_path": "metadata/graphs/camera_graph_v3_1.json",
+          "bytes": 25262
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/A4-1/detection_index.json",
+          "new_path": "data/indexes/A4-1/detection_index.json",
+          "bytes": 3220
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/A4-1/detection_index.records.jsonl",
+          "new_path": "data/indexes/A4-1/detection_index.records.jsonl",
+          "bytes": 601214
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/A4-1/cx8_rule_only.json",
+          "new_path": "data/indexes/A4-1/cx8_rule_only.json",
+          "bytes": 22021
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/A4-1/demo_default_receipt.json",
+          "new_path": "data/indexes/A4-1/demo_default_receipt.json",
+          "bytes": 14901
+        },
+        {
+          "path": "/private/tmp/amidst-d131-control/A4-1-config.json",
+          "new_path": "metadata/config/A4-1-config.json",
+          "bytes": 14131
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/B4-1/detection_index.json",
+          "new_path": "data/indexes/B4-1/detection_index.json",
+          "bytes": 3436
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/B4-1/detection_index.records.jsonl",
+          "new_path": "data/indexes/B4-1/detection_index.records.jsonl",
+          "bytes": 837465
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/B4-1/cx8_rule_only.json",
+          "new_path": "data/indexes/B4-1/cx8_rule_only.json",
+          "bytes": 48849
+        },
+        {
+          "path": "/private/tmp/amidst-d131-417-output/B4-1/demo_default_receipt.json",
+          "new_path": "data/indexes/B4-1/demo_default_receipt.json",
+          "bytes": 16025
+        },
+        {
+          "path": "/private/tmp/amidst-d131-control/B4-1-config.json",
+          "new_path": "metadata/config/B4-1-config.json",
+          "bytes": 15293
+        }
+      ],
+      "first_old_locator": "~/amidst-artifacts/d131-previews/cross-camera-job.json",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "D124",
+      "entries": 2056,
+      "copied_bytes": 1105936480,
+      "old_files": [],
+      "first_old_locator": "~/amidst-artifacts/r004-cx7r-20261104-01a19f8b/bundle/safe_bundle/manifest.json",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "OLLAMA",
+      "entries": 6,
+      "copied_bytes": 1359294303,
+      "old_files": [],
+      "first_old_locator": "~/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models/manifests/registry.ollama.ai/library/qwen3/1.7b-q4_K_M",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "P1",
+      "entries": 398,
+      "copied_bytes": 149497111,
+      "old_files": [],
+      "first_old_locator": "/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試/MANIFEST.json",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "PLAYWRIGHT",
+      "entries": 340,
+      "copied_bytes": 8228434,
+      "old_files": [],
+      "first_old_locator": "/private/tmp/amidst-d131-playwright/node_modules/playwright-core/ThirdPartyNotices.txt",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "PYTHON",
+      "entries": 1895,
+      "copied_bytes": 47801129,
+      "old_files": [],
+      "first_old_locator": "~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/BUILD",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "R005",
+      "entries": 7,
+      "copied_bytes": 3022482,
+      "old_files": [],
+      "first_old_locator": "~/amidst-artifacts/d129-464-r005-probe-20261105-a/report.json",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    },
+    {
+      "group": "RTDETR",
+      "entries": 73,
+      "copied_bytes": 81225896,
+      "old_files": [],
+      "first_old_locator": "/private/tmp/amidst-d131-control/model-source-hashes.json",
+      "retirement": "NO_CURRENT_DEMO_READS; OTHER_CONSUMERS_NOT_AUDITED; NO_DELETE"
+    }
+  ],
+  "baseline_literal_rows": 82,
+  "baseline_literal_inventory": [
+    {
+      "file": "configs/rq1_ground_interval_v1.json",
+      "line": 10,
+      "paths": [
+        "~/Developer/amidst/data/pilot/office_person_20261016_v1/rendered/ground_truth.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "frontend/workbench/physical-review.test.mjs",
+      "line": 218,
+      "paths": [
+        "/Users/SUBSTITUTE/source"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "frontend/workbench/physical-review.test.mjs",
+      "line": 224,
+      "paths": [
+        "/Users/SUBSTITUTE/source"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/accept_q1q5_linked_baseline.py",
+      "line": 30,
+      "paths": [
+        ".ollama_service_pid,"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/audit_reviewed_branch_scope.py",
+      "line": 151,
+      "paths": [
+        "/private/tmp/amidst-finalization-uv-cache"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/benchmark_q1q5_local_models.py",
+      "line": 191,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/build_office_expanded_static.py",
+      "line": 23,
+      "paths": [
+        "~/amidst-artifacts/d127-418-office-expanded-r005"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/plan_blender_pilot.py",
+      "line": 277,
+      "paths": [
+        "/private/tmp/amidst-pilot-plan-failure.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/plan_blender_pilot_sites.py",
+      "line": 58,
+      "paths": [
+        "/private/tmp/amidst-pilot-search.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/prepare_q1q5_synthetic_registry.py",
+      "line": 16,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/probe_q1q5_ollama.py",
+      "line": 31,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/probe_q1q5_ollama.py",
+      "line": 45,
+      "paths": [
+        ".ollama-runtime.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/revise_office_static_preview.py",
+      "line": 26,
+      "paths": [
+        "~/amidst-artifacts/d127-418-office-expanded-r005-preview-v2"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/start_office_demo.py",
+      "line": 30,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "STILL_REFERENCED_BY_SEPARATE_OFFICE_LAUNCHER; DO_NOT_DELETE",
+      "original_asset_read": false
+    },
+    {
+      "file": "scripts/validate_local_product.py",
+      "line": 139,
+      "paths": [
+        "/Users/private/GT_SECRET"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/local_storage/bootstrap.py",
+      "line": 22,
+      "paths": [
+        "/opt/homebrew/opt/postgresql@18/bin"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/local_storage/bootstrap.py",
+      "line": 25,
+      "paths": [
+        "/private/tmp/amidst-pg-abc"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/agent_tools.py",
+      "line": 88,
+      "paths": [
+        "/Users/|/private/|/tmp/|file://|ground_truth|renderer_trajectory|persons\\\\.sim"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/api.py",
+      "line": 774,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/baseline_runner.py",
+      "line": 311,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/linked_acceptance.py",
+      "line": 17,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/linked_runtime.py",
+      "line": 16,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/llm_provider.py",
+      "line": 126,
+      "paths": [
+        ".ollama-native-chat.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/llm_provider.py",
+      "line": 127,
+      "paths": [
+        ".ollama-native-chat.v2"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/llm_provider.py",
+      "line": 196,
+      "paths": [
+        "/Users/|/private/|/tmp/|[A-Za-z]:\\\\"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/ollama_runtime.py",
+      "line": 48,
+      "paths": [
+        ".ollama-runtime.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/q3_rules.py",
+      "line": 17,
+      "paths": [
+        "/Users/|/private/|/tmp/"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "src/amidst/q1q5/yyin_main_pack.py",
+      "line": 76,
+      "paths": [
+        "/Users/|/private/|[A-Za-z]:\\\\|t_X|t_N|評分窗|劇本|\\bGT\\b|\\.blend\\b|renderer|trajectory|visibility|depth"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "start-office-demo.command",
+      "line": 7,
+      "paths": [
+        ".local-worktrees/phase1-finalization}"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "start-office-demo.command",
+      "line": 16,
+      "paths": [
+        "/opt/homebrew/bin/uv"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "start-office-demo.command",
+      "line": 17,
+      "paths": [
+        "/opt/homebrew/bin/uv"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "start_445_demo.command",
+      "line": 4,
+      "paths": [
+        ".local-worktrees/phase1-finalization/.venv/bin/python}"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "start_all_demo.command",
+      "line": 11,
+      "paths": [
+        "/Users/Shared/amidst-p1-clean-room-20261026/Amidst"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/engineering/test_agent_transport.py",
+      "line": 36,
+      "paths": [
+        "/Users/private/secret"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/engineering/test_facade.py",
+      "line": 120,
+      "paths": [
+        "/Users/private/SECRET_GT_ACTOR"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/engineering/test_facade.py",
+      "line": 140,
+      "paths": [
+        "/Users/private/GT_secret"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/fixtures/q1q5_conformance/SYNTHETIC/violations.json",
+      "line": 133,
+      "paths": [
+        "/Users/someone/data/index.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/fixtures/q1q5_conformance/build_fixtures.py",
+      "line": 1981,
+      "paths": [
+        "/Users/someone/data/index.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/local_agent/test_tools_provider.py",
+      "line": 132,
+      "paths": [
+        "/Users/private/source.blend"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/local_storage/test_postgres.py",
+      "line": 426,
+      "paths": [
+        "/private/tmp/amidst-pg-not-running"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_api.py",
+      "line": 226,
+      "paths": [
+        "/Users/private/raw"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_api.py",
+      "line": 346,
+      "paths": [
+        "/Users/private"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_investigation.py",
+      "line": 89,
+      "paths": [
+        "/Users/private/GT_ACTOR_SECRET"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_investigation.py",
+      "line": 155,
+      "paths": [
+        "/Users/private/SECRET_RECIPE"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_investigation.py",
+      "line": 218,
+      "paths": [
+        "/Users/private/scene.blend"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_operator.py",
+      "line": 225,
+      "paths": [
+        "/Users/operator/source/raw.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_service.py",
+      "line": 397,
+      "paths": [
+        "/Users/private/GT_SECRET"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_service.py",
+      "line": 510,
+      "paths": [
+        "/Users/private/GT_SECRET"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_store.py",
+      "line": 406,
+      "paths": [
+        "/Users/private/run.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/product/test_store.py",
+      "line": 407,
+      "paths": [
+        "/private/tmp/truth.json",
+        "/private/tmp/data"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_agent_tools.py",
+      "line": 64,
+      "paths": [
+        "/Users/private/file"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_baseline_runner.py",
+      "line": 11,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_baseline_runner.py",
+      "line": 133,
+      "paths": [
+        ".ollama-runtime.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_check_handoff_pack.py",
+      "line": 175,
+      "paths": [
+        "/Users/SYNTHETIC/file"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_linked_runtime.py",
+      "line": 17,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_llm_provider.py",
+      "line": 127,
+      "paths": [
+        "/Users/local/secret"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_llm_provider.py",
+      "line": 190,
+      "paths": [
+        ".ollama-native-chat.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_ollama_diagnostics.py",
+      "line": 185,
+      "paths": [
+        ".ollama-native-chat.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_ollama_runtime.py",
+      "line": 7,
+      "paths": [
+        ".ollama_runtime"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_ollama_runtime.py",
+      "line": 21,
+      "paths": [
+        ".ollama-runtime.v1"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_portable_pack.py",
+      "line": 8,
+      "paths": [
+        "/Users/example/file"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_team_eval_baseline.py",
+      "line": 136,
+      "paths": [
+        "/Users/example"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_team_eval_pack.py",
+      "line": 174,
+      "paths": [
+        "/Users/|/private/|[A-Za-z]:\\\\"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/q1q5/test_yyin_review_pack.py",
+      "line": 60,
+      "paths": [
+        "/Users/private/info"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/unit/research/test_experiment_env.py",
+      "line": 49,
+      "paths": [
+        "/Users/someone/data.json"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/unit/test_human_review_spatial_guide.py",
+      "line": 290,
+      "paths": [
+        "/private/tmp/ground_truth.png"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/unit/test_q1q5_conformance.py",
+      "line": 519,
+      "paths": [
+        "/Users/|/private/|route_script"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/unit/test_r004_prereview_pack.py",
+      "line": 33,
+      "paths": [
+        "/Users/private/source.blend"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_blender_physical_media.py",
+      "line": 360,
+      "paths": [
+        "/Users/private/source"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_blender_physical_ports.py",
+      "line": 105,
+      "paths": [
+        "/Users/private-owner/secret/video.mp4"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_blender_physical_review.py",
+      "line": 308,
+      "paths": [
+        "/private/tmp/source"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_blender_physical_review.py",
+      "line": 374,
+      "paths": [
+        "/Users/a"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_controlled_scene_rgb.py",
+      "line": 368,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_office_demo_presets.py",
+      "line": 49,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_office_demo_presets.py",
+      "line": 340,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_office_demo_presets.py",
+      "line": 343,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_office_demo_presets.py",
+      "line": 384,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_office_demo_presets.py",
+      "line": 447,
+      "paths": [
+        ".local-worktrees/phase1-finalization"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_product_application.py",
+      "line": 297,
+      "paths": [
+        "/Users/source/frozen"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_product_bridge.py",
+      "line": 62,
+      "paths": [
+        "/Users/local/source"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_product_bridge.py",
+      "line": 262,
+      "paths": [
+        "/Users/private/source"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    },
+    {
+      "file": "tests/workbench/test_run_jobs.py",
+      "line": 231,
+      "paths": [
+        "/private/tmp/escape"
+      ],
+      "scope": "TEXT_ONLY_OUTSIDE_DEMO_ENTRYPOINT_OR_GUARD_LITERAL",
+      "original_asset_read": false
+    }
+  ],
+  "global_cleanup_eligible_paths": [],
+  "global_cleanup_reason": "Other checkouts/services are outside this bounded demo audit. D133 preserves all branches; #448 decisions now belong to C/#486.",
+  "entrypoint_references": [
+    {
+      "head": "1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb",
+      "file": "start_445_demo.command",
+      "line": 4,
+      "purpose": "old venv default; replaced by checkout .venv"
+    },
+    {
+      "head": "1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb",
+      "file": "scripts/serve_demo_integration.py",
+      "line": 282,
+      "purpose": "old P1 source; replaced by the owned package configuration"
+    },
+    {
+      "head": "1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb",
+      "file": "scripts/serve_demo_integration.py",
+      "line": 152,
+      "purpose": "old cross-camera job and its transitive external locators; all copied, new job uses relative locators"
+    }
+  ]
+}

@@ -78,10 +78,11 @@ export function createPlayback({api,store,root,onReady=()=>{}}){
     if(state.coreTrackResponse){
       const view=state.coreTrackingView;
       if(state.playbackMode!=='multi'&&view?.singleView?.segmentKind!=='ON_CAMERA')return true;
-      const images=[...root.querySelectorAll('#core-tracking-slot img')];
-      return images.length>0&&images.every(img=>!img.hidden&&img.naturalWidth>0);
+      const selector = root.body?.dataset.ui === 'v1' ? (state.playbackMode === 'multi' ? '#ui-case2 .ui-multi-tile img' : '#ui-case2 .ui-stage-img') : '#core-tracking-slot img';
+      const images=[...root.querySelectorAll(selector)];
+      return images.length>0&&images.every(img=>!img.hidden&&img.complete&&img.naturalWidth>0);
     }
     return clockReady();
   };
-  return {buffer,present,pending,paint,clockReady:()=>store.getState().coreTrackResponse&&store.getState().activeRun?.source_kind==='SYNTHETIC'?true:coreClockReady(),viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
+  return {buffer,present,pending,paint,clockReady:()=>store.getState().coreTrackResponse&&store.getState().activeRun?.source_kind==='SYNTHETIC'&&root.body?.dataset.ui!=='v1'?true:coreClockReady(),viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
 }

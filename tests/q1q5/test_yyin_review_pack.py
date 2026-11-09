@@ -67,7 +67,9 @@ def test_review_rejects_unbound_or_unsafe_sources(sources, mutation):
 
 
 @pytest.mark.parametrize('answer,notes,expected', [('A', '', False), ('都不是', '', True), ('看不出來', 'SYNTHETIC 不確定', False), ('', '', True)])
-def test_review_return_incomplete_is_not_answer_acceptance(tmp_path, sources, answer, notes, expected):
+def test_review_return_incomplete_is_not_answer_acceptance(tmp_path, sources, answer, notes, expected, monkeypatch):
+    # Importing the shipped verifier must not add an unlisted .pyc to the pack.
+    monkeypatch.setattr(sys, "dont_write_bytecode", True)
     main, review = sources
     result = build_pack(tmp_path / 'SYNTHETIC-pack', inputs=main, s1_inputs=review, synthetic_only=True)
     root = Path(result['pack_path'])

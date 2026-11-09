@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from amidst.evaluation import q1_query_eval as q1, q3_parse_eval as q3, q5_switch_eval as q5  # noqa: E402
 
-V1_SHA256 = "0fd1ef68c4c83443e8311723224b76f103c142dd018275e7c1596f917e85d9f2"
+# Q2 v2 compatibility landed in e23ef16; pin that existing scorer, without modifying it.
+V1_SHA256 = "97564e401cb7d70a7cc22113a008477b447974536ae207aabc230868e8b6d3dc"
 MODES = {"RULE_ONLY", "AGENT_SEQUENTIAL"}
 
 

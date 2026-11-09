@@ -7,9 +7,9 @@ launcher_assets="${OFFICE_ASSETS_REPO:-$(cd "$launcher_common/.." && pwd -P)}"
 launcher_evidence="${OFFICE_EVIDENCE_REPO:-$launcher_assets/.local-worktrees/phase1-finalization}"
 launcher_evidence="$(cd "$launcher_evidence" && pwd -P)"
 export OFFICE_EVIDENCE_REPO="$launcher_evidence"
-launcher_python="${OFFICE_PYTHON:-$launcher_evidence/.venv/bin/python}"
+launcher_python="${OFFICE_PYTHON:-$launcher_repo/.venv/bin/python}"   # 由 scripts/setup_env.sh 建立
 if [[ ! -x "$launcher_python" ]]; then
-  echo "缺少既有 Python：$launcher_python；未建立或安裝依賴。" >&2
+  echo "缺少 Python：$launcher_python；請先執行 scripts/setup_env.sh。" >&2
   exit 1
 fi
 launcher_uv="$(command -v uv || true)"

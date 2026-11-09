@@ -20,12 +20,13 @@ from amidst.q1q5.p1_workbench import P1, binary, public_png, require, server
 from amidst.q1q5.q3_parse import ParseSettings
 from amidst.q1q5.q5_controller import RuntimeBindings
 from amidst.q1q5.scene_graphs import load_scene_graphs
+from amidst.q1q5.scene_annotations import bind_annotations
 from amidst.q1q5.store import DetectionSnapshot, DocumentPin, JsonRunStore, canonical_hash
 from run_cross_camera_demo import read_pin, loads, load_run
+from demo_dependency_config import configuration, owned_path, resolve_job, install_owned_io_guard
 
 REPO = Path(__file__).resolve().parents[1]
 P1_PIN = '6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7'
-JOB_PIN = '8586dce9a965193edc456e5a6bed48e331de874f678f85e5b5b20b7449dd71f7'
 MEDIA_PIN = 'ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01'
 REPORT_PIN = '0915d54d585fcbd8e89575bf1ab43dec0ae3b8e85839b8e59704fa9d03b6b021'
 
@@ -143,13 +144,13 @@ class Media:
 
 
 class Demo(P1):
-    def __init__(self, artifacts, p1_bundle, state):
+    def __init__(self, artifacts, p1_bundle, state, *, job_path, job_pin, owned_root):
         super().__init__(p1_bundle, P1_PIN, state, ui_root=REPO / 'frontend/workbench-v2')
         base = list(self.api.runs.values())[0]
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
         self.rgb = Media(self.rgb, self.authorize)
         self.cross = {}; self.transitions = {}; self.positions = {}
-        job = loads(pinned(artifacts/'d131-previews/cross-camera-job.json', JOB_PIN))
+        job = resolve_job(loads(pinned(job_path, job_pin)), owned_root)
         graph = loads(read_pin(job['graph']))
         graphs = load_scene_graphs('r004')
         require(graph == graphs.camera, 'JOB_GRAPH_MISMATCH')
@@ -184,7 +185,8 @@ class Demo(P1):
                 by_camera[f['camera_id']][f['frame_index']] = (media_root/name, pin)
             self.rgb.frames[key] = 200_000, by_camera, m['clock_id']
         self.add_static(artifacts, runs)
-        self.api = QAPI(runs, max_responses=128, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
+        runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
+        self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
         self.scenes = {r.catalog['scene_id'] for r in runs}
 
     def add_static(self, artifacts, runs):
@@ -269,7 +271,9 @@ class Demo(P1):
             parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256)
         doc['resolved_scope'] = {'scene_id': key[0], 'run_id': key[1], 'detection_index_sha256': b.index_sha256}
         doc['provenance'] = {'producer': 'demo-cross-camera-local-linker', 'gt_read': False,
-            'parameter_mode': 'DEMO_DEFAULT', 'formal_eligible': False, 'seed_policy': 'AUTOMATIC_EARLIEST_LOCAL_SEED'}
+            'parameter_mode': 'DEMO_DEFAULT', 'formal_eligible': False, 'seed_policy': 'AUTOMATIC_EARLIEST_LOCAL_SEED',
+            'replay_policy': 'D147_D148', 'seed_min_score': .3, 'continuation_min_score': .3,
+            'max_area_ratio': 12, 'same_camera_merge_gap_us': 600_000}
         if doc['single_view'] and doc['single_view'][-1]['kind'] in {'GAP', 'LOST'}:
             doc['blind'] = _blind_for_track(run, doc['sightings'], stamp, self.positions[key])
         doc['output_sha256'] = canonical_hash(doc, exclude=('output_sha256', 'stats'))
@@ -278,11 +282,14 @@ class Demo(P1):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--artifacts-root', type=Path, default=Path.home()/'amidst-artifacts')
-    p.add_argument('--p1-bundle', type=Path, default=Path('/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試'))
+    p.add_argument('--config', type=Path)
     p.add_argument('--port', type=int, default=8785)
-    args = p.parse_args(); state = Path(tempfile.mkdtemp(prefix='amidst-445-')).resolve()/'state'
-    app = Demo(args.artifacts_root, args.p1_bundle, state)
+    args = p.parse_args(); config, root = configuration(args.config)
+    install_owned_io_guard(root)
+    state_root = owned_path(root, config['state_root']); state_root.mkdir(exist_ok=True)
+    state = Path(tempfile.mkdtemp(prefix='run-', dir=state_root))/'state'
+    app = Demo(owned_path(root, config['artifacts_root']), owned_path(root, config['p1_bundle']), state,
+        job_path=owned_path(root, config['cross_camera_job']), job_pin=config['cross_camera_job_sha256'], owned_root=root)
     with server(app, args.port) as http:
         print(json.dumps({'url': f'http://127.0.0.1:{http.server_port}/workbench-v2/',
                           'state_root': str(state), 'runs': [r['title'] for r in app.bootstrap()['runs']]}, ensure_ascii=False), flush=True)
