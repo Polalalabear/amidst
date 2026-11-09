@@ -11,19 +11,75 @@ const out=process.env.UI_QA_OUTPUT??owned.evidenceRoot+'/ui-real';await mkdir(ou
 const base=new URL('/workbench-v2/',process.env.UI_QA_BASE_URL??process.env.CORE_BASE_URL??'http://127.0.0.1:8785').href;
 const b=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const viewportHeight=Number(process.env.UI_QA_HEIGHT??900);
-const results=[],errors=[],http=[],playbacks=[],backendStopRequests=[],blindReview=[];let checks=0;const check=(ok,text)=>{assert.ok(ok,text);checks++;};
+const results=[],errors=[],http=[],playbacks=[],backendStopRequests=[],blindReview=[],d146Review=[],assertions=[],observerErrors=[];let checks=0;const check=(ok,text)=>{assert.ok(ok,text);checks++;assertions.push(text);};
 const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png';await p.screenshot({path:file,fullPage:true});const raw=await readFile(file);const r={name,url:p.url(),bytes:raw.length,sha256:createHash('sha256').update(raw).digest('hex'),...data};results.push(r);console.log(JSON.stringify(r));};
 // D139: blank times select the full recording. A later snapshot must stay hidden at an earlier playhead; endpoint persistence is recorded separately as a review finding.
 const seek=async(p,t)=>{await p.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await p.locator('#ui-scrub').inputValue())===t,'range input preserves requested timestamp');};
 const decoded=async(p,selector,n)=>{await p.waitForFunction(({selector,n})=>{const xs=[...document.querySelectorAll(selector)];return xs.length===n&&xs.every(i=>!i.hidden&&i.complete&&i.naturalWidth>0);},{selector,n});check(true,selector+' decoded RGB');};
+const pinnedEvidence=JSON.parse(await readFile(new URL('../../../tests/q1q5/fixtures/d139-index-diagnostics.engineering.json',import.meta.url),'utf8'));
+const checkZoom=async(p,event,screen)=>{
+ const metrics=[];
+ for(const z of [80,90,100,110,125]){
+  await p.locator('#ui-zoom').selectOption(String(z));await p.waitForTimeout(100);
+  const m=await p.evaluate(()=>{const scr=document.querySelector('.ui-screens'),top=[...document.querySelectorAll('.ui-top-right > *')].filter(n=>n.getClientRects().length).map(n=>n.getBoundingClientRect().right);return {pageH:document.documentElement.scrollWidth>innerWidth,screensH:scr.scrollWidth>scr.clientWidth+1,topRight:Math.max(...top),vw:innerWidth};});
+  metrics.push({zoom:z,...m});check(!m.pageH&&!m.screensH&&m.topRight<=m.vw+.5,`${event} ${screen} ${z}% has no horizontal overflow`);
+  if(z===80||z===125)await capture(p,`${event}-${screen}-zoom-${z}`);
+ }
+ await p.locator('#ui-zoom').selectOption('100');d146Review.push({event,kind:'zoom',screen,metrics});
+};
+const sourcePixel=async(p,event,t,kind,cam,frames)=>{
+ await seek(p,t);
+ await p.waitForFunction(({kind,cam})=>{const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp');return stage?.dataset.kind===kind&&stamp?.textContent.startsWith(cam+' ·')&&img&&!img.hidden&&img.complete&&img.naturalWidth>0;},{kind,cam});
+ // A paused seek must finish the request for this exact source timestamp, not leave a stale picture.
+ await p.waitForFunction(({t})=>Number(document.querySelector('#ui-scrub')?.value)===t,{t});
+ let row;
+ for(let n=0;n<100;n++){
+  const url=await p.locator('.ui-stage-img').getAttribute('src');row=frames.findLast(f=>f.tUs===t&&f.cam===cam&&f.mediaUrl===url);
+  if(row)break;await p.waitForTimeout(50);
+ }
+ check(!!row,`${event} ${kind} ${t} uses the requested source frame`);
+ const img=await p.locator('.ui-stage-img').getAttribute('src'),res=await p.request.get(new URL(img,base).href),raw=await res.body();
+ check(res.status()===200&&createHash('sha256').update(raw).digest('hex')===row.servedSha256,`${event} ${kind} ${t} RGB bytes match the bound frame hash`);
+ if(kind==='GAP'||kind==='LOST'){
+  check(await p.locator('.ui-tag-obs').isHidden(),`${event} ${kind} is not labelled observed`);
+  check((await p.locator('.ui-live-note').innerText()).includes('持續播放'),`${event} ${kind} explains continued camera playback`);
+ }
+ if(kind==='LOST')check((await p.locator('.ui-track-title').innerText()).includes(`已跟丟 · 最後出現在 ${cam.replace(/^CAM_/,'')} 鏡頭`),`${event} LOST title names the last camera`);
+ return {event,kind,tUs:t,cam,frameIndex:row.frameIndex,sourceTimeS:row.sourceTimeS,servedSha256:row.servedSha256};
+};
+const continuous=async(p,event,track,frames)=>{
+ const start=track.single_view.find(s=>s.kind==='ON_CAMERA').range_us[0];
+ await seek(p,start);await decoded(p,'#ui-case2 .ui-stage-img',1);await p.locator('#ui-speed').selectOption('2');
+ await p.evaluate(()=>{window.__d146={running:true,total:0,missing:0,notDecoded:0,samples:[],lastKey:null};const tick=()=>{const r=window.__d146;if(!r.running)return;const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp')?.textContent??'',tag=stage?.querySelector('.ui-tag-obs');r.total++;if(!img||img.hidden||!img.getAttribute('src'))r.missing++;if(!img?.complete||!img?.naturalWidth)r.notDecoded++;const sample={tUs:Number(document.querySelector('#ui-scrub')?.value),kind:stage?.dataset.kind,stamp,observed:!!tag&&!tag.hidden,decoded:!!img?.complete&&img.naturalWidth>0};const key=JSON.stringify([Math.floor(sample.tUs/200000),sample.kind,sample.stamp,sample.observed]);if(key!==r.lastKey){r.samples.push(sample);r.lastKey=key;}requestAnimationFrame(tick);};requestAnimationFrame(tick);});
+ const firstFrame=frames.length;await p.locator('#ui-play').click();
+ await p.waitForFunction(end=>Number(document.querySelector('#ui-scrub')?.value)>=end-300000,track.as_of_us,{timeout:90000});
+ if((await p.locator('#ui-play').innerText()).includes('❚'))await p.locator('#ui-play').click();
+ const sample=await p.evaluate(()=>{window.__d146.running=false;return window.__d146;});
+ check(sample.total>100&&sample.missing===0,`${event} continuous playback never clears or hides the stage image (${sample.total} sampled renders)`);
+ for(const kind of ['ON_CAMERA','GAP','LOST'])check(sample.samples.some(s=>s.kind===kind&&s.decoded),`${event} continuous playback includes decoded ${kind} images`);
+ check(sample.samples.filter(s=>s.kind==='GAP'||s.kind==='LOST').every(s=>!s.observed),`${event} continued GAP/LOST playback never claims observation`);
+ const served=frames.slice(firstFrame);
+ for(const kind of ['ON_CAMERA','GAP','LOST']){
+  const xs=served.filter(f=>track.single_view.some(s=>s.kind===kind&&s.range_us[0]<=f.tUs&&f.tUs<s.range_us[1]));
+  check(new Set(xs.map(f=>f.frameIndex)).size>1,`${event} ${kind} source frame indices advance during playback`);
+ }
+ const review={event,kind:'continuous',sample,frameResponses:served.map(({mediaUrl,...f})=>f)};d146Review.push(review);
+ await capture(p,event+'-continuous-end',{sampledRenders:sample.total,missing:sample.missing,notDecodedRenders:sample.notDecoded});
+};
 try{
 for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','14:00:00','14:00:50',4],['B4-1','14:10:00','14:10:42',5]]){
- const ctx=await b.newContext({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),p=await ctx.newPage();
+ const ctx=await b.newContext({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),p=await ctx.newPage(),frames=[],frameJobs=[];
+ p.on('response',r=>{if(r.url().endsWith('/api/q_frames')&&r.status()===200)frameJobs.push(r.json().then(doc=>{for(const tile of doc.tiles??[])frames.push({tUs:doc.t_us,cam:tile.camera_id,status:tile.status,frameIndex:tile.frame_index,sourceTimeS:tile.timestamp_s,servedSha256:tile.served_sha256,mediaUrl:tile.media_url});}).catch(error=>observerErrors.push({event,error:String(error),kind:'RESPONSE_BODY_CAPTURE_UNAVAILABLE'})));});
  p.on('request',r=>{if(/\/api\/.*(?:stop|manual)/.test(r.url()))backendStopRequests.push(new URL(r.url()).pathname);});
  p.on('pageerror',e=>errors.push({event,error:e.stack??String(e)}));p.on('response',r=>{if(r.url().includes('/api/')&&r.status()!==200)http.push({event,path:new URL(r.url()).pathname,status:r.status()});});
  await p.goto(base+'?run='+event,{waitUntil:'domcontentloaded'});await p.locator('#ui-enter').waitFor();await p.waitForTimeout(650);
  check((await p.locator('.ui-tagline').innerText()).includes('Agentic'),'cover tagline');await capture(p,event+'-cover');
  await p.locator('#ui-enter').click();await p.locator('[data-case=case1]').click();
+ const bootResponse=await p.request.get(new URL('/api/q_bootstrap',base).href);check(bootResponse.status()===200,'bootstrap available');const boot=await bootResponse.json(),run=boot.runs.find(r=>r.title?.startsWith(event+' '));check(!!run,event+' source-bound bootstrap run');
+ const shownCounts=await p.locator('#ui-q-search [data-role=classes] [data-value]').evaluateAll(xs=>Object.fromEntries(xs.map(x=>[x.dataset.value,x.querySelector('.ui-class-count')?.textContent.trim()??null])));
+ for(const row of run.detected_class_counts)check(Number(shownCounts[row.class_label])===row.camera_count,`${event} search ${row.class_label} camera count equals bootstrap ${row.camera_count}`);
+ if(event==='B4-1')check(Number(shownCounts.person)===5,'B4-1 search person shows 5 cameras');
+ await capture(p,event+'-search-camera-counts');await checkZoom(p,event,'search');
  await p.locator('#ui-q-search [data-role=classes] [data-value=person]').click();await p.locator('#ui-search-start').fill(start);await p.locator('#ui-search-end').fill(end);
  const sr=p.waitForResponse(r=>r.url().endsWith('/api/q_core_search')&&r.request().method()==='POST');await p.locator('#ui-search-submit').click();const search=await(await sr).json();
  check(search.hits?.length>0,event+' real search');await decoded(p,'#ui-case1 .ui-shot img',search.hits.length);
@@ -31,8 +87,11 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  if(await p.locator('#ui-q-search').getAttribute('data-open')==='true')await p.locator('#ui-q-search [aria-label=收起查詢窗]').click();
  await p.locator('#ui-case1 .ui-shot').first().click();await decoded(p,'.ui-lb-img',1);await p.getByRole('button',{name:'下一張',exact:true}).click();await decoded(p,'.ui-lb-img',1);await p.getByRole('button',{name:'上一張',exact:true}).click();await decoded(p,'.ui-lb-img',1);await p.keyboard.press('Escape');check(await p.locator('.ui-lightbox').count()===0,'lightbox arrows and Escape');
  await p.goto(base+'?run='+event+'&screen=case2',{waitUntil:'domcontentloaded'});
+ check(await p.locator('#ui-q-track .ui-class-count').count()===0,event+' tracking features contain names without counts');
  await p.locator('#ui-q-track [data-role=classes] [data-value=person]').click();await p.locator('#ui-track-start').fill(start);
  const tr=p.waitForResponse(r=>r.url().endsWith('/api/q_core_track')&&r.request().method()==='POST');await p.locator('#ui-track-submit').click();const track=await(await tr).json();
+ await writeFile(out+'/'+event+'-track-response.json',JSON.stringify(track,null,2));
+ if(event!=='B-05'){const expected=pinnedEvidence.runs.find(r=>r.label===event);check(track.resolved_scope?.detection_index_sha256===expected.index_content_sha256,event+' exact original index pin');assert.deepEqual(track.single_view,expected.after_single_view);check(true,event+' complete single_view matches #496 index-derived receipt');}
  check(track.sightings?.length>0,event+' track sightings');check(track.single_view.some(s=>s.kind==='GAP')&&track.single_view.some(s=>s.kind==='LOST'),'missing states retained');
  const first=track.sightings[0],t=first.range_us[0]+Math.floor((first.range_us[1]-first.range_us[0])/2);await seek(p,t);await decoded(p,'#ui-case2 .ui-stage-img',1);
  check(await p.locator('#ui-play').isEnabled(),event+' source playback enabled');
@@ -41,6 +100,15 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  const singleBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleBar.y+singleBar.height-viewportHeight)<2,'single bar at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const singleScrolled=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleScrolled.y+singleScrolled.height-viewportHeight)<2&&await p.locator('#ui-v1').evaluate(el=>el.scrollTop===0),'single bar fixed while only content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
  await capture(p,event+'-case2-single',{bar:singleBar,barAfterScroll:singleScrolled,status:track.status,reasons:track.reasons,current:await p.locator('#ui-scrub').inputValue()});
+ check(event==='B-05'?await p.locator('#ui-floorplan').isHidden():await p.locator('#ui-floorplan').isVisible(),event+' floor-plan visibility follows camera position availability');
+ await checkZoom(p,event,'track');
+ if(event!=='B-05'){
+  await continuous(p,event,track,frames);
+  const gap=track.single_view.filter(s=>s.kind==='GAP').sort((a,b)=>(b.range_us[1]-b.range_us[0])-(a.range_us[1]-a.range_us[0]))[0],last=track.single_view.slice(0,track.single_view.indexOf(gap)).filter(s=>s.kind==='ON_CAMERA').at(-1).camera_id;
+  const gapTimes=gap.range_us[1]-gap.range_us[0]>=400000?[gap.range_us[0]+10000,gap.range_us[1]-10000]:[gap.range_us[0]+10000],gapPixels=[];for(const stamp of gapTimes)gapPixels.push(await sourcePixel(p,event,stamp,'GAP',last,frames));check(gapPixels.length===1||gapPixels[0].frameIndex!==gapPixels[1].frameIndex,event+' GAP displays its actual source samples (one grid cell for a 0.2 s GAP)');d146Review.push({event,kind:'gap-source-pixels',frames:gapPixels});await capture(p,event+'-gap-live');
+  const lost=track.single_view.find(s=>s.kind==='LOST'),lastCam=track.single_view.filter(s=>s.kind==='ON_CAMERA').at(-1).camera_id,lostPixels=[];for(const stamp of [lost.range_us[0]+10000,Math.min(lost.range_us[0]+1210000,lost.range_us[1]-10000)])lostPixels.push(await sourcePixel(p,event,stamp,'LOST',lastCam,frames));check(lostPixels[0].frameIndex!==lostPixels[1].frameIndex,event+' LOST continues advancing last-camera source frames');d146Review.push({event,kind:'lost-source-pixels',frames:lostPixels});await capture(p,event+'-lost-live');
+  const same=track.sightings.find(s=>s.link_kind==='SAME_CAMERA_REACQUISITION');if(event==='A4-1'){check(!!same&&track.reasons.includes('SAME_CAMERA_REACQUISITION'),'A4-1 D145 reacquisition explicitly marked');d146Review.push(await sourcePixel(p,event,same.range_us[0]+10000,'ON_CAMERA',same.camera_id,frames));check(await p.locator('.ui-tag-obs').isVisible(),'A4-1 reacquisition is shown as observed inside its new local segment');await capture(p,event+'-same-camera-reacquisition');}
+ }
  const firstCamera=track.single_view.find(s=>s.kind==='ON_CAMERA').camera_id,ni=track.single_view.findIndex(s=>s.kind==='ON_CAMERA'&&s.camera_id!==firstCamera);
  check(ni>0,'cross-camera event');const previous=track.single_view.slice(0,ni).filter(s=>s.kind==='ON_CAMERA').at(-1),next=track.single_view[ni];
  await seek(p,Math.max(previous.range_us[0],previous.range_us[1]-200000));await decoded(p,'#ui-case2 .ui-stage-img',1);
@@ -77,7 +145,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  check(await p.locator('#ui-events button:disabled').count()===0,'integrated sources selectable');for (const speed of ['0.5','1','1.5','2']) { await p.locator('#ui-wall-speed').selectOption(speed);check(await p.locator('#ui-wall-speed').inputValue()===speed,'case3 playback speed '+speed); }
  const transport=await p.locator('#ui-case3 .transport').boundingBox();check(Math.abs(transport.y+transport.height-viewportHeight)<2,'case3 transport at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const scrolled=await p.locator('#ui-case3 .transport').boundingBox();check(Math.abs(scrolled.y+scrolled.height-viewportHeight)<2,'case3 transport remains fixed while content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
- await capture(p,event+'-case3',{readyCameras:cameras,bar:transport,barAfterScroll:scrolled});
+ await capture(p,event+'-case3',{readyCameras:cameras,bar:transport,barAfterScroll:scrolled});await checkZoom(p,event,'wall');await Promise.all(frameJobs);
  const dest=event==='A4-1'?'B4-1':'A4-1', destButton=p.locator('#ui-events button').filter({hasText:dest}), destRun=await destButton.getAttribute('data-event');await destButton.click();await p.waitForURL(u=>u.searchParams.get('run')===destRun);await p.waitForFunction(()=>document.querySelectorAll('.mr-tile[data-status=READY]').length>0);check(true,'event selection loads source');
  await p.goto(base+'admin.html',{waitUntil:'domcontentloaded'});await p.locator('#admin-title').waitFor();await p.waitForTimeout(300);await capture(p,event+'-admin-overview');
  await p.locator('[data-tab=settings]').click();await capture(p,event+'-admin-settings');
@@ -88,10 +156,10 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
 const extra=await b.newContext({viewport:{width:1440,height:viewportHeight}}),p=await extra.newPage();p.on('pageerror',e=>errors.push({event:'deep-links',error:e.stack??String(e)}));
 for(const [event,stamp]of[['B-05',3000000],['A4-1',9400000],['B4-1',2100000]]){
  await p.goto(base+'?run='+event+'&screen=blind&as_of_us='+stamp);await p.waitForFunction(()=>document.querySelector('#q-core-feedback')?.textContent.includes('追蹤回應：'));
- check(await p.locator('#ui-v1').getAttribute('data-screen')==='case2','blind deep link opens new tracking screen');await p.waitForTimeout(150);await capture(p,event+'-blind-link');check(event==='B-05'?(await p.locator('#ui-floorplan').innerText()).includes('尚無鏡頭位置資料'):await p.locator('#ui-floorplan .is-inferred').count()>0,'blind deep link shows declared uncertainty');
+ check(await p.locator('#ui-v1').getAttribute('data-screen')==='case2','blind deep link opens new tracking screen');await p.waitForTimeout(150);await capture(p,event+'-blind-link');check(event==='B-05'?await p.locator('#ui-floorplan').isHidden():await p.locator('#ui-floorplan .is-inferred').count()>0,'blind deep link respects plan availability and declared uncertainty');
 }
 for(const [name,query,n]of[['r005-location','region=R101',1],['r005-laptop','class=laptop',2]]){
  await p.goto(base+'?run=r005&screen=search&'+query);await decoded(p,'#ui-case1 .ui-shot img',n);check(await p.locator('#ui-v1').getAttribute('data-screen')==='case1','r005 deep link opens result wall');await capture(p,name,{cards:n});
 }
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
-}finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),viewport:{width:1440,height:viewportHeight},checks,results,playbacks,blindReview,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
+}finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
