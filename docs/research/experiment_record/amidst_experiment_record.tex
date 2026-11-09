@@ -1,4 +1,4 @@
-% Amidst experiment record (stage: D134 integration, v2 2026-11-08)
+% Amidst experiment record (stage: D134 integration, v2.2 2026-11-09)
 % Build: ./build.sh  (XeLaTeX + xeCJK). Every number carries a source tag [Sx];
 % the source list is Appendix A. Do not add numbers without a GitHub/repo source.
 \documentclass[11pt,a4paper]{article}
@@ -64,9 +64,9 @@
 }
 
 \title{\sffamily\bfseries Amidst：Agentic 驅動之智慧監控數位孿生系統\\[4pt]
-\large 階段實驗紀錄——多鏡頭查找與追蹤輔助（D134 整合版，v2）}
+\large 階段實驗紀錄——多鏡頭查找與追蹤輔助（D134 整合版，v2.2）}
 \author{Amidst 專題小組\thanks{本紀錄由 Claude Code（Opus 5.5）依 GitHub 與 repo 內容整理；每個數字附來源標記 [S$n$]，對照附錄 A。}}
-\date{2026 年 11 月 8 日}
+\date{2026 年 11 月 9 日（v2.2）}
 
 \begin{document}
 \maketitle
@@ -514,7 +514,7 @@ A6 & 可重播 & 同一錄製檔不連 LLM 產生逐位元組相同結果（T-U7
 \paragraph{結論。}副標題中的「Agentic」目前仍未被實際驗證：A1、A2 沒有任何路徑滿足，A3–A6 只在合成 fixture 上成立。要成立，至少需要 (1) Codex 完成 Qwen3 1.7B 的 (b) 錄製，並以第~\ref{sec:rq3} 節的方法和規則解析器對照；(2) 實作路徑 (a)，以真實錄製通過 A1–A6 的全部測試，並以 \code{RULE_ONLY} 為基準比較；(3) 記錄逾時率與合法輸出率。若無法在報告前完成，建議把副標題改為描述實際能力的用語。
 
 \subsection{目前遇到的重大問題（2026-11-09）}\label{sec:issues}
-使用者在 8787（\code{f7752ec}）看畫面後，以人工方式記下人物實際出現的時段（表~\ref{tab:recall} 的「參考格數」）。這份人工結果只用來評估，不進推論、排序或重建\src{S18,S19}。表~\ref{tab:issues} 列出目前遇到的重大問題（I1–I7）。表~\ref{tab:recall} 是只讀現有索引、不重跑推論的召回率比較\src{S19}。
+使用者在 8787（\code{f7752ec}）看畫面後，以人工方式記下人物實際出現的時段（表~\ref{tab:recall} 的「參考格數」）。這份人工結果只用來評估，不進推論、排序或重建\src{S18,S19}。表~\ref{tab:issues} 列出目前遇到的重大問題（I1–I7），「狀態」欄為 v2.2（2026-11-09）更新：\textbf{解決方案在 PR \#498（Draft、尚未合併，head \code{9fade4a}）上，合併前都只算「已在該分支驗證」}\src{S20,S21}。表~\ref{tab:recall} 是只讀現有索引、不重跑推論的召回率比較\src{S19}。
 
 \begin{table}[htbp]
 \centering\small
@@ -524,13 +524,13 @@ A6 & 可重播 & 同一錄製檔不連 LLM 產生逐位元組相同結果（T-U7
 \toprule
 \# & 問題 & 證據 & 狀態 \\
 \midrule
-I1 & 人偶被偵測成其他類別 & A4 W1 9–14 s 共 25 格，只有 1 格 person $\ge 0.4$，其餘被判成 traffic light、toothbrush、parking meter；B4 BRANCH 13–22 s 0/45 格、R101 32–42 s 0/50 格，34 s 後只剩頭部大小的 sports ball 框；框的位置是連續移動的\src{S19} & 原型「起點 $\ge 0.3$＋不分類別接續」離線召回 78–97\%（表~\ref{tab:recall}），不必重跑推論；待 Codex 依 D147 實作 \\
-I2 & 車輛完全沒有偵測到 & A4 的 \code{detected_class_counts} 沒有 car（0 筆），使用者確認場景裡有車\src{S18} & 未解決；需要換模型或重跑偵測，列為後續 \\
+I1 & 人偶被偵測成其他類別 & A4 W1 9–14 s 共 25 格，只有 1 格 person $\ge 0.4$，其餘被判成 traffic light、toothbrush、parking meter；B4 BRANCH 13–22 s 0/45 格、R101 32–42 s 0/50 格，34 s 後只剩頭部大小的 sports ball 框；框的位置是連續移動的\src{S19} & \textbf{已在 \#498 解決（未合併）：}D148 規則（起點 person $\ge 0.3$、不分類別框接續）實作後，每鏡頭 sightings 召回最低 77.78\%（B4-BRANCH 35/45），其餘 84.00–96.67\%，皆 $\ge 0.75$\src{S20}；原型離線召回為 78–97\%（表~\ref{tab:recall}） \\
+I2 & 車輛完全沒有偵測到 & A4 的 \code{detected_class_counts} 沒有 car（0 筆），使用者確認場景裡有車\src{S18} & \textbf{改用場景標註（D149）：}A4 的車是方塊建模，偵測器 250 格都判不出 car，故用人工標註 \code{scene_annotations_v1.json}，查找標示「場景標註：車輛（非偵測）」；偵測統計維持原值（仍沒有 car），不是偵測問題的解法\src{S20,S22} \\
 I3 & 誤判類別數量多 & B-05 refrigerator 1146 筆、B4 toilet 449 筆，查找窗的鏡頭數因此包含誤判\src{S18} & 前端已改成場景物件置頂、其他類別收合（\code{8a45bea}，只影響顯示） \\
-I4 & 追蹤規則太保守 & 跟丟後只等 6 s、遇到歧義就停：B4 WIDE 14.0–20.0 s 有 31 筆、W2 26.8–30.0 s 有 17 筆、A4 EXT\_CLEAR 28.8–36.8 s 有 41 筆合格候選未採用；實際追蹤對五個參考段的召回率都 $\le 4\%$\src{S18,S19} & D147-1 已決定（全程重掃、歧義不中止）；驗收測試已寫好（\code{dceeb7c}），待 Codex \\
-I5 & 同一鏡頭短缺口造成閃爍 & A4 W1 14.8–22.8 s 有 9 個 0.2–0.4 s 的缺口\src{S18} & D147-1：同鏡頭 $\le 0.6$ s 合併；待 Codex \\
+I4 & 追蹤規則太保守 & 跟丟後只等 6 s、遇到歧義就停：B4 WIDE 14.0–20.0 s 有 31 筆、W2 26.8–30.0 s 有 17 筆、A4 EXT\_CLEAR 28.8–36.8 s 有 41 筆合格候選未採用；實際追蹤對五個參考段的召回率都 $\le 4\%$\src{S18,S19} & \textbf{已在 \#498 解決（未合併）：}全程重掃、歧義記 \code{AMBIGUOUS_HANDOFF} 但不中止追蹤；單畫面切鏡比例 A4 96.47\%（16.4/17 s）、B4 91.58\%（17.4/19 s）\src{S20}。仍有跨鏡頭 0.2 s 閃現（見第~\ref{sec:handoff} 節）\src{S21} \\
+I5 & 同一鏡頭短缺口造成閃爍 & A4 W1 14.8–22.8 s 有 9 個 0.2–0.4 s 的缺口\src{S18} & \textbf{已在 \#498 解決（未合併）：}同鏡頭 $\le 0.6$ s 缺口顯示合併；只驗前後同鏡頭的 GAP $>0.6$ s，不增加 sightings\src{S20,S21}。跨鏡頭缺口維持 \UNK \\
 I6 & 拖曳播放條彈回起點 & 時間軸每次更新都整列重建，連拖曳中的 range input 也被搬動；舊版拖到 70\% 停在 5.8 s & 已修正（\code{8a45bea}），新版停在 35.1 s \\
-I7 & 測試環境 & dom-e2e 預設連到 8785（舊版 \code{4ea0ebb}），未指定伺服器時測到的是舊程式；可用磁碟 6.9 GiB，低於 8 GiB 保護線，需要真實資料的 pytest 都被擋下 & 待清出空間（D138 本機整併）；dom-e2e 改用本 commit 的預覽伺服器執行 \\
+I7 & 測試環境 & dom-e2e 預設連到 8785（舊版 \code{4ea0ebb}），未指定伺服器時測到的是舊程式；可用磁碟 6.9 GiB，低於 8 GiB 保護線，需要真實資料的 pytest 都被擋下 & \textbf{部分解決：}\#498 的驗收在可用磁碟 $\ge 8$ GiB 的條件下完成（pytest 2211 passed／40 skipped、real-e2e 於 900 與 1300 高度各 347 checks）\src{S20}；該 PR 並重啟 8787 在 \code{9fade4a}。8785 是否已更新 \UNK \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -553,6 +553,49 @@ B4-R101 & CAM\_R101\_IN & 50 & 0 (0\%) & 3 (6\%) & 0 (0\%) & 45 (90\%) & 0 (0\%)
 \par\smallskip\footnotesize 「建議」為起點 person $\ge 0.3$（索引下限）加上不分類別的框接續，框可縮小到 1/12（例如只剩頭部）。「實際追蹤」為 \code{f7752ec} 在 8787 的 real-e2e 回應（1440×900 第二次）。每格 0.2 s。接續的框沒有顏色驗證，因為索引只對 person 計算顏色\src{S19}。
 \end{table}
 
+\subsection{切鏡規則與俯視圖現況（2026-11-09）}\label{sec:handoff}
+本節記錄 2026-11-09 問答中釐清的三件事：追蹤自動切鏡的規則、俯視圖目前畫的是什麼、以及 Agent／OpenAI 的現況。切鏡規則取自 PR \#498（Draft、未合併）@\code{9fade4a} 的 \code{associate()}\src{S20}，其餘取自 \code{9fade4a} 的程式與 bootstrap 證據\src{S23,S24}。
+
+\paragraph{切鏡規則：黏著現在的鏡頭。}\code{src/amidst/q1q5/cross_camera_demo.py} 的 \code{associate()} 逐格掃描所有索引時間，規則如下\src{S20}：
+\begin{enumerate}[nosep]
+  \item 只要現在的鏡頭在這一格還看得到目標，就不切；若別的鏡頭恰好在這一格開始出現候選，只在稽核紀錄記 \code{CURRENT_CAMERA_STILL_OBSERVED}。
+  \item 現在的鏡頭看不到時，掃所有鏡頭；候選必須這一格有觀測（局部軌跡每筆分數 $\ge 0.3$，否則報 \code{LOCAL_TRACK_INVALID}），而且其過去顏色與目標過去的顏色有交集，否則記 \code{COLOR_NOT_COMPATIBLE}。
+  \item 只有一個候選就切過去（\code{DEMO_ASSOCIATION_HYPOTHESIS}）；兩個以上則全部記 \code{AMBIGUOUS_HANDOFF}，那一格先不切，追蹤繼續往下掃。
+  \item 兩支鏡頭同時拍到時，程式\textbf{不比較}哪支拍得比較清楚（沒有以分數、框大小選鏡頭的邏輯），身分仍為 \code{UNCONFIRMED}。
+\end{enumerate}
+\textbf{例子（A4 約 9.2–9.6 s）：}起點落在 CAM\_EXT\_CAR，該鏡頭有一段 0.2 s 的閃現，追蹤因此在約 9.4 s 斷開，9.6 s 起才由 CAM\_W1 接上並連續到 27.6 s；同型的閃現還有 37.0–37.6 s。這不違反規則，因為顯示合併只限同鏡頭缺口\src{S21}（\#498 審查 P3-3）。\textbf{使用者決定（D151，2026-11-09）：這個閃現不處理}\src{S25}。若之後要改成「切到拍得比較好的鏡頭」，那是新的決定，須另外記錄，不屬於本版規則。
+
+\paragraph{俯視圖現況。}依 \code{src/amidst/q1q5/camera_map.py} 與 bootstrap 證據（LOCAL，SHA-256 見表~\ref{tab:mapstate} 註）\src{S23,S24}：
+\begin{table}[htbp]
+\centering\small
+\caption{各事件的俯視圖版型（bootstrap 的 \code{camera_maps}）。}
+\label{tab:mapstate}
+\footnotesize\begin{tabular}{l l l l}
+\toprule
+事件 & 場景 & \code{layout} & 畫面註記 \\
+\midrule
+B-05 & \code{ENGINEERING_DYNAMIC_SCENE} & \code{NODE_GRAPH} & 示意圖，非實際座標 \\
+A4-1 & \code{controlled-l-corridor} & \code{NODE_GRAPH} & 示意圖，非實際座標 \\
+B4-1 & \code{controlled-l-corridor} & \code{METRIC_STATIC} & 靜態校正位置（示意，無遮擋計算） \\
+r005 & \code{office_expanded_r005} & \code{NODE_GRAPH} & 示意圖，非實際座標 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize 證據：LOCAL \path{/Users/polalabear/amidst-artifacts/demo-owned-v1/evidence/d139-493/verify-f7752ec-d146-20261109/bootstrap.json}，SHA-256 \hash{d4ad89ef20ac20f67738b774c38b9bde0b43e73d8faa6c51fba818cf64b4b08c}。\code{METRIC_STATIC} 只在所有鏡頭的位置狀態皆為 \code{CALIBRATED_STATIC} 時成立，否則退為 \code{NODE_GRAPH}\src{S23}。
+\end{table}
+\begin{itemize}[nosep]
+  \item 只有 B4-1 是 \code{METRIC_STATIC}：靜態校正位置，沒有遮擋計算；A4-1、B-05、r005 是 \code{NODE_GRAPH}，是示意圖，不是實際座標。
+  \item A4-1 與 B4-1 是同一個場景（\code{controlled-l-corridor}），俯視圖卻不一致。
+  \item 目前沒有牆壁資料。使用者決定（D151，2026-11-09）：牆壁放到驗收 A 之後再做（Codex 從 .blend 匯出輪廓、Claude 負責畫），A4-1／B4-1 俯視圖不一致一併排在驗收後處理\src{S25}。
+\end{itemize}
+
+\paragraph{Agent 與 OpenAI 現況。}
+\begin{itemize}[nosep]
+  \item OpenAI 介接（\code{openai_prediction.py}）預設關閉（\code{enabled=False}），只在俯視圖畫一條標示為「外部模型推測（非系統判斷）」的線；結果 \code{used_for} 為 \code{DISPLAY_ONLY}，模組說明載明從不進入 Q1–Q5 的決策、候選排序或評分；支援 \code{LIVE} 與 \code{REPLAY} 兩種模式\src{S26}。
+  \item 本機 Qwen3 1.7B 的 Agent 模式過去 18 次全部逾時，因此預設關閉；\#489 同時寫「OpenAI 預設關閉，接上後也只產生摘要」，與上一點的描述角度不同，此處兩者並列、以 \#489 原文為準\src{S27}。
+  \item 自然語言轉選單在 PR \#490（Draft、標題含 \texttt{[DO NOT MERGE]}、head \code{bebfa8a}），尚未合併\src{S28}。
+  \item \textbf{結論：}目前所有決策都是規則，還不能展示「LLM 實際做決定」。這屬大問題 D（\#489）的範圍，其中 \#483（OpenAI 接入決策與解析）、\#482（放寬逾時、讓 Qwen 參與決策）排在驗收之後\src{S27}。
+\end{itemize}
+
 \subsection{其他限制}
 \begin{itemize}
   \item \textbf{合成影像。}B-05 使用 P1 v4 \code{SYNTHETIC} RGB，只有 A4-1／B4-1 是 \code{ACTUAL_BLENDER} RGB\src{S1}；且 B-05 沒有可畫的盲區曲線\src{S1}。
@@ -573,7 +616,7 @@ B4-R101 & CAM\_R101\_IN & 50 & 0 (0\%) & 3 (6\%) & 0 (0\%) & 45 (90\%) & 0 (0\%)
   \item 實作路徑 (a) 跟丟找回（D134），並支援 case2 手動改選種子（D137）。
   \item 把盲區假設模組（\eqref{eq:reach}–\eqref{eq:admissible}）接入 case2，並在 A4／B4 上與 \eqref{eq:window} 的顯示路徑比較。
   \item 依第 \ref{sec:discussion} 節的方式驗證或修正「Agentic」的宣稱。
-  \item 依第~\ref{sec:issues} 節處理 I1–I7：Codex 實作 D147（全程重掃、短缺口合併、不分類別接續），以人工參考段的召回率 $\ge 0.75$ 為驗收門檻；車輛偵測（I2）另行評估換模型。
+  \item 依第~\ref{sec:issues} 節處理 I1–I7：Codex 實作 D147（全程重掃、短缺口合併、不分類別接續），以人工參考段的召回率 $\ge 0.75$ 為驗收門檻（v2.2：已在 \#498 達成，尚未合併）；車輛（I2）改用場景標註，偵測器本身仍判不出 car。
 \end{enumerate}
 
 %=====================================================================
@@ -626,6 +669,15 @@ S16 & 大問題 C（\#486）勾選清單（\#456 W-A14 GitHub Actions），\url{
 S17 & 模型版本：RT-DETR 權重 SHA-256 取自 \code{configs/q1q5/r004_production_v1.json}@\code{1fdc1a4}（\code{weights_file_sha256}）與 S11 的 \code{D131_417_DEMO_DEFAULT_RESULTS.md}@\code{a786bde}；Qwen3 1.7B digest 取自 \code{docs/history/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.json}@\code{1fdc1a4}（\code{model_digest}） \\
 S18 & \#93 決策 D147（2026-11-09）留言 6730595312，\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6730595312}；前端修正 \code{claude/ui-d139}@\code{8a45bea}（PR \#493） \\
 S19 & 人工參考 \code{configs/evaluation/d147_human_reference_v1.json}、評估程式 \code{src/amidst/evaluation/track_recall.py} 與 \code{scripts/eval_d147_recall.py}@\code{dceeb7c}；輸出 \code{docs/research/experiment_record/data/d147_recall_eval.json}；索引 A4-1 \code{1a6bfa20}…、B4-1 \code{24944adf}…（\code{content_sha256}） \\
+S20 & PR \#498 描述與 \code{src/amidst/q1q5/cross_camera_demo.py}（\code{associate()}）@\code{9fade4a89d05eba3579625cf7355bc291a2fb07a}，\url{https://github.com/Polalalabear/amidst/pull/498}（Draft、未合併，2026-11-09 讀取）；D150 雙指標與測試數字取自描述 \\
+S21 & PR \#498 審查（Sonnet 5.5／high）\url{https://github.com/Polalalabear/amidst/pull/498\#pullrequestreview-5821500771}，P3-3 與時段抽查 \\
+S22 & \#93 決策 D149 留言 6731335622，\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6731335622} \\
+S23 & \code{src/amidst/q1q5/camera_map.py}@\code{9fade4a}（\code{NODE_GRAPH_NOTE}、\code{METRIC_STATIC_NOTE}、\code{layout} 判定） \\
+S24 & LOCAL \code{bootstrap.json}（路徑與 SHA-256 見表~\ref{tab:mapstate} 註） \\
+S25 & \#93 決策 D151 留言 6732099855（2026-11-09），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6732099855} \\
+S26 & \code{src/amidst/q1q5/openai_prediction.py}@\code{9fade4a}（模組說明、\code{enabled=False}、\code{mode} 為 \code{LIVE}／\code{REPLAY}、\code{used_for='DISPLAY_ONLY'}、\code{AVAILABLE_LABEL}） \\
+S27 & 大問題 D（\#489）內文，\url{https://github.com/Polalalabear/amidst/issues/489}（2026-11-09 讀取） \\
+S28 & PR \#490 標題與狀態（head \code{bebfa8ada3f4e5944ff53d43cf2afe59893319eb}，Draft，2026-11-09 以 \code{gh pr view} 讀取） \\
 \bottomrule
 \end{longtable}
 

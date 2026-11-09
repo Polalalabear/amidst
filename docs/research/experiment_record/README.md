@@ -16,6 +16,14 @@ scrub snap-back, test environment) and Table 10, recall against the user's
 human reference (evaluation only; `data/d147_recall_eval.json`, produced by
 `scripts/eval_d147_recall.py` at `dceeb7c` on `claude/ui-d139`).
 
+v2.2 (2026-11-09) adds §6.3 切鏡規則與俯視圖現況（sticky-camera handoff
+rule from `associate()` @ `9fade4a` / PR #498, overhead-map layouts, Agent and
+OpenAI status; sources S20–S28) and updates the §6.2 status column (I1–I7
+against D147–D150 and #498: per-camera recall min 77.78%, single-view
+switching A4 96.47% / B4 91.58%, vehicles via scene annotation). PR #498 is
+Draft and **not merged**; these results are "verified on that branch" only.
+v3 (e2e screenshots, measurement B) is separate.
+
 - Source: `amidst_experiment_record.tex`
 - Output: `amidst_experiment_record.pdf` (committed; LOCAL copy in
   `/Users/polalabear/amidst-artifacts/experiment-record-20261108/`)
