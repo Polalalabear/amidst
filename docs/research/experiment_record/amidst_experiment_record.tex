@@ -1,4 +1,4 @@
-% Amidst experiment record (stage: D134 integration, v2.2 2026-11-09)
+% Amidst experiment record (stage: D134 integration, v3 2026-11-09)
 % Build: ./build.sh  (XeLaTeX + xeCJK). Every number carries a source tag [Sx];
 % the source list is Appendix A. Do not add numbers without a GitHub/repo source.
 \documentclass[11pt,a4paper]{article}
@@ -64,15 +64,15 @@
 }
 
 \title{\sffamily\bfseries Amidst：Agentic 驅動之智慧監控數位孿生系統\\[4pt]
-\large 階段實驗紀錄——多鏡頭查找與追蹤輔助（D134 整合版，v2.2）}
+\large 階段實驗紀錄——多鏡頭查找與追蹤輔助（D134 整合版，v3）}
 \author{Amidst 專題小組\thanks{本紀錄由 Claude Code（Opus 5.5）依 GitHub 與 repo 內容整理；每個數字附來源標記 [S$n$]，對照附錄 A。}}
-\date{2026 年 11 月 9 日（v2.2）}
+\date{2026 年 11 月 9 日（v3）}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-\noindent 多鏡頭監控的視野彼此不重疊，目標走出一台鏡頭後會進入沒有任何鏡頭看得到的盲區，監控人員必須手動猜測下一台鏡頭。本紀錄整理 Amidst 在 D126 定位（「輔助、不求精確」）下的階段成果：系統只保留兩個核心功能——case1 查找（時間必填，地點或特徵至少一項）與 case2 追蹤（特徵必填，時間空白代表現在；自動換鏡頭，盲區在俯視圖以虛線畫出推測路線）。偵測以 RT-DETR R18 離線建立索引，展示時只查索引並重播，現場不跑模型。我們在 r004 與 r005 兩個場景、B-05／A4-1／B4-1 三個事件上完成功能驗收：後端 pytest 121 項、前端 Node 478 項（新 UI 分支 492 項）、合成瀏覽器 E2E 49 項、實機瀏覽器 E2E 53 項全數通過\src{S1,S2}。延遲方面，歷史量測顯示 RT-DETR 單 worker 為 3.129 fps，若要即時處理 9 台 5 fps 鏡頭約需 14.4 個 worker（\EXT）\src{S3}，支持「離線建索引、現場查詢」的設計；r004 上 2,050 張影格的離線偵測前向平均為 279.64 ms／張（3.576 fps）\src{S11}。我們也客觀檢討副標題中的「Agentic」：目前所有自主行為都是規則或演算法，語言模型 Agent 模式在歷史量測中 18 次全部逾時\src{S3}、預設關閉，因此「Agentic」尚未被實際驗證。v2 補上 A1–A6 六項可驗證條件\src{S13}，以及 RQ3 的路徑 (b)「自然語言轉選單」：已實作並有自動測試，但目前畫面上的回答來自合成 fixture（\code{SYNTHETIC_FIXTURE}），真正的 Qwen3 1.7B 錄製尚未進行\src{S14,S15}。研究問題 RQ3 與 RQ4（2D 目標存在判斷）的正式結果待補；新 UI 截圖與量測 B 尚未定版，只保留位置。
+\noindent 多鏡頭監控的視野彼此不重疊，目標走出一台鏡頭後會進入沒有任何鏡頭看得到的盲區，監控人員必須手動猜測下一台鏡頭。本紀錄整理 Amidst 在 D126 定位（「輔助、不求精確」）下的階段成果：系統只保留兩個核心功能——case1 查找（時間必填，地點或特徵至少一項）與 case2 追蹤（特徵必填，時間空白代表現在；自動換鏡頭，盲區在俯視圖以虛線畫出推測路線）。偵測以 RT-DETR R18 離線建立索引，展示時只查索引並重播，現場不跑模型。我們在 r004 與 r005 兩個場景、B-05／A4-1／B4-1 三個事件上完成功能驗收：後端 pytest 121 項、前端 Node 478 項（新 UI 分支 492 項）、合成瀏覽器 E2E 49 項、實機瀏覽器 E2E 53 項全數通過\src{S1,S2}。延遲方面，歷史量測顯示 RT-DETR 單 worker 為 3.129 fps，若要即時處理 9 台 5 fps 鏡頭約需 14.4 個 worker（\EXT）\src{S3}，支持「離線建索引、現場查詢」的設計；r004 上 2,050 張影格的離線偵測前向平均為 279.64 ms／張（3.576 fps）\src{S11}。我們也客觀檢討副標題中的「Agentic」：目前所有自主行為都是規則或演算法，語言模型 Agent 模式在歷史量測中 18 次全部逾時\src{S3}、預設關閉，因此「Agentic」尚未被實際驗證。v2 補上 A1–A6 六項可驗證條件\src{S13}，以及 RQ3 的路徑 (b)「自然語言轉選單」：已實作並有自動測試，但目前畫面上的回答來自合成 fixture（\code{SYNTHETIC_FIXTURE}），真正的 Qwen3 1.7B 錄製尚未進行\src{S14,S15}。研究問題 RQ3 與 RQ4（2D 目標存在判斷）的正式結果待補。v3 補上新 UI 的實機截圖，以及量測 B 的正式結果：在 8785（\code{89a73e6}）上三個事件、三項指標各 30 次，共 270 個樣本、0 失敗；切鏡 P90 為 13.2–16.2 ms、首次鎖定 P90 為 32.4–88.0 ms、查找 P90 為 54.2–67.9 ms\src{S29}。這些是暖快取下的 UI 與解碼延遲，不是偵測延遲。
 \end{abstract}
 
 \noindent\textbf{關鍵詞：}多鏡頭監控、不重疊視野、盲區推測、負證據、離線索引、跨鏡頭追蹤輔助、數位孿生
@@ -437,11 +437,47 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 \par\smallskip\footnotesize 來源：\code{docs/engineering/d133_playback_latency_20261108.json}@\code{1fdc1a4}，量測 head \code{eb10d4c}\src{S4}。數值四捨五入到小數點後 1～3 位。
 \end{table}
 
-\paragraph{量測 B：新 UI 的切換延遲、首次鎖定與查找耗時。}決策 D130 規定：等 Codex 以真實資料把新 UI（PR \#487）跑起來後，以內建瀏覽器唯讀量測鏡頭切換延遲（P50／P90，目標小於 0.3 s）、首次鎖定時間與查找耗時，每項 30 次\src{S14}。\#487 尚未定版，因此本節只保留位置，不填任何數字。
+\paragraph{量測 B：新 UI 的切換延遲、首次鎖定與查找耗時。}決策 D130 規定：等 Codex 以真實資料把新 UI 跑起來後，以內建瀏覽器唯讀量測鏡頭切換延遲（P50／P90，目標小於 0.3 s）、首次鎖定時間與查找耗時，每項 30 次\src{S14}。正式量測在 2026-11-09 完成，結果見表~\ref{tab:measB}\src{S29,S30}。
 
-\placeholder{NOT\_RUN：量測 B 待 Codex 完成 \#487 後執行}{表格欄位預定為：項目、樣本數（30）、P50、P90、最大值、量測 head SHA、硬體。}
+\begin{table}[htbp]
+\centering\small
+\caption{量測 B 正式結果（8785 @\code{89a73e6}，每格 $n=30$，單位 ms）。}
+\label{tab:measB}
+\begin{tabular}{l l r r r r r r}
+\toprule
+指標 & 事件 & P50 & P90 & min & max & mean & 錯誤 \\
+\midrule
+切鏡 & B-05 & 13.9 & 16.2 & 12.2 & 29.5 & 14.6 & 0 \\
+     & A4-1 & 12.2 & 13.2 & 11.7 & 35.7 & 13.2 & 0 \\
+     & B4-1 & 13.5 & 16.2 & 13.1 & 21.7 & 14.3 & 0 \\
+\midrule
+首次鎖定 & B-05 & 83.2 & 88.0 & 81.0 & 166.1 & 86.7 & 0 \\
+         & A4-1 & 30.2 & 34.2 & 28.8 & 67.4 & 32.1 & 0 \\
+         & B4-1 & 29.9 & 32.4 & 28.6 & 90.5 & 32.2 & 0 \\
+\midrule
+查找 & B-05 & 37.9 & 65.2 & 33.8 & 89.3 & 42.3 & 0 \\
+     & A4-1 & 51.8 & 54.2 & 46.6 & 72.9 & 51.8 & 0 \\
+     & B4-1 & 58.0 & 67.9 & 55.6 & 76.7 & 61.0 & 0 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize 來源：LOCAL \code{/Users/polalabear/amidst-artifacts/coordinator-20261109/measurement-b-formal-89a73e6/summary.md}（\code{ms} 欄；\code{summary_raf.md} 為 \code{raf_ms} 版），同目錄 \code{SHA256SUMS} 列出三份 \code{export.json}、\code{merged.json} 與 summary 的 SHA-256（\code{summary.md}：\hash{6e3c97dd42fe00c667119651e089e94c7e3df7a0f4e7e094863f4cebaaaed546}）；GitHub 紀錄為大問題 B（\#479）留言 6737298718\src{S29,S30}。
+\end{table}
 
-\paragraph{尚未量測。}以下項目為 \NR，量法、硬體 manifest 與樣本數依 \#479 計畫補上\src{S3}：r004 偵測時間的逐張分佈（中位數、P90；量測 A 只有平均）；case1 查找回應時間（大問題 B；原 \#462）；case2 追蹤回應時間；即時偵測到切鏡的延遲、A4／B4 整合核心的切鏡延遲\src{S4}。索引建置的總 wall-clock：\UNK；目前只有量測 A 的各階段加總 610.975 s（2,050 張）\src{S11}。
+\paragraph{量測環境。}8785 執行 \code{claude/ui-redesign-v1} @\code{89a73e6}（含 PR \#500 的回應上限修正），機器為 MacBook Air（Mac15,13，Apple M3，16 GB）；以 Claude 內建瀏覽器（Chrome 152）量測，量測前後窗格都在顯示中，270 列全部記錄 \code{paneVisible:true}；每個樣本在 1440$\times$900 的同源 iframe 中執行；每個事件、每項指標 30 次，共 270 個樣本，嘗試 270 次、失敗 0，沒有補跑或丟棄樣本，也沒有出現 \code{Q_RESPONSE_LIMIT}／\code{Q_RESPONSE_EXPIRED}\src{S30}。量測工具為同分支的 \code{tests/perf/measurement-b}（PR \#497）\src{S30}。三項指標的 P90 都遠低於 D130 的 0.3 s 目標；這只說明 UI 這一段的延遲夠小，不代表整體系統即時\src{S30}。
+
+\paragraph{限制。}
+\begin{itemize}[nosep]
+  \item 全部樣本的 \code{paint_ms} 為 null（內建瀏覽器 iframe 中沒有 Element Timing），實際上畫面的時間 \UNK\src{S30}。
+  \item 樣本屬\textbf{暖快取}（第一個樣本最冷）；暖身只在 B-05 做過一次（各指標 3 次），之後 reset、不計入；冷啟動延遲未量\src{S30}。
+  \item B-05 首次鎖定約 83 ms，A4-1／B4-1 約 30 ms。B-05 第一段 \code{ON_CAMERA} 的位置不同，但工具未分析原因，差異原因 \UNK\src{S30}。
+  \item 量的是 UI 狀態變化到影格解碼完成的延遲，\textbf{不是偵測延遲}；現場不跑模型，偵測速度見量測 A\src{S30}。
+\end{itemize}
+
+\paragraph{不能和試跑、D133 直接比較。}試跑在本機另開的 8821 伺服器上進行，每格 3 次、非正式，伺服器版本與資料路徑都不同\src{S30}。表~\ref{tab:playback} 的 D133 數字是舊 viewer 的 PNG 重播、headless Playwright、每次新的瀏覽器 context，量的是「記錄中的切鏡觀測」對應 PNG 的解碼可見時間；量測 B 量的是新 UI 狀態變化到解碼，在可見的內建瀏覽器中、含 app 自己的影格載入器、且為暖快取。兩者定義、環境與樣本數都不同\src{S30}。
+
+\paragraph{第一次量測作廢。}第一次正式量測（8785 @\code{eceed45}）撞到後端回應上限 \code{Q_RESPONSE_LIMIT}，180 筆作廢、原始資料遺失；原因與修正見第~\ref{sec:issues} 節 I8\src{S31,S32}。
+
+\paragraph{尚未量測。}以下項目為 \NR，量法、硬體 manifest 與樣本數依 \#479 計畫補上\src{S3}：r004 偵測時間的逐張分佈（中位數、P90；量測 A 只有平均）；case1 查找與 case2 追蹤的後端回應時間（量測 B 只量前端 UI 與解碼，見表~\ref{tab:measB}）；冷快取下的 UI 延遲；即時偵測到切鏡的延遲、A4／B4 整合核心的切鏡延遲\src{S4}。索引建置的總 wall-clock：\UNK；目前只有量測 A 的各階段加總 610.975 s（2,050 張）\src{S11}。
 
 \subsection{實際畫面}
 圖~\ref{fig:screens} 為整合版在 Mac 上的實機截圖（大問題 A（\#445） 留言列出的截圖資料夾\src{S1}），經檢查畫面上沒有 GT、渲染軌跡或劇本資訊。
@@ -464,12 +500,42 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 \label{fig:screens}
 \end{figure}
 
-圖~\ref{fig:screens} 是整合版（\#485）的舊介面。新 UI（\#487）仍由 Codex 修正中，定版後再換上實機截圖；在那之前只保留位置，不以舊圖代替（圖~\ref{fig:newui}）。
+圖~\ref{fig:screens} 是整合版（\#485）的舊介面。圖~\ref{fig:newui} 與圖~\ref{fig:newui2} 是新 UI 在 8785 上的真實資料畫面：查找結果牆與 A4 車輛（圖~\ref{fig:newui}(a)(b)）是 v3 整理時以 headless Chrome 唯讀拍攝的 \code{89a73e6} 畫面；其餘取自 Codex 在 8785 \code{eceed45} 執行 real-e2e（\code{UI_QA_HEIGHT=1300}，347 checks、0 錯誤）的截圖\src{S33,S34}。\code{eceed45} 到 \code{89a73e6} 之間只有 PR \#500（後端回應上限，前端只多一句過期提示），畫面行為相同\src{S32}。截圖經檢查沒有 GT、渲染軌跡或劇本資訊。
 
 \begin{figure}[htbp]
-\placeholder{TODO：待 \#487 定版後換圖}{新 UI 實機截圖：封面、case1 結果牆（含自然語言輸入框）、case2 單畫面追蹤與盲區、後台概況。}
-\caption{新 UI 實機畫面（位置保留）。}
+\centering
+\begin{minipage}{0.56\linewidth}\centering
+  \includegraphics[width=\linewidth]{figures/v3_b4_search.jpg}\\
+  \footnotesize (a) B4-1 查找「人物」：4 台鏡頭（W2、W1、R101\_IN、WIDE），回應標示「搜尋範圍僅部分涵蓋」
+\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}\centering
+  \includegraphics[width=\linewidth]{figures/v3_a4_car.jpg}\\
+  \footnotesize (b) A4-1 查找「車」：只有 CAM\_EXT\_CAR 一台，標籤為「場景標註：車輛（非偵測）」（D149）
+\end{minipage}\\[3mm]
+\begin{minipage}{0.80\linewidth}\centering
+  \includegraphics[width=\linewidth]{figures/v3_b4_track.jpg}\\
+  \footnotesize (c) B4-1 追蹤（單畫面）：底部鏡頭時間軸依序為 W2、W1、W2、盲區、WIDE、BRANCH、盲區、W2、R101\_IN；追蹤紀錄列出 14:10:14 出現於 CAM\_WIDE、14:10:21 出現於 CAM\_BRANCH、14:10:30 出現於 CAM\_R101\_IN
+\end{minipage}
+\caption{新 UI 實機畫面：查找與追蹤切鏡。所有畫面皆標示「身分未確認」；(c) 的狀態為 \code{TRACKING}，原因碼含 \code{DEMO_DEFAULT}、\code{GRAPH_NOT_APPROVED}、\code{ASSOCIATION_AMBIGUOUS}\src{S33,S34}。}
 \label{fig:newui}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.49\linewidth}\centering
+  \includegraphics[width=\linewidth]{figures/v3_a4_track.jpg}\\
+  \footnotesize (a) A4-1 追蹤：鎖定於 CAM\_EXT\_CAR，之後在 EXT\_CLEAR 與 W1 之間切換
+\end{minipage}\hfill
+\begin{minipage}{0.49\linewidth}\centering
+  \includegraphics[width=\linewidth]{figures/v3_b05_track.jpg}\\
+  \footnotesize (b) B-05 追蹤：A $\rightarrow$ 盲區 $\rightarrow$ B，13:00:07 目標遺失（\code{LOST}）
+\end{minipage}\\[3mm]
+\begin{minipage}{0.80\linewidth}\centering
+  \includegraphics[width=\linewidth]{figures/v3_admin.jpg}\\
+  \footnotesize (c) 後台概況：鏡頭數、覆蓋區域、各鏡頭偵測數與事件流；沒有實測來源的欄位顯示「尚未量測」
+\end{minipage}
+\caption{新 UI 實機畫面：另兩個事件的追蹤與後台概況（8785 @\code{eceed45}，real-e2e 1300 高度）\src{S34}。(c) 的「查找耗時 0.02 秒」是頁面自己的本機量測，不是表~\ref{tab:measB} 的數字。}
+\label{fig:newui2}
 \end{figure}
 
 %=====================================================================
@@ -514,7 +580,7 @@ A6 & 可重播 & 同一錄製檔不連 LLM 產生逐位元組相同結果（T-U7
 \paragraph{結論。}副標題中的「Agentic」目前仍未被實際驗證：A1、A2 沒有任何路徑滿足，A3–A6 只在合成 fixture 上成立。要成立，至少需要 (1) Codex 完成 Qwen3 1.7B 的 (b) 錄製，並以第~\ref{sec:rq3} 節的方法和規則解析器對照；(2) 實作路徑 (a)，以真實錄製通過 A1–A6 的全部測試，並以 \code{RULE_ONLY} 為基準比較；(3) 記錄逾時率與合法輸出率。若無法在報告前完成，建議把副標題改為描述實際能力的用語。
 
 \subsection{目前遇到的重大問題（2026-11-09）}\label{sec:issues}
-使用者在 8787（\code{f7752ec}）看畫面後，以人工方式記下人物實際出現的時段（表~\ref{tab:recall} 的「參考格數」）。這份人工結果只用來評估，不進推論、排序或重建\src{S18,S19}。表~\ref{tab:issues} 列出目前遇到的重大問題（I1–I7），「狀態」欄為 v2.2（2026-11-09）更新：\textbf{解決方案在 PR \#498（Draft、尚未合併，head \code{9fade4a}）上，合併前都只算「已在該分支驗證」}\src{S20,S21}。表~\ref{tab:recall} 是只讀現有索引、不重跑推論的召回率比較\src{S19}。
+使用者在 8787（\code{f7752ec}）看畫面後，以人工方式記下人物實際出現的時段（表~\ref{tab:recall} 的「參考格數」）。這份人工結果只用來評估，不進推論、排序或重建\src{S18,S19}。表~\ref{tab:issues} 列出目前遇到的重大問題（I1–I7），「狀態」欄為 v3（2026-11-09）更新：\textbf{PR \#498（head \code{9fade4a}）已於 2026-11-09 合併進 \code{claude/ui-d139}（merge commit \code{42fc0a8}），再經 \#493 合併進 \code{claude/ui-redesign-v1}（\code{eceed45}）；8785 目前執行的 \code{89a73e6} 含這些修正}\src{S20,S21,S35}。I8 為 v3 新增（表~\ref{tab:issues8}）。表~\ref{tab:recall} 是只讀現有索引、不重跑推論的召回率比較\src{S19}。
 
 \begin{table}[htbp]
 \centering\small
@@ -524,13 +590,26 @@ A6 & 可重播 & 同一錄製檔不連 LLM 產生逐位元組相同結果（T-U7
 \toprule
 \# & 問題 & 證據 & 狀態 \\
 \midrule
-I1 & 人偶被偵測成其他類別 & A4 W1 9–14 s 共 25 格，只有 1 格 person $\ge 0.4$，其餘被判成 traffic light、toothbrush、parking meter；B4 BRANCH 13–22 s 0/45 格、R101 32–42 s 0/50 格，34 s 後只剩頭部大小的 sports ball 框；框的位置是連續移動的\src{S19} & \textbf{已在 \#498 解決（未合併）：}D148 規則（起點 person $\ge 0.3$、不分類別框接續）實作後，每鏡頭 sightings 召回最低 77.78\%（B4-BRANCH 35/45），其餘 84.00–96.67\%，皆 $\ge 0.75$\src{S20}；原型離線召回為 78–97\%（表~\ref{tab:recall}） \\
+I1 & 人偶被偵測成其他類別 & A4 W1 9–14 s 共 25 格，只有 1 格 person $\ge 0.4$，其餘被判成 traffic light、toothbrush、parking meter；B4 BRANCH 13–22 s 0/45 格、R101 32–42 s 0/50 格，34 s 後只剩頭部大小的 sports ball 框；框的位置是連續移動的\src{S19} & \textbf{已合併並驗證（\#498，\code{42fc0a8}）：}D148 規則（起點 person $\ge 0.3$、不分類別框接續）實作後，每鏡頭 sightings 召回最低 77.78\%（B4-BRANCH 35/45），其餘 84.00–96.67\%，皆 $\ge 0.75$\src{S20}；原型離線召回為 78–97\%（表~\ref{tab:recall}） \\
 I2 & 車輛完全沒有偵測到 & A4 的 \code{detected_class_counts} 沒有 car（0 筆），使用者確認場景裡有車\src{S18} & \textbf{改用場景標註（D149）：}A4 的車是方塊建模，偵測器 250 格都判不出 car，故用人工標註 \code{scene_annotations_v1.json}，查找標示「場景標註：車輛（非偵測）」；偵測統計維持原值（仍沒有 car），不是偵測問題的解法\src{S20,S22} \\
 I3 & 誤判類別數量多 & B-05 refrigerator 1146 筆、B4 toilet 449 筆，查找窗的鏡頭數因此包含誤判\src{S18} & 前端已改成場景物件置頂、其他類別收合（\code{8a45bea}，只影響顯示） \\
-I4 & 追蹤規則太保守 & 跟丟後只等 6 s、遇到歧義就停：B4 WIDE 14.0–20.0 s 有 31 筆、W2 26.8–30.0 s 有 17 筆、A4 EXT\_CLEAR 28.8–36.8 s 有 41 筆合格候選未採用；實際追蹤對五個參考段的召回率都 $\le 4\%$\src{S18,S19} & \textbf{已在 \#498 解決（未合併）：}全程重掃、歧義記 \code{AMBIGUOUS_HANDOFF} 但不中止追蹤；單畫面切鏡比例 A4 96.47\%（16.4/17 s）、B4 91.58\%（17.4/19 s）\src{S20}。仍有跨鏡頭 0.2 s 閃現（見第~\ref{sec:handoff} 節）\src{S21} \\
-I5 & 同一鏡頭短缺口造成閃爍 & A4 W1 14.8–22.8 s 有 9 個 0.2–0.4 s 的缺口\src{S18} & \textbf{已在 \#498 解決（未合併）：}同鏡頭 $\le 0.6$ s 缺口顯示合併；只驗前後同鏡頭的 GAP $>0.6$ s，不增加 sightings\src{S20,S21}。跨鏡頭缺口維持 \UNK \\
+I4 & 追蹤規則太保守 & 跟丟後只等 6 s、遇到歧義就停：B4 WIDE 14.0–20.0 s 有 31 筆、W2 26.8–30.0 s 有 17 筆、A4 EXT\_CLEAR 28.8–36.8 s 有 41 筆合格候選未採用；實際追蹤對五個參考段的召回率都 $\le 4\%$\src{S18,S19} & \textbf{已合併並驗證（\#498，\code{42fc0a8}）：}全程重掃、歧義記 \code{AMBIGUOUS_HANDOFF} 但不中止追蹤；單畫面切鏡比例 A4 96.47\%（16.4/17 s）、B4 91.58\%（17.4/19 s）\src{S20}。仍有跨鏡頭 0.2 s 閃現（見第~\ref{sec:handoff} 節）\src{S21} \\
+I5 & 同一鏡頭短缺口造成閃爍 & A4 W1 14.8–22.8 s 有 9 個 0.2–0.4 s 的缺口\src{S18} & \textbf{已合併並驗證（\#498，\code{42fc0a8}）：}同鏡頭 $\le 0.6$ s 缺口顯示合併；只驗前後同鏡頭的 GAP $>0.6$ s，不增加 sightings\src{S20,S21}。跨鏡頭缺口維持 \UNK \\
 I6 & 拖曳播放條彈回起點 & 時間軸每次更新都整列重建，連拖曳中的 range input 也被搬動；舊版拖到 70\% 停在 5.8 s & 已修正（\code{8a45bea}），新版停在 35.1 s \\
-I7 & 測試環境 & dom-e2e 預設連到 8785（舊版 \code{4ea0ebb}），未指定伺服器時測到的是舊程式；可用磁碟 6.9 GiB，低於 8 GiB 保護線，需要真實資料的 pytest 都被擋下 & \textbf{部分解決：}\#498 的驗收在可用磁碟 $\ge 8$ GiB 的條件下完成（pytest 2211 passed／40 skipped、real-e2e 於 900 與 1300 高度各 347 checks）\src{S20}；該 PR 並重啟 8787 在 \code{9fade4a}。8785 是否已更新 \UNK \\
+I7 & 測試環境 & dom-e2e 預設連到 8785（舊版 \code{4ea0ebb}），未指定伺服器時測到的是舊程式；可用磁碟 6.9 GiB，低於 8 GiB 保護線，需要真實資料的 pytest 都被擋下 & \textbf{部分解決：}\#498 的驗收在可用磁碟 $\ge 8$ GiB 的條件下完成（pytest 2211 passed／40 skipped、real-e2e 於 900 與 1300 高度各 347 checks）\src{S20}；8785 已重啟在 \code{89a73e6}\src{S30,S34} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{目前遇到的重大問題（續）：v3 新增 I8。}
+\label{tab:issues8}
+\footnotesize\begin{tabularx}{\linewidth}{l >{\raggedright}p{3.0cm} >{\raggedright}X >{\raggedright\arraybackslash}p{3.6cm}}
+\toprule
+\# & 問題 & 證據 & 狀態 \\
+\midrule
+I8 & 回應上限 128 筆造成查找全部失敗（D153） & \code{serve_demo_integration.py} 設 \code{max_responses=128}，\code{QAPI._save_response} 滿了直接拒絕、舊回應永不淘汰；第一次量測 B 送到約第 102 筆起查找逾時，之後所有查找回 \code{Q_RESPONSE_LIMIT}（409）。demo 現場連續操作約 128 次也會出現同樣問題\src{S31,S32} & \textbf{已修正並驗證（\#500，\code{89a73e6}）：}改為有上限、最舊先淘汰（上限 512），被淘汰的結果再查回 \code{Q_RESPONSE_EXPIRED}（410），前端顯示「這筆結果已過期，請重新查詢」；pytest 2221 passed／40 skipped、node 519 passed、1400 次連續查找與追蹤 0 失敗\src{S32}。影響：第一次量測 180 筆作廢，原始資料遺失（窗格關閉時頁面記憶體清空、匯出前沒有存檔）\src{S31}；正式量測重做，270 筆 0 失敗\src{S30} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -554,7 +633,7 @@ B4-R101 & CAM\_R101\_IN & 50 & 0 (0\%) & 3 (6\%) & 0 (0\%) & 45 (90\%) & 0 (0\%)
 \end{table}
 
 \subsection{切鏡規則與俯視圖現況（2026-11-09）}\label{sec:handoff}
-本節記錄 2026-11-09 問答中釐清的三件事：追蹤自動切鏡的規則、俯視圖目前畫的是什麼、以及 Agent／OpenAI 的現況。切鏡規則取自 PR \#498（Draft、未合併）@\code{9fade4a} 的 \code{associate()}\src{S20}，其餘取自 \code{9fade4a} 的程式與 bootstrap 證據\src{S23,S24}。
+本節記錄 2026-11-09 問答中釐清的三件事：追蹤自動切鏡的規則、俯視圖目前畫的是什麼、以及 Agent／OpenAI 的現況。切鏡規則取自 PR \#498（v3：已合併，\code{42fc0a8}）@\code{9fade4a} 的 \code{associate()}\src{S20}，其餘取自 \code{9fade4a} 的程式與 bootstrap 證據\src{S23,S24}。
 
 \paragraph{切鏡規則：黏著現在的鏡頭。}\code{src/amidst/q1q5/cross_camera_demo.py} 的 \code{associate()} 逐格掃描所有索引時間，規則如下\src{S20}：
 \begin{enumerate}[nosep]
@@ -611,12 +690,21 @@ r005 & \code{office_expanded_r005} & \code{NODE_GRAPH} & 示意圖，非實際�
 \begin{enumerate}
   \item RQ4：取得 yyin 的正式標註後計算 precision／recall／F1。
   \item RQ3：Codex 以 Qwen3 1.7B 錄製路徑 (b) 的回應，組員提供 6 句標準答案後，依第~\ref{sec:rq3} 節評估。
-  \item \#487 定版後執行量測 B，並換上新 UI 截圖（圖~\ref{fig:newui}）。
+  \item 量測 B 已完成（表~\ref{tab:measB}）；冷快取與 \code{paint_ms} 仍 \UNK，必要時另行量測。
   \item 依 大問題 B（\#479） 補量 r004 逐張偵測時間（runner 需記錄逐張前向時間）、case1／case2 回應時間與切鏡延遲。
   \item 實作路徑 (a) 跟丟找回（D134），並支援 case2 手動改選種子（D137）。
   \item 把盲區假設模組（\eqref{eq:reach}–\eqref{eq:admissible}）接入 case2，並在 A4／B4 上與 \eqref{eq:window} 的顯示路徑比較。
   \item 依第 \ref{sec:discussion} 節的方式驗證或修正「Agentic」的宣稱。
-  \item 依第~\ref{sec:issues} 節處理 I1–I7：Codex 實作 D147（全程重掃、短缺口合併、不分類別接續），以人工參考段的召回率 $\ge 0.75$ 為驗收門檻（v2.2：已在 \#498 達成，尚未合併）；車輛（I2）改用場景標註，偵測器本身仍判不出 car。
+  \item 依第~\ref{sec:issues} 節處理 I1–I7：Codex 實作 D147（全程重掃、短缺口合併、不分類別接續），以人工參考段的召回率 $\ge 0.75$ 為驗收門檻（v3：\#498 已合併並驗證）；車輛（I2）改用場景標註，偵測器本身仍判不出 car。
+\end{enumerate}
+
+\subsection{驗收 A 之後的工作順序（D151、D152）}\label{sec:next}
+目前主線為：量測 B（已完成）$\rightarrow$ 實驗紀錄 v3（本版）$\rightarrow$ 驗收 A（\#445）$\rightarrow$ 合併鏈 \#487 $\rightarrow$ \#485 $\rightarrow$ \code{mainline/q1q5}（需另外授權）\src{S36}。驗收 A 之後依使用者決定的順序\src{S25,S36}：
+\begin{enumerate}[nosep]
+  \item \textbf{第 1 階段：}\#498 審查留下的兩個 P2（\code{min_score} 寫死 0.3；e2e 比對的答案是程式自產）、依賴收編、CI 加來源紀錄腳本、分支保護、發出組員標註包。
+  \item \textbf{大掃除：}D138 台帳、\#431、把 main 更新成 mainline（需另外授權，CI 要先上線）、封存、Windows 可攜。
+  \item \textbf{兩條線並行：}(a) Agent 決策（\#482、\#483）：API 介接、模型對比（本機 Qwen、OpenAI 等），列出可在 Windows 上測的項目與上傳清單（附 SHA-256）；(b) 系統對比（規則 baseline 與 Agent 決策、M1–M4）與研究產出（\#433 完整研究計畫、評估工具）。
+  \item \textbf{之後再做：}俯視圖加牆壁（Codex 從 .blend 匯出輪廓，Claude 繪製）、A4-1 俯視圖由 \code{NODE_GRAPH} 改為實際位置、非人物追蹤、特徵多選。自然語言轉選單（\#480、PR \#490）暫停；\#498 的跨鏡頭 0.2 s 閃現（P3-3）不處理。
 \end{enumerate}
 
 %=====================================================================
@@ -678,6 +766,14 @@ S25 & \#93 決策 D151 留言 6732099855（2026-11-09），\url{https://github.c
 S26 & \code{src/amidst/q1q5/openai_prediction.py}@\code{9fade4a}（模組說明、\code{enabled=False}、\code{mode} 為 \code{LIVE}／\code{REPLAY}、\code{used_for='DISPLAY_ONLY'}、\code{AVAILABLE_LABEL}） \\
 S27 & 大問題 D（\#489）內文，\url{https://github.com/Polalalabear/amidst/issues/489}（2026-11-09 讀取） \\
 S28 & PR \#490 標題與狀態（head \code{bebfa8ada3f4e5944ff53d43cf2afe59893319eb}，Draft，2026-11-09 以 \code{gh pr view} 讀取） \\
+S29 & 大問題 B（\#479）留言 6737298718（量測 B 正式結果，2026-11-09），\url{https://github.com/Polalalabear/amidst/issues/479\#issuecomment-6737298718} \\
+S30 & LOCAL \code{/Users/polalabear/amidst-artifacts/coordinator-20261109/measurement-b-formal-89a73e6/}：\code{README.md}（環境、限制、比較說明；SHA-256 \hash{7b7bfc2d46d886ad0824137eac7f98ae4fea37ccf14e7418dc09dd9602584bc0}）、\code{summary.md}、\code{SHA256SUMS} \\
+S31 & \#93 決策 D153 留言 6734445283，\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6734445283}；LOCAL \code{coordinator-20261109/measurement-b-formal-eceed45/partial-180-INVALID/README.md} \\
+S32 & PR \#500 描述「實際產出」，\url{https://github.com/Polalalabear/amidst/pull/500}（merge commit \code{89a73e6516c6d45cb3689b2d05d9b9ae0706f618}，2026-11-09 合併） \\
+S33 & v3 整理時以 headless Chrome（playwright-core）唯讀拍攝 8785 @\code{89a73e6}（2026-11-09 10:09 UTC 以 \code{lsof}／\code{git rev-parse} 確認）；原圖 LOCAL \code{/Users/polalabear/amidst-artifacts/experiment-record-20261108/v3-sources/}（\code{b4_search.png} \hash{bcee22d4c085d9e2f573ad086f543228acfb1ed719a00c275bfd13330992ea08}、\code{a4_car.png} \hash{c8ad70bfddeb9e170b2df00446c10a2ada1709a4770b36177bb89a969d04c043}） \\
+S34 & \#93 Codex 留言 6732444642（8785 @\code{eceed45} real-e2e），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6732444642}；截圖 LOCAL \code{/Users/polalabear/amidst-artifacts/demo-owned-v1/evidence/8785-eceed45-20261109/height-1300/screenshots/}（\code{MANIFEST.json} \hash{e4c6d840d3c757455445dc1674af2ba0e19277f4f1e0a07e551e7a5e6d0f5ac2}） \\
+S35 & PR \#498 狀態（MERGED，2026-11-09T04:30:47Z，merge commit \code{42fc0a833cf898e1b5ebb593f068e2b64524e51a}，以 \code{gh pr view} 讀取）；\#93 合併留言 6732350719 \\
+S36 & \#93 決策 D152 留言 6732263756 與工作規劃留言 6732392602（2026-11-09），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6732392602} \\
 \bottomrule
 \end{longtable}
 
@@ -705,9 +801,12 @@ PR & 分支 & head SHA & 狀態 \\
 \midrule
 \#487（v2 讀取） & \code{claude/ui-redesign-v1} & \code{5862bb622171e56a777028e130944b703fe49399} & Draft \\
 \#490 & \code{claude/epic-d-agentic} & \code{ebc6d3f31eea6965f7e8718a899ef104699bc4f4} & Draft \\
+\midrule
+\#498（v3 讀取） & 目標 \code{claude/ui-d139} & \code{9fade4a89d05eba3579625cf7355bc291a2fb07a} & 已合併（\code{42fc0a8}） \\
+\#500（v3 讀取） & 目標 \code{claude/ui-redesign-v1} & \code{a223ce3f} & 已合併（\code{89a73e6}） \\
 \bottomrule
 \end{tabular}
-\par\smallskip\footnotesize 上半為 v1（\code{72277e8}）時讀取的 head；下半兩列為 v2 讀取（2026-11-08 晚）。本紀錄引用 \#487 的測試數字仍是 \code{53953a8} 的結果\src{S2,S12}；\code{5862bb6} 為 Codex 修正後的 \code{b49fb6e} 加上驗收腳本\src{S16}。
+\par\smallskip\footnotesize 上半為 v1（\code{72277e8}）時讀取的 head；中段兩列為 v2 讀取（2026-11-08 晚）；最後兩列為 v3 讀取（2026-11-09）\src{S32,S35}。本紀錄引用 \#487 的測試數字仍是 \code{53953a8} 的結果\src{S2,S12}；\code{5862bb6} 為 Codex 修正後的 \code{b49fb6e} 加上驗收腳本\src{S16}。
 \end{table}
 
 \noindent 重現指令（取自 S1；Python 環境路徑為原執行機器的本機路徑）：
