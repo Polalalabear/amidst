@@ -52,7 +52,7 @@ jobs:
           AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs > "$OUT/node.log" 2>&1
           n=$?; [ $n -ne 0 ] && fail=1
 
-          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations -rs > "$OUT/pytest.log" 2>&1
+          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations -rfs --tb=short > "$OUT/pytest.log" 2>&1
           p=$?; [ $p -ne 0 ] && fail=1
 
           git diff --check "$BASE"...HEAD > "$OUT/diffcheck.log" 2>&1
@@ -91,4 +91,5 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
           for f in guard node pytest diffcheck; do echo "::group::$f"; tail -n 60 "$OUT/$f.log"; echo "::endgroup::"; done
+          grep -E '^FAILED' "$OUT/pytest.log" | head -60
           exit $fail
