@@ -126,6 +126,17 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "amidst.artifact-ledger.v1",
+      "source_paths": [
+        "configs/provenance/artifact_ledger_v1.json",
+        "configs/provenance/artifact_ledger_v1.schema.json",
+        "scripts/artifact_ledger.py",
+        "docs/history/ARTIFACT_LEDGER.md"
+      ],
+      "issue_ref": "#93",
+      "status": "REGISTERED_D138_ARTIFACT_LEDGER"
+    },
+    {
       "value": "amidst.contact-rq1-evaluation.v1",
       "source_paths": [
         "src/amidst/engineering/contact_rq1.py"
