@@ -1,0 +1,1494 @@
+{
+ "document": "R004 A4/B4 scenario cards v2 (4 actors) - authored waypoint draft",
+ "status": "PROPOSED",
+ "approval_ref": null,
+ "render_authorized": false,
+ "decision_ref": "D198 (issue #93); D197 direction",
+ "coordinate_convention": {
+  "frame": "r004 static world (same as v1 producer drafts)",
+  "units": "meters",
+  "time_units": "integer source microseconds",
+  "point_role": "PROPOSED_FOOT_ANCHOR",
+  "interpolation": "LINEAR_PROPOSED",
+  "presence": "actor exists only between its first and last waypoint (spawn/despawn points must be outside all render cameras: VIS_CHECK_REQUIRED)"
+ },
+ "boundary": {
+  "rgb_read": false,
+  "private_scoring_or_renderer_data_read": false,
+  "physical_navigation": "UNKNOWN",
+  "collision_beyond_script_clearance": "UNKNOWN",
+  "identity_verdict": "UNCONFIRMED",
+  "must_not_enter": [
+   "RUNTIME_INFERENCE",
+   "CANDIDATE_RANKING",
+   "DETECTION_INDEX",
+   "PARAMETERS",
+   "PROMPTS",
+   "SAFE_BUNDLE"
+  ]
+ },
+ "rules": {},
+ "runs": [
+  {
+   "run_id": "A4-1-v2-4actor",
+   "scenario": "A4-1",
+   "duration_us": 50000000,
+   "unchanged": {
+    "cameras": "v1 render set and poses",
+    "image_size_px": [
+     960,
+     540
+    ],
+    "fps": 5,
+    "clock": "v1 DECLARED_DEMO_CLOCK mapping (new run/clock ids only, as D124)",
+    "source_blend": "not saved or copied; actors added in memory only (as D124)",
+    "target_route_source": {
+     "path": "configs/q1q5/scripts/r004_a4_1_script_draft_v1.json",
+     "sha256": "d304d0fcc17932e11dd54120fc06f88c96e28dbb07713c75e388e7664a4824a9"
+    }
+   },
+   "seed": {
+    "actor_id": "T",
+    "exclusive_until_us": 2000000,
+    "reason": "associate() seeds on the first sample with exactly one coloured person; any other person visible at t=0 gives AMBIGUOUS_FIRST_SEED"
+   },
+   "doors": [
+    {
+     "door_id": "R004_WEST_ENTRY",
+     "center_xy": [
+      -3.2,
+      0.0
+     ],
+     "normal_xy": [
+      1,
+      0
+     ],
+     "width_m": 1.2,
+     "geometry_status": "ASSUMED: x = west bound of WALK_VEST_W / exterior floor (6 cm step); y = centre of CAM_EXT_CLEAR:E_OUT_VEST patch (-0.4..0.4); real opening UNKNOWN"
+    },
+    {
+     "door_id": "PORTAL_R101",
+     "center_xy": [
+      7.75,
+      0.0
+     ],
+     "normal_xy": [
+      0,
+      1
+     ],
+     "width_m": 1.2,
+     "geometry_status": "ASSUMED: x = centre of CAM_W2:E_PORTAL_R101 patch (7.35-8.15); y = shared bound of WALK_CORR_W (y>=0) and WALK_R101 (y<=0) support boxes; 1.2 m width is the D198 rule, real opening UNKNOWN (portal-openings:r004:v2 not readable)"
+    }
+   ],
+   "corridors": [
+    {
+     "corridor_id": "CORR_W",
+     "along_axis": "x",
+     "bounds_xy": [
+      [
+       0.0,
+       15.0
+      ],
+      [
+       0.0,
+       2.4
+      ]
+     ],
+     "basis": "WALK_CORR_W support bounds (R004_D89_FEASIBILITY_20261027.json support_bounds); CORR_W width 2.4 m"
+    }
+   ],
+   "walls": null,
+   "walls_status": "UNKNOWN: no wall/furniture geometry in readable repo files (region polygons are hash refs only; support_bounds are walkable-surface boxes, not walls)",
+   "advisory_boundaries": [
+    {
+     "segment_id": "VEST_CORR_north_y2.4",
+     "a": [
+      -3.2,
+      2.4
+     ],
+     "b": [
+      15.0,
+      2.4
+     ]
+    },
+    {
+     "segment_id": "CORR_south_y0_west_of_R101_door",
+     "a": [
+      4.88,
+      0.0
+     ],
+     "b": [
+      7.15,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "CORR_CORNER_south_y0_east_of_R101_door",
+     "a": [
+      8.35,
+      0.0
+     ],
+     "b": [
+      17.4,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "CORNER_east_x17.4",
+     "a": [
+      17.4,
+      0.0
+     ],
+     "b": [
+      17.4,
+      2.4
+     ]
+    },
+    {
+     "segment_id": "VEST_west_x-3.2_south_of_door",
+     "a": [
+      -3.2,
+      -2.0
+     ],
+     "b": [
+      -3.2,
+      -0.6
+     ]
+    },
+    {
+     "segment_id": "VEST_west_x-3.2_north_of_door",
+     "a": [
+      -3.2,
+      0.6
+     ],
+     "b": [
+      -3.2,
+      2.4
+     ]
+    },
+    {
+     "segment_id": "VEST_south_y-2",
+     "a": [
+      -3.2,
+      -2.0
+     ],
+     "b": [
+      4.88,
+      -2.0
+     ]
+    },
+    {
+     "segment_id": "VEST_east_x4.88_south",
+     "a": [
+      4.88,
+      -2.0
+     ],
+     "b": [
+      4.88,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "R101_west_x5",
+     "a": [
+      5.0,
+      -5.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "R101_east_x11",
+     "a": [
+      11.0,
+      -5.0
+     ],
+     "b": [
+      11.0,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "R101_south_y-5",
+     "a": [
+      5.0,
+      -5.0
+     ],
+     "b": [
+      11.0,
+      -5.0
+     ]
+    }
+   ],
+   "advisory_basis": "PROVISIONAL edges of WALK_* support boxes (R004_D89_FEASIBILITY_20261027.json); not wall geometry; furniture not represented",
+   "estimate_model": {
+    "status": "PLANNING_ASSUMPTION_NOT_VISIBILITY",
+    "seed_camera_id": "CAM_EXT_CLEAR",
+    "tracking_camera_ids": [
+     "CAM_EXT_CAR",
+     "CAM_EXT_CLEAR",
+     "CAM_W1"
+    ],
+    "transitions": [
+     [
+      "CAM_EXT_CAR",
+      "CAM_W1"
+     ],
+     [
+      "CAM_EXT_CLEAR",
+      "CAM_W1"
+     ],
+     [
+      "CAM_W1",
+      "CAM_EXT_CAR"
+     ],
+     [
+      "CAM_W1",
+      "CAM_EXT_CLEAR"
+     ]
+    ],
+    "assumed_camera_coverage_xy_boxes": {
+     "CAM_EXT_CLEAR": [
+      [
+       [
+        -11.0,
+        -3.35
+       ],
+       [
+        -1.5,
+        3.5
+       ]
+      ]
+     ],
+     "CAM_EXT_CAR": [
+      [
+       [
+        -11.0,
+        -6.0
+       ],
+       [
+        -5.0,
+        -0.9
+       ]
+      ],
+      [
+       [
+        -5.0,
+        -3.35
+       ],
+       [
+        -1.5,
+        0.5
+       ]
+      ]
+     ],
+     "CAM_W1": [
+      [
+       [
+        0.35,
+        13.4
+       ],
+       [
+        0.0,
+        2.4
+       ]
+      ]
+     ]
+    },
+    "basis": "coarse floor boxes from v3_1 static patch rectangles and v1 card text; no projection, occlusion or detector model; perfect detection inside a box"
+   },
+   "actors": [
+    {
+     "actor_id": "T",
+     "role": "TARGET",
+     "appearance": {
+      "upper": "v1 / D124 source red top, source material unchanged",
+      "lower": "source trousers (unchanged)",
+      "extras": "D124 dark backpack + front face/chest badge (unchanged)"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "red"
+      ],
+      "eligible_vs_target": "SELF",
+      "note": "Seed person; red band"
+     },
+     "route_note": "v1 A4-1 target route, byte-for-byte coordinates and times from the producer draft",
+     "waypoints": [
+      {
+       "t_us": 0,
+       "xy": [
+        -10,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 0
+      },
+      {
+       "t_us": 8000000,
+       "xy": [
+        -3.35,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 1
+      },
+      {
+       "t_us": 8110731,
+       "xy": [
+        -3.200000047683716,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 2
+      },
+      {
+       "t_us": 8155024,
+       "xy": [
+        -3.200000047683716,
+        -0.4
+       ],
+       "z_m": 0.0,
+       "v1_waypoint_index": 3
+      },
+      {
+       "t_us": 11000000,
+       "xy": [
+        0.35,
+        1.1
+       ],
+       "z_m": 0.0,
+       "v1_waypoint_index": 4
+      },
+      {
+       "t_us": 16000000,
+       "xy": [
+        7.5,
+        1.1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 5
+      },
+      {
+       "t_us": 18000000,
+       "xy": [
+        9.5,
+        1.1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 6
+      },
+      {
+       "t_us": 26000000,
+       "xy": [
+        0.35,
+        1.1
+       ],
+       "z_m": 0.0,
+       "v1_waypoint_index": 7
+      },
+      {
+       "t_us": 28844976,
+       "xy": [
+        -3.200000047683716,
+        -0.4
+       ],
+       "z_m": 0.0,
+       "v1_waypoint_index": 8
+      },
+      {
+       "t_us": 28889269,
+       "xy": [
+        -3.200000047683716,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 9
+      },
+      {
+       "t_us": 29000000,
+       "xy": [
+        -3.35,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 10
+      },
+      {
+       "t_us": 36000000,
+       "xy": [
+        -3.35,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 11
+      },
+      {
+       "t_us": 36110731,
+       "xy": [
+        -3.200000047683716,
+        -0.4
+       ],
+       "z_m": -0.05999999865889549,
+       "v1_waypoint_index": 12
+      },
+      {
+       "t_us": 36155024,
+       "xy": [
+        -3.200000047683716,
+        -0.4
+       ],
+       "z_m": 0.0,
+       "v1_waypoint_index": 13
+      },
+      {
+       "t_us": 39000000,
+       "xy": [
+        0.35,
+        1.1
+       ],
+       "z_m": 0.0,
+       "v1_waypoint_index": 14
+      },
+      {
+       "t_us": 44000000,
+       "xy": [
+        4.35,
+        1.1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 15
+      },
+      {
+       "t_us": 50000000,
+       "xy": [
+        4.35,
+        1.1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 16
+      }
+     ]
+    },
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR",
+     "appearance": {
+      "upper": "same red top as target (same source material / same RGB)",
+      "lower": "light grey trousers (target: source trousers)",
+      "extras": "no backpack; no badge"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "red"
+      ],
+      "eligible_vs_target": "ELIGIBLE",
+      "note": "Upper-bbox HSV crop sees the same red: always passes the colour gate; trousers/backpack are outside the 30% upper crop and not in the DP1 summary"
+     },
+     "route_note": "Joins the target line 2.5 s behind (from 3.703 s A = target(t-2.5 s)) through EXT_CLEAR, the west door and W1 (enters W1 2.5 s after target, t_N + 2.5 s = 13.5 s). After B has passed, moves to the north lane (y = 1.95), passes the returning target, waits in CORNER (not rendered in A4), walks back west in the north lane across W1 during c2 (36-39 s) and leaves through the west door at about 47.4 s.",
+     "waypoints": [
+      {
+       "t_us": 2000000,
+       "xy": [
+        -11.0,
+        -1.6
+       ]
+      },
+      {
+       "t_us": 3703000,
+       "xy": [
+        -9.0,
+        -0.4
+       ]
+      },
+      {
+       "t_us": 10500000,
+       "xy": [
+        -3.35,
+        -0.2
+       ]
+      },
+      {
+       "t_us": 10610731,
+       "xy": [
+        -3.2,
+        -0.2
+       ]
+      },
+      {
+       "t_us": 10655024,
+       "xy": [
+        -3.2,
+        -0.2
+       ]
+      },
+      {
+       "t_us": 13500000,
+       "xy": [
+        0.35,
+        1.1
+       ]
+      },
+      {
+       "t_us": 17000000,
+       "xy": [
+        5.35,
+        1.1
+       ]
+      },
+      {
+       "t_us": 18000000,
+       "xy": [
+        6.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 22900000,
+       "xy": [
+        13.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 24900000,
+       "xy": [
+        15.6,
+        1.95
+       ]
+      },
+      {
+       "t_us": 33000000,
+       "xy": [
+        15.6,
+        1.95
+       ],
+       "hold_reason": "WAIT_IN_CORNER_OUT_OF_A4_CAMERAS"
+      },
+      {
+       "t_us": 35000000,
+       "xy": [
+        13.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 43500000,
+       "xy": [
+        2.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 47000000,
+       "xy": [
+        -2.6,
+        0.0
+       ]
+      },
+      {
+       "t_us": 47850000,
+       "xy": [
+        -3.8,
+        0.0
+       ]
+      },
+      {
+       "t_us": 49400000,
+       "xy": [
+        -5.5,
+        1.6
+       ]
+      },
+      {
+       "t_us": 50000000,
+       "xy": [
+        -6.2,
+        2.1
+       ]
+      }
+     ]
+    },
+    {
+     "actor_id": "B",
+     "role": "NEAR_COLOR_DISTRACTOR",
+     "appearance": {
+      "upper": "orange-red top, hue about 0.04 (14 deg), S >= 0.6, V >= 0.5 (inside the synthetic red band [0.95, 0.05], 0.01 from its edge)",
+      "lower": "dark navy trousers",
+      "extras": "shoulder bag, no backpack"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "red"
+      ],
+      "eligible_vs_target": "ELIGIBLE_IF_HUE_INSIDE_RUN_BAND",
+      "alternative": "If the approved r004 HSV red band ends below hue 0.04, B gets no label -> COLOR_NOT_COMPATIBLE (shown to the Agent as a non-eligible considered candidate, no DP1 question by itself)",
+      "note": "r004 HSVConfig is UNKNOWN (baseline_v1_protocol hsv_method ref null); vocabulary is {red, blue} (class_alias_v1 color_vocabulary, PROPOSED)"
+     },
+     "route_note": "Opposite direction: westbound in the north lane through W1 during c1 (8-11 s), crosses the eastbound target at about 14.2 s with 0.85 m lateral offset, leaves through the west door at about 20.5 s, stops outside during A4-e (26-29 s) and walks off north.",
+     "waypoints": [
+      {
+       "t_us": 2000000,
+       "xy": [
+        14.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 7000000,
+       "xy": [
+        14.5,
+        1.95
+       ],
+       "hold_reason": "WAIT_EAST_END_OF_CORR_W"
+      },
+      {
+       "t_us": 8100000,
+       "xy": [
+        13.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 16900000,
+       "xy": [
+        1.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 20100000,
+       "xy": [
+        -2.6,
+        0.0
+       ]
+      },
+      {
+       "t_us": 20950000,
+       "xy": [
+        -3.8,
+        0.0
+       ]
+      },
+      {
+       "t_us": 22200000,
+       "xy": [
+        -5.0,
+        1.5
+       ]
+      },
+      {
+       "t_us": 24000000,
+       "xy": [
+        -7.0,
+        3.0
+       ]
+      },
+      {
+       "t_us": 26800000,
+       "xy": [
+        -7.0,
+        3.0
+       ],
+       "hold_reason": "PHONE_STOP_OUTSIDE"
+      },
+      {
+       "t_us": 30000000,
+       "xy": [
+        -7.0,
+        7.5
+       ]
+      }
+     ],
+     "planned_color_label_variants": {
+      "in_band": [
+       "red"
+      ],
+      "out_of_band": []
+     }
+    },
+    {
+     "actor_id": "C",
+     "role": "CONTROL",
+     "appearance": {
+      "upper": "blue top, hue about 0.62, S >= 0.6",
+      "lower": "beige trousers",
+      "extras": "none"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "blue"
+      ],
+      "eligible_vs_target": "COLOR_NOT_COMPATIBLE",
+      "note": "Never intersects {red}: rule never switches to C; checks the colour gate"
+     },
+     "route_note": "Unrelated route: leaves R101 at about 20 s behind the passing target, crosses W1 eastbound in the north lane and stays in CORNER (outside A4 cameras).",
+     "waypoints": [
+      {
+       "t_us": 4000000,
+       "xy": [
+        9.0,
+        -3.0
+       ]
+      },
+      {
+       "t_us": 17500000,
+       "xy": [
+        9.0,
+        -3.0
+       ],
+       "hold_reason": "IN_R101_NOT_RENDERED_IN_A4"
+      },
+      {
+       "t_us": 19500000,
+       "xy": [
+        7.75,
+        -0.6
+       ]
+      },
+      {
+       "t_us": 20400000,
+       "xy": [
+        7.75,
+        0.6
+       ]
+      },
+      {
+       "t_us": 22000000,
+       "xy": [
+        9.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 24200000,
+       "xy": [
+        12.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 25600000,
+       "xy": [
+        14.0,
+        0.8
+       ]
+      },
+      {
+       "t_us": 27700000,
+       "xy": [
+        16.8,
+        0.8
+       ]
+      },
+      {
+       "t_us": 50000000,
+       "xy": [
+        16.8,
+        0.8
+       ],
+       "hold_reason": "STAND_IN_CORNER_OUT_OF_A4_CAMERAS"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "run_id": "B4-1-v2-4actor",
+   "scenario": "B4-1",
+   "duration_us": 42000000,
+   "unchanged": {
+    "cameras": "v1 render set and poses",
+    "image_size_px": [
+     960,
+     540
+    ],
+    "fps": 5,
+    "clock": "v1 DECLARED_DEMO_CLOCK mapping (new run/clock ids only, as D124)",
+    "source_blend": "not saved or copied; actors added in memory only (as D124)",
+    "target_route_source": {
+     "path": "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json",
+     "sha256": "c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345"
+    }
+   },
+   "seed": {
+    "actor_id": "T",
+    "exclusive_until_us": 2000000,
+    "reason": "associate() seeds on the first sample with exactly one coloured person; any other person visible at t=0 gives AMBIGUOUS_FIRST_SEED"
+   },
+   "doors": [
+    {
+     "door_id": "PORTAL_R101",
+     "center_xy": [
+      7.75,
+      0.0
+     ],
+     "normal_xy": [
+      0,
+      1
+     ],
+     "width_m": 1.2,
+     "geometry_status": "ASSUMED: x = centre of CAM_W2:E_PORTAL_R101 patch (7.35-8.15); y = shared bound of WALK_CORR_W (y>=0) and WALK_R101 (y<=0) support boxes; 1.2 m width is the D198 rule, real opening UNKNOWN (portal-openings:r004:v2 not readable)"
+    }
+   ],
+   "corridors": [
+    {
+     "corridor_id": "CORR_W",
+     "along_axis": "x",
+     "bounds_xy": [
+      [
+       0.0,
+       15.0
+      ],
+      [
+       0.0,
+       2.4
+      ]
+     ],
+     "basis": "WALK_CORR_W support bounds (R004_D89_FEASIBILITY_20261027.json support_bounds); CORR_W width 2.4 m"
+    }
+   ],
+   "walls": null,
+   "walls_status": "UNKNOWN: no wall/furniture geometry in readable repo files (region polygons are hash refs only; support_bounds are walkable-surface boxes, not walls)",
+   "advisory_boundaries": [
+    {
+     "segment_id": "VEST_CORR_north_y2.4",
+     "a": [
+      -3.2,
+      2.4
+     ],
+     "b": [
+      15.0,
+      2.4
+     ]
+    },
+    {
+     "segment_id": "CORR_south_y0_west_of_R101_door",
+     "a": [
+      4.88,
+      0.0
+     ],
+     "b": [
+      7.15,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "CORR_CORNER_south_y0_east_of_R101_door",
+     "a": [
+      8.35,
+      0.0
+     ],
+     "b": [
+      17.4,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "CORNER_east_x17.4",
+     "a": [
+      17.4,
+      0.0
+     ],
+     "b": [
+      17.4,
+      2.4
+     ]
+    },
+    {
+     "segment_id": "VEST_west_x-3.2_south_of_door",
+     "a": [
+      -3.2,
+      -2.0
+     ],
+     "b": [
+      -3.2,
+      -0.6
+     ]
+    },
+    {
+     "segment_id": "VEST_west_x-3.2_north_of_door",
+     "a": [
+      -3.2,
+      0.6
+     ],
+     "b": [
+      -3.2,
+      2.4
+     ]
+    },
+    {
+     "segment_id": "VEST_south_y-2",
+     "a": [
+      -3.2,
+      -2.0
+     ],
+     "b": [
+      4.88,
+      -2.0
+     ]
+    },
+    {
+     "segment_id": "VEST_east_x4.88_south",
+     "a": [
+      4.88,
+      -2.0
+     ],
+     "b": [
+      4.88,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "R101_west_x5",
+     "a": [
+      5.0,
+      -5.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "R101_east_x11",
+     "a": [
+      11.0,
+      -5.0
+     ],
+     "b": [
+      11.0,
+      0.0
+     ]
+    },
+    {
+     "segment_id": "R101_south_y-5",
+     "a": [
+      5.0,
+      -5.0
+     ],
+     "b": [
+      11.0,
+      -5.0
+     ]
+    }
+   ],
+   "advisory_basis": "PROVISIONAL edges of WALK_* support boxes (R004_D89_FEASIBILITY_20261027.json); not wall geometry; furniture not represented",
+   "estimate_model": {
+    "status": "PLANNING_ASSUMPTION_NOT_VISIBILITY",
+    "seed_camera_id": "CAM_W2",
+    "tracking_camera_ids": [
+     "CAM_BRANCH",
+     "CAM_R101_IN",
+     "CAM_W1",
+     "CAM_W2",
+     "CAM_WIDE"
+    ],
+    "transitions": [
+     [
+      "CAM_BRANCH",
+      "CAM_W1"
+     ],
+     [
+      "CAM_BRANCH",
+      "CAM_W2"
+     ],
+     [
+      "CAM_R101_IN",
+      "CAM_W1"
+     ],
+     [
+      "CAM_R101_IN",
+      "CAM_W2"
+     ],
+     [
+      "CAM_W1",
+      "CAM_BRANCH"
+     ],
+     [
+      "CAM_W1",
+      "CAM_R101_IN"
+     ],
+     [
+      "CAM_W1",
+      "CAM_W2"
+     ],
+     [
+      "CAM_W1",
+      "CAM_WIDE"
+     ],
+     [
+      "CAM_W2",
+      "CAM_BRANCH"
+     ],
+     [
+      "CAM_W2",
+      "CAM_R101_IN"
+     ],
+     [
+      "CAM_W2",
+      "CAM_W1"
+     ],
+     [
+      "CAM_W2",
+      "CAM_WIDE"
+     ],
+     [
+      "CAM_WIDE",
+      "CAM_W1"
+     ],
+     [
+      "CAM_WIDE",
+      "CAM_W2"
+     ]
+    ],
+    "assumed_camera_coverage_xy_boxes": {
+     "CAM_W1": [
+      [
+       [
+        0.35,
+        13.4
+       ],
+       [
+        0.0,
+        2.4
+       ]
+      ]
+     ],
+     "CAM_W2": [
+      [
+       [
+        -1.15,
+        11.4
+       ],
+       [
+        0.0,
+        2.4
+       ]
+      ]
+     ],
+     "CAM_BRANCH": [
+      [
+       [
+        15.0,
+        17.4
+       ],
+       [
+        1.4,
+        3.4
+       ]
+      ]
+     ],
+     "CAM_WIDE": [
+      [
+       [
+        15.5,
+        17.3
+       ],
+       [
+        1.4,
+        9.5
+       ]
+      ]
+     ],
+     "CAM_R101_IN": [
+      [
+       [
+        5.0,
+        11.0
+       ],
+       [
+        -5.0,
+        -0.1
+       ]
+      ]
+     ]
+    },
+    "basis": "coarse floor boxes from v3_1 static patch rectangles and v1 card text; no projection, occlusion or detector model; perfect detection inside a box"
+   },
+   "actors": [
+    {
+     "actor_id": "T",
+     "role": "TARGET",
+     "appearance": {
+      "upper": "v1 / D124 source red top, source material unchanged",
+      "lower": "source trousers (unchanged)",
+      "extras": "D124 dark backpack + front face/chest badge (unchanged)"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "red"
+      ],
+      "eligible_vs_target": "SELF",
+      "note": "Seed person; red band"
+     },
+     "route_note": "v1 B4-1 target route, byte-for-byte coordinates and times from the producer draft",
+     "waypoints": [
+      {
+       "t_us": 0,
+       "xy": [
+        4,
+        1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 0
+      },
+      {
+       "t_us": 4000000,
+       "xy": [
+        8,
+        1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 1
+      },
+      {
+       "t_us": 7600000,
+       "xy": [
+        11.4,
+        1.15
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 2
+      },
+      {
+       "t_us": 11000000,
+       "xy": [
+        11.4,
+        1.15
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 3
+      },
+      {
+       "t_us": 14000000,
+       "xy": [
+        15.5,
+        1.4
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 4
+      },
+      {
+       "t_us": 15000000,
+       "xy": [
+        16.2,
+        1.85
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 5
+      },
+      {
+       "t_us": 20000000,
+       "xy": [
+        16.2,
+        1.85
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 6
+      },
+      {
+       "t_us": 21000000,
+       "xy": [
+        15,
+        1.4
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 7
+      },
+      {
+       "t_us": 24000000,
+       "xy": [
+        11.4,
+        1.15
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 8
+      },
+      {
+       "t_us": 27000000,
+       "xy": [
+        7.75,
+        0.6
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 9
+      },
+      {
+       "t_us": 30000000,
+       "xy": [
+        7.75,
+        0.6
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 10
+      },
+      {
+       "t_us": 30500000,
+       "xy": [
+        7.75,
+        0.1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 11
+      },
+      {
+       "t_us": 30600000,
+       "xy": [
+        7.75,
+        0
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 12
+      },
+      {
+       "t_us": 31900000,
+       "xy": [
+        7.75,
+        0
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 13
+      },
+      {
+       "t_us": 32000000,
+       "xy": [
+        7.75,
+        -0.1
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 14
+      },
+      {
+       "t_us": 34000000,
+       "xy": [
+        8,
+        -2
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 15
+      },
+      {
+       "t_us": 42000000,
+       "xy": [
+        8,
+        -2
+       ],
+       "z_m": 0,
+       "v1_waypoint_index": 16
+      }
+     ]
+    },
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR",
+     "appearance": {
+      "upper": "same red top as target (same source material / same RGB)",
+      "lower": "light grey trousers (target: source trousers)",
+      "extras": "no backpack; no badge"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "red"
+      ],
+      "eligible_vs_target": "ELIGIBLE",
+      "note": "Upper-bbox HSV crop sees the same red: always passes the colour gate; trousers/backpack are outside the 30% upper crop and not in the DP1 summary"
+     },
+     "route_note": "Same direction: follows the target along the north lane, enters CORNER at about 15.4 s (target t_N = 14 s, +1.4 s), passes the standing target at >= 0.74 m and stops in CORR_N (WIDE side) to the end.",
+     "waypoints": [
+      {
+       "t_us": 2000000,
+       "xy": [
+        -2.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 11600000,
+       "xy": [
+        10.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 13900000,
+       "xy": [
+        13.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 15300000,
+       "xy": [
+        14.9,
+        2.0
+       ]
+      },
+      {
+       "t_us": 15800000,
+       "xy": [
+        15.5,
+        2.1
+       ]
+      },
+      {
+       "t_us": 16800000,
+       "xy": [
+        15.7,
+        3.4
+       ]
+      },
+      {
+       "t_us": 18800000,
+       "xy": [
+        16.2,
+        6.0
+       ]
+      },
+      {
+       "t_us": 42000000,
+       "xy": [
+        16.2,
+        6.0
+       ],
+       "hold_reason": "READ_NOTICE_IN_CORR_N"
+      }
+     ]
+    },
+    {
+     "actor_id": "B",
+     "role": "NEAR_COLOR_DISTRACTOR",
+     "appearance": {
+      "upper": "orange-red top, hue about 0.04 (14 deg), S >= 0.6, V >= 0.5 (inside the synthetic red band [0.95, 0.05], 0.01 from its edge)",
+      "lower": "dark navy trousers",
+      "extras": "shoulder bag, no backpack"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "red"
+      ],
+      "eligible_vs_target": "ELIGIBLE_IF_HUE_INSIDE_RUN_BAND",
+      "alternative": "If the approved r004 HSV red band ends below hue 0.04, B gets no label -> COLOR_NOT_COMPATIBLE (shown to the Agent as a non-eligible considered candidate, no DP1 question by itself)",
+      "note": "r004 HSVConfig is UNKNOWN (baseline_v1_protocol hsv_method ref null); vocabulary is {red, blue} (class_alias_v1 color_vocabulary, PROPOSED)"
+     },
+     "route_note": "Opposite direction: eastbound in the north lane during B4-d (21-24 s), crosses the westbound target at about 25.5 s with about 1.07 m lateral offset, reaches CORNER during B4-e (30-32 s) and stays there.",
+     "waypoints": [
+      {
+       "t_us": 16000000,
+       "xy": [
+        -2.5,
+        1.95
+       ]
+      },
+      {
+       "t_us": 28200000,
+       "xy": [
+        13.0,
+        1.95
+       ]
+      },
+      {
+       "t_us": 29900000,
+       "xy": [
+        15.0,
+        1.2
+       ]
+      },
+      {
+       "t_us": 31000000,
+       "xy": [
+        16.4,
+        0.8
+       ]
+      },
+      {
+       "t_us": 42000000,
+       "xy": [
+        16.4,
+        0.8
+       ],
+       "hold_reason": "STAND_IN_CORNER"
+      }
+     ],
+     "planned_color_label_variants": {
+      "in_band": [
+       "red"
+      ],
+      "out_of_band": []
+     }
+    },
+    {
+     "actor_id": "C",
+     "role": "CONTROL",
+     "appearance": {
+      "upper": "blue top, hue about 0.62, S >= 0.6",
+      "lower": "beige trousers",
+      "extras": "none"
+     },
+     "color_rule_expectation": {
+      "expected_labels": [
+       "blue"
+      ],
+      "eligible_vs_target": "COLOR_NOT_COMPATIBLE",
+      "note": "Never intersects {red}: rule never switches to C; checks the colour gate"
+     },
+     "route_note": "Unrelated route: leaves R101 through PORTAL_R101 at about 6.45 s (after the target passed the doorway at 3.75 s), walks west in the south lane (y = 1.0) past A, and waits at the vestibule edge to the end.",
+     "waypoints": [
+      {
+       "t_us": 3000000,
+       "xy": [
+        10.3,
+        -4.0
+       ]
+      },
+      {
+       "t_us": 6000000,
+       "xy": [
+        7.75,
+        -0.6
+       ]
+      },
+      {
+       "t_us": 6900000,
+       "xy": [
+        7.75,
+        0.6
+       ]
+      },
+      {
+       "t_us": 7550000,
+       "xy": [
+        7.0,
+        1.0
+       ]
+      },
+      {
+       "t_us": 12500000,
+       "xy": [
+        0.5,
+        1.0
+       ]
+      },
+      {
+       "t_us": 14500000,
+       "xy": [
+        -0.75,
+        0.4
+       ]
+      },
+      {
+       "t_us": 42000000,
+       "xy": [
+        -0.75,
+        0.4
+       ],
+       "hold_reason": "WAIT_IN_VESTIBULE"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
