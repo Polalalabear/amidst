@@ -639,7 +639,7 @@ def test_existing_path_does_not_import_agent_decision():
     offenders = []
     for root in ('src', 'scripts'):
         for path in (ROOT / root).rglob('*.py'):
-            if path == MODULE:
+            if path in (MODULE, MODULE.with_name('agent_wiring.py')):  # WP2's opt-in wiring is the one importer
                 continue
             tree = ast.parse(path.read_text(encoding='utf-8'))
             for node in ast.walk(tree):

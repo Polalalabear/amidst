@@ -91,12 +91,31 @@ def single_view_sequence(sightings, *, as_of_us):
     return result
 
 
-def associate(tracks, transitions, *, as_of_us, parameters):
+def _continuation_runs(observations):
+    """(first, last) index pairs of consecutive BOX_CONTINUATION observations."""
+    runs, first = [], None
+    for i, obs in enumerate(observations):
+        if obs.evidence_kind == 'BOX_CONTINUATION':
+            first = i if first is None else first
+        elif first is not None:
+            runs.append((first, i - 1))
+            first = None
+    if first is not None:
+        runs.append((first, len(observations) - 1))
+    return runs
+
+
+def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
     """Causal DEMO_DEFAULT associations, rescanning every indexed time after loss.
 
     Keep ambiguities in the audit and continue. A graph edge plus a <=6 s gap
     labels a handoff; later or edge-free matches are unconfirmed reacquisitions.
     Colour is taken only from past evaluated person observations of a local track.
+
+    ``decider`` is an optional injected object (WP2, see agent_wiring.py) with
+    ``handoff(ctx)`` and ``continuation(ctx)``; each returns ``(choice, audit_row)``.
+    ``choice=None`` means "use the rule". With ``decider=None`` (the default) nothing
+    below changes: output is byte-identical to the rule-only algorithm.
     """
     if type(as_of_us) is not int or as_of_us < 0:
         raise ValueError('AS_OF_INVALID')
@@ -129,6 +148,7 @@ def associate(tracks, transitions, *, as_of_us, parameters):
                                   'identity_verdict': 'UNCONFIRMED'})
             continue
         eligible = []
+        considered = []
         for candidate in available:
             if timestamp not in samples[candidate.track_ref]:
                 continue
@@ -159,6 +179,28 @@ def associate(tracks, transitions, *, as_of_us, parameters):
             audit.append(row)
             if reason is None:
                 eligible.append((candidate, row))
+            if decider is not None and reason in (None, 'COLOR_NOT_COMPATIBLE'):
+                considered.append({'track': candidate, 'row': row, 'eligible': reason is None,
+                                   'graph_edge': edge is not None})
+        agent_pick = None
+        if decider is not None and current is not None and eligible:
+            choice, agent_audit = decider.handoff({
+                'timestamp_us': timestamp, 'sample_interval_us': parameters.sample_interval_us,
+                'current': current, 'current_colors': known_colors(current, timestamp),
+                'considered': considered, 'transitions': transitions,
+                'known_colors': known_colors})
+            if agent_audit is not None:
+                audit.append(agent_audit)
+            if choice is not None:
+                match = [e for e in eligible if choice[0] == 'SELECT' and e[0].track_ref == choice[1]]
+                if not match:  # ABSTAIN (a SELECT of a non-eligible track cannot occur: wiring validates)
+                    for _, row in eligible:
+                        row['reason'] = 'AMBIGUOUS_HANDOFF' if len(eligible) > 1 else 'AGENT_REJECTED_HANDOFF'
+                    continue
+                for _, row in eligible:
+                    if row is not match[0][1]:
+                        row['reason'] = 'AGENT_NOT_SELECTED'
+                eligible, agent_pick = match, True
         if len(eligible) > 1:
             if current is None:
                 audit.append({'reason': 'AMBIGUOUS_FIRST_SEED', 'timestamp_us': timestamp,
@@ -171,13 +213,25 @@ def associate(tracks, transitions, *, as_of_us, parameters):
             current, row = eligible[0]
             chain.append((current, timestamp))
             if row is not None:
-                row['reason'] = 'DEMO_ASSOCIATION_HYPOTHESIS'
+                row['reason'] = 'AGENT_ASSOCIATION_HYPOTHESIS' if agent_pick else 'DEMO_ASSOCIATION_HYPOTHESIS'
                 events.append(dict(row, first_grid_as_of_us=timestamp + parameters.sample_interval_us))
     sightings = []
     for i, (track, start) in enumerate(chain):
         cutoff = chain[i + 1][1] if i + 1 < len(chain) else as_of_us
+        rejected = set()
+        if decider is not None:
+            window = [o for o in track.observations if start <= o.timestamp_us < cutoff]
+            for first, last in _continuation_runs(window):
+                choice, agent_audit = decider.continuation({
+                    'track': track, 'run': window[first:last + 1], 'sample_interval_us': parameters.sample_interval_us,
+                    'segment_end_us': min(window[last].timestamp_us + parameters.sample_interval_us, cutoff, as_of_us),
+                    'known_colors': known_colors})
+                if agent_audit is not None:
+                    audit.append(agent_audit)
+                if choice == 'REJECT':
+                    rejected.update(o.timestamp_us for o in window[first:last + 1])
         for obs in track.observations:
-            if not start <= obs.timestamp_us < cutoff:
+            if not start <= obs.timestamp_us < cutoff or obs.timestamp_us in rejected:
                 continue
             end = min(obs.timestamp_us + parameters.sample_interval_us, cutoff, as_of_us)
             if obs.evidence_kind == 'BOX_CONTINUATION':
@@ -233,8 +287,9 @@ def associate(tracks, transitions, *, as_of_us, parameters):
     return sightings, events, audit
 
 
-def response(tracks, transitions, *, as_of_us, parameters, clock_mapping_sha256):
-    sightings, events, audit = associate(tracks, transitions, as_of_us=as_of_us, parameters=parameters)
+def response(tracks, transitions, *, as_of_us, parameters, clock_mapping_sha256, decider=None):
+    sightings, events, audit = associate(tracks, transitions, as_of_us=as_of_us, parameters=parameters,
+                                         decider=decider)
     single = single_view_sequence([s for s in sightings if s.get('selected_for_single_view', True)], as_of_us=as_of_us)
     status = 'NO_SIGHTING' if not single else 'LOST' if single[-1]['kind'] == 'LOST' else 'TRACKING'
     cameras = {}
