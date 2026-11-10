@@ -164,6 +164,7 @@ export function mountUi(ctx) {
   const field = (label, ...kids) => { const l = el('label', undefined, 'ui-field'); l.append(el('span', label, 'ui-label'), ...kids); return l; };
   const timeInput = (id, value, label, ph) => { const i = el('input', undefined, 'ui-input ui-mono', {type: 'text', 'aria-label': label}); i.id = id; i.value = value ?? ''; if (ph) i.placeholder = ph; return i; };
 
+  const TRACK_REGION_ENABLED = false;   // D185: track-window location field disabled until fixed (search window unaffected)
   const searchForm = {regions: new Set(), classLabel: '', colorLabel: ''};
   const trackForm = {regions: new Set(), classLabel: '', colorLabel: ''};
   const q1 = buildQueryWindow({win: qWin1, title: '查找', form: searchForm, id: 'search', kind: 'search'});
@@ -184,13 +185,14 @@ export function mountUi(ctx) {
     const submit = el('button', kind === 'search' ? '開始查找' : '開始追蹤', 'ui-btn ui-btn-light ui-btn-block', {type: 'button'}); submit.id = `ui-${id}-submit`;
     const feedback = el('p', '', 'ui-feedback'); feedback.id = `ui-${id}-feedback`; feedback.setAttribute('role', 'status');
     const timeField = field(kind === 'search' ? '時間範圍（必填）' : '時間範圍（預設為整段錄影，可修改）', timeRow);
-    const regionField = el('div', undefined, 'ui-field'); regionField.append(el('span', kind === 'search' ? '地點' : '地點（選填）', 'ui-label'), regionsBox);
+    const regionEnabled = kind === 'search' || TRACK_REGION_ENABLED;
+    const regionField = el('div', undefined, 'ui-field'); regionField.hidden = !regionEnabled; regionField.append(el('span', kind === 'search' ? '地點' : '地點（選填）', 'ui-label'), regionsBox);
     const featField = el('div', undefined, 'ui-field'); featField.append(el('span', kind === 'track' ? '特徵（必填）' : '特徵', 'ui-label'), classBox, colorBox);
     const filterInput = el('input', undefined, 'ui-input ui-feat-search', {type: 'search', placeholder: '搜尋特徵，例如「人」「person」「bag」', 'aria-label': '搜尋特徵', autocomplete: 'off'}); filterInput.id = `ui-${id}-feat-search`;
     const note = kind === 'track' ? el('p', '第一次鎖定需要掃過全部鏡頭，會顯示進度；鎖定之後換鏡頭會立即切換。', 'ui-note') : null;
     // Layout: only the feature list scrolls; head, time, place, submit and notes stay put (the button never scrolls away).
     featField.classList.add('ui-qfeat'); card.classList.add('ui-qcard-split');
-    card.append(head, timeField, regionField, filterInput, featField, submit, feedback);   // search stays pinned with the time fields; only the list scrolls
+    card.append(head, timeField, ...(regionEnabled ? [regionField] : []), filterInput, featField, submit, feedback);   // search stays pinned with the time fields; only the list scrolls
     if (note) card.append(note);
     const progress = el('div', undefined, 'ui-card ui-progress'); progress.id = `ui-${id}-progress`; progress.hidden = true;
     win.append(card, progress);
@@ -205,8 +207,10 @@ export function mountUi(ctx) {
     for (const w of [q1, q2]) {
       const {regionsBox, classBox, colorBox, form} = w;
       regionsBox.replaceChildren();
-      if (!cat.regions.length) regionsBox.append(el('span', cat.run ? (presentOn() ? PLAIN.regionsPending : 'UNKNOWN · 地點目錄未就緒') : NOT_MEASURED, 'ui-faint ui-small'));
-      for (const r of cat.regions) {
+      const regionList = w.kind === 'track' && !TRACK_REGION_ENABLED ? [] : cat.regions;   // D185: track gets no region chips
+      if (regionList !== cat.regions) form.regions.clear();
+      else if (!cat.regions.length) regionsBox.append(el('span', cat.run ? (presentOn() ? PLAIN.regionsPending : 'UNKNOWN · 地點目錄未就緒') : NOT_MEASURED, 'ui-faint ui-small'));
+      for (const r of regionList) {
         const b = chipBtn(r.label, form.regions.has(r.value)); b.dataset.value = r.value;
         b.addEventListener('click', () => { form.regions.has(r.value) ? form.regions.delete(r.value) : form.regions.add(r.value); b.setAttribute('aria-pressed', String(form.regions.has(r.value))); b.classList.toggle('on', form.regions.has(r.value)); });
         b.classList.toggle('on', form.regions.has(r.value)); regionsBox.append(b);
@@ -259,7 +263,7 @@ export function mountUi(ctx) {
   }
 
   async function submitQuery(w) {
-    const form = {start: w.start.value, end: w.end.value, regionIds: [...w.form.regions], classLabel: w.form.classLabel, colorLabel: w.form.colorLabel};
+    const form = {start: w.start.value, end: w.end.value, regionIds: w.kind === 'track' && !TRACK_REGION_ENABLED ? [] : [...w.form.regions], classLabel: w.form.classLabel, colorLabel: w.form.colorLabel};
     const run = store.getState().activeRun;
     const check = w.kind === 'search' ? validateSearchForm(form) : validateTrackForm(form);
     if (!check.ok) { w.feedback.textContent = check.text; w.feedback.dataset.state = 'error'; return; }
