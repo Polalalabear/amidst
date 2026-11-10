@@ -43,14 +43,6 @@ jobs:
           set +e
           mkdir -p "$RUNNER_TEMP/ci"
           OUT="$RUNNER_TEMP/ci"
-          BASE="${PR_BASE_SHA:-$PUSH_GUARD_BASE}"
-          # Pull requests into main are judged against the protected mainline tip, not the
-          # (older) main base: authority changes were already guarded when they reached mainline,
-          # so a mainline->main merge must not be re-flagged for them (D188/D190). Any pinned
-          # file that differs from mainline is still reported as AUTHORITY_CHANGED.
-          if [ "${{ github.base_ref }}" = "main" ] && git rev-parse -q --verify origin/mainline/q1q5 >/dev/null; then
-            BASE="$(git rev-parse origin/mainline/q1q5)"
-          fi
           fail=0
 
           .venv/bin/python scripts/check_architecture_guard.py --repo . --base "$BASE" > "$OUT/guard.log" 2>&1
