@@ -48,3 +48,15 @@ test('D149 scene annotation: card chip says 非偵測; featured camera count is 
   assert.equal(both.detected[1].cameraCount, 2);   // union, not a sum
   assert.equal(classGroups(classes, counts, undefined, ['person', 'car'], []).detected[1].cameraCount, 0);   // no annotation: still 0
 });
+
+test('D185: track window hides the location field, search window keeps it, track never submits regions', async () => {
+  const {readFileSync} = await import('node:fs');
+  const shell = readFileSync(new URL('./ui-shell.mjs', import.meta.url), 'utf8');
+  assert.match(shell, /const TRACK_REGION_ENABLED = false;\s*\/\/ D185/);
+  assert.match(shell, /const regionEnabled = kind === 'search' \|\| TRACK_REGION_ENABLED;/);
+  assert.match(shell, /card\.append\(head, timeField, \.\.\.\(regionEnabled \? \[regionField\] : \[\]\), filterInput/);
+  assert.match(shell, /el\('span', kind === 'search' \? '地點' : '地點（選填）', 'ui-label'\)/, 'search label unchanged');
+  assert.match(shell, /regionIds: w\.kind === 'track' && !TRACK_REGION_ENABLED \? \[\] : \[\.\.\.w\.form\.regions\]/);
+  assert.match(shell, /const regionList = w\.kind === 'track' && !TRACK_REGION_ENABLED \? \[\] : cat\.regions;/);
+  assert.match(shell, /for \(const r of regionList\)/);
+});
