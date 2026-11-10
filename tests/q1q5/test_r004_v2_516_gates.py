@@ -14,6 +14,7 @@ import copy
 import importlib.util
 import json
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -411,12 +412,33 @@ def check_actor_cloning(report):
     return errs
 
 
+LOCAL_EVIDENCE_PREFIX = 'local/evidence/'
+
+
+def _local_dir_errors(local_dir):
+    if not isinstance(local_dir, str) or not local_dir:
+        return ['boundary.local_dir is required (repo-relative path) when wrote_local_dir is true']
+    parts = local_dir.replace('\\', '/').split('/')
+    if local_dir.startswith(('/', '~')) or (len(local_dir) > 1 and local_dir[1] == ':') or '..' in parts:
+        return ['boundary.local_dir must be repo-relative (no absolute, home or .. paths)']
+    if not local_dir.startswith(LOCAL_EVIDENCE_PREFIX) or len(local_dir) == len(LOCAL_EVIDENCE_PREFIX):
+        return [f'boundary.local_dir must be under {LOCAL_EVIDENCE_PREFIX}']
+    tracked = subprocess.run(['git', 'ls-files', '--', local_dir], cwd=ROOT, capture_output=True, text=True)
+    if tracked.returncode == 0 and tracked.stdout.strip():
+        return ['boundary.local_dir must not contain tracked files']
+    return []
+
+
 def check_boundary(report):
     b = report.get('boundary') or {}
     errs = []
-    for key, want in (('rendered', False), ('wrote_local_dir', False), ('blend_saved', False), ('gt_read', False)):
-        if b.get(key) is not want:
-            errs.append(f'boundary.{key} must be {want}')
+    for key in ('rendered', 'blend_saved', 'gt_read'):
+        if b.get(key) is not False:
+            errs.append(f'boundary.{key} must be False')
+    if b.get('wrote_local_dir') is True:
+        errs += _local_dir_errors(b.get('local_dir'))
+    elif b.get('wrote_local_dir') is not False:
+        errs.append('boundary.wrote_local_dir must be true or false')
     return errs
 
 
@@ -721,6 +743,14 @@ def test_selftest_fake_report_passes_every_g1_check():
     (lambda r: r['ambiguity']['episodes']['B4-1-v2-4actor'][0].update(has_distractor=False), 'no distractor'),
     (lambda r: r['render_cost'].update(free_gib_before=8.5), 'stop line'),
     (lambda r: r['boundary'].update(rendered=True), 'boundary.rendered'),
+    (lambda r: r['boundary'].update(blend_saved=True), 'boundary.blend_saved'),
+    (lambda r: r['boundary'].update(gt_read=True), 'boundary.gt_read'),
+    (lambda r: r['boundary'].update(wrote_local_dir=True), 'local_dir is required'),
+    (lambda r: r['boundary'].update(wrote_local_dir=True, local_dir='/tmp/x'), 'repo-relative'),
+    (lambda r: r['boundary'].update(wrote_local_dir=True, local_dir='/Users/someone/amidst/local/evidence/x'), 'repo-relative'),
+    (lambda r: r['boundary'].update(wrote_local_dir=True, local_dir='local/evidence/../../docs/x'), 'repo-relative'),
+    (lambda r: r['boundary'].update(wrote_local_dir=True, local_dir='docs/evidence/x'), 'under local/evidence/'),
+    (lambda r: r['boundary'].update(wrote_local_dir=True, local_dir='tmp/x'), 'under local/evidence/'),
     # P2-1: far-away wall with the door moved onto it (x=900) must be refused
     (lambda r: [g.update(walls=[{'segment_id': 'W1', 'a': [900.0, 0.0], 'b': [900.0, 5.0], 'height_range_m': [0.0, 2.8]}])
                 or g['doors'][0].update(center_xy=[900.0, 2.0]) for g in r['geometry'].values()], 'no wall within'),
@@ -856,3 +886,13 @@ def test_selftest_draft_door_missing_from_report_is_rejected():
     draft['runs'][0]['doors'] = [{'door_id': 'EXTRA_DOOR'}]
     errs = check_geometry(_fake_report(draft), draft)
     assert any('EXTRA_DOOR' in e for e in errs), errs
+
+
+def test_selftest_boundary_local_dir_rules():
+    ok = _fake_report()
+    ok['boundary'].update(wrote_local_dir=True, local_dir='local/evidence/codex-516-v21-feasibility-20261110')
+    assert check_boundary(ok) == []
+    assert check_boundary(_fake_report()) == []  # wrote_local_dir=false, no local_dir needed
+    bad = _fake_report()
+    bad['boundary'].update(wrote_local_dir=True, local_dir='docs/contracts')
+    assert check_boundary(bad)
