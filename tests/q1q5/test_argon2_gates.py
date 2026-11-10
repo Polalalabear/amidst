@@ -279,7 +279,7 @@ def _safe_index(tmp_path, extra=None):
         tracks.append({'camera_id': 'CAM_C' if i % 2 else 'CAM_B', 'first_seen_us': 100_000 * i,
                        'last_seen_us': 100_000 * i + 400_000, 'colors': ['red'] if i % 3 else ['orange'],
                        'scores': _scores(.5 + .04 * i), 'continuation_fraction': .1})
-    doc = {'schema_version': 'amidst.safe-track-index.v1', 'tracks': tracks}
+    doc = {'schema_version': 'safe-track-index-v1', 'tracks': tracks}
     doc.update(extra or {})
     path = tmp_path / 'safe' / 'safe_index.json'
     path.parent.mkdir(exist_ok=True)

@@ -49,7 +49,7 @@ generate_synthetic(questions, *, safe_index_path, seed: int, per_point: int, out
 # -> {"questions_path": str, "labels_path": str, "n_synthetic": int}
 ```
 
-- 輸入 `questions` 是 DP1 真實題。`safe_index_path` 是 JSON：`{"schema_version": "amidst.safe-track-index.v1", "tracks": [{camera_id, first_seen_us, last_seen_us, colors, scores, continuation_fraction}, …]}`。索引含 FORBIDDEN 鍵就丟 `AgentDecisionError`。
+- 輸入 `questions` 是 DP1 真實題。`safe_index_path` 是 JSON：`{"schema_version": "safe-track-index-v1"（測試用的值，v1 不檢查）, "tracks": [{camera_id, first_seen_us, last_seen_us, colors, scores, continuation_fraction}, …]}`。索引含 FORBIDDEN 鍵就丟 `AgentDecisionError`。
 - 每個真實決策點加 `per_point` 個（1–3）干擾候選人，id 重新編號成不透明 id，**位置要被打亂**（測試要求插入者的位置不固定）。新 request 要過 `validate_request()`，且 `rule_answer == RuleDecider().answer(request)`。
 - 寫兩個東西：
   - `out_dir/requests_s2_v1.jsonl`：每行同 §1 的題目格式，`question_class="SYNTHETIC_PERTURBATION"`。**裡面不得出現標籤的鍵名、字串 `scoring_private`、`perturb`、`inserted`、`synthetic`（在 `request` 內）。**
