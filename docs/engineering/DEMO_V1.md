@@ -25,6 +25,20 @@ Office revision20／Classroom revision15 的 35 筆人工差異與兩站既有�
 
 ## 目前依賴與啟動
 
+同一台 Mac 可雙擊工程工作樹根目錄的 [`start-demo.command`](../../start-demo.command)，或在該目錄執行：
+
+```sh
+./start-demo.command
+```
+
+腳本依序核對並啟動既有 PostgreSQL cluster、Ollama 與工作台，自動開啟實際動態網址；不需要 cmux。
+腳本從自身位置解析專案目錄；工作台網址即時取得，Ollama 入口讀取既有 provider 設定。
+頁面與 API 沿用當次 origin 的相對路徑，例如 `api/bootstrap`，不在文件固定埠號連結。
+重複執行會沿用同一份 state 的工作台程序與網址，服務背景運行，關閉 Terminal 後仍保留。
+四個原 SQLite、原 PG cluster／settings 與模型必須存在，缺件時停止；不初始化新資料庫、下載權重或執行模型推論。
+日誌及當次網址保存在 ignored `data/engineering/local_run/demo_launcher/`。
+加 `--status` 只核對服務，`--no-open` 啟動但不開瀏覽器。Saved Agent 跨 origin 恢復限制仍依下文處理。
+
 已有輸出時跳過 build；不可直接覆寫凍結輸出。Blender 畫面展示不需現場執行 Blender 或重新 render，**仍需原 .blend 與已物化 RGB／校正／幾何／PNG／MP4** 通過既有來源綁定。
 GitHub 僅發布程式、文件及整理收據；ignored 媒體、模型權重、SQLite／PostgreSQL 狀態沒有隨 clone 提供。新 clone 不是完整可攜 demo 包。
 
