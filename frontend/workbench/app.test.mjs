@@ -1,6 +1,7 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent} from './app.mjs';
+import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,cameraTileLayout,cameraTilesHTML,frameLoadState,TILE_GAP,markerLegendItems,markerLegendHTML} from './app.mjs';
 
 test('untrusted source fields cannot become HTML markup',()=>{
   assert.equal(escapeHTML('<img src=x onerror="bad()">'), '&lt;img src=x onerror=&quot;bad()&quot;&gt;');
@@ -96,4 +97,100 @@ test('object selection and query invalidation reject old responses even after se
   target.selectedEvent='A';
   assert.equal(eventRequestIsCurrent(target,ticket),false);
   assert.equal(eventRequestIsCurrent({...target,sceneEpoch:5},{...ticket,eventEpoch:target.eventEpoch}),false);
+});
+
+test('Office frame-query scenes step 0.2 s and other scenes keep 0.4 s',()=>{
+  assert.equal(sourcePlaybackStep({capabilities:{frame_query:true}}),.2);
+  assert.equal(sourcePlaybackStep({capabilities:{}}),.4);
+  assert.equal(sourcePlaybackStep(undefined),.4);
+});
+test('0.2 s playback visits 50 timestamps from 0 to 9.8 without drift',()=>{
+  const seen=[0];while(seen.at(-1)<9.8)seen.push(nextPlaybackTimestamp(seen.at(-1),[0,9.8],.2));
+  assert.equal(seen.length,50);assert.equal(seen.at(-1),9.8);assert.ok(seen.every((v,i)=>v===Number((i*.2).toFixed(6))));
+  assert.equal(nextPlaybackTimestamp(9.7,[0,9.8],.4),9.8);
+  assert.equal(nextPlaybackTimestamp(0,[0,9.8],.4),.4);
+});
+const frames=[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'},{camera_id:'CAM_B',timestamp:1.2,status:'MISSING_FRAME'}];
+const tiles=(timestamp,list,ids=['CAM_A','CAM_B'])=>cameraTilesHTML({cameraIds:ids,frames:list,timestamp,urlFor:ref=>'/m/'+ref});
+test('one tile per selected camera, in order, each with its own frame',()=>{
+  const html=tiles(1.2,[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'},{camera_id:'CAM_B',timestamp:1.2,media_ref:'ref:b12'}]);
+  assert.deepEqual([...html.matchAll(/data-camera-tile="([^"]+)"/g)].map(m=>m[1]),['CAM_A','CAM_B']);
+  assert.ok(html.indexOf('ref:a12')<html.indexOf('data-camera-tile="CAM_B"'));assert.match(html,/\/m\/ref:b12/);
+  assert.equal((tiles(1.2,frames,['CAM_A']).match(/data-camera-tile=/g)??[]).length,1);
+});
+test('a camera without a frame is an explicit MISSING tile and never shows another camera image',()=>{
+  const html=tiles(1.2,frames),b=html.slice(html.indexOf('data-camera-tile="CAM_B"'));
+  assert.match(html,/data-camera-tile="CAM_A"[^>]*data-frame-availability="AVAILABLE"/);assert.match(b,/data-frame-availability="MISSING"/);
+  assert.match(b,/MISSING · MISSING_FRAME/);assert.doesNotMatch(b,/<img/);
+  const none=tiles(3,[{camera_id:'CAM_A',timestamp:3,media_ref:'ref:a3'}]),nb=none.slice(none.indexOf('data-camera-tile="CAM_B"'));
+  assert.match(nb,/MISSING · 此時間沒有回傳來源影格/);assert.doesNotMatch(nb,/<img/);assert.doesNotMatch(nb,/ref:a3/);
+  assert.match(cameraTilesHTML({}),/未選取鏡頭/);
+});
+test('a camera whose frame request is pending is LOADING, not MISSING; failures are ERROR; confirmed absence stays MISSING',()=>{
+  const only=[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'}];
+  const html=state=>cameraTilesHTML({cameraIds:['CAM_A','CAM_B'],frames:only,timestamp:1.2,urlFor:ref=>'/m/'+ref,loadState:state});
+  const part=(h,id)=>h.slice(h.indexOf(`data-camera-tile="${id}"`));
+  const loading=html('loading'),b=part(loading,'CAM_B');
+  assert.match(b,/data-frame-availability="LOADING"/);assert.doesNotMatch(b,/MISSING/);assert.doesNotMatch(b,/<img/);
+  assert.match(loading,/data-camera-tile="CAM_A"[^>]*data-frame-availability="AVAILABLE"/);
+  assert.match(part(html('error'),'CAM_B'),/data-frame-availability="ERROR"/);
+  assert.match(part(html('idle'),'CAM_B'),/data-frame-availability="MISSING"/);
+  // A frame the backend returned without media is a confirmed MISSING even while another request is pending.
+  const confirmed=cameraTilesHTML({cameraIds:['CAM_B'],frames:[{camera_id:'CAM_B',timestamp:1.2,status:'MISSING_FRAME'}],timestamp:1.2,loadState:'loading'});
+  assert.match(confirmed,/data-frame-availability="MISSING"/);assert.match(confirmed,/MISSING · MISSING_FRAME/);
+});
+test('tiles follow the playback timestamp',()=>{
+  const b=tiles(1.4,[{camera_id:'CAM_A',timestamp:1.4,media_ref:'ref:a14'}]);
+  assert.match(b,/\/m\/ref:a14/);assert.doesNotMatch(b,/ref:a12/);assert.match(b,/1\.4/);
+});
+const layout=(o)=>cameraTileLayout({aspect:16/9,gap:8,chromeHeight:0,...o});
+const dims=(l)=>[l.columns,l.rows];
+test('cameraTileLayout follows the measured container, not a window breakpoint',()=>{
+  assert.deepEqual(dims(layout({count:2,width:1400,height:600})),[2,1]);
+  assert.deepEqual(dims(layout({count:2,width:600,height:600})),[1,2]);
+  assert.deepEqual(dims(layout({count:2,width:645,height:600})),[1,2]);
+  assert.deepEqual(dims(layout({count:2,width:660,height:600})),[2,1]);
+  const short=layout({count:2,width:1400,height:150});assert.deepEqual(dims(short),[2,1]);assert.ok(short.tileHeight<=150+1e-9&&Math.abs(short.tileHeight-150)<1e-6);
+  const chrome=layout({count:2,width:900,height:260,chromeHeight:40});assert.deepEqual(dims(chrome),[2,1]);assert.ok(Math.abs(chrome.tileHeight-220)<1e-6);
+  const portrait=layout({count:2,width:700,height:600,aspect:9/16});assert.deepEqual(dims(portrait),[2,1]);assert.ok(Math.abs(portrait.tileWidth-337.5)<1e-6);
+  assert.deepEqual(dims(layout({count:4,width:1000,height:700})),[2,2]);
+  assert.deepEqual(dims(layout({count:3,width:1400,height:600})),[3,1]);
+  assert.deepEqual(dims(layout({count:1,width:800,height:400})),[1,1]);
+  assert.deepEqual(layout({count:0}),{columns:0,rows:0,tileWidth:0,tileHeight:0});
+});
+test('cameraTileLayout never overflows its container and keeps the aspect ratio',()=>{
+  for(const o of [{count:2,width:1400,height:600},{count:2,width:600,height:600},{count:2,width:645,height:600},{count:2,width:1400,height:150},{count:2,width:900,height:260,chromeHeight:40},{count:2,width:700,height:600,aspect:9/16},{count:4,width:1000,height:700},{count:3,width:1400,height:600},{count:1,width:800,height:400}]){
+    const a=o.aspect??16/9,c=o.chromeHeight??0,l=layout(o);
+    assert.ok(l.columns*l.tileWidth+8*(l.columns-1)<=o.width+1e-6,JSON.stringify(o));
+    assert.ok(l.rows*(l.tileHeight+c)+8*(l.rows-1)<=o.height+1e-6,JSON.stringify(o));
+    assert.ok(Math.abs(l.tileWidth/l.tileHeight-a)<1e-9);
+  }
+});
+test('the CSS tile gap and the layout helper share one constant; wall is diagnostic only',()=>{
+  const src=readFileSync(new URL('./app.mjs',import.meta.url),'utf8');
+  assert.match(src,/style="--tile-gap:\$\{TILE_GAP\}px"/);assert.match(src,/gap,chromeHeight:measured/);assert.equal(TILE_GAP,8);
+  assert.match(src,/<details class="diagnostic-wall">/);assert.doesNotMatch(src,/<details class="diagnostic-wall" open/);
+  assert.doesNotMatch(src,/data-viewer-camera|viewerCameraId/);assert.match(src,/data-aspect-source="DEFAULT"/);
+});
+test('marker legend reflects the true data sources and reports Candidate unavailable',()=>{
+  const none=markerLegendItems({});
+  assert.match(none.find(i=>i.key==='candidate').label,/Candidate unavailable/);
+  assert.ok(none.every(i=>i.available===(i.key==='missing'?false:false)));
+  assert.equal(none.some(i=>i.key==='historical'),false);
+  const plan={selected_rank:1,paths:[{selected:true,samples:[{state:'PROJECTED_OBSERVATION'},{state:'MISSING'},{state:'INFERRED_CROSS_CAMERA'}]},{selected:false,samples:[{state:'PROJECTED_OBSERVATION'}]}]};
+  const items=markerLegendItems({plan,historicalTrack:true});
+  assert.deepEqual(items.map(i=>[i.key,i.available]),[['observed',true],['candidate',true],['missing',true],['historical',true]]);
+  assert.match(items.find(i=>i.key==='historical').label,/非所選候選/);
+  assert.match(markerLegendHTML(none),/目前無資料/);
+  const only=markerLegendItems({plan:{selected_rank:2,paths:[{selected:true,samples:[{state:'PROJECTED_OBSERVATION'}]}]}});
+  assert.deepEqual(only.map(i=>i.available),[true,false,false]);
+});
+
+test('LOADING and ERROR apply only to the live request epoch, so a superseded request cannot pin a tile in LOADING',()=>{
+  assert.equal(frameLoadState({frameLoad:'loading',frameLoadEpoch:4,timelineEpoch:4}),'loading');
+  assert.equal(frameLoadState({frameLoad:'error',frameLoadEpoch:4,timelineEpoch:4}),'error');
+  assert.equal(frameLoadState({frameLoad:'loading',frameLoadEpoch:4,timelineEpoch:5}),'idle');
+  assert.equal(frameLoadState({frameLoad:'error',frameLoadEpoch:4,timelineEpoch:6}),'idle');
+  assert.equal(frameLoadState({frameLoad:'loading',frameLoadEpoch:null,timelineEpoch:9}),'loading');
+  assert.equal(frameLoadState({frameLoad:'idle',frameLoadEpoch:4,timelineEpoch:4}),'idle');
 });

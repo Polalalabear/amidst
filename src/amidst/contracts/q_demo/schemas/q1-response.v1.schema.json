@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.q1-response.v1"
+    },
+    "status": {
+      "enum": [
+        "READY",
+        "NO_MATCH",
+        "PARTIAL",
+        "UNSUPPORTED_CLASS",
+        "UNSUPPORTED_CONDITION",
+        "OUT_OF_RANGE",
+        "UNKNOWN"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolved_scope": {
+      "$ref": "common.schema.json#/$defs/resolved_scope"
+    },
+    "identity_verdict": {
+      "$ref": "common.schema.json#/$defs/identity_verdict"
+    },
+    "llm_parse_used": {
+      "type": "boolean"
+    },
+    "agent_attempted": {
+      "type": "boolean"
+    },
+    "agent_used": {
+      "type": "boolean"
+    },
+    "decision_source": {
+      "$ref": "common.schema.json#/$defs/decision_source"
+    },
+    "fallback_used": {
+      "type": "boolean"
+    },
+    "fallback_reason": {
+      "$ref": "common.schema.json#/$defs/fallback_reason"
+    },
+    "provenance": {
+      "$ref": "common.schema.json#/$defs/provenance"
+    },
+    "stats": {
+      "$ref": "common.schema.json#/$defs/stats"
+    },
+    "output_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "query_id": {
+      "type": "string"
+    },
+    "query_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "normalized_condition": {
+      "type": "object",
+      "properties": {
+        "class_label": {
+          "type": "string"
+        },
+        "min_count_per_frame": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "color": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/color_condition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "query_min_score": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "class_label",
+        "min_count_per_frame",
+        "color",
+        "query_min_score"
+      ],
+      "additionalProperties": false
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "camera_id": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "matched_segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "range_us": {
+                  "$ref": "common.schema.json#/$defs/range_us"
+                },
+                "matched_frames": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "evaluated_frames": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "representative": {
+                  "type": "object",
+                  "properties": {
+                    "frame_ref": {
+                      "type": "string"
+                    },
+                    "observation_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "minItems": 1
+                    },
+                    "media_token": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "frame_ref",
+                    "observation_ids",
+                    "media_token"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "range_us",
+                "matched_frames",
+                "evaluated_frames",
+                "representative"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "coverage": {
+            "type": "object",
+            "properties": {
+              "evaluated_frames": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "not_sampled_frames": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "not_inferred_frames": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing_frames": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "evaluated_frames",
+              "not_sampled_frames",
+              "not_inferred_frames",
+              "missing_frames"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "camera_id",
+          "rank",
+          "matched_segments",
+          "coverage"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "no_match_cameras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "camera_id": {
+            "type": "string"
+          },
+          "coverage": {
+            "type": "object",
+            "properties": {
+              "evaluated_frames": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "not_sampled_frames": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "not_inferred_frames": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing_frames": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "evaluated_frames",
+              "not_inferred_frames",
+              "missing_frames"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "camera_id",
+          "coverage"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "not_evaluated_cameras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "camera_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "camera_id",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "results_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "returned_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "next_cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ranking_basis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supported_classes_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "status",
+    "reason",
+    "resolved_scope",
+    "identity_verdict",
+    "llm_parse_used",
+    "agent_attempted",
+    "agent_used",
+    "decision_source",
+    "fallback_used",
+    "fallback_reason",
+    "provenance",
+    "output_sha256",
+    "query_id",
+    "query_sha256",
+    "normalized_condition",
+    "results",
+    "no_match_cameras",
+    "not_evaluated_cameras",
+    "results_total",
+    "returned_count",
+    "next_cursor",
+    "ranking_basis",
+    "supported_classes_ref"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§6.3"
+}

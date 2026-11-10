@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # New local scope implementation / 新局部 scope 實作
 
 Historical preparation record, before the direct approval on 2026-10-08.

@@ -1,0 +1,69 @@
+{
+  "G4_approved": false,
+  "action_times_us": [
+    3050000,
+    3450000,
+    3850000,
+    4250000,
+    4650000,
+    5050000,
+    5450000,
+    5850000
+  ],
+  "bundle_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "bundle_source_commit": "c26d7cdd07deb43c9991a4f46403ea0236277fb1",
+  "candidate_counts": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "candidate_snapshot_count": 8,
+  "clock_mapping_sha256": "e04cbf9233e8c32605a401789126a17718846e6e169a94316db00e553367e629",
+  "detection_counts": {
+    "A": {
+      "person_detections": 38,
+      "red_strong_at_query_floor": 1
+    },
+    "B": {
+      "person_detections": 51,
+      "red_strong_at_query_floor": 5
+    }
+  },
+  "effective_graph_approval": "DRAFT",
+  "excluded_transitions": [
+    {
+      "reason": "GRAPH_NOT_APPROVED",
+      "snapshot_count": 8,
+      "transition_id": "T_A_B"
+    }
+  ],
+  "executed_actions": {
+    "RETURN_TO_ORIGIN": 8
+  },
+  "gt_read": false,
+  "index_sha256": "302655b01273a72dd29356d2b6f888bd2f2dcf79266c05c8bdbc73aad31f0e5c",
+  "model_calls": 0,
+  "observed_camera_ids": [
+    "A"
+  ],
+  "output_sha256": "d58dadc43d241170642006722f2f87632fe10a3f54eeaf13a6d0fd0814d4e0e4",
+  "parameter_set_sha256": "3d3067f500fc533c4d1b26812f7be45c8c56299b7bb02b5872de8a4358938e4e",
+  "purpose": "D112-3 UI-05 source-bound diagnosis; not approval or acceptance",
+  "response_reason": "SESSION_RESEARCH_ROUND_LIMIT",
+  "response_status": "ENDED_BY_LIMIT",
+  "run_id": "ENGINEERING_DYNAMIC_RUN_20261025",
+  "scene_id": "ENGINEERING_DYNAMIC_SCENE",
+  "selected_seed": {
+    "camera_id": "A",
+    "observation_id": "obs:22f855debd033dee:A:2:0",
+    "timestamp_us": 100000
+  },
+  "tracking_scope_sha256": "e2ca308b13181346707660a1ae4edcd7b8cc594709a3e009c2db0a9fea3374b8",
+  "tracking_scope_status": "PROPOSED",
+  "ui05_acceptance": "FAIL_REMAINS"
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.link-record.v1"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "link_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "camera_id": {
+      "type": "string"
+    },
+    "frame_ref": {
+      "type": "string"
+    },
+    "local_segment_id": {
+      "type": "string"
+    },
+    "prev_observation_id": {
+      "type": "string"
+    },
+    "next_observation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "iou": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "elapsed_us": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "gap_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "decision": {
+      "enum": [
+        "LINKED",
+        "NO_CANDIDATE",
+        "AMBIGUOUS_LINK",
+        "FRAME_NOT_INFERRED",
+        "FRAME_MISSING"
+      ]
+    },
+    "ambiguous_candidates": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "observation_id": {
+                "type": "string"
+              },
+              "iou": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "observation_id",
+              "iou"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_id",
+    "link_index",
+    "run_id",
+    "camera_id",
+    "frame_ref",
+    "local_segment_id",
+    "prev_observation_id",
+    "next_observation_id",
+    "iou",
+    "elapsed_us",
+    "gap_samples",
+    "decision",
+    "ambiguous_candidates"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.2 (D69, #135 C3)"
+}

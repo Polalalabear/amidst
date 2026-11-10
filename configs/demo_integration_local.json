@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "owned_root": "local/data/demo-owned-v1",
+  "p1_bundle": "data/p1-v4",
+  "artifacts_root": "data/artifacts",
+  "cross_camera_job": "metadata/cross-camera-job.json",
+  "cross_camera_job_sha256": "651906f9ca18a02d8efd300eb9cef57877ad8da758d9a323b590f82feb86d49e",
+  "state_root": "state",
+  "evidence_root": "evidence/486",
+  "python_base": "runtime/python",
+  "models": {
+    "rtdetr_weights": "models/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth",
+    "rtdetr_source": "models/rtdetr/source/rtdetr_pytorch",
+    "ollama_models": "models/ollama",
+    "execution": "NOT_IN_THIS_RECORDED_DEMO"
+  },
+  "dependency_manifest": "configs/demo_dependencies_manifest_v1.json",
+  "dependency_manifest_sha256": "ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50",
+  "python_version": "3.12.12",
+  "node": {
+    "package_root": "tests/browser/core-preview",
+    "playwright_module": "tests/browser/core-preview/node_modules/playwright-core/index.mjs",
+    "tested_version": "26.0.0",
+    "tested_npm_version": "11.12.1"
+  }
+}

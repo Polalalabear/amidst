@@ -1,0 +1,40 @@
+{
+  "schema_version": "local.agent.runtime-freeze.r2.v1",
+  "runtime_source_count": 8,
+  "runtime_source_sha256": "9844acd9861c108ae8c4cfa9f617661fc35ce1da2de0ce4a0bb026bff4105fe1",
+  "files": {
+    "src/amidst/local_agent/__init__.py": "485d1ed884c8bc9fbe683457465b2bff1a9b0aac9a9d3f34cd3c4f92ec8671d8",
+    "src/amidst/local_agent/contracts.py": "1cb79967a32be54a1e9dcaaee8499ac3431e9ca0ee095618c12caec59df3a762",
+    "src/amidst/local_agent/evidence.py": "14845846e2ac33e906e9cd28327806af60f09b87d230e4b419867544e7b1a192",
+    "src/amidst/local_agent/manager.py": "54a6c38db0c8cd0eff59686310bd3a6e0a3055ce20513e2d3ed51535efb865ab",
+    "src/amidst/local_agent/provider.py": "f3a6ee3144c6a9ccd45698a5ef37abc26967b982ab8209b8b7415e4aab58d849",
+    "src/amidst/local_agent/requirements.py": "16c9fc931929f65a081560e58d937cca574178c3d4eb97a75fdefbb5124f8fb7",
+    "src/amidst/local_agent/store.py": "2cdbc626fa8308e14fc52a1d5129b0782bd6a6dc0f7e9c5b5696e48d0d622b11",
+    "src/amidst/local_agent/tools.py": "6dd863dddc42820b75c7697e919d13a368707c619d3cd9c453aa642e7337c94b"
+  },
+  "execution_version": "typed.evidence.v3",
+  "runtime_import_path": "src/amidst/local_agent/manager.py",
+  "scoped_tests": {
+    "files": [
+      "tests/local_agent/test_manager.py",
+      "tests/local_agent/test_tools_provider.py"
+    ],
+    "passed": 114,
+    "failed": 0,
+    "duration_seconds": 2.628749042,
+    "fixture_only": true
+  },
+  "ruff": "PASS",
+  "mypy_runtime_files": 8,
+  "mypy": "PASS",
+  "diff_check": "PASS",
+  "independent_readonly_guard_review": "NO_NEW_FREEZE_BLOCKER",
+  "actual_model_calls_during_implementation": 0,
+  "semantic_quality_gate": "PENDING_INDEPENDENT_REAL_MODEL_ACCEPTANCE",
+  "legacy_v2": {
+    "continuation": "READ_ONLY_PRIOR_EXECUTION_VERSION",
+    "literal_verification": "PRESERVED",
+    "goal_completion": "NOT_CHECKED"
+  },
+  "actual_import_path_verified_in_private_audit": true
+}

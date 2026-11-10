@@ -17,7 +17,7 @@ from .contracts import (
     VerifiedAnswer,
 )
 
-EXECUTION_VERSION = "typed.evidence.v2"
+EXECUTION_VERSION = "typed.evidence.v4"
 FACT_FIELDS = frozenset({
     "event_ref", "observation_ref", "local_track_ref", "track_ref", "camera_ref", "camera_refs",
     "camera_id", "camera_ids", "resource_ref", "hypothesis_ref", "media_ref", "frame_ref",
@@ -135,6 +135,34 @@ def _verified_rows(receipt: dict[str, Any], binding: AgentBinding) -> list[dict[
     return rows
 
 
+def validate_successful_query_receipt(receipt: dict[str, Any], binding: AgentBinding,
+                                     issued_snapshot: dict[str, Any]) -> None:
+    """Verify an already-issued read before offering paid, non-dispatching feedback."""
+    rows = _verified_rows(receipt, binding)
+    data = receipt["result"]["data"]
+    scope = data.get("scope")
+    if (scope is not None and (not isinstance(scope, dict) or any(
+        scope.get(key) != getattr(binding, key)
+        for key in ("run_id", "source_ref", "observation_mode", "freeze_ref")))):
+        raise AgentDenied("AGENT_TOOL_BINDING_CHANGED")
+    if scope is None and not receipt["result"].get("presentation_truncated"):
+        raise AgentDenied("AGENT_TOOL_BINDING_CHANGED")
+    if digest(receipt["evidence"].get("retrieval")) != digest(data.get("retrieval")):
+        raise AgentDenied("AGENT_EVIDENCE_CONTINUATION_CHANGED")
+    expected = {key: value for key, value in receipt.items() if key != "evidence"}
+    expected["evidence_catalog"] = [{"row_ref": row["row_ref"],
+        "resource_ref": row["resource_ref"], "fields_available": sorted(row["fields"])}
+        for row in rows]
+    issued = deepcopy(issued_snapshot)
+    try:
+        for row in issued["evidence_catalog"]:
+            row["fields_available"] = sorted(row["fields_available"])
+    except (KeyError, TypeError):
+        raise AgentDenied("AGENT_EVIDENCE_RECEIPT_CHANGED") from None
+    if digest(expected) != digest(issued):
+        raise AgentDenied("AGENT_EVIDENCE_RECEIPT_CHANGED")
+
+
 def derive_coverage(receipts: list[dict[str, Any]], rows: list[dict[str, Any]],
                     cameras: list[str], window: list[float] | None = None) -> dict[str, Any]:
     groups: dict[str, list[dict[str, Any]]] = {}
@@ -163,6 +191,7 @@ def derive_coverage(receipts: list[dict[str, Any]], rows: list[dict[str, Any]],
             matches = [p for p in pages if p["arguments"].get("cursor") == cursor]
             current = matches[0] if len(matches) == 1 else None
         chain_complete = exhausted and len(chain) == len(pages)
+        prefix_valid = len(roots) == 1 and chain == pages
         visible_resources: list[str] = []
         duplicate_resources = False
         for page in pages:
@@ -183,7 +212,8 @@ def derive_coverage(receipts: list[dict[str, Any]], rows: list[dict[str, Any]],
                 and not pages[0]["arguments"].get("seed_refs")),
             "receipt_refs": [p["receipt_ref"] for p in pages], "returned_count": returned,
             "selected_count": len(selected.intersection(visible_resources)),
-            "source_truncated": not chain_complete, "cursor_chain_complete": chain_complete,
+            "source_truncated": not chain_complete, "cursor_chain_prefix_valid": prefix_valid,
+            "cursor_chain_complete": chain_complete,
             "presentation_truncated": any(p["result"].get("presentation_truncated", False)
                                           for p in pages),
             "presentation_rows_complete": rows_complete,
@@ -219,6 +249,8 @@ def verified_answer(binding: AgentBinding, receipts: list[dict[str, Any]],
             _verified_rows(receipt, binding)
     requested: dict[str, set[str]] = {}
     available_rows: dict[str, list[dict[str, Any]]] = {}
+    duplicate = False
+    missing_fields = False
     for selection in selections:
         receipt = by_ref[selection.receipt_ref]
         if receipt["tool"] not in _TOPIC_TOOLS[request.topic]:
@@ -230,9 +262,18 @@ def verified_answer(binding: AgentBinding, receipts: list[dict[str, Any]],
         available_refs = {row["row_ref"] for row in available}
         if not set(chosen_refs) <= available_refs:
             raise AgentDenied("AGENT_FACT_ROW_NOT_ISSUED")
+        # Preflight every selected row before returning any recoverable format error.
+        for row in available:
+            if row["row_ref"] not in chosen_refs:
+                continue
+            required_refs = _TOPIC_ROW_FIELDS.get(request.topic)
+            if required_refs and not any(isinstance(row["fields"].get(key), str)
+                                         for key in required_refs):
+                raise AgentDenied("AGENT_FACT_TOPIC_MISMATCH")
+            missing_fields |= not set(request.requested_fields) <= set(row["fields"])
         prior = requested.setdefault(selection.receipt_ref, set())
         if len(chosen_refs) != len(set(chosen_refs)) or prior.intersection(chosen_refs):
-            raise AgentDenied("AGENT_DUPLICATE_FACT_SELECTION")
+            duplicate = True
         prior.update(chosen_refs)
     rows, cited = [], []
     resources: set[str] = set()
@@ -246,25 +287,31 @@ def verified_answer(binding: AgentBinding, receipts: list[dict[str, Any]],
             if row["row_ref"] not in requested[reference]:
                 continue
             if row["resource_ref"] and row["resource_ref"] in resources:
-                raise AgentDenied("AGENT_DUPLICATE_FACT_SELECTION")
+                duplicate = True
             if row["resource_ref"]:
                 resources.add(row["resource_ref"])
             rows.append(row)
-    for row in rows:
-        required_refs = _TOPIC_ROW_FIELDS.get(request.topic)
-        if required_refs and not any(isinstance(row["fields"].get(key), str)
-                                     for key in required_refs):
-            raise AgentDenied("AGENT_FACT_TOPIC_MISMATCH")
-        if not set(request.requested_fields) <= set(row["fields"]):
-            raise AgentDenied("AGENT_REQUIRED_FACT_FIELDS_MISSING")
-    if request.selection == "FIRST":
+    if duplicate:
+        raise AgentDenied("AGENT_DUPLICATE_FACT_SELECTION")
+    if missing_fields:
+        raise AgentDenied("AGENT_REQUIRED_FACT_FIELDS_MISSING")
+    detail_tool = {"EVENTS": "get_event_detail", "OBSERVATIONS": "get_observation_detail"}.get(
+        request.topic)
+    if request.selection == "DETAIL" and detail_tool and any(
+        by_ref[row["receipt_ref"]]["tool"] != detail_tool or row["json_locator"] != []
+        for row in rows):
+        raise AgentDenied("AGENT_DETAIL_FACT_SOURCE_REQUIRED")
+    coverage = derive_coverage(receipts, rows, cameras, window)
+    if request.selection == "FIRST" and (rows or not coverage["complete_for_selected_scope"]):
         topic_tool = {"EVENTS": "query_events", "OBSERVATIONS": "query_observations",
                       "TRAJECTORIES": "propose_feasible_trajectories"}.get(request.topic)
-        first = next((r["resource_ref"] for p in receipts if p["tool"] == topic_tool
+        roots = {c["receipt_refs"][0] for c in coverage["collections"]
+                 if c["tool"] == topic_tool and c["matches_selected_scope"]
+                 and c["cursor_chain_prefix_valid"]}
+        first = next((r["resource_ref"] for p in receipts if p["receipt_ref"] in roots
                       for r in p.get("evidence", {}).get("rows", [])), None)
         if len(rows) != 1 or first is None or rows[0]["resource_ref"] != first:
             raise AgentDenied("AGENT_FIRST_FACT_SELECTION_MISMATCH")
-    coverage = derive_coverage(receipts, rows, cameras, window)
     if not rows and not coverage["complete_for_selected_scope"]:
         raise AgentDenied("AGENT_EMPTY_FACTUAL_ANSWER")
     answer = {"schema_version": "local.agent.answer.v2", "rows": rows, "citations": cited,

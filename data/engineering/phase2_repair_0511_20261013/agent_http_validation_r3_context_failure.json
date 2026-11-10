@@ -1,0 +1,16 @@
+{
+  "schema_version": "phase2.repair11.http-context-preflight.r3.v1",
+  "status": "TWO_PAGE_CONTEXT_BUDGET_FAILED",
+  "completed_checks": 43,
+  "assertion": "HTTP_FIXTURE_CHOOSES_ISSUED_NEXT_PAGE_THEN_ALL_LITERAL_ROWS",
+  "runtime_manifest_sha256": "c24eba6cf456fd01c0b186ed3af4383a3a07947dfae6b13d5e150291326660ee",
+  "safe_error_code": "AGENT_CONTEXT_BUDGET_EXHAUSTED",
+  "actual_model_calls": 0,
+  "scripted_successful_model_actions": 3,
+  "successful_tool_receipts": 2,
+  "max_prompt_chars": 24000,
+  "capacity_changes": false,
+  "production_inputs_changed": false,
+  "failure_log_sha256": "6d42642b338901b0d2b874e2a6327df5765f8169a545bffbf8e6090223042921",
+  "diagnosis": "Two successful page receipts plus scope and request context exceed frozen prompt character budget before final answer; preserve failure while measuring private lossless serialization candidate."
+}

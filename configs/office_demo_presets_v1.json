@@ -1,0 +1,24 @@
+{
+  "schema_version": "office-demo.presets.v1",
+  "default_scene_id": "blender-office",
+  "presets": [
+    {
+      "scene_id": "blender-office",
+      "label": "Blender 鏡頭・Office",
+      "description": "原來源 camera RGB、平滑來源模型與基底 Top-K；本階段無 Agent 決策",
+      "fixture": "configs/office_demo_fixture_v1.json",
+      "bundle_root": "evidence",
+      "bundle": "data/engineering/local_run/blender_camera_v1/office",
+      "perception_version": "rgb-mask-contact-v1"
+    },
+    {
+      "scene_id": "blender-contact-control",
+      "label": "Blender 接地控制・禮堂",
+      "description": "獨立禮堂控制 run；v2 接地點與原始影像，未物化的重建及物理層明示不可用",
+      "fixture": "configs/office_demo_contact_control_fixture_v1.json",
+      "bundle_root": "assets",
+      "bundle": "data/engineering/contact_control_20261016_v1/auditorium",
+      "perception_version": "rgb-mask-contact-v2"
+    }
+  ]
+}

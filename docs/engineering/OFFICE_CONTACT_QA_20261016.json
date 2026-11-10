@@ -1,0 +1,1898 @@
+{
+  "accuracy_improvement": "UNKNOWN",
+  "authority": "DIAGNOSTIC_ONLY_NOT_CANONICAL",
+  "baseline_sha256": "1974c28624152687e1e54f79ebf0290da7bc5a43e19cd0ab25ddaaa186b3803d",
+  "calibration_sha256": "1510dc451fea72baf0490221e4615d15667429a3659c01e16b95808403b6bee8",
+  "canonical_observations_unchanged": true,
+  "floor_plane": {
+    "authority": "APPROVED",
+    "floor_id": "1F",
+    "normal": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "point": [
+      0.0,
+      0.0,
+      0.49594758987426757
+    ],
+    "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "gt_used": false,
+  "limitation": "Mask topology and pixel sensitivity do not reveal occluded feet; no ground truth error metric or certified feasible region is available.",
+  "method_sha256": "39e70224ca16a84d9d71aae4bf2d9709ab173be8fc28c1a36677468f5c82046f",
+  "producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+  "raw_jumps": [
+    {
+      "apparent_speed_m_s": 8.513935621697316,
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "confirmed_identity_continuity": false,
+      "distance_m": 1.7027871243394628,
+      "from_s": 0.4,
+      "proposed_person_distance_m": null,
+      "same_local_pixel_track": true,
+      "to_s": 0.6
+    },
+    {
+      "apparent_speed_m_s": 10.031684827385169,
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "confirmed_identity_continuity": false,
+      "distance_m": 2.006336965477033,
+      "from_s": 1.8,
+      "proposed_person_distance_m": null,
+      "same_local_pixel_track": true,
+      "to_s": 2.0
+    },
+    {
+      "apparent_speed_m_s": 3.960475154507561,
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "confirmed_identity_continuity": false,
+      "distance_m": 0.7920950309015129,
+      "from_s": 2.0,
+      "proposed_person_distance_m": null,
+      "same_local_pixel_track": true,
+      "to_s": 2.2
+    }
+  ],
+  "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+  "samples": [
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:e973251d18e6e6799200ddfc",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 13.5,
+          "bbox_xyxy": [
+            765,
+            11,
+            799,
+            136
+          ],
+          "bottom_support_x": [
+            766,
+            767,
+            768
+          ],
+          "contact_pixel": [
+            781.5,
+            135.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1482,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.025572441242839763,
+              "proxy_world_position": [
+                34.306402952323936,
+                48.16906956939603,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.025572441291039392,
+              "proxy_world_position": [
+                34.26455838260461,
+                48.198477578414135,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.1396811135919119,
+              "proxy_world_position": [
+                34.16637774487555,
+                48.11079887060028,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.13769923732012576,
+              "proxy_world_position": [
+                34.402893689073274,
+                48.2557128699666,
+                0.49594758987426735
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            34.285480667483995,
+            48.18377357389123,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            767.0,
+            135.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            34.5888537938033,
+            47.97056551142359,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 13.5,
+          "bbox_xyxy": [
+            765,
+            11,
+            799,
+            136
+          ],
+          "bottom_support_x": [
+            767,
+            766,
+            768
+          ],
+          "contact_pixel": [
+            781.5,
+            135.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1482,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.025572441242839763,
+              "proxy_world_position": [
+                34.306402952323936,
+                48.16906956939603,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.025572441291039392,
+              "proxy_world_position": [
+                34.26455838260461,
+                48.198477578414135,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.1396811135919119,
+              "proxy_world_position": [
+                34.16637774487555,
+                48.11079887060028,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.13769923732012576,
+              "proxy_world_position": [
+                34.402893689073274,
+                48.2557128699666,
+                0.49594758987426735
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            34.285480667483995,
+            48.18377357389123,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            767.0,
+            135.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            34.5888537938033,
+            47.97056551142359,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            765.0,
+            11.0,
+            799.0,
+            136.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            781.5,
+            135.0
+          ],
+          "frame_ref": "frame:e973251d18e6e6799200ddfc",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "MERGED_OR_PARTIAL",
+          "observation_ref": "observation:b8177d3641ac41fe8c5a3314",
+          "projection_quality": 0.17854522364182726,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "95cb5249278fabf254710ccd54d022cfbfae8f508a9471c853793b7516bbc577",
+          "timestamp": 0.4,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.6,
+          "world_position": [
+            34.285480667483995,
+            48.18377357389123,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "source_image_sha256": "95cb5249278fabf254710ccd54d022cfbfae8f508a9471c853793b7516bbc577",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 0.4
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:1f3dd2e2abe6e495ad264dcb",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 13.5,
+          "bbox_xyxy": [
+            770,
+            11,
+            802,
+            125
+          ],
+          "bottom_support_x": [
+            770,
+            771,
+            772
+          ],
+          "contact_pixel": [
+            785.5,
+            124.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1454,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.02775374031709288,
+              "proxy_world_position": [
+                32.80563437690186,
+                47.36668001435732,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.02775374037385987,
+              "proxy_world_position": [
+                32.76022051295202,
+                47.39859648931622,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.16497428081549378,
+              "proxy_world_position": [
+                32.641843283698904,
+                47.297129347169424,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.1624354036776311,
+              "proxy_world_position": [
+                32.92184038684684,
+                47.46683121436202,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            32.78292744495016,
+            47.38263825182045,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            771.0,
+            124.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            33.11217795370331,
+            47.151243811800285,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 13.5,
+          "bbox_xyxy": [
+            770,
+            11,
+            802,
+            125
+          ],
+          "bottom_support_x": [
+            772,
+            771,
+            770
+          ],
+          "contact_pixel": [
+            785.5,
+            124.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1454,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.02775374031709288,
+              "proxy_world_position": [
+                32.80563437690186,
+                47.36668001435732,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.02775374037385987,
+              "proxy_world_position": [
+                32.76022051295202,
+                47.39859648931622,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.16497428081549378,
+              "proxy_world_position": [
+                32.641843283698904,
+                47.297129347169424,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.1624354036776311,
+              "proxy_world_position": [
+                32.92184038684684,
+                47.46683121436202,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            32.78292744495016,
+            47.38263825182045,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            771.0,
+            124.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            33.11217795370331,
+            47.151243811800285,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            770.0,
+            11.0,
+            802.0,
+            125.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            785.5,
+            124.0
+          ],
+          "frame_ref": "frame:1f3dd2e2abe6e495ad264dcb",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "DETECTED",
+          "observation_ref": "observation:ac7d7d63cc97466e19153d39",
+          "projection_quality": 0.16364426249520367,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "0e4d2e4ff1bb74f806677fb774d3993c26ca340090f680aa800ac404da827bb5",
+          "timestamp": 0.6,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.25,
+          "world_position": [
+            32.78292744495016,
+            47.38263825182045,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "source_image_sha256": "0e4d2e4ff1bb74f806677fb774d3993c26ca340090f680aa800ac404da827bb5",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 0.6
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:ce31a5feb75c3306f3e42e0a",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 4.5,
+          "bbox_xyxy": [
+            788,
+            12,
+            822,
+            122
+          ],
+          "bottom_support_x": [
+            800
+          ],
+          "contact_pixel": [
+            804.5,
+            121.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1456,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.02841476292941837,
+              "proxy_world_position": [
+                31.9344949089064,
+                47.416128117833665,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.02841476298893056,
+              "proxy_world_position": [
+                31.887999403128756,
+                47.448804760234395,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.17473869463446515,
+              "proxy_world_position": [
+                31.759800085727406,
+                47.345303394693616,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.17198600373372053,
+              "proxy_world_position": [
+                32.06030845271157,
+                47.51825638781898,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            31.911247156041924,
+            47.43246643901692,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            800.0,
+            121.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            32.01586204354864,
+            47.35894399396174,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 4.5,
+          "bbox_xyxy": [
+            788,
+            12,
+            822,
+            122
+          ],
+          "bottom_support_x": [
+            800
+          ],
+          "contact_pixel": [
+            804.5,
+            121.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1456,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.02841476292941837,
+              "proxy_world_position": [
+                31.9344949089064,
+                47.416128117833665,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.02841476298893056,
+              "proxy_world_position": [
+                31.887999403128756,
+                47.448804760234395,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.17473869463446515,
+              "proxy_world_position": [
+                31.759800085727406,
+                47.345303394693616,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.17198600373372053,
+              "proxy_world_position": [
+                32.06030845271157,
+                47.51825638781898,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            31.911247156041924,
+            47.43246643901692,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            800.0,
+            121.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            32.01586204354864,
+            47.35894399396174,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            788.0,
+            12.0,
+            822.0,
+            122.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            804.5,
+            121.0
+          ],
+          "frame_ref": "frame:ce31a5feb75c3306f3e42e0a",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "MERGED_OR_PARTIAL",
+          "observation_ref": "observation:2df3c1874e209639bf7dc156",
+          "projection_quality": 0.15791299252284166,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "dd0cc6f0d75cc7d6d8386f93d7683aa2bd18e6e6508707699c59a377880d9445",
+          "timestamp": 1.8,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.6,
+          "world_position": [
+            31.911247156041924,
+            47.43246643901692,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "source_image_sha256": "dd0cc6f0d75cc7d6d8386f93d7683aa2bd18e6e6508707699c59a377880d9445",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 1.8
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:5f7abe480feb72a7ca9acce2",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 7.0,
+          "bbox_xyxy": [
+            792,
+            12,
+            825,
+            135
+          ],
+          "bottom_support_x": [
+            801
+          ],
+          "contact_pixel": [
+            808.0,
+            134.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1495,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.025756471985539948,
+              "proxy_world_position": [
+                33.6290200567697,
+                48.488449296571105,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.025756472034443336,
+              "proxy_world_position": [
+                33.586874354641616,
+                48.51806893859691,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.1437430827396608,
+              "proxy_world_position": [
+                33.48306981433247,
+                48.43207126078011,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.1416890006023094,
+              "proxy_world_position": [
+                33.731040104855786,
+                48.57342970311278,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            33.607947205725665,
+            48.503259117569954,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            801.0,
+            134.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            33.75545716219379,
+            48.39959037116847,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 7.0,
+          "bbox_xyxy": [
+            792,
+            12,
+            825,
+            135
+          ],
+          "bottom_support_x": [
+            801
+          ],
+          "contact_pixel": [
+            808.0,
+            134.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1495,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.025756471985539948,
+              "proxy_world_position": [
+                33.6290200567697,
+                48.488449296571105,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.025756472034443336,
+              "proxy_world_position": [
+                33.586874354641616,
+                48.51806893859691,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.1437430827396608,
+              "proxy_world_position": [
+                33.48306981433247,
+                48.43207126078011,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.1416890006023094,
+              "proxy_world_position": [
+                33.731040104855786,
+                48.57342970311278,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            33.607947205725665,
+            48.503259117569954,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            801.0,
+            134.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            33.75545716219379,
+            48.39959037116847,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            792.0,
+            12.0,
+            825.0,
+            135.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            808.0,
+            134.0
+          ],
+          "frame_ref": "frame:5f7abe480feb72a7ca9acce2",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "MERGED_OR_PARTIAL",
+          "observation_ref": "observation:78d9e0341de5de450fd75847",
+          "projection_quality": 0.17444192848596846,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "3237fdb33a691ed12c44127466a67a438821847201ae94f8dac8585fd159f03e",
+          "timestamp": 2.0,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.6,
+          "world_position": [
+            33.607947205725665,
+            48.503259117569954,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "source_image_sha256": "3237fdb33a691ed12c44127466a67a438821847201ae94f8dac8585fd159f03e",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 2.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:4c78124c9fba4855d613445e",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 8.0,
+          "bbox_xyxy": [
+            795,
+            12,
+            828,
+            141
+          ],
+          "bottom_support_x": [
+            801,
+            802,
+            803
+          ],
+          "contact_pixel": [
+            811.0,
+            140.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1559,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.024690381313218105,
+              "proxy_world_position": [
+                34.2806285644152,
+                48.93815406913471,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.0246903813581574,
+              "proxy_world_position": [
+                34.24022732325204,
+                48.966547720440644,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.13227035825197195,
+              "proxy_world_position": [
+                34.14528770215423,
+                48.887249647368265,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.13045791981192426,
+              "proxy_world_position": [
+                34.37399047303122,
+                49.01656009044076,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            34.26042794385201,
+            48.95235089477476,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            802.0,
+            140.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            34.442233527597296,
+            48.82457946494448,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 8.0,
+          "bbox_xyxy": [
+            795,
+            12,
+            828,
+            141
+          ],
+          "bottom_support_x": [
+            803,
+            802,
+            801
+          ],
+          "contact_pixel": [
+            811.0,
+            140.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 1559,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.024690381313218105,
+              "proxy_world_position": [
+                34.2806285644152,
+                48.93815406913471,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.0246903813581574,
+              "proxy_world_position": [
+                34.24022732325204,
+                48.966547720440644,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.13227035825197195,
+              "proxy_world_position": [
+                34.14528770215423,
+                48.887249647368265,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.13045791981192426,
+              "proxy_world_position": [
+                34.37399047303122,
+                49.01656009044076,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            34.26042794385201,
+            48.95235089477476,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            802.0,
+            140.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            34.442233527597296,
+            48.82457946494448,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            795.0,
+            12.0,
+            828.0,
+            141.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            811.0,
+            140.0
+          ],
+          "frame_ref": "frame:4c78124c9fba4855d613445e",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "MERGED_OR_PARTIAL",
+          "observation_ref": "observation:a930d37e7c8362eb4f447455",
+          "projection_quality": 0.18190936700434612,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "54a8b9362e948e8ad6e8a1106110f7059ea8d751fff292af5a8042854dee36fe",
+          "timestamp": 2.2,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.6,
+          "world_position": [
+            34.26042794385201,
+            48.95235089477476,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "source_image_sha256": "54a8b9362e948e8ad6e8a1106110f7059ea8d751fff292af5a8042854dee36fe",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 2.2
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:6722beac04849d9bee47dd06",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 13.0,
+          "bbox_xyxy": [
+            826,
+            23,
+            853,
+            147
+          ],
+          "bottom_support_x": [
+            826
+          ],
+          "contact_pixel": [
+            839.0,
+            146.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 164,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.023709037443630714,
+              "proxy_world_position": [
+                34.395496218587674,
+                49.692924851264124,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.02370903748507101,
+              "proxy_world_position": [
+                34.35670076580137,
+                49.720189969511615,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.12389575964419335,
+              "proxy_world_position": [
+                34.266336484019675,
+                49.64909036925224,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.12226510655877545,
+              "proxy_world_position": [
+                34.48441586857864,
+                49.76326809948095,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            34.376098492211476,
+            49.70655741037596,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            826.0,
+            146.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            34.628268932458006,
+            49.52933414378032,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 2.5,
+          "bbox_xyxy": [
+            826,
+            119,
+            832,
+            147
+          ],
+          "bottom_support_x": [
+            826
+          ],
+          "contact_pixel": [
+            828.5,
+            146.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 37,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.02370903700859513,
+              "proxy_world_position": [
+                34.59917234349117,
+                49.549782982028184,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.023709037050017985,
+              "proxy_world_position": [
+                34.56037689141674,
+                49.57704809977538,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.12314407500469837,
+              "proxy_world_position": [
+                34.4713708273196,
+                49.50499395678265,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.1215233152256532,
+              "proxy_world_position": [
+                34.68675165198684,
+                49.62106820977526,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            34.579774617470896,
+            49.56341554088987,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            826.0,
+            146.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            34.628268932458006,
+            49.52933414378032,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 10.0,
+          "bbox_xyxy": [
+            832,
+            23,
+            853,
+            119
+          ],
+          "bottom_support_x": [
+            832
+          ],
+          "contact_pixel": [
+            842.0,
+            118.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 127,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.029108042663354688,
+              "proxy_world_position": [
+                30.580269591850563,
+                47.77762275607572,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.029108042725814062,
+              "proxy_world_position": [
+                30.532639661375534,
+                47.81109666115091,
+                0.49594758987426824
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.18736050838142826,
+              "proxy_world_position": [
+                30.39017353326557,
+                47.70801992583203,
+                0.4959475898742678
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.1843375518129137,
+              "proxy_world_position": [
+                30.720052867964657,
+                47.879306447458006,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            30.556454626638597,
+            47.79435970859536,
+            0.4959475898742678
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            832.0,
+            118.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            30.794604276458987,
+            47.6269901850149,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            826.0,
+            119.0,
+            832.0,
+            147.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            828.5,
+            146.0
+          ],
+          "frame_ref": "frame:6722beac04849d9bee47dd06",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "DETECTED",
+          "observation_ref": "observation:add9f687d311742321e80dff",
+          "projection_quality": 0.18763311183442347,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "2e1aca6795ba4acf69673d6352b7bed6c698a317bbde7ae1d0eca67b97ea4ada",
+          "timestamp": 4.4,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.25,
+          "world_position": [
+            34.579774617470896,
+            49.56341554088987,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            832.0,
+            23.0,
+            853.0,
+            119.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            842.0,
+            118.0
+          ],
+          "frame_ref": "frame:6722beac04849d9bee47dd06",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "DETECTED",
+          "observation_ref": "observation:fe656e1bf939570f51f9ca73",
+          "projection_quality": 0.1504646552459046,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "2e1aca6795ba4acf69673d6352b7bed6c698a317bbde7ae1d0eca67b97ea4ada",
+          "timestamp": 4.4,
+          "track_ref": "track:7b9838e08f811e649a85dffa",
+          "uncertainty": 0.25,
+          "world_position": [
+            30.556454626638597,
+            47.79435970859536,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "source_image_sha256": "2e1aca6795ba4acf69673d6352b7bed6c698a317bbde7ae1d0eca67b97ea4ada",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 4.4
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:7ed68654746dd104086d666a",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "becaad5e83128ce2fabb71ada236a66b537513e252100f6198f28c19e0c1d5ca",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "canonical_replacement": false,
+      "frame_ref": "frame:692fdb9369a98a312235cef9",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "b1afdfae8cf165adfafc9efa4a0777d18c1818680fa51f40778e1db007a12beb",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 8.6
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:3947746c8bc126e0ce319b98",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "adb8357fa459e3d9fae227ceaa58e251a7e648a88fc0e21c370e3f2841bc3668",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 0.4
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:ecd980ca3b8261dbe690512b",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "8f4794a4ed91c487038d2bcfec9f0fb1728e5d5cd6a37742f2f9a64d348ea5ce",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 0.6
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:41506d120c80a5c59ac277cd",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "40dde62d80a22e8eb7b7f2afd4aa36ba78823ad5e88c3c51f535df0ec045b6a2",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 1.8
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:79e3927278c9edc57e466645",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "dc2666a78a3e5e085ffcdc06369fe0ca8f6f8e265945ddf47c14dcd7c0a2efde",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 2.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:b96119b4dfde9220e1c362aa",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "e762533723839ffd513dbd059d0e7328845123e06c655ab3e6b29637ae7dfe97",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 2.2
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:d7add705587d6b3283860b65",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "30fa04588af276a9dfa990fd03638cf6d67dab7252e803c460fd56dcd5dd7639",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 4.4
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:aa486b0b8902792f905703df",
+      "mask8_proxy_alternatives": [],
+      "proposed_person_world_position": null,
+      "quality": "NO_MEASUREMENT",
+      "raw_contact_diagnostics": [],
+      "raw_observations": [],
+      "source_image_sha256": "581da8c6914ac0e65dfd7b8dd498794ea27fec8374fcebd945a0aa1ed18d8796",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 0,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "canonical_replacement": false,
+      "frame_ref": "frame:c78a5503c0bfa91f81df6bae",
+      "mask8_proxy_alternatives": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 5.0,
+          "bbox_xyxy": [
+            274,
+            9,
+            287,
+            99
+          ],
+          "bottom_support_x": [
+            285,
+            286
+          ],
+          "contact_pixel": [
+            280.0,
+            98.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 164,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.03434257180392008,
+              "proxy_world_position": [
+                31.515826404153106,
+                53.629370143018555,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.034342571882424115,
+              "proxy_world_position": [
+                31.572294936172213,
+                53.668471982551,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.24109993431950924,
+              "proxy_world_position": [
+                31.35746683485438,
+                53.80160347486631,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.23652104471447194,
+              "proxy_world_position": [
+                31.727110777470017,
+                53.49913834414717,
+                0.49594758987426735
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            31.544060670130392,
+            53.648921062762426,
+            0.49594758987426735
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            285.5,
+            98.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            31.699349134159025,
+            53.75645112215255,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "proposed_person_world_position": null,
+      "quality": "GROUND_POSITION_UNKNOWN",
+      "raw_contact_diagnostics": [
+        {
+          "bbox_contact_to_nearest_bottom_mask_pixel_px": 5.0,
+          "bbox_xyxy": [
+            274,
+            9,
+            287,
+            99
+          ],
+          "bottom_support_x": [
+            285,
+            286
+          ],
+          "contact_pixel": [
+            280.0,
+            98.0
+          ],
+          "ground_contact": "UNKNOWN",
+          "pixel_count": 164,
+          "pixel_perturbations": [
+            {
+              "delta_pixel": [
+                -1,
+                0
+              ],
+              "distance_m": 0.03434257180392008,
+              "proxy_world_position": [
+                31.515826404153106,
+                53.629370143018555,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                1,
+                0
+              ],
+              "distance_m": 0.034342571882424115,
+              "proxy_world_position": [
+                31.572294936172213,
+                53.668471982551,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                -1
+              ],
+              "distance_m": 0.24109993431950924,
+              "proxy_world_position": [
+                31.35746683485438,
+                53.80160347486631,
+                0.49594758987426735
+              ]
+            },
+            {
+              "delta_pixel": [
+                0,
+                1
+              ],
+              "distance_m": 0.23652104471447194,
+              "proxy_world_position": [
+                31.727110777470017,
+                53.49913834414717,
+                0.49594758987426735
+              ]
+            }
+          ],
+          "position_use": "WITHHOLD_AS_PERSON_GROUND_POSITION",
+          "proposed_person_world_position": null,
+          "proxy_world_position": [
+            31.544060670130392,
+            53.648921062762426,
+            0.49594758987426735
+          ],
+          "reason": "VISIBLE_MASK_BOTTOM_IS_NOT_VERIFIED_GROUND_CONTACT",
+          "sensitivity_is_error_bound": false,
+          "visible_bottom_is_feet": false,
+          "visible_bottom_median_pixel": [
+            285.5,
+            98.0
+          ],
+          "visible_bottom_median_proxy_world_position": [
+            31.699349134159025,
+            53.75645112215255,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "raw_observations": [
+        {
+          "bbox_xyxy": [
+            274.0,
+            9.0,
+            287.0,
+            99.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "contact_pixel": [
+            280.0,
+            98.0
+          ],
+          "frame_ref": "frame:c78a5503c0bfa91f81df6bae",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "DETECTED",
+          "observation_ref": "observation:997166541f223b4f923d8bff",
+          "projection_quality": 0.13833378228069773,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "source_image_sha256": "ef017b0c0419736b9abfa51f801ba9a87dd17347e29297be58eeec6a79121120",
+          "timestamp": 8.6,
+          "track_ref": "track:009a7986b79c71b420d06f56",
+          "uncertainty": 0.25,
+          "world_position": [
+            31.544060670130392,
+            53.648921062762426,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "source_image_sha256": "ef017b0c0419736b9abfa51f801ba9a87dd17347e29297be58eeec6a79121120",
+      "temporal_identity_link_created": false,
+      "threshold_ge30_component_count": 1,
+      "timestamp": 8.6
+    }
+  ],
+  "schema_version": "office-contact-qa-poc.v1",
+  "source_binding": {
+    "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+    "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+    "run_id": "blender-pilot-office-baseline-v1",
+    "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+    "site_id": "office",
+    "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  }
+}

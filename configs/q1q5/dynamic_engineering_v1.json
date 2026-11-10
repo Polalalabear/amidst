@@ -1,0 +1,19 @@
+{
+  "schema_version": "q-demo.dynamic-producer.v1",
+  "scene_id": "ENGINEERING_DYNAMIC_SCENE",
+  "run_id": "ENGINEERING_DYNAMIC_RUN_20261025",
+  "clock_id": "ENGINEERING_DYNAMIC_CLOCK",
+  "source_kind": "SYNTHETIC",
+  "formal_dataset": false,
+  "duration_s": 8,
+  "fps": 20,
+  "image_size_px": [960, 540],
+  "render_samples": 16,
+  "seed": 7,
+  "cameras": {
+    "A": {"position": [2, -5.5, 2.8], "look_at": [4, 0, 1], "lens_mm": 45},
+    "B": {"position": [16, -5.5, 2.8], "look_at": [14, 0, 1], "lens_mm": 45}
+  },
+  "private_motion": {"start_x": 1.5, "end_x": 16.5, "y": 0, "gait_hz": 1.6},
+  "restrictions": ["PRODUCER_ONLY", "NO_GT_IN_INFERENCE", "NO_FORMAL_ACCEPTANCE", "IDENTITY_UNCONFIRMED"]
+}

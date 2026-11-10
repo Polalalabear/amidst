@@ -15,7 +15,8 @@ import math
 import struct
 import zlib
 from bisect import bisect_left, bisect_right
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -434,14 +435,38 @@ def materialize_blender_workbench(
             "rendered": False, "gt_values_used_for_inference": False}
 
 
+@dataclass(frozen=True)
+class ValidationRunPin:
+    """Caller-supplied trust anchor for one independent contact-control run.
+
+    Never obtain this pin implicitly from an untrusted bundle manifest.
+    Existing baseline loading still requires the original SITE_PINS.
+    """
+    site_id: str
+    run_id: str
+    dataset_sha256: str
+    inputs_sha256: str
+
+    def __post_init__(self):
+        if (self.site_id not in {"office", "auditorium"}
+                or not self.run_id.startswith("blender-contact-control-")):
+            raise ValueError("INVALID_CONTACT_CONTROL_PIN")
+        for digest in (self.dataset_sha256, self.inputs_sha256):
+            if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError("INVALID_CONTACT_CONTROL_PIN")
+
+
 class BlenderSceneAdapter(SceneAdapter):
     """An immutable RGB/model view with deterministic, bounded frame retrieval."""
 
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, *, validation_pin: ValidationRunPin | None = None,
+                 index_factory: Callable[[Json], Any] | None = None,
+                 enable_reconstruction: bool = True) -> None:
         from amidst.workbench.blender_association import BaselineAssociationIndex
         from amidst.workbench.blender_motion import BaselineMotionIndex
         from amidst.workbench.frame_baseline import BaselineFrameIndex
 
+        self._validation_pin = validation_pin
         self.root = root.resolve()
         self._manifest_raw = (self.root / "manifest.json").read_bytes()
         self._manifest = json.loads(self._manifest_raw)
@@ -456,9 +481,10 @@ class BlenderSceneAdapter(SceneAdapter):
         self.source_hash = binding["source_sha256"]
         self.run_id = binding["run_id"]
         self.model_revision = binding["model_revision"]
-        self.index = BaselineFrameIndex(self._inputs)
-        self.motion = BaselineMotionIndex(self.index.snapshot())
-        self.association = BaselineAssociationIndex(self.index.snapshot())
+        self.index = (index_factory or BaselineFrameIndex)(self._inputs)
+        self.motion = BaselineMotionIndex(self.index.snapshot()) if enable_reconstruction else None
+        self.association = (BaselineAssociationIndex(self.index.snapshot())
+                            if enable_reconstruction else None)
         self.physical: Any = None
         self._physical_source: Any = None
         self._physical_review_index: Any = None
@@ -519,8 +545,8 @@ class BlenderSceneAdapter(SceneAdapter):
                              "result_review": False, "evaluation": False,
                              "inference_execution": False, "frame_query": True,
                              "navigation_guidance": False, "product": False,
-                             "motion_reconstruction": True,
-                             "cross_camera_reconstruction": True,
+                             "motion_reconstruction": enable_reconstruction,
+                             "cross_camera_reconstruction": enable_reconstruction,
                              "physical_cross_camera_reconstruction": False},
             "bounds": [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
             "time_range": [0.0, 9.8], "cameras": cameras, "objects": objects,
@@ -548,6 +574,11 @@ class BlenderSceneAdapter(SceneAdapter):
             binding = self._inputs["source_binding"]
             _safe_input_contract(self._inputs)
             site = binding["site_id"]
+            pin = self._validation_pin
+            expected_dataset = pin.dataset_sha256 if pin else SITE_PINS.get(site)
+            expected_run = pin.run_id if pin else f"blender-pilot-{site}-baseline-v1"
+            if pin and (site != pin.site_id or _sha(self._inputs_raw) != pin.inputs_sha256):
+                raise ValueError("BLENDER_SCENE_STALE")
             source = Path(self._manifest["source_path"])
             dataset = Path(self._manifest["dataset_path"])
             asset_root = Path(self._manifest["asset_root"])
@@ -555,15 +586,15 @@ class BlenderSceneAdapter(SceneAdapter):
                 self._manifest["schema_version"] != "workbench.blender-local-bundle.v1"
                 or self._inputs["schema_version"] != "workbench.blender-safe-inputs.v1"
                 or binding["source_sha256"] != SOURCE_SHA256
-                or binding["dataset_sha256"] != SITE_PINS[site]
-                or self._manifest["dataset_sha256"] != SITE_PINS[site]
+                or binding["dataset_sha256"] != expected_dataset
+                or self._manifest["dataset_sha256"] != expected_dataset
                 or binding["scale_sha256"] != _PINS[_SCALE]
-                or binding["run_id"] != f"blender-pilot-{site}-baseline-v1"
+                or binding["run_id"] != expected_run
                 or self._inputs["floor_plane"]["source_sha256"] != SOURCE_SHA256
                 or asset_root.is_symlink() or asset_root.resolve() != asset_root
                 or dataset.resolve().parent != asset_root
                 or source.resolve() != source
-                or _file_sha(dataset) != SITE_PINS[site]
+                or _file_sha(dataset) != expected_dataset
                 or source.stat().st_size != self._manifest["source_integrity"]["byte_count"]
                 or source.stat().st_mtime_ns != self._manifest["source_integrity"]["mtime_ns"]
                 or self._manifest["source_integrity"]["sha256"] != SOURCE_SHA256
@@ -738,5 +769,7 @@ class BlenderSceneAdapter(SceneAdapter):
         return {"status": "UNAVAILABLE", "reason": "BASELINE_HAS_NO_FORMAL_EVALUATION"}
 
 
-def load_blender_scene(root: Path) -> BlenderSceneAdapter:
-    return BlenderSceneAdapter(root)
+def load_blender_scene(
+    root: Path, *, validation_pin: ValidationRunPin | None = None,
+) -> BlenderSceneAdapter:
+    return BlenderSceneAdapter(root, validation_pin=validation_pin)

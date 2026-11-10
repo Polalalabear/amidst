@@ -1,0 +1,199 @@
+{
+  "schema_version": "office-demo.restricted-policy.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "physical_map_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+  "physical_output_sha256": "58cc759eee3af211c23d4400128e0e744d0b28d4bfcf36a7e07cf3509d2573c0",
+  "annotation_file_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+  "metres_per_blender_unit": 0.0247,
+  "authority": "USER_CONFIRMED_POLICY_ONLY_NOT_PHYSICAL_GEOMETRY",
+  "gt_read": false,
+  "variants": {
+    "legacy_office": {
+      "floor_z_m": 0.4959475898742675,
+      "parameters": {
+        "body_height_m": 2.9393,
+        "body_radius_m": 0.1482,
+        "label": "SYNTHETIC_CAPSULE_NOT_HUMAN_SIZED",
+        "radius_source": "PREDECLARED_LEGACY_RUN_SETTING_NOT_GT",
+        "run_id": "blender-pilot-office-baseline-v1"
+      },
+      "physical_sections_sha256": "ac8c7765e1b61fc0da348a7240f1f35fbc93fbdb6a4e344a90b8fbd9d61014ac",
+      "restricted_regions": [
+        {
+          "region_id": "restricted:OBSTACLE_1F_OFFICE_01",
+          "tier": "RESTRICTED_POLICY",
+          "source": "USER_CONFIRMED_ANNOTATION",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  36.76858522949219,
+                  52.44399760742188
+                ],
+                [
+                  28.870657714843748,
+                  52.44399760742188
+                ],
+                [
+                  28.870657714843748,
+                  57.08311108398438
+                ],
+                [
+                  36.76858522949219,
+                  57.08311108398438
+                ],
+                [
+                  36.76858522949219,
+                  52.44399760742188
+                ]
+              ]
+            ]
+          },
+          "source_annotation_ref": "OBSTACLE_1F_OFFICE_01",
+          "source_annotation_record_sha256": "344daca39da6a187d3b0062aee9c69a79c46a5a87fe360443aa0aaeb1c10deb7",
+          "source_annotation_file_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+          "confirmation_ref": "https://github.com/Polalalabear/amidst/issues/26#issuecomment-6229832567",
+          "decision": "D15",
+          "physical_obstacle": false,
+          "affects_walkability": false,
+          "affects_ranking": false
+        },
+        {
+          "region_id": "restricted:OBSTACLE_1F_OFFICE_02",
+          "tier": "RESTRICTED_POLICY",
+          "source": "USER_CONFIRMED_ANNOTATION",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  34.09400518798828,
+                  42.38232355957031
+                ],
+                [
+                  28.752352795410157,
+                  42.38232355957031
+                ],
+                [
+                  28.752352795410157,
+                  52.5070380859375
+                ],
+                [
+                  34.09400518798828,
+                  52.5070380859375
+                ],
+                [
+                  34.09400518798828,
+                  42.38232355957031
+                ]
+              ]
+            ]
+          },
+          "source_annotation_ref": "OBSTACLE_1F_OFFICE_02",
+          "source_annotation_record_sha256": "263419701a35539ed2be21cd99a37a4aabe84805fcf9c83dca2ff737f77d6a4b",
+          "source_annotation_file_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+          "confirmation_ref": "https://github.com/Polalalabear/amidst/issues/26#issuecomment-6229832567",
+          "decision": "D15",
+          "physical_obstacle": false,
+          "affects_walkability": false,
+          "affects_ranking": false
+        }
+      ]
+    },
+    "person": {
+      "floor_z_m": 0.4959475898742675,
+      "parameters": {
+        "body_height_m": 1.7,
+        "body_radius_m": 0.25,
+        "label": "SYNTHETIC_CYLINDER_PERSON_SIZED",
+        "radius_source": "D5_D6_PREDECLARED_RUN_SETTING_NOT_GT",
+        "run_id": "blender-contact-control-office-person-20261016-v1"
+      },
+      "physical_sections_sha256": "72880d7c20750ae3253355a5f80a13db4c46f4a7060732783c6b3a29ae8c514d",
+      "restricted_regions": [
+        {
+          "region_id": "restricted:OBSTACLE_1F_OFFICE_01",
+          "tier": "RESTRICTED_POLICY",
+          "source": "USER_CONFIRMED_ANNOTATION",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  36.76858522949219,
+                  52.44399760742188
+                ],
+                [
+                  28.870657714843748,
+                  52.44399760742188
+                ],
+                [
+                  28.870657714843748,
+                  57.08311108398438
+                ],
+                [
+                  36.76858522949219,
+                  57.08311108398438
+                ],
+                [
+                  36.76858522949219,
+                  52.44399760742188
+                ]
+              ]
+            ]
+          },
+          "source_annotation_ref": "OBSTACLE_1F_OFFICE_01",
+          "source_annotation_record_sha256": "344daca39da6a187d3b0062aee9c69a79c46a5a87fe360443aa0aaeb1c10deb7",
+          "source_annotation_file_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+          "confirmation_ref": "https://github.com/Polalalabear/amidst/issues/26#issuecomment-6229832567",
+          "decision": "D15",
+          "physical_obstacle": false,
+          "affects_walkability": false,
+          "affects_ranking": false
+        },
+        {
+          "region_id": "restricted:OBSTACLE_1F_OFFICE_02",
+          "tier": "RESTRICTED_POLICY",
+          "source": "USER_CONFIRMED_ANNOTATION",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  34.09400518798828,
+                  42.38232355957031
+                ],
+                [
+                  28.752352795410157,
+                  42.38232355957031
+                ],
+                [
+                  28.752352795410157,
+                  52.5070380859375
+                ],
+                [
+                  34.09400518798828,
+                  52.5070380859375
+                ],
+                [
+                  34.09400518798828,
+                  42.38232355957031
+                ]
+              ]
+            ]
+          },
+          "source_annotation_ref": "OBSTACLE_1F_OFFICE_02",
+          "source_annotation_record_sha256": "263419701a35539ed2be21cd99a37a4aabe84805fcf9c83dca2ff737f77d6a4b",
+          "source_annotation_file_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+          "confirmation_ref": "https://github.com/Polalalabear/amidst/issues/26#issuecomment-6229832567",
+          "decision": "D15",
+          "physical_obstacle": false,
+          "affects_walkability": false,
+          "affects_ranking": false
+        }
+      ]
+    }
+  },
+  "output_sha256": "b259d636a6ddb844c3db13c079181e03b40b7d290069c6b57236eb7753a1ae86"
+}

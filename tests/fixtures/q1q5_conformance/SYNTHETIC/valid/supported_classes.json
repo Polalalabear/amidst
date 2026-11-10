@@ -1,0 +1,17 @@
+{
+  "schema_version": "q1q5-conformance.supported-classes.v1",
+  "class_labels": [
+    "person",
+    "car",
+    "bicycle"
+  ],
+  "aliases": {
+    "車": "car",
+    "汽車": "car",
+    "人": "person"
+  },
+  "color_labels": [
+    "red",
+    "blue"
+  ]
+}

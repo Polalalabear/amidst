@@ -1,0 +1,196 @@
+{
+  "schema_version": "amidst.work.handoff.public.v1",
+  "date": "2026-10-14",
+  "status": "DOCUMENTED_CURRENT_WORK_AND_VERIFIED_PRIVATE_REPRODUCTION_MATERIALS",
+  "snapshot_code_commit": "0a24f1ad1905bd81824e99d0f470566b88552ca5",
+  "documentation_publication_commit": "RESOLVE_CURRENT_GIT_HISTORY",
+  "tested_code_checkpoint": "b1cf0c406140dd0a38a17456de961839dbf63f9a",
+  "production_runtime_manifest_sha256": "734132b434a698898a0ccc48d80e2d6532a439c3ba444ad313e0db9a2fca6c8a",
+  "worktrees": [
+    {
+      "path": "/Users/polalabear/Developer/amidst",
+      "HEAD": "c5956dc825f669e28e2694578be0fed97432a786",
+      "branch": "refs/heads/phase1/physical-policy-approval",
+      "detached": false,
+      "exists": true,
+      "dirty_paths_at_readonly_audit": [
+        "?? docs/history/"
+      ]
+    },
+    {
+      "path": "/Users/polalabear/.codex/worktrees/demo-v1-main/amidst",
+      "HEAD": "439c8669eae740ed5750eeb1f853c0ddf73ec507",
+      "branch": "refs/heads/main",
+      "detached": false,
+      "exists": true,
+      "dirty_paths_at_readonly_audit": []
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean",
+      "HEAD": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+      "branch": null,
+      "detached": true,
+      "exists": true,
+      "dirty_paths_at_readonly_audit": [
+        "?? data/finalization/reviewed_run_case123_clean_v2_20261014/"
+      ]
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal",
+      "HEAD": "043bed2d6dac34698260bd37faefc31b9009d3ca",
+      "branch": "refs/heads/codex/phase1-case23-formal",
+      "detached": false,
+      "exists": true,
+      "dirty_paths_at_readonly_audit": []
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization",
+      "HEAD": "0a24f1ad1905bd81824e99d0f470566b88552ca5",
+      "branch": "refs/heads/codex/simulation-engineering",
+      "detached": false,
+      "exists": true,
+      "dirty_paths_at_readonly_audit": []
+    }
+  ],
+  "local_private_handoff_root": "/Users/polalabear/Developer/amidst/data/pilot/current_dependencies/handoff_20261014",
+  "private_manifest": {
+    "file_count": 134,
+    "bytes": 9971897,
+    "sha256": "1916120704c7860f31204465f9bac8bc1dd881c49aa0d9d95f3a8645f903d6f5",
+    "private_files_not_uploaded": true,
+    "directory_mode": "0700",
+    "file_mode": "0600"
+  },
+  "state_snapshot": {
+    "sqlite_count": 4,
+    "sqlite_bytes": 540672,
+    "sqlite_integrity": "PASS",
+    "postgres_tables": 14,
+    "postgres_dump_bytes": 1835666,
+    "postgres_dump_sha256": "ce291c6b2d42273407836dc074365d5619c9fcd4795496b05e8f13ab43c27e2d",
+    "capture_receipt_sha256": "b688255957df3433acda72254953a08c8198585ee1c35875bf3c90ecc9f62867",
+    "pg_snapshot": "SOURCE_FINGERPRINTS_AND_DUMP_SAME_REPEATABLE_READ_READ_ONLY_SNAPSHOT",
+    "component_snapshots_are_not_distributed_atomic": true,
+    "current_counts": {
+      "runs": 4,
+      "records": 1040,
+      "revisions": 129,
+      "jobs": 85,
+      "physical_review_deltas": 35,
+      "saved_agent_cases": 5,
+      "saved_agent_completed": 4,
+      "saved_agent_failed": 1
+    },
+    "restore_verification": "PASS_14_TABLE_FINGERPRINTS_EQUAL",
+    "restore_receipt_sha256": "48dd7f295f6c94c561a200529a0dd54dea03348d47507a46011735d302ac22cd",
+    "temporary_restore_database_retired": true,
+    "original_database_not_restored_or_migrated": true
+  },
+  "fresh_reproduction_checks": {
+    "sqlite_current_snapshots": 4,
+    "sqlite_integrity": "PASS",
+    "postgres_restored_tables": 14,
+    "postgres_snapshot_restore_fingerprints": "PASS",
+    "context_proof_qa_logical_equality": "PASS",
+    "private_candidate_fixtures": {
+      "tests": 220,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "private_candidate_prompt_chars": 22437,
+    "existing_wire_prompt_limit_chars": 24000,
+    "actual_model_calls": 0,
+    "new_full_suite_model48_or_producer_runs": 0,
+    "initial_sandbox_socket_failure_preserved": true
+  },
+  "asset_check": {
+    "groups": 19,
+    "file_hash_verification": "FRESH_PER_FILE_FOR19_GROUPS",
+    "formal_primary_clean_bindings": 3365,
+    "formal_bindings_missing": 0,
+    "source_locator_edges_checked": 4,
+    "physical_source_pins_checked": 10,
+    "large7b_blob_rehashed_this_turn": false,
+    "large7b_blob_verification": "CURRENT_EXISTS_SIZE_STAT_PLUS_PRIOR_TRUSTED_FULL_SHA",
+    "private_inventory_sha256": "28c8b5d1358c7905b73a7025fd95ee9771842b0a4c6fa40922a043b8b5ba11f7"
+  },
+  "current_versions": {
+    "python": "3.12.12",
+    "uv": "0.9.26",
+    "postgres": "18.6",
+    "ollama": "0.35.0",
+    "node": "26.0.0",
+    "npm": "11.12.1",
+    "three": "0.186.1",
+    "formal_native_blender_from_export_manifests": "5.2.1 LTS/9e2066aef7ef"
+  },
+  "private_key_records_sha256": {
+    "private_candidate/candidate.patch": "a3b6ba8d3f5276300fbec0ebf9c0eb4fa8e2bb3212ca9a3f81f31e7449a6b69b",
+    "private_candidate/validation.json": "4f8257cfd204f1845a99b8ab40376527a6efdcdda2b28678be670f878afa6fa5",
+    "private_candidate/runtime-manifest.json": "d067ab5d63ad9cb6d6161963bca8431e05d3df7a33a110a56a6c9b9c83451f15",
+    "private_harnesses/amidst-r3-schema-independent-peer-review-20261014.json": "6f26768d61a44065657feab7a04ae0dcc185a65778e5b414b19e2dd9e332a01c",
+    "private_harnesses/amidst-r3-benchmark-preflight.py": "133d333403f1400a78473205663470b33d953b37e49d38884f2cb52e3bf96de1",
+    "private_harnesses/amidst-r3-benchmark-command-template.sh": "55130e3385e5a490f8a80e28b7419c577a03c878292cb3128c287e29e29e4759",
+    "private_harnesses/amidst-r2-benchmark-independent-score.py": "889ff33ebb51ef0f9b540129cd3a3dbb64df01a8594be1a2bf06f63427018bb7",
+    "private_harnesses/amidst-storage-integration-restore.py": "d903894ea471b7610d196239c2a75adc684fe2a6a9c9177a07e6c766753d8f5b",
+    "private_harnesses/amidst-repair11-r3-context-http-guards.py": "cbf13ea05bae81cac4a0ded1d9654e6480b0cba0fb4ed3f9b1fa8eb060144d15",
+    "private_harnesses/amidst-r3-demo-source-verifier.py": "4a89d31c70be836b7e41062728f0afbc8a1e1fc1d8d6c0a28ca414ad0f1ce2d8",
+    "context_proof_preserved.py": "65edd7e4923500f1b3094d4780916a4df55a3059e74b1409f7eeeae82911864f",
+    "context_proof_locator_adaptation.json": "9d51f5cfe37ba8f05b6ed02add259d6e7b85c66cc761fbce3eaf1413c6df68a1",
+    "context_proof_qa_snapshot.json": "41d9c7fda3199336a904d237d5983484621f3a4db532fd8a41b507c9b3ebe4e7",
+    "validation/context-proof-preserved.json": "c1e35ea67dd05d89b1d837de23357ad5840053686f712414ec04f5d38c67f249",
+    "validation/private220-preserved.xml": "653d2664eddae07f52707a66d7be763d716c47b18c9bef7e47571a75924e913c",
+    "validation/private220-preserved.log": "dc501646fb547b5ba4900d525a82168c51f694956b0469880a2e69458b786def",
+    "validation/sandbox-socket-bind-failure.json": "3e7b5d28b109660020bfeb8578b90d2289f7628b7c6907ba00cbfab7c8c58996",
+    "capture_state.py": "b411e51a43a6ccfd6786b84c17caf7e02a627b6ef0c3c5568002de92b2286cee",
+    "verify_snapshot_restore.py": "fea519319edd3f32850fd4c3b5bc5ad322bc14f7163c26aa0f416cc433da810f"
+  },
+  "current_quality": {
+    "phase2_estimate_percent": 50,
+    "demo_core": "5/5",
+    "demo_including_saved_agent_extra": "5/6",
+    "item05": "BASELINE_KEPT",
+    "item11": "QUALITY_GATE_NOT_MET",
+    "private_candidate": "220_FIXTURES_AND_PEER_PASS_UNAPPLIED",
+    "new_full48": "NOT_STARTED",
+    "formal_phase1": "SCOPED_CASE123_18_GATES_PASS_INITIAL_CASE3_ADE_TARGET_UNMET"
+  },
+  "not_performed": [
+    "production patch apply",
+    "new actual model completion",
+    "new full48 quality run",
+    "full Python3736 rerun",
+    "native render/producer/benchmark data generation",
+    "current database restore or schema migration",
+    "service retirement",
+    "worktree deletion",
+    "large model/assets transfer",
+    "main merge"
+  ],
+  "reproduction_boundaries": [
+    "GitHub clone restores code/docs/curated receipts only, not local source/media/weights/databases/private harnesses",
+    "Hash-only records cannot regenerate absent original assets",
+    "Frozen absolute locators and source size/mtime must be preserved or explicitly versioned rebind",
+    "Saved Agent needs original private credentials and formal ownership recovery on new origin/session",
+    "PG/SQLite component snapshots are individually consistent; no distributed atomicity claimed",
+    "Historical HTTP/PG scripts require new output paths to avoid overwriting frozen receipts",
+    "Isolated restore verifies this current snapshot, not a rerun of the historical5023 assertion query suite"
+  ],
+  "asset_summary_sha256": "2b0ef96bfb8c82a90f69c3f313cd2f670be643c920661115e0e13486063b398e",
+  "independent_readonly_peer": {
+    "status": "PASS",
+    "private_files_hash_size_mode_verified": 134,
+    "public_files_reviewed": 8,
+    "original_agent_recovery_credentials_checked_for_accidental_publication": 5,
+    "credential_leaks_found": 0,
+    "source_backend566_and_controls_unchanged": true,
+    "new_junit_independent_totals": {
+      "tests": 220,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "candidate_normalized_bootstrap_pin_distinguished_from_physical_file_bytes": true
+  }
+}

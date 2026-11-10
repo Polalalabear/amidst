@@ -1,0 +1,80 @@
+# Q1–Q5 Browser Acceptance（QT-31 / #124，FEAT-9 #383）
+
+- 狀態：**2026-11-02 已實測一輪（FEAT-9 #385@b1e1e18＋#388 DEMO-UI-F@c6eef18 本地拋棄式組合，P1 v4 工程包，SYNTHETIC）。結果見判定欄；UI-07（2 台）已於前景重測：PASS；8 台 UNKNOWN。**其餘項目實測窗格寬 1024 px（低於 ≥1280）。
+- 日期：2026-11-01。作者：Claude。對照：[#346](https://github.com/Polalalabear/amidst/issues/346) 的 UI-01～UI-14、D109（[#93](https://github.com/Polalalabear/amidst/issues/93)）、[`docs/agents/Q1Q5_DEMO_SCRIPT.md`](Q1Q5_DEMO_SCRIPT.md)。
+- 範圍：桌面版，寬度 ≥1280 px；使用內建瀏覽器窗格並保持在前景。
+- 何時實測：FEAT-5 的 DEMO-UI-F 修好、FEAT-9 整合分支（#377、#378、#380、#381 等）完成之後。在那之前判定欄維持 NOT_RUN。
+- 判定值：**UNKNOWN**（做了但數字或條件不足以判定）、**PASS**（照預期、有截圖與雜湊）、**FAIL**（寫明差異）、**NOT_RUN**（沒做）。「有條件接受」「不接受」是使用者在 #346 的決定，不是本表的判定。
+- 截圖：LOCAL，存在 `$AMIDST_ARTIFACTS` 下，路徑 `q1q5_acceptance/<檔名>`（倉庫內 `docs/agents/figures/q1q5_acceptance/` 目前不放截圖）。填 PASS 時必須同時在「截圖檔名」欄寫檔名，並在底下「LOCAL 截圖雜湊」表記 SHA-256；沒有截圖就不得填 PASS。
+- 預期欄只寫**畫面應顯示什麼**；不含目標的真實路徑、劇本事件或標準答案。
+
+### 通用條件（每一項都適用）
+
+- 資料來源徽章照實標示（RECORDED／REAL）；身分 UNCONFIRMED；物理通行 UNKNOWN；MISSING 與 UNKNOWN 樣式分開；畫面上不出現 GT 或劇本欄位。
+- 「沒偵測到」不寫成「不在畫面」；虛線只寫成「輔助預測」。
+
+### 逐條驗收表
+
+| 編號 | 項目 | 前置條件 | 操作 | 預期（畫面應顯示） | 判定 | 截圖檔名 |
+| --- | --- | --- | --- | --- | --- | --- |
+| UI-01 | 檢索 icon 與彈窗 | FEAT-9 整合分支啟動；主畫面已載入 | 主畫面頂列點「檢索」icon | 彈窗開啟，有模式（查找／追蹤）、類別、顏色、特徵文字、起訖時間（時:分:秒）；按「開始檢索」送出；Esc 或取消可關閉 | **PASS**：彈窗有查找／追蹤、類別、顏色、特徵文字、解析方式、起訖時:分:秒、開始檢索／取消；Esc 關閉（DOM `dialog.open=false`）。 | `ui-01-dialog.jpg` |
+| UI-02 | 示意進度條 | UI-01 可用 | 送出檢索後看進度條 | 進度條標「示意」；回應到達前不超過約 90%，到達後很快跑滿；永遠不超過 100%；進度不暗示有沒有找到 | **PASS**：進度 0→33→66→100 於約 300 ms 內跑滿（本機回應快，「回應前 ≤90%」無法在此觀察）；從未超過 100；標「示意」。沒有中途截圖，只有 DOM 取樣。 | `ui-03-no-match.jpg`（進度條「示意，未完成」） |
+| UI-03 | 載入中不顯示鏡頭 | UI-01 可用；備一個找不到的條件 | 送出到回應之間看主畫面；再送找不到的條件 | 載入期間監控牆和結果格都隱藏，只有載入面板；找不到（NO_MATCH、OUT_OF_RANGE 等）時停在載入面板並顯示狀態碼，不自動回牆；按「結束檢索」才回牆 | **PASS**：載入期間監控牆／結果格皆隱藏；條件 car 回 NO_MATCH，停在載入面板，顯示「NO_MATCH · 在已推論的影格中沒有找到；不代表目標不存在」；按「結束檢索」回到牆。 | `ui-03-no-match.jpg` |
+| UI-04 | 查找命中牆 | P1 工程包或錄製的 Q1 回應 | 查找、person、0:00:00–0:00:08，開始檢索 | 只畫命中的鏡頭（P1 預期畫面為 A、B 兩台）；可同步播放；片段外凍結在最近的合法影格並標示，不補造影格 | **PASS**：查找 person／0–8 s 只出 #1 A、#2 B；「同步播放全部命中鏡頭」後 B 顯示「命中片段外，凍結於最近合法影格」，A 播放中。 | `ui-04-hit-wall.jpg`、`ui-04-sync-freeze.jpg` |
+| UI-05a | 追蹤（live）：彈窗到單畫面的完整鏈路 | DEMO-UI-F 已修（#388 APPROVE）；後端帶 `--tracking-scope`（P1 tracking scope `PROPOSED`／`G4_approved=false`） | 彈窗選「追蹤」→ 選起點 → 找到 → 單畫面播放約 5 s | **預期 fail-closed（D113-2）**：鏈路通；目標停在 A，約 2.5～3.4 s 後 GAP／TEMP_LOST／SEARCHING，**不切到 B**，不補位置與框；不可說 live 已切鏡 | **PASS（預期的 fail-closed）**：2026-11-02 上次實測：鏈路通，無 SESSION_BINDING／TRACKING_SCOPE_MISSING；全程停在 A，A 約 3.4 s 後 GAP／TEMP_LOST，未切到 B。原因：guard 先排除 `T_A_B`（GRAPH_NOT_APPROVED），非 UI 缺陷；G4（#348）生效也不會放行（D113） | `ui-05-single-screen.jpg` |
+| UI-05b | 追蹤（預錄，工程場景）：`?recording=2777741d96ac9aff5bffb2f61a4d2938`（RULE_ONLY） | 後端**不帶** `--tracking-scope`（帶了 `q_bootstrap` 的 recordings 為空，`?recording=` 被忽略；`p1_workbench.py:168`）；一般模式網址 `/workbench-v2/?recording=…`（不帶 `mode=review`；根路徑 `/` 不送資料）；review 檢視另用 `/workbench-v2/?mode=review&recording=…` | 以一般模式網址載入錄製 → 拖時間軸到 2.0／5.1／5.2 s，再往回拖到 2.0 s；另用 `admin.html` 看一次 | RECORDED 徽章與工程／合成標示；5.15 s 切到 B（A 2.5 s 暫失、3.05／3.45／3.85 s 三次回原鏡頭、4.25 s B 證據 MATCH_STRONG）；俯視圖實線延伸到 B；決策紀錄出現 SWITCH | **PASS**（2026-11-02，FEAT-9 `7263357`＋本地 #388 `c6eef18`，窗格 1280×900 模擬，拖時間軸取樣）。載入後直接進單畫面（`data-search-phase=result`，監控牆關閉）並顯示俯視圖；2.0 s 畫面 A、2.6／3.5／4.3／5.1 s 仍是 A、5.2 s 換成 B（5.15 s 為切換點）；決策紀錄在一般模式逐步出現：2.5 s #9 PLAYING→TEMP_LOST、3.05／3.45／3.85 s #11／#13／#15 RETURNED_TO_ORIGIN、4.25 s #17 SEARCHING→SWITCHING＋SWITCH＋MATCH_STRONG、5.15 s #18 SWITCHING→PLAYING＋「畫面換成 B」，往回拖到 2.0 s 時只剩 #0～#6；俯視圖實線 2.0／4.5 s 為 0 條、5.2／6.5 s 為 1 條（A→B），拖回 2.0 s 又為 0；徽章「RECORDED · SYNTHETIC」、「程式試用來源 · 排除正式評估」、身分未確認標語不變；不帶錄製參數的 `/workbench-v2/` 仍是監控牆。修前（`b1e1e18`）為 FAIL：A、B 並排監控牆、俯視圖 hidden、一般模式沒有決策紀錄。根因：搜尋階段只在 SEARCH_START 離開 wall，載入錄製不會送，與 `seeds` 無關。**UNKNOWN**：沒有即時（非拖動）循環播放逐幀看；俯視圖後端路由 `q_physical_prediction` 回 403，所以俯視圖標「SYNTHETIC 錄製重播示意」，實線由錄製時間軸導出；沒有 Q1 錄製可實測（Q1／無追蹤資料錄製的不變行為只有單元測試）；AGENT_SEQUENTIAL 備用錄製的畫面未看 | `ui-05b-review-log-17-switch.jpg`、`ui-05b-review-wall-5_2s.jpg`、`ui-05b-normal-mode-wall-4_1s.jpg` |
+| UI-06 | 監控牆首頁 | 預錄 RGB 已備；不做任何查詢 | 開啟主畫面 | 所有鏡頭在同一個時鐘上同時播放預錄 RGB；版面依鏡頭數排；沒有 RGB 的鏡頭顯示 MISSING 虛線框；不重複畫面湊格數；標示鏡頭數與來源 | **PASS**：首頁監控牆 2 台（A、B）同一時鐘播放預錄 RGB，標「SYNTHETIC」與場景名。無 RGB 鏡頭的 MISSING 虛線框此資料沒有，未測。 | `ui-06-wall.jpg` |
+| UI-07 | 多鏡頭播放流暢度 | 窗格在前景；取暖機後 10 s 窗口；2 台真實 P1 媒體；8 台的真實媒體現為 UNKNOWN（只有 mock） | 看面板內建的播放量測 | **2 台**：每台 ≥18 Hz、掉格 ≤10%、errors 0。**8 台**：每台 ≥12 Hz、掉格 ≤35%、errors 0。（D109 定案。#378 作者的參考量測：2 台 19.6 Hz／掉格 4.4%，8 台 mock 約 13.8 Hz／約 29%——**不是本表的實測**） | **PASS（2 台）**：前景重測（2026-11-02，同一 #385@b1e1e18＋#388@c6eef18 組合與同一 LOCAL P1 包）。量測前 `tabs_context` 回報窗格「displayed」、`visibilityState=visible`、rAF 60.2 Hz（≥50）。播放牆「▶ 播放」，暖機約 3.5 s 後取 10.005 s 窗口，兩次 `.mr-stats` 快照相減：2 台、presented **200 ticks＝20.0 Hz／台**（來源 20 fps）、skipped **0＝掉格 0%**、errors 0、missing 0，rAF max gap 17.8 ms。門檻 ≥18 Hz／≤10%／errors 0 皆達。窗格寬：視窗模擬 1280×800（開頁時實際 innerWidth 278，只為取得 ≥1280 而模擬；rAF 與播放量測不受寬度影響，但未另測原生窄窗）。**8 台：UNKNOWN**——此資料只有 2 台 P1 媒體，8 台只有 mock，未量。上一輪背景窗格的 3.0 Hz／94.3% 作廢。 | （無） |
+| UI-08 | 俯視圖線條樣式 | 有追蹤結果（live 或錄製） | 追蹤結果畫面看俯視圖面板 | 實線＝已觀測鏡頭序列；虛線＝物理預測，標名次、時間窗、信心文字，UNKNOWN 信心為獨立灰色樣式；圖例「虛線＝物理預測（示意，非實際路徑）」；節點圖版面無公尺座標；固定標語「身分未確認 · 物理通行與碰撞 UNKNOWN」；DRAFT 轉移 hover 時標「圖未核准」 | **PASS**：節點圖無公尺座標；虛線預測標「#1 00:00:03–00:00:07 · 中」「#2 … · 未知」（未知為灰色獨立樣式）；圖例「虛線＝物理預測（示意，非實際路徑）」；固定標語「身分未確認 · 物理通行與碰撞 UNKNOWN」；hover title「圖未核准（DRAFT） · 通行狀態未知」；面板標「SYNTHETIC／待接後端」。此 live 結果無已觀測鏡頭序列，實線未見（只有 A）。 | `ui-08-plan-view.jpg` |
+| UI-09 | 回放不洩漏未來 | UI-08 可用；有包含 GAP 的追蹤結果 | 播放過 GAP，再把時間軸往回拖到 GAP 之前，再逐格往前 | 實線只含起點 ≤ 當前時間的段，往回拖時線變少；虛線只用當時時間的預測；系統候選只顯示來源時間 ≤ 當前時間的快照 | **UNKNOWN**：虛線的時間窗隨當前時間改變（0.1 s：#1 01–05；3 s：03–07），拖回時間軸未洩漏未來。但此 live 結果只有 A、無鏡頭轉移，實線隨時間增減與系統候選快照無法觀察。 | （無） |
+| UI-10 | OpenAI 推測：樣式與預設關閉 | 預設設定；DEMO-UI-D 現未交（D109 只驗降級顯示）；若已交，另備錄製重播並開 `AMIDST_OPENAI_PREDICTION=on` | 預設開啟一次；有交付時再開啟一次 | 預設看不到外部線。**DEMO-UI-D 未交**：顯示「外部推測不可用」，不畫外部線。**已交且開啟**：點虛線、與物理預測不同色相，每條線標「外部模型推測（非系統判斷）」；demo 播錄製回應，不現場呼叫；不送影像、GT、劇本 | **PASS**（2026-11-03 重測，#385 `d141b1d`＋#388 `c6eef18`；歷史 FAIL 見註記）：預設關閉、無外部線；DEMO-UI-D 未交時勾選後 `q_external_prediction` 403 → 顯示「外部推測不可用」、0 條外部線、無「SYNTHETIC 錄製重播」線，請求只到 loopback。判斷：表格正確，UI 錯（D109-3／UI-10 要求不畫線），已修 FEAT-9 `track-map-data.mjs`（403/404 不再退回 SYNTHETIC 重播；僅無後端的離線 fixture 模式保留）。未驗：DEMO-UI-D 已交的錄製重播路徑。切換旁註「SYNTHETIC 錄製重播示意」在不可用情境已移除（見 #385 `c8a578b` 之後的修正）。 | 舊截圖為修正前畫面，**歷史 FAIL**（2026-11-02）：UI 勾選後畫出另色虛線並標「SYNTHETIC 錄製重播示意」，與表格預期不符；已依判斷修 UI。重測無截圖 |
+| UI-11 | 後台：預設事件選擇 | `admin.html` 可開；錄製清單已設定 | 開後台，選一筆錄製或場景，按「播放」 | 主畫面（含已開的分頁）立刻切到所選事件；有標題時顯示可讀名稱，沒有標題時顯示 ID 並標「尚無可讀名稱」 | **PASS**：後台列出唯一事件（ENGINEERING_DYNAMIC_SCENE），無標題→顯示 ID 並標「尚無可讀名稱」；按「播放」後 localStorage 選取寫入，主畫面載入該事件。只有 1 筆，未測多筆切換。 | `ui-11-admin.jpg` |
+| UI-12 | 後台：模擬紀錄查找 | UI-11 可用 | 用場景、鏡頭、來源時間、錄製日期、來源類型篩選，再按預覽 | 列表依條件縮減；預覽用同一個牆元件播放 | **PASS**：鏡頭 Z→0 筆、A→1；來源時間 ≥0:30→0、0:05→1；scene NOPE→0、ENGINEERING→1；預覽用同一牆元件（2 台）。錄製日期、來源類型僅 SYNTHETIC 一種，未實際篩出差異。 | `ui-12-filter.jpg` |
+| UI-13 | 後台：播放設定 | UI-11 可用 | 設定速度 2×、循環、起點 0:01、只勾鏡頭 A，回主畫面，重新開頁 | 主畫面套用設定；重新開頁後設定仍在 | **PASS**：速度 2×、循環、起點 0:01、僅 A 寫入設定；主畫面顯示「1 台鏡頭」「顯示 1 / 2 台」、A 從 1.000000 s；重新載入頁面後後台仍是 2×／僅 A。 | `ui-13-applied.jpg` |
+| UI-14 | GT 誘餌與用語 | FEAT-9 整合分支完成；可執行 node 測試 | 跑 `node --test frontend/workbench-v2/*.test.mjs`；在 UI-04～UI-10 的畫面檢查用語；回應注入 GT 類欄位（`gt_` 開頭欄位、演員編號、渲染軌跡）的測試案例 | 帶 GT 類欄位的回應不顯示、不影響畫面；不新增測試失敗（staging 既有 5 項失敗另列）；用語符合通用條件 | **PASS**（2026-11-03，#385 `c8a578b`）：`node --test frontend/workbench-v2/*.test.mjs` 315 tests、315 pass、0 fail；歷史 FAIL（2026-11-02，303／302 pass／1 fail）根因是 `api.test.mjs`「generator is deterministic」的多餘檔案檢查沒排除其他 generator 的輸出（`long_timeline_*`、`q-*`、`q1/2/3-*`），已改用 `FOREIGN_FIXTURE`。畫面用語符合通用條件；GT 類欄位的瀏覽器注入沒有另跑，以 isolation／validate 測試代替。 | （無截圖；命令輸出） |
+
+### LOCAL 截圖雜湊
+
+2026-11-02 實測截圖（寬 1024、縮放為 800×600 的 JPEG）；LOCAL 位置 `$AMIDST_ARTIFACTS` 未設，實際存於 `~/amidst-artifacts/q1q5_acceptance/`。逐檔一列，路徑相對 `$AMIDST_ARTIFACTS`，不寫家目錄絕對路徑：
+
+| 檔名 | 大小 | SHA-256 | 對應編號 | 可重現方式 |
+| --- | --- | --- | --- | --- |
+| ui-01-dialog.jpg | 52312 | 11947d3ceb2586f7b1a4c42d98f62ee1320a497d4778f5ce56c17de9c8a13c71 | UI-01 | 見 #384 實際產出 |
+| ui-03-no-match.jpg | 41917 | 52b739550e69055f0ac1c51d4bf66dde714ef87696bc4653555bca288558d516 | UI-02／03 | 同上 |
+| ui-04-hit-wall.jpg | 66161 | f12b37ab869113b1608b3719e14b71f8e64419a662537d7658793f6d884df706 | UI-04 | 同上 |
+| ui-04-sync-freeze.jpg | 64385 | 302af17101dc19b4fa82f889f7a29b52418f6c47d1db423e7c055a44aa9747e6 | UI-04 | 同上 |
+| ui-05-single-screen.jpg | 65354 | 740884e71884edf03089abab0a4c167edeccca399c76f6912682f98f92570c18 | UI-05 | 同上 |
+| ui-06-wall.jpg | 31250 | ef790bf988c34f38a5c9952975ac4e3738b72148d0a9ced42a2ef5f59ba9c849 | UI-06 | 同上 |
+| ui-08-plan-view.jpg | 65393 | d1ba9c30d5501d9768c608d0fbc2e2bc5d49bf54c769c7cfa6c940e20296e9ba | UI-08 | 同上 |
+| ui-10-external-line.jpg | 66569 | 4b140e5479cef1de01849cacbeff9f9d6cb09aed291285865fde571a3fadb012 | UI-10 | 同上 |
+| ui-11-admin.jpg | 47355 | 58e8d6769671dd146b59e7f43668c73518ae675cbf9cea88ed422c1777ecfd63 | UI-11 | 同上 |
+| ui-12-filter.jpg | 26423 | e2d2ad60a7c8db9804546b874604ebec57f9f6d2b5e1f06479de81f6331a3187 | UI-12 | 同上 |
+| ui-13-applied.jpg | 41540 | 2395ec76f150851044a9884a27fa45ece4b3e432307fbe09f57f892bfbdc7940 | UI-13 | 同上 |
+| ui-05b-normal-mode-wall-4_1s.jpg | 40643 | 03d7dcfc3bdf4a6dfa3113370fe1980de62c672f0d6cc53cb5e7598edc8838bd | UI-05b | 後端不帶 `--tracking-scope`；`/workbench-v2/?recording=2777741d…`（800×563，窗格縮放） |
+| ui-05b-review-wall-5_2s.jpg | 41970 | ab9d68fb38e343052929f7be664d1f64116ad48d703d9a7a2cc0decd40dcc581 | UI-05b | 加 `&mode=review`，5.2 s 暫停 |
+| ui-05b-review-log-17-switch.jpg | 47016 | 199ff07c0ff34ae29cee0937471ba6f20cc6439ef9392ce26bcdd4e99c19629c | UI-05b | 同上，展開 #17（SWITCH、MATCH_STRONG、4.25 s） |
+| ui-05b-fixed-single-A-5_1s.jpg | 46470 | 9f5b1b3246211543b765e19d5547d52a1e2e5e9eef260a04f515c307d3944cf3 | UI-05b（修後） | 一般模式 `?recording=2777741d…`，5.1 s，單畫面 A＋俯視圖（800×600 截圖，窗格縮放） |
+| ui-05b-fixed-single-B-5_2s.jpg | 48437 | f9dbbead26cd473a97ddfb9c0805674b1545143a9815ddfeb53d71907fc8d9f7 | UI-05b（修後） | 同上，5.2 s，單畫面已換成 B |
+| ui-05b-fixed-scrub-back-2_0s.jpg | 45541 | 26d99ce46dbbec290ca0f993ecb3830917015e58a72be2e250310f5967e2ec96 | UI-05b（修後） | 同上，往回拖到 2.0 s，單畫面 A、決策紀錄只剩 #0～#6 |
+
+### 附錄 A：舊 §11 案例（NOT_RUN）
+
+這些是舊版 browser acceptance 的案例，在新的 UI 上重做時沿用。同樣只寫畫面應顯示什麼；全部尚未實測。
+
+| 案例 | 前置條件 | 操作 | 預期（畫面應顯示） | 判定 | 截圖檔名 |
+| --- | --- | --- | --- | --- | --- |
+| A-01 Q1 有車 | 資料含車輛類別的場景 | 查找，類別選車輛 | 只列有車輛觀測的命中鏡頭，標資料來源；不補造影格 | NOT_RUN | （尚未產生） |
+| A-02 Q1 無車 | 同上，選看不到車的鏡頭 | 查找車輛 | 看不到車的鏡頭不出現在命中牆；不出車輛題 | NOT_RUN | （尚未產生） |
+| A-03 Q1 零命中 | 條件無相符 | 送出無相符條件 | 停在載入面板，顯示 NO_MATCH 狀態碼並說「已推論影格中沒找到」；不寫成不在畫面 | NOT_RUN | （尚未產生） |
+| A-04 Q3 回退 | 規則解析與 LLM 解析皆可切換 | 輸入需釐清或不支援的句子 | 顯示需要釐清／不支援／無法解析，不猜條件；有回退時標 RULE_ONLY | NOT_RUN | （尚未產生） |
+| A-05 Q2/Q5 暫失 | 含暫失的追蹤回應 | 播放到暫失期間 | 顯示 GAP 與 SEARCHING，不補位置或框；MISSING 與 UNKNOWN 樣式分開 | NOT_RUN | （尚未產生） |
+| A-06 藍衣排除 | 含不同顏色條件的場景 | 追蹤並看候選 | 顏色條件不符的觀測不列入相符；排除原因照實顯示，不標身分 | NOT_RUN | （尚未產生） |
+| A-07 切鏡 | 含切鏡的追蹤回應 | 播放到目標離開 | 自動切到有支持的鏡頭，決策紀錄出現該步；來源時間只往前 | NOT_RUN | （尚未產生） |
+| A-08 回原鏡頭 | 含回原鏡頭的追蹤回應 | 播放到回來 | 回到原鏡頭，使用目前來源時間，不倒帶到最後看到的影格 | NOT_RUN | （尚未產生） |
+| A-09 兜底 | 受控 Agent 故障的錄製 | 載入故障錄製 | 標示決定性規則接手整段 session，不算成 LLM 成功；受控故障不是模型品質結果 | NOT_RUN | （尚未產生） |
+
+### 前提與未驗證
+
+- 本文件不證明任何功能可用；也不代表 #346 的使用者驗收。
+- `scripts/check_demo_script.py` 檢查的是腳本格式，不檢查本表；它不在 staging，這次對腳本的檢查為 NOT_RUN。
+- 8 台真實媒體：UNKNOWN。DEMO-UI-D、DEMO-UI-F、#337、#338：未交（UNKNOWN 狀態以 #372 為準）。

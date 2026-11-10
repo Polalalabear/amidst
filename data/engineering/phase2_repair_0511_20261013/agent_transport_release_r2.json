@@ -1,0 +1,20 @@
+{
+  "schema_version": "phase2.agent.transport-release.v1",
+  "base_provider_file_sha256": "9d1ef0f5848e606946f1b8a91ba7a0e60c2f4fa615fcc347d580181ba75c51a6",
+  "profile_file_sha256": "9ab32a9130431ea93023625445e51a2a669e8e5e1398ba935d9f85fe022c87cb",
+  "effective_provider_file_sha256": "f0395e6e32d5729fe7507a409076a5b09f23857c847fa9dbcf1c090245a804f8",
+  "base_timeout_seconds": 120,
+  "effective_timeout_seconds": 180,
+  "original_provider_bytes_unchanged": true,
+  "context_tokens": 8192,
+  "model_and_endpoint_unchanged": true,
+  "automatic_retries": false,
+  "browser_can_override": false,
+  "capacity_change_only": true,
+  "latency_quality_guarantee": false,
+  "fixture_test_count": 20,
+  "fixture_status": "PASS",
+  "integration_existing_suite_test_count": 9,
+  "actual_model_calls_in_configuration_tests": 0,
+  "provider_configs_local_only": true
+}

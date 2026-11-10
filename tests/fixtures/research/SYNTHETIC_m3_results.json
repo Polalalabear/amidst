@@ -1,0 +1,1249 @@
+{
+ "contract": "amidst.research-results.v0-draft",
+ "env_manifest_sha256": "d4ecd2ab1a04c7d347680e57bc25e12d6033d93948d4430cdb3c73a39b456078",
+ "experiment": "M3",
+ "questions": [
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F01-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F01-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": false,
+    "color": true,
+    "intent": false,
+    "region": false,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F01-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F01-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F01-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": false,
+    "color": false,
+    "intent": true,
+    "region": true,
+    "time_us": false
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F01-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F02-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F02-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F02-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F02-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F02-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F02-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F03-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F03-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": false,
+    "intent": true,
+    "region": false,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F03-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F03-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F03-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F03-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F04-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": false,
+    "color": true,
+    "intent": false,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F04-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": false,
+    "intent": true,
+    "region": true,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F04-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F04-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F04-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F04-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F05-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F05-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": false,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F05-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F05-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F05-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F05-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F06-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F06-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F06-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F06-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F06-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F06-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F07-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F07-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": false,
+    "intent": true,
+    "region": false,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F07-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F07-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": true,
+    "intent": false,
+    "region": true,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F07-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": true,
+    "intent": false,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F07-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F08-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F08-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": false,
+    "intent": true,
+    "region": false,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F08-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": false,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F08-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F08-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F08-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F09-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F09-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": false,
+    "color": false,
+    "intent": false,
+    "region": true,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F09-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F09-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": false,
+    "intent": false,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F09-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": false,
+    "color": false,
+    "intent": false,
+    "region": false,
+    "time_us": false
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F09-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": false,
+    "color": false,
+    "intent": true,
+    "region": false,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F10-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": false,
+    "intent": false,
+    "region": false,
+    "time_us": false
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F10-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": false,
+    "color": true,
+    "intent": false,
+    "region": true,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F10-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": false,
+    "intent": false,
+    "region": false,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F10-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F10-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F10-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": false,
+    "intent": false,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F11-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F11-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": false,
+    "intent": false,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F11-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": false,
+    "color": true,
+    "intent": false,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F11-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F11-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F11-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F12-P"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F12-P"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": false,
+    "time_us": false
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F12-V"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F12-V"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 1,
+   "camera_fp": 0,
+   "camera_tp": 0,
+   "correct": false,
+   "field_correct": {
+    "camera": false,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-F12-T"
+  },
+  {
+   "arm": "LLM_WITH_RULE_FALLBACK",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "LLM",
+   "query_id": "SYN-F12-T"
+  },
+  {
+   "arm": "RULE_ONLY",
+   "camera_fn": 0,
+   "camera_fp": 0,
+   "camera_tp": 1,
+   "correct": true,
+   "field_correct": {
+    "camera": true,
+    "class": true,
+    "color": true,
+    "intent": true,
+    "region": true,
+    "time_us": true
+   },
+   "parsed_by": "RULE",
+   "query_id": "SYN-OUT-OF-SET"
+  }
+ ],
+ "source_class": "SYNTHETIC"
+}

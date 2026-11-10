@@ -1,0 +1,322 @@
+{
+  "issue": 418,
+  "scene_id": "office_expanded_r005",
+  "parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072",
+  "builder_sha256": "2d357bdfab4758499fd4405dca1438f9c5faf0f50204ea7dd000f190a0923cc3",
+  "source_sha256": "79d142bac6a1853f6cde0066b72efd7d439d2fe329195df0fadfbfd32cfebf2e",
+  "blender_version": "5.2.1 LTS",
+  "blender_build_hash": "9e2066aef7ef",
+  "engine": "BLENDER_EEVEE",
+  "samples": 64,
+  "seed_requested": 7,
+  "seed_status": "NO_PUBLIC_EEVEE_SEED_SETTING",
+  "camera_image_count": 6,
+  "human_layout_image_count": 1,
+  "animation_rendered": false,
+  "rendered": [
+    {
+      "camera_id": "CAM_R101_IN",
+      "file": "rgb/CAM_R101_IN.png",
+      "raw_sha256": "3babd871bbb1682428bc54afff084f6cfe1c44cc4775fa655ca14bfd823ee834",
+      "sha256": "eb8530511733152a49de710d2ae0bf49233a125c89d7b8cd7ccef5e6247375b9",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_R102_IN",
+      "file": "rgb/CAM_R102_IN.png",
+      "raw_sha256": "f5fb7d434e877b09aeb29a2f0c8ca8b3c2bed46b4c7ee35c8ba1e2b8e1cee3b1",
+      "sha256": "42c14c9e1b13bca4b67f1ac662933e8d23341e3ffbb86da193928c0cbb82803e",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_R103_IN",
+      "file": "rgb/CAM_R103_IN.png",
+      "raw_sha256": "61f8f4e1b28b3a5afb6c80a85b5dbe5ca9170d59a532bd936fc1d2cfc77eca18",
+      "sha256": "4e03f03747d97296f67d92eb4f4dbb87026d6b7b00a21a4dd0596572a9a10702",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_R104_IN",
+      "file": "rgb/CAM_R104_IN.png",
+      "raw_sha256": "421127050468e051a324aff2ba0ed5ef4db83186eb3279d9282c96de9558b21a",
+      "sha256": "aa1705d04961d2652dfe18b29c31ae7f90d9de149f5c6634b8002c23dd4fce3e",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_CORR_W",
+      "file": "rgb/CAM_CORR_W.png",
+      "raw_sha256": "afa9818c5b0775bde27070c2ba52e68d7cf2430562b262ce30413ba667b80db0",
+      "sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_CORR_E",
+      "file": "rgb/CAM_CORR_E.png",
+      "raw_sha256": "f605ee08c8b6d13061e08fb80d7def2747b451f459a5bd4264b9f2f4956f0a85",
+      "sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "HUMAN_LAYOUT",
+      "file": "human_layout/overview.png",
+      "raw_sha256": "3d9094b7420dd595420ca91bfa4f19a7c94fcab658a7273d8a5a7f3736b4e5a2",
+      "sha256": "ae5c926e7451e9365c476f847712fed173a4080394adaac2a3659576444f3c69",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "HUMAN_LAYOUT_ONLY"
+    }
+  ],
+  "files": {
+    "rgb/CAM_R101_IN.png": {
+      "sha256": "eb8530511733152a49de710d2ae0bf49233a125c89d7b8cd7ccef5e6247375b9",
+      "bytes": 499990
+    },
+    "rgb/CAM_R102_IN.png": {
+      "sha256": "42c14c9e1b13bca4b67f1ac662933e8d23341e3ffbb86da193928c0cbb82803e",
+      "bytes": 501243
+    },
+    "rgb/CAM_R103_IN.png": {
+      "sha256": "4e03f03747d97296f67d92eb4f4dbb87026d6b7b00a21a4dd0596572a9a10702",
+      "bytes": 508055
+    },
+    "rgb/CAM_R104_IN.png": {
+      "sha256": "aa1705d04961d2652dfe18b29c31ae7f90d9de149f5c6634b8002c23dd4fce3e",
+      "bytes": 503268
+    },
+    "rgb/CAM_CORR_W.png": {
+      "sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241",
+      "bytes": 497127
+    },
+    "rgb/CAM_CORR_E.png": {
+      "sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee",
+      "bytes": 493081
+    },
+    "human_layout/overview.png": {
+      "sha256": "ae5c926e7451e9365c476f847712fed173a4080394adaac2a3659576444f3c69",
+      "bytes": 418701
+    },
+    "static/cameras.json": {
+      "sha256": "0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3",
+      "bytes": 11916
+    },
+    "static/regions.json": {
+      "sha256": "c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+      "bytes": 4103
+    },
+    "scene.blend": {
+      "sha256": "79d142bac6a1853f6cde0066b72efd7d439d2fe329195df0fadfbfd32cfebf2e",
+      "bytes": 164668
+    }
+  },
+  "disk_samples": [
+    {
+      "stage": "before_v2",
+      "utc": "2026-11-04T16:50:24Z",
+      "free_bytes": 19805745152,
+      "output_allocated_bytes": 0
+    },
+    {
+      "stage": "before_CAM_R101_IN",
+      "utc": "2026-11-04T16:50:24Z",
+      "free_bytes": 19805540352,
+      "output_allocated_bytes": 167936
+    },
+    {
+      "stage": "after_CAM_R101_IN",
+      "utc": "2026-11-04T16:50:26Z",
+      "free_bytes": 19805274112,
+      "output_allocated_bytes": 671744
+    },
+    {
+      "stage": "before_CAM_R102_IN",
+      "utc": "2026-11-04T16:50:26Z",
+      "free_bytes": 19805274112,
+      "output_allocated_bytes": 671744
+    },
+    {
+      "stage": "after_CAM_R102_IN",
+      "utc": "2026-11-04T16:50:28Z",
+      "free_bytes": 19804745728,
+      "output_allocated_bytes": 1175552
+    },
+    {
+      "stage": "before_CAM_R103_IN",
+      "utc": "2026-11-04T16:50:28Z",
+      "free_bytes": 19804745728,
+      "output_allocated_bytes": 1175552
+    },
+    {
+      "stage": "after_CAM_R103_IN",
+      "utc": "2026-11-04T16:50:30Z",
+      "free_bytes": 19804200960,
+      "output_allocated_bytes": 1687552
+    },
+    {
+      "stage": "before_CAM_R104_IN",
+      "utc": "2026-11-04T16:50:30Z",
+      "free_bytes": 19804200960,
+      "output_allocated_bytes": 1687552
+    },
+    {
+      "stage": "after_CAM_R104_IN",
+      "utc": "2026-11-04T16:50:32Z",
+      "free_bytes": 19803660288,
+      "output_allocated_bytes": 2191360
+    },
+    {
+      "stage": "before_CAM_CORR_W",
+      "utc": "2026-11-04T16:50:32Z",
+      "free_bytes": 19803660288,
+      "output_allocated_bytes": 2191360
+    },
+    {
+      "stage": "after_CAM_CORR_W",
+      "utc": "2026-11-04T16:50:34Z",
+      "free_bytes": 19803160576,
+      "output_allocated_bytes": 2691072
+    },
+    {
+      "stage": "before_CAM_CORR_E",
+      "utc": "2026-11-04T16:50:34Z",
+      "free_bytes": 19803160576,
+      "output_allocated_bytes": 2691072
+    },
+    {
+      "stage": "after_CAM_CORR_E",
+      "utc": "2026-11-04T16:50:36Z",
+      "free_bytes": 19802656768,
+      "output_allocated_bytes": 3186688
+    },
+    {
+      "stage": "before_HUMAN_LAYOUT",
+      "utc": "2026-11-04T16:50:36Z",
+      "free_bytes": 19802656768,
+      "output_allocated_bytes": 3186688
+    },
+    {
+      "stage": "after_HUMAN_LAYOUT",
+      "utc": "2026-11-04T16:50:37Z",
+      "free_bytes": 19802324992,
+      "output_allocated_bytes": 3608576
+    }
+  ],
+  "coverage_status": "NOT_EVALUATED",
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "gt_read": false,
+  "preview_revision": "v2",
+  "parent_source_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "parent_receipt_sha256": "79c5a9020fd78c19427c54a5c776f1344733eacc71d0b3f8226e9290f493fdc0",
+  "preview_correction_sha256": "e07218a16875a79aac474a0f5ab1ae714248571414a2d775f1ab2f2c8295aa74",
+  "builder_source_name": "revise_office_static_preview.py",
+  "display_correction": {
+    "view_exposure_ev": -4,
+    "human_overhead_orthographic_scale_m": 26,
+    "corridor_area_lights": [
+      {
+        "position_xyz_m": [
+          4,
+          1,
+          2.8
+        ],
+        "energy_w": 400,
+        "size_m": 3,
+        "direction": "NEG_Z"
+      },
+      {
+        "position_xyz_m": [
+          12,
+          1,
+          2.8
+        ],
+        "energy_w": 400,
+        "size_m": 3,
+        "direction": "NEG_Z"
+      }
+    ],
+    "door_sign_orientation": "Face corridor with text baseline horizontal and text-up world +Z"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "allowed_purposes": [],
+  "artifacts_sha256": {
+    "bundle/safe_bundle/manifest.json": "60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82",
+    "checker.json": "f5ef34938c2d6ce259aa3b0e89e8404bf6fb0907f8b8933744344a7373d2456c",
+    "evidence/A4-1.json": "907615d4645507182590fbbc9c6d3e9213deef60c28fb07c9b5514773b60b939",
+    "evidence/B4-1.json": "2b797d69ac6c400f58bffac74496066f455c9b47173350e29498530d9bfb4173",
+    "materialization.json": "db542f91dccc67557e3cf7ae290873b9a53c0ae60940c124a1112d1b6b02125a",
+    "receipt.json": "9ab0c8ddcac82aac1f12001ac164068405adbad5d942f496099b75641f048f4a"
+  },
+  "base_commit": "ed6a8dc8c62e833166beeb350f9a91e8c7db34ee",
+  "branch": "codex/cx7-production-wire",
+  "checker_result": {
+    "allowed_purposes": [],
+    "authority_verified": false,
+    "bindings": {
+      "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+      "freeze_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6556609083",
+      "freeze_sha256": "ab45a8322855dfa58bb26bf868554145240ff51653afa62f6efd800e09ad63fb",
+      "g4_decisions_sha256": "9d99f87ea007e1988797e50fa28e70f67e6973578bc15ef3f440ba4f4d8bc76c",
+      "g4_head": "0502225bb16f117014fd875fc7a9281220ede484",
+      "projection_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6593904034",
+      "render_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6579052576",
+      "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b"
+    },
+    "checker_version": "cx7-d119-v1",
+    "classification": "ENGINEERING",
+    "current_disk_available_bytes": 13488967680,
+    "disk_available_bytes": {
+      "after_df_k": 13436141568,
+      "before_df_k": 13438853120
+    },
+    "formal_run_allowed": false,
+    "frame_count": 2050,
+    "human_approval_verified": false,
+    "production_contract": "UNSELECTED",
+    "profile": "r004-a4b4",
+    "projection": "D119",
+    "receipt_file_sha256": "9ab0c8ddcac82aac1f12001ac164068405adbad5d942f496099b75641f048f4a",
+    "render_authorized": false,
+    "run_count": 2,
+    "runs": [
+      {
+        "clock_sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a",
+        "frame_count": 1000,
+        "label": "A4-1",
+        "render_min_available_bytes": 13488558080,
+        "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004"
+      },
+      {
+        "clock_sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4",
+        "frame_count": 1050,
+        "label": "B4-1",
+        "render_min_available_bytes": 12474224640,
+        "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      }
+    ],
+    "safe_manifest_sha256": "60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82",
+    "status": "PASS"
+  },
+  "classification": "ENGINEERING",
+  "date": "2026-11-03",
+  "focused_tests": [
+    {
+      "passed": 176,
+      "paths": [
+        "tests/q1q5/test_check_event_run_bundle.py"
+      ],
+      "seconds": 165.96
+    },
+    {
+      "passed": 211,
+      "paths": [
+        "tests/evaluation/test_r004_script_freeze.py",
+        "tests/unit/test_q5_script_adapter.py",
+        "tests/q1q5/test_check_baseline_freeze.py",
+        "tests/evaluation/test_p2_baseline_report.py",
+        "tests/unit/test_architecture_guard.py"
+      ],
+      "seconds": 12.89
+    }
+  ],
+  "focused_tests_total_passed": 387,
+  "human_approval_verified": false,
+  "local_output": "LOCAL /private/tmp/amidst-cx7-wire-01a19f68-output",
+  "materialization": {
+    "frame_count": 2050,
+    "helper_sha256": "8640717587e2b75b93fc8e9ed652f7e0bb88efc6436ffaa6b6dec8201b28b5be",
+    "inference_run": false,
+    "method": "APFS clonefile; independent inodes; source RGB hashes checked before and after each clone",
+    "rendered": false,
+    "source_integrity_checks": [
+      {
+        "frames_verified": 1000,
+        "independent_inode_clones": 1000,
+        "label": "A4-1",
+        "source_inventory_after_sha256": "907615d4645507182590fbbc9c6d3e9213deef60c28fb07c9b5514773b60b939",
+        "source_inventory_before_sha256": "907615d4645507182590fbbc9c6d3e9213deef60c28fb07c9b5514773b60b939",
+        "source_rgb_before_after_pins_sha256": "018d2027c24d6ed1fb79d0a3f953fd388181874ea51d1cc5b4e41ed21ed0b34a"
+      },
+      {
+        "frames_verified": 1050,
+        "independent_inode_clones": 1050,
+        "label": "B4-1",
+        "source_inventory_after_sha256": "2b797d69ac6c400f58bffac74496066f455c9b47173350e29498530d9bfb4173",
+        "source_inventory_before_sha256": "2b797d69ac6c400f58bffac74496066f455c9b47173350e29498530d9bfb4173",
+        "source_rgb_before_after_pins_sha256": "48d4cebb7ff042cd9024357277b4197cf01619d917ab78d387c95c96f1f6dbb4"
+      }
+    ],
+    "source_original_status": "UNTOUCHED"
+  },
+  "materialization_min_available_bytes": 13436141568,
+  "not_verified": [
+    "Human intent/approval authentication; G4 and freeze references are mechanical bindings only.",
+    "Source Blender file was not re-read in this wire task; producer before/after source pins are retained from the existing render receipt.",
+    "No A4/B4 inference, detection index, CX-8, P2, AC7, visibility, identity or collision acceptance.",
+    "D121 requires run-bound parameters and approved Q3 timeout/attempts before inference; no exploratory time limits approved here.",
+    "No PR until the batch has merged #394; no frozen-branch update, merge, rebase, rerender or authority change."
+  ],
+  "projection": "D119",
+  "receipt_note": "Curated result record, not the checker input. The LOCAL receipt.json and pinned evidence sidecars stay together; source_inventory_ref resolves relative to that receipt. No RGB or inventory contents are published.",
+  "verification": {
+    "architecture_guard_without_allow": "PASS; authority/inference/schemas, zero findings; exact delivery head recorded on #279 after commit",
+    "freeze_and_13_references": "PASS; original bytes unchanged",
+    "g4_commit_is_ancestor": false,
+    "git_diff_check": "PASS",
+    "source_inventory_bytes": "Pinned original safe inventories, used only for mechanical frame-hash comparison; never inference input"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "status": "PROPOSED",
+  "scene_id": "office_expanded_r005",
+  "scene_revision": "r005",
+  "source_commit": "39b9c4323288cae8c52532277cdd6dc75b63a965",
+  "source_directory": "configs/q1q5/graphs/office_expanded_r005/preview_v2",
+  "source_files": {
+    "region_graph.json": "c61b1ce126d1fcae34f517f0d500d614990aa66ca4770c09e73d797d991ddf50",
+    "camera_graph.json": "0ed4b6ca74917459d25935915fdfe2c20e274924d89845b08e89db858286d0f9"
+  },
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072",
+  "transformation": "COPY_STATIC_TOPOLOGY_REMOVE_AI_COVERAGE_AUTHORITY",
+  "coverage_status": "NOT_EVALUATED",
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "files": {
+    "region_graph.json": "8ba21eecd96067f480ab96b8d89070e7f6992d811e051087c07c8f8856ac1b6c",
+    "camera_graph.json": "93cc6fe57ec2b96830193851c66442f63b8ce15d4ed9ab44673adc22866e4117"
+  },
+  "region_content_sha256": "94acbddc2e811584eb4cc411dfc529bad39c9a54916f2b3cdbb5688e19d5e7af",
+  "camera_content_sha256": "bfc617029c9a4b81dbf72877ce0da501cd3d8adf3eee5d2cb5f23bfb87aaa862"
+}

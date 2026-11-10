@@ -1,0 +1,172 @@
+{
+  "schema_version": "q-demo.linked-delivery-receipt.v1",
+  "issue": 206,
+  "date": "2026-10-24",
+  "status": "ENGINEERING_CHAIN_DELIVERED_FORMAL_BLOCKED",
+  "formal_baseline_completed": false,
+  "model_effort": {
+    "model": "GPT-6",
+    "effort": "UNKNOWN"
+  },
+  "commits": {
+    "a": "7fa4d4eda6b265f74a9d0a29de0b447f80419142",
+    "b": "a54c3945d3c4e9e19878d0b444cef374ad7ca882",
+    "c-code": "5eedee7cf1c1ebb0eb78d97d8c791d097585e09d",
+    "c-replay": "886d7d593e822b88093b3d330ab723a7a992fb8e",
+    "c-format": "e52212f882334d0c527e6bb34c906ab1486dae3e"
+  },
+  "source_composition": {
+    "files": 524,
+    "sha256": "6ed7dc707fb3ca120c6ca70b6d21bda856d682700ed3b02964c51ed2f14eafed",
+    "runtime_sha256": "180a048f25b654ea337dbdd00211edd668535b24408ce7c4adb9bbf87300ba23",
+    "excludes_self_and_final_docs": true,
+    "integrated_product": false
+  },
+  "chain": {
+    "rgb_file_sha256": "631a33809181991d263dd10d0290444a4483218e3e4cdd72a4c565458f067ca2",
+    "index_content_sha256": "d50e4322171f14923190d915cd542afdbc1c49583b7c5275b788d2658494b386",
+    "registry_file_sha256": "ce8c21f4e15006ecf127e17de44076c1d33edb4b3c38dec4eabaf9c23832ba4d",
+    "runtime_file_sha256": "b4ff31dbb66aaa129fc7631a7c114972e054e1cbf97c0a31a35e34a71d92f39c",
+    "detector_receipt_file_sha256": "68c0f9d356d3403a1c1ec756c78d0b5096c49fc18a058b5764bec24b8c6dcc38"
+  },
+  "detector": {
+    "frames": 20,
+    "model_calls": 20,
+    "person_observations": 7,
+    "red_verdict": "STRONG",
+    "forward_wall_ms": 6221.13025,
+    "forward_fps": 3.214849906092225,
+    "load_wall_ms": 2581.474542,
+    "build_wall_ms": 6847.115875,
+    "accuracy": null
+  },
+  "runtime": {
+    "samples": 12,
+    "stage_replays": 24,
+    "model_calls": {
+      "q3": 6,
+      "q5": 3
+    },
+    "timeout_calls": {
+      "q3": 6,
+      "q5": 3
+    },
+    "llm_used": {
+      "q3": 0,
+      "q5": 0
+    },
+    "accuracy": null,
+    "display_fps": null,
+    "physical_vram_peak_bytes": null
+  },
+  "measurements": {
+    "scope": "SHARED_OFFLINE_INDEX_STAGE_PLUS_PER_QUERY_RECORDS",
+    "process_peaks_not_summed": true,
+    "qwen_runner_sampled_peak_bytes": null,
+    "reason": "NO_RELIABLE_CHILD_PROCESS_ENUMERATION",
+    "background_load_controlled": false
+  },
+  "focused": [
+    {
+      "name": "A",
+      "passed": 63,
+      "failed": 0
+    },
+    {
+      "name": "B",
+      "passed": 113,
+      "failed": 0
+    },
+    {
+      "name": "C",
+      "passed": 57,
+      "failed": 0
+    }
+  ],
+  "test_counts_overlap_do_not_sum": true,
+  "node_focused": {
+    "passed": 59,
+    "failed": 0
+  },
+  "http_checks": {
+    "passed": 13,
+    "recorded_response_equal": true,
+    "provider_calls": 0
+  },
+  "browser": {
+    "engineering_check": "PASS",
+    "independent_claude_check": "NOT_PERFORMED",
+    "same_source_lookup": true,
+    "explicit_seed": true,
+    "gap_states": true,
+    "cross_camera": true,
+    "qwen_timeout_rule_fallback": true,
+    "recorded_readback": true,
+    "restart_readback": true,
+    "legacy_primary_navigation_integration": "NOT_VERIFIED",
+    "display_fps": null,
+    "additional_model_request_sequences": 2,
+    "additional_ui_raw_provider_audit_retrieved": false
+  },
+  "conformance": {
+    "kit_commit": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+    "kit_files_verified": 81,
+    "recordings": 8,
+    "counts": {
+      "PASS": 604,
+      "SKIPPED_NO_CONTEXT": 11,
+      "FAIL": 27
+    },
+    "overall": "FAIL",
+    "issue_145_resolved": false
+  },
+  "q3_independent_review": {
+    "status": "BLOCKED",
+    "pending": 8,
+    "formal_rows": 0,
+    "accuracy": null
+  },
+  "formal_preflight": {
+    "status": "BLOCKED",
+    "checks": 47,
+    "production_performed": false
+  },
+  "preservation": {
+    "canonical_branch": "codex/controlled-scene-real-v2-2a",
+    "head": "60fa8ef64988435530b09fb258d79130e83977af",
+    "preexisting_files": 468,
+    "index_sha256": "2b9b34dd2c931997cb2f946c32a51c019733a2b53d50d5b33cabc613f21d2c3c",
+    "original_assets_modified": false,
+    "original_blender_source_rehashed": false,
+    "old_bundle_manifests_unchanged": true
+  },
+  "artifacts_sha256": {
+    "run/ACCEPTANCE.json": "1edccaa2ebbf4c94990f2ca6017595fb5b83f71e75fb2e4142f94e5f3e0eda65",
+    "run/prepared/TELEMETRY.json": "68c0f9d356d3403a1c1ec756c78d0b5096c49fc18a058b5764bec24b8c6dcc38",
+    "run/prepared/index/detection_index.json": "01d9a91f8b2cd1cdfb0765deaa15f0ae7e8356b54a7942ff9a614771c80ea718",
+    "run/prepared/index/detection_index.records.jsonl": "87b8560856596f43526aac0f0afad8b5e1972a7a8e9a80c5afa8b1bee596443f",
+    "run/baseline/REPORT.json": "1ea285f36b3b9dd9be4a96a28e95f747ce14fa131195fb1fb41aff32a9b3ec3e",
+    "run/index-worker.resources.json": "cf65b595a16fa09f9715f0bfa02a05556cf91c95383a4ccc78b7fc728f3fb67e",
+    "run/baseline-worker.resources.json": "38804d85548c01524932039591e31cf874c0f7103b51697430064a7d620fe928",
+    "HTTP_ACCEPTANCE.json": "af1078b79e3bf99755d5ebc1866b909c8d05cfe91e531b8955ba5d9b7350a214",
+    "CONFORMANCE.json": "e95c4056b15a068948ae5d1110c690b46673017b3b4cf79556b981fea1dc089f",
+    "FORMAL_PREFLIGHT.json": "2c0e4087e31ea20fe31e8d08a8b8cc8e68b68a852793b9f8c95cc354638a8096",
+    "blank-q3-review/IMPORT.json": "35bbf95773fdf86a077a5a0cb64d16d83c0bc48ab2114816553a64c2f6485b14",
+    "claude-conformance-handoff.zip": "9d6eb1ffbd7a16890fa57c90582b30a178928182d8e4ecbac003f0a9d933fabe",
+    "evidence/browser-final.png": "adcca16f1f98007a6149b6f6b078649997858e35ffe2592296194b00f0854e43",
+    "RUNTIME_COMPOSITION.json": "180a048f25b654ea337dbdd00211edd668535b24408ce7c4adb9bbf87300ba23"
+  },
+  "raw_uploaded_to_github": false,
+  "gt_read": false,
+  "merge_performed": false,
+  "unresolved": [
+    "INDEPENDENT_GRAPH_ROI_HSV_REVIEW",
+    "INDEPENDENT_Q3_SELECTION_AND_EXPECTED",
+    "FORMAL_RUN_CAMERA_CLOCK_FREEZE",
+    "CONFORMANCE_145",
+    "EXISTING_PRODUCT_CONTRACT_DECISIONS",
+    "QWEN_ORIGINAL_BUDGET_TIMEOUT",
+    "INDEPENDENT_CLAUDE_UI_REVIEW",
+    "LEGACY_PRIMARY_WORKBENCH_NAVIGATION"
+  ]
+}

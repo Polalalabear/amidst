@@ -1,0 +1,133 @@
+{
+  "AC7": "NOT_ACCEPTED",
+  "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "conflict_resolution": {
+    "policy": "D105 B-20: exact rc5 files; PR305 test-function set is a subset of rc5",
+    "rc5_file_sha256": {
+      "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md": "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0",
+      "src/amidst/evaluation/q1q5_conformance.py": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+      "tests/unit/test_q1q5_conformance.py": "00db5a564bc912c80defb03c49ce66416155a3beb04dba87309be2aa4e280ac4"
+    }
+  },
+  "consumer_v1_schema_ref": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+  "integrated_code_head": "3c5bf6661b5305e5fc91d6e5808182bc6831ff8a",
+  "merge_authorized": false,
+  "new_recordings": 0,
+  "pending_features": [
+    7,
+    3,
+    2,
+    5,
+    9,
+    1
+  ],
+  "replay_receipt": "docs/history/FEAT6_RC5_CONFORMANCE_REPLAY_20261102.json",
+  "replay_receipt_sha256": "e5889c1cd9c060c9a7fc82db37a147b11d728edf265f4787b063849e6466a7ed",
+  "response_v2_schema_ref": "82798fbd100cdad230ca8eb8469dc51a0b91f842",
+  "sub_prs": [
+    {
+      "head": "d560f224be0f93cf62076f5ae2fa78b0ae957d15",
+      "merge_commit": "010f8ff7f6a659806d9c5a36666a6e35af5066d4",
+      "pr": 260
+    },
+    {
+      "head": "82798fbd100cdad230ca8eb8469dc51a0b91f842",
+      "merge_commit": "e3eeaadaaa933100956ce683e6913ae6fc0bc9c3",
+      "pr": 278
+    },
+    {
+      "head": "f22e9dafe495a560eea145a8f5cefcfc871dce0f",
+      "merge_commit": "e314c3321a9eb9c6eb60e86c223d5c5dd0c76b75",
+      "pr": 305
+    },
+    {
+      "head": "e1415f32a778f497bdd048d992440718bf0a9310",
+      "merge_commit": "976a2f72eaf7959407a26f841448c9ce6037890d",
+      "pr": 127
+    },
+    {
+      "head": "cc7f5517636fa85c5e4c3783038e7c65ecdc2c28",
+      "merge_commit": "3c5bf6661b5305e5fc91d6e5808182bc6831ff8a",
+      "pr": 277
+    }
+  ],
+  "upstream_feature_merges": [
+    {
+      "pr": 392,
+      "head": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
+      "merge_commit": "6c6d207a5383f15b00a650d76a112e690bc9e9fa",
+      "resolution": "store.test.mjs add/add: retain both entire cases; store.mjs auto merge preserves single default and v1/v2 responseKind"
+    },
+    {
+      "pr": 392,
+      "head": "3f81637b1e9fb15f08c26cd10c3faec8d815ab0c",
+      "merge_commit": "ba06759546e6565756bc9111c3b2f2e747f4b4cb",
+      "resolution": "clean ort merge; consume frozen DEMO-UI-F integration"
+    },
+    {
+      "pr": 391,
+      "head": "b6f5a28b24e2850f83a781d7300bf3dce7566c81",
+      "merge_commit": "44e32aae8115ac7db350de54df1899ff126de896",
+      "resolution": "clean merge, source-bound authorized integration changes; no CLI allow"
+    }
+  ],
+  "d114_cq16": {
+    "omission": "INTENTIONAL_EXACT_RC5_BYTES_PER_D105_B20",
+    "semantics_withdrawn": false,
+    "kit_sha256": "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0",
+    "existing_focused_tests": 23
+  },
+  "pre_freeze_verification": {
+    "code_head": "6c6d207a5383f15b00a650d76a112e690bc9e9fa",
+    "node": {
+      "passed": 73,
+      "failed": 0
+    },
+    "python": {
+      "passed": 453,
+      "failed": 0,
+      "seconds": 21.2
+    },
+    "cq16": {
+      "passed": 23,
+      "failed": 0,
+      "seconds": 0.23
+    },
+    "synthetic_conformance": {
+      "PASS": 711,
+      "FAIL": 0
+    },
+    "guard": {
+      "head": "bac745153abcd81a6973ec0a2db9062bc430f69c",
+      "status": "PASS",
+      "allow_count": 7,
+      "coordinator_registration_required": true
+    },
+    "merge_tree_vs_feat9_d141": "CLEAN",
+    "kit_files_exact_rc5": true
+  },
+  "freeze_verification": {
+    "code_head": "44e32aae8115ac7db350de54df1899ff126de896",
+    "python": {
+      "passed": 578,
+      "failed": 0,
+      "seconds": 36.57
+    },
+    "node": {
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    "synthetic_kit": {
+      "PASS": 711,
+      "FAIL": 0
+    },
+    "guard_policy": "b6f5a28b24e2850f83a781d7300bf3dce7566c81",
+    "allow_count": 0,
+    "coordinator_policy_registration_pending": false,
+    "merge_tree_feat9_d141": "CLEAN",
+    "tree": "6c3f539b6f5bc2ae59fca9cc30874de478dd8902",
+    "normal_pushes_after_freeze": false,
+    "exception": "necessary conflict repair only"
+  }
+}

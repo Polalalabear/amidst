@@ -1,0 +1,63 @@
+{
+  "scene_id": "office_expanded_r005",
+  "source_return_sha256": "336bd2f8fe418d8a615821bf2e36a65ae783d022a81e00c77e011efe7cfdfad2",
+  "source_region_graph_sha256": "8ba21eecd96067f480ab96b8d89070e7f6992d811e051087c07c8f8856ac1b6c",
+  "source_report_sha256": "0915d54d585fcbd8e89575bf1ab43dec0ae3b8e85839b8e59704fa9d03b6b021",
+  "approval_ref": "https://github.com/Polalalabear/amidst/issues/464#issuecomment-6715801218",
+  "reviewer": "使用者 (Polalalabear)",
+  "review_date": "2026-11-07",
+  "human_approval_verified": true,
+  "scope": "DECLARED_STATIC_FRAME_REGIONS_ONLY",
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "camera_reviews": [
+    {
+      "camera_id": "CAM_R101_IN",
+      "static_frame_sha256": "eb8530511733152a49de710d2ae0bf49233a125c89d7b8cd7ccef5e6247375b9",
+      "covered_region_ids": [
+        "R101"
+      ],
+      "coverage_basis": "MANUAL_ON_STATIC_FRAME"
+    },
+    {
+      "camera_id": "CAM_R102_IN",
+      "static_frame_sha256": "42c14c9e1b13bca4b67f1ac662933e8d23341e3ffbb86da193928c0cbb82803e",
+      "covered_region_ids": [
+        "R102"
+      ],
+      "coverage_basis": "MANUAL_ON_STATIC_FRAME"
+    },
+    {
+      "camera_id": "CAM_R103_IN",
+      "static_frame_sha256": "4e03f03747d97296f67d92eb4f4dbb87026d6b7b00a21a4dd0596572a9a10702",
+      "covered_region_ids": [
+        "R103"
+      ],
+      "coverage_basis": "MANUAL_ON_STATIC_FRAME"
+    },
+    {
+      "camera_id": "CAM_R104_IN",
+      "static_frame_sha256": "aa1705d04961d2652dfe18b29c31ae7f90d9de149f5c6634b8002c23dd4fce3e",
+      "covered_region_ids": [
+        "R104"
+      ],
+      "coverage_basis": "MANUAL_ON_STATIC_FRAME"
+    },
+    {
+      "camera_id": "CAM_CORR_W",
+      "static_frame_sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241",
+      "covered_region_ids": [
+        "CORR_W"
+      ],
+      "coverage_basis": "MANUAL_ON_STATIC_FRAME"
+    },
+    {
+      "camera_id": "CAM_CORR_E",
+      "static_frame_sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee",
+      "covered_region_ids": [
+        "CORR_E"
+      ],
+      "coverage_basis": "MANUAL_ON_STATIC_FRAME"
+    }
+  ]
+}

@@ -1,0 +1,907 @@
+{
+  "scene_id": "office_expanded_r005",
+  "scene_revision": "r005",
+  "approval_status": "DRAFT",
+  "approval_ref": null,
+  "inputs": [
+    {
+      "ref": "static:office_expanded_r005",
+      "sha256": "c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c"
+    },
+    {
+      "ref": "calibration:office_expanded_r005",
+      "sha256": "0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+    },
+    {
+      "ref": "static-review:office_expanded_r005",
+      "sha256": "396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52"
+    },
+    {
+      "ref": "build-receipt:office_expanded_r005",
+      "sha256": "0f6b279e4d535959aad7bff769022f6fcf0a2257e2aca922f6f9fa0fac1ea3bd"
+    },
+    {
+      "ref": "authoring-parameters:office_expanded_r005",
+      "sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26"
+    },
+    {
+      "ref": "preview-correction:office_expanded_r005",
+      "sha256": "e07218a16875a79aac474a0f5ab1ae714248571414a2d775f1ab2f2c8295aa74"
+    }
+  ],
+  "schema_version": "q-demo.camera-transition-graph.v1",
+  "region_graph_sha256": "0ecc318e5041d801153790e86070854b4b59c393ba5b18a4fe6c4996e7953991",
+  "camera_catalog_sha256": "0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3",
+  "cameras": [
+    {
+      "camera_id": "CAM_R101_IN",
+      "calibration_sha256": "ba1912f998aa1fe28ecc8d6249af377744813cbc202d7ef5bd8617b06f2c7543",
+      "covered_regions": [
+        {
+          "region_id": "R101",
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "visibility_ref": "static-review:396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52:CAM_R101_IN",
+          "visible_area_m2": null
+        }
+      ],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_R101_IN:EXIT:E_R101",
+          "roi_polygon_px": [
+            [
+              204.68966960906982,
+              93.31409454345703
+            ],
+            [
+              332.1184730529785,
+              93.31409454345703
+            ],
+            [
+              332.1184730529785,
+              302.74676263332367
+            ],
+            [
+              204.68966960906982,
+              302.74676263332367
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R101"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_R101_IN",
+          "static_frame_sha256": "eb8530511733152a49de710d2ae0bf49233a125c89d7b8cd7ccef5e6247375b9"
+        }
+      ],
+      "entry_zones": [
+        {
+          "entry_zone_id": "CAM_R101_IN:ENTRY:E_R101",
+          "roi_polygon_px": [
+            [
+              204.68966960906982,
+              93.31409454345703
+            ],
+            [
+              332.1184730529785,
+              93.31409454345703
+            ],
+            [
+              332.1184730529785,
+              302.74676263332367
+            ],
+            [
+              204.68966960906982,
+              302.74676263332367
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "camera_id": "CAM_R102_IN",
+      "calibration_sha256": "d31c6fe49ed8b7de7a0e5f347334da20265bec5ad3e363928fe95a2a3dd168df",
+      "covered_regions": [
+        {
+          "region_id": "R102",
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "visibility_ref": "static-review:396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52:CAM_R102_IN",
+          "visible_area_m2": null
+        }
+      ],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_R102_IN:EXIT:E_R102",
+          "roi_polygon_px": [
+            [
+              204.68966960906982,
+              93.31406235694885
+            ],
+            [
+              332.1185302734375,
+              93.31406235694885
+            ],
+            [
+              332.1185302734375,
+              302.7467304468155
+            ],
+            [
+              204.68966960906982,
+              302.7467304468155
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R102"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_R102_IN",
+          "static_frame_sha256": "42c14c9e1b13bca4b67f1ac662933e8d23341e3ffbb86da193928c0cbb82803e"
+        }
+      ],
+      "entry_zones": [
+        {
+          "entry_zone_id": "CAM_R102_IN:ENTRY:E_R102",
+          "roi_polygon_px": [
+            [
+              204.68966960906982,
+              93.31406235694885
+            ],
+            [
+              332.1185302734375,
+              93.31406235694885
+            ],
+            [
+              332.1185302734375,
+              302.7467304468155
+            ],
+            [
+              204.68966960906982,
+              302.7467304468155
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "camera_id": "CAM_R103_IN",
+      "calibration_sha256": "258271216c2f1c31e7c4d5786fae151bc080a8dbbc5dfb43d935ee0e438cd7e5",
+      "covered_regions": [
+        {
+          "region_id": "R103",
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "visibility_ref": "static-review:396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52:CAM_R103_IN",
+          "visible_area_m2": null
+        }
+      ],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_R103_IN:EXIT:E_R103",
+          "roi_polygon_px": [
+            [
+              627.8813552856445,
+              93.31422328948975
+            ],
+            [
+              755.31005859375,
+              93.31422328948975
+            ],
+            [
+              755.31005859375,
+              302.7468430995941
+            ],
+            [
+              627.8813552856445,
+              302.7468430995941
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R103"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_R103_IN",
+          "static_frame_sha256": "4e03f03747d97296f67d92eb4f4dbb87026d6b7b00a21a4dd0596572a9a10702"
+        }
+      ],
+      "entry_zones": [
+        {
+          "entry_zone_id": "CAM_R103_IN:ENTRY:E_R103",
+          "roi_polygon_px": [
+            [
+              627.8813552856445,
+              93.31422328948975
+            ],
+            [
+              755.31005859375,
+              93.31422328948975
+            ],
+            [
+              755.31005859375,
+              302.7468430995941
+            ],
+            [
+              627.8813552856445,
+              302.7468430995941
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "camera_id": "CAM_R104_IN",
+      "calibration_sha256": "cf4a2459d2293e73b36e8c4174c7eb459b2dd6b4aee1b4d808fa1839354455cd",
+      "covered_regions": [
+        {
+          "region_id": "R104",
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "visibility_ref": "static-review:396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52:CAM_R104_IN",
+          "visible_area_m2": null
+        }
+      ],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_R104_IN:EXIT:E_R104",
+          "roi_polygon_px": [
+            [
+              627.8813552856445,
+              93.31415891647339
+            ],
+            [
+              755.310115814209,
+              93.31415891647339
+            ],
+            [
+              755.310115814209,
+              302.74681091308594
+            ],
+            [
+              627.8813552856445,
+              302.74681091308594
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R104"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_R104_IN",
+          "static_frame_sha256": "aa1705d04961d2652dfe18b29c31ae7f90d9de149f5c6634b8002c23dd4fce3e"
+        }
+      ],
+      "entry_zones": [
+        {
+          "entry_zone_id": "CAM_R104_IN:ENTRY:E_R104",
+          "roi_polygon_px": [
+            [
+              627.8813552856445,
+              93.31415891647339
+            ],
+            [
+              755.310115814209,
+              93.31415891647339
+            ],
+            [
+              755.310115814209,
+              302.74681091308594
+            ],
+            [
+              627.8813552856445,
+              302.74681091308594
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "camera_id": "CAM_CORR_W",
+      "calibration_sha256": "72ae753a4e6220de4b8287da060f0ac6dba18f4d4c8afc0b47f40f6293940404",
+      "covered_regions": [
+        {
+          "region_id": "CORR_W",
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "visibility_ref": "static-review:396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52:CAM_CORR_W",
+          "visible_area_m2": null
+        }
+      ],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_CORR_W:EXIT:E_R101",
+          "roi_polygon_px": [
+            [
+              641.3468742370605,
+              266.5693688392639
+            ],
+            [
+              737.4076080322266,
+              266.5693688392639
+            ],
+            [
+              737.4076080322266,
+              540
+            ],
+            [
+              641.3468742370605,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R101"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_CORR_W",
+          "static_frame_sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241"
+        },
+        {
+          "exit_zone_id": "CAM_CORR_W:EXIT:E_R103",
+          "roi_polygon_px": [
+            [
+              222.592134475708,
+              266.56933665275574
+            ],
+            [
+              318.652868270874,
+              266.56933665275574
+            ],
+            [
+              318.652868270874,
+              540
+            ],
+            [
+              222.592134475708,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R103"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_CORR_W",
+          "static_frame_sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241"
+        },
+        {
+          "exit_zone_id": "CAM_CORR_W:EXIT:E_CORR_JOIN",
+          "roi_polygon_px": [
+            [
+              396.5470218658447,
+              230.62708139419556
+            ],
+            [
+              563.4527778625488,
+              230.62708139419556
+            ],
+            [
+              563.4527778625488,
+              408.2834503054619
+            ],
+            [
+              396.5470218658447,
+              408.2834503054619
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_CORR_JOIN"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_CORR_W",
+          "static_frame_sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241"
+        }
+      ],
+      "entry_zones": [
+        {
+          "entry_zone_id": "CAM_CORR_W:ENTRY:E_R101",
+          "roi_polygon_px": [
+            [
+              641.3468742370605,
+              266.5693688392639
+            ],
+            [
+              737.4076080322266,
+              266.5693688392639
+            ],
+            [
+              737.4076080322266,
+              540
+            ],
+            [
+              641.3468742370605,
+              540
+            ]
+          ]
+        },
+        {
+          "entry_zone_id": "CAM_CORR_W:ENTRY:E_R103",
+          "roi_polygon_px": [
+            [
+              222.592134475708,
+              266.56933665275574
+            ],
+            [
+              318.652868270874,
+              266.56933665275574
+            ],
+            [
+              318.652868270874,
+              540
+            ],
+            [
+              222.592134475708,
+              540
+            ]
+          ]
+        },
+        {
+          "entry_zone_id": "CAM_CORR_W:ENTRY:E_CORR_JOIN",
+          "roi_polygon_px": [
+            [
+              396.5470218658447,
+              230.62708139419556
+            ],
+            [
+              563.4527778625488,
+              230.62708139419556
+            ],
+            [
+              563.4527778625488,
+              408.2834503054619
+            ],
+            [
+              396.5470218658447,
+              408.2834503054619
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "camera_id": "CAM_CORR_E",
+      "calibration_sha256": "9c08e8a5418eeed8b8fa984314401e1134122035ca1e0ccd07e7f9577bf1d355",
+      "covered_regions": [
+        {
+          "region_id": "CORR_E",
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "visibility_ref": "static-review:396309bf5d6f78562dfe1e76dee803ca2c42938bbdba2f8058d09a5b16203d52:CAM_CORR_E",
+          "visible_area_m2": null
+        }
+      ],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_CORR_E:EXIT:E_R102",
+          "roi_polygon_px": [
+            [
+              222.59230613708496,
+              266.5693688392639
+            ],
+            [
+              318.65312576293945,
+              266.5693688392639
+            ],
+            [
+              318.65312576293945,
+              540
+            ],
+            [
+              222.59230613708496,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R102"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_CORR_E",
+          "static_frame_sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee"
+        },
+        {
+          "exit_zone_id": "CAM_CORR_E:EXIT:E_R104",
+          "roi_polygon_px": [
+            [
+              641.3471031188965,
+              266.56933665275574
+            ],
+            [
+              737.4078941345215,
+              266.56933665275574
+            ],
+            [
+              737.4078941345215,
+              540
+            ],
+            [
+              641.3471031188965,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_R104"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_CORR_E",
+          "static_frame_sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee"
+        },
+        {
+          "exit_zone_id": "CAM_CORR_E:EXIT:E_CORR_JOIN",
+          "roi_polygon_px": [
+            [
+              396.54725074768066,
+              230.62708139419556
+            ],
+            [
+              563.4529495239258,
+              230.62708139419556
+            ],
+            [
+              563.4529495239258,
+              408.2834503054619
+            ],
+            [
+              396.54725074768066,
+              408.2834503054619
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_CORR_JOIN"
+          ],
+          "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+          "static_frame_ref": "static-frame:CAM_CORR_E",
+          "static_frame_sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee"
+        }
+      ],
+      "entry_zones": [
+        {
+          "entry_zone_id": "CAM_CORR_E:ENTRY:E_R102",
+          "roi_polygon_px": [
+            [
+              222.59230613708496,
+              266.5693688392639
+            ],
+            [
+              318.65312576293945,
+              266.5693688392639
+            ],
+            [
+              318.65312576293945,
+              540
+            ],
+            [
+              222.59230613708496,
+              540
+            ]
+          ]
+        },
+        {
+          "entry_zone_id": "CAM_CORR_E:ENTRY:E_R104",
+          "roi_polygon_px": [
+            [
+              641.3471031188965,
+              266.56933665275574
+            ],
+            [
+              737.4078941345215,
+              266.56933665275574
+            ],
+            [
+              737.4078941345215,
+              540
+            ],
+            [
+              641.3471031188965,
+              540
+            ]
+          ]
+        },
+        {
+          "entry_zone_id": "CAM_CORR_E:ENTRY:E_CORR_JOIN",
+          "roi_polygon_px": [
+            [
+              396.54725074768066,
+              230.62708139419556
+            ],
+            [
+              563.4529495239258,
+              230.62708139419556
+            ],
+            [
+              563.4529495239258,
+              408.2834503054619
+            ],
+            [
+              396.54725074768066,
+              408.2834503054619
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "transition_id": "T_CAM_R101_IN_CAM_CORR_W",
+      "from_camera_id": "CAM_R101_IN",
+      "to_camera_id": "CAM_CORR_W",
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT:E_R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_CORR_W:ENTRY:E_R101"
+      ],
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_R101"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_CORR_W_CAM_R101_IN",
+      "from_camera_id": "CAM_CORR_W",
+      "to_camera_id": "CAM_R101_IN",
+      "via_exit_zone_ids": [
+        "CAM_CORR_W:EXIT:E_R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R101_IN:ENTRY:E_R101"
+      ],
+      "region_path": [
+        "CORR_W",
+        "R101"
+      ],
+      "edge_path": [
+        "E_R101"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_R102_IN_CAM_CORR_E",
+      "from_camera_id": "CAM_R102_IN",
+      "to_camera_id": "CAM_CORR_E",
+      "via_exit_zone_ids": [
+        "CAM_R102_IN:EXIT:E_R102"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_CORR_E:ENTRY:E_R102"
+      ],
+      "region_path": [
+        "R102",
+        "CORR_E"
+      ],
+      "edge_path": [
+        "E_R102"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_CORR_E_CAM_R102_IN",
+      "from_camera_id": "CAM_CORR_E",
+      "to_camera_id": "CAM_R102_IN",
+      "via_exit_zone_ids": [
+        "CAM_CORR_E:EXIT:E_R102"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R102_IN:ENTRY:E_R102"
+      ],
+      "region_path": [
+        "CORR_E",
+        "R102"
+      ],
+      "edge_path": [
+        "E_R102"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_R103_IN_CAM_CORR_W",
+      "from_camera_id": "CAM_R103_IN",
+      "to_camera_id": "CAM_CORR_W",
+      "via_exit_zone_ids": [
+        "CAM_R103_IN:EXIT:E_R103"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_CORR_W:ENTRY:E_R103"
+      ],
+      "region_path": [
+        "R103",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_R103"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_CORR_W_CAM_R103_IN",
+      "from_camera_id": "CAM_CORR_W",
+      "to_camera_id": "CAM_R103_IN",
+      "via_exit_zone_ids": [
+        "CAM_CORR_W:EXIT:E_R103"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R103_IN:ENTRY:E_R103"
+      ],
+      "region_path": [
+        "CORR_W",
+        "R103"
+      ],
+      "edge_path": [
+        "E_R103"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_R104_IN_CAM_CORR_E",
+      "from_camera_id": "CAM_R104_IN",
+      "to_camera_id": "CAM_CORR_E",
+      "via_exit_zone_ids": [
+        "CAM_R104_IN:EXIT:E_R104"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_CORR_E:ENTRY:E_R104"
+      ],
+      "region_path": [
+        "R104",
+        "CORR_E"
+      ],
+      "edge_path": [
+        "E_R104"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_CORR_E_CAM_R104_IN",
+      "from_camera_id": "CAM_CORR_E",
+      "to_camera_id": "CAM_R104_IN",
+      "via_exit_zone_ids": [
+        "CAM_CORR_E:EXIT:E_R104"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R104_IN:ENTRY:E_R104"
+      ],
+      "region_path": [
+        "CORR_E",
+        "R104"
+      ],
+      "edge_path": [
+        "E_R104"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_CORR_W_CAM_CORR_E",
+      "from_camera_id": "CAM_CORR_W",
+      "to_camera_id": "CAM_CORR_E",
+      "via_exit_zone_ids": [
+        "CAM_CORR_W:EXIT:E_CORR_JOIN"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_CORR_E:ENTRY:E_CORR_JOIN"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORR_E"
+      ],
+      "edge_path": [
+        "E_CORR_JOIN"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    },
+    {
+      "transition_id": "T_CAM_CORR_E_CAM_CORR_W",
+      "from_camera_id": "CAM_CORR_E",
+      "to_camera_id": "CAM_CORR_W",
+      "via_exit_zone_ids": [
+        "CAM_CORR_E:EXIT:E_CORR_JOIN"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_CORR_W:ENTRY:E_CORR_JOIN"
+      ],
+      "region_path": [
+        "CORR_E",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_CORR_JOIN"
+      ],
+      "relation": "UNKNOWN",
+      "region_hops": 1,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "path_has_unknown_state": true,
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "nominal_path_length_m": null,
+      "basis_refs": [
+        "static:c1212fd960007cdf72da761fab4d6f94f72f9ae057173a3f59e92a389ccd9e8c",
+        "calibration:0c971e82b645d023cf6f3858e47285d730ece86b6b3ccffd389e914b53f722f3"
+      ]
+    }
+  ],
+  "content_sha256": "8fe4bdb9cc30b9e6ef1945a1780481a0f98986b840a5524ec10adca9670e0f41",
+  "graph_id": "cgraph:r005:static:8fe4bdb9cc30b9e6"
+}

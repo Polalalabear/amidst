@@ -1,0 +1,17 @@
+{
+  "schema_version": "office-demo.restricted-policy-config.v1",
+  "physical_map_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+  "annotation_file_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+  "confirmations": [
+    {
+      "annotation_ref": "OBSTACLE_1F_OFFICE_01",
+      "decision": "D15",
+      "confirmation_ref": "https://github.com/Polalalabear/amidst/issues/26#issuecomment-6229832567"
+    },
+    {
+      "annotation_ref": "OBSTACLE_1F_OFFICE_02",
+      "decision": "D15",
+      "confirmation_ref": "https://github.com/Polalalabear/amidst/issues/26#issuecomment-6229832567"
+    }
+  ]
+}

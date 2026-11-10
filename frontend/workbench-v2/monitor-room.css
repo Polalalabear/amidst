@@ -1,0 +1,19 @@
+/* Monitor room (wall of pre-recorded RGB). Owner: monitor-room-*. */
+.monitor-room{display:flex;flex-direction:column;gap:6px;height:100%;min-height:0;padding:8px}
+.monitor-room[hidden]{display:none}
+.mr-head{display:flex;align-items:center;gap:10px;min-height:28px}
+.mr-meta,.mr-clock{color:var(--ink-2);font-size:12px}
+.mr-grid{flex:1;min-height:0;display:grid;gap:6px;grid-auto-rows:1fr}
+.mr-tile{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--well);border:1px solid var(--rule)}
+.mr-tile[data-status="MISSING"]{border-color:var(--miss);border-style:dashed}
+.mr-label{display:flex;justify-content:space-between;gap:6px;padding:2px 6px;font-size:11px;background:var(--panel-2);color:var(--ink-2)}
+.mr-tile[data-status="MISSING"] .mr-state{color:var(--unk);font-weight:600}
+.mr-media{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;color:var(--miss);font-size:12px;overflow:hidden}
+.mr-media img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;display:block}
+.mr-stats{font-size:11px;color:var(--ink-3)}
+.mr-stats pre{white-space:pre-wrap;max-height:160px;overflow:auto;margin:4px 0 0}
+/* While the wall is the main screen, the Q transport/placeholder slots are not used. */
+#q-root[data-monitor-wall="on"] .transport,#q-root[data-monitor-wall="on"] #q-main-view>.q-slot:not(#monitor-room-slot){display:none}
+#q-root:not([data-monitor-wall="on"]) #monitor-room-slot{display:none}
+
+#q-main-view[data-search-phase="searching"]>.q-slot,#q-root:has(#q-main-view[data-search-phase="searching"]) .transport{display:none}

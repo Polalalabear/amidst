@@ -1,0 +1,74 @@
+{
+  "schema_version": "office-demo.c7-annotation-origins-diagnostic.v1",
+  "authority": "POST_FREEZE_DIAGNOSTIC_NOT_MAP_INPUT",
+  "map_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_identity_unchanged": true,
+  "source_saved": false,
+  "render_executed": false,
+  "producer_sha256": "f28843e9826f3f38f04de1d53ec963112d37bd3849affa7d75c942cb84314c2a",
+  "annotations": [
+    {
+      "object_id": "WALK_1F_OFFICE",
+      "z_bounds_native_bu": [
+        25.0,
+        25.0
+      ],
+      "z_bounds_m": [
+        0.6174999999999999,
+        0.6174999999999999
+      ],
+      "source_properties": {
+        "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+        "floor_id": "1F"
+      }
+    },
+    {
+      "object_id": "WALK_1F_AUDITORIUM",
+      "z_bounds_native_bu": [
+        25.0,
+        25.0
+      ],
+      "z_bounds_m": [
+        0.6174999999999999,
+        0.6174999999999999
+      ],
+      "source_properties": {
+        "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+        "floor_id": "1F"
+      }
+    },
+    {
+      "object_id": "WALK_1F_CORRIDOR_03",
+      "z_bounds_native_bu": [
+        25.0,
+        25.0
+      ],
+      "z_bounds_m": [
+        0.6174999999999999,
+        0.6174999999999999
+      ],
+      "source_properties": {
+        "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+        "floor_id": "1F"
+      }
+    },
+    {
+      "object_id": "OBSTACLE_1F_OFFICE_01",
+      "z_bounds_native_bu": [
+        25.0,
+        25.0
+      ],
+      "z_bounds_m": [
+        0.6174999999999999,
+        0.6174999999999999
+      ],
+      "source_properties": {
+        "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+        "floor_id": "1F",
+        "collision_role": "BOTH"
+      }
+    }
+  ],
+  "authoring_intent_for_z_25_bu": "UNKNOWN_NO_AUTHORING_RECORD_FOUND_IN_TRACKED_SCRIPTS"
+}

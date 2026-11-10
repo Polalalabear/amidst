@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 ANNOTATION_COLLECTIONS = ("Areas", "WALKABLE_AREAS", "OBSTACLE_AREAS", "STAIR_ANNOTATIONS")
@@ -274,7 +275,7 @@ def main():
         floor_hits.extend(hits)
     gaps = [row["frame_id"] for row in samples if row["global_gap"]]
     if not gaps or samples[0]["global_gap"] or samples[-1]["global_gap"]:
-        Path("/private/tmp/amidst-pilot-plan-failure.json").write_text(
+        Path(tempfile.gettempdir(), "amidst-pilot-plan-failure.json").write_text(
             json.dumps(samples, indent=2)
         )
         raise ValueError("Pilot route does not have observed -> selected-camera GAP -> observed")

@@ -1,0 +1,1 @@
+{"runs":{"RUN_X":{"anchors":[{"event_id":"SYNTHETIC-SWITCH","t_N_us":13600000,"t_X_us":8400000},{"event_id":"SYNTHETIC-NO-SWITCH","t_N_us":null,"t_X_us":16000000},{"event_id":"SYNTHETIC-NONSCORING","t_N_us":null,"t_X_us":4000000}],"non_scoring_event_ids":["SYNTHETIC-NONSCORING"],"scored_event_ids":["SYNTHETIC-SWITCH","SYNTHETIC-NO-SWITCH"]}},"test_only":"SYNTHETIC"}

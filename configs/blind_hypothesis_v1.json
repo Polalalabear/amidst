@@ -1,0 +1,61 @@
+{
+  "schema_version": "office-demo.blind-hypothesis-config.v1",
+  "config_ref": "config:blind-hypothesis-v1",
+  "freeze_status": "DRAFT_NOT_FROZEN",
+  "freeze_rule": "CP1 D2: speed range is a realistic simulation setting, frozen before any evaluation and never tuned per route or result.",
+  "speed_range_m_s": {
+    "min": 0.0,
+    "max": 2.0,
+    "source": "CONFIGURED_NOT_GT",
+    "basis": "K0 draft BH-Q5 humanoid default; min 0 allows stopping (applies to interval mean)."
+  },
+  "nominal_speed_m_s": 1.3,
+  "plausibility_weights": {
+    "path_length_m": 1.0,
+    "turn_rad": 0.5,
+    "speed_deviation_m_s": 2.0
+  },
+  "grid_step_m": 0.25,
+  "lattice_metric_factor": 1.0824,
+  "limits": {
+    "max_blind_interval_s": 20.0,
+    "max_time_steps": 100,
+    "max_grid_cells": 20000,
+    "max_candidate_paths": 256,
+    "min_separation_m": 0.75,
+    "max_negative_evidence": 400,
+    "max_region_samples": 2000
+  },
+  "scenes": {
+    "blender-office": {
+      "time_step_s": 0.2,
+      "body_radius_m": 0.1482,
+      "body_radius_source": "configs/office_contact_v2.json assumed_target_radius_m (legacy synthetic cylinder, PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT)",
+      "floor_z_m": 0.4959475898742676,
+      "floor_z_source": "source-bound 1F plane, docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md",
+      "floor_map": {
+        "kind": "ANNOTATION_WALK_PORTAL",
+        "status": "INTERIM_UNTIL_K7",
+        "geometry_ref": "data/scene_audit/school_v3_approved_scale_20261006/geometry.json",
+        "geometry_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+        "metres_per_blender_unit": 0.0247,
+        "scale_ref": "configs/architectural_scale_school_v3.json",
+        "floor_id": "1F",
+        "walkable_ids": [
+          "WALK_1F_AUDITORIUM",
+          "WALK_1F_AUDITORIUM_OFFICE_THRESHOLD",
+          "WALK_1F_AUDITORIUM_THRESHOLD",
+          "WALK_1F_CORRIDOR_02",
+          "WALK_1F_CORRIDOR_03",
+          "WALK_1F_OFFICE",
+          "WALK_1F_OFFICE_THRESHOLD"
+        ],
+        "portal_ids": [
+          "PORTAL_1F_AUDITORIUM",
+          "PORTAL_1F_AUDITORIUM_OFFICE",
+          "PORTAL_1F_OFFICE"
+        ]
+      }
+    }
+  }
+}

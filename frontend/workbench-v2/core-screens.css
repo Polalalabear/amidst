@@ -1,0 +1,331 @@
+/* Core screens styling: Search Results Wall, Tracking Single/Multi-view, and Topdown Panel */
+
+.q-core-wall {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  color: var(--ink, #e0e0e0);
+  background: var(--bg-surface, #1e1e1e);
+  border-radius: 8px;
+}
+
+.q-core-wall-head, .q-core-tracking-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border, #333);
+  padding-bottom: 0.75rem;
+}
+
+.q-core-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.q-core-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink-bright, #fff);
+  margin: 0;
+}
+
+.q-core-identity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffb86c;
+  background: rgba(255, 184, 108, 0.12);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 184, 108, 0.25);
+}
+
+.q-core-ranking-note {
+  font-size: 0.75rem;
+  color: var(--ink-muted, #888);
+  margin: 0;
+}
+
+.q-core-wall-status {
+  font-size: 0.875rem;
+  color: var(--ink-secondary, #aaa);
+}
+
+.q-core-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.q-core-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--bg-card, #262626);
+  border: 1px solid var(--border, #383838);
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.q-core-card:hover {
+  border-color: var(--accent, #4e9a06);
+}
+
+.q-core-card[data-selected="true"] {
+  border-color: #50fa7b;
+  box-shadow: 0 0 0 2px rgba(80, 250, 123, 0.3);
+}
+
+.q-core-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.q-core-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-bright, #fff);
+  margin: 0;
+}
+
+.q-core-observed-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.q-core-card[data-observed="true"] .q-core-observed-badge {
+  background: #1b4d2e;
+  color: #50fa7b;
+  border: 1px solid #50fa7b;
+}
+
+.q-core-card[data-observed="false"] .q-core-observed-badge {
+  background: #3a3a3a;
+  color: #bbb;
+  border: 1px solid #555;
+}
+
+.q-core-card-media {
+  position: relative;
+  min-height: 120px;
+  background: #141414;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 0.75rem;
+  overflow: hidden;
+}
+
+.q-core-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.q-core-thumb-caption,
+.q-core-frame-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(18, 18, 18, 0.75);
+  color: var(--ink-secondary, #ccc);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.q-core-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.q-core-basis-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.q-core-basis-badge {
+  font-size: 0.7rem;
+  background: #333;
+  color: #ddd;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+.q-core-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.q-core-not-evaluated {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border, #333);
+  padding-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Tracking View */
+.q-core-tracking {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  color: var(--ink, #e0e0e0);
+  background: var(--bg-surface, #1e1e1e);
+  border-radius: 8px;
+}
+
+.q-core-controls-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: #282828;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.q-core-mode-toggle, .q-core-speed-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.q-core-btn {
+  background: #383838;
+  color: #ddd;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.q-core-btn[aria-pressed="true"], .q-core-btn.active {
+  background: #50fa7b;
+  color: #111;
+  font-weight: 700;
+  border-color: #50fa7b;
+}
+
+.q-core-single-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.q-core-active-camera {
+  background: #141414;
+  border: 2px solid #50fa7b;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.q-core-segment-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.q-core-segment-badge[data-kind="ON_CAMERA"] {
+  background: #1b4d2e;
+  color: #50fa7b;
+}
+
+.q-core-segment-badge[data-kind="GAP"] {
+  background: #4d401b;
+  color: #ffb86c;
+}
+
+.q-core-segment-badge[data-kind="LOST"] {
+  background: #4d1b1b;
+  color: #ff5555;
+}
+
+.q-core-transitions {
+  font-size: 0.8rem;
+  color: #aaa;
+  background: #242424;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.q-core-multi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.q-core-multi-cam-tile {
+  background: #262626;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.q-core-multi-cam-tile[data-active="true"] {
+  border-color: #50fa7b;
+  box-shadow: 0 0 0 2px rgba(80, 250, 123, 0.4);
+}
+
+.q-core-topdown-panel {
+  background: #181818;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.q-core-topdown-svg {
+  width: 100%;
+  max-height: 300px;
+  background: #111;
+  border-radius: 4px;
+}
+
+.q-core-blind-status {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+}
+
+.q-core-blind-status.estimated {
+  background: #2b3a4a;
+  color: #8be9fd;
+}
+
+.q-core-blind-status.unavailable {
+  background: #333;
+  color: #888;
+}
+
+.q-core-tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+.q-core-auto-seed,.q-core-reason{font-size:12px;padding:2px 8px;border:1px solid currentColor;border-radius:10px;opacity:.9}

@@ -1,0 +1,19 @@
+{
+  "scene_id": "office_expanded_r005",
+  "source_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6634899000",
+  "files": {
+    "cameras.json": "1df1de3072375cc8134d53acf3396dc5538c65c8603c0e82788ec2cb514803bf",
+    "regions.json": "43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569",
+    "build_receipt.json": "79c5a9020fd78c19427c54a5c776f1344733eacc71d0b3f8226e9290f493fdc0",
+    "coverage_review.json": "6cdab6afcdf57ff063ad9474eee9fd87d1c5d531b1988e4b260a9b9b9188cba2",
+    "region_graph.json": "dceadb2b159ea50e5920fb3bfdf77d475c5acf9bae5e54ebc92f0dbb04f506f2",
+    "camera_graph.json": "1e902b362a874efb0b36e1861af975e7368ab9dfe299aceb45da55be5148f2ea"
+  },
+  "region_content_sha256": "02a469ae401022105de4303eab5d545b263636e9ce6984b5911dc4da8064d1b5",
+  "camera_content_sha256": "c3650dd5b07a4b48d41ebd827f6a9751ca176be9175b3583c5679d41c59d26ee",
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "gt_read": false
+}

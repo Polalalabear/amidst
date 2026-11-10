@@ -1,0 +1,92 @@
+{
+  "issue": 418,
+  "scene_id": "office_expanded_r005",
+  "parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "source_sha256": "79d142bac6a1853f6cde0066b72efd7d439d2fe329195df0fadfbfd32cfebf2e",
+  "preview_correction_sha256": "e07218a16875a79aac474a0f5ab1ae714248571414a2d775f1ab2f2c8295aa74",
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072",
+  "build_receipt_sha256": "0f6b279e4d535959aad7bff769022f6fcf0a2257e2aca922f6f9fa0fac1ea3bd",
+  "review_method": "MANUAL_VISUAL_INSPECTION_OF_RENDERED_STATIC_RGB",
+  "reviewer": "Codex (AI assistant; not human approval)",
+  "reviewed_at_utc": "2026-11-04T16:52:24.086539+00:00",
+  "camera_reviews": [
+    {
+      "camera_id": "CAM_R101_IN",
+      "region_id": "R101",
+      "static_frame_file": "rgb/CAM_R101_IN.png",
+      "static_frame_sha256": "eb8530511733152a49de710d2ae0bf49233a125c89d7b8cd7ccef5e6247375b9",
+      "calibration_sha256": "ba1912f998aa1fe28ecc8d6249af377744813cbc202d7ef5bd8617b06f2c7543",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "地板／牆／門洞與桌椅可辨，v1大面積高光裁切消失；仍偏暗且有陰影噪點，不代表COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_R102_IN",
+      "region_id": "R102",
+      "static_frame_file": "rgb/CAM_R102_IN.png",
+      "static_frame_sha256": "42c14c9e1b13bca4b67f1ac662933e8d23341e3ffbb86da193928c0cbb82803e",
+      "calibration_sha256": "d31c6fe49ed8b7de7a0e5f347334da20265bec5ad3e363928fe95a2a3dd168df",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "地板／牆／門洞與桌椅可辨，v1大面積高光裁切消失；仍偏暗且有陰影噪點，不代表COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_R103_IN",
+      "region_id": "R103",
+      "static_frame_file": "rgb/CAM_R103_IN.png",
+      "static_frame_sha256": "4e03f03747d97296f67d92eb4f4dbb87026d6b7b00a21a4dd0596572a9a10702",
+      "calibration_sha256": "258271216c2f1c31e7c4d5786fae151bc080a8dbbc5dfb43d935ee0e438cd7e5",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "地板／牆／門洞與桌椅可辨，v1大面積高光裁切消失；仍偏暗且有陰影噪點，不代表COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_R104_IN",
+      "region_id": "R104",
+      "static_frame_file": "rgb/CAM_R104_IN.png",
+      "static_frame_sha256": "aa1705d04961d2652dfe18b29c31ae7f90d9de149f5c6634b8002c23dd4fce3e",
+      "calibration_sha256": "cf4a2459d2293e73b36e8c4174c7eb459b2dd6b4aee1b4d808fa1839354455cd",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "地板／牆／門洞與桌椅可辨，v1大面積高光裁切消失；仍偏暗且有陰影噪點，不代表COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_CORR_W",
+      "region_id": "CORR_W",
+      "static_frame_file": "rgb/CAM_CORR_W.png",
+      "static_frame_sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241",
+      "calibration_sha256": "72ae753a4e6220de4b8287da060f0ac6dba18f4d4c8afc0b47f40f6293940404",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "近段走廊地面、左右門洞與正向房號可辨；仍偏暗，不稱充分展示品質或全區可見。"
+    },
+    {
+      "camera_id": "CAM_CORR_E",
+      "region_id": "CORR_E",
+      "static_frame_file": "rgb/CAM_CORR_E.png",
+      "static_frame_sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee",
+      "calibration_sha256": "9c08e8a5418eeed8b8fa984314401e1134122035ca1e0ccd07e7f9577bf1d355",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "近段走廊地面、左右門洞與正向房號可辨；仍偏暗，不稱充分展示品質或全區可見。"
+    }
+  ],
+  "human_overhead_frame": {
+    "sha256": "ae5c926e7451e9365c476f847712fed173a4080394adaac2a3659576444f3c69",
+    "bytes": 418701
+  },
+  "human_overhead_status": "FOUR_ROOM_LAYOUT_WITHIN_FRAME_NO_TOP_BOTTOM_CROP",
+  "visual_quality_status": "ENGINEERING_PREVIEW_WITH_DARKNESS_AND_SHADOW_NOISE_LIMITATIONS",
+  "human_approval_verified": false,
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "identity": "UNCONFIRMED",
+  "detector_run": false,
+  "limitations": [
+    "Only some reviewed static region is visible; not full floor area.",
+    "No COCO detector or scientific evaluation.",
+    "Corridor remains dim; global -4EV removes clipping but does not prove improved corridor brightness.",
+    "Shadow grain remains with the approved EEVEE 64 samples.",
+    "No human or Claude visual acceptance claimed."
+  ]
+}

@@ -67,3 +67,14 @@ data/pilot/
 # Pinned local presentation dependencies; packages and generated videos are materialized locally.
 frontend/product/node_modules/
 /data/product/local_run/
+*.review-expectations.json
+
+# Owned demo environments and dependency caches stay LOCAL (#486).
+.local/demo-cache/
+tests/browser/core-preview/node_modules/
+
+# Locked Node installs (#491).
+node_modules/
+
+# D171: all non-git content (data, evidence, archive, logs, env templates, demo pin) lives here.
+/local/

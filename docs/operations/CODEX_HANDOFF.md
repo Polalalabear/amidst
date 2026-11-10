@@ -1,34 +1,38 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Current handoff / 目前工作交接
+
+> 2026-11-08 起依 D132，GitHub 已整合成四個大問題：A #445（Demo 驗收）、B #479（實驗紀錄）、C #486（大掃除）、D #489（Agentic）。文中舊編號已關閉，括號內註明併入的大問題，以 #93 為準。
 
 [繁體中文](#繁體中文) | [English](#english)
 
 ## 繁體中文
 
-日期：2026-10-13。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
-目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。研究基線仍是
-`phase1/finalization-sprint / 883204af854bed301506b39d63ccb33312b79ff2`，HEAD／origin 以實際 Git 為準。Canonical checkout
+2026-10-14 最新完整工作交接以[全部工作與重現](CURRENT_WORK_REPRODUCTION.md)為單一入口：五工作樹、原資產／模型／環境、state family、動態port、Saved Agent恢復、private harness、驗證與暫緩範圍均已整理。本機canonical ignored `data/pilot/current_dependencies/handoff_20261014`已保存134小檔／約9.51MiB及一致狀態；四SQLite integrity、PG14表隔離restore、持久候選220與22437context proof通過，原sandboxFAIL保留。不是新11品質／完整48或正式workflow驗收，production734／05baseline／Phase2約50%維持。模型／媒體未搬移，工作樹未刪；[本次收據](../../data/engineering/work_handoff_20261014/receipt.json)列exact範圍。
+
+日期：2026-10-14。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
+目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。歷史來源展示基線是 `883204af854bed301506b39d63ccb33312b79ff2`；
+`phase1/finalization-sprint` 已由獨立正式驗收工作前進到 `043bed2d6dac34698260bd37faefc31b9009d3ca`，
+其18項受限Case1–3 Exit gates已PASS；Case3 ADE改善0%未達30%初始目標，school仍NOT_CERTIFIED，
+不以本輪demo改寫其範圍。HEAD／origin 以實際 Git 為準。Canonical checkout
 `/Users/polalabear/Developer/amidst` 在另一個 physical branch，只供應 immutable scene/raw
 artifacts，不在那裡實作或切換 branch。
 
 ### 新工程範圍與入口
 
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_BEGIN -->
-目前GitHub工程tip為 `93eb6119c453d3daa067890f597f5aa4b4ea1d04`；本機已另有
-`001a0fc3b3b3b99d0c9e04bc666f5345db246faa` 的A＋B＋C checkpoint，仍未push。
-世界方向／幾何修改屬另一對話，保持未提交；本輪文件更新不處理其程式或人工資料。
-先前指定push、exact93eb611的1061／213／12隔離驗證與本機證據位置見
-[工作紀錄](../history/WORK_LOG.md#publication-cleanup-20261013)；不當成001a0fc或正式研究的測試。
-下一步依[清理條件](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013)保存獨有資料，
-8768服務退役前保留preview；候選分類未授權刪除。本輪不push、merge或刪除。
-[main盤點](PHASE1_ARTIFACT_CLEANUP.md#main-integration-20261013)優先評審已發布93eb611，
-不可直接以目前分支名稱帶入001a0fc；A＋B＋C品質限制、research/frozen與c5956dc保留條件另列。
+2026-10-14 current：工程程式checkpoint已發布至 `b1cf0c4`（本輪文件commit另以Git核對），001a0fc A＋B＋C、R1 demo及R2完整品質失敗已上傳；main仍是已驗證R1 `439c866`。早先93eb611／001a0fc尚未push／8768 preview保留的敘述是歷史狀態，由本段與[本機清理紀錄](../history/LOCAL_STORAGE_CLEANUP_20261014.md)取代。
+
+本輪最新要求是整理目前demo與已完成項目、更新對應文件並上傳GitHub；另用系統分配的本機port，啟動 `--port 0`，由本次Python PID的listener取得 `DEMO_URL`，不在程式或設定寫死新埠號。完整脚本、實際依賴及逐段排演見[第一版demo](../engineering/DEMO_V1.md)。
+
+最新734 runtime工程Python3736／HTTP68 PASS，但首次真實demo FAILED（不存在的query_receipt事實欄位）；private schema修正未套用，新48題未開始。11品質與共享任務尚未完成，finalization工作樹與必要服務仍需保留；結束才按[清理條件](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013)核對保存／遠端／活躍消費者後退役。其他暫緩範圍持續有效。
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_END -->
 
 固定 TaskContext、LocationRegistry、typed tools、summary/detail/media/replay references 與輸出邊界，禁止 Agent 掃描整個資料庫或 repository。本階段 **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**。依 2026-10-11 指示，token 兜底已先實作圖形／label 前處理原型；外部 API 接線仍空白，未量測 token 減量或 RAG 精度。
 
 入口見 [Agent 檢索契約](../engineering/AGENT_RETRIEVAL_BOUNDARY.md) 與 [擴大工程續作 prompt](PHASE1_NEXT_CHAT_PROMPT.md)。可在同一 checkout 連續完成多個可執行 milestones，每段驗證、commit、普通 push 對應工程 branch；不為每段新增 worktree/clone/raw 副本。文件分類見 [導覽](../README.md)；正文按分類存放；必要的機器路徑與不可變核准文件見該頁說明。
 
-工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
+工程閉環與原正式研究驗收並行。下方旧corridor／formal blockers属于历史来源恢复范围；独立新正式验收scope请按043bed2对应文档核对。
 
 ### 2026-10-13 本對話的 Phase 2 授權範圍
 
@@ -41,33 +45,22 @@ Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證P
 - **VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES**：05獨立精度實驗、09合成診斷、10區域出入與持續停留、11本機Qwen2.5 7B Agent原型、12實際PostgreSQL已整合8016「調查與品質」。完整Python3436、共享Node230／本批獨立快照225、Ruff／strict mypy224檔PASS；實際HTTP、模型停止／恢復及重啟、PG實際dump／restore、8016瀏覽器及原來源保留驗證完成。05測試switches4→5／fragmentation7→8，保留baseline，改善目標未完成；11真實題組6／8自動通過但語意品質未認證，`QUALITY_GATE_NOT_MET`。Phase2功能工作量暫估50%（45–55%），未達條件式60%目標。契約及限制見[本機A＋B＋C整合](../engineering/PHASE2_LOCAL_BATCH_ABC.md)，實際結果以[最終總收據](../../data/engineering/phase2_abc_20261013/validation.json)為準，各驗證總数不累加。
 - **DEFERRED / REQUIRES_USER_CONFIRMATION**：07真實錄影、08真實偵測/追蹤、09真實/訓練ReID、10其他單人與全部多人事件、13串流、14帳號/部署、15實際操作員驗收。
 
-接續核准11回答品質修正、05局部追蹤修正與整合驗收：**R1 demo已交付／R3 frozen48執行中**，目前工作台8016已載入typed evidence v2；逐欄核對、UNKNOWN分母、原需求／語言／scope持久化、拒絕與舊案唯讀均接入。05唯一候選development無strict gain，test(4,3,7,6)→(3,2,7,6)，缺採樣7未達≤6，維持baseline。新封存合成測試集與其他項目仍暫緩。操作、當次驗證及main依賴見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)與[新收據](../../data/engineering/phase2_repair_0511_20261013/)，舊ABC數字不改寫，完成數不累加。Phase2品質結果尚未認定通過，暫維持50%估算；本批不merge／push，研究frozen refs不變。偵測main由另一對話推進至3991b79，當前main候選依即時審核。
+2026-10-14 最新授權：先合併已驗證demo與必要依賴到main，11續修／验收，05保持baseline；另整理demo狀態、更新文件并上傳GitHub，啟動動態新port。R1已合併並核對main439c866；不是整個engineering已進main。R2固定48題全部完成但品質FAIL：常規12/40、中文7/20、英文5/20，417literal錯誤0但DETAIL完整性誤報4；安全邊界8/8，乾淨拒絕2/8，澄清完成0/8。原失敗完整保留。
 
+R3 typed.evidence.v4／context734已發布，完整Python3736、Ruff／mypy235檔、HTTP／PG68守門PASS（0真實模型）；首次實際demo FAILED，1call／75.660秒、0tools、AGENT_GOAL_FIELD_UNAVAILABLE。新schema／通用需求候選仍private，未套用、未回放新48。舊v2／v3literal證據可唯讀但需求完成度NOT_CHECKED；R2保存成功162.430秒只屬歷史範圍。05唯一候選test(4,3,7,6)→(3,2,7,6)，fragmentation7>6，維持baseline。Phase2仍約50%，11真實品質門檻通過才约55%；其他項目及新sealed資料不開始。詳細[修正及收據](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
+
+結束須上傳必要程式／公開收據，再退役服務及刪除當前工作樹；只保留單份必要7B模型、現行人審／PG狀態及唯一原E0/E1輸入到canonical ignored位置，生成物只留hash紀錄，不新增大型封存。原凍結絕對locator不能直接搬家；刪除後記offline，未另做rebind／portable replay實作。操作、獨立門檻及精確結果見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
 其餘項目不得由本輪A＋B＋C完成自行開始；既有功能與獨立人工核對對話的原授權各自保留。
-原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變，沒有公開發布、push 或 main merge 的新增授權。
+本轮不修改Phase1正式驗收與frozen Phase2 donor/tag；Phase1獨立正式工作的新ref與scope另行記錄，不沿用舊BLOCKED作當前結論。獨立受限Case1–3已有18 gates PASS／clean重現，Case3性能目標未達，詳見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)。本批程式、demo與公開紀錄已取得merge／push及結束清理授權。
 
 ### 2026-10-13 最新人工核對階段
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新工程階段為 **AWAITING_ACTUAL_HUMAN_REVIEW**；來源門洞、走廊連通與人體淨空尚未確認。
-完整分層資料流、來源證據、缺失與實際／替代測試只維護於[人工核對契約](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+人審續作依使用者要求 **CHECKPOINT_STOPPED**。Office revision20、Classroom101 revision15 已完成可見項目彙整與確認後完整時間段0.0–9.8s／Top-3重跑；35筆本機差異保持append-only，38個有效物理checks仍UNKNOWN，人工文字不匯入幾何限制。Office3解、Classroom1未關聯基線；Auditorium revision0尚未開始。缺少門孔尺寸／法向、完整走廊／人體域與camera對應，不能標已認證通行。詳細已完成紀錄與續作缺失見[checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md)，層級交流維護於[契約](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
 
-| 情況 | 待核對項／檢查 | 本階段狀態 |
-| --- | ---: | --- |
-| Office | 4／14 | 有7組原來源見證，保持UNKNOWN |
-| CLASS101 | 3／10 | 走廊50來源影格／0投影，完整人體域缺失 |
-| Auditorium | 4／14 | 保留原截斷候選與缺失，完整人體域缺失 |
+本次UI包含2D-only格數與來源世界軸；56項scoped Node、語法與owned diff檢查通過，過去3186Python／154HTTP等僅為入口建立時收據。本機人審delta、DB與兩站重跑包移至canonical ignored retention目錄後保留，公開只提交差異摘要／hash／counts。
 
-共11項／38檢查；三站實際人工revision均0。本機差異儲存與併發測試只用SUBSTITUTE輸入，
-不代替使用者確認，不改正式來源權限。可逐項記錄UNKNOWN／本機支持／本機矛盾及來源引用，
-只存修改欄位、前一本機狀態與hash chain；確認後的限制匯入／Top-K／曲線／影片重跑尚未執行。
-工作台上方導覽；主畫面可手動切換「3D 模型」／「2D 分時畫面牆」，
-8／12／16格均為登錄鏡頭的時間抽樣，可選完整／前段／中段／後段並同步來源時間軸。
-來源annotation／支持面／見證僅作核對預覽；原高度、孔洞與預覽截斷保留，
-名義人體線框只表示已核准政策尺度，未量測實際身形；缺失時不外推或補人物。
-本輪Python3186、Node160（workbench147＋product13）、Ruff／strict mypy199檔PASS；HTTP154請求／5119斷言與三站browser核對PASS。精確範圍依
-[本輪收據](../../data/engineering/blender_physical_review_20261013/)核對；前一2de9821的3140／122／60 ports／175 HTTP保留歷史。
-既有Top-K／曲線／影片不重排、不重編碼；不由Agent／GT作決策，不開啟、修改或複製原.blend。
+使用者已授權commit／GitHub上傳及刪除這個工作樹，並明確選擇 **等共享Phase2任務完成後刪除**；不能中斷其48題驗收。最後須再次核對所有dirty檔／遠端SHA、保存獨有資料並退役或切換使用該checkout的服務。其他main demo／preview／canonical原資產、frozen refs保留。本文件發布時清理尚未完成；不得自行開始Auditorium或泛化場景。
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
 
 ### 2de9821 來源物理篩選歷史 checkpoint
@@ -380,7 +373,9 @@ Historical independent clean `d8b94a6` regeneration **PASS_LOCAL_UNION_REGENERAT
 [current checkpoint](../../data/finalization/reviewed_corridor_scope_checkpoint_v1/checkpoint.json)。
 不重問既有核准；歷史 review/strict-preview/V5 packet 保留原 bytes。
 
-Phase1 仍 **PHASE1_FINALIZATION_BLOCKED / PARTIAL_APPROVED**。Case2／Case3 detour-growth
+以下是 **883204a歷史恢復時** 的PHASE1_FINALIZATION_BLOCKED／PARTIAL_APPROVED及待辦；當前scope以獨立043bed2正式收據為準，不作現在待辦。
+
+當時Phase1仍 **PHASE1_FINALIZATION_BLOCKED / PARTIAL_APPROVED**。Case2／Case3 detour-growth
 尚缺 scoped pipeline adapters、source-bound same-camera HOLD、相同 actual eligibility 的
 canonical directed graph 與獨立 exhaustive inventory、新版本 config freeze、fresh 5 Hz
 export/inference/evaluation/benchmark/demo、完整 clean-checkout reproduction。
@@ -405,30 +400,23 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 
 ## English
 
+The current [complete work/reproduction handoff](CURRENT_WORK_REPRODUCTION.md) covers all five worktrees, assets, models, state-family recovery, dynamic ports, private validators and deferred scope. The local ignored134-file handoff preserves small originals and consistent state; four SQLite checks, fourteen restored PG fingerprints,220 relocated private fixtures and context proof passed. Production/model-quality/deferred/cleanup boundaries remain unchanged. See the [dated receipt](../../data/engineering/work_handoff_20261014/receipt.json).
+
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_BEGIN -->
-GitHub engineering is pinned to 93eb611; local 001a0fc contains the separate A+B+C
-checkpoint and is unpublished. Concurrent direction/geometry edits remain untouched.
-See the [dated log](../history/WORK_LOG.md#publication-cleanup-20261013) for the prior
-push and exact 93eb611 scoped tests; they do not certify 001a0fc or formal research.
-Follow the [cleanup conditions](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013),
-preserve unique data and the active 8768 preview, and treat eligibility as no authority
-to delete. The [main inventory](PHASE1_ARTIFACT_CLEANUP.md#main-integration-20261013)
-prefers review of published 93eb611, separately from 001a0fc quality gates and frozen
-research refs. This documentation task performs no push, merge or deletion.
+Current 2026-10-14: the tested engineering code checkpoint is published as b1cf0c4 (the current documentation commit is verified separately in Git); main439c866 contains the validated R1 demo and dependencies. Prior93eb611/unpublished001a0fc/preview-retention statements are historical and superseded by the current [cleanup record](../history/LOCAL_STORAGE_CLEANUP_20261014.md).
+
+See [Demo v1](../engineering/DEMO_V1.md) for the nine-minute workflow, fresh rehearsal, service dependencies and OS-assigned `--port 0` startup. R2 completed all48 and failed quality:12/40 normal questions,8/8 security boundaries but2/8 clean refusals. The current734 runtime passed3736 Python tests and68 scripted HTTP checks; its first actual model demo failed. The private schema candidate and a new full48 replay remain pending. Keep05 baseline and Phase2 at approximately50%. Preserve the finalization checkout and services until the authorized shared task, source retention and remote verification are complete.
+
+The historical source-presentation baseline883204a differs from the independently advanced Phase1 research ref043bed2; the independently published release passed18 scoped Case1–3 gates with clean reproduction, while Case3's initial30% ADE target was unmet and global school geometry remains uncertified. See the [current report](../research/PHASE1_FINAL_REPORT.md) for exact scope. Frozen Phase2 remains5b51d2c. This demo does not certify physical/identity/behavior conclusions.
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_END -->
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../../data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
+Human-review continuation is CHECKPOINT_STOPPED at the user's request. Office revision20 and Classroom revision15 have 35 local deltas and authorized full-window Top3 reruns; all 38 effective physical checks remain UNKNOWN. Office returns three candidates, Classroom one unassociated baseline, and Auditorium revision0 is not started. Apertures, complete topology/body clearance and camera correspondence are unverified. See the [checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md) and [contract](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md).
+
+Fresh UI validation passed 56 scoped Node tests plus syntax/diff checks; prior full-suite totals remain historical. Preserve exact local deltas, consistent DB snapshots and both rerun packages outside the checkout; publish only bounded summaries/hashes. Commit/push/removal is authorized, but removal explicitly waits for the shared Phase2 task, final dirty/remote checks, retention and runtime retirement. Keep other demos, original assets and frozen refs. No Auditorium/generalization work is authorized by this checkpoint.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
 
-The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
+The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the source-presentation baseline was `883204a`; the independently updated Phase1 ref is now `043bed2`, whose formal evidence is separate. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
 
 The preceding physical-filter checkpoint (2de9821) re-searches the full bounded pool before source-authorized
 checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
@@ -571,7 +559,7 @@ Original HR01–HR04 and the independent reference movement policy are approved 
 the new exact scope has a direct-human receipt and six passing numerical cell certificates.
 Independent clean-checkout regeneration passes; read the current checkpoint for precise hashes. Do not repeat
 approval questions or rewrite historical review/preview packets.
-Case2 and Case3 detour-growth remain blocked pending additive scoped pipeline adapters,
+The following blockers belong to historical recovery883204a, superseded by the independent043bed2 acceptance evidence for its exact scope. At that time, Case2 and Case3 detour-growth remained blocked pending additive scoped pipeline adapters,
 source-bound same-camera HOLD, unchanged-eligibility independent exhaustive inventory,
 new config freeze, fresh 5 Hz execution and complete delivery reproduction. The old office
 CLI cannot consume the new union directly. Preserve repeated-edge graph semantics and the

@@ -1,0 +1,47 @@
+{
+  "schema_version": "phase2.repair0511.main-demo-merge.v1",
+  "status": "MERGED_EXACT_VALIDATED_DEMO",
+  "authorization_date_local": "2026-10-14",
+  "observed_at_utc": "2026-10-13T16:10:01.406539+00:00",
+  "main_before": "3991b79263739973eb94313c638fcc60be0693cf",
+  "main_after": "439c8669eae740ed5750eeb1f853c0ddf73ec507",
+  "demo_checkpoint": "7d053543316d13272039402d33eb3c3bcab06ba8",
+  "merged_tree": "e668618329b789fd1fd12e28d379928cd1d5bd68",
+  "same_as_validated_demo_tree": true,
+  "dependencies_inherited": [
+    "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+    "001a0fc3b3b3b99d0c9e04bc666f5345db246faa"
+  ],
+  "conflict_resolution": {
+    "paths": [
+      "docs/history/WORK_LOG.md"
+    ],
+    "all_previous_main_lines_preserved": true,
+    "resolved_from_exact_demo_checkpoint": true
+  },
+  "historical_engineering_validation": {
+    "pytest_passed": 3567,
+    "owned_node_passed": 232,
+    "ruff": "PASS",
+    "mypy_source_files": 233,
+    "checks_not_rerun_for_byte_identical_merge": true
+  },
+  "05_active_variant": "baseline",
+  "05_candidate_enabled": false,
+  "11_full_quality_status": "R1_FAILED_PARTIAL_R2_REPAIR_IN_PROGRESS",
+  "frozen_research_refs": {
+    "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2",
+    "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+  },
+  "new_dataset": false,
+  "deferred_work_started": false,
+  "push_performed_for_this_merge": false,
+  "publication": {
+    "status": "PUSHED",
+    "main_commit": "439c8669eae740ed5750eeb1f853c0ddf73ec507",
+    "remote": "origin",
+    "command": "git push origin main",
+    "result": "3991b79..439c866 main -> main",
+    "force_push": false
+  }
+}

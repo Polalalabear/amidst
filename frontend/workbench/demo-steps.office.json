@@ -1,0 +1,158 @@
+{
+  "schema_version": "workbench.demo-steps.v1",
+  "demo_id": "office-demo-20261101",
+  "fixture_ref": "configs/office_demo_fixture_v1.json",
+  "steps": [
+    {
+      "step": 1,
+      "key": "play_both",
+      "label": "同步播放",
+      "scene_id": "blender-office-person",
+      "timestamp_s": 0.0,
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "selection": null,
+      "candidate": null,
+      "layers": [
+        "2d",
+        "3d"
+      ],
+      "requires": [
+        "humanoid_scene"
+      ],
+      "expected": "兩鏡頭與 3D 在 0.0 s 同步顯示；圖例常駐。"
+    },
+    {
+      "step": 2,
+      "key": "front_select",
+      "label": "選定目標",
+      "scene_id": "blender-office-person",
+      "timestamp_s": 4.6,
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT"
+      ],
+      "selection": "observation:218abc805d72fe39c4496da0",
+      "candidate": null,
+      "layers": [
+        "2d",
+        "3d",
+        "observed"
+      ],
+      "requires": [
+        "humanoid_scene",
+        "selection"
+      ],
+      "expected": "FRONT 4.6 s 顯示選定觀測（觀測藍綠）；身分 UNCONFIRMED。",
+      "select_observation": "selection"
+    },
+    {
+      "step": 3,
+      "key": "blind_bundle",
+      "label": "盲區路徑",
+      "scene_id": "blender-office-person",
+      "timestamp_s": 6.4,
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "selection": "observation:218abc805d72fe39c4496da0",
+      "candidate": null,
+      "layers": [
+        "3d",
+        "missing",
+        "hypothesis"
+      ],
+      "requires": [
+        "humanoid_scene",
+        "blind_hypothesis"
+      ],
+      "expected": "4.8–8.0 s 不畫目標位置；展開半透明假設路徑束與可達範圍（negative_evidence_mode NONE），顯示 NONE 可達面積。",
+      "blind_mode": "NONE"
+    },
+    {
+      "step": 4,
+      "key": "rear_reappear",
+      "label": "後鏡再現",
+      "scene_id": "blender-office-person",
+      "timestamp_s": 8.2,
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "selection": null,
+      "candidate": null,
+      "layers": [
+        "2d",
+        "3d",
+        "observed"
+      ],
+      "requires": [
+        "humanoid_scene"
+      ],
+      "expected": "REAR 8.2 s 出現新觀測；與 FRONT 端點的關聯為候選，未確認。",
+      "select_observation": "interval_end"
+    },
+    {
+      "step": 5,
+      "key": "suggested_wall",
+      "label": "建議檢視",
+      "scene_id": "blender-office-person",
+      "timestamp_s": 8.2,
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "selection": "observation:218abc805d72fe39c4496da0",
+      "candidate": null,
+      "layers": [
+        "wall"
+      ],
+      "requires": [
+        "humanoid_scene",
+        "blind_baseline"
+      ],
+      "expected": "套用 BASELINE（previous_response_sha256＝NONE 回應）並顯示 NONE→BASELINE 可達面積與差異；差異為 0 時照實說明沒有足夠的排除證據。建議檢視畫面牆待 K5／C5 前端，未接前標 UNAVAILABLE。",
+      "blind_mode": "BASELINE",
+      "optional_requires": [
+        "recommended_view"
+      ]
+    },
+    {
+      "step": 6,
+      "key": "negative_case",
+      "label": "負例",
+      "scene_id": null,
+      "timestamp_s": 0.0,
+      "camera_ids": [],
+      "selection": null,
+      "candidate": null,
+      "layers": [],
+      "requires": [
+        "negative_scene"
+      ],
+      "expected": "Classroom101 負例（可刪）；scene_id 與資料 UNKNOWN。"
+    }
+  ],
+  "run": "humanoid (D18): FRONT 4.6 s -> REAR 8.2 s, blind 4.8-8.0 s",
+  "humanoid_scene_id": "blender-office-person",
+  "legacy_run": {
+    "scene_id": "blender-office",
+    "note": "舊 run：FRONT 4.4 s → REAR 8.6 s，盲區 4.6–8.4 s；保留供備援，不再是 Demo 主線",
+    "timestamps_s": {
+      "1": 0.0,
+      "2": 4.4,
+      "3": 6.0,
+      "4": 8.6,
+      "5": 8.6
+    },
+    "selection": "observation:add9f687d311742321e80dff",
+    "expected": {
+      "2": "FRONT 4.4 s 顯示選定觀測（觀測藍綠）；身分 UNCONFIRMED。",
+      "3": "4.6–8.4 s 不畫目標位置；展開半透明假設路徑束與可達範圍（NONE）。",
+      "4": "REAR 8.6 s 出現新觀測；與 FRONT 端點的關聯為候選，未確認。",
+      "5": "套用 BASELINE 並顯示可達面積對照；畫面牆待前端。"
+    }
+  },
+  "note_d22_d24": "D22：移除舊步驟 5 candidate_switch（人形 v2 停用跨鏡頭面板）。D24 完整順序：1 同步播放、2 選定目標、3 盲區路徑（NONE）、4 後鏡再現、5 建議檢視＋BASELINE、6–8 SYNTHETIC（K8e 之後才加）、9 負例。目前負例暫列步驟 6；K8e 加入合成步驟時改到 9。"
+}

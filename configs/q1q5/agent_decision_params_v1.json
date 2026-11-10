@@ -1,0 +1,64 @@
+{
+  "schema_version": "q-core.agent-decision-params.v1",
+  "parameter_set_id": "agent_decision_params_v1",
+  "report_group": "FORMAL",
+  "mode": "OFF",
+  "decision_points": [
+    "DP1_HANDOFF_ADJUDICATION",
+    "DP3_CONTINUATION_ACCEPTANCE"
+  ],
+  "models": [
+    {
+      "config_id": "astra6",
+      "api_model_id": null
+    },
+    {
+      "config_id": "sol6.1",
+      "api_model_id": null
+    },
+    {
+      "config_id": "terra6.1",
+      "api_model_id": null
+    }
+  ],
+  "per_call": {
+    "timeout_ms": 2000,
+    "max_output_tokens": 300,
+    "max_retries_on_429_5xx": 1
+  },
+  "per_step": {
+    "budget_ms": 5000,
+    "max_rounds": 3
+  },
+  "per_session": {
+    "max_rounds": 12
+  },
+  "rate": {
+    "max_concurrent": 1,
+    "max_requests_per_minute": 30
+  },
+  "budget_usd": 100,
+  "price_table": null,
+  "prompt_tokens_per_call_estimate": 1500,
+  "stages": {
+    "PILOT_AND_CONSISTENCY": {
+      "approved": true,
+      "approval_ref": "D166 (USD 100 staged allowance; pilot 16x1x3=48 + consistency 16x5x3=240)",
+      "max_calls": 288,
+      "max_tokens": 518400,
+      "per_model_max_calls": 96,
+      "per_model_max_tokens": 172800,
+      "note": "Retries (429/5xx) and timed-out rounds count toward these caps. Token caps assume prompt_tokens_per_call_estimate + max_output_tokens per call; missing usage is charged at that estimate."
+    },
+    "FORMAL": {
+      "approved": false,
+      "approval_ref": null,
+      "max_calls": null,
+      "max_tokens": null,
+      "per_model_max_calls": null,
+      "per_model_max_tokens": null,
+      "note": "Locked until the user approves the formal stage and its caps (question count from S1+S2 is UNKNOWN until WP4)."
+    }
+  },
+  "note": "D165/D166 formal group 2000/5000/3. Model ids are config values only; the exact API model id is recorded on the day of the run. budget_usd applies only once price_table has a date and source (design §8.2 Q8)."
+}

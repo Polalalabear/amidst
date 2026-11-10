@@ -1,0 +1,1374 @@
+{
+  "schema_version": "q-demo.cx6-public-receipt.v1",
+  "date": "2026-10-26",
+  "timezone": "Asia/Taipei",
+  "model_effort": "UNKNOWN",
+  "base_sha": "4c9614046cfb860857a24b96b4663a2578823797",
+  "measurement_source": {
+    "commit": "07d81f574b5dba12ec87cc5581542ea1c2437aa3",
+    "path": "scripts/diagnose_qwen3_untruncated.py",
+    "sha256": "9671c6a7d236cf626d0d9e7ad4e1b3d1fc5095d81f1c1fb52e1c03324fcbd484",
+    "bytes": 22216,
+    "subsequent_changes": "Lint-only import ordering/UTC alias/f-strings/explicit strict zip; focused tests remain 24 PASS."
+  },
+  "summary": {
+    "q3": {
+      "calls": 12,
+      "min_wall_ms": 5365.690083010122,
+      "median_wall_ms": 5776.506520458497,
+      "p95_nearest_rank_wall_ms": 10426.95041699335,
+      "max_wall_ms": 10426.95041699335,
+      "prompt_eval_counts": [
+        660,
+        665
+      ],
+      "eval_counts": [
+        117,
+        133
+      ],
+      "schema_valid": 12,
+      "q3_literal_guard_valid": 12,
+      "output_tokens_total": 1500
+    },
+    "q5": {
+      "calls": 6,
+      "min_wall_ms": 7803.873541997746,
+      "median_wall_ms": 7992.390249972232,
+      "p95_nearest_rank_wall_ms": 10429.821209050715,
+      "max_wall_ms": 10429.821209050715,
+      "prompt_eval_counts": [
+        1269
+      ],
+      "eval_counts": [
+        166
+      ],
+      "schema_valid": 6,
+      "q3_literal_guard_valid": null,
+      "output_tokens_total": 996
+    }
+  },
+  "artifact_inventory": {
+    "path": "q1q5-qwen3-untruncated_20261026_01a1735f",
+    "file_count": 123,
+    "size_bytes": 188838,
+    "manifest": {
+      "path": "q1q5-qwen3-untruncated_20261026_01a1735f/MANIFEST.json",
+      "size_bytes": 17125,
+      "sha256": "72e77c0ddd9b00af541d15de7d298a1234682959e21289f8640bc17bd26c99f2"
+    },
+    "result_sha256": "86df8e8e94ce7715c4081776bd8258d10fdc47705334e22f66032a9cdec88dc7",
+    "verification": "All 122 manifest payload files rehashed; 18 source recordings rehashed; request deltas checked exactly.",
+    "regeneration": "Requires pinned LOCAL historical recordings and the same existing Ollama model; command in companion report."
+  },
+  "new_task_disk_usage": {
+    "LOCAL_run_bytes": 188838,
+    "scratch_and_git_bytes": "UNKNOWN_NOT_INCLUDED",
+    "df_before": [
+      "239362496",
+      "197393496",
+      "12189252",
+      "95%"
+    ],
+    "df_after": [
+      "239362496",
+      "197398376",
+      "12184368",
+      "95%"
+    ],
+    "df_columns": [
+      "1024-blocks",
+      "Used",
+      "Available",
+      "Capacity"
+    ]
+  },
+  "focused_validation": {
+    "tests": 24,
+    "failures": 0,
+    "ruff": "F,I,UP,B PASS",
+    "raw_artifact_hashes": "PASS",
+    "exact_request_delta": "PASS"
+  },
+  "result": {
+    "budgets_changed": false,
+    "calls": [
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 133,
+        "eval_duration": 5949425000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 3103301959,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 1,
+        "original_wire_sha256": "a089cf2f1e0b30dc8ce754f658dec2e0ba831ab3aaf850c24a7772a936a17b51",
+        "prompt_eval_count": 665,
+        "prompt_eval_duration": 1361730000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-0/private/fb7589ce050e6f6f69b604d619618317.json",
+        "recording_sha256": "58853ec34456c37feebb8283851760ecc6ebec03f896a9671adc0f5fe1b6d987",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 10424044500,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 10426.95041699335
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 133,
+        "eval_duration": 6011326000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1729125,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 2,
+        "original_wire_sha256": "a089cf2f1e0b30dc8ce754f658dec2e0ba831ab3aaf850c24a7772a936a17b51",
+        "prompt_eval_count": 665,
+        "prompt_eval_duration": 31559000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-1/private/383e6d840ca3c56e3f16c6f3cb47fa23.json",
+        "recording_sha256": "2a7774cce076c2b64292d2e32476e065d83618b93e7939933dd8155fe968f309",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 6050958292,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 6051.988292019814
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 133,
+        "eval_duration": 5961134000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 3940750,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 3,
+        "original_wire_sha256": "a089cf2f1e0b30dc8ce754f658dec2e0ba831ab3aaf850c24a7772a936a17b51",
+        "prompt_eval_count": 665,
+        "prompt_eval_duration": 32171000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-2/private/1b106a005495d16f1439b37b386095e9.json",
+        "recording_sha256": "bc955025556bc0e114b7c96aa670ec24d036ecad5aa22a9c6da99511951f36b0",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 6003857625,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 6005.063040996902
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 166,
+        "eval_duration": 7666741000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1757250,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 4,
+        "original_wire_sha256": "1daedd44211c9be7d97c4e4469501a4e43c2138503e711aa9de6e1b02a6b8c54",
+        "prompt_eval_count": 1269,
+        "prompt_eval_duration": 2715849000,
+        "q3_literal_guard_valid": null,
+        "record_location": "/events/0/record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-0/private/1990a0755dca8114d2926347cb3795e8.json",
+        "recording_sha256": "d0582c9879213db4438a02882c3e9173f0ccec1973e1896c0adf2bc80c496eec",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q5",
+        "total_duration": 10428685250,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_WITH_LITERAL_REFS_ONLY",
+        "wall_latency_ms": 10429.821209050715
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 117,
+        "eval_duration": 5198840000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1713958,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 5,
+        "original_wire_sha256": "2f89eeef2b61f337bb27ba66fd162f7c1b3a45e39ec3bd2475833736ea29e90d",
+        "prompt_eval_count": 660,
+        "prompt_eval_duration": 89519000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-0/private/926fdca05f98fce68b5877605d2fa53a.json",
+        "recording_sha256": "4e2eeb0f0fed65a7b9b57bb183f331a1e543d8e3eebefda4ca6fb37d8ad906ba",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 5364536375,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 5365.690083010122
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 117,
+        "eval_duration": 5494855000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 3560125,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 6,
+        "original_wire_sha256": "2f89eeef2b61f337bb27ba66fd162f7c1b3a45e39ec3bd2475833736ea29e90d",
+        "prompt_eval_count": 660,
+        "prompt_eval_duration": 38611000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-1/private/351470dfb1644382e6ba426f207f6b2f.json",
+        "recording_sha256": "b3d6b99c1a1ceffe87168517ebe1c6d2b9110ca99e41b85f654e542f2171ca43",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 5546504167,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 5547.9499999200925
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 166,
+        "eval_duration": 7761443000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 3092417,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 7,
+        "original_wire_sha256": "1daedd44211c9be7d97c4e4469501a4e43c2138503e711aa9de6e1b02a6b8c54",
+        "prompt_eval_count": 1269,
+        "prompt_eval_duration": 26919000,
+        "q3_literal_guard_valid": null,
+        "record_location": "/events/0/record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-1/private/ae321db6afc7c57655621055b9f4e855.json",
+        "recording_sha256": "31760620cd8d0ff391b700f45733d351402d6a783b9361a3ed5fd4752befc224",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q5",
+        "total_duration": 7828952167,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_WITH_LITERAL_REFS_ONLY",
+        "wall_latency_ms": 7830.216292059049
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 117,
+        "eval_duration": 5307827000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1980834,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 8,
+        "original_wire_sha256": "2f89eeef2b61f337bb27ba66fd162f7c1b3a45e39ec3bd2475833736ea29e90d",
+        "prompt_eval_count": 660,
+        "prompt_eval_duration": 29370000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-2/private/24587967b8f0325d130b651a88fbc897.json",
+        "recording_sha256": "b1bc2a5bc215deacbedc9838aefaf75c937f7ed2977d71507be8a67cf60da8c6",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 5391654375,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 5393.00166699104
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 166,
+        "eval_duration": 7712316000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 2975458,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 9,
+        "original_wire_sha256": "1daedd44211c9be7d97c4e4469501a4e43c2138503e711aa9de6e1b02a6b8c54",
+        "prompt_eval_count": 1269,
+        "prompt_eval_duration": 22270000,
+        "q3_literal_guard_valid": null,
+        "record_location": "/events/0/record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-2/private/2801d328f1330a812683c47a79a635a1.json",
+        "recording_sha256": "a52ce79eec81ec7afedb2b269bfc1d754edc81ecc108c6fb6ab8c2be93ba9e9b",
+        "round": 1,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q5",
+        "total_duration": 7802786958,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_WITH_LITERAL_REFS_ONLY",
+        "wall_latency_ms": 7803.873541997746
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 133,
+        "eval_duration": 6220806000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1924834,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 10,
+        "original_wire_sha256": "a089cf2f1e0b30dc8ce754f658dec2e0ba831ab3aaf850c24a7772a936a17b51",
+        "prompt_eval_count": 665,
+        "prompt_eval_duration": 128202000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-0/private/75dfa100eb0e8fbe4aaaea76e7c50183.json",
+        "recording_sha256": "1deaed52af664159a87f56ec5dbba3e54ca6ba37f05d3d8cf93d0b8fcf55d952",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 6402908834,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 6404.277291032486
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 133,
+        "eval_duration": 6000568000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1621167,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 11,
+        "original_wire_sha256": "a089cf2f1e0b30dc8ce754f658dec2e0ba831ab3aaf850c24a7772a936a17b51",
+        "prompt_eval_count": 665,
+        "prompt_eval_duration": 33943000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-1/private/4b8281c730ba97474bac937c996ede65.json",
+        "recording_sha256": "f69e6241dcdf2bc647f6156e891fc464588e4b63c90e74549965f11e2e0f2ee0",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 6049903750,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 6050.7695840206
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 133,
+        "eval_duration": 6151852000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1571833,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 12,
+        "original_wire_sha256": "a089cf2f1e0b30dc8ce754f658dec2e0ba831ab3aaf850c24a7772a936a17b51",
+        "prompt_eval_count": 665,
+        "prompt_eval_duration": 36451000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-2/private/6e9eb9cf7ca78f9d7a822146bfe2bcb4.json",
+        "recording_sha256": "6efc2047cc583dc2a83eff4379000264bcc51095d7ce0cf7e8c0da3f59e303b7",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 6204989916,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 6206.062291981652
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 166,
+        "eval_duration": 8212160000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 2690500,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 13,
+        "original_wire_sha256": "1daedd44211c9be7d97c4e4469501a4e43c2138503e711aa9de6e1b02a6b8c54",
+        "prompt_eval_count": 1269,
+        "prompt_eval_duration": 29055000,
+        "q3_literal_guard_valid": null,
+        "record_location": "/events/0/record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-0/private/0d88e421d59b7028bf3ca25483447f7d.json",
+        "recording_sha256": "40660b94ca950362231fd2d6d19a32a57bd170e381cd8271f56373cdddcb31f8",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q5",
+        "total_duration": 8421614834,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_WITH_LITERAL_REFS_ONLY",
+        "wall_latency_ms": 8422.846833942458
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 117,
+        "eval_duration": 5285622000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1716291,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 14,
+        "original_wire_sha256": "2f89eeef2b61f337bb27ba66fd162f7c1b3a45e39ec3bd2475833736ea29e90d",
+        "prompt_eval_count": 660,
+        "prompt_eval_duration": 79968000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-0/private/f2a97919e1eeacf3c1eda39d434898fe.json",
+        "recording_sha256": "0c72e58f99875e5b2b5638e96da40ff1c9bb22a90ba7dd7a4b64e4784f3d474c",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 5424639875,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 5425.823500030674
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 166,
+        "eval_duration": 7997854000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 3444333,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 15,
+        "original_wire_sha256": "1daedd44211c9be7d97c4e4469501a4e43c2138503e711aa9de6e1b02a6b8c54",
+        "prompt_eval_count": 1269,
+        "prompt_eval_duration": 23725000,
+        "q3_literal_guard_valid": null,
+        "record_location": "/events/0/record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-1/private/9f794384be85d0d058cce5741761869e.json",
+        "recording_sha256": "b728fc3c6d0199bcebdd4ca87a9c0c754fd02f52718540db736821950e608428",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q5",
+        "total_duration": 8082805625,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_WITH_LITERAL_REFS_ONLY",
+        "wall_latency_ms": 8083.993332926184
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 117,
+        "eval_duration": 5396013000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1885584,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 16,
+        "original_wire_sha256": "2f89eeef2b61f337bb27ba66fd162f7c1b3a45e39ec3bd2475833736ea29e90d",
+        "prompt_eval_count": 660,
+        "prompt_eval_duration": 22064000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-1/private/a2513f94ec45830370bd1f2bcce70cf4.json",
+        "recording_sha256": "0c62543b16ec2ad3df467a7ce69eed783316dcd8e499fd526c30c959bddba5b8",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 5480118042,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 5481.789582991041
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 166,
+        "eval_duration": 7816231000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 3189750,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 17,
+        "original_wire_sha256": "1daedd44211c9be7d97c4e4469501a4e43c2138503e711aa9de6e1b02a6b8c54",
+        "prompt_eval_count": 1269,
+        "prompt_eval_duration": 23099000,
+        "q3_literal_guard_valid": null,
+        "record_location": "/events/0/record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-2/private/06f4b6bda29e11774abe0078959dff4f.json",
+        "recording_sha256": "f51d703f82459baa95e0a94d8de15d3a3c7aa4361fd9b13028acdfad330f9987",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q5",
+        "total_duration": 7899433833,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_WITH_LITERAL_REFS_ONLY",
+        "wall_latency_ms": 7900.787167018279
+      },
+      {
+        "baseline_timeout_ms": 2000,
+        "diagnostic_wire_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 117,
+        "eval_duration": 5416823000,
+        "generation_timeout_seconds": null,
+        "json_valid": true,
+        "load_duration": 1650750,
+        "model_pin_verified_after": true,
+        "num_predict": -1,
+        "number": 18,
+        "original_wire_sha256": "2f89eeef2b61f337bb27ba66fd162f7c1b3a45e39ec3bd2475833736ea29e90d",
+        "prompt_eval_count": 660,
+        "prompt_eval_duration": 22886000,
+        "q3_literal_guard_valid": true,
+        "record_location": "/0/provider_record",
+        "recording_path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-2/private/53771659e37c10b10155031048aac032.json",
+        "recording_sha256": "eb2a13d98df0c8eaa88c46148bcd5f8eb30593b5ff2cea2ae4613f75587464f2",
+        "round": 2,
+        "schema_valid": true,
+        "semantic_controller_acceptance": "UNKNOWN",
+        "server_duration_unit": "ns",
+        "stage": "q3",
+        "total_duration": 5501893541,
+        "untruncated_completion": true,
+        "validation_scope": "FROZEN_SCHEMA_AND_Q3_LITERAL_SUBSTRINGS",
+        "wall_latency_ms": 5502.9317499138415
+      }
+    ],
+    "completed_calls": 18,
+    "created_at": "2026-10-26T02:17:24.246689+00:00",
+    "expected_calls": 18,
+    "failure": null,
+    "formal_denominator": false,
+    "generation_timeout_seconds": null,
+    "limits": [
+      "Sequential replay changes concurrency and loading context.",
+      "Only num_predict is changed; messages, schema and other options are retained.",
+      "Schema and substring checks are not full parser or Controller acceptance.",
+      "A length or unknown done_reason is not an untruncated completion."
+    ],
+    "num_predict": -1,
+    "operations": [
+      {
+        "name": "before-version",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "7a8970074153afcd377b267a4b57f116dc74ee49bfa48a899fa1318148f921cd",
+        "route": "/api/version",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 6.0844579711556435
+      },
+      {
+        "name": "before-ps",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "a6fe9ec6e26a38d99fca418b69826e0238b7a2bb319ff05eb153a6fcfd1fa28d",
+        "route": "/api/ps",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 0.7640420226380229
+      },
+      {
+        "name": "before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 6.60870794672519
+      },
+      {
+        "name": "call-01-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.8030419489368796
+      },
+      {
+        "name": "call-01",
+        "request_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "response_sha256": "fb86d1089a157b98a342453d7e6c6cda6ca835c7a66fcb9d717ad1e1a91c5583",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 10426.95041699335
+      },
+      {
+        "name": "call-01-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 4.061999963596463
+      },
+      {
+        "name": "call-02-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.7936249496415257
+      },
+      {
+        "name": "call-02",
+        "request_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "response_sha256": "b80e91f1a89223cf0cee5019ea19305d65bbecb665408b917115738051b60223",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 6051.988292019814
+      },
+      {
+        "name": "call-02-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 4.5530409552156925
+      },
+      {
+        "name": "call-03-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.133124904707074
+      },
+      {
+        "name": "call-03",
+        "request_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "response_sha256": "ae882e3b3b0e0bc69a6aad13d2300b2ae0df71c145887fbea01e2efec69e7404",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 6005.063040996902
+      },
+      {
+        "name": "call-03-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.4399589747190475
+      },
+      {
+        "name": "call-04-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.7737499438226223
+      },
+      {
+        "name": "call-04",
+        "request_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "response_sha256": "7d03b2caf5154561da823f77da62c1d03bfcc4d44d62c2b78d2edad02d73ac92",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 10429.821209050715
+      },
+      {
+        "name": "call-04-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.733334015123546
+      },
+      {
+        "name": "call-05-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.8635409651324153
+      },
+      {
+        "name": "call-05",
+        "request_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "response_sha256": "f35883df5525b4eeb620bc1260ca5e1402ed36736f510d394f0913f1e49d5aad",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 5365.690083010122
+      },
+      {
+        "name": "call-05-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 4.043875029310584
+      },
+      {
+        "name": "call-06-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.4101669443771243
+      },
+      {
+        "name": "call-06",
+        "request_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "response_sha256": "482876f54565d4c7df4d6b1dfa02a037002517718f64d1313f57988ba3a80247",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 5547.9499999200925
+      },
+      {
+        "name": "call-06-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.9396670181304216
+      },
+      {
+        "name": "call-07-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.1247499864548445
+      },
+      {
+        "name": "call-07",
+        "request_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "response_sha256": "67de065154aed051cc93185a0e1e063ec3151cbf0435ceca770c0dadf4898547",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 7830.216292059049
+      },
+      {
+        "name": "call-07-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.826291020028293
+      },
+      {
+        "name": "call-08-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.00524996034801
+      },
+      {
+        "name": "call-08",
+        "request_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "response_sha256": "73ec521bf035e56124539dbb2b579b63c75f6a11de4151feb917a2afdd0f0137",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 5393.00166699104
+      },
+      {
+        "name": "call-08-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.92212497536093
+      },
+      {
+        "name": "call-09-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.3679589396342635
+      },
+      {
+        "name": "call-09",
+        "request_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "response_sha256": "a9dbfdb1060fa490377ab2ba822bc4031c22634e823a98b5c003407c9157680f",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 7803.873541997746
+      },
+      {
+        "name": "call-09-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.6510830502957106
+      },
+      {
+        "name": "call-10-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.6330840298905969
+      },
+      {
+        "name": "call-10",
+        "request_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "response_sha256": "d61d12851e0ef8e2d8f22df91c749f9d1f74512df2aaa7dfe6888b3dbcfcb28a",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 6404.277291032486
+      },
+      {
+        "name": "call-10-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.5243330746889114
+      },
+      {
+        "name": "call-11-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.8606249941512942
+      },
+      {
+        "name": "call-11",
+        "request_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "response_sha256": "867566c51f25e94555f7b7aa9905d3a28f907c0aa42a6253db7f7324546528e0",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 6050.7695840206
+      },
+      {
+        "name": "call-11-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.1256670588627458
+      },
+      {
+        "name": "call-12-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.6755829565227032
+      },
+      {
+        "name": "call-12",
+        "request_sha256": "45bc94037bb0f418d43fe233c771b05329d76f32612e3c005c0d404486eeedb6",
+        "response_sha256": "48b0373aa8047ef5bf4921f6ef88083a897984f706f4e92d2948b45c9241bfef",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 6206.062291981652
+      },
+      {
+        "name": "call-12-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.8195420745760202
+      },
+      {
+        "name": "call-13-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.140791970305145
+      },
+      {
+        "name": "call-13",
+        "request_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "response_sha256": "4f4495395aef5abd3483982e8191bf6476810db5e1e85fe4b2747cf222cd334c",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 8422.846833942458
+      },
+      {
+        "name": "call-13-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.5701670674607158
+      },
+      {
+        "name": "call-14-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.657834043726325
+      },
+      {
+        "name": "call-14",
+        "request_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "response_sha256": "0867aa7c436d33e331228c8cf70b91dd92a88defedae9009a17f071109959eff",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 5425.823500030674
+      },
+      {
+        "name": "call-14-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 4.045041045174003
+      },
+      {
+        "name": "call-15-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.320166957564652
+      },
+      {
+        "name": "call-15",
+        "request_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "response_sha256": "6670d01451dc9f3c75050e922560d964f6d18408b587391c2155158baeaedc91",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 8083.993332926184
+      },
+      {
+        "name": "call-15-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.582209068350494
+      },
+      {
+        "name": "call-16-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.0134999649599195
+      },
+      {
+        "name": "call-16",
+        "request_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "response_sha256": "42d6c5c660b7a369c5bedf8d856743bbf802b6b4309e3a2e097455a25ac1b650",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 5481.789582991041
+      },
+      {
+        "name": "call-16-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.7275420036166906
+      },
+      {
+        "name": "call-17-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.2955839997157454
+      },
+      {
+        "name": "call-17",
+        "request_sha256": "bd876b0dcf8b3e74aec0f8d2ae191549c4bea424ec09fb830d0683b33d19ec33",
+        "response_sha256": "d9744dfeecb352af2cc275edbd99d985464116c4a0f83b0244a75dd3ea613c37",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 7900.787167018279
+      },
+      {
+        "name": "call-17-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.381333033554256
+      },
+      {
+        "name": "call-18-before-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.756541896611452
+      },
+      {
+        "name": "call-18",
+        "request_sha256": "2ecbadbbfdf716f115e80cbb9144d42593b9d0cf2b3cf9a62f23c26be23e02be",
+        "response_sha256": "d9ca24e02a59ac972d0f067b4dd2bc57a88c446d7ab40b628ffe13357421afb3",
+        "route": "/api/chat",
+        "timeout_seconds": null,
+        "wall_latency_ms": 5502.9317499138415
+      },
+      {
+        "name": "call-18-after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 3.0497919069603086
+      },
+      {
+        "name": "after-tags",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "d73cf1cb115e96b6f3d80726785fe39f7fb9b7b503a482736a7fe9b31e4ee12f",
+        "route": "/api/tags",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 2.6272920658811927
+      },
+      {
+        "name": "after-version",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "7a8970074153afcd377b267a4b57f116dc74ee49bfa48a899fa1318148f921cd",
+        "route": "/api/version",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 1.3975000474601984
+      },
+      {
+        "name": "after-ps",
+        "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "response_sha256": "89bb6b25c192399f7bf97186b3ca6c33baae4f9ecd9225c55984868094b91c4d",
+        "route": "/api/ps",
+        "timeout_seconds": 5,
+        "wall_latency_ms": 0.716291950084269
+      }
+    ],
+    "pins": {
+      "baseline_result": {
+        "path": "q1q5-review-closeout-v1_20261025/timeout-audit/RESULT.json",
+        "sha256": "8a6dee884b99f1eddc1c110b190c17462362ef24a5bdcf11249dc2801748233f"
+      },
+      "inputs": {
+        "path": "q1q5-review-closeout-v1_20261025/timeout-inputs.json",
+        "sha256": "7e075317bc564fda7e76f181e721f5769c7ad7fe5541dc507080027f98eab3ab"
+      },
+      "model": "qwen3:1.7b-q4_K_M",
+      "model_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+      "verified_input_files": [
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-0/private/1bd962adc10fc82d84206d26ce950885.json",
+          "sha256": "6b1cc8cd929bb742fda5d9c42bef70ac8ece928ac78401864ec66fc585321ee3"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-0/private/fb7589ce050e6f6f69b604d619618317.json",
+          "sha256": "58853ec34456c37feebb8283851760ecc6ebec03f896a9671adc0f5fe1b6d987"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-1/private/383e6d840ca3c56e3f16c6f3cb47fa23.json",
+          "sha256": "2a7774cce076c2b64292d2e32476e065d83618b93e7939933dd8155fe968f309"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-1/private/6a3afcc4c47edb5dc8cc37607d7c37f6.json",
+          "sha256": "2d8be6d0cf0f399eb4f52ef22dfb7cff5abc4dacb3c8e6006ea1b8bdbd0f449c"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-2/private/1b106a005495d16f1439b37b386095e9.json",
+          "sha256": "bc955025556bc0e114b7c96aa670ec24d036ecad5aa22a9c6da99511951f36b0"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-0/sample-2/private/8ffadda1fad2249fec233de846737520.json",
+          "sha256": "dc9980429cd25c97921e69d3c5f27f9b0a98cfc86af90b3aa267d16174ae2c98"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-1/sample-0/private/829b2283fcae9b04f8e048631b1fa5b6.json",
+          "sha256": "e5b18997c1c2a77576d81870c468713e46b06eebf2415eb2679b0903c1a13d3c"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-1/sample-0/private/cd2986d39f01b6f7f7544edf21bdd91d.json",
+          "sha256": "45336fdfea3af77004431f2b69a382b96ac9097c025fc62809769b20a53753e4"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-1/sample-1/private/211e57565824293a9b26acbb255973b6.json",
+          "sha256": "6c3524ffb5795263bd8684b1c793bf59cdc7eeccfc2c0dadf2df119e432cedbd"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-1/sample-1/private/70528cd7722de827dd03a56d85362d0f.json",
+          "sha256": "6f9068713c894e751915903c203c1cbceaae7cbc6b78f0a25df9c567d2e9916b"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-1/sample-2/private/8ca1549a2e411a2743195b9071fd2f49.json",
+          "sha256": "9bad16dc1029e6e0bb87f7d9eceaf9b1a3bec7b93ba02dd81ef89d36b1b87078"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-1/sample-2/private/a11f26b7f7e7eddfe3542fb411fec9cd.json",
+          "sha256": "f319ea6cda437668fe3000d2ab04dc77a32c5a5d8c131191c885424615ca7b08"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-0/private/1990a0755dca8114d2926347cb3795e8.json",
+          "sha256": "d0582c9879213db4438a02882c3e9173f0ccec1973e1896c0adf2bc80c496eec"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-0/private/926fdca05f98fce68b5877605d2fa53a.json",
+          "sha256": "4e2eeb0f0fed65a7b9b57bb183f331a1e543d8e3eebefda4ca6fb37d8ad906ba"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-1/private/351470dfb1644382e6ba426f207f6b2f.json",
+          "sha256": "b3d6b99c1a1ceffe87168517ebe1c6d2b9110ca99e41b85f654e542f2171ca43"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-1/private/ae321db6afc7c57655621055b9f4e855.json",
+          "sha256": "31760620cd8d0ff391b700f45733d351402d6a783b9361a3ed5fd4752befc224"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-2/private/24587967b8f0325d130b651a88fbc897.json",
+          "sha256": "b1bc2a5bc215deacbedc9838aefaf75c937f7ed2977d71507be8a67cf60da8c6"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-2/sample-2/private/2801d328f1330a812683c47a79a635a1.json",
+          "sha256": "a52ce79eec81ec7afedb2b269bfc1d754edc81ecc108c6fb6ab8c2be93ba9e9b"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-3/sample-0/private/0f7ad17b23e8dbe362c8f4f7660f6eb8.json",
+          "sha256": "cdc7a8e481fe92e5f76a31c99d3ef2e3cb34586634c6c92ec145e1345122491a"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-3/sample-0/private/cf57c929664bfece54382a76644a0703.json",
+          "sha256": "e7559bd12211f342e2f9a92caa39659e916ebcdb982500fb1f64a7d075b8145d"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-3/sample-1/private/498d6d249fe372a21922de3032e670e5.json",
+          "sha256": "376913af6dd570e3c5068ed08eeb9ee1f4e017554612247db05ecedf18ffad7b"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-3/sample-1/private/99232e943d1ec1060a9b997ba1e6fbb0.json",
+          "sha256": "2fbae8b7b9b956b61f81f5d47177466277835dfb8a9f0877c89a5306cda02b36"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-3/sample-2/private/2f487cc3b047381c4794099bd7e3b725.json",
+          "sha256": "621dfbf147207007df606fbab6e571336566a50a00ecd24a85f52dd8fa15f647"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline/worker-3/sample-2/private/f19bb6a3a33e095b9e46d9bfad4b908d.json",
+          "sha256": "f4e8a0a77519bba62296478338b01c58edd53ec2f3f0da9977dbef86e17fd95d"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/run/baseline-worker.resources.json",
+          "sha256": "1daf7c70e106ca2530cdc1506a433f05ee7aa4f8cf0626305a7bf4590ad7f519"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-0/private/75dfa100eb0e8fbe4aaaea76e7c50183.json",
+          "sha256": "1deaed52af664159a87f56ec5dbba3e54ca6ba37f05d3d8cf93d0b8fcf55d952"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-0/private/ec37106dc2b73b1fcfe35440f3c2024a.json",
+          "sha256": "9893ebae85bd94d8aedb4b4e3b1d736e36187caa00cf6ab65a09d16313e42e06"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-1/private/1ff297ad5c67629c52cae01ffcf99a97.json",
+          "sha256": "a7b1ca377014093cce09e2eb2bc739e19bf4206b4985ccc72b41e057e4f8b843"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-1/private/4b8281c730ba97474bac937c996ede65.json",
+          "sha256": "f69e6241dcdf2bc647f6156e891fc464588e4b63c90e74549965f11e2e0f2ee0"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-2/private/6e9eb9cf7ca78f9d7a822146bfe2bcb4.json",
+          "sha256": "6efc2047cc583dc2a83eff4379000264bcc51095d7ce0cf7e8c0da3f59e303b7"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-0/sample-2/private/ae6adc2b6c5eeb0b05f5e8c480c9bf2d.json",
+          "sha256": "efe103f5f0c85ae5219fd674f5053a547c541c70b279edc212a2006cc6d1b127"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-1/sample-0/private/62d8cc5ba2a33efecc25f4dc25fca0a7.json",
+          "sha256": "ff9233d7d235d7af0967f536d7f04f8c19ca9f6a3bc4ade37eef0277045bff30"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-1/sample-0/private/c0ffc4850a79bc8e840fded8d667337e.json",
+          "sha256": "281a2f09d1130a53de2f494126b5ef92a79514d674e47802a42e97463e1c6b3d"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-1/sample-1/private/740180483994ab4eaf8787b801970711.json",
+          "sha256": "459e3e6d8494e01b9cf88321bfbaa9be8b59aca8a72ef8ecb16289dc624306f9"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-1/sample-1/private/ed606a8e9d10647e6f03507a51fe2aba.json",
+          "sha256": "606e50e5d1417eab077b1efd475cc09604bf7ecafd7b9ad90e53bf61a2bbf457"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-1/sample-2/private/9e141cbbc73f4428f8272193525c171e.json",
+          "sha256": "293374c6f3c672f73b8851467f223a5f8885bb153e7fe928dc2b01ab1cda3d73"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-1/sample-2/private/a0fcd89a79589c33aa9524f640b83113.json",
+          "sha256": "e231078b5a15068a2059ec30fd0daec7bef69c357235eaf816498d32c8f783f0"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-0/private/0d88e421d59b7028bf3ca25483447f7d.json",
+          "sha256": "40660b94ca950362231fd2d6d19a32a57bd170e381cd8271f56373cdddcb31f8"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-0/private/f2a97919e1eeacf3c1eda39d434898fe.json",
+          "sha256": "0c72e58f99875e5b2b5638e96da40ff1c9bb22a90ba7dd7a4b64e4784f3d474c"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-1/private/9f794384be85d0d058cce5741761869e.json",
+          "sha256": "b728fc3c6d0199bcebdd4ca87a9c0c754fd02f52718540db736821950e608428"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-1/private/a2513f94ec45830370bd1f2bcce70cf4.json",
+          "sha256": "0c62543b16ec2ad3df467a7ce69eed783316dcd8e499fd526c30c959bddba5b8"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-2/private/06f4b6bda29e11774abe0078959dff4f.json",
+          "sha256": "f51d703f82459baa95e0a94d8de15d3a3c7aa4361fd9b13028acdfad330f9987"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-2/sample-2/private/53771659e37c10b10155031048aac032.json",
+          "sha256": "eb2a13d98df0c8eaa88c46148bcd5f8eb30593b5ff2cea2ae4613f75587464f2"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-3/sample-0/private/5c40d651022ec7403fc799117b0d8cb1.json",
+          "sha256": "5203c500f6be077fbbfecfafc0200729ae52dbfdd79fe606a38ed792e1548016"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-3/sample-0/private/ed273046200902b90bd2fcd220975145.json",
+          "sha256": "c6a5d3834b7ba440680f53f41dbaa416ad075cfa43f3837474bb1871f7cfdf7d"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-3/sample-1/private/b126cd40ac50cb57dae699ea5f9e54cd.json",
+          "sha256": "7dbeea78b50ec7518ca755cb0eb174db2a48cf910cbc5a3794ec228e7eb7531a"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-3/sample-1/private/f91744cb9f8ed9a958e0765865f2a968.json",
+          "sha256": "0c490c345a76996d36f27644fd9ac663e8409030d38f550af7883c8b1095da6f"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-3/sample-2/private/d9a8db2dc729f720310960537ea974b3.json",
+          "sha256": "de3502dde14f03a8faf0f7399dd5353e514bac2ee5ad209fa9d872aad0ee2693"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/repeat-baseline/worker-3/sample-2/private/eff0fbb5b0cc51015daff42f3163ee1d.json",
+          "sha256": "7d3abe9e023ccbeef4e493886b48d82bbe8aa1e574c5489023c894de5f286283"
+        },
+        {
+          "path": "q1q5-dynamic-baseline-v1_20261025/evidence/repeat-worker.resources.json",
+          "sha256": "f62305d5ccffea3b5be4b9f31bcf542a43b29311729bde5bab987dcf361e3c35"
+        }
+      ]
+    },
+    "product_provider_modified": false,
+    "purpose": "CX-6 DIAGNOSTIC ONLY",
+    "raw_artifacts": "LOCAL_ONLY",
+    "schema_checker": "STDLIB_FROZEN_SUBSET_V1",
+    "schema_valid_outputs": 18,
+    "schema_version": "q-demo.qwen3-untruncated-diagnostic.v1",
+    "semantic_controller_acceptance": "UNKNOWN",
+    "status": "COMPLETE",
+    "untruncated_completions": 18
+  },
+  "not_verified": [
+    "Formal human eight-question set and accuracy",
+    "Full parser and Controller acceptance",
+    "Concurrent no-timeout benchmark",
+    "Formal r004 baseline, browser acceptance, #127 full suite",
+    "Non-2xx HTTP error bodies are not recorded by this CLI"
+  ],
+  "published_code_files": [
+    {
+      "path": "scripts/diagnose_qwen3_untruncated.py",
+      "bytes": 22214,
+      "sha256": "ea57af6f209fa1856710ed45c66488365a25428bad7d8f9152e9153e1b301d92"
+    },
+    {
+      "path": "tests/unit/test_qwen3_untruncated_diagnostic.py",
+      "bytes": 11913,
+      "sha256": "1017cd6397a9b80f3da8291620cf80888ea3b613842080d7f4dba11f46e42568"
+    }
+  ]
+}

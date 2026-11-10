@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  D178: runs ~/amidst/scripts/local/sync_main.sh every 10 minutes. That is the tracked copy, added by the path PR.
+
+  Install (by hand, after window B):
+    cp com.amidst.sync-main.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.amidst.sync-main.plist
+
+  Remove:
+    launchctl bootout gui/$(id -u)/com.amidst.sync-main
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.amidst.sync-main</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/polalabear/amidst/scripts/local/sync_main.sh</string>
+  </array>
+
+  <!-- Every 600 seconds, and once when the job is loaded. -->
+  <key>StartInterval</key>
+  <integer>600</integer>
+  <key>RunAtLoad</key>
+  <true/>
+
+  <!-- Background priority. -->
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/bin:/bin</string>
+    <!-- Never block on a credential prompt. -->
+    <key>GIT_TERMINAL_PROMPT</key>
+    <string>0</string>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/Users/polalabear/amidst/local/logs/sync-main.launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/polalabear/amidst/local/logs/sync-main.launchd.log</string>
+</dict>
+</plist>

@@ -1,0 +1,24 @@
+{
+  "schema_version": "phase2.repair0511.authorization-update.v1",
+  "user_instruction_date": "2026-10-14",
+  "scope": [
+    "Merge validated demo and necessary dependencies into main",
+    "Continue item11 answer-quality repair and acceptance",
+    "Retain item05 baseline",
+    "Upload necessary code and public verification records",
+    "Remove current finalization worktree after necessary live dependency preservation; retain records"
+  ],
+  "authorized_main_merge": true,
+  "authorized_normal_git_push": true,
+  "authorized_worktree_removal": true,
+  "main_history_rewrite_authorized": false,
+  "new_sealed_synthetic_dataset_authorized": false,
+  "external_model_calls_authorized": false,
+  "other_items_deferred": true,
+  "original_acceptance_protocol_sha256": "81b1d2481f9b7ede5076b664b87d86c8d06d18a780b940b5891c8a89d3db8c89",
+  "original_quality_gates_unchanged": true,
+  "historical_protocol_authorization_booleans_not_rewritten": true,
+  "necessary_local_dependencies_not_uploaded": true,
+  "retired_generation_outputs_policy": "PUBLIC_RECORDS_AND_HASHES_ONLY_NO_BULK_ARCHIVE",
+  "services_may_end_offline_when_checkout_removed": true
+}

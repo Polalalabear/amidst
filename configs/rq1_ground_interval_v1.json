@@ -1,0 +1,29 @@
+{
+  "schema_version": "office-demo.rq1-ground-interval-config.v1",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "predictions": {
+    "git_ref": "origin/codex/c4a-foot-ray-band@a6ce40c2956a8f15b1ad77c9310bce1b203b7e7b",
+    "path": "docs/engineering/C4A_PERSON_FOOT_BAND_PREDICTIONS_20261017.json",
+    "sha256": "c1dfc1bd3baacca514f2066adcfc10036cbcfaf657e5636d8482b837d6dd4616"
+  },
+  "ground_truth": {
+    "path": "/Users/polalabear/Developer/amidst/data/pilot/office_person_20261016_v1/rendered/ground_truth.json",
+    "sha256": "e12c34f566e69b5d51fb0c9022dc69f1401c56f18fee078ca10a0ee2f42b72a9",
+    "contact_field": "foot_position",
+    "note": "LOCAL path outside the repository; read-only, never copied. Used only after the prediction SHA is verified."
+  },
+  "scale": {
+    "m_per_scene_unit": 0.0247,
+    "source": "trajectory_plan.json run_configuration.source_scale_m_per_bu (SHA-256 of plan recorded in the results document)"
+  },
+  "tolerances_m": {
+    "zero": 0.0,
+    "body_radius_d5": 0.25
+  },
+  "time_alignment": {
+    "method": "EXACT_MATCH_ELSE_LINEAR_INTERPOLATION",
+    "exact_match_tolerance_s": 1e-6,
+    "out_of_range": "FAIL"
+  },
+  "plane_height_check_tolerance_m": 0.005
+}

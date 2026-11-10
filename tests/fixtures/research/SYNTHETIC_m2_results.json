@@ -1,0 +1,147 @@
+{
+ "contract": "amidst.research-results.v0-draft",
+ "env_manifest_sha256": "d4ecd2ab1a04c7d347680e57bc25e12d6033d93948d4430cdb3c73a39b456078",
+ "events": [
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-1",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-2",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-3",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MISMATCH",
+   "v2_label": "MISMATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-4",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-5",
+   "rule_ref": "SYN-RULE-1",
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MISMATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-6",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MISMATCH",
+   "v2_label": "MISMATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-7",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-8",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-9",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MISMATCH",
+   "v2_label": "MISMATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-10",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-11",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MATCH",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "STANDARD",
+   "event_id": "SYN-STD-12",
+   "rule_ref": null,
+   "scenario_class": "COMMON",
+   "v1_label": "MISMATCH",
+   "v2_label": "MISMATCH"
+  },
+  {
+   "category": "LONG_GAP",
+   "event_id": "SYN-NS-1",
+   "scenario_class": "COMPLEX_A",
+   "v1_label": "UNKNOWN",
+   "v2_expected_label": "NOT_SCORED_LONG_GAP",
+   "v2_label": "NOT_SCORED_LONG_GAP"
+  },
+  {
+   "category": "LONG_LOSS",
+   "event_id": "SYN-NS-2",
+   "scenario_class": "COMPLEX_A",
+   "v1_label": "UNKNOWN",
+   "v2_expected_label": "NOT_SCORED_LONG_LOSS",
+   "v2_label": "NOT_SCORED_LONG_LOSS"
+  },
+  {
+   "category": "ENDED_BY_LIMIT",
+   "event_id": "SYN-NS-3",
+   "scenario_class": "COMPLEX_A",
+   "v1_label": "UNKNOWN",
+   "v2_expected_label": "NOT_SCORED_ENDED_BY_LIMIT",
+   "v2_label": "NOT_SCORED_ENDED_BY_LIMIT"
+  },
+  {
+   "category": "OVERLAP",
+   "event_id": "SYN-NS-4",
+   "scenario_class": "COMPLEX_A",
+   "v1_label": "UNKNOWN",
+   "v2_expected_label": "NOT_SCORED_OVERLAP",
+   "v2_label": "MATCH"
+  },
+  {
+   "category": "LONG_GAP",
+   "event_id": "SYN-NS-5",
+   "scenario_class": "COMPLEX_A",
+   "v1_label": "UNKNOWN",
+   "v2_label": "NOT_SCORED_LONG_GAP"
+  }
+ ],
+ "experiment": "M2",
+ "recompute": {
+  "n": 4,
+  "same_n": 4
+ },
+ "source_class": "SYNTHETIC"
+}

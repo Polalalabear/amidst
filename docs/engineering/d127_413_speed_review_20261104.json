@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-04",
+  "issue": 413,
+  "pr_reviewed": 408,
+  "base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "increment_base": "6de481da50aabb0f8acebf4c21b6066f679cb826",
+  "reviewed_head": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
+  "verdict": "ADOPT_INCREMENT_ONLY",
+  "findings": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 2
+  },
+  "node": {
+    "passed": 410,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 2.883361417
+  },
+  "guard": {
+    "authority": 0,
+    "inference": 0,
+    "schemas": 0,
+    "allow": [],
+    "status": "PASS"
+  },
+  "diff_check": "PASS",
+  "browser": {
+    "reviewed_head": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
+    "recording_id": "2777741d96ac9aff5bffb2f61a4d2938",
+    "browser": "IAB, default viewport",
+    "setting": 2,
+    "observations": [
+      {
+        "observed_at": 1793789503637,
+        "time": "1.33 s",
+        "note": "設定 2× · 實際 1.9×",
+        "camera": "A · 目前畫面"
+      },
+      {
+        "observed_at": 1793789610224,
+        "time": "2.16 s",
+        "note": "設定 2× · 實際 2×",
+        "camera": "A · 目前畫面"
+      }
+    ],
+    "playback": {
+      "wall_duration_ms": 132670.69999998808,
+      "raf_samples": 7957,
+      "main_frame_samples": 5249,
+      "buffering_samples": 193,
+      "max_main_sample_gap_ms": 166.89999997615814,
+      "active_camera_transitions": [
+        {
+          "camera": "A",
+          "source_us": 0,
+          "wall_elapsed_ms": 16
+        },
+        {
+          "camera": "B",
+          "source_us": 5166799,
+          "wall_elapsed_ms": 2601
+        },
+        {
+          "camera": "A",
+          "source_us": 0,
+          "wall_elapsed_ms": 4049.5999999940395
+        },
+        {
+          "camera": "B",
+          "source_us": 5166599,
+          "wall_elapsed_ms": 6650.300000011921
+        },
+        {
+          "camera": "A",
+          "source_us": 0,
+          "wall_elapsed_ms": 8082.9000000059605
+        },
+        {
+          "camera": "B",
+          "source_us": 5180399,
+          "wall_elapsed_ms": 11000.5
+        },
+        {
+          "camera": "A",
+          "source_us": 0,
+          "wall_elapsed_ms": 13017
+        },
+        {
+          "camera": "B",
+          "source_us": 5166799,
+          "wall_elapsed_ms": 15633.300000011921
+        }
+      ]
+    },
+    "manual_checks": [
+      {
+        "source_us": 5100000,
+        "camera": "A",
+        "virtual_time": "2026-11-01 13:00:05.10（UTC+8）"
+      },
+      {
+        "source_us": 5150000,
+        "camera": "B",
+        "virtual_time": "2026-11-01 13:00:05.15（UTC+8）"
+      }
+    ],
+    "limitations": [
+      "Did not reproduce historical sustained actual-0x stall",
+      "No physical display fps measurement",
+      "No current inference or external model",
+      "No complex-event original media inspection"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "LOCAL /private/tmp/d127-413-b05b-510.jpg",
+      "sha256": "9eeecb2740d0fe5562842fc84127b07a9b98f148ff54da43acb62555427d2243"
+    },
+    {
+      "path": "LOCAL /private/tmp/d127-413-b05b-515.jpg",
+      "sha256": "14195584d1430077aefdee07885b1f574277da95c1efd300159564d9b4a2af31"
+    },
+    {
+      "path": "LOCAL /private/tmp/d127-413-browser.json",
+      "sha256": "254f07e28db0d462e5ac2d15a91a9a06e3fc781f8076502b60669061180b0edd"
+    }
+  ],
+  "unknown": [
+    "historical stall duration and root cause",
+    "physical display fps",
+    "long-running stability",
+    "whole #408 acceptance"
+  ],
+  "model_effort": "Codex, precise model and effort UNKNOWN"
+}

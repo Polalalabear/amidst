@@ -1,0 +1,15 @@
+{
+  "schema_version": "phase2.repair11.http-fixture-preflight.r3.v1",
+  "status": "PRIVATE_FIXTURE_RUNTIME_FAILED",
+  "completed_checks": 28,
+  "assertion": "HTTP_FIRST_GOAL_DOWNGRADE_REJECTED_BEFORE_DISPATCH",
+  "diagnosis": "Fixture helper performed string-token set membership on a dict action, causing TypeError before model completion.",
+  "provider_kind": "SCRIPTED_HTTP_GUARD_ONLY",
+  "actual_model_calls": 0,
+  "old_helper_sha256": "f88bdde6d872a42a81863d1fa741ec734d4d990d21566194bcf4b5b069a47334",
+  "new_helper_sha256": "359aa9d917820d2b7572585b653136e85463344f987fcb4531c4ae6464679843",
+  "failure_log_sha256": "dbb9f55a092fd327a814e02e72b18737d22e6f28eb69ea6d321822acdba9a13f",
+  "fix": "Require string type before scripted token set membership. Assertions and production code unchanged.",
+  "peer_confirmation": "agent_final prepared adapter and independent engineering_progress reproduced dict set TypeError; private QA showed zero completed model calls before failure.",
+  "production_inputs_changed": false
+}

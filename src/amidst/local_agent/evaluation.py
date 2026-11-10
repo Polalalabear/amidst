@@ -32,8 +32,15 @@ def summarize_cases(cases: list[dict[str, Any]]) -> dict[str, Any]:
         "model_call_denominator": len(receipts),
         "request_attempt_denominator": sum(c["metrics"].get("model_request_attempt_count", 0)
                                            for c in cases),
-        "usage_unknown_request_count": sum(c["metrics"].get("usage_unknown_request_count", 0)
-                                           for c in cases),
+        "usage_unknown_request_count": sum(max(
+            c["metrics"].get("usage_unknown_request_count", 0),
+            c["metrics"].get("model_request_attempt_count", 0) - len(c["model_receipts"]))
+            for c in cases),
+        "usage_unknown_request_count_recorded": sum(
+            c["metrics"].get("usage_unknown_request_count", 0) for c in cases),
+        "token_usage_is_lower_bound": any(
+            c["metrics"].get("model_request_attempt_count", 0) > len(c["model_receipts"])
+            or c["metrics"].get("usage_unknown_request_count", 0) > 0 for c in cases),
         "duration_ms": {"p50": percentile(durations, .5), "p95": percentile(durations, .95)},
         "prompt_tokens": {"total": sum(prompts), "p50": percentile(prompts, .5),
                           "p95": percentile(prompts, .95)},
@@ -274,13 +281,40 @@ def score_frozen_case(task: dict[str, Any], case: dict[str, Any]) -> dict[str, A
         or answer.get("response_language") != language
         or goal.get("original_request") != task["message"]):
         issues.append("REQUEST_LANGUAGE_NOT_PRESERVED")
+    clarification_verified = False
+    if task.get("reply") is not None:
+        observations = case.get("benchmark_observation", {})
+        records = observations.get("clarification_observations", [])
+        model_receipts = case.get("model_receipts", [])
+        record = records[0] if len(records) == 1 else {}
+        clarification_index = record.get("model_receipt_index")
+        clarification_verified = (
+            len(records) == 1 and record.get("state") == "NEEDS_CLARIFICATION"
+            and record.get("question_language") == language
+            and isinstance(record.get("question_sha256"), str)
+            and len(record["question_sha256"]) == 64
+            and type(clarification_index) is int
+            and 0 <= clarification_index < len(model_receipts)
+            and model_receipts[clarification_index].get("action_kind") == "clarification"
+            and any(receipt.get("action_kind") == "answer"
+                    for receipt in model_receipts[clarification_index + 1:])
+            and observations.get("reply_submitted") is True
+            and observations.get("reply_sha256") == digest(task["reply"])
+            and _literal_equal(goal.get("clarification_replies"), [task["reply"]])
+            and goal.get("missing_slots") == [])
+        if not clarification_verified:
+            issues.append("ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING")
+            completeness_errors += 1
     return {"task_id": task["task_id"], "group": "normal", "language": task["language"],
             "mode": task["mode"], "state": case.get("state"),
             "passed": completed and not issues and not field_errors and not completeness_errors,
-            "field_denominator": field_denominator, "field_errors": field_errors,
+            "field_denominator": field_denominator,
+            "field_errors": field_errors if completed else 0,
             "completeness_errors": completeness_errors if completed else 0,
             "requested_event_denominator": len(wanted), "observed_event_count": len(observed),
             "response_language_checked_from_server_goal": True,
+            "clarification_reply_required": task.get("reply") is not None,
+            "clarification_then_frozen_reply_verified": clarification_verified,
             "issues": sorted(set(issues)), "semantic_free_text_accuracy_claim": False}
 
 
@@ -321,6 +355,10 @@ def summarize_frozen_scores(scores: list[dict[str, Any]], cases: list[dict[str, 
             "model_refusal_quality_is_separate": True},
         "task_pack_completed": full, "quality_gate": "PASS" if gate else "QUALITY_GATE_NOT_MET",
         "all_48_cases_have_measured_local_model_receipts": every_case_measured,
+        "clarification_reply": {"required_attempted": sum(
+            row.get("clarification_reply_required", False) for row in normal),
+            "actual_chains_verified": sum(row.get("clarification_then_frozen_reply_verified", False)
+                                          for row in normal)},
         "renderer_text_used_for_factual_credit": False,
         "independent_oracle_frozen_before_model_execution": True,
     }

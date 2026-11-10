@@ -1,0 +1,15 @@
+{
+  "schema_version": "phase2.repair0511.main-r2-review.v1",
+  "main_r1_verified_and_published": "439c8669eae740ed5750eeb1f853c0ddf73ec507",
+  "r2_engineering_checkpoint": "87a87e9",
+  "r2_engineering_checkpoint_published": true,
+  "full_regression_passed": 3643,
+  "actual_demo_status": "PASS",
+  "frozen48_quality_gate": "IN_PROGRESS",
+  "attempted_action": "git cherry-pick 87a87e9 into main",
+  "action_executed": false,
+  "automatic_approval_review": "REJECTED",
+  "review_reason": "R2 full48 quality not yet completed; current acknowledged main authorization only validated demo/necessary dependencies",
+  "resolution": "Wait for full48 result and use new gate evidence before any main R2 retry; no bypass",
+  "main_changed_by_rejected_action": false
+}

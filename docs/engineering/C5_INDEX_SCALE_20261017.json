@@ -1,0 +1,39 @@
+{
+  "fixture_kind": "SYNTHETIC_SCALE_NOT_DEMO_OR_NEGATIVE_EVIDENCE",
+  "metrics": [
+    {
+      "frame_records": 100000,
+      "build_s": 0.04367729101795703,
+      "queries": 100,
+      "query_latency_ms": {
+        "p50": 0.5084795120637864,
+        "p95": 0.52304205019027,
+        "max": 0.7145419949665666
+      },
+      "frame_records_read_range": [
+        17,
+        17
+      ],
+      "rgb_io": "NOT_MEASURED_METADATA_ONLY",
+      "geometry_raycast": "NOT_RUN",
+      "demo_input_eligible": false
+    },
+    {
+      "frame_records": 1000000,
+      "build_s": 0.41514366696355864,
+      "queries": 100,
+      "query_latency_ms": {
+        "p50": 0.508333498146385,
+        "p95": 0.517625012435019,
+        "max": 0.624332984443754
+      },
+      "frame_records_read_range": [
+        17,
+        17
+      ],
+      "rgb_io": "NOT_MEASURED_METADATA_ONLY",
+      "geometry_raycast": "NOT_RUN",
+      "demo_input_eligible": false
+    }
+  ]
+}

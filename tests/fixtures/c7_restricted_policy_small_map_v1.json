@@ -1,0 +1,146 @@
+{
+  "schema_version": "office-demo.restricted-policy-test-map.v1",
+  "fixture_kind": "SYNTHETIC_CONTRACT_INPUT_NOT_SOURCE_MAP",
+  "gt_read": false,
+  "floor_z_m": 0.0,
+  "parameters": {
+    "body_height_m": 1.7,
+    "body_radius_m": 0.25
+  },
+  "regions": [
+    {
+      "region_id": "physical:room",
+      "tier": "SOURCE_DERIVED",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              8,
+              0
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      }
+    }
+  ],
+  "unknown_regions": [],
+  "portals": [],
+  "restricted_regions": [
+    {
+      "region_id": "restricted:test-crossing",
+      "tier": "RESTRICTED_POLICY",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              3,
+              0
+            ],
+            [
+              5,
+              0
+            ],
+            [
+              5,
+              4
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              3,
+              0
+            ]
+          ]
+        ]
+      },
+      "source_annotation_ref": "synthetic:annotation-crossing",
+      "source_annotation_record_sha256": "d916ba52b3f83d67fd2528f853a72418b053e5058a68aeab27245e61c701bd3a",
+      "source_annotation_file_sha256": "c463b960f13da36b026e526c61e027417f965e464a0f145c24c509ea5062a868",
+      "confirmation_ref": "synthetic:test-confirmation-crossing",
+      "decision": "D15",
+      "physical_obstacle": false,
+      "affects_walkability": false,
+      "affects_ranking": false
+    },
+    {
+      "region_id": "restricted:test-outside_physical_map",
+      "tier": "RESTRICTED_POLICY",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20,
+              0
+            ],
+            [
+              21,
+              0
+            ],
+            [
+              21,
+              4
+            ],
+            [
+              20,
+              4
+            ],
+            [
+              20,
+              0
+            ]
+          ]
+        ]
+      },
+      "source_annotation_ref": "synthetic:annotation-outside_physical_map",
+      "source_annotation_record_sha256": "72443c85fa40de088e8529822af06ae9a691c04832f2a826f28287b5d1c4a466",
+      "source_annotation_file_sha256": "c463b960f13da36b026e526c61e027417f965e464a0f145c24c509ea5062a868",
+      "confirmation_ref": "synthetic:test-confirmation-outside_physical_map",
+      "decision": "D15",
+      "physical_obstacle": false,
+      "affects_walkability": false,
+      "affects_ranking": false
+    }
+  ],
+  "test_route_m": [
+    [
+      1,
+      2,
+      0
+    ],
+    [
+      7,
+      2,
+      0
+    ]
+  ],
+  "expected": {
+    "walkable_result": "PASS",
+    "restricted_area_crossed": true,
+    "tiers": [
+      "SOURCE_DERIVED",
+      "RESTRICTED_POLICY"
+    ],
+    "geometry_and_ranking_unchanged": true
+  }
+}

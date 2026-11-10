@@ -4,155 +4,78 @@
 
 ## 繁體中文
 
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新階段是[來源幾何人工核對](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
-門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
-8／12／16格來源鏡頭分時影像牆，並選時間段同步核對。既有2de9821的Top-K／曲線／影片保留原版本，
-本輪沒有新重排或重編碼。本次Python3186、Node160、Ruff／mypy199檔及HTTP154請求／5119斷言PASS；精確範圍見[本輪收據](../data/engineering/blender_physical_review_20261013/)。
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
+本頁是 Q1–Q5 第一版 Demo 的現行文件索引（2026-10-27，D91）。過去的資料（Office Demo、3D 線、Phase 1／2、早期討論稿）已封存，見[封存](#封存)。即時狀態以[任務板與決策記錄 #93](https://github.com/Polalalabear/amidst/issues/93) 為準。
 
-先讀 [目前交接](operations/CODEX_HANDOFF.md)；開始實作時使用 [續作 prompt](operations/PHASE1_NEXT_CHAT_PROMPT.md)，並遵守 [開發規則](specs/DEVELOPMENT_RULES.md)。可執行的本機 mock API／replay／consumer 見 [Phase 2 整合](engineering/PHASE2_INTEGRATION.md)；M1–M6 照片到3D事件的操作與重現見 [模擬工程](engineering/SIMULATION_ENGINEERING.md)；局部跨鏡頭索引、事件卡與當次消融見 [局部 pilot](engineering/LOCAL_CAMERA_PILOT.md) 與 [protocol](research/LOCAL_CAMERA_EVENT_PROTOCOL.md)；Agent 的定位、可用工具與資料邊界見 [工程契約](engineering/AGENT_RETRIEVAL_BOUNDARY.md)。
+兩條線並行（D87）：**Line 1** 是 r004 A4-1／B4-1 baseline（D89）；**Line 2** 是複雜場景。
 
-持久調查、RGB 外觀查找、四鏡頭影片與 Three.js 回放、案例／人審／報告匯出的操作入口，見
-[本機 Phase 2 產品](engineering/LOCAL_PHASE2_PRODUCT.md)；當次結果與正式待辦分開記錄。
-版本化 pixel／外觀／關聯／行為比較、失敗證據與 frozen adapter 見
-[研究精度 v2](research/LOCAL_CAMERA_ACCURACY_V2.md)。
-並行的雙角色／場景 catalog／人審版本入口見 [共用工作台](engineering/SHARED_WORKBENCH.md)，
-它的本機8016及驗證 receipt 與產品8020分開。
+### 規則
 
-2026-10-11 的[系統端口、label 指引與差異歷史](engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
-說明具體輸入輸出、模擬併發、使用者行為選項、Agent I/O 與穩定 3D 的工程範圍。
+- [開發規則](specs/DEVELOPMENT_RULES.md)（根目錄 [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md) 是指向它的符號連結）
+- [AGENTS.md](../AGENTS.md)、[CLAUDE.md](../CLAUDE.md)：共同規則與 Claude Code 的閱讀順序
+- [Q1–Q5 產品規格](specs/Q1Q5_PRODUCT_SPEC.md)（取代已封存的 PRD、系統設計、資料結構與介面文件）
 
-同日的 [Blender 相機畫面檢索](engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md) 接入三組
-source-bound 預設情況、300 張既有 Blender camera RGB 與局部平滑來源模型，
-加上三個原 fixture，共六個場景。查詢由本機基底演算法產生 Top-K 畫面訊息，沒有 Agent 決策；
-來源幾何／校正／像素、合成目標／活動與獨立替代測試逐層標示。
-[整理收據](../data/engineering/blender_workbench_20261011/) 與歷史 milestone 驗證分開保存。
+### 契約
 
-2026-10-12 的 [Blender 曲線與事件還原](engineering/BLENDER_MOTION_RECONSTRUCTION.md)
-接續同組 RGB 像素／地面投影，以同鏡頭局部 track 產生暫定位置曲線與有限差分速度。
-短缺口插值、長缺口／超速／投影失敗斷開，以及來源與未核准物理邊界均明列；
-不把投影當直接觀測3D、不跨鏡頭合併身分、不經 Agent。三站曲線 PNG／影片已物化，
-每站影片1280×720、H.264／yuv420p／faststart、5 fps、50影格／10秒，
-每站100次來源RGB選取均為 `SOURCE_RGB_EXACT`。無 ffprobe，三站以
-`FFMPEG_FULL_DECODE_FALLBACK` 完整解碼 PASS，三站 provider manifest／六份媒體讀取 PASS；
-完整 Python 驗證（含 physical evidence）3017 passed／357.78秒，無 fail／error／skip；
-Node 92 PASS（workbench 79＋product 13），Ruff／strict mypy 191來源檔 PASS。
-最終 HTTP 98 requests／254 assertions PASS、`issues=[]`；三站各13/13端口
-（11 ACTUAL_BLENDER＋2 SUBSTITUTE）及六份媒體binary／hash／range／scope PASS。
-三站1280×720／10秒影片瀏覽器實際播放無解碼錯誤，最終console無warning／error、
-一般畫面隱藏opaque event IDs；原`.blend` SHA／size／mtime不變，見[本次收據目錄](../data/engineering/blender_motion_20261012/)。
+- [Demo bootstrap 偵測類別統計](contracts/Q_DEMO_API_BOOTSTRAP_V1.md)：D139 `detected_class_counts`、索引 pin 與衍生統計邊界。
+- [Q1–Q5 第一版契約](contracts/Q1_Q2_FIRST_DEMO_V1.md)：現行版在 `codex/q1q5-staging`（契約 B，[#237](https://github.com/Polalalabear/amidst/pull/237)）；mainline 的副本不手改。
 
-同日接續的[Blender 跨鏡頭多解還原](engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
-說明各 site／run 內的時間／速度／floor 限制、多解 Top-K、未關聯基線與3D／曲線／影片
-同步契約。Office 回3解，CLASS101 無跨鏡頭證據回1個基線，Auditorium 回3解並明示
-beam 截斷／非全域最優；原觀測支持點、短推斷與長缺失分開保留。完整來源圖排名與
-窄窗顯示分開標示。[本次收據](../data/engineering/blender_association_20261012/validation.json)
-與 camera-local 歷史紀錄獨立。三站PNG／MP4已物化且完整解碼PASS；完整Python3067／
-Node110／Ruff／mypy193檔、三站各16/16端口、HTTP160 requests／450 assertions及
-瀏覽器三站播放／同步均通過，原`.blend` SHA／size／mtime不變，不沿用舊PASS。
+### Line 1：r004 baseline
 
-<!-- PHYSICAL_FILTER_20261013_BEGIN -->
-前一物理checkpoint（2de9821）的[來源物理篩選與重排](engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) 接入核准局部幾何及最多256解候選池，
-保留原觀測、推斷與缺失。三站硬排除0、所有候選仍為UNKNOWN；Office原3／4／2成為Top-3，
-CLASS101只有未關聯基線，Auditorium截斷池維持前三。門孔核准仍為0，名稱與局部mesh不增加權限；
-長缺口不補直線，無可用位置的基線／摘要也明示UNKNOWN。新v2素材全解碼；Python3140、
-Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言PASS，三站瀏覽器同步通過，
-完成數以[新收據](../data/engineering/blender_physical_20261013/validation.json)為準；歷史PASS不沿用，原`.blend`不開啟、修改或複製。
-<!-- PHYSICAL_FILTER_20261013_END -->
+- [Baseline 驗收計畫](agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)：驗收條件 AC1–AC8、工作分配（§4）
+- [D79 決策窗文件](evaluation/Q5_DECISION_WINDOW_D79.md)：Q5 逐事件評分範圍
+- [A4／B4 情境卡 v1](https://github.com/Polalalabear/amidst/pull/253)（D89；#253 合併後在 `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md`）
+- [Workbench v2 設計](agents/WORKBENCH_V2_Q1Q5_DESIGN.md)
 
-使用者最新決策：**8016／frontend/workbench 為統一網頁主入口**。既有與後續頁面能力
-接入共用工作台；8020／frontend/product 保留既有工程證據及待遷移功能來源，不再擴張成
-另一個主要前端。Product 後端／資料／typed interfaces 已接人物調查／影片／案例；原 frozen lab保留。
+### Line 2：複雜場景
 
-[實驗展示覆蓋表](engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) 保留 2026-10-10 網站盤點：
-當時三個獨立場景與15家族展示索引；缺少素材、status-only artifacts與formal BLOCKED分開列出。
-操作見 [來源模型與行走](engineering/SOURCE_PRESENTATION_WORKBENCH.md) 和
-[人物調查／展示庫](engineering/WORKBENCH_INVESTIGATION_GALLERY.md)。
-本輪核准04／06的操作、来源及限制見[單一合成run／評測準備](engineering/WORKBENCH_RUN_STUDY.md)。
-最新核准05／09合成診斷／10區域出入與停留／11本機模型／12本機PG的實作及限制，見[本機A＋B＋C整合](engineering/PHASE2_LOCAL_BATCH_ABC.md)。
-接續的[05／11修正與demo](engineering/PHASE2_LOCAL_REPAIR_0511.md)提供逐欄核對回答及局部追蹤比較；48題驗收與main候選狀態另存新收據，舊A＋B＋C結果保留。
+- [兩條線計畫](https://github.com/Polalalabear/amidst/pull/252)（D87；#252 合併後在 `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`）
+- [複雜情境卡 v2](https://github.com/Polalalabear/amidst/pull/261)（#261）、[Q5 評分規則 v2 設計稿](https://github.com/Polalalabear/amidst/pull/258)（#258）：Draft，尚未合入
+
+### 評估
+
+- [評估文件資料夾](evaluation/)：目前有 D79 決策窗文件；其餘評估文件在上列 Draft PR。
+
+### 營運與交接
+
+- [C／#486 自有依賴與主線交接](operations/DEMO_OWNED_DEPENDENCIES_20261108.md)：單一設定、鎖定、manifest、舊路徑對照與驗證命令
+- [最新協調者交接（2026-10-27）](agents/COORDINATOR_HANDOFF_20261027.md)；前一份 [2026-10-26](agents/COORDINATOR_HANDOFF_20261026.md)
+- [Q1–Q5 進度導覽](operations/Q1Q5_PROGRESS.md)：全部 PR 與 issue 的分類
+- [本機測試設定](operations/Q1Q5_LOCAL_TEST_SETUP.md)
+- [D133 LOCAL 播放代理與 Mac 切鏡量測](engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md)：#444／#479 的工程收據，無整合 merge
+
+### 封存
+
+- [封存索引](archive/ARCHIVE_20261027.md)：Office Demo、3D 線、Phase 1／2、早期 Q1–Q5 討論稿與 `docs/specs/` 的舊規格。原檔留在原位，歷史 `.md` 的檔頭有「已封存」註記；JSON、圖檔與 `history/` 不動。
+
+### 資料夾與符號連結
 
 | 資料夾 | 內容 |
 | --- | --- |
-| [specs/](specs/) | 需求、架構、資料契約、決策與持續規則 |
-| [engineering/](engineering/) | 模擬工程、Agent 工具與資料邊界 |
-| [research/](research/) | Benchmark protocol、研究結果、展示與重現 |
-| [operations/](operations/) | 目前交接、續作 prompt、runtime 與資產物化 |
-| [history/](history/) | 工作、實驗與歷史 checkpoint 紀錄 |
+| [specs/](specs/) | 開發規則與產品規格；舊 PRD 等已封存 |
+| [contracts/](contracts/) | 契約 |
+| [agents/](agents/) | 計畫、協調者交接、設計文件 |
+| [evaluation/](evaluation/) | 評估與決策窗文件 |
+| [engineering/](engineering/) | 工程紀錄（多數已封存，見封存索引） |
+| [operations/](operations/) | 進度導覽、測試設定、營運文件 |
+| [research/](research/) | 研究紀錄（已封存） |
+| [history/](history/) | 歷史 checkpoint 紀錄 |
 
 此頁是唯一文件索引。根目錄另保留 exact corridor review 與 runtime 使用的 checkpoint JSON；三個符號連結維持 locked protocol、核准 review 與歷史 geometry reports 的原路徑。正文位於分類資料夾，不另建逐檔轉址文件。
 
 ## English
 
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
+This page is the current documentation index for the Q1–Q5 first demo (2026-10-27, D91). Older material (the Office demo, the 3D line, Phase 1/2 and early discussion drafts) is archived; see [Archive](#archive). Live status is on the [task board and decision log #93](https://github.com/Polalalabear/amidst/issues/93).
 
-Read the [current handoff](operations/CODEX_HANDOFF.md), use the [continuation prompt](operations/PHASE1_NEXT_CHAT_PROMPT.md) for implementation, and follow the [development rules](specs/DEVELOPMENT_RULES.md). [Phase 2 integration](engineering/PHASE2_INTEGRATION.md) documents the executable local mock API, replay and consumer; [Simulation engineering](engineering/SIMULATION_ENGINEERING.md) documents the operating RGB-to-3D loop; [Local camera pilot](engineering/LOCAL_CAMERA_PILOT.md) documents indexed association/event cards and evaluation; the [Agent contract](engineering/AGENT_RETRIEVAL_BOUNDARY.md) defines roles, tools and data boundaries.
+Two lines run in parallel (D87): **Line 1** is the r004 A4-1/B4-1 baseline (D89); **Line 2** covers complex scenes.
 
-[Local Phase 2 product](engineering/LOCAL_PHASE2_PRODUCT.md) documents durable investigations,
-RGB appearance retrieval, four-camera video/Three.js playback, saved cases, reviews and reports.
-[Accuracy v2](research/LOCAL_CAMERA_ACCURACY_V2.md) documents versioned pixel, association and
-behavior comparisons, failure evidence and the frozen research adapter.
-[Shared workbench](engineering/SHARED_WORKBENCH.md) documents the independently validated
-local research/admin scene and review workspace.
-The 2026-10-11 [system ports, label guidance and delta history](engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
-document records concrete interface inputs/outputs, phased concurrency probes, user intent,
-MockAgent I/O and stable 3D presentation.
-The same-day [Blender camera frame retrieval](engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)
-milestone adds three source-bound presets and 300 existing camera RGB frames with partial smooth
-source-model context. Six catalog scenes include the three original fixtures. Local deterministic
-algorithms return Top-K frame messages without an Agent decision, while actual geometry/calibration/pixels,
-synthetic target/motion and independent substitute probes retain separate labels.
-[Curated receipts](../data/engineering/blender_workbench_20261011/) are separate from historical validation.
-The 2026-10-12 [Blender motion reconstruction](engineering/BLENDER_MOTION_RECONSTRUCTION.md)
-uses the same RGB-derived floor projections for provisional camera-local position and speed curves.
-It marks short-gap interpolation and disconnected long/speed/projection gaps, without observed-3D,
-confirmed-identity or Agent claims. Three sites have materialized curve PNGs and videos at
-1280×720 H.264/yuv420p/faststart, 5 fps and 50 frames/10 seconds per site, each with 100
-`SOURCE_RGB_EXACT` source selections. Without ffprobe, all three passed
-`FFMPEG_FULL_DECODE_FALLBACK`; provider manifests and all six media reads passed.
-The full Python suite with physical evidence passed 3,017 tests in 357.78 seconds without failures,
-errors or skips; 92 Node tests passed (79 workbench + 13 product), plus Ruff and strict mypy for
-191 source files. Final HTTP passed 98 requests/254 assertions with `issues=[]`; each site passed
-13/13 ports (11 ACTUAL_BLENDER + 2 SUBSTITUTE) and six media binary/hash/range/scope checks passed.
-All three 1280×720, ten-second videos played without browser decode errors; the final console had
-no warnings/errors, normal views hid opaque event IDs and original `.blend` SHA/size/mtime remained
-unchanged. See the
-[new receipts](../data/engineering/blender_motion_20261012/).
-The same-day [Blender cross-camera reconstruction](engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
-records independent site/run temporal, speed and floor constraints, distinct Top-K hypotheses,
-the unassociated baseline and synchronized 3D/curve/video contracts. Office returns three candidates;
-CLASS101 returns one baseline without cross-camera evidence; Auditorium returns three with explicit
-beam truncation and no global-optimality claim. Original supporting projections, short inferred
-transitions and long missing spans remain separate. Full-source ranking is distinct from windowed
-display. Its [new receipt](../data/engineering/blender_association_20261012/validation.json) is separate
-from camera-local history. All three curve PNGs/videos are materialized and fully decoded. Fresh
-validation passed 3,067 Python tests, 110 Node tests, Ruff/mypy for 193 files, each site's 16/16 ports,
-160 HTTP requests/450 assertions and three-site browser playback/synchronization. Original `.blend`
-SHA/size/mtime remained unchanged; preceding milestone totals retain their historical scope.
+- **Rules:** [development rules](specs/DEVELOPMENT_RULES.md) (the root [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md) is a symlink to it), [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), and the [Q1–Q5 product specification](specs/Q1Q5_PRODUCT_SPEC.md), which replaces the archived PRD, system design, data schema and interfaces.
+- **Contract:** [Q1–Q5 first-demo contract](contracts/Q1_Q2_FIRST_DEMO_V1.md). The current version is on `codex/q1q5-staging` (contract B, [#237](https://github.com/Polalalabear/amidst/pull/237)); the mainline copy is not edited by hand.
+- **Line 1:** [baseline acceptance plan](agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md), [D79 decision-window document](evaluation/Q5_DECISION_WINDOW_D79.md), [A4/B4 scenario cards v1](https://github.com/Polalalabear/amidst/pull/253) (#253), [workbench v2 design](agents/WORKBENCH_V2_Q1Q5_DESIGN.md).
+- **Line 2:** [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (#252), [complex scenario cards v2](https://github.com/Polalalabear/amidst/pull/261) (#261) and the [Q5 scoring v2 design](https://github.com/Polalalabear/amidst/pull/258) (#258); all Draft PRs, not yet merged.
+- **Operations:** [latest coordinator handoff (2026-10-27)](agents/COORDINATOR_HANDOFF_20261027.md), [progress guide](operations/Q1Q5_PROGRESS.md), [local test setup](operations/Q1Q5_LOCAL_TEST_SETUP.md).
 
-The preceding physical checkpoint (2de9821) [source-authorized physical filter](engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) screens and reranks up to
-256 candidates using approved partial geometry. All actual candidates remain UNKNOWN, with zero
-hard rejection: Office reranks original3/4/2 into Top-3, CLASS101 keeps one baseline and Auditorium
-retains its truncated Top-3. Approved apertures remain zero; long gaps stay missing and empty-body
-baselines/ledgers also stay UNKNOWN. Fresh validation passed 3,140 Python and 122 Node tests (109 workbench + 13 product),
-60/60 ports and 175 HTTP requests/501 assertions. V2 media fully decoded; actual three-site playback, clock handoff and the 9.8-second final-source cursor passed.
-The [new receipt](../data/engineering/blender_physical_20261013/validation.json) records their own final scope. Historical PASS totals remain separate,
-without Agent/GT decisions or original Blender opening/change/copy.
+### Archive
 
-The user's latest decision makes workbench/8016 the unified primary web UI. Existing and
-future presentation capabilities belong there; product/8020 remains a preserved engineering
-lab and migration source. The E1 product investigation, video, case and report interfaces are integrated.
-[Experiment coverage](engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) retains the 2026-10-10
-inventory of three scoped scenes and fifteen presentation families, with missing assets and formal blockers explicit.
+The [archive index](archive/ARCHIVE_20261027.md) lists the Office demo, 3D-line, Phase 1/2, early Q1–Q5 discussion and old `docs/specs/` documents. Original files stay in place; historical `.md` files carry an "archived" header line. JSON, images and `history/` are untouched.
 
-The five folders separate specifications, engineering, research, operations and history. This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; maintained text lives in the category folders.
+This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; the body text lives in the category folders, with no per-file redirect documents.

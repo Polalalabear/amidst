@@ -1,0 +1,142 @@
+{
+  "camera_aliases": {
+    "鏡頭1": "CAM_BRANCH",
+    "鏡頭2": "CAM_ENTRY",
+    "鏡頭3": "CAM_EXT_CAR",
+    "鏡頭4": "CAM_EXT_CLEAR",
+    "鏡頭5": "CAM_R101_IN",
+    "鏡頭6": "CAM_W1",
+    "鏡頭7": "CAM_W2",
+    "鏡頭8": "CAM_WIDE"
+  },
+  "files": 27,
+  "fixture_role": "AUTHORING_CANDIDATE",
+  "formal_acceptance": "NOT_EVALUATED",
+  "image_sha256": {
+    "images/cameras/camera-01.png": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+    "images/cameras/camera-02.png": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+    "images/cameras/camera-03.png": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+    "images/cameras/camera-04.png": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+    "images/cameras/camera-05.png": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+    "images/cameras/camera-06.png": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+    "images/cameras/camera-07.png": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+    "images/cameras/camera-08.png": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b"
+  },
+  "manifest_sha256": "c89d0196a340cca9c2685103843237dff04945dc8bb7e29141ed028e1daf09db",
+  "missing_sections": [
+    "s0",
+    "s1"
+  ],
+  "phase": "S2_FRAMEWORK_ONLY",
+  "release_authorized": false,
+  "review_source_pins": {},
+  "source_pins": {
+    "catalog_receipt": "3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5",
+    "clock": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a",
+    "object_list": "a8d349cf2d03676f941aee9bc91e8518b352221f12b45b67634ae2aec26c5776",
+    "run": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9",
+    "source_manifest": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4"
+  },
+  "zip_sha256": "c02da7e2bc1bac9dfe40aa51fb3ae35bd1d8ca0ea6e148796eefe8c8b36de2a2",
+  "code_head": "50c76bfed94baa24ee327d54d7991027b49ccf3d",
+  "pack_local": "q1q3-authoring-yyin-v0-pilot_20261102_01a199f8",
+  "zip_local": "q1q3-authoring-yyin-v0-pilot_20261102_01a199f8.zip",
+  "payload_bytes": 3886020,
+  "zip_bytes": 3889180,
+  "two_builds_zip_byte_identical": true,
+  "version": "v0-pilot",
+  "evaluation_eligible": false,
+  "source_refs": {
+    "run_clock_catalog_freeze": "001cbcf6850e9cda8c867d8cff8044efe61d16e0 (#238 merged)",
+    "object_list": "7617ffec81dff8ae4c40274263bcb88eed3d7acd (#350)",
+    "guide": "aa33adb7cda7e2afa0eb7f2ec4914a5e82e42717 (#269)",
+    "design": "d7adb6c8f429644f89bd885d6128b7c8e84da93f (#240 original branch)"
+  },
+  "guide_sha256": "0f2ed0a92ca55b6fc68f04af03a7da286ef33a8eedc51db74847cf9078bc8cf6",
+  "design_sha256": "a382d15bf694418f4bbf43f40218670c83aed61279bb6281c5489546b59b6e23",
+  "checker_status": "VALID",
+  "verifier_status": "VERIFIED",
+  "png_sanitization": [
+    {
+      "alias": "鏡頭1",
+      "source_camera": "CAM_BRANCH",
+      "bytes": 445933,
+      "original_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+      "served_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+      "idat_sha256": "9e6a04150e32352ebd6e98257a5bab45f6cb5ccd05610594e2d18a9d2fb2ceb2",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭2",
+      "source_camera": "CAM_ENTRY",
+      "bytes": 463209,
+      "original_sha256": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+      "served_sha256": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+      "idat_sha256": "d31d1a58b7f704f43333cf4250f766307b079c7b541d3310f00789c8cd5ed28c",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭3",
+      "source_camera": "CAM_EXT_CAR",
+      "bytes": 503836,
+      "original_sha256": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+      "served_sha256": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+      "idat_sha256": "2c50068806630fd7f0c0d588daaf5f613c6652b4960bf368d87924b4ec141b44",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭4",
+      "source_camera": "CAM_EXT_CLEAR",
+      "bytes": 437811,
+      "original_sha256": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+      "served_sha256": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+      "idat_sha256": "0538eb9e45a0b8109e37f579cb087ca7bbf6517d2a0a44efda4d8f47c4827717",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭5",
+      "source_camera": "CAM_R101_IN",
+      "bytes": 460375,
+      "original_sha256": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+      "served_sha256": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+      "idat_sha256": "dfaa97d3d786d35351122bc45aa8feefd4139318176d8f6623631545b5c3d9df",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭6",
+      "source_camera": "CAM_W1",
+      "bytes": 589526,
+      "original_sha256": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+      "served_sha256": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+      "idat_sha256": "3d3dabfa0cfdbb5b7297846fb695627ca89da117aaba5d11965c9e6cd458e9c0",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭7",
+      "source_camera": "CAM_W2",
+      "bytes": 488739,
+      "original_sha256": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+      "served_sha256": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+      "idat_sha256": "ac2895d6b0276b844a494571044e33099d9540f9821c1964487051a1283a73e1",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    },
+    {
+      "alias": "鏡頭8",
+      "source_camera": "CAM_WIDE",
+      "bytes": 450972,
+      "original_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+      "served_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+      "idat_sha256": "2f61893f4ef58ca64d24bbbc58d618f72f9ef5025e318e4e803ebdb9913a8eca",
+      "original_unchanged": true,
+      "text_chunks_present_in_original": false
+    }
+  ],
+  "readme_sha256": "1c07d73fe398be0af1967595d9f265920778c60c1a272cd79035e2d3bd90b00e"
+}

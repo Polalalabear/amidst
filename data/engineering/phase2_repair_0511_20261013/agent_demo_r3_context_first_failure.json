@@ -1,0 +1,42 @@
+{
+  "schema_version": "phase2.repair0511.actual-demo-preflight.r3.v1",
+  "status": "FAILED_RETAINED_BEFORE_ACTUAL48_RUN",
+  "actual_model": "qwen2.5:7b-instruct",
+  "execution_version": "typed.evidence.v4",
+  "runtime_manifest_sha256": "734132b434a698898a0ccc48d80e2d6532a439c3ba444ad313e0db9a2fca6c8a",
+  "source_scope": {
+    "scene_id": "local-camera-accuracy-v2",
+    "camera_id": "DOOR",
+    "time_range": [
+      8,
+      16
+    ]
+  },
+  "state": "FAILED",
+  "error_code": "AGENT_GOAL_FIELD_UNAVAILABLE",
+  "metrics": {
+    "elapsed_ms": 75660.31982421875,
+    "invalid_action_count": 0,
+    "model_call_count": 1,
+    "model_duration_ms": 75617.69991597976,
+    "model_request_attempt_count": 1,
+    "output_tokens": 125,
+    "prompt_tokens": 2204,
+    "tool_call_count": 0,
+    "tool_duration_ms": 0.0,
+    "tool_request_attempt_count": 0
+  },
+  "model_declared_topic": "CAMERAS",
+  "requested_field_names": [
+    "kind",
+    "candidate_count",
+    "uncertainty",
+    "query_receipt"
+  ],
+  "guard_outcome": "Unsupported fact field query_receipt rejected before dispatch; actual receipt citations remain separate from literal fact fields.",
+  "tool_queries_executed": 0,
+  "actual48_started": false,
+  "failed_original_case_retained_in_private_ledger": true,
+  "owner_tokens_messages_factual_rows_exported": false,
+  "new_data_or_oracle_changes": false
+}

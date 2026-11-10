@@ -246,3 +246,24 @@ def test_png_corruption_and_trailing_payload_refused() -> None:
     payload = b"iTXt" + b"private\x00data"
     chunk = struct.pack(">I", len(payload) - 4) + payload + struct.pack(">I", zlib.crc32(payload))
     assert blender.strip_png_text(png[:-12] + chunk + png[-12:]) == png
+
+
+def test_independent_contact_pin_preserves_default_baseline_rejection(bundle):
+    root, _, _ = bundle
+    inputs = json.loads((root / "safe_inputs.json").read_bytes())
+    manifest = json.loads((root / "manifest.json").read_bytes())
+    dataset = Path(manifest["dataset_path"])
+    dataset.write_bytes(dataset.read_bytes() + b"\n")
+    digest = sha(dataset.read_bytes())
+    inputs["source_binding"].update(run_id="blender-contact-control-test-v1", dataset_sha256=digest)
+    raw = blender._json_bytes(inputs)
+    (root / "safe_inputs.json").write_bytes(raw)
+    manifest.update(dataset_sha256=digest, inputs_sha256=sha(raw))
+    (root / "manifest.json").write_bytes(blender._json_bytes(manifest))
+    with pytest.raises(ValueError, match="BLENDER_SCENE_STALE"):
+        blender.load_blender_scene(root)
+    pin = blender.ValidationRunPin("office", "blender-contact-control-test-v1", digest, sha(raw))
+    assert blender.load_blender_scene(root, validation_pin=pin).run_id == pin.run_id
+    wrong = blender.ValidationRunPin("office", pin.run_id, "f" * 64, sha(raw))
+    with pytest.raises(ValueError, match="BLENDER_SCENE_STALE"):
+        blender.load_blender_scene(root, validation_pin=wrong)

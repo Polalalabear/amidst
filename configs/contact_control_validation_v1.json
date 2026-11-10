@@ -1,0 +1,22 @@
+{
+  "schema_version": "contact-control-validation.v1",
+  "run_id": "blender-contact-control-auditorium-v1",
+  "role": "FULLY_OBSERVED_CONTROL",
+  "sites_searched": ["office", "auditorium"],
+  "selected_site": "auditorium",
+  "grid_spacing_bu": 20,
+  "min_incidence": 0.25,
+  "bottom_probe_height_bu": 0.5,
+  "sampling_hz": 5,
+  "duration_s": 10,
+  "frame_count_per_camera": 50,
+  "width": 960,
+  "height": 540,
+  "camera_ids": ["CAM_1F_AUDITORIUM_FRONT", "CAM_1F_AUDITORIUM_REAR"],
+  "render_authorization": "USER_EXPLICIT_100_PNG_AND_POSTHOC_VALIDATION_2026_10_16",
+  "render_output": "data/pilot/contact_control_20261016_v1/auditorium",
+  "perception_config": "configs/office_contact_v2.json",
+  "ground_truth_policy": "ROUTE_SELECTION_AND_POSTHOC_EVALUATION_ONLY",
+  "source_saved": false,
+  "formal_acceptance": false
+}

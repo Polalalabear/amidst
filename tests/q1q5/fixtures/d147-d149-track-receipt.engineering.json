@@ -1,0 +1,321 @@
+{
+  "receipt_role": "IMPLEMENTATION_REGRESSION_PIN",
+  "receipt_role_note": "Recorded from this implementation; catches regressions, does not prove correctness. Re-record after any parameter or producer change.",
+  "decision_refs": [
+    "#93 D147",
+    "#93 D148",
+    "#93 D149",
+    "#93 D150"
+  ],
+  "base_commit": "5c901e5dff96c5e324a747987747c47623c3b15a",
+  "source_files_sha256": {
+    "scripts/serve_demo_integration.py": "cf84106fdfe6b7e7cd606763838ceff07c94ea7f2dee8375b9b40fc1592c90bb",
+    "src/amidst/q1q5/cross_camera_demo.py": "94b80b5f6757af022738c39e306e9358211caecbcef292c72df4a6641f8efed3",
+    "src/amidst/q1q5/demo_local_tracks.py": "82ddfc0d6a6a2190e79e947fcbd81e0e03a281f9bd43741cc6bea5432b260991"
+  },
+  "inference_run": false,
+  "formal_eligible": false,
+  "runs": [
+    {
+      "label": "A4-1",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "index_content_sha256": "1a6bfa206a1bb3b5c67e7f8dd9aabf1675bee70145b89772854f0dc83a7d55b1",
+      "records_file_sha256": "462388425ea6c38ba0f13c2738f57d5f2feca3d5e2ea9ad354e6b087d30809f0",
+      "output_sha256": "53836b8b5282e823fe570306df05529f020b669522ece304096c71b82b3371bb",
+      "single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CAR",
+          "range_us": [
+            2000000,
+            2800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            2800000,
+            3000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CLEAR",
+          "range_us": [
+            3000000,
+            3200000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            3200000,
+            5000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CLEAR",
+          "range_us": [
+            5000000,
+            9000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            9000000,
+            9200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CAR",
+          "range_us": [
+            9200000,
+            9400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            9400000,
+            9600000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            9600000,
+            27600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CAR",
+          "range_us": [
+            27600000,
+            28600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CLEAR",
+          "range_us": [
+            28600000,
+            37000000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            37000000,
+            37200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_EXT_CAR",
+          "range_us": [
+            37200000,
+            37400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            37400000,
+            37600000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            37600000,
+            50000000
+          ],
+          "evidence_state": "OBSERVED"
+        }
+      ],
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY",
+          "candidate_segments": 0,
+          "candidate_observations": 0,
+          "box_continuation_observations": 0
+        },
+        {
+          "camera_id": "CAM_EXT_CAR",
+          "candidate_segments": 4,
+          "candidate_observations": 18,
+          "box_continuation_observations": 2
+        },
+        {
+          "camera_id": "CAM_EXT_CLEAR",
+          "candidate_segments": 3,
+          "candidate_observations": 65,
+          "box_continuation_observations": 2
+        },
+        {
+          "camera_id": "CAM_W1",
+          "candidate_segments": 2,
+          "candidate_observations": 143,
+          "box_continuation_observations": 101
+        }
+      ]
+    },
+    {
+      "label": "B4-1",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "index_content_sha256": "24944adfa947b2421f3073d29d3e1d8397bd916af4ba422ea22d880f4edee0fe",
+      "records_file_sha256": "c2b8bfa02db34104aca22d76bdc4ae30f7b6254506ea56a54ccb36993b2a524f",
+      "output_sha256": "3d8cec5634fe64c0b35b55a294bf0c90fb247c64bdd59374521f60f817824f65",
+      "single_view": [
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W2",
+          "range_us": [
+            200000,
+            2400000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W1",
+          "range_us": [
+            2400000,
+            5200000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W2",
+          "range_us": [
+            5200000,
+            12800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            12800000,
+            14000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_WIDE",
+          "range_us": [
+            14000000,
+            20800000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            20800000,
+            21000000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_BRANCH",
+          "range_us": [
+            21000000,
+            21600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "GAP",
+          "camera_id": null,
+          "range_us": [
+            21600000,
+            25200000
+          ],
+          "evidence_state": "UNKNOWN"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_W2",
+          "range_us": [
+            25200000,
+            30600000
+          ],
+          "evidence_state": "OBSERVED"
+        },
+        {
+          "kind": "ON_CAMERA",
+          "camera_id": "CAM_R101_IN",
+          "range_us": [
+            30600000,
+            42000000
+          ],
+          "evidence_state": "OBSERVED"
+        }
+      ],
+      "cameras": [
+        {
+          "camera_id": "CAM_BRANCH",
+          "candidate_segments": 1,
+          "candidate_observations": 35,
+          "box_continuation_observations": 31
+        },
+        {
+          "camera_id": "CAM_R101_IN",
+          "candidate_segments": 3,
+          "candidate_observations": 63,
+          "box_continuation_observations": 53
+        },
+        {
+          "camera_id": "CAM_W1",
+          "candidate_segments": 3,
+          "candidate_observations": 27,
+          "box_continuation_observations": 4
+        },
+        {
+          "camera_id": "CAM_W2",
+          "candidate_segments": 2,
+          "candidate_observations": 89,
+          "box_continuation_observations": 44
+        },
+        {
+          "camera_id": "CAM_WIDE",
+          "candidate_segments": 1,
+          "candidate_observations": 34,
+          "box_continuation_observations": 0
+        }
+      ]
+    }
+  ]
+}

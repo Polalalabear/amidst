@@ -4,6 +4,35 @@
 
 ## 繁體中文
 
+
+## 2026-10-17 · C7 來源網格地圖與 C6 可走性核對
+
+在 `codex/c7-source-map` 先以 `4a692c6` 保存 [Office 優先交付](../engineering/C7_OFFICE_SOURCE_MAP_20261017.md)，再交付 [Demo 區域聯集地圖與核對](../engineering/C7_DEMO_SOURCE_MAP_20261017.md)。來源 Scene/frame220、0.0247m/BU，Office299實例／76幾何、擴充1119實例／220幾何；每實例保留evaluated hash與matrix。沒有標註、GT、目標軌跡、renderer visibility或depth進入推導，未存blend／渲染，原source hash／size／mtime相同。16椅／講台重新由來源提取，位置屬相鄰Auditorium，與Office粗障礙0m²重疊；其他家具／建築物件仍全部列在障礙ledger。
+
+地板0.49594759m與投影平面一致；標註25BU=0.6175m高0.12155241m，原作者選25BU的理由UNKNOWN。舊目標原生119BU／r6BU給2.9393m／r0.1482m，程式明訂尺寸，未發現重複換算；原始尺寸選擇理由UNKNOWN。新尺寸1.70m／r0.25m逐run設定。8.6s舊點距來源障礙0.201501m，舊半徑可通、新半徑淨空不足；兩處標註缺口附近均找到約1.75039m來源開口，但門口語義仍待K7。
+
+K1實際PolygonFloorMap類別兩個variant均成功載入，未改K1檔案／未跑假設。C6選定15路線／858邊全部通過來源body-centre幾何；3排間通道通過，12個0.09654–0.12976m相鄰椅縫拒絕。14項聚焦測試0.22s、Ruff與diff檢查通過；首次dense mesh聯集失敗以既定1e-5m精度格網於union階段修正，Office原件保留。原影格／觀測、候選路線、校正與其他untracked資料未改。完整hash、指令、範圍見報告；CP2未核准，C7/K7語義驗收／C4a真實clip整合／C5與基準渲染仍未完成，不宣稱整個Demo可用。
+
+## 2026-10-17 — C7 D15 policy handoff
+
+Separate restricted_regions for two user-confirmed annotations, tier RESTRICTED_POLICY, file/record hashes and confirmation refs; physical map unchanged. Small K1 test input supplied; K1/K5 remain Claude-owned. 17 focused tests passed in0.38s. [Record](../engineering/C7_RESTRICTED_POLICY_20261017.md).
+
+## 2026-10-17 — K1/K5 74c6ace 同步與 D19 重跑
+
+PR #53 精確同步 #48 的七份 owner 模組與 pins，接上原生 frame-key 去重及 C7 person restricted-policy 標籤。34 個重複影格全部 ALREADY_APPLIED_FRAME，invalid_applied_frame_keys=[]，不新增 feedback evidence/log；NONE／BASELINE／feedback 仍 281.125 m²、收斂 0%，原 33 MISSING 與完整 cells/path samples 不變。最終 focused 246 passed，另 canonical/preset/launcher 20 passed；新凍結重現 byte-identical、gzip lossless、Ruff/diff PASS。C6 暫停，第二人形延後由 #55 追蹤，11/01 前使用 K8 合成段；未合併／未做 browser 或 GT 驗收。[完整結果、精確命令與 SHA](../engineering/C5_K1_K5_SYNC_20261017.md)。
+
+<a id="blender-review-checkpoint-20261013"></a>
+
+## 2026-10-13 — Office／Classroom 人工核對與停止 checkpoint
+
+依本對話使用者逐項回覆，記錄Office revision20與Classroom101 revision15，共35筆append-only人工差異；38個有效物理檢查仍UNKNOWN。兩站彙整獲明確確認後，以既有Blender資料、基底演算法各自重跑完整0.0–9.8s、Top3與新PNG／MP4。Office回3個UNKNOWN解／0拒絕；Classroom回Top3畫面但事件只有1個未關聯UNKNOWN基線、6本地軌跡／0跨鏡頭邊，CORRIDOR04有RGB但無投影。新媒體全片解碼通過且與舊v2位元相同，原model SHA／size／mtime不變。Classroom修正import來源及browser MP4下載未完成均明列，不把人審文字當幾何權威。
+
+本次六份UI檔補2D-only格數與來源世界方向；56個scoped Node、語法／owned diff檢查PASS，驗證前後SHA相同。沒有重跑入口建立時Python3186／HTTP154／5119等完整驗證，歷史結果保留原scope。完整完成／缺失、對應文件與有界收據見[checkpoint](BLENDER_REVIEW_CHECKPOINT_20261013.md)及[資料目錄](../../data/engineering/blender_review_checkpoint_20261013/)。
+
+使用者要求停止續作、更新文件、盤點、commit／push後刪除工作樹，並選擇等待共享Phase2完成；Auditorium不開始，其他main demo／preview與原.blend不處理。發布時的先前工程祖先001a0fc／8aadeb3／7d05354另有獨立Phase2／文件證據，不混稱本次人審測試。保存與實際清理以新收據核對，不提前宣稱已刪除。
+
+English: Recorded 35 Office/Classroom local deltas and both authorized full-window reruns without physical-authority promotion. Fresh scoped UI validation passed 56 Node tests; older full-suite totals are historical. Human review is stopped for checkpoint/publication, with worktree removal waiting for the shared Phase 2 task and verified retention. No original asset copying, new scene work or main/frozen integration occurred.
+
 <a id="phase2-repair-demo-20261013"></a>
 
 ## 2026-10-13 — 05／11修正與可操作demo
@@ -2815,3 +2844,120 @@ Office前段0–3.2 s／8格的最後兩格請求插值為3.2000000000000006 s�
 本輪狀態`VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES`；Phase2功能工作量暫估50%（45–55%），05／11品質未達標，未到原條件式60%。07／08、09真實或訓練ReID、10其他單人與全部多人事件、13／14／15暫緩，須使用者再確認；原Phase1 Cases2／3及fullExit、frozen Phase2/main與人工來源權限維持原狀。
 
 最終staged diff清除wrapper與前端兩份檔案的4個行尾空白，Python AST與token序列完全一致。保留3436完整pytest的原550份輸入hash，最終格式後另跑7個整合測試、Ruff、mypy224檔與Node230／225全部PASS；不累加測試總數、不因純格式再跑完整Python。最終收據分列完整測試與格式後輸入；研究／模型核心及題組保持原凍結hash。
+
+<a id="phase2-repair-demo-20261014"></a>
+
+## 2026-10-14 · Phase 2 demo main merge and 11 acceptance
+
+使用者核准先合併已驗證demo與必要依賴到main、11繼續修正及驗收、05保持baseline；其他項目與新合成封存測試集暫緩。結束時上傳必要程式及紀錄並刪除當前工作樹，退役生成物只留紀錄，不新增大型封存。
+
+R1 demo checkpoint7d05354與001a0fc依賴已合併、push並ls-remote確認main439c866；merge tree與已驗證R1相同。3567完整Python／owned232 Node屬該原始收據，非新重跑。原R1模型48題只完成21 attempted／11passed後因門檻已不可能成立而停止，27未開始；完整原partial保留，未聲称品質通過。05唯一候選test(4,3,7,6)→(3,2,7,6)，fragmentation7未達≤6，維持baseline，沒有第二次test調參。
+
+11 R2原始明確需求守門與受限回饋已凍結，114 runtime／59 benchmark／20 transport fixture及owned233 Node通過；同一7B context8192、timeout180、無外部API或自動重試。新40常規＋8安全公開問題使用既有E1資料，不是新合成封存測試集。完整Python首次因同名test module在collection失敗，保留FAIL，將本批workbench測試檔更名後重跑；模型品質分數仍待真實驗收，Phase2暫50%。唯一詳細說明及收據見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
+
+R2完整工程回歸3643 PASS／0fail/error/skip、631.945秒，Ruff／mypy235檔PASS，566輸入不變；owned Node233／共享238分列。隔離HTTP／PG54守門PASS，實際模型呼叫0。8016新版實際7B demo2calls／1tool／162.430秒、3literalrows與原DTO一致，reload恢复原scope/goal/answer且無新增推理、console0。工程checkpoint87a87e9已push；R2 main cherry-pick自動審查以48題gate待完成拒絕、未執行，main仍439c866。固定新48題已正式開始，不因部分失敗停止或選擇性重跑，最終品質另記。
+
+
+## 2026-10-14 · Current demo documentation and dynamic endpoint
+
+本段取代上段「R2固定48題正在執行」的當前狀態：R2完整48题已完成、品質FAIL，常規12/40（中文7/20、英文5/20），417literal欄位錯誤0但DETAIL完整性誤報4；安全邊界8/8、乾淨拒絕2/8、澄清完成0/8，108已知模型calls／unknown0／timeout0。完整原結果與獨立核對已發布566b653。
+
+局部R3守門fdf5e24與context壓縮b1cf0c4已上傳engineering。c24與734各自Python3736 PASS；734最新622.103秒、0failure/error/skip、Ruff／strict mypy235來源檔PASS、566來源輸入不變；HTTP68 PASS，23 SCRIPTED／0真實模型。prompt24916→22069，既有24k上限不變。首次734真實demo1call／75.660秒／0tools，query_receipt欄位不存在而AGENT_GOAL_FIELD_UNAVAILABLE，FAILED原樣保存；R2歷史162.430秒成功不當作新版驗收。後續schema／generic read-verb候選尚private，新48題未開始。05維持baseline，Phase2约50%。
+
+依使用者新要求先盤點demo、更新根README中英、文件導覽、共用工作台、Blender來源檢索、人物調查、05/11驗收、交接與工作紀錄；[第一版demo](../engineering/DEMO_V1.md)統一九分鐘腳本／可展示／失敗原因／依賴／交付缺口。依「再開一個本機port、不要寫死」啟動既有workbench --port0，由Python PID listener發現實際DEMO_URL，bootstrap六場景HTTP200，新正常IAB頁成功開啟；舊8016錯誤頁不操作。逐段實際排演以[新收據](../../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)為準，沒有重新render／產制資料或真實模型completion。
+
+main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部merge。Phase1研究ref由獨立正式驗收工作前進到043bed2，本輪不寫入、不回退；原Phase2仍5b51d2c。保留其他對話dirty文件及公開清理紀錄，未刪finalization工作樹、未退役当前demo必要資料与服務。90秒影片尚未交付，其他項目與新sealed測試集繼續暫緩。
+
+本輪新入口五段主展示5/5通過；含Agent加映為5/6（約83%）操作就緒。E1 DOOR8–16秒TRACE19工具／69替代／10證據／1衝突，保存重開通過；2166-byte HTML實際瀏覽器下載並讀回，SHA7233c085…，身分UNRESOLVED_PROVISIONAL與DETAIL/MEDIA預算未解項保留。Classroom走廊50來源／0投影／50缺失、請求K3只回1基線實際確認；Office來源回放、4.8/9.8游標、3D/2D、三候選與5路徑基線確認。影片DOMreadyState4／10秒，未冒稱本輪重測完整native影片播放。新origin未繼承原Agent recovery token/owner，歷史清單0，因此加映未重開，不為此新增推論；原ledger4COMPLETED／1FAILED、12calls／12attempts及35人審差異保留，current8runtime仍與發布734逐檔相等。
+
+獨立Phase1正式ref043bed2已以ls-remote核對，18受限Case1–3 Exit gates PASS、乾淨重現；Case3 ADE改善0%未達原30%初始性能目標，school仍NOT_CERTIFIED。已同步工程側正式報告/重現的跨分支連結，歷史BLOCKED不再作當前結論。本次仍僅文件與整理收據，沒有把正式研究程式／大型原產物帶入工程main。
+
+11私有schema候選220-fixture最終獨立peer已PASS（SHA6f26768d…），驗證patch a3b6ba8d…／runtime66f73a3b…／privatevalidation4f8257cf…及production734／566inputs／6controls不變。公開催要同步peer完成，但候選仍未套用，沒有actual model calls或新48題品質分數；不改Phase2约50%或新入口Saved Agent未恢復狀態。
+
+
+## 2026-10-14 · Complete worktree/dependency reproduction handoff
+
+依使用者要求完成[全部工作交接](../operations/CURRENT_WORK_REPRODUCTION.md)，核對五個實體工作樹與各HEAD／dirty、19組本機資產fresh per-filehash、300 Blender RGB、E0 102RGB／E1 test與dev各244RGB、4source locator canonical digests、10physical source pins、正式PRIMARY2624＋CLEAN741共3365bindings全部PASS。原.blend468300506bytes／cd46fa…及mtime不變。模型大blob以fresh exists/size/stat加既有完整SHA，未冒稱重hash4.68GB。
+
+只將必要小型candidate／negative／private HTTP/PG/scorer/preflight/source-verifier／JUnit及audit原件、一致狀態保存到canonical ignored data/pilot/current_dependencies/handoff_20261014（0700/0600）。完整manifest134檔9971897bytes／SHA1916120704c7860f31204465f9bac8bc1dd881c49aa0d9d95f3a8645f903d6f5。四current SQLite onlinebackups含WAL、integrity PASS；PG同一REPEATABLE_READ READ_ONLY exported snapshot產生dump與14表fingerprints，再restore到唯一新fixture DB比14表全相等，fixtureDB／臨時dump副本已退役，原DB／schema／settings未restore或migration。current4runs1040records129revisions85jobs；35人審deltas與4COMPLETED＋1FAILED Agentcases保留。跨DB不宣稱distributedatomic。
+
+context QA ledger另onlinebackup380928bytes、source/backup logicalhash相等；只改ledgerlocator的新context proof22437/24000PASS、case／ledger不變。持久candidate副本220fixtures freshPASS／0error/fail/skip；首次1sandbox socketbindFAIL原XML/log保留，同源受審fake localhost fixture重跑通過，實際模型calls0。這是持久副本重現，不新增11自然語言品質分數，不與原220累加；production734／566inputs／6controls仍保持，05baseline與Phase2約50%。
+
+公開只發布交接文件、導覽與[boundedreceipt](../../data/engineering/work_handoff_20261014/receipt.json)／資產摘要，完整private config／DB／recoverytokens／harness與大sourcebytes不發布。沒有全套3736／新48／native producer/render/formalworkflow重跑、沒有mainmerge、服務退役、dependencybulk搬移或worktree刪除。其他項目與新sealed資料保持暫緩；後續11與清理按交接原授权／門檻續作。
+
+
+## 2026-10-16 · Independent bottom-visible control and perception v2
+
+在指定 backend 分支完成[底部可見 control 與版本化 perception](../engineering/CONTACT_CONTROL_VALIDATION_20261016.md)。使用者明確授權後新增 Auditorium 兩鏡頭 100 PNG；source hash／size／mtime 不變，獨立 run pin 與全部 media hashes 通過 backend loader。Renderer GT 只供選路與後驗評估；RGB producer 未讀 trajectory／visibility。相同 62 camera/time 的平均／最大誤差由 0.155460／0.356445 m 變為 0.097278／0.132631 m；有位置時刻 47/50，0.0／0.2／9.8 秒因邊緣與 incidence 保持 MISSING，沒有插值或新版 SPEED_CAP 跳點。
+
+Office 原 31 投影及 snapshot 保持；v2 的 30 個 8-連通元件全部因低 incidence 拒絕，4.4 秒兩元件合為一個。這是保守拒絕與單一合成 run 評估，不是正式研究或真實人員精度驗收。只跑相關 perception／loader／route-policy 測試與 diff 檢查；原 fixture、track_ref、perception v1、31-count 斷言、frozen 結果與前端未改，沒有 push／PR／merge。完整有界來源與 hash 見[收據](../engineering/CONTACT_CONTROL_VALIDATION_20261016.json)。
+
+## 2026-10-16 — 最新 Office launcher 與 contact QA PoC
+
+以 PR #7 `78b99e6` 在既有 `amidst-claude` checkout 建立 `fix/demo-launcher-and-spatial-qa`，未新增 worktree、clone、venv 或原始資產副本。三個原有 untracked Auditorium audit 檔案保留。修復既有 launcher 的過時 branch 白名單、絕對預設 locator、操作資訊與生命週期，改驗 PR #7 ancestor、root-relative 依賴及實際動態 listener。只對本次 managed Demo 做使用者明確授權的 stop/restart；舊 Workbench ownership/activity 未能獨立證明，保留而不推定閒置。
+
+Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 正常停止、再啟動、第二次重用相同 PID/URL 與 status HTTP/resource hashes 通過；真實 socket 佔用測試證明不停止佔用者、不寫 runtime、不留 temporary state。PID reuse、cwd 不符、來源不符、restart preflight 失敗及 child initialization 失敗均有 focused tests。
+
+空間 milestone：`e0bc73a` 的獨立診斷 PoC 與 [完整結果](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)。原始 jumps 1.702787 m／2.006337 m；最低可見 mask 中位數替代仍為 1.688745 m／2.027100 m。4.4 s 的 mask8 可合併對角元件，但不支持隱藏腳點。保留原 XYZ/refs/tracks/API/frontend/校正/GT/frozen 資產；PoC proposed person position 為 null，true spatial accuracy improvement UNKNOWN，未整合 canonical。
+
+實際瀏覽器：Office、雙鏡頭 PNG、Auditorium 16 椅與講台、八個指定時間點、候選 1/2/3/未關聯基線切換、0.0–9.8 s 完整回放通過；console warnings/errors 為空。5.0 s 無當前候選圖框，8.6 s REAR 重啟；全段歷史候選線與靜態 sample dots 保留，不視為當前位置。271 frontend tests PASS。完整八分鐘 demo、真實接地精度與未物化還原影片未驗收；操作腳本見 [launcher 文件](../operations/OFFICE_DEMO_LAUNCHER.md)。最終 runtime 與服務測試資訊由當次交付回報，沒有寫死網址至 launcher。
+
+## 2026-10-16 · Office 多場景預設與接地品質旗標
+
+v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件，新增獨立控制場景 fixture 與 presets。`6f1e102` 提交後用 `92c3a0b` merge commit 納入 Claude 整合分支，再於既有啟動器完成 `ee0ea10`。原 Office fixture／31 觀測／track_ref／位置／source_features 保留，回應只附品質欄位；移除欄位後七組 canonical 回歸 hashes 相同。Office 31 點 FLAGGED，4.4 秒兩點皆 AMBIGUOUS_MERGE；新場景 v2 保留 62 點、38 點 MISSING，缺資料層明示 UNAVAILABLE 且不套用 Office 資料。
+
+六個相關測試檔、實際雙場景 readiness、重複啟動重用、缺層 HTTP 200、跨場景媒體拒絕及 physical-review 59 samples 旗標通過；只對 sandbox 阻擋的三個 socket 測試重跑。ruff／shell 語法／diff 檢查通過。來源 blend fresh hash／size／mtime 不變，未渲染、未用 GT 推論。驗證 runtime 已經以 ownership-checked launcher 停止，原有 Demo／PG／Ollama 保留。交付範圍與機器收據見 [Office presets](../engineering/OFFICE_PRESETS_20261016.md)；前端旗標視覺與完整 Demo 仍未驗收。
+
+
+## 2026-10-17 · C4a 逐run混合接地估計器
+
+Model / effort `gpt-6.1-sol / high`。分支`codex/c4a-hybrid-contact`，base整合分支`6fbd805e`。依據未核准草稿（PR #10，`586f1321`）實作v2腳點POINT／頭射線身高先驗SEGMENT、source-bound clip介面、逐像素敏感度及fail-closed原因；只附加ground_estimate，原位置／曲線／contact_quality保持。舊run先固定建議2.9393±0.10m、r0.1482並標明合成圓柱非人體尺寸；新person run為1.70±0.10m、r0.25，拒絕混用contact設定。
+
+原Office31觀測皆UNKNOWN：29 SEGMENT_TOO_LONG、2 HEAD_ANCHOR_UNRELIABLE。4.4s含AMBIGUOUS_MERGE，不另選觀測；8.6s原始區間10.237160757m>8m。先凍結預測hash才讀粗標註作診斷，舊8.6s點在OBSTACLE_1F_OFFICE_01內，原始區間與其重疊1.789891237m；粗標註未進推論或裁切。真實source裁切資料尚待C7，兩步明列NOT_AVAILABLE；不以合成clip測試冒充真實接線。
+
+51個focused測試通過（0failed／0skipped），含新純函式26個、舊Office七組canonical回歸／31觀測、person新run33個MISSING不改但可附頭部區間、尺寸混用拒絕與launcher。輸出、精確指令、hash、容差建議／未核准狀態見[C4a報告](../engineering/C4A_HYBRID_CONTACT_20261017.md)。未讀GT、未渲染、未改source／原始資料、未啟停服務；未跑全套、瀏覽器、RQ1 GT指標或K1推論。CP2未核准，不合併。C7 Office 10/22接續，C5索引／API尚未實作。
+
+## 2026-10-16 · C3b preset／品質失敗隔離
+
+依整合分支 cfdc569 的 C3b，在 c750238 實作非預設場景失敗的清單 metadata、品質對應失敗的 NOT_EVALUATED 旗標，以及 launcher preflight／readiness 的 DEGRADED 狀態；default 或 hash／來源完整性錯誤仍拒絕。原 Office 位置、refs、索引與七組正常回歸 hashes 保留。兩個相關測試檔共 24 passed（包含不可讀非預設檔案的指紋隔離）；指定的缺控制資料與品質對應失敗案例、完整性拒絕、缺檔指紋／readiness 都通過。實際用暫存 presets 指向不存在的控制 bundle，Office HTTP readiness 與 31 點 query、第二次啟動重用通過；驗證服務已由官方 launcher 停止，既有服務保留。沒有渲染或資產修改。契約、範圍與精簡收據見 [C3b](../engineering/OFFICE_PRESET_ISOLATION_20261016.md)；瀏覽器視覺未驗收。
+
+
+## 2026-10-17 · C4a 人形 run 完整凍結結果（CP1 後）
+
+Model / effort `gpt-6.1-sol / high`。以 merge commit `21e4c777ab705593b4b3ddf5fdf384ef320a4070` 將使用者指定 `dcb89f4` 納入 C4a 分支；未rebase／force-push。保留C3b品質降級／完整性拒絕與C4a同元件接線，合併後59項聚焦回歸通過。此後freeze/report/R2/R1 guard測試62項43.71s通過，最終零數量欄位另2項0.27s通過（重疊、不累計64）。沒有碰amidst-claude checkout，沿用本checkout既有環境。
+
+人形run `blender-contact-control-office-person-20261016-v1`（1.70±0.10m／r0.25m）凍結33觀測：POINT0／SEGMENT33／UNKNOWN0，長度2.161564727–2.572813405m；原33筆仍MISSING/null。FRONT4.2／4.4為2.187352951／2.189380408m，REAR8.6為2.532272652m，符合事前預期。4.4新人形無AMBIGUOUS_MERGE，僅LOW_INCIDENCE；不改舊run旗標或D8。33個LOW_INCIDENCE、4個另帶CONTACT_OCCLUDED。
+
+R1未決：29個LOW_INCIDENCE-only幾何READY明確扣留，不可交K1；僅4個通過C4a caller guard，尚非K1 map／clock／identity驗收。FRONT3.4–4.4整窗無可用起點，沒有選替代或宣稱P0路徑。完整100frame／camera表含67個NO_OBSERVATION（不冒充C4a UNKNOWN），重點12時刻另列。R2在新diagnostics標明raw座標不可當position或endpoint，舊凍結檔不覆寫。預測SHA `ee1dc3d2f50ce2d9e0100c62708ddf6c675c8d68cb2ebed73cccbee886c14460`；[完整結果／hash／重現](../engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md)。
+
+未使用GT／renderer軌跡／visibility／depth、C7裁切或K1假設；未渲染、存blend、改原bundle／校正／來源影格、註冊新preset或啟停服務。preset／fixture拆分、C4b、C7後續、C5尚未在本優先項實作；CP2未核准，不合併。
+
+## 2026-10-17 — C4a D17/D18 follow-up
+
+LOW_INCIDENCE-only occlusion is NOT_APPLICABLE; guard rejects incorrect effects. 34 focused tests passed; person D17 freeze remains 33 SEGMENT, 33 C4a-only eligible. Endpoints FRONT 4.6 → REAR 8.2 s, blind frames 4.8–8.0 s, no D7. Historical freeze preserved. [Result record](../engineering/C4A_D17_D18_20261017.md).
+
+## 2026-10-17 — Office person preset split
+
+Extracted three C6 person configs with D18 endpoints, per-run contact config pins and launcher fingerprinting. Preset + launcher focused regression: 28 passed in 55.08 s, no skips. [Result record](../engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md). No integration merge or asset mutation.
+
+## 2026-10-17 — C4b person hypothesis API
+
+D18 4.6→8.2 s with C7 person map and exact K1 #33/K5 #36 dependencies: nested READY, 3 hypotheses, 17 blind-frame regions; original 33 MISSING/null preserved and outer target remains UNKNOWN. No real C5 negative evidence; unseen UNKNOWN. K5 same-session rerun and synthetic pruning verified. Final focused regression: **94 passed in 67.09 s**, no skips; Ruff/diff checks PASS. [Result record](../engineering/C4B_OFFICE_PERSON_20261017.md). No render, source mutation, live service changes or integration merge.
+
+## 2026-10-17 — D17 second stage / C4a v1.1
+
+FOOT_RAY_PIXEL_BAND: 29 foot bands, 4 head intervals, all33 SEGMENT; original33 MISSING/null retained. FRONT4.6=0.738419173m, REAR8.2=2.492612215m. 87 focused tests passed in59.88s, Ruff/diff PASS. [Record](../engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md). K1 restricted policy remains Claude-owned.
+
+## 2026-10-17 — C5 independent visibility / retrieval / real negative evidence
+
+Independent static BVH source rays, per-run three-probe union, nine-XY sample cells with UNKNOWN domain; frame_retrieval API returns strict frame_evaluations and actual K5 drafts. C4b baseline2×17frames, READY1/17regions/unseen PASS0uncovered; real feedback2 produces2logsteps with0additional prunes. Original33 MISSING/null and K1/K5 files retained. Main120 focused checks PASS, final freshness/C5 API34/12 overlapping checks PASS. Synthetic1M metadata queries read17records (p95~0.518ms; notRGB). Complete API artifact losslessly packaged; decoded SHA6492e349…8ce3db5 reproduced. [Record](../engineering/C5_OFFICE_PERSON_20261017.md). Native D15 labels remain Claude-owned, no checkpoint merge.
+
+## 2026-10-17 Office Demo review follow-up (Draft; D19/D20)
+
+Default person+legacy launcher, explicit sealed negative-evidence modes, pre-K1 D18/evidence guards and v1.1 C4b regeneration completed. Current actual comparison is1→1 and region-area−9.026233882%, superseding the head-ray3→1/−16.6% narration. Original33 MISSING remain. See [actual-output record](../engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md) for commands, model/effort, artifacts, focused results and limitations. CP2/CP3 not approved; no merge. C5 visibility policy, K1 #48 sync and C6 remain deferred.
+
+Final follow-up verification:133 focused tests passed in78.83s. Launcher ad0be6d used dynamic61858/PID47309; person target/retrieval and complete catalog HTTP readiness PASS; owned test process then stopped with SIGTERM. Existing Workbench/PG/Ollama preserved. No browser/full-demo acceptance claimed. Camera foot-hidden-mask tracking: #49.
+
+## 2026-10-17 · C5 D21 strict visibility
+
+Re-exported per-probe static-source rays; foot+waist and112px footprints FRONT115.75m²/REAR130.375m²,1434/1155 visibility cells removed,0 additional detectability cells. D19 NONE/applied both4498 summed cells/281.125m² and592 union cells/37m²:0% reduction.62 focused checks pass; final affected45 pass (overlap);20 canonical/preset/launcher checks pass. Source identity unchanged, no render/save/GT; K1/K5 unchanged,34 frame keys collected for later notified sync; C6 paused. [Actual output/model/hashes/commands](../engineering/C5_D21_OFFICE_PERSON_20261017.md). Draft only, no merge.

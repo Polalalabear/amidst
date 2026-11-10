@@ -7,6 +7,7 @@ Human-only evaluation and review never extend the existing Agent tool allowlist.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import mimetypes
@@ -27,6 +28,12 @@ from amidst.engineering.registry import content_hash
 from amidst.product.run import load_product
 from amidst.workbench.blender_association_media import AssociationScene
 from amidst.workbench.blender_motion_media import MotionScene
+from amidst.workbench.controlled_scene_api import ACTIONS as CONTROLLED_ACTIONS
+from amidst.workbench.controlled_scene_api import ControlledSceneAPI
+from amidst.workbench.controlled_scene_data import RequiredInputUnavailable, read_regular
+from amidst.workbench.controlled_scene_rgb_api import MEDIA_PATH, ControlledRGBAPI, RGBMediaError
+from amidst.workbench.controlled_scene_rgb_data import registrations as controlled_rgb_registrations
+from amidst.workbench.controlled_scene_static import LINE_FILES, STATIC_FILES, read_static
 from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
 from amidst.workbench.operator_study import OperatorStudyStore
 from amidst.workbench.physical_review_store import PhysicalReviewStore
@@ -40,6 +47,7 @@ from amidst.workbench.product_bridge import (
 )
 from amidst.workbench.reviews import ReviewStore
 from amidst.workbench.run_jobs import SingleSyntheticRunManager
+from amidst.workbench.scene_errors import DataIntegrityError, public_reason
 from amidst.workbench.scenes import SceneAdapter, load_catalog
 from amidst.workbench.storage_probe import run_probe as run_storage_probe
 from amidst.workbench.system_ports import run_port_probe
@@ -157,6 +165,31 @@ class AssociationRequest(MotionRequest):
     top_k: int = Field(ge=1, le=5, strict=True, default=3)
 
 
+class TargetReconstructionRequest(AssociationRequest):
+    negative_evidence_mode: Literal["NONE", "BASELINE", "BASELINE_AND_FEEDBACK"] = (
+        "BASELINE_AND_FEEDBACK")
+    negative_evidence_refs: list[str] = Field(default_factory=list, max_length=400)
+    previous_response_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    observation_ref: str = Field(pattern=r"^observation:[0-9a-f]{24}$", strict=True)
+
+
+class RetrievalHypothesis(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    response_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    hypothesis_refs: list[str] = Field(default_factory=list, max_length=5)
+    use: Literal["PATHS", "REACHABLE_REGIONS"]
+
+
+class FrameRetrievalRequest(SceneRequest):
+    schema_version: Literal["office-demo.frame-retrieval-request.v1"] = (
+        "office-demo.frame-retrieval-request.v1")
+    query_kind: Literal["HYPOTHESIS", "TIME_RANGE"]
+    hypothesis: RetrievalHypothesis | None = None
+    time_range_s: list[float] | None = Field(default=None, min_length=2, max_length=2)
+    camera_ids: list[str] | None = Field(default=None, min_length=1, max_length=4)
+    max_frames: int = Field(ge=1, le=64, strict=True)
+
+
 class FrameWallRequest(MotionRequest):
     slot_count: int = Field(ge=8, le=16, strict=True, default=8)
 
@@ -229,6 +262,8 @@ class Session:
     motion_media: dict[str, set[str]] = field(default_factory=dict)
     association_media: dict[str, set[str]] = field(default_factory=dict)
     physical_media: dict[str, set[str]] = field(default_factory=dict)
+    retrieval_evidence_refs: dict[str, set[str]] = field(default_factory=dict)
+    blind_responses: dict[str, dict[str, dict[str, Any]]] = field(default_factory=dict)
     physical_review_issued: dict[str, tuple[str, frozenset[str]]] = field(default_factory=dict)
 
 
@@ -262,8 +297,11 @@ class Workbench:
                  association_media: AssociationArtifacts | None = None,
                  physical_media: PhysicalArtifacts | None = None,
                  run_jobs: SingleSyntheticRunManager | None = None,
-                 operator_studies: OperatorStudyStore | None = None) -> None:
+                 operator_studies: OperatorStudyStore | None = None,
+                 unavailable_scenes: list[dict[str, Any]] | None = None,
+                 controlled_scene: ControlledSceneAPI | None = None) -> None:
         self.catalog, self.reviews = catalog, reviews
+        self.unavailable_scenes = list(unavailable_scenes or [])
         self.presentation_provider = presentation
         self.presentation_media_provider = presentation_media
         self.product_bridge, self.gallery = product_bridge, gallery
@@ -276,13 +314,21 @@ class Workbench:
         self.physical_review_store = PhysicalReviewStore(reviews.db_path)
         self.run_jobs, self.operator_studies = run_jobs, operator_studies
         self.phase2_suite: Any = None
+        self.controlled_scene = controlled_scene or ControlledSceneAPI()
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
             {"scene_id": s.scene_id, "label": s.label, "description": s.description,
              "product_available": self._product_bridge(s.scene_id) is not None}
             for s in self.catalog.values()
-        ], "identity": "LOCAL_ROLE_SELECTION", "desktop_only": True}
+        ] + copy.deepcopy(self.unavailable_scenes),
+            "identity": "LOCAL_ROLE_SELECTION", "desktop_only": True,
+            "data_origin": "LEGACY_RUNTIME",
+            "controlled_scene_bootstrap": (
+                {"data_origin": "ACTUAL_BLENDER",
+                 "surface_ref": "/api/bootstrap?surface=workbench-v2"}
+                if isinstance(self.controlled_scene, ControlledRGBAPI)
+                else self.controlled_scene.bootstrap())}
 
     def _product_bridge(self, scene_id: str) -> ProductBridge | None:
         if self.product_bridge is not None and self.product_bridge.scene.scene_id == scene_id:
@@ -295,7 +341,8 @@ class Workbench:
     def session(self, payload: object) -> dict[str, Any]:
         request = SessionRequest.model_validate(payload)
         token = secrets.token_urlsafe(32)
-        self.sessions[token] = Session(request.role, frozenset(self.catalog))
+        self.sessions[token] = Session(
+            request.role, frozenset(self.catalog) | self.controlled_scene.scene_ids)
         return {"session_ref": token, "role": request.role, "version": VERSION}
 
     def _session(self, token: str) -> Session:
@@ -361,6 +408,8 @@ class Workbench:
             "storage_probe": StorageProbeRequest, "export_delta": VersionRequest,
             "frame_query": FrameQueryRequest, "motion_reconstruction": MotionRequest,
             "cross_camera_reconstruction": AssociationRequest,
+            "target_reconstruction": TargetReconstructionRequest,
+            "frame_retrieval": FrameRetrievalRequest,
             "physical_cross_camera_reconstruction": AssociationRequest,
             "physical_review": MotionRequest,
             "physical_review_decision": PhysicalReviewDecisionRequest,
@@ -384,6 +433,10 @@ class Workbench:
         started = time.perf_counter()
         try:
             result = self._invoke(action, request, session)
+            scene = self.catalog.get(getattr(request, "scene_id", None))
+            annotate = getattr(scene, "annotate_contact_quality", None)
+            if annotate is not None:
+                result = annotate(result)
         except Exception:
             session.logs.append({"action": action, "status": "REJECTED"})
             session.logs[:] = session.logs[-200:]
@@ -507,6 +560,40 @@ class Workbench:
                 store.list(scene.scene_id, study_owner))
         if self.operator_studies is not None:
             self.operator_studies.guard_external(scene.scene_id, request.session_ref, action)
+        layer = {"motion_reconstruction": "motion",
+                 "cross_camera_reconstruction": "association",
+                 "target_reconstruction": "association",
+                 "physical_cross_camera_reconstruction": "physical",
+                 "physical_review": "physical"}.get(action)
+        availability = (scene.snapshot().get("layer_availability", {}).get(layer, {})
+                        if layer else {})
+        blind_integration = getattr(scene, "_blind_hypothesis", None)
+        if availability.get("status") == "UNAVAILABLE" and not (
+                action == "target_reconstruction" and blind_integration is not None):
+            return {"status": "UNAVAILABLE", "available": False, "layer": layer,
+                    "reason": availability["reason"], "scope": scene.live_scope()}
+        if action == "frame_retrieval":
+            assert isinstance(request, FrameRetrievalRequest)
+            retrieval = getattr(scene, "_frame_retrieval", None)
+            if retrieval is None:
+                from amidst.workbench.frame_retrieval import unavailable_retrieval
+                return unavailable_retrieval(request.model_dump(mode="json"), scene.live_scope())
+            previous = None
+            if request.hypothesis is not None:
+                previous = session.blind_responses.get(scene.scene_id, {}).get(
+                    request.hypothesis.response_sha256)
+            integration = getattr(scene, "_blind_hypothesis", None)
+            applied = integration.applied_evidence(previous) if integration and previous else []
+            result = retrieval.query(request.model_dump(mode="json"), previous,
+                                     applied_evidence=applied)
+            issued = session.retrieval_evidence_refs.setdefault(scene.scene_id, set())
+            for evidence in result["negative_evidence_candidates"]:
+                ref = evidence["negative_evidence_ref"]
+                if integration is not None:
+                    integration.negative_evidence[ref] = copy.deepcopy(evidence)
+                    issued.add(ref)
+            session.media.setdefault(scene.scene_id, set()).update(result["frame_evaluations"])
+            return result
         if action == "camera_frame_wall":
             assert isinstance(request, FrameWallRequest)
             wall = getattr(scene, "camera_frame_wall", None)
@@ -597,6 +684,39 @@ class Workbench:
                     session.logs.append({"action": "physical_event", "scene_id": scene.scene_id,
                                          "event_ref": path["event_ref"], "status": "PROVISIONAL"})
             return {**physical, "artifacts": physical_artifacts}
+        if action == "target_reconstruction":
+            assert isinstance(request, TargetReconstructionRequest)
+            reconstruct = getattr(scene, "cross_camera_reconstruction", None)
+            if (not scene.snapshot().get("capabilities", {}).get(
+                    "cross_camera_reconstruction", False) or reconstruct is None
+                    ) and blind_integration is None:
+                raise Denied("CROSS_CAMERA_RECONSTRUCTION_UNAVAILABLE")
+            from amidst.workbench.target_reconstruction import TargetScene, reconstruct_target
+
+            target = reconstruct_target(cast(TargetScene, scene), request.camera_ids,
+                                        request.start, request.end,
+                                        request.top_k, request.observation_ref)
+            if blind_integration is not None:
+                if (request.negative_evidence_refs
+                        and request.negative_evidence_mode != "BASELINE_AND_FEEDBACK"):
+                    raise Denied("NEGATIVE_EVIDENCE_MODE_CONFLICT")
+                cache = session.blind_responses.setdefault(scene.scene_id, {})
+                previous = cache.get(request.previous_response_sha256)
+                if any(ref not in session.retrieval_evidence_refs.get(scene.scene_id, set())
+                       for ref in request.negative_evidence_refs):
+                    raise Denied("NEGATIVE_EVIDENCE_NOT_ISSUED_TO_SESSION")
+                target.update(blind_integration.reconstruct(request, previous))
+                response = target["blind_hypotheses"]
+                cache[response["output_sha256"]] = copy.deepcopy(response)
+                while len(cache) > blind_integration.binding["max_cached_responses_per_session"]:
+                    cache.pop(next(iter(cache)))
+            elif (request.negative_evidence_refs or request.previous_response_sha256
+                  or "negative_evidence_mode" in request.model_fields_set):
+                raise Denied("BLIND_HYPOTHESES_UNAVAILABLE")
+            for entry in target["trace"]:
+                session.logs.append({"action": "target_reconstruction_decision",
+                                     "scene_id": scene.scene_id, **entry})
+            return target
         if action == "cross_camera_reconstruction":
             assert isinstance(request, AssociationRequest)
             reconstruct = getattr(scene, "cross_camera_reconstruction", None)
@@ -1030,9 +1150,14 @@ def _json(data: object) -> bytes:
 
 
 class Application:
-    def __init__(self, workbench: Workbench, repo: Path) -> None:
-        self.workbench, self.repo = workbench, repo
-        self.frontend = repo / "frontend/workbench"
+    def __init__(self, workbench: Workbench, repo: Path, *,
+                 vendor_root: Path | None = None, q_api: Any = None) -> None:
+        self.q_api = q_api  # Q-line route registration; legacy surfaces keep their adapters.
+        self.workbench, self.repo = workbench, repo.resolve()
+        self.frontend = self.repo / "frontend/workbench"
+        self.vendor_root = (
+            vendor_root or self.repo / "frontend/workbench/node_modules/three"
+        ).resolve()
 
     def __call__(
         self, environ: dict[str, Any], start_response: Callable[..., Any]
@@ -1040,6 +1165,14 @@ class Application:
         status = "200 OK"
         content_type = "application/json; charset=utf-8"
         additional_headers: tuple[tuple[str, str], ...] = ()
+        controlled_request = (
+            environ.get("PATH_INFO", "").removeprefix("/api/") in CONTROLLED_ACTIONS
+            or environ.get("PATH_INFO") == MEDIA_PATH
+            or (environ.get("PATH_INFO") == "/api/bootstrap"
+                and environ.get("QUERY_STRING") == "surface=workbench-v2"))
+        rgb_request = controlled_request and (
+            isinstance(self.workbench.controlled_scene, ControlledRGBAPI)
+            or environ.get("PATH_INFO") == MEDIA_PATH)
         try:
             response = self._dispatch(environ)
             if isinstance(response, BinaryResponse):
@@ -1054,21 +1187,54 @@ class Application:
                 additional_headers = response.headers
             else:
                 content_type, body = response
+        except RGBMediaError as error:
+            status = f"{error.status} {HTTPStatus(error.status).phrase}"
+            body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                "error_class": "MediaAccessError", "reason": str(error)}})
+        except DataIntegrityError as error:
+            content_type, additional_headers = "application/json; charset=utf-8", ()
+            if controlled_request:
+                status = "409 Conflict"
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "DataIntegrityError",
+                    "reason": public_reason(error, "DATA_INTEGRITY_REJECTED")}})
+            else:
+                status = "400 Bad Request"
+                body = _json({"error": {"code": "INVALID_OR_STALE_REQUEST",
+                                        "message": "資料無效或版本已更新，請重新載入並核對輸入。"}})
+        except RequiredInputUnavailable as error:
+            status = "503 Service Unavailable"
+            content_type, additional_headers = "application/json; charset=utf-8", ()
+            body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                "error_class": "RequiredInputUnavailable",
+                "reason": public_reason(error, "REQUIRED_INPUT_UNAVAILABLE")}})
         except (Denied, BridgeDenied, GalleryError) as error:
             status = "403 Forbidden"
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": str(error),
                                     "message": "此操作或資料不在目前角色範圍內。"}})
-        except (ValidationError, ValueError, TypeError, KeyError):
+            if rgb_request:
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "AccessDenied",
+                    "reason": public_reason(error, "ACCESS_DENIED")}})
+        except (ValidationError, ValueError, TypeError, KeyError) as error:
             status = "400 Bad Request"
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": "INVALID_OR_STALE_REQUEST",
                                     "message": "資料無效或版本已更新，請重新載入並核對輸入。"}})
+            if rgb_request:
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "InvalidRequest",
+                    "reason": public_reason(error, "INVALID_CONTROLLED_REQUEST")}})
         except (OSError, RuntimeError):
             status = "503 Service Unavailable"
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": "RESOURCE_UNAVAILABLE",
                                     "message": "所需資料目前無法讀取，請查看場景能力與來源狀態。"}})
+            if rgb_request:
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "RequiredInputUnavailable",
+                    "reason": "RGB_RESOURCE_UNAVAILABLE"}})
         start_response(status, [("Content-Type", content_type), ("Content-Length", str(len(body))),
                                 ("Cache-Control", "no-store"),
                                 ("X-Content-Type-Options", "nosniff"),
@@ -1086,9 +1252,59 @@ class Application:
                     (parsed_host.port or 80) != int(environ["SERVER_PORT"]))):
             raise Denied("HOST_DENIED")
         method, path = environ["REQUEST_METHOD"], environ.get("PATH_INFO", "/")
+        # Q-line registration only. The loopback Host guard above is shared;
+        # QAPI retains same-origin, session and scene checks for every operation.
+        if path.startswith("/api/q"):
+            if self.q_api is None:
+                return BinaryResponse(503, "application/json", (), _json({"error_code": "Q_REGISTRY_NOT_CONFIGURED"}))
+            def authorize_q(token: str, scene_id: str, *, audit: bool = False) -> None:
+                session = self.workbench._session(token)
+                if scene_id not in session.scene_ids or (audit and session.role != "research"):
+                    raise Denied("SCENE_DENIED")
+            return self.q_api.dispatch(environ, authorize_q)
+        # Q frontend assets are explicit program/fixture filenames only.
+        if method == "GET" and path.startswith("/workbench-v2/"):
+            from amidst.q1q5.api import Q_STATIC_PATHS, static_response as q_static
+            if path in Q_STATIC_PATHS:
+                return q_static(self.repo, path)
         if method == "GET":
+            if path == MEDIA_PATH:
+                query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True,
+                                 keep_blank_values=True)
+                if set(query) != {"token"} or len(query["token"]) != 1:
+                    raise ValueError("INVALID_MEDIA_QUERY")
+                if (environ.get("HTTP_ORIGIN") not in {None, f"http://{host}"}
+                        or environ.get("HTTP_SEC_FETCH_SITE") == "cross-site"):
+                    raise Denied("ORIGIN_DENIED")
+                api = self.workbench.controlled_scene
+                if not isinstance(api, ControlledRGBAPI):
+                    raise Denied("REAL_RGB_NOT_CONFIGURED")
+
+                def authorize(token: str, scene_id: str) -> None:
+                    if scene_id not in self.workbench._session(token).scene_ids:
+                        raise Denied("SCENE_DENIED")
+
+                return api.media(query["token"][0], authorize)
             if path == "/api/bootstrap":
+                if environ.get("QUERY_STRING") == "surface=workbench-v2":
+                    return "application/json; charset=utf-8", _json(
+                        self.workbench.controlled_scene.bootstrap())
                 return "application/json; charset=utf-8", _json(self.workbench.bootstrap())
+            if path in STATIC_FILES or path in LINE_FILES:
+                try:
+                    if path in STATIC_FILES:
+                        raw = read_static(self.repo, path)
+                    else:
+                        raw = read_regular(self.vendor_root, LINE_FILES[path])
+                except FileNotFoundError:
+                    return BinaryResponse(404, "application/json", (), _json({
+                        "error": {"code": "ASSET_NOT_MATERIALIZED"}}))
+                except DataIntegrityError as error:
+                    raise Denied("STATIC_PATH_REJECTED") from error
+                mime = "text/javascript" if path.endswith((".mjs", ".js")) else (
+                    "text/html" if path.endswith("/") else
+                    mimetypes.guess_type(path)[0] or "application/octet-stream")
+                return mime, raw
             if path == "/api/operator_study_media":
                 query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True)
                 if set(query) != {"session_ref", "scene_id", "study_ref", "ref"} or any(
@@ -1153,6 +1369,11 @@ class Application:
             assets["/accuracy-evaluation.mjs"] = "accuracy-evaluation.mjs"
             assets["/run-study.mjs"] = "run-study.mjs"
             assets["/phase2-suite.mjs"] = "phase2-suite.mjs"
+            assets["/ground-estimate.mjs"] = "ground-estimate.mjs"
+            assets["/demo-mode.mjs"] = "demo-mode.mjs"
+            assets["/observation-selection.mjs"] = "observation-selection.mjs"
+            assets["/demo-steps.office.json"] = "demo-steps.office.json"
+            assets["/blind-hypothesis.mjs"] = "blind-hypothesis.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:
@@ -1164,8 +1385,13 @@ class Application:
                       "/vendor/three.core.js": "build/three.core.js",
                       "/vendor/OrbitControls.js": "examples/jsm/controls/OrbitControls.js"}
             if path in vendor:
-                root = self.repo / "frontend/workbench/node_modules/three"
-                return "text/javascript", (root / vendor[path]).read_bytes()
+                try:
+                    return "text/javascript", read_regular(self.vendor_root, vendor[path])
+                except FileNotFoundError:
+                    return BinaryResponse(404, "application/json", (), _json({
+                        "error": {"code": "ASSET_NOT_MATERIALIZED"}}))
+                except DataIntegrityError as error:
+                    raise Denied("STATIC_PATH_REJECTED") from error
             raise Denied("ROUTE_DENIED")
         if method != "POST" or not path.startswith("/api/"):
             raise Denied("ROUTE_DENIED")
@@ -1179,6 +1405,14 @@ class Application:
             raise Denied("REQUEST_SIZE_DENIED")
         payload = json.loads(environ["wsgi.input"].read(length))
         action = path.removeprefix("/api/")
+        if action in CONTROLLED_ACTIONS:
+            if not isinstance(payload, dict):
+                raise ValueError("INVALID_CONTROLLED_REQUEST")
+            session = self.workbench._session(payload.get("session_ref", ""))
+            if payload.get("scene_id") not in session.scene_ids:
+                raise Denied("SCENE_DENIED")
+            return "application/json; charset=utf-8", _json(
+                self.workbench.controlled_scene.call(action, payload))
         if action.startswith("product_"):
             result = self.workbench.product_call(action.removeprefix("product_"), payload)
             return result if isinstance(result, BinaryResponse) else (
@@ -1216,6 +1450,9 @@ def configure_extensions(
     canonical_root: Path | None = None,
 ) -> None:
     """Server-owned fixed sources; invalid optional products fail closed independently."""
+    if not workbench.controlled_scene.fixture_mode:
+        workbench.controlled_scene = ControlledRGBAPI(
+            controlled_rgb_registrations((canonical_root or repo).resolve()))
     runtime = None
     from amidst.workbench.blender_association_media import AssociationMediaProvider
     from amidst.workbench.blender_motion_media import MotionMediaProvider
@@ -1314,8 +1551,10 @@ def main() -> None:
     workbench = Workbench(catalog, reviews,
         presentation=lambda: load_source_presentation(repo),
         presentation_media=lambda ref: source_presentation_media(repo, ref))
+    from amidst.paths import office_canonical_root
     canonical_root = args.canonical_root or (
-        repo.parent.parent if repo.parent.name == ".local-worktrees" else repo)
+        repo.parent.parent if repo.parent.name == ".local-worktrees"
+        else office_canonical_root() or repo)
     configure_extensions(workbench, repo, canonical_root=canonical_root)
     app = Application(workbench, repo)
     print(f"Amidst workbench: http://127.0.0.1:{args.port} "

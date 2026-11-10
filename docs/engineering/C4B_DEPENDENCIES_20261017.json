@@ -1,0 +1,32 @@
+{
+  "K1": {
+    "pr": 48,
+    "commit": "74c6ace7885d7631ef3f5236d1b430ad3265b6d1",
+    "includes_K5": true
+  },
+  "K5": {
+    "pr": 48,
+    "commit": "74c6ace7885d7631ef3f5236d1b430ad3265b6d1",
+    "includes_K1": true,
+    "original_K5_pr": 36,
+    "original_K5_commit": "726e390d72acacc3138587e147dfb8b6f908cd5d"
+  },
+  "C7": {
+    "pr": 40,
+    "commit": "7214ef7f2c1d6390a71ce1eb7872045addc8b6d2",
+    "variant": "person"
+  },
+  "files_sha256": {
+    "src/amidst/blind_hypothesis/__init__.py": "9bff7f2dd0e57b25d05bfe3a3b37523550d978ad17bd30ff78a553d5fe1b84ed",
+    "src/amidst/blind_hypothesis/convergence.py": "ea226de1fdb4c5e320213da94bb0584690808d82f07572d325bf97a219efd4ad",
+    "src/amidst/blind_hypothesis/engine.py": "c5777a8d64a51bbfda42104d1d60c65230d40c332c9d99bca0e6697fb6aeb1ad",
+    "src/amidst/blind_hypothesis/floor_map.py": "f0373dbd7b7fb6b8a0709cae0121aceef810b947ce08f0abb301bca97250aa66",
+    "src/amidst/blind_hypothesis/pruning.py": "bc6769ca3f7a2f9ed7e2e32434fba68a0765017336471d2c813f3b0a1b392539",
+    "src/amidst/blind_hypothesis/retrieval_evidence.py": "4ab8fae6379fe5bf6b9e391d6fb9e5a65c0a8bb29e8768e0801163d1148a8dc0",
+    "configs/blind_hypothesis_v1.json": "5d1f46e0c553963a5e51e0e740a419e268c7e674bbbd2dd4a46aea272b96429c",
+    "src/amidst/geometry/source_floor_map.py": "82961dc0c45d93f1a92c8013eeac36e60f9c993d7c3f9f4712a2b96b9d4eb8eb",
+    "docs/engineering/C7_OFFICE_SOURCE_MAP_20261017.json": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+    "src/amidst/blind_hypothesis/restricted.py": "36391fb2b8a7f95dd2ab30d548a5469eef760581911a5afd72f6e9f6da90a21a"
+  },
+  "import_method": "EXACT_SELECTED_FILES_NO_MERGE_NO_SOURCE_ASSETS"
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "office-demo.fixture.v1",
+  "fixture_id": "office-person-same-route-20261016-v1",
+  "scene_id": "blender-office-person",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "dataset_sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+  "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+  "validation_pin": {
+    "dataset_sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+    "inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+    "run_id": "blender-contact-control-office-person-20261016-v1",
+    "site_id": "office"
+  },
+  "camera_ids": [
+    "CAM_1F_AUDITORIUM_FRONT",
+    "CAM_1F_AUDITORIUM_REAR"
+  ],
+  "time_range": [
+    0.0,
+    9.8
+  ],
+  "sampling_hz": 5,
+  "observation_ref": "observation:218abc805d72fe39c4496da0",
+  "selected_timestamp": 4.6,
+  "top_k": 3,
+  "reconstruction_rng": "NOT_USED",
+  "source_render_seed": "NOT_EXPOSED_BY_SAFE_INPUTS",
+  "identity_verdict": "UNCONFIRMED",
+  "physical_verdict": "UNKNOWN",
+  "contact_config": "configs/office_person_contact_v2.json",
+  "contact_config_sha256": "b84a2d328159e9c12ffe59dfef015cce65ebd2bd966551a731c7bf2df2bac3d5",
+  "run_configuration": {
+    "height_m": 1.7,
+    "body_radius_m": 0.25,
+    "height_prior_m": 1.7,
+    "height_tolerance_m": 0.1
+  },
+  "limitations": [
+    "D18: person endpoints FRONT 4.6 to REAR 8.2 s; interior 4.8–8.0 s, no D7 substitution. Legacy run remains 4.4 to 8.6 s.",
+    "V2 rejected ground positions remain MISSING; no endpoint substitution or floor snapping.",
+    "New body clearance and physical navigation not certified; C7 recheck pending.",
+    "Motion, association and physical layers not materialized for this run."
+  ],
+  "next_observed_timestamp": 8.2,
+  "blind_interval": {
+    "decision": "D18",
+    "start_observation_ref": "observation:218abc805d72fe39c4496da0",
+    "start_camera_id": "CAM_1F_AUDITORIUM_FRONT",
+    "start_s": 4.6,
+    "end_observation_ref": "observation:a012bc1b71556a46191bc68a",
+    "end_camera_id": "CAM_1F_AUDITORIUM_REAR",
+    "end_s": 8.2,
+    "interior_time_range_s": [
+      4.8,
+      8.0
+    ],
+    "endpoint_substitution": "NOT_PERFORMED"
+  }
+}

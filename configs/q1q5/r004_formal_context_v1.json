@@ -1,0 +1,70 @@
+{
+  "G4_approved": false,
+  "G4_dependency": "yyin three clarifications + independent graph/ROI review + explicit approval",
+  "camera_catalog": {
+    "G4_dependency": false,
+    "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756",
+    "camera_count": 8,
+    "freeze_receipt_file_sha256": "3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5",
+    "freeze_receipt_ref": "docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json",
+    "freeze_status": "FROZEN_AS_IS_PER_D84",
+    "frozen_file_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "source_file_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "source_manifest_file_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+    "source_ref": "provenance/camera_catalog.json",
+    "static_validity": "NOT_EVALUATED"
+  },
+  "content_sha256": "12a70fac90d9176906b75754bd0769b5e196b78ae8919e3568d951f843a7d5d9",
+  "formal_production_ready": false,
+  "gt_read": false,
+  "old_A_B1_values_reused": false,
+  "production_performed": false,
+  "question_pack_blockers": [
+    "CLAUDE_CONTEXT_REVIEW_PENDING",
+    "PR_238_MERGED_SHA_REQUIRED"
+  ],
+  "question_pack_ready": false,
+  "runs": [
+    {
+      "clock_id": "clock:r004:a4:declared-demo:v1",
+      "clock_mapping_content_sha256": "89f80b29f14639fe5d367051012652cfdcd808c97787ede8bb2f0dfdfbfd4713",
+      "clock_mapping_file_sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a",
+      "clock_mapping_ref": "configs/q1q5/clocks/r004_a4_v1.json",
+      "declaration_status": "D89_USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "label": "A4",
+      "query_source_range_us": [
+        0,
+        48000000
+      ],
+      "rendered": false,
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "run_registration_file_sha256": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9",
+      "run_registration_ref": "configs/q1q5/runs/r004_a4_v1.json",
+      "source_duration_us": 50000000,
+      "wall_origin": "2026-11-01T14:00:00+08:00"
+    },
+    {
+      "clock_id": "clock:r004:b4:declared-demo:v1",
+      "clock_mapping_content_sha256": "62bb16bd15be8e20b619f5a2374188687b2eb2a545df6247b2f13443c8519f52",
+      "clock_mapping_file_sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4",
+      "clock_mapping_ref": "configs/q1q5/clocks/r004_b4_v1.json",
+      "declaration_status": "D89_USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "label": "B4",
+      "query_source_range_us": [
+        0,
+        40000000
+      ],
+      "rendered": false,
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+      "run_registration_file_sha256": "bec1b2829ef2eabcdac74ea9123725ee7e9b486364c27c360b45e70eb707b598",
+      "run_registration_ref": "configs/q1q5/runs/r004_b4_v1.json",
+      "source_duration_us": 42000000,
+      "wall_origin": "2026-11-01T14:10:00+08:00"
+    }
+  ],
+  "scene_revision": "r004",
+  "schema_version": "q-demo.r004-formal-context-declaration.v1",
+  "shared_wall_origin": false,
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "status": "D89_DECLARED_D84_CATALOG_FROZEN_PENDING_CLAUDE"
+}

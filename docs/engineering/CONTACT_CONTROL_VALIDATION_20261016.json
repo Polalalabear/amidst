@@ -1,0 +1,218 @@
+{
+  "schema_version": "contact-control-validation-receipt.v1",
+  "date": "2026-10-16",
+  "run_id": "blender-contact-control-auditorium-v1",
+  "render_authorization": "USER_EXPLICIT_100_PNG_AND_POSTHOC_VALIDATION",
+  "source_integrity": {
+    "sha256_before": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "sha256_after": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "size_before": 468300506,
+    "size_after": 468300506,
+    "mtime_ns_before": 1791198236746106977,
+    "mtime_ns_after": 1791198236746106977
+  },
+  "materialization": {
+    "run_id": "blender-contact-control-auditorium-v1",
+    "dataset_sha256": "d70159cfe7fc5b9762b57d9b988b1af0f1fd78b6c5a774ca778b29f23f88f1d4",
+    "safe_inputs_sha256": "c99f19bc7f79796dbd6baa8a24940ab5b2e80ec9d53d810c9b6969e1d24c310f",
+    "frame_count": 100,
+    "loader": "PASS",
+    "all_media_hashes": "PASS",
+    "source_unchanged": true,
+    "gt_used_for_inference": false
+  },
+  "plan_sha256": "09e0d37da4882ec4c8b1df9e89d7af442f750296e2e2e4778a9f3eacdee51f87",
+  "scale": {
+    "metres_per_bu": 0.0247,
+    "authority": "APPROVED_RESEARCH_MODEL_SETTING"
+  },
+  "route": {
+    "waypoints_bu": [
+      {
+        "timestamp": 0.0,
+        "position": [
+          1780.0,
+          1660.0,
+          20.12885093688965
+        ]
+      },
+      {
+        "timestamp": 10.0,
+        "position": [
+          1780,
+          2240,
+          20.12885093688965
+        ]
+      }
+    ],
+    "sampled_end_bu": [
+      1780.0,
+      2228.39990234375,
+      20.128849029541016
+    ],
+    "waypoints_m": [
+      [
+        43.966,
+        41.002,
+        0.4971826181411743
+      ],
+      [
+        43.966,
+        55.328,
+        0.4971826181411743
+      ]
+    ],
+    "policy": {
+      "min_incidence": 0.25,
+      "bottom_probe_height_scene_units": 0.5,
+      "every_frame_bottom_visible": true,
+      "dual_bottom_frame_count": 15,
+      "priority": "ANY_DUAL_CAMERA_INTERVAL_THEN_EVERY_FRAME_SINGLE_CAMERA",
+      "scope": "RENDERER_GT_ROUTE_SELECTION_AND_EVALUATION_ONLY"
+    },
+    "walkable": "WALK_1F_AUDITORIUM",
+    "office_search": "NO_CANDIDATE_ON_20_BU_GRID_NOT_EXHAUSTIVE_PROOF"
+  },
+  "validation": {
+    "scope": "POSTHOC_EVALUATION_ONLY",
+    "summary": {
+      "v1": {
+        "projected_count": 100,
+        "mean_m": 0.14927776548563046,
+        "max_m": 0.356444628165263
+      },
+      "v2": {
+        "projected_count": 62,
+        "mean_m": 0.09727826983373572,
+        "max_m": 0.13263067470915146
+      }
+    },
+    "paired_same_frames": {
+      "v1": {
+        "count": 62,
+        "mean_m": 0.15546020642140204,
+        "max_m": 0.356444628165263
+      },
+      "v2": {
+        "count": 62,
+        "mean_m": 0.09727826983373572,
+        "max_m": 0.13263067470915146
+      }
+    },
+    "comparison_note": "ALL_PROJECTION_SUMMARIES_HAVE_DIFFERENT_COVERAGE_USE_PAIRED_FOR_ACCURACY_COMPARISON",
+    "bottom_visible_speed_cap_transitions": [],
+    "acceptance": "PASS",
+    "prediction_sha256": "9a87cbb63d89d37ace9d690c021c1c6809c126916e2fe45b695e5b9ed097bcad",
+    "plan_sha256": "09e0d37da4882ec4c8b1df9e89d7af442f750296e2e2e4778a9f3eacdee51f87",
+    "evaluator_sha256": "e68dd0d31d106cefff5b2a541cbcc61ca665586533f7cc37018748e67a60e0b3",
+    "dataset_sha256": "d70159cfe7fc5b9762b57d9b988b1af0f1fd78b6c5a774ca778b29f23f88f1d4"
+  },
+  "coverage": {
+    "camera_timestamps": 100,
+    "accepted_v2": 62,
+    "timestamps_with_at_least_one_v2_position": 47,
+    "rejection_reasons": {
+      "LOW_INCIDENCE": 35,
+      "TOUCHES_IMAGE_EDGE": 3,
+      "CONTACT_OCCLUDED": 1
+    }
+  },
+  "office_regression": {
+    "old_projected_count": 31,
+    "old_baseline_unchanged": true,
+    "v2_components": 30,
+    "v2_projected": 0,
+    "anchor_transitions": [
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "from_frame_ref": "frame:e973251d18e6e6799200ddfc",
+        "from_timestamp": 0.4,
+        "to_timestamp": 0.6,
+        "old": [
+          {
+            "speed_m_s": 8.513935621697316,
+            "exceeds_cap": true
+          }
+        ],
+        "new_speed_m_s": null,
+        "new_status": "MISSING_OR_AMBIGUOUS",
+        "new_rejection_reasons": [
+          "LOW_INCIDENCE"
+        ]
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "from_frame_ref": "frame:ce31a5feb75c3306f3e42e0a",
+        "from_timestamp": 1.8,
+        "to_timestamp": 2.0,
+        "old": [
+          {
+            "speed_m_s": 10.031684827385169,
+            "exceeds_cap": true
+          }
+        ],
+        "new_speed_m_s": null,
+        "new_status": "MISSING_OR_AMBIGUOUS",
+        "new_rejection_reasons": [
+          "LOW_INCIDENCE"
+        ]
+      }
+    ]
+  },
+  "gt_isolation": {
+    "prediction_inputs": "RGB_SAFE_ALLOWLIST_CALIBRATION_APPROVED_FLOOR_CONFIGURED_TARGET",
+    "evaluation_run_after_predictions_written": true,
+    "interpolation": false,
+    "top_height_inference_enabled": false
+  },
+  "code_and_config_sha256": {
+    "scripts/plan_blender_pilot_sites.py": "f02c5955e643a5fca1d3a3de913e0eb31a7c35a667fb965f82525cf9754389e6",
+    "scripts/export_blender_pilot.py": "33ee1f1ebf7f0511cbe0c7128bd7ce225ddaa94698a98c7bf3e478f3afdcfe23",
+    "scripts/materialize_contact_control.py": "aca4c27654b819aa4cc7447f64c55e18c7519ee668ed537c5e2d723b5423ad68",
+    "scripts/run_contact_validation.py": "e68dd0d31d106cefff5b2a541cbcc61ca665586533f7cc37018748e67a60e0b3",
+    "src/amidst/engineering/perception.py": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+    "src/amidst/engineering/perception_v2.py": "62e8b2d92631c98d8bb412e4c5d94c377180bbd55efd87c4aa03dd00da6b6b9c",
+    "src/amidst/workbench/blender_scene.py": "fcca4b897005f8c17658382939381a477078e132f412ba51121a4c889b894047",
+    "scripts/office_demo_backend.py": "25a9a0f6a21dd89adb9fb00adaaa7b11911c4d11e10926c75e70bf1f6cc8889a",
+    "configs/office_demo_fixture_v1.json": "ca9a463a7cde35ef3a0ac15155dd653454d32e9b6ce46dbcd415baea51d2a763",
+    "configs/office_contact_v2.json": "43cbc146964a6f56928a95f1c7d5e9914456ce58491bfc753ddff3230d80aed5",
+    "configs/contact_control_validation_v1.json": "2b9e13ed164e4f63153cf011ae4b9d0e8671e306e3439381cf14456d9b5e68d9",
+    "configs/architectural_scale_school_v3.json": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf"
+  },
+  "artifact_sha256": {
+    "office-regression.json": "b55a9132815961e848e6c7d088444b1098915afe0372f3875f96244d156af5c7",
+    "office-comparison.csv": "f64a98f1d8d89c7abecf18254b984e74e8db03ff324dd9ce2658765e04ca7521",
+    "auditorium-comparison.csv": "52582bc7df3b39f16e308309c25200b3fc8578458ab652e3972f1af39e4a02ca",
+    "auditorium/predictions.json": "9a87cbb63d89d37ace9d690c021c1c6809c126916e2fe45b695e5b9ed097bcad",
+    "auditorium/evaluation.json": "e7fc3c95bef4fe11c491027c569aaeb9760363b52964f5cd0198352a3d57e292",
+    "auditorium/visibility.csv": "44a2bd1e4dc812ff9186ffa3128e5ac2a8bead6b689a12627dad92c7bc632a79",
+    "auditorium/errors.csv": "f7bf3c54128debcdf4b3b187503b1f16f29a55946345d918542b2beaa5a9c4d9"
+  },
+  "formal_acceptance": false,
+  "independent_real_world_accuracy": "UNKNOWN",
+  "prediction_input_hashes": {
+    "control": {
+      "calibration_sha256": "10c01be6af1a0498805d3fe68afaef0106b55ba15f187ab6dfeceb9f7405c6ef",
+      "floor_sha256": "c5b40e6c0ba0c762808634375062a86df342b66c92f76e7ca09d6cd8841b2c11",
+      "safe_inputs_sha256": "c99f19bc7f79796dbd6baa8a24940ab5b2e80ec9d53d810c9b6969e1d24c310f",
+      "config_sha256": "43cbc146964a6f56928a95f1c7d5e9914456ce58491bfc753ddff3230d80aed5",
+      "producer_sha256": "62e8b2d92631c98d8bb412e4c5d94c377180bbd55efd87c4aa03dd00da6b6b9c"
+    },
+    "office": {
+      "calibration_sha256": "77980a1d81685a9150e10abd3d3b2363e4f73f8655cd78d45db6333dbf4667d6",
+      "floor_sha256": "c5b40e6c0ba0c762808634375062a86df342b66c92f76e7ca09d6cd8841b2c11",
+      "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+      "config_sha256": "43cbc146964a6f56928a95f1c7d5e9914456ce58491bfc753ddff3230d80aed5",
+      "producer_sha256": "62e8b2d92631c98d8bb412e4c5d94c377180bbd55efd87c4aa03dd00da6b6b9c"
+    }
+  },
+  "simultaneous_eligible_time_range_s": [
+    3.6,
+    6.4
+  ],
+  "missing_all_camera_timestamps_s": [
+    0.0,
+    0.2,
+    9.8
+  ]
+}

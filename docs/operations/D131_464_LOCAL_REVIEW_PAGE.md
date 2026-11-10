@@ -1,0 +1,11 @@
+# Local r005 coverage confirmation page
+
+This is a human review tool, not automatic coverage approval. Source imagery remains PR #447 `39b9c4323288cae8c52532277cdd6dc75b63a965`; the detector report remains PR #473's original `978bf6ce9e955700022af235b284aa5ff4c8a73f` output. The added UI does not rerun detection or change those pins.
+
+Copy the five text templates in `scripts/r005_review/` to a new LOCAL folder, run `build_preview.py` with the existing Python environment, then run `server.py --port 8769`. The builder opens only the pinned existing report/raw-candidate/region metadata and the six declared STATIC_CAMERA_RGB files under the user's existing artifacts root. It writes a small LOCAL data.json and artifact manifest; it never copies images. The server serves exact allowlisted loopback routes, validates static artifact pins and original image SHA-256, and does not accept writes.
+
+`http://127.0.0.1:8769/` has two tabs: original images with optional 33 candidate boxes at the predeclared 0.30 threshold; and six original images beside the human checkboxes. Legal options are CORR_W, CORR_E, R101, R102, R103, R104 and separate UNKNOWN. Nothing is preselected. UNKNOWN and known selections are mutually exclusive. Reviewer/date and source/frame hashes are retained in a downloaded DRAFT JSON; drafts persist in this browser's localStorage. Receiving that draft does not by itself create MANUAL_ON_STATIC_FRAME authority.
+
+Mac Chrome form QA: 10 checks PASS (six images, box toggle, unfilled confirmation, mutual exclusion, reload persistence and DRAFT/no-coverage-approval export). The isolated QA browser used QA_ONLY_NOT_HUMAN_APPROVAL, not a real human return. Root also visually inspected the original images and confirmation page through the in-app browser. Actual coverage remains NOT_EVALUATED until the user returns their review.
+
+Original PNGs, 1800 raw detector candidates, human returns and screenshots stay LOCAL. No overhead/human-layout image, GT, rendering, model or research experiment is read/run by this tool. Absolute runnable paths, two screenshots and manifest SHA are posted to #445/#464. The LOCAL folder must retain the templates plus generated data/manifest for direct use; open it through the loopback server, not file://.

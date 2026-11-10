@@ -133,6 +133,7 @@ class Phase2Suite:
         self.research: dict[str, Any] = {}
         self.repair05: dict[str, Any] = {}
         self.agent: Any = None
+        self.agent_transport: dict[str, Any] | None = None
         self.storage: Any = None
         self.storage_import: dict[str, Any] | None = None
         self.unavailable_reasons: dict[str, str] = {}
@@ -203,15 +204,17 @@ class Phase2Suite:
         if self.storage is not None and provider_settings.is_file():
             try:
                 from amidst.local_agent import LocalAgentManager, OllamaProvider
+                from amidst.workbench.agent_transport import load_agent_transport
 
-                if provider_settings.is_symlink():
-                    raise BridgeDenied("AGENT_CONFIGURATION_DENIED")
-                config = json.loads(provider_settings.read_bytes())
+                profile_path = (repo / "data/engineering/local_run/phase2_repair_0511"
+                                / "agent_transport_profile.json")
+                config, transport = load_agent_transport(provider_settings, profile_path)
                 provider = OllamaProvider(**config)
                 ledger_path = workbench.reviews.db_path.with_name(
                     workbench.reviews.db_path.stem + "-local-agent.sqlite3")
                 self.agent = LocalAgentManager(ledger_path, provider=provider,
                     binding_resolver=self.resolve_binding, executor=self.execute_tool)
+                self.agent_transport = transport
             except (OSError, ValueError, KeyError, TypeError, RuntimeError):
                 self.unavailable_reasons["agent"] = "LOCAL_AGENT_NOT_VERIFIED"
 
@@ -303,6 +306,7 @@ class Phase2Suite:
                 "source_run_id": scene.run_id, "source_sha256": scene.source_hash,
                 "observation_mode": request.observation_mode,
                 "research": research, "repair05": repair05, "agent": agent,
+                "agent_transport": self.agent_transport if agent is not None else None,
                 "storage": None if self.storage is None else self.storage.context(),
                 "storage_import": self.storage_import, "origin": "SYNTHETIC",
                 "unavailable_reasons": dict(self.unavailable_reasons),

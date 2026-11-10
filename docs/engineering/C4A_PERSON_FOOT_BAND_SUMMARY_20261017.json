@@ -1,0 +1,415 @@
+{
+  "observation_count": 33,
+  "counts": {
+    "POINT": 0,
+    "SEGMENT": 33,
+    "UNKNOWN": 0
+  },
+  "unknown_reasons": {},
+  "contact_quality_reasons": {
+    "LOW_INCIDENCE": 33,
+    "CONTACT_OCCLUDED": 4
+  },
+  "interval_length_range_m": [
+    0.7318733604641967,
+    2.5718090841879455
+  ],
+  "k1_eligible_count": 33,
+  "k1_withheld_reasons": {},
+  "frame_table_rows": 100,
+  "empty_frame_slots": 67,
+  "camera_geometry": {
+    "CAM_1F_AUDITORIUM_FRONT": {
+      "origin_m": [
+        50.02349409179688,
+        57.16834296875,
+        3.784387042236328
+      ],
+      "height_above_floor_m": 3.28843945236206,
+      "timestamp_8_6_calibrated_interval": []
+    },
+    "CAM_1F_AUDITORIUM_REAR": {
+      "origin_m": [
+        50.012678796386716,
+        39.042655615234374,
+        3.784830267333984
+      ],
+      "height_above_floor_m": 3.288882677459717,
+      "timestamp_8_6_calibrated_interval": [
+        {
+          "observation_ref": "observation:eb179c141a066caa4d0126a2",
+          "image_anchor_px": [
+            288.0,
+            99.0
+          ],
+          "basis": "FOOT_RAY_PIXEL_BAND",
+          "head_anchor_px": null,
+          "horizontal_distance_to_interval_m": [
+            22.77355970533904,
+            23.958045341125633
+          ],
+          "horizontal_distance_to_height_interval_m": null,
+          "horizontal_distance_at_declared_nominal_height_m": null,
+          "distance_basis": "CALIBRATED_FOOT_BAND_PLUS_RADIUS_NOT_GT",
+          "unique_actual_target_distance_m": "UNKNOWN_NO_GT_USED"
+        }
+      ]
+    }
+  },
+  "focus_rows": [
+    {
+      "timestamp_s": 3.4,
+      "camera": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_ref": "frame:c4bda74a58c1db89608a2054",
+      "observation_ref": "observation:8cbeff88b10eff537347482f",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 0.7432723388325092,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        823.5,
+        69
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        819.0,
+        145.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 3.6,
+      "camera": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_ref": "frame:06f2473da5ad464228ea05e9",
+      "observation_ref": "observation:413559766e66fe506a289273",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 0.7434117431216927,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        825.0,
+        69
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        819.5,
+        145.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 3.8,
+      "camera": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_ref": "frame:23a9fdcf5e8d34689daec94b",
+      "observation_ref": "observation:546b3d551fec650bf5618717",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 0.737724011677016,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        826.5,
+        70
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        822.5,
+        146.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 4.0,
+      "camera": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_ref": "frame:3349f713457cafc84f861510",
+      "observation_ref": "observation:372e6c138999e8dbc0a833b3",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 0.737724011677016,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        828.0,
+        70
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        822.5,
+        146.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 4.2,
+      "camera": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_ref": "frame:2cf39c1aba63e313ad09baf2",
+      "observation_ref": "observation:a739dae6df76c477a3ac6b44",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 0.7318733604641967,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        830.0,
+        70
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        824.5,
+        147.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 4.4,
+      "camera": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_ref": "frame:f811a8ba542863ad615a83bb",
+      "observation_ref": "observation:a9373842c11b3e81fdecf2a8",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 0.7320108893999575,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        831.5,
+        70
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        825.0,
+        147.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 8.6,
+      "camera": "CAM_1F_AUDITORIUM_REAR",
+      "frame_ref": "frame:949ac520d8934f987b1a88a9",
+      "observation_ref": "observation:eb179c141a066caa4d0126a2",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 1.1846399255157412,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        284.5,
+        54
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        288.0,
+        99.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 8.8,
+      "camera": "CAM_1F_AUDITORIUM_REAR",
+      "frame_ref": "frame:8949fd54736ce34efaf7a071",
+      "observation_ref": "observation:e99997c4f6140fc97d3b315a",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 1.1659643662415415,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        285.5,
+        54
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        291.5,
+        100.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 9.0,
+      "camera": "CAM_1F_AUDITORIUM_REAR",
+      "frame_ref": "frame:b398b4c039039142134afba9",
+      "observation_ref": "observation:45a9fa074b8fe89991f31e95",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 1.14831994610821,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        287.0,
+        54
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        293.5,
+        101.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 9.2,
+      "camera": "CAM_1F_AUDITORIUM_REAR",
+      "frame_ref": "frame:d14bbfcb9a4189f6601dd81a",
+      "observation_ref": "observation:f8e26cab0bf0ff9798cff121",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 1.147999067474525,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "head_anchor_px": [
+        288.0,
+        53
+      ],
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        294.5,
+        101.0
+      ],
+      "head_anchor_used": false,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 9.4,
+      "camera": "CAM_1F_AUDITORIUM_REAR",
+      "frame_ref": "frame:76c1f094f814ed74d89e6fe5",
+      "observation_ref": "observation:f67af940cd7f645c19420beb",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 2.5718090841879455,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED"
+      ],
+      "head_anchor_px": [
+        289.0,
+        53
+      ],
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "image_anchor_px": [
+        289.0,
+        53
+      ],
+      "head_anchor_used": true,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    },
+    {
+      "timestamp_s": 9.6,
+      "camera": "CAM_1F_AUDITORIUM_REAR",
+      "frame_ref": "frame:133be38179497c73cae32d11",
+      "observation_ref": "observation:3ea5a25311c06233ca1e9265",
+      "status": "SEGMENT",
+      "estimator_status": "READY",
+      "interval_length_m": 2.570809618873411,
+      "reasons": [],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED"
+      ],
+      "head_anchor_px": [
+        290.0,
+        53
+      ],
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "image_anchor_px": [
+        290.0,
+        53
+      ],
+      "head_anchor_used": true,
+      "k1_endpoint": {
+        "eligible": true,
+        "reasons": [],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED"
+      }
+    }
+  ],
+  "predictions_sha256": "c1dfc1bd3baacca514f2066adcfc10036cbcfaf657e5636d8482b837d6dd4616",
+  "gt_read": false,
+  "producer_sha256": "160594196d743c02d8e87a3d536ab069817a73f2d46783e5251db07dc1c6dcea",
+  "output_sha256": "fae957a863aa5a9825b005274a1f5fe5492f04fbbd3fe048c6e4152d305548b9"
+}

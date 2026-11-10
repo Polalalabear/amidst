@@ -1,0 +1,7 @@
+{
+  "duration_s": 6,
+  "fps": 5,
+  "camera_a_visible_until_s": 2,
+  "camera_b_visible_from_s": 3,
+  "method": "STATIC_RGB_HOLD_NO_MOTION"
+}

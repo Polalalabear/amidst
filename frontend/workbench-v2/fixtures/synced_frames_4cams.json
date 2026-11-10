@@ -1,0 +1,80 @@
+{
+  "SYNTHETIC": "SYNTHETIC UI test fixture — 合成資料，不含真實影像路徑、不代表任何真實 run；僅供 player-grid 單元測試與 UI 驗收",
+  "fixture_marker": "FIXTURE",
+  "run": {
+    "run_id": "ctrl-lcorr-s1-b1-5fps-v1-r001",
+    "fps": 5,
+    "duration_s": 20
+  },
+  "candidates": [
+    "FIX_CAM_01",
+    "FIX_CAM_02",
+    "FIX_CAM_03",
+    "FIX_CAM_04"
+  ],
+  "pages": [
+    {
+      "camera_ids": [
+        "FIX_CAM_01",
+        "FIX_CAM_02",
+        "FIX_CAM_03",
+        "FIX_CAM_04"
+      ],
+      "request": {
+        "schema_version": "controlled-scene.synced-frames-request.v1",
+        "session_ref": "sess-SYNTHETIC",
+        "scene_id": "controlled-l-corridor",
+        "run_id": "ctrl-lcorr-s1-b1-5fps-v1-r001",
+        "t_s": 12.47,
+        "camera_ids": [
+          "FIX_CAM_01",
+          "FIX_CAM_02",
+          "FIX_CAM_03",
+          "FIX_CAM_04"
+        ]
+      },
+      "response": {
+        "schema_version": "controlled-scene.synced-frames.v1",
+        "t_s": 12.47,
+        "clock_id": "clock:ctrl-lcorr-s1-b1-5fps-v1-r001",
+        "sampling_version": "5fps-v1",
+        "frame_rule": "LATEST_AT_OR_BEFORE_EXPECTED_GRID",
+        "expected_frame_index": 62,
+        "expected_timestamp_s": 12.4,
+        "sample_age_s": 0.07,
+        "tiles": [
+          {
+            "camera_id": "FIX_CAM_01",
+            "status": "READY",
+            "frame_ref": "fr-SYNTHETIC-FIX_CAM_01-000062",
+            "timestamp_s": 12.4,
+            "clock_error_s": 0,
+            "file_sha256": "0101010101010101010101010101010101010101010101010101010101010101"
+          },
+          {
+            "camera_id": "FIX_CAM_02",
+            "status": "READY",
+            "frame_ref": "fr-SYNTHETIC-FIX_CAM_02-000062",
+            "timestamp_s": 12.4,
+            "clock_error_s": 0,
+            "file_sha256": "0202020202020202020202020202020202020202020202020202020202020202"
+          },
+          {
+            "camera_id": "FIX_CAM_03",
+            "status": "MISSING",
+            "frame_ref": null,
+            "reason": "RGB_RECORD_ABSENT"
+          },
+          {
+            "camera_id": "FIX_CAM_04",
+            "status": "READY",
+            "frame_ref": "fr-SYNTHETIC-FIX_CAM_04-000062",
+            "timestamp_s": 12.4,
+            "clock_error_s": 0,
+            "file_sha256": "0404040404040404040404040404040404040404040404040404040404040404"
+          }
+        ]
+      }
+    }
+  ]
+}

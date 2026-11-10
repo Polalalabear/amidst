@@ -1,0 +1,129 @@
+{
+  "schema_version": "amidst.blender-human-review-checkpoint.v1",
+  "created_at": "2026-10-13T15:36:05.769369+00:00",
+  "status": "REVIEW_STOPPED_CHECKPOINT_RETENTION_STARTED",
+  "manual_review": {
+    "changed_field_records": 35,
+    "scenes": [
+      {
+        "scene_id": "blender-classroom101",
+        "review_sha256": "c393bf376fb978f83da72296c2aec328aa45cc9d3f20073c03962bd81026d2d5",
+        "revision": 15,
+        "record_count": 15,
+        "head_document_hash": "b1eb3f3228412229b19c69d379eb9812474f7cefdb9fc6ee775ff36794f1366e",
+        "effective_checks": 10,
+        "physical_verdict": "ALL_UNKNOWN",
+        "persisted_check_count": 6,
+        "default_check_count": 4
+      },
+      {
+        "scene_id": "blender-office",
+        "review_sha256": "4c69460ee4d04443505b2dd07797cb5661c6bb8c5c53a4a6af4fc7883421ed0c",
+        "revision": 20,
+        "record_count": 20,
+        "head_document_hash": "f6babeda0778e2cf593b6fb0c367104b0bca4455733ab1c0d7238a854d1da11d",
+        "effective_checks": 14,
+        "physical_verdict": "ALL_UNKNOWN",
+        "persisted_check_count": 13,
+        "default_check_count": 1
+      }
+    ],
+    "auditorium_revision": 0,
+    "all_38_effective_checks_unknown": true,
+    "formal_approval": false,
+    "source_authority_changed": false,
+    "snapshot_integrity": "PASS",
+    "history_chain_validation": "PASS"
+  },
+  "local_retention": {
+    "root_relative_to_canonical": "data/pilot/retained_checkpoints/phase1-finalization_20261013",
+    "exact_delta_export": {
+      "sha256": "851c61fee30253f6ebf63fb5fb8a9067481b4ea70b42446e828231debce663f1",
+      "byte_count": 140419
+    },
+    "consistent_review_db_snapshot": {
+      "sha256": "1b0e04942c63daa91e6795e8b3318a3f3e666514b05ef884a82fb2aba1c29a18",
+      "byte_count": 311296
+    },
+    "two_rerun_packages_verified": true,
+    "private_data_published": false,
+    "remaining_worktree_retention": "PENDING_SHARED_TASK_COMPLETION"
+  },
+  "office": {
+    "review_revision": 20,
+    "time_range": [
+      0.0,
+      9.8
+    ],
+    "requested_top_k": 3,
+    "returned_top_k": 3,
+    "ledger_rows": 5,
+    "verdicts": [
+      "UNKNOWN",
+      "UNKNOWN",
+      "UNKNOWN"
+    ],
+    "rejected": 0,
+    "physical_sha256": "033af6af1661c1bc43b43e73c248dd157331bef647048cbb6a3d1339c3da5eee",
+    "local_receipt": {
+      "sha256": "3965477f41eb4c6003c0ba7601c909fa6276d7ca064e5cb349a23757aba2b945",
+      "byte_count": 7961
+    },
+    "new_media_complete_decode": "PASS",
+    "media_same_bytes_as_prior_v2": true
+  },
+  "classroom101": {
+    "review_revision": 15,
+    "time_range": [
+      0.0,
+      9.8
+    ],
+    "requested_top_k": 3,
+    "frame_timestamps": [
+      4.2,
+      4.4,
+      4.6
+    ],
+    "returned_event_candidates": 1,
+    "unassociated_tracklets": 6,
+    "cross_camera_edges": 0,
+    "verdict": "UNKNOWN",
+    "rejected": 0,
+    "physical_sha256": "04ac3f2b047f4053a74e94813bd4bb466b8fae0e940e34685f79256a1596c1e6",
+    "local_receipt": {
+      "sha256": "49491a16ed20b89dcec4cbadcc5141b13093c174fff600fb53f974e4643eb8d1",
+      "byte_count": 16116
+    },
+    "new_media_complete_decode": "PASS",
+    "media_same_bytes_as_prior_v2": true,
+    "corrective_worktree_import": true,
+    "late_physical_import_before_fingerprint": "N/A",
+    "browser_mp4_download": "FAILED",
+    "visible_playback_ended": true
+  },
+  "source": {
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "unchanged_across_reruns": true,
+    "blend_copied": false,
+    "blend_opened": false
+  },
+  "boundaries": {
+    "agent_decision": false,
+    "gt_used_for_inference": false,
+    "real_stream": false,
+    "human_notes_used_as_geometry": false,
+    "formal_acceptance": false,
+    "auditorium_started": false,
+    "new_scenes_started": false
+  },
+  "cleanup": {
+    "target": "phase1-finalization",
+    "user_authorized": true,
+    "wait_for_shared_phase2_task": true,
+    "status": "PENDING",
+    "other_worktrees_preserved": true,
+    "main_merge_authorized_by_this_task": false
+  }
+}

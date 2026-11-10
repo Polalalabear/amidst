@@ -116,3 +116,18 @@ test('graph caption budget preserves every source edge and captions only selecte
   assert.ok(expanded.nodeCaptions.length<=3);assert.ok(expanded.edgeCaptions.every(edge=>edge.from==='n0'||edge.to==='n0'));
   assert.deepEqual(graph,original,'caption controls never mutate topology');
 });
+
+test('boundedDecode resolves when a decode never settles and swallows decode failures',async()=>{
+  const {boundedDecode}=await import('./presentation-data.mjs');
+  const started=Date.now();await boundedDecode(new Promise(()=>{}),40);assert.ok(Date.now()-started<1000);
+  await boundedDecode(Promise.reject(new Error('decode failed')),40);
+  await boundedDecode(Promise.resolve(),40);
+});
+
+test('prepareFrames never reports success for a superseded request, even when decode stalls and times out',async()=>{
+  const {boundedDecode}=await import('./presentation-data.mjs');
+  const frames=[{camera_id:'CAM_A',media_ref:'ref:a'}],hung=()=>boundedDecode(new Promise(()=>{}),30);
+  assert.equal(await prepareFrames(frames,ref=>'/m/'+ref,{decode:hung,current:()=>true}),true);
+  let live=true;const pending=prepareFrames(frames,ref=>'/m/'+ref,{decode:hung,current:()=>live});live=false;
+  assert.equal(await pending,false);
+});

@@ -1,0 +1,1329 @@
+{
+  "schema_version": "office-demo.c5-result-receipt.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "gt_read": false,
+  "original_missing_null_count": 33,
+  "visibility_index_summary": [
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
+      "area_m2": 115.75,
+      "suggestion_area_m2": 205.375,
+      "detectability": {
+        "min_predicted_px": 301.60803487488374,
+        "required_px": 112,
+        "detectability_factor": 4,
+        "detector": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        },
+        "projection_basis": "CAMERA_FACING_VERTICAL_FOOT_TO_WAIST_QUADRILATERAL_AREA"
+      },
+      "cells_removed": {
+        "visibility_rule": 1434,
+        "detectability": 0,
+        "total": 1434
+      },
+      "probe_visible_counts": {
+        "000": 28502,
+        "001": 2396,
+        "010": 31,
+        "011": 2627,
+        "100": 62,
+        "101": 197,
+        "110": 58,
+        "111": 8637
+      },
+      "cell_status_counts": {
+        "ANY_PROBE_VISIBLE": {
+          "UNKNOWN_OUTSIDE_SOURCE_FLOOR_SUPPORT": 3354,
+          "SAMPLED_NOT_VISIBLE_NOT_CONTINUOUS_BLIND_PROOF": 3487,
+          "UNKNOWN_MIXED": 349,
+          "SAMPLED_VISIBLE": 3286
+        },
+        "FOOT_AND_TORSO_PROBES_VISIBLE": {
+          "UNKNOWN_OUTSIDE_SOURCE_FLOOR_SUPPORT": 3354,
+          "SAMPLED_NOT_VISIBLE_NOT_CONTINUOUS_BLIND_PROOF": 4581,
+          "UNKNOWN_MIXED": 689,
+          "SAMPLED_VISIBLE": 1852
+        }
+      }
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
+      "area_m2": 130.375,
+      "suggestion_area_m2": 202.5625,
+      "detectability": {
+        "min_predicted_px": 542.9890104394508,
+        "required_px": 112,
+        "detectability_factor": 4,
+        "detector": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        },
+        "projection_basis": "CAMERA_FACING_VERTICAL_FOOT_TO_WAIST_QUADRILATERAL_AREA"
+      },
+      "cells_removed": {
+        "visibility_rule": 1155,
+        "detectability": 0,
+        "total": 1155
+      },
+      "probe_visible_counts": {
+        "000": 28711,
+        "001": 2692,
+        "010": 13,
+        "011": 1313,
+        "100": 120,
+        "101": 367,
+        "110": 123,
+        "111": 9171
+      },
+      "cell_status_counts": {
+        "ANY_PROBE_VISIBLE": {
+          "UNKNOWN_OUTSIDE_SOURCE_FLOOR_SUPPORT": 3354,
+          "SAMPLED_NOT_VISIBLE_NOT_CONTINUOUS_BLIND_PROOF": 3532,
+          "UNKNOWN_MIXED": 349,
+          "SAMPLED_VISIBLE": 3241
+        },
+        "FOOT_AND_TORSO_PROBES_VISIBLE": {
+          "UNKNOWN_OUTSIDE_SOURCE_FLOOR_SUPPORT": 3354,
+          "SAMPLED_NOT_VISIBLE_NOT_CONTINUOUS_BLIND_PROOF": 4510,
+          "UNKNOWN_MIXED": 526,
+          "SAMPLED_VISIBLE": 2086
+        }
+      }
+    }
+  ],
+  "negative_evidence_comparison": {
+    "without_mode": "NONE",
+    "with_mode": "BASELINE_AND_FEEDBACK",
+    "without_hypotheses": 1,
+    "with_hypotheses": 1,
+    "without_output_sha256": "b5527723c7c4acd4cfee6ac7dd3945fb132769838803cf7119c6f64fa42539c9",
+    "with_output_sha256": "f24054da2b23bf29b441505f6ded82277ab9aab00ae920bb162c28dbfae4537d",
+    "sum_region_area_before_m2": 281.125,
+    "sum_region_area_after_m2": 281.125,
+    "region_area_reduction_percent": 0.0,
+    "interpretation": "NEGATIVE_EVIDENCE_APPLIED_BEFORE_HYPOTHESIS_GENERATION",
+    "detector_contrast_and_partial_occlusion_misses": "NOT_VERIFIED"
+  },
+  "region_comparison_by_origin": {
+    "BLIND_INTERVAL_BASELINE": {
+      "before": {
+        "per_timestamp": [
+          {
+            "timestamp_s": 4.8,
+            "cells": 46,
+            "area_m2": 2.875
+          },
+          {
+            "timestamp_s": 5.0,
+            "cells": 91,
+            "area_m2": 5.6875
+          },
+          {
+            "timestamp_s": 5.2,
+            "cells": 149,
+            "area_m2": 9.3125
+          },
+          {
+            "timestamp_s": 5.4,
+            "cells": 213,
+            "area_m2": 13.3125
+          },
+          {
+            "timestamp_s": 5.6,
+            "cells": 278,
+            "area_m2": 17.375
+          },
+          {
+            "timestamp_s": 5.8,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 6.0,
+            "cells": 413,
+            "area_m2": 25.8125
+          },
+          {
+            "timestamp_s": 6.2,
+            "cells": 457,
+            "area_m2": 28.5625
+          },
+          {
+            "timestamp_s": 6.4,
+            "cells": 489,
+            "area_m2": 30.5625
+          },
+          {
+            "timestamp_s": 6.6,
+            "cells": 486,
+            "area_m2": 30.375
+          },
+          {
+            "timestamp_s": 6.8,
+            "cells": 431,
+            "area_m2": 26.9375
+          },
+          {
+            "timestamp_s": 7.0,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 7.2,
+            "cells": 267,
+            "area_m2": 16.6875
+          },
+          {
+            "timestamp_s": 7.4,
+            "cells": 201,
+            "area_m2": 12.5625
+          },
+          {
+            "timestamp_s": 7.6,
+            "cells": 144,
+            "area_m2": 9.0
+          },
+          {
+            "timestamp_s": 7.8,
+            "cells": 98,
+            "area_m2": 6.125
+          },
+          {
+            "timestamp_s": 8.0,
+            "cells": 55,
+            "area_m2": 3.4375
+          }
+        ],
+        "sum_cells": 4498,
+        "sum_area_m2": 281.125,
+        "union_cells": 592,
+        "union_area_m2": 37.0,
+        "cell_size_m": 0.25
+      },
+      "after": {
+        "per_timestamp": [
+          {
+            "timestamp_s": 4.8,
+            "cells": 46,
+            "area_m2": 2.875
+          },
+          {
+            "timestamp_s": 5.0,
+            "cells": 91,
+            "area_m2": 5.6875
+          },
+          {
+            "timestamp_s": 5.2,
+            "cells": 149,
+            "area_m2": 9.3125
+          },
+          {
+            "timestamp_s": 5.4,
+            "cells": 213,
+            "area_m2": 13.3125
+          },
+          {
+            "timestamp_s": 5.6,
+            "cells": 278,
+            "area_m2": 17.375
+          },
+          {
+            "timestamp_s": 5.8,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 6.0,
+            "cells": 413,
+            "area_m2": 25.8125
+          },
+          {
+            "timestamp_s": 6.2,
+            "cells": 457,
+            "area_m2": 28.5625
+          },
+          {
+            "timestamp_s": 6.4,
+            "cells": 489,
+            "area_m2": 30.5625
+          },
+          {
+            "timestamp_s": 6.6,
+            "cells": 486,
+            "area_m2": 30.375
+          },
+          {
+            "timestamp_s": 6.8,
+            "cells": 431,
+            "area_m2": 26.9375
+          },
+          {
+            "timestamp_s": 7.0,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 7.2,
+            "cells": 267,
+            "area_m2": 16.6875
+          },
+          {
+            "timestamp_s": 7.4,
+            "cells": 201,
+            "area_m2": 12.5625
+          },
+          {
+            "timestamp_s": 7.6,
+            "cells": 144,
+            "area_m2": 9.0
+          },
+          {
+            "timestamp_s": 7.8,
+            "cells": 98,
+            "area_m2": 6.125
+          },
+          {
+            "timestamp_s": 8.0,
+            "cells": 55,
+            "area_m2": 3.4375
+          }
+        ],
+        "sum_cells": 4498,
+        "sum_area_m2": 281.125,
+        "union_cells": 592,
+        "union_area_m2": 37.0,
+        "cell_size_m": 0.25
+      },
+      "cells_removed_sum": 0,
+      "cells_removed_union": 0,
+      "sum_reduction_percent": 0.0,
+      "union_reduction_percent": 0.0
+    },
+    "RETRIEVAL_FEEDBACK_ADDITIONAL_TO_BASELINE": {
+      "before": {
+        "per_timestamp": [
+          {
+            "timestamp_s": 4.8,
+            "cells": 46,
+            "area_m2": 2.875
+          },
+          {
+            "timestamp_s": 5.0,
+            "cells": 91,
+            "area_m2": 5.6875
+          },
+          {
+            "timestamp_s": 5.2,
+            "cells": 149,
+            "area_m2": 9.3125
+          },
+          {
+            "timestamp_s": 5.4,
+            "cells": 213,
+            "area_m2": 13.3125
+          },
+          {
+            "timestamp_s": 5.6,
+            "cells": 278,
+            "area_m2": 17.375
+          },
+          {
+            "timestamp_s": 5.8,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 6.0,
+            "cells": 413,
+            "area_m2": 25.8125
+          },
+          {
+            "timestamp_s": 6.2,
+            "cells": 457,
+            "area_m2": 28.5625
+          },
+          {
+            "timestamp_s": 6.4,
+            "cells": 489,
+            "area_m2": 30.5625
+          },
+          {
+            "timestamp_s": 6.6,
+            "cells": 486,
+            "area_m2": 30.375
+          },
+          {
+            "timestamp_s": 6.8,
+            "cells": 431,
+            "area_m2": 26.9375
+          },
+          {
+            "timestamp_s": 7.0,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 7.2,
+            "cells": 267,
+            "area_m2": 16.6875
+          },
+          {
+            "timestamp_s": 7.4,
+            "cells": 201,
+            "area_m2": 12.5625
+          },
+          {
+            "timestamp_s": 7.6,
+            "cells": 144,
+            "area_m2": 9.0
+          },
+          {
+            "timestamp_s": 7.8,
+            "cells": 98,
+            "area_m2": 6.125
+          },
+          {
+            "timestamp_s": 8.0,
+            "cells": 55,
+            "area_m2": 3.4375
+          }
+        ],
+        "sum_cells": 4498,
+        "sum_area_m2": 281.125,
+        "union_cells": 592,
+        "union_area_m2": 37.0,
+        "cell_size_m": 0.25
+      },
+      "after": {
+        "per_timestamp": [
+          {
+            "timestamp_s": 4.8,
+            "cells": 46,
+            "area_m2": 2.875
+          },
+          {
+            "timestamp_s": 5.0,
+            "cells": 91,
+            "area_m2": 5.6875
+          },
+          {
+            "timestamp_s": 5.2,
+            "cells": 149,
+            "area_m2": 9.3125
+          },
+          {
+            "timestamp_s": 5.4,
+            "cells": 213,
+            "area_m2": 13.3125
+          },
+          {
+            "timestamp_s": 5.6,
+            "cells": 278,
+            "area_m2": 17.375
+          },
+          {
+            "timestamp_s": 5.8,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 6.0,
+            "cells": 413,
+            "area_m2": 25.8125
+          },
+          {
+            "timestamp_s": 6.2,
+            "cells": 457,
+            "area_m2": 28.5625
+          },
+          {
+            "timestamp_s": 6.4,
+            "cells": 489,
+            "area_m2": 30.5625
+          },
+          {
+            "timestamp_s": 6.6,
+            "cells": 486,
+            "area_m2": 30.375
+          },
+          {
+            "timestamp_s": 6.8,
+            "cells": 431,
+            "area_m2": 26.9375
+          },
+          {
+            "timestamp_s": 7.0,
+            "cells": 340,
+            "area_m2": 21.25
+          },
+          {
+            "timestamp_s": 7.2,
+            "cells": 267,
+            "area_m2": 16.6875
+          },
+          {
+            "timestamp_s": 7.4,
+            "cells": 201,
+            "area_m2": 12.5625
+          },
+          {
+            "timestamp_s": 7.6,
+            "cells": 144,
+            "area_m2": 9.0
+          },
+          {
+            "timestamp_s": 7.8,
+            "cells": 98,
+            "area_m2": 6.125
+          },
+          {
+            "timestamp_s": 8.0,
+            "cells": 55,
+            "area_m2": 3.4375
+          }
+        ],
+        "sum_cells": 4498,
+        "sum_area_m2": 281.125,
+        "union_cells": 592,
+        "union_area_m2": 37.0,
+        "cell_size_m": 0.25
+      },
+      "cells_removed_sum": 0,
+      "cells_removed_union": 0,
+      "sum_reduction_percent": 0.0,
+      "union_reduction_percent": 0.0
+    }
+  },
+  "complete_artifact": {
+    "filename": "C5_PERSON_D21_20261017.json.gz",
+    "gzip_sha256": "ffa169e0adad3a74522f991961e49e456f2d468d8c272d20b25929f98ac4761f",
+    "decoded_sha256": "f23e9dd9cc35aed74362126cba90d1f2cf041659559a71d079d84993aa6f3391",
+    "decoded_canonical_sha256": "ace13bf9cec17ae39d0f068b439a5e3eaabee715e145f0567efda17070d99887",
+    "gzip_mtime": 0,
+    "gzip_filename": ""
+  },
+  "initial": {
+    "status": "READY",
+    "reason": null,
+    "hypotheses": 1,
+    "regions": 17,
+    "output_sha256": "f24054da2b23bf29b441505f6ded82277ab9aab00ae920bb162c28dbfae4537d",
+    "negative_evidence_applied": [
+      "negev:6324820bb61d0789c2ecb5c9",
+      "negev:3ff2eccc6148cb56b93920ca"
+    ],
+    "speed_checks": [
+      {
+        "result": "PASS",
+        "max_step_speed_m_s": 0.352376,
+        "mean_speed_m_s": 0.352376,
+        "limit_m_s": [
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "unseen_checks": [
+      {
+        "result": "PASS",
+        "conflicts": [],
+        "steps_without_negative_evidence": 0
+      }
+    ]
+  },
+  "retrieval": {
+    "query_id": "frq:75c61bfe178eca3353376564",
+    "stats": {
+      "frame_records_read": 34,
+      "index_records_read": 2,
+      "frames_in_scope_total": 34,
+      "frames_matched_total": 34,
+      "frames_suggested": 34,
+      "frames_unavailable": 0
+    },
+    "frame_evaluations": {
+      "frame:420062b6bffa7df2e716239b": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:211c226d2afa7b223b75dd84": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:ff9ec101c92f4d1ff5ad7a77": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:5d4046999e3aef53b5282153": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:262b80919d700bfa76fc95c0": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:70cda0924449ac70c22c54de": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:d4f9067f4fefa7ce74e5863d": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:52c536987512cb3c0a71fdcc": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:bb148397f473e4f748d05960": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:bb60009cc0a4355e90143562": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:9515a785fa6ac4f0b1f8140a": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:1fc29f467d7e2fd76af210af": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:e5d645bb3f2d8aebb3906e49": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:824edc6e7f2034f0a4b538b5": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:a7932e7d6848ef96a5e14a05": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:2774ef3fb0a696bcee411d34": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:1c3b16552910b1c4e7d19290": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:711c082f50761fb70fa5751d": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:5f1b6856839759ebd5805085": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:3bfaff644ed1a9c5b0b55b3b": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:542ed292d557a7e2e364c316": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:44e2631cce12eb4261536390": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:6e3662a768dd3d1604018b5e": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:62a5c020a51f72586f7ea421": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:a03fba794592c34363e8b0f2": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:5369ce63257f3aee45a17e89": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:3f0e9af3eb8c09af13681de7": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:529b72e2e79545e5e7ec588d": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:013844f9c895f95c82826553": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:36d304cdff5e7746e701cc65": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:4d87955fc7853f8f0c6faad6": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:d9734bec28423fb3a8f1d01b": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:bcc800db5ff842fe530bf87c": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      },
+      "frame:f5455b580d657afb4d149f05": {
+        "frame_available": true,
+        "rgb_hash_verified": true,
+        "provenance_ok": true,
+        "perception_evaluated": true,
+        "measurement_count": 0,
+        "detection_producer": {
+          "producer": "rgb-mask-contact",
+          "version": "rgb-mask-contact-v2",
+          "difference_threshold": 30,
+          "min_pixels": 28
+        }
+      }
+    },
+    "frame_outcomes": [
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:420062b6bffa7df2e716239b",
+        "timestamp_s": 4.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:211c226d2afa7b223b75dd84",
+        "timestamp_s": 5.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:ff9ec101c92f4d1ff5ad7a77",
+        "timestamp_s": 5.2,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:5d4046999e3aef53b5282153",
+        "timestamp_s": 5.4,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:262b80919d700bfa76fc95c0",
+        "timestamp_s": 5.6,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:70cda0924449ac70c22c54de",
+        "timestamp_s": 5.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:d4f9067f4fefa7ce74e5863d",
+        "timestamp_s": 6.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:52c536987512cb3c0a71fdcc",
+        "timestamp_s": 6.2,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:bb148397f473e4f748d05960",
+        "timestamp_s": 6.4,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:bb60009cc0a4355e90143562",
+        "timestamp_s": 6.6,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:9515a785fa6ac4f0b1f8140a",
+        "timestamp_s": 6.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:1fc29f467d7e2fd76af210af",
+        "timestamp_s": 7.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:e5d645bb3f2d8aebb3906e49",
+        "timestamp_s": 7.2,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:824edc6e7f2034f0a4b538b5",
+        "timestamp_s": 7.4,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:a7932e7d6848ef96a5e14a05",
+        "timestamp_s": 7.6,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:2774ef3fb0a696bcee411d34",
+        "timestamp_s": 7.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "frame_ref": "frame:1c3b16552910b1c4e7d19290",
+        "timestamp_s": 8.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:711c082f50761fb70fa5751d",
+        "timestamp_s": 4.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:5f1b6856839759ebd5805085",
+        "timestamp_s": 5.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:3bfaff644ed1a9c5b0b55b3b",
+        "timestamp_s": 5.2,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:542ed292d557a7e2e364c316",
+        "timestamp_s": 5.4,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:44e2631cce12eb4261536390",
+        "timestamp_s": 5.6,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:6e3662a768dd3d1604018b5e",
+        "timestamp_s": 5.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:62a5c020a51f72586f7ea421",
+        "timestamp_s": 6.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:a03fba794592c34363e8b0f2",
+        "timestamp_s": 6.2,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:5369ce63257f3aee45a17e89",
+        "timestamp_s": 6.4,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:3f0e9af3eb8c09af13681de7",
+        "timestamp_s": 6.6,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:529b72e2e79545e5e7ec588d",
+        "timestamp_s": 6.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:013844f9c895f95c82826553",
+        "timestamp_s": 7.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:36d304cdff5e7746e701cc65",
+        "timestamp_s": 7.2,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:4d87955fc7853f8f0c6faad6",
+        "timestamp_s": 7.4,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:d9734bec28423fb3a8f1d01b",
+        "timestamp_s": 7.6,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:bcc800db5ff842fe530bf87c",
+        "timestamp_s": 7.8,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      },
+      {
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "frame_ref": "frame:f5455b580d657afb4d149f05",
+        "timestamp_s": 8.0,
+        "outcome": "NO_DETECTION",
+        "reason": "ELIGIBLE",
+        "negative_evidence_eligible": true
+      }
+    ],
+    "entry_fingerprints": [
+      {
+        "negative_evidence_ref": "negev:cb8faf2579392c901fc03a12",
+        "origin": "RETRIEVAL_FEEDBACK",
+        "sha256": "2c11feb520f6880b55b663002e8492826c8dededba89aa30c7105312b2523e55"
+      },
+      {
+        "negative_evidence_ref": "negev:c74a1f56782bc6745de5582e",
+        "origin": "RETRIEVAL_FEEDBACK",
+        "sha256": "4c60de7df32c8b756cee11dcb29bddec94cdcc8280d873cedcb6d79f9110cd65"
+      }
+    ]
+  },
+  "feedback": {
+    "status": "READY",
+    "output_sha256": "ef6df8db7064c525270dbb623fbd25f665f93fa769504301ab03bff4aae08360",
+    "negative_evidence_applied": [
+      "negev:6324820bb61d0789c2ecb5c9",
+      "negev:3ff2eccc6148cb56b93920ca",
+      "negev:cb8faf2579392c901fc03a12",
+      "negev:c74a1f56782bc6745de5582e"
+    ],
+    "pruning_log": [
+      {
+        "pruning_ref": "pruning:40f759c8919eda2d97a2e969",
+        "order": 3,
+        "negative_evidence_ref": "negev:cb8faf2579392c901fc03a12",
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "time_window_s": [
+          4.8,
+          8.0
+        ],
+        "hypotheses_pruned": [],
+        "region_area_before_m2": 16.536765,
+        "region_area_after_m2": 16.536765,
+        "previous_response_sha256": "f24054da2b23bf29b441505f6ded82277ab9aab00ae920bb162c28dbfae4537d"
+      },
+      {
+        "pruning_ref": "pruning:d75e759de52111d68d182373",
+        "order": 4,
+        "negative_evidence_ref": "negev:c74a1f56782bc6745de5582e",
+        "camera_id": "CAM_1F_AUDITORIUM_REAR",
+        "time_window_s": [
+          4.8,
+          8.0
+        ],
+        "hypotheses_pruned": [],
+        "region_area_before_m2": 16.536765,
+        "region_area_after_m2": 16.536765,
+        "previous_response_sha256": "f24054da2b23bf29b441505f6ded82277ab9aab00ae920bb162c28dbfae4537d"
+      }
+    ],
+    "pruned_hypotheses": 0,
+    "chain_verified": true
+  },
+  "restricted_policy_engine_status": "AWAITING_CLAUDE_K1_NATIVE_SUPPORT",
+  "packager_sha256": "20a5a58826c8a73d626a003c5664b3390fd9652adb48f02b0521fedd59379116",
+  "output_sha256": "3b47534e7900ecd1848bb0cb95d64a63ff3e2c21a5c3fc44ec5e4cebec139d68"
+}

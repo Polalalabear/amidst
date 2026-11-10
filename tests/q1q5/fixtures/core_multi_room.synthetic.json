@@ -1,0 +1,218 @@
+{
+ "fixture_id": "core-multi-room-synthetic-v1",
+ "data_origin": "SYNTHETIC",
+ "gt_read": false,
+ "note": "Hand-written SYNTHETIC graphs for Q_CORE_SEARCH_TRACK_V1 multi-classroom tests. Not derived from any Ground Truth, renderer trajectory, visibility, depth or script. SYN_CAM_AUX uses a non-manual coverage basis on purpose (must not count as a location hit).",
+ "region_graph": {
+  "schema_version": "q-demo.region-graph.v1",
+  "scene_id": "SYNTHETIC_MULTI_ROOM",
+  "scene_revision": "rSYN",
+  "approval_status": "DRAFT",
+  "regions": [
+   {
+    "region_id": "SYN_HALL",
+    "kind": "CORRIDOR_SEGMENT",
+    "floor_id": "SYN_FLOOR",
+    "display_name": "合成走廊"
+   },
+   {
+    "region_id": "SYN_ROOM_1",
+    "kind": "ROOM",
+    "floor_id": "SYN_FLOOR",
+    "display_name": "合成教室 1"
+   },
+   {
+    "region_id": "SYN_ROOM_2",
+    "kind": "ROOM",
+    "floor_id": "SYN_FLOOR",
+    "display_name": "合成教室 2"
+   },
+   {
+    "region_id": "SYN_ROOM_3",
+    "kind": "ROOM",
+    "floor_id": "SYN_FLOOR",
+    "display_name": "合成教室 3"
+   },
+   {
+    "region_id": "SYN_ROOM_4",
+    "kind": "ROOM",
+    "floor_id": "SYN_FLOOR",
+    "display_name": "合成教室 4"
+   }
+  ],
+  "edges": [
+   {
+    "edge_id": "SYN_E_HALL_SYN_ROOM_1",
+    "regions": [
+     "SYN_HALL",
+     "SYN_ROOM_1"
+    ],
+    "direction": "BIDIRECTIONAL",
+    "state": "UNKNOWN",
+    "traversability": "TOPOLOGICAL_ONLY",
+    "via": {
+     "kind": "PORTAL",
+     "ref": "SYN_DOOR_SYN_ROOM_1"
+    },
+    "basis_refs": [
+     "synthetic://core-multi-room"
+    ]
+   },
+   {
+    "edge_id": "SYN_E_HALL_SYN_ROOM_2",
+    "regions": [
+     "SYN_HALL",
+     "SYN_ROOM_2"
+    ],
+    "direction": "BIDIRECTIONAL",
+    "state": "UNKNOWN",
+    "traversability": "TOPOLOGICAL_ONLY",
+    "via": {
+     "kind": "PORTAL",
+     "ref": "SYN_DOOR_SYN_ROOM_2"
+    },
+    "basis_refs": [
+     "synthetic://core-multi-room"
+    ]
+   },
+   {
+    "edge_id": "SYN_E_HALL_SYN_ROOM_3",
+    "regions": [
+     "SYN_HALL",
+     "SYN_ROOM_3"
+    ],
+    "direction": "BIDIRECTIONAL",
+    "state": "UNKNOWN",
+    "traversability": "TOPOLOGICAL_ONLY",
+    "via": {
+     "kind": "PORTAL",
+     "ref": "SYN_DOOR_SYN_ROOM_3"
+    },
+    "basis_refs": [
+     "synthetic://core-multi-room"
+    ]
+   },
+   {
+    "edge_id": "SYN_E_HALL_SYN_ROOM_4",
+    "regions": [
+     "SYN_HALL",
+     "SYN_ROOM_4"
+    ],
+    "direction": "BIDIRECTIONAL",
+    "state": "UNKNOWN",
+    "traversability": "TOPOLOGICAL_ONLY",
+    "via": {
+     "kind": "PORTAL",
+     "ref": "SYN_DOOR_SYN_ROOM_4"
+    },
+    "basis_refs": [
+     "synthetic://core-multi-room"
+    ]
+   }
+  ]
+ },
+ "camera_graph": {
+  "schema_version": "q-demo.camera-transition-graph.v1",
+  "scene_id": "SYNTHETIC_MULTI_ROOM",
+  "scene_revision": "rSYN",
+  "approval_status": "DRAFT",
+  "cameras": [
+   {
+    "camera_id": "SYN_CAM_HALL",
+    "covered_regions": [
+     {
+      "region_id": "SYN_HALL",
+      "basis": "MANUAL_ON_STATIC_FRAME",
+      "visibility_ref": "synthetic:SYN_CAM_HALL:SYN_HALL",
+      "visible_area_m2": null
+     },
+     {
+      "region_id": "SYN_ROOM_1",
+      "basis": "MANUAL_ON_STATIC_FRAME",
+      "visibility_ref": "synthetic:SYN_CAM_HALL:SYN_ROOM_1",
+      "visible_area_m2": null
+     }
+    ],
+    "entry_zones": [],
+    "exit_zones": []
+   },
+   {
+    "camera_id": "SYN_CAM_ROOM_1_IN",
+    "covered_regions": [
+     {
+      "region_id": "SYN_ROOM_1",
+      "basis": "MANUAL_ON_STATIC_FRAME",
+      "visibility_ref": "synthetic:SYN_CAM_ROOM_1_IN:SYN_ROOM_1",
+      "visible_area_m2": null
+     }
+    ],
+    "entry_zones": [],
+    "exit_zones": []
+   },
+   {
+    "camera_id": "SYN_CAM_ROOM_2_IN",
+    "covered_regions": [
+     {
+      "region_id": "SYN_ROOM_2",
+      "basis": "MANUAL_ON_STATIC_FRAME",
+      "visibility_ref": "synthetic:SYN_CAM_ROOM_2_IN:SYN_ROOM_2",
+      "visible_area_m2": null
+     }
+    ],
+    "entry_zones": [],
+    "exit_zones": []
+   },
+   {
+    "camera_id": "SYN_CAM_ROOM_3_IN",
+    "covered_regions": [
+     {
+      "region_id": "SYN_ROOM_3",
+      "basis": "MANUAL_ON_STATIC_FRAME",
+      "visibility_ref": "synthetic:SYN_CAM_ROOM_3_IN:SYN_ROOM_3",
+      "visible_area_m2": null
+     }
+    ],
+    "entry_zones": [],
+    "exit_zones": []
+   },
+   {
+    "camera_id": "SYN_CAM_ROOM_4_IN",
+    "covered_regions": [
+     {
+      "region_id": "SYN_ROOM_4",
+      "basis": "MANUAL_ON_STATIC_FRAME",
+      "visibility_ref": "synthetic:SYN_CAM_ROOM_4_IN:SYN_ROOM_4",
+      "visible_area_m2": null
+     }
+    ],
+    "entry_zones": [],
+    "exit_zones": []
+   },
+   {
+    "camera_id": "SYN_CAM_AUX",
+    "covered_regions": [
+     {
+      "region_id": "SYN_ROOM_2",
+      "basis": "STATIC_VISIBILITY_INDEX",
+      "visibility_ref": "synthetic:SYN_CAM_AUX:SYN_ROOM_2",
+      "visible_area_m2": null
+     }
+    ],
+    "entry_zones": [],
+    "exit_zones": []
+   }
+  ],
+  "transitions": []
+ },
+ "class_labels": [
+  "person",
+  "chair",
+  "laptop",
+  "book",
+  "backpack"
+ ],
+ "color_labels": [
+  "red",
+  "blue"
+ ]
+}

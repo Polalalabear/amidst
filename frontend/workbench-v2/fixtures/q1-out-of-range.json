@@ -1,0 +1,17 @@
+{
+  "schema_version": "q-demo.ui-fixture.v1",
+  "fixture_id": "FICT_Q1_OUT_OF_RANGE",
+  "data_origin": "SYNTHETIC_FIXTURE",
+  "not_for_evaluation": true,
+  "cases": [
+    {
+      "request_json": "{\"camera_ids\":null,\"condition\":{\"class_label\":\"person\",\"color\":null,\"min_count_per_frame\":1,\"query_min_score\":0.5},\"cursor\":null,\"origin\":\"MANUAL\",\"page_size\":20,\"region_ids\":null,\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\",\"schema_version\":\"q-demo.q1-request.v1\",\"session_ref\":\"SYNTHETIC_SESSION_A\",\"time\":{\"kind\":\"SOURCE\",\"range_us\":[2000000,3000000],\"run_id\":\"SYNTHETIC_RUN\"}}",
+      "response_json": "{\"agent_attempted\":false,\"agent_used\":false,\"decision_source\":null,\"fallback_reason\":null,\"fallback_used\":false,\"identity_verdict\":\"UNCONFIRMED\",\"llm_parse_used\":false,\"next_cursor\":null,\"no_match_cameras\":[],\"normalized_condition\":{\"class_label\":\"person\",\"color\":null,\"min_count_per_frame\":1,\"query_min_score\":0.5},\"not_evaluated_cameras\":[],\"output_sha256\":\"c1214c7af5b0b4017deabfc6f80c95fe4c99fd28e161bc60c096a83cdcfb1eab\",\"provenance\":{\"gt_read\":false,\"input_refs\":[\"supported-classes:4000a6885389de16a9b20e4533cafd9641c905fccc6e9b48d5e832ab30c5f022\",\"detidx:rSYN:SYNTHETIC_RUN:59db4da5db750d24\"],\"producer\":\"q1-camera-search\",\"producer_version\":\"1\"},\"query_id\":\"q1-3f224d7f82c22abd\",\"query_sha256\":\"3f224d7f82c22abda764877a1616aa7ce30607cb09c74a5b8c606dee6c9aa07f\",\"ranking_basis\":[\"first_match_us_asc\",\"camera_id\"],\"reason\":null,\"resolved_scope\":{\"camera_graph_sha256\":null,\"camera_ids\":null,\"class_map_sha256\":\"df1e7f0d2150d8f20940152f89df889e2a8d247f1986817bb8659692052e694f\",\"clock_ids\":[\"SYNTHETIC_CLOCK\"],\"clock_mapping_sha256\":\"b02dc65b35cb0b11369e8f377c6d195d949bda06771987f3638c4ba7c93e29d0\",\"color_method_version\":\"SYNTHETIC-HSV\",\"detection_index_id\":\"detidx:rSYN:SYNTHETIC_RUN:59db4da5db750d24\",\"detection_index_sha256\":\"d18e1ab1303e33867a97fb9c36536cf6209a1a2f54e927b1fb94ea1b72e89ff3\",\"parameter_set_id\":null,\"parameter_set_sha256\":null,\"region_graph_sha256\":null,\"requested_time\":{\"kind\":\"SOURCE\",\"range_us\":[2000000,3000000],\"run_id\":\"SYNTHETIC_RUN\"},\"resolved_source_ranges_us\":[],\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\",\"scene_revision\":\"rSYN\",\"time_coverage\":{\"coverage_complete\":false,\"uncovered_wall_ranges\":[[\"2026-11-01T13:00:02+08:00\",\"2026-11-01T13:00:03+08:00\"]]}},\"results\":[],\"results_total\":0,\"returned_count\":0,\"schema_version\":\"q-demo.q1-response.v1\",\"status\":\"OUT_OF_RANGE\",\"supported_classes_ref\":\"supported-classes:4000a6885389de16a9b20e4533cafd9641c905fccc6e9b48d5e832ab30c5f022\"}",
+      "selected_observation_id": null,
+      "seed_candidates_json": null,
+      "artifacts": {
+        "observation": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "issue": "#445 / #486",
+  "ui_before_dependency_merge": "488d0d2b653710ec4a650ddc28f41cc2e945a3f3",
+  "latest_claude_handoff": "5862bb622171e56a777028e130944b703fe49399",
+  "owned_dependency_delivery": "297696395f78700b59d65c9ea2f2b6babe508826",
+  "owned_files_manifest_sha256": "ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50",
+  "integration_base_unchanged": "1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb",
+  "pr_merge": false,
+  "data_and_model_execution": "saved-observation demo only; no model process or rendering"
+}
