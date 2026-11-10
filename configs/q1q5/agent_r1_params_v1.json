@@ -1,0 +1,15 @@
+{
+  "dp1_tie_order": {
+    "status": "PROPOSED",
+    "value": [
+      "gap_us",
+      "graph_edge",
+      "score_median",
+      "id"
+    ]
+  },
+  "dp3_reject_continuation_fraction": {
+    "status": "PROPOSED",
+    "value": 0.5
+  }
+}
