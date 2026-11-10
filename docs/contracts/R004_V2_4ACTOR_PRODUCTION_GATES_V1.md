@@ -33,7 +33,7 @@
 | `ambiguity` | `unit` = `episode`、`color_variant` = `in_band`、`episodes.<run_id>[]`（`start_s`、`end_s`、`has_distractor`）、`total_episodes`。**兩個 run 合計 ≥ 5 段**，每段都有干擾者（D203）；每段時間窗要落在 run 長度內（A4 50 s、B4 42 s），同一 run 內不得重疊。用情境卡 §6 的方法（`estimate_plan_decision_points.py`）在量到的條件下重算 | `test_g1_ambiguity_episodes_at_least_five` |
 | `render_cost` | `runs.<run_id>.render_seconds_estimate`、`disk_gib_estimate`；`free_gib_before`、`total_disk_gib_estimate`、`includes_frames`。`free_gib_before − total_disk_gib_estimate` 必須 ≥ 8（停止線）；不夠就在 #516 留言，不渲染。`total_disk_gib_estimate` 不得小於各 run `disk_gib_estimate` 的和 | `test_g1_render_cost_and_disk_estimate` |
 | `actor_cloning` | `feasible`（true/false）；true 時要有 `materials`（A、B、C）和 `shared_animation`。`feasible=false` 可如實回報並過 G1，但**不得進 G2**（不得申請渲染授權，須先在 #516 由 Claude 決定替代方案） | `test_g1_actor_cloning_and_boundary` |
-| `boundary` | `rendered`、`wrote_local_dir`、`blend_saved`、`gt_read` 全為 `false` | 同上 |
+| `boundary` | `rendered`、`blend_saved`、`gt_read` 必須為 `false`；`wrote_local_dir` 為布林：`false` 不需其他欄位，`true`（D208 授權把可行性產物寫進 gitignored 資料夾）時必須附 `local_dir`（repo 相對路徑，必須在 `local/evidence/` 底下；不得是 `/tmp`、絕對或家目錄路徑、含 `..`，也不得含 tracked 檔案） | 同上 |
 
 若 B 在某支鏡頭被光線推出紅色帶，`color` 關卡就不會過；這是設計上要擋的（情境卡 §6.4：餘裕為零）。回報 #516，由 Claude 決定調 B 的材質或重排路線。
 
