@@ -10,7 +10,7 @@
 - 物理導航仍是 **UNKNOWN**。檢查器只檢查劇本層級的中心距離、錯身、門口和（若有資料的）牆距，不代表人體網格不會穿模。
 - 交付的檔案：
   - 劇本 JSON 草稿：[`R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json`](R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json)
-  - 穿模檢查器：[`scripts/design/check_actor_clearance.py`](../../scripts/design/check_actor_clearance.py)，單元測試 [`tests/unit/test_actor_clearance.py`](../../tests/unit/test_actor_clearance.py)
+  - 穿模檢查器：[`scripts/design/check_actor_clearance.py`](../../scripts/design/check_actor_clearance.py)，單元測試 [`tests/evaluation/test_actor_clearance.py`](../../tests/evaluation/test_actor_clearance.py)
   - 檢查報告：[`R004_A4B4_SCENARIO_V2_4ACTOR_CLEARANCE_REPORT.json`](R004_A4B4_SCENARIO_V2_4ACTOR_CLEARANCE_REPORT.json)
   - 題數估計工具：[`scripts/design/estimate_plan_decision_points.py`](../../scripts/design/estimate_plan_decision_points.py)，結果 [`R004_A4B4_SCENARIO_V2_4ACTOR_DP1_ESTIMATE.json`](R004_A4B4_SCENARIO_V2_4ACTOR_DP1_ESTIMATE.json)
 
@@ -149,7 +149,7 @@ A4 的 T 在 y = −0.4 過西入口。若門洞真的以 y = 0 為中心、寬 
 
 ### 5.3 單元測試
 
-`tests/unit/test_actor_clearance.py` 共 12 個：正面相撞、**只有插值才抓得到的穿越**（格點上 0.61 m，0.1 s 時 0.4 m）、反向分道錯身合格、橫向 0.7 m 不合格、門口錯開不足、同時佔用門口、在門外等待後合格、停在門口區的人第二次穿越也要檢查、牆距 UNKNOWN 與參考邊界不影響結論、宣告牆段時太近判 FAIL、seed 互斥與速度、CLI exit code。
+`tests/evaluation/test_actor_clearance.py` 共 12 個：正面相撞、**只有插值才抓得到的穿越**（格點上 0.61 m，0.1 s 時 0.4 m）、反向分道錯身合格、橫向 0.7 m 不合格、門口錯開不足、同時佔用門口、在門外等待後合格、停在門口區的人第二次穿越也要檢查、牆距 UNKNOWN 與參考邊界不影響結論、宣告牆段時太近判 FAIL、seed 互斥與速度、CLI exit code。
 
 ---
 
