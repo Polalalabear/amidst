@@ -43,7 +43,10 @@ SHA256 = re.compile(r'^[0-9a-f]{64}$')
 GIT_SHA = re.compile(r'^[0-9a-f]{40}$')
 GT_NAME = re.compile(r'(?i)(gt_private|scoring_private|ground_?truth|renderer_?traj|visib|depth|traject|(^|[/_.-])gt([/_.-]|$))')
 STAGES = ('detection_index', 'local_track', 'ranking', 'reconstruction')
-TRACKED_STAGES = {'detection_index', 'local_track'}  # stages whose inputs must list frames/clock only
+DOOR_WALL_TOL_M = 0.5        # a door centre lies within width_m/2 + this of some wall segment (contract)
+ROUTE_WALL_MARGIN_M = 15.0   # at least one wall lies within this of the actors' route bbox (contract)
+B_BAND_MARGIN = 0.02         # B hue is at least this far from both red-band edges (scenario card v2 7.6)
+OLD_RUN_IDS = ('ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1', 'ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1')
 
 
 # ------------------------------------------------------------------ helpers
@@ -80,13 +83,44 @@ def rerun_clearance(report, draft):
     return chk.check_document(doc)
 
 
-def _rules():
-    return _load_checker().DEFAULT_RULES
-
-
 def _point_in_box(p, box):
     (x0, x1), (y0, y1) = box
     return min(x0, x1) <= p[0] <= max(x0, x1) and min(y0, y1) <= p[1] <= max(y0, y1)
+
+
+def _dist_point_segment(p, a, b):
+    ax, ay = a
+    bx, by = b
+    dx, dy = bx - ax, by - ay
+    n = dx * dx + dy * dy
+    t = 0.0 if n == 0 else max(0.0, min(1.0, ((p[0] - ax) * dx + (p[1] - ay) * dy) / n))
+    return ((p[0] - ax - t * dx) ** 2 + (p[1] - ay - t * dy) ** 2) ** 0.5
+
+
+def _dist_segment_bbox(a, b, bbox):
+    """Distance from a segment to an axis-aligned bbox (x0, y0, x1, y1); sampled, 0 if they touch."""
+    x0, y0, x1, y1 = bbox
+    best = float('inf')
+    for k in range(101):
+        t = k / 100
+        px, py = a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])
+        best = min(best, ((max(x0 - px, 0, px - x1)) ** 2 + (max(y0 - py, 0, py - y1)) ** 2) ** 0.5)
+    return best
+
+
+def _route_bbox(draft_run):
+    pts = [w['xy'] for a in draft_run['actors'] for w in a['waypoints']]
+    return (min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts))
+
+
+def _hue_in_band(h, band):
+    lo, hi = band
+    return (lo <= h <= hi) if lo <= hi else (h >= lo or h <= hi)
+
+
+def _hue_margin(h, band):
+    """Circular distance (hue is 0..1, wraps) from h to the nearer band edge."""
+    return min(min(abs(h - e), 1 - abs(h - e)) for e in band)
 
 
 # ------------------------------------------------------------------ G1 validators (return error list)
@@ -111,11 +145,19 @@ def check_inputs(report):
     for needed in ('R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json', 'check_actor_clearance.py', '.blend'):
         if needed not in names:
             errs.append(f'inputs: no entry for {needed}')
+    hsv = [i for i in inputs if 'hsv' in (i.get('relative_path') or '').lower()]
+    if not hsv:
+        errs.append('inputs: no entry for the formal HSV config (relative_path containing "hsv")')
+    else:
+        want = (report.get('color') or {}).get('hsv_config_sha256')
+        if want and not any(i.get('sha256') == want for i in hsv):
+            errs.append('inputs: color.hsv_config_sha256 matches no HSV input entry')
     return errs
 
 
-def check_geometry(report):
+def check_geometry(report, draft):
     errs = []
+    draft_runs = {r['run_id']: r for r in draft['runs']}
     for run_id in RUNS:
         geo = (report.get('geometry') or {}).get(run_id)
         if not geo:
@@ -149,6 +191,26 @@ def check_geometry(report):
                 errs.append(f'{door_id}: needs width_m, center_xy, normal_xy')
             if not _is_sha(d.get('source_sha256')):
                 errs.append(f'{door_id}: source_sha256 missing')
+        # every door the draft lists must be covered (rerun_clearance replaces the draft's doors)
+        for dd in draft_runs[run_id].get('doors') or []:
+            if dd['door_id'] not in doors:
+                errs.append(f"geometry[{run_id}]: draft door {dd['door_id']} missing from the report")
+        segs = [s for k in ('walls', 'furniture') for s in geo.get(k) or []
+                if all(isinstance(s.get(q), list) and len(s[q]) == 2 for q in ('a', 'b'))]
+        wall_segs = [s for s in geo.get('walls') or [] if s in segs]
+        for door_id, d in doors.items():
+            c, w = d.get('center_xy'), d.get('width_m')
+            if not (isinstance(c, list) and len(c) == 2 and isinstance(w, (int, float)) and wall_segs):
+                continue
+            near = min(_dist_point_segment(c, s['a'], s['b']) for s in wall_segs)
+            if near > w / 2 + DOOR_WALL_TOL_M:
+                errs.append(f'geometry[{run_id}]: door {door_id} is {near:.2f} m from the nearest wall '
+                            f'(must be within width_m/2 + {DOOR_WALL_TOL_M} m: the door sits in a wall)')
+        if wall_segs:
+            bb = _route_bbox(draft_runs[run_id])
+            if min(_dist_segment_bbox(s['a'], s['b'], bb) for s in wall_segs) > ROUTE_WALL_MARGIN_M:
+                errs.append(f'geometry[{run_id}]: no wall within {ROUTE_WALL_MARGIN_M} m of the actors\' route '
+                            '(geometry is not from this scene)')
     return errs
 
 
@@ -179,7 +241,7 @@ def check_spawn(report, draft):
     for run in draft['runs']:
         run_id = run['run_id']
         rows = {(r.get('actor_id'), r.get('kind')): r for r in spawn.get(run_id) or []}
-        boxes = run['estimate_model']['assumed_camera_coverage_xy_boxes']
+        boxes = [b for bs in run['estimate_model']['assumed_camera_coverage_xy_boxes'].values() for b in bs]
         for actor in run['actors']:
             if actor['actor_id'] not in SPAWN_ACTORS:
                 continue
@@ -192,6 +254,9 @@ def check_spawn(report, draft):
                 if row.get('xy') != list(wp['xy']):
                     errs.append(f"spawn[{run_id}] {actor['actor_id']} {kind}: xy differs from the draft waypoint "
                                 '(a moved point needs a draft change from Claude)')
+                if any(_point_in_box(wp['xy'], b) for b in boxes):
+                    errs.append(f"spawn[{run_id}] {actor['actor_id']} {kind}: draft point is inside an "
+                                'assumed_camera_coverage_xy_boxes box; report it on #516 (Claude moves the route)')
                 if row.get('outside_all_render_cameras') is not True:
                     errs.append(f"spawn[{run_id}] {actor['actor_id']} {kind}: must be outside every render camera")
                 if sorted(row.get('cameras_checked') or []) != sorted(RENDER_CAMERAS[run_id]):
@@ -207,13 +272,21 @@ def check_color(report):
     band = c.get('red_band_hue') or []
     if len(band) != 2 or not c.get('hsv_config_sha256') or not _is_sha(c.get('hsv_config_sha256')):
         return ['color: needs red_band_hue [lo, hi] and hsv_config_sha256 (formal config, D204)']
-
-    def in_band(h):
-        lo, hi = band
-        return (lo <= h <= hi) if lo <= hi else (h >= lo or h <= hi)
-
-    if not isinstance(c.get('t_hue'), (int, float)):
+    # in-band status is recomputed from the reported hues; the self-reported flags must agree with it
+    t = c.get('t_hue')
+    if not isinstance(t, (int, float)):
         errs.append('color: t_hue (measured target hue) missing')
+    elif not _hue_in_band(t, band):
+        errs.append(f'color: T hue {t} is outside the red band {band}')
+    for who, want in (('a', True), ('c', False)):
+        h = c.get(f'{who}_hue')
+        if not isinstance(h, (int, float)):
+            errs.append(f'color: {who}_hue (measured hue) missing')
+            continue
+        if _hue_in_band(h, band) is not want:
+            errs.append(f'color: {who.upper()} hue {h} must be {"inside" if want else "outside"} the red band {band}')
+        if c.get(f'{who}_in_band') is not want:
+            errs.append(f'color: {who}_in_band must be {want}')
     rows = c.get('b_by_camera') or []
     got = {(r.get('run_id'), r.get('camera_id')) for r in rows}
     for run_id, cams in RENDER_CAMERAS.items():
@@ -224,18 +297,19 @@ def check_color(report):
         h = r.get('b_hue_measured')
         if not isinstance(h, (int, float)):
             errs.append(f"color: {r.get('camera_id')} b_hue_measured missing")
-        elif not in_band(h) or r.get('in_band') is not True:
+        elif not _hue_in_band(h, band) or r.get('in_band') is not True:
             errs.append(f"color: B hue {h} in {r.get('camera_id')} is outside the red band {band} (D204 needs inside)")
+        elif _hue_margin(h, band) < B_BAND_MARGIN:
+            errs.append(f"color: B hue {h} in {r.get('camera_id')} is within {B_BAND_MARGIN} of the red-band edge "
+                        '(margin, scenario card 7.6)')
         if not isinstance(r.get('crop_ratio'), (int, float)) or abs(r['crop_ratio'] - 0.3) > 1e-9:
             errs.append(f"color: {r.get('camera_id')} crop_ratio must be 0.3 (upper 30% of bbox)")
-    for who, want in (('a_in_band', True), ('c_in_band', False)):
-        if c.get(who) is not want:
-            errs.append(f'color: {who} must be {want}')
     return errs
 
 
-def check_ambiguity(report):
+def check_ambiguity(report, draft):
     errs, total = [], 0
+    dur = {r['run_id']: r['duration_us'] / 1e6 for r in draft['runs']}
     amb = report.get('ambiguity') or {}
     if amb.get('unit') != 'episode':
         errs.append('ambiguity: unit must be episode (D203)')
@@ -252,6 +326,12 @@ def check_ambiguity(report):
                 errs.append(f'ambiguity[{run_id}]: bad episode window {e}')
             if e.get('has_distractor') is not True:
                 errs.append(f'ambiguity[{run_id}]: episode {e.get("start_s")} has no distractor')
+        wins = sorted((e['start_s'], e['end_s']) for e in eps
+                      if isinstance(e.get('start_s'), (int, float)) and isinstance(e.get('end_s'), (int, float)))
+        if wins and (wins[0][0] < 0 or max(w[1] for w in wins) > dur[run_id]):
+            errs.append(f'ambiguity[{run_id}]: episode window outside the run [0, {dur[run_id]}] s')
+        if any(b[0] < a[1] for a, b in zip(wins, wins[1:])):
+            errs.append(f'ambiguity[{run_id}]: episode windows overlap')
         total += len(eps)
     if total < 5:
         errs.append(f'ambiguity: {total} episodes in total, need >= 5 (D203)')
@@ -275,6 +355,8 @@ def check_cost(report):
         if cost['free_gib_before'] - cost['total_disk_gib_estimate'] < STOP_LINE_GIB:
             errs.append(f'render_cost: free after render would drop below the {STOP_LINE_GIB} GiB stop line; '
                         'report it on #516 and do not render')
+        if cost['total_disk_gib_estimate'] + 1e-9 < sum(cost['runs'][r]['disk_gib_estimate'] for r in RUNS):
+            errs.append('render_cost: total_disk_gib_estimate is less than the sum of the per-run estimates')
         if cost.get('includes_frames') not in (True, False):
             errs.append('render_cost: includes_frames must say whether the estimate includes frames')
     return errs
@@ -307,9 +389,10 @@ def validate_report(report, draft):
     errs = []
     if report.get('schema') != REPORT_SCHEMA:
         errs.append(f'schema must be {REPORT_SCHEMA}')
-    for fn in (check_inputs, check_geometry, check_color, check_ambiguity, check_cost,
-               check_actor_cloning, check_boundary):
+    for fn in (check_inputs, check_color, check_cost, check_actor_cloning, check_boundary):
         errs += fn(report)
+    errs += check_geometry(report, draft)
+    errs += check_ambiguity(report, draft)
     errs += check_spawn(report, draft)
     if not any(e.startswith('geometry') for e in errs):
         errs += check_clearance(report, draft)
@@ -330,7 +413,7 @@ def _walk_keys(value):
             yield from _walk_keys(v)
 
 
-def validate_manifest(m, report=None):
+def validate_manifest(m):
     errs = []
     if m.get('schema') != MANIFEST_SCHEMA:
         errs.append(f'schema must be {MANIFEST_SCHEMA}')
@@ -367,13 +450,15 @@ def validate_manifest(m, report=None):
     if not GIT_SHA.match((m.get('receipt') or {}).get('code_git_sha') or ''):
         errs.append('receipt.code_git_sha must be 40 hex')
     listed = {f.get('relative_path') for f in files}
+    new_ids = []
     for run_id in RUNS:
         run = (m.get('runs') or {}).get(run_id)
         if not run:
             errs.append(f'runs[{run_id}]: missing')
             continue
-        if not run.get('run_id_new') or run['run_id_new'].startswith('ctrl-lcorr-s1-') and 'r004-d124-v1' in run['run_id_new']:
+        if not run.get('run_id_new') or run['run_id_new'] in OLD_RUN_IDS:
             errs.append(f'runs[{run_id}]: run_id_new must be a NEW run id, not the old r004 d124 run')
+        new_ids.append(run.get('run_id_new'))
         cams = run.get('cameras') or {}
         if sorted(cams) != sorted(RENDER_CAMERAS[run_id]):
             errs.append(f'runs[{run_id}]: cameras must be exactly {RENDER_CAMERAS[run_id]}')
@@ -391,6 +476,8 @@ def validate_manifest(m, report=None):
             errs.append(f'runs[{run_id}]: RT-DETR detection index must exist and be listed in files')
         if run.get('detector') != 'RT-DETR':
             errs.append(f'runs[{run_id}]: detector must be RT-DETR')
+    if len(set(new_ids)) != len(new_ids):
+        errs.append('runs: the two run_id_new values must differ from each other')
     inputs = m.get('stage_inputs') or {}
     for stage in STAGES:
         lst = inputs.get(stage)
@@ -409,7 +496,7 @@ def validate_manifest(m, report=None):
 
 def _fake_draft():
     return {'runs': [
-        {'run_id': rid, 'duration_us': 10_000_000, 'rules': {}, 'doors': [], 'corridors': [], 'walls': None,
+        {'run_id': rid, 'duration_us': {'A4-1-v2-4actor': 50_000_000, 'B4-1-v2-4actor': 42_000_000}[rid], 'rules': {}, 'doors': [], 'corridors': [], 'walls': None,
          'seed': None,
          'estimate_model': {'assumed_camera_coverage_xy_boxes': {c: [[[0, 1], [0, 1]]] for c in RENDER_CAMERAS[rid]}},
          'actors': [{'actor_id': a, 'waypoints': [{'t_us': 2_000_000, 'xy': [50.0, 50.0 + n]},
@@ -426,12 +513,13 @@ def _fake_report(draft=None):
         'schema': REPORT_SCHEMA,
         'inputs': [{'relative_path': 'docs/evaluation/R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json', 'git_sha': 'b' * 40, 'sha256': sha},
                    {'relative_path': 'scripts/design/check_actor_clearance.py', 'git_sha': 'b' * 40, 'sha256': sha},
-                   {'relative_path': 'LOCAL/r004/base_a4.blend', 'git_sha': 'b' * 40, 'sha256': sha}],
+                   {'relative_path': 'LOCAL/r004/base_a4.blend', 'git_sha': 'b' * 40, 'sha256': sha},
+                   {'relative_path': 'configs/red_band_hsv.json', 'git_sha': 'b' * 40, 'sha256': sha}],
         'geometry': {rid: {
             'floor_z_m': 0.0,
-            'walls': [{'segment_id': 'W1', 'a': [100.0, 0.0], 'b': [100.0, 5.0], 'height_range_m': [0.0, 2.8]}],
+            'walls': [{'segment_id': 'W1', 'a': [70.0, 45.0], 'b': [70.0, 60.0], 'height_range_m': [0.0, 2.8]}],
             'furniture': [],
-            'doors': [{'door_id': door_for[rid], 'center_xy': [100.0, 2.0], 'normal_xy': [1, 0], 'width_m': 1.0,
+            'doors': [{'door_id': door_for[rid], 'center_xy': [70.0, 50.0], 'normal_xy': [1, 0], 'width_m': 1.0,
                        'geometry_status': 'MEASURED', 'source_sha256': sha}]} for rid in RUNS},
         'clearance': {'verdict': 'PASS', 'walls_status': 'PASS', 'command': 'python scripts/design/check_actor_clearance.py x',
                       'checker_git_sha': 'b' * 40},
@@ -440,8 +528,9 @@ def _fake_report(draft=None):
              'outside_all_render_cameras': True, 'cameras_checked': list(RENDER_CAMERAS[run['run_id']])}
             for a in run['actors'] if a['actor_id'] in SPAWN_ACTORS
             for k, wp in (('first', a['waypoints'][0]), ('last', a['waypoints'][-1]))] for run in draft['runs']},
-        'color': {'red_band_hue': [0.95, 0.05], 'hsv_config_sha256': sha, 't_hue': 0.0, 'a_in_band': True, 'c_in_band': False,
-                  'b_by_camera': [{'run_id': rid, 'camera_id': c, 'b_hue_measured': 0.02, 'in_band': True, 'crop_ratio': 0.3}
+        'color': {'red_band_hue': [0.95, 0.05], 'hsv_config_sha256': sha, 't_hue': 0.0, 'a_hue': 0.99, 'c_hue': 0.6,
+                  'a_in_band': True, 'c_in_band': False,
+                  'b_by_camera': [{'run_id': rid, 'camera_id': c, 'b_hue_measured': 0.99, 'in_band': True, 'crop_ratio': 0.3}
                                   for rid, cams in RENDER_CAMERAS.items() for c in cams]},
         'ambiguity': {'unit': 'episode', 'color_variant': 'in_band', 'total_episodes': 5, 'episodes': {
             'A4-1-v2-4actor': [{'start_s': 8.0, 'end_s': 10.4, 'has_distractor': True},
@@ -492,7 +581,7 @@ def test_g1_report_schema_and_provenance():
 
 @G1
 def test_g1_geometry_walls_furniture_doors_measured():
-    assert check_geometry(_g1_report()) == []
+    assert check_geometry(_g1_report(), _load(DRAFT)) == []
 
 
 @G1
@@ -512,7 +601,7 @@ def test_g1_b_stays_in_red_band_under_every_camera_light():
 
 @G1
 def test_g1_ambiguity_episodes_at_least_five():
-    assert check_ambiguity(_g1_report()) == []
+    assert check_ambiguity(_g1_report(), _load(DRAFT)) == []
 
 
 @G1
@@ -580,6 +669,24 @@ def test_selftest_fake_report_passes_every_g1_check():
     (lambda r: r['ambiguity']['episodes']['B4-1-v2-4actor'][0].update(has_distractor=False), 'no distractor'),
     (lambda r: r['render_cost'].update(free_gib_before=8.5), 'stop line'),
     (lambda r: r['boundary'].update(rendered=True), 'boundary.rendered'),
+    # P2-1: far-away wall with the door moved onto it (x=900) must be refused
+    (lambda r: [g.update(walls=[{'segment_id': 'W1', 'a': [900.0, 0.0], 'b': [900.0, 5.0], 'height_range_m': [0.0, 2.8]}])
+                or g['doors'][0].update(center_xy=[900.0, 2.0]) for g in r['geometry'].values()], 'no wall within'),
+    (lambda r: r['geometry']['A4-1-v2-4actor']['doors'][0].update(center_xy=[75.0, 50.0]), 'nearest wall'),
+    # P2-2: HSV input, B margin, recomputed T/A/C
+    (lambda r: r['inputs'].pop(), 'HSV config'),
+    (lambda r: r['inputs'][-1].update(sha256='e' * 64), 'matches no HSV input'),
+    (lambda r: r['color']['b_by_camera'][0].update(b_hue_measured=0.04), 'red-band edge'),
+    (lambda r: r['color']['b_by_camera'][0].update(b_hue_measured=0.96), 'red-band edge'),
+    (lambda r: r['color'].update(t_hue=0.5), 'T hue'),
+    (lambda r: r['color'].update(a_hue=0.5), 'A hue'),
+    (lambda r: r['color'].update(c_hue=0.99), 'C hue'),
+    (lambda r: r['color'].update(c_in_band=True), 'c_in_band'),
+    # P3
+    (lambda r: r['spawn_points']['A4-1-v2-4actor'][0].update(xy=[-11.0, -1.6]), 'differs from the draft'),
+    (lambda r: r['ambiguity']['episodes']['A4-1-v2-4actor'][0].update(end_s=60.0), 'outside the run'),
+    (lambda r: r['ambiguity']['episodes']['A4-1-v2-4actor'][1].update(start_s=9.0), 'overlap'),
+    (lambda r: r['render_cost'].update(total_disk_gib_estimate=0.5), 'sum of the per-run'),
 ])
 def test_selftest_bad_report_is_rejected(mutate, needle):
     report = _fake_report()
@@ -601,7 +708,7 @@ def test_selftest_clearance_without_geometry_is_not_pass():
     for g in report['geometry'].values():
         g['walls'], g['furniture'] = [], []
     # no segments is not UNKNOWN to the checker (empty list), so the geometry gate must catch it
-    assert any('walls empty' in e for e in check_geometry(report))
+    assert any('walls empty' in e for e in check_geometry(report, _fake_draft()))
 
 
 def test_selftest_real_draft_is_unknown_until_geometry_arrives():
@@ -630,6 +737,8 @@ def test_selftest_fake_manifest_passes():
     (lambda m: m.update(scoring_private={'x': 1}), 'FORBIDDEN_KEYS'),
     (lambda m: m['runs']['A4-1-v2-4actor'].update(path='x'), 'FORBIDDEN_KEYS'),
     (lambda m: m.update(local_root='/Users/me/amidst-artifacts'), 'local_root'),
+    (lambda m: m['runs']['A4-1-v2-4actor'].update(run_id_new='ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1'), 'NEW run id'),
+    (lambda m: m['runs']['B4-1-v2-4actor'].update(run_id_new=m['runs']['A4-1-v2-4actor']['run_id_new']), 'must differ'),
 ])
 def test_selftest_bad_manifest_is_rejected(mutate, needle):
     m = _fake_manifest()
@@ -644,3 +753,18 @@ def test_selftest_gate_markers_are_strict_and_cover_every_gate():
     assert len([g for g in gates if g[0] == 'G1']) == 8 and len([g for g in gates if g[0] == 'G2']) == 4
     assert 'strict=True' in src.split('G1 = ', 1)[1].split('\n', 1)[0]
     assert 'strict=True' in src.split('G2 = ', 1)[1].split('\n', 1)[0]
+
+
+def test_selftest_spawn_point_inside_assumed_coverage_box_is_rejected():
+    draft = _fake_draft()
+    for run in draft['runs']:  # draft waypoints at (50, 50) / (60, 50) now fall in a coverage box
+        run['estimate_model']['assumed_camera_coverage_xy_boxes']['CAM_W1'] = [[[49.0, 61.0], [49.0, 54.0]]]
+    errs = check_spawn(_fake_report(draft), draft)
+    assert any('inside an assumed_camera_coverage_xy_boxes' in e for e in errs), errs
+
+
+def test_selftest_draft_door_missing_from_report_is_rejected():
+    draft = _fake_draft()
+    draft['runs'][0]['doors'] = [{'door_id': 'EXTRA_DOOR'}]
+    errs = check_geometry(_fake_report(draft), draft)
+    assert any('EXTRA_DOOR' in e for e in errs), errs
