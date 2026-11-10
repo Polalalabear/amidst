@@ -8,9 +8,11 @@ set -m  # 每個子進程各自一個 process group，Ctrl-C 時整組關閉
 cd "$(dirname "$0")" || exit 1
 ROOT="$PWD"
 
-P1_BUNDLE="${P1_BUNDLE:-/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試}"
-CX7_ROOT="${CX7_ROOT:-$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8}"
-STATE_PARENT="${STATE_PARENT:-$HOME/amidst-demo-state}"
+# D171：預設位置都在本 repo 的 local/ 之下；搬遷前若新位置還不存在，才退回舊位置（過渡用，之後可刪）。
+pick() { if [ -e "$1" ] || [ ! -e "$2" ]; then printf '%s' "$1"; else printf '%s' "$2"; fi; }
+P1_BUNDLE="${P1_BUNDLE:-$(pick "$ROOT/local/archive/p1-clean-room-20261026/Amidst P1 最終測試" "/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試")}"
+CX7_ROOT="${CX7_ROOT:-$(pick "$ROOT/local/evidence/r004-cx7-d115-20261102-01a199f8" "$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8")}"
+STATE_PARENT="${STATE_PARENT:-$(pick "$ROOT/local/data/demo-state" "$HOME/amidst-demo-state")}"
 PYTHON="${PYTHON:-python3}"
 PORT_REC="${PORT_REC:-8766}"
 PORT_LIVE="${PORT_LIVE:-8765}"

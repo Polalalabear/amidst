@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "owned_root": "~/amidst-artifacts/demo-owned-v1",
+  "owned_root": "local/data/demo-owned-v1",
   "p1_bundle": "data/p1-v4",
   "artifacts_root": "data/artifacts",
   "cross_camera_job": "metadata/cross-camera-job.json",

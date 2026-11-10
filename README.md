@@ -100,10 +100,10 @@ AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/even
 
 ### 執行真實資料 Demo
 
-Clone 只取得程式、設定和文件。渲染畫面、模型權重、偵測索引這些資料放在本機的自有資料夾（預設 `~/amidst-artifacts/demo-owned-v1`，可用 `AMIDST_DEMO_HOME` 改位置），不在 repository 裡，所以光靠 clone 不能重現 Demo。資料夾備妥後：
+Clone 只取得程式、設定和文件。渲染畫面、模型權重、偵測索引這些資料放在本機的自有資料夾（預設 `local/data/demo-owned-v1`，在 repo 根目錄之下、已被 `.gitignore`；可用 `AMIDST_DEMO_HOME` 改位置；找不到時報 `OWNED_ROOT_NOT_FOUND`），不在 repository 裡，所以光靠 clone 不能重現 Demo。資料夾備妥後：
 
 ```sh
-export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$HOME/amidst-artifacts/demo-owned-v1}"
+export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$PWD/local/data/demo-owned-v1}"
 PYTHONPATH=src uv run --offline --no-project \
   --python "$AMIDST_DEMO_HOME/runtime/python/bin/python3.12" \
   python -B scripts/setup_owned_demo.py        # 第一次，或鎖定檔變了之後才需要
@@ -222,7 +222,7 @@ AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/even
 A clone contains code, configuration and documents only. Rendered frames, model weights and the detection index live in a local owned folder (default `~/amidst-artifacts/demo-owned-v1`, overridable with `AMIDST_DEMO_HOME`) and are not in the repository, so a clone alone cannot reproduce the demo. With that folder in place:
 
 ```sh
-export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$HOME/amidst-artifacts/demo-owned-v1}"
+export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$PWD/local/data/demo-owned-v1}"
 PYTHONPATH=src uv run --offline --no-project \
   --python "$AMIDST_DEMO_HOME/runtime/python/bin/python3.12" \
   python -B scripts/setup_owned_demo.py        # first run, or after the locks change

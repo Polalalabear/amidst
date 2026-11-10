@@ -21,6 +21,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
+from amidst.paths import amidst_root, resolve_legacy  # noqa: E402
+
 SCHEMA_VERSION = 'amidst.artifact-ledger.v1'
 TYPES = ('raw_data', 'derived_data', 'evidence', 'cache', 'code_checkout', 'model', 'environment',
          'tool', 'doc', 'scratch', 'untracked_source', 'git_ref')
@@ -41,12 +44,22 @@ def is_sha(value, n=64):
 
 
 def expand(path, home=None):
+    """Locate a ledger path. Old ``~/`` and absolute locators resolve through the D171
+    map when the old place is gone; a repo-relative path is relative to ``AMIDST_ROOT``."""
     home = home or os.environ.get('AMIDST_LEDGER_HOME') or str(Path.home())
     if path == '~':
         return Path(home)
     if path.startswith('~/'):
-        return Path(home) / path[2:]
-    return Path(path)
+        found = Path(home) / path[2:]
+    elif path.startswith('/'):
+        found = Path(path)
+    else:
+        return amidst_root() / path
+    if not found.exists():
+        mapped = resolve_legacy(path, home=home)
+        if mapped is not None and mapped.exists():
+            return mapped
+    return found
 
 
 def file_sha256(path):
@@ -177,8 +190,8 @@ def validate(ledger):
             errors.append(f'{tag}: rebuildable')
         if not isinstance(e.get('referenced_by'), list):
             errors.append(f'{tag}: referenced_by')
-        if not str(e.get('path', '')).startswith(('~/', '/')):
-            errors.append(f'{tag}: path must be ~/ or absolute')
+        if not str(e.get('path', '')).startswith(('~/', '/', 'local/')):
+            errors.append(f'{tag}: path must be ~/, absolute or local/ (repo-relative)')
         for key in ('size_bytes', 'file_count'):
             v = e.get(key)
             if v is not None and (not isinstance(v, int) or v < 0):

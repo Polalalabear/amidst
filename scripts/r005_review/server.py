@@ -6,11 +6,14 @@ import argparse
 import hashlib
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import sys
 from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
-RGB = (Path.home() / 'amidst-artifacts/d127-418-office-expanded-r005-preview-v2/rgb')
+sys.path.insert(0, str(HERE.parents[1] / 'src'))
+from amidst.paths import locate_artifact  # noqa: E402
+RGB = locate_artifact('d127-418-office-expanded-r005-preview-v2/rgb')
 
 
 def sha(raw: bytes) -> str:

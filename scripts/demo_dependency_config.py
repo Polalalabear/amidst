@@ -5,6 +5,9 @@ import os
 from pathlib import Path
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'src'))
+from amidst.paths import demo_owned_root  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
 MIN_FREE = 8 * 1024**3
 
@@ -24,7 +27,8 @@ def configuration(path=None):
     config = json.loads(path.read_bytes())
     if config['version'] != 1:
         raise ValueError('OWNED_CONFIG_VERSION')
-    root = Path(os.environ.get('AMIDST_DEMO_HOME', config['owned_root'])).expanduser()
+    # Relative owned_root is repo-relative; a missing root raises OWNED_ROOT_NOT_FOUND.
+    root = demo_owned_root(config['owned_root'])
     if not root.is_absolute() or root.resolve() != root or not root.is_dir():
         raise ValueError('CANONICAL_OWNED_ROOT_REQUIRED: set AMIDST_DEMO_HOME to the transferred owned package')
     manifest = owned_path(REPO, config['dependency_manifest']).read_bytes()

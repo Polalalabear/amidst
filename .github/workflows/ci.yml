@@ -54,7 +54,7 @@ jobs:
 
           DESEL=()
           while IFS= read -r id; do DESEL+=(--deselect "$id"); done < <(grep -v '^#' .github/ci-linux-deselect.txt | grep -v '^$')
-          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations "${DESEL[@]}" -rfs --tb=short > "$OUT/pytest.log" 2>&1
+          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations tests/unit/test_paths.py "${DESEL[@]}" -rfs --tb=short > "$OUT/pytest.log" 2>&1
           p=$?; [ $p -ne 0 ] && fail=1
 
           git diff --check "$BASE"...HEAD > "$OUT/diffcheck.log" 2>&1
@@ -79,7 +79,7 @@ jobs:
             echo "| --- | --- | --- |"
             echo "| architecture guard | $G | $guard_status |"
             echo "| node --test (workbench-v2, event-viewer) | $N | pass ${node_pass:-?} / fail ${node_fail:-?} / skipped ${node_skip:-?} |"
-            echo "| pytest tests/q1q5 tests/evaluation tests/operations | $P | $py_line |"
+            echo "| pytest tests/q1q5 tests/evaluation tests/operations tests/unit/test_paths.py | $P | $py_line |"
             echo "| git diff --check | $D | exit $d |"
             echo
             echo "**真實資料測試在 CI 上不跑，需在本機跑。** CI 沒有 \`AMIDST_DEMO_HOME\`，需要真實資料的測試會自動 skip（見下方 skip 清單）；綠燈不代表驗收通過。"

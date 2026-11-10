@@ -1551,8 +1551,10 @@ def main() -> None:
     workbench = Workbench(catalog, reviews,
         presentation=lambda: load_source_presentation(repo),
         presentation_media=lambda ref: source_presentation_media(repo, ref))
+    from amidst.paths import office_canonical_root
     canonical_root = args.canonical_root or (
-        repo.parent.parent if repo.parent.name == ".local-worktrees" else repo)
+        repo.parent.parent if repo.parent.name == ".local-worktrees"
+        else office_canonical_root() or repo)
     configure_extensions(workbench, repo, canonical_root=canonical_root)
     app = Application(workbench, repo)
     print(f"Amidst workbench: http://127.0.0.1:{args.port} "
