@@ -198,7 +198,6 @@ def test_selftest_percentile_convention_example():
 
 # ------------------------------------------------------------------ gate 1: question bank
 
-@GATE
 def test_g1_every_question_binds_commit_params_scene_and_request_sha(tmp_path):
     qb, questions = _build()
     assert len(questions) == len(_requests())
@@ -218,7 +217,6 @@ def test_g1_every_question_binds_commit_params_scene_and_request_sha(tmp_path):
     assert manifest['requests_sha256'] == _sha(tmp_path / 'requests_v1.jsonl')
 
 
-@GATE
 def test_g1_same_input_gives_byte_identical_bank(tmp_path):
     qb, questions = _build()
     qb2, questions2 = _build()
@@ -232,7 +230,6 @@ def test_g1_same_input_gives_byte_identical_bank(tmp_path):
     assert [q['request_sha256'] for q in questions3] == [q['request_sha256'] for q in questions]
 
 
-@GATE
 def test_g1_allowed_answers_are_candidate_ids_plus_abstain_or_accept_reject():
     _, questions = _build()
     seen = set()
@@ -248,7 +245,6 @@ def test_g1_allowed_answers_are_candidate_ids_plus_abstain_or_accept_reject():
 
 # ------------------------------------------------------------------ gate 2: FORBIDDEN keys
 
-@GATE
 def test_g2_no_forbidden_key_in_questions_requests_or_files(tmp_path):
     qb, questions = _build()
     qb.write_question_bank(questions, tmp_path)
@@ -261,7 +257,6 @@ def test_g2_no_forbidden_key_in_questions_requests_or_files(tmp_path):
     assert not [k for k in _all_keys(questions) if _is_forbidden_key(k)]
 
 
-@GATE
 @pytest.mark.parametrize('planted', ['gt_private', 'scoring_private', 'visib' + 'ility', 'dep' + 'th',
                                       'traject' + 'ory', 'gt_x'])
 def test_g2_planted_forbidden_key_fails_the_whole_batch(planted):
@@ -297,7 +292,6 @@ def _s2(tmp_path, name='out', seed=7, per_point=2, safe=None):
     return sp, result, out, safe
 
 
-@GATE
 def test_g3_label_only_in_scoring_private_and_questions_flagged_synthetic(tmp_path):
     _, result, out, _ = _s2(tmp_path)
     q_path, l_path = Path(result['questions_path']), Path(result['labels_path'])
@@ -317,7 +311,6 @@ def test_g3_label_only_in_scoring_private_and_questions_flagged_synthetic(tmp_pa
         assert sorted(row['allowed_answers']) == sorted(ids + [ad.ABSTAIN])
 
 
-@GATE
 def test_g3_decision_side_cannot_see_or_infer_the_label(tmp_path):
     _, result, _, _ = _s2(tmp_path, per_point=1)
     text = Path(result['questions_path']).read_text()
@@ -335,7 +328,6 @@ def test_g3_decision_side_cannot_see_or_infer_the_label(tmp_path):
     assert len(positions) > 1, 'inserted candidate must not sit at a fixed position'
 
 
-@GATE
 def test_g3_generator_reads_only_the_safe_index(tmp_path, monkeypatch):
     sp = importlib.import_module('amidst.agent_eval.synthetic_perturbation')
     _, questions = _build()
@@ -356,7 +348,6 @@ def test_g3_generator_reads_only_the_safe_index(tmp_path, monkeypatch):
     assert reads and set(reads) == {safe.resolve()}
 
 
-@GATE
 def test_g3_same_seed_same_bytes_and_protected_index_is_rejected(tmp_path):
     _, r1, _, safe = _s2(tmp_path, 'a', seed=3)
     _, r2, _, _ = _s2(tmp_path, 'b', seed=3, safe=safe)
@@ -391,7 +382,6 @@ def _imports_scoring(path):
     return hits
 
 
-@GATE
 def test_g4_decision_and_bank_modules_never_import_scoring():
     required = ['src/amidst/agent_eval/question_bank.py', 'src/amidst/agent_eval/synthetic_perturbation.py',
                 'src/amidst/agent_eval/rule_r1.py', 'src/amidst/agent_eval/runner.py']
@@ -407,7 +397,6 @@ def test_g4_decision_and_bank_modules_never_import_scoring():
     assert proc.returncode == 0, proc.stderr
 
 
-@GATE
 def test_g4_iou_maps_each_track_to_the_right_actor_among_four():
     mapping = importlib.import_module('amidst.agent_eval_scoring.mapping')
     assert mapping.iou([0, 0, 10, 10], [0, 0, 10, 5]) == 0.5
@@ -426,7 +415,6 @@ def test_g4_iou_maps_each_track_to_the_right_actor_among_four():
     assert mapping.map_track_to_actor(_obs([0, 0, 10, 5]), fake_gt_source, **kw)['actor'] == FAKE_TARGET  # IoU 0.5 inclusive
 
 
-@GATE
 def test_g4_scoring_runs_in_a_subprocess_and_leaks_no_actor_info(tmp_path):
     q1 = _dp1(_cand('B1', gap=300_000), _cand('B2', gap=500_000))
     q2 = _dp1(_cand('B1', gap=350_000), _cand('B2', gap=550_000))
@@ -467,7 +455,6 @@ def _r1():
     return importlib.import_module('amidst.agent_eval.rule_r1')
 
 
-@GATE
 def test_g5_params_are_proposed_and_follow_design_tie_order():
     r1 = _r1()
     params = r1.load_params()
@@ -479,7 +466,6 @@ def test_g5_params_are_proposed_and_follow_design_tie_order():
     assert (ROOT / 'configs/q1q5/agent_r1_params_v1.json').is_file()
 
 
-@GATE
 def test_g5_dp1_tie_rules_in_design_order_and_reproducible():
     decider = _r1().R1Decider()
     a = _dp1(_cand('B1', gap=500_000, edge=True, median=.9), _cand('B2', gap=300_000, edge=False, median=.5))
@@ -499,7 +485,6 @@ def test_g5_dp1_tie_rules_in_design_order_and_reproducible():
         assert first in {x['id'] for x in request['candidates']}
 
 
-@GATE
 def test_g5_dp3_rejects_only_above_the_threshold():
     r1 = _r1()
     decider = r1.R1Decider()
@@ -559,7 +544,6 @@ def _questions_file(tmp_path, n=6):
     return path
 
 
-@GATE
 def test_g6_default_is_dry_run_with_zero_calls_no_network_no_api_key(tmp_path, monkeypatch):
     runner = importlib.import_module('amidst.agent_eval.runner')
     _block_network(monkeypatch)
@@ -575,7 +559,6 @@ def test_g6_default_is_dry_run_with_zero_calls_no_network_no_api_key(tmp_path, m
     assert report['estimate'] == ad.dry_run_estimate(params, questions=6, k=3, stage='PILOT_AND_CONSISTENCY')
 
 
-@GATE
 def test_g6_live_flag_with_unapproved_stage_is_refused(tmp_path, monkeypatch):
     runner = importlib.import_module('amidst.agent_eval.runner')
     _block_network(monkeypatch)
@@ -587,7 +570,6 @@ def test_g6_live_flag_with_unapproved_stage_is_refused(tmp_path, monkeypatch):
     assert rc != 0 and provider.calls == 0
 
 
-@GATE
 def test_g6_latency_groups_are_separate_and_use_their_own_parameters():
     latency = importlib.import_module('amidst.agent_eval.latency')
     assert tuple(latency.GROUPS) == ('tracking_formal', 'search_relaxed')
@@ -610,7 +592,6 @@ def test_g6_latency_groups_are_separate_and_use_their_own_parameters():
 
 # ------------------------------------------------------------------ gate 7: Windows pack
 
-@GATE
 def test_g7_upload_list_has_sha256_and_relative_paths(tmp_path):
     pack = importlib.import_module('amidst.agent_eval.windows_pack')
     src = tmp_path / 'src'
