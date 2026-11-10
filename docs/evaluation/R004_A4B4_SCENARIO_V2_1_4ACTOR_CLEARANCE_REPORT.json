@@ -1,0 +1,1027 @@
+{
+  "checker": "scripts/design/check_actor_clearance.py",
+  "verdict": "PASS",
+  "physical_navigation": "UNKNOWN",
+  "runs": [
+    {
+      "run_id": "A4-1-v2-4actor",
+      "verdict": "PASS",
+      "check_status": {
+        "pair_distance": "PASS",
+        "side_by_side": "PASS",
+        "doors": "PASS",
+        "walls": "PASS",
+        "spawn_exit": "PASS",
+        "seed": "PASS",
+        "speed": "PASS"
+      },
+      "physical_navigation": "UNKNOWN",
+      "rules": {
+        "sample_interval_us": 200000,
+        "subdivisions": 10,
+        "min_pair_distance_m": 0.6,
+        "min_side_by_side_lateral_m": 0.8,
+        "side_by_side_along_m": 0.6,
+        "door_zone_half_depth_m": 0.5,
+        "door_min_stagger_us": 1500000,
+        "min_wall_clearance_m": 0.35,
+        "max_speed_m_s": 1.6,
+        "body_radius_m": 0.35,
+        "body_height_m": 1.85
+      },
+      "checks": {
+        "pair_distance": {
+          "threshold_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "A"
+              ],
+              "overlap_us": [
+                2000000,
+                50000000
+              ],
+              "min_distance_m": 0.85,
+              "min_at_us": 19214437,
+              "grid_min_distance_m": 0.8507,
+              "grid_min_at_us": 19200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "overlap_us": [
+                2000000,
+                32200000
+              ],
+              "min_distance_m": 0.85,
+              "min_at_us": 14237419,
+              "grid_min_distance_m": 0.8561,
+              "grid_min_at_us": 14200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "C"
+              ],
+              "overlap_us": [
+                4000000,
+                50000000
+              ],
+              "min_distance_m": 1.2705,
+              "min_at_us": 20154596,
+              "grid_min_distance_m": 1.273,
+              "grid_min_at_us": 20200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "B"
+              ],
+              "overlap_us": [
+                2000000,
+                32200000
+              ],
+              "min_distance_m": 0.85,
+              "min_at_us": 15544748,
+              "grid_min_distance_m": 0.8633,
+              "grid_min_at_us": 15600000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "C"
+              ],
+              "overlap_us": [
+                4000000,
+                50000000
+              ],
+              "min_distance_m": 0.8,
+              "min_at_us": 26950000,
+              "grid_min_distance_m": 0.8028,
+              "grid_min_at_us": 27000000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "B",
+                "C"
+              ],
+              "overlap_us": [
+                4000000,
+                32200000
+              ],
+              "min_distance_m": 4.95,
+              "min_at_us": 11160870,
+              "grid_min_distance_m": 4.9503,
+              "grid_min_at_us": 11200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "side_by_side": {
+          "threshold_m": 0.8,
+          "side_by_side_along_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "A"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.85,
+              "at_us": 18980000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.85,
+              "at_us": 14020000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "B"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.85,
+              "at_us": 15340000,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "doors": {
+          "door_min_stagger_us": 1500000,
+          "zone_half_depth_m": 0.5,
+          "doors": [
+            {
+              "door_id": "R004_WEST_ENTRY",
+              "width_m": 1.4,
+              "geometry_status": "MEASURED: Codex #516 active WALL_JOINED_SHELL cross-section (geometry_ref door_openings)",
+              "passages": [
+                {
+                  "actor_id": "T",
+                  "enter_us": 7580000,
+                  "exit_us": 8540000,
+                  "ref_us": 8155024,
+                  "crossing_refs_us": [
+                    8155024
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "A",
+                  "enter_us": 10340000,
+                  "exit_us": 11040000,
+                  "ref_us": 10650000,
+                  "crossing_refs_us": [
+                    10650000
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "B",
+                  "enter_us": 20180000,
+                  "exit_us": 20860000,
+                  "ref_us": 20525000,
+                  "crossing_refs_us": [
+                    20525000
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "T",
+                  "enter_us": 28460000,
+                  "exit_us": 36540000,
+                  "ref_us": 28844976,
+                  "crossing_refs_us": [
+                    28844976,
+                    36155024
+                  ],
+                  "kind": "CROSS_X2"
+                },
+                {
+                  "actor_id": "A",
+                  "enter_us": 47080000,
+                  "exit_us": 47760000,
+                  "ref_us": 47425000,
+                  "crossing_refs_us": [
+                    47425000
+                  ],
+                  "kind": "CROSS_X1"
+                }
+              ],
+              "conflicts": [],
+              "status": "PASS"
+            },
+            {
+              "door_id": "PORTAL_R101",
+              "width_m": 1.2,
+              "geometry_status": "MEASURED: Codex #516 active WALL_JOINED_SHELL cross-section (geometry_ref door_openings)",
+              "passages": [
+                {
+                  "actor_id": "C",
+                  "enter_us": 19580000,
+                  "exit_us": 20320000,
+                  "ref_us": 19950000,
+                  "crossing_refs_us": [
+                    19950000
+                  ],
+                  "kind": "CROSS_X1"
+                }
+              ],
+              "conflicts": [],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "walls": {
+          "threshold_m": 0.35,
+          "method": "ANALYTIC_SEGMENT_DISTANCE_PER_LEG",
+          "actors": [
+            {
+              "actor_id": "T",
+              "min_clearance_m": 0.45,
+              "at_us": 8022146,
+              "segment_id": "WALL_JOINED_SHELL:0",
+              "position_xy": [
+                -3.32,
+                -0.25
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "min_clearance_m": 0.45,
+              "at_us": 18000000,
+              "segment_id": "WALL_JOINED_SHELL:32",
+              "position_xy": [
+                6.5,
+                1.95
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "min_clearance_m": 0.45,
+              "at_us": 8100000,
+              "segment_id": "WALL_JOINED_SHELL:85",
+              "position_xy": [
+                13.0,
+                1.95
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "min_clearance_m": 0.45,
+              "at_us": 22000000,
+              "segment_id": "WALL_JOINED_SHELL:48",
+              "position_xy": [
+                9.5,
+                1.95
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "spawn_exit": {
+          "render_camera_ids": [
+            "CAM_EXT_CAR",
+            "CAM_EXT_CLEAR",
+            "CAM_ENTRY",
+            "CAM_W1"
+          ],
+          "body_radius_m": 0.35,
+          "body_height_m": 1.85,
+          "occlusion": "FULL_HEIGHT_STATIC_WALLS_2D_ONLY",
+          "actors": [
+            {
+              "actor_id": "T",
+              "endpoint": "first",
+              "t_us": 0,
+              "kind": "PRESENT_AT_T0",
+              "note": "Seed person: present and visible at t=0 by design (v1 target route); every other actor appears at t >= 2.0 s out of view.",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "T",
+              "endpoint": "last",
+              "t_us": 50000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "endpoint": "first",
+              "t_us": 2000000,
+              "kind": "SPAWN",
+              "samples": [
+                {
+                  "t_us": 2000000,
+                  "xy": [
+                    -12.75,
+                    6.0
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_EXT_CAR",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_EXT_CLEAR",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_ENTRY",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=-3.32:0.7..2.4"
+                    },
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "OUT_OF_FRUSTUM"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "endpoint": "last",
+              "t_us": 50000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "endpoint": "first",
+              "t_us": 2000000,
+              "kind": "SPAWN",
+              "samples": [
+                {
+                  "t_us": 2000000,
+                  "xy": [
+                    16.0,
+                    1.0
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_EXT_CAR",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-2..0"
+                    },
+                    {
+                      "camera_id": "CAM_EXT_CLEAR",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:y=2.4:-3.32..15"
+                    },
+                    {
+                      "camera_id": "CAM_ENTRY",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "OBSTACLE_SCREEN_W:x=10.4:0..0.8"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "endpoint": "last",
+              "t_us": 32200000,
+              "kind": "DESPAWN",
+              "samples": [
+                {
+                  "t_us": 32200000,
+                  "xy": [
+                    -13.6,
+                    6.4
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_EXT_CAR",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_EXT_CLEAR",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_ENTRY",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=-3.32:0.7..2.4"
+                    },
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "OUT_OF_FRUSTUM"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "endpoint": "first",
+              "t_us": 4000000,
+              "kind": "SPAWN",
+              "samples": [
+                {
+                  "t_us": 4000000,
+                  "xy": [
+                    9.0,
+                    -3.0
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_EXT_CAR",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-5..-2.12"
+                    },
+                    {
+                      "camera_id": "CAM_EXT_CLEAR",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-2..0"
+                    },
+                    {
+                      "camera_id": "CAM_ENTRY",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "OBSTACLE_SCREEN_W_HOOD:x=-1.65:-2..-1.23"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "endpoint": "last",
+              "t_us": 50000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "seed": {
+          "seed_actor_id": "T",
+          "exclusive_until_us": 2000000,
+          "violations": [],
+          "status": "PASS"
+        },
+        "speed": {
+          "max_speed_m_s": 1.6,
+          "actors": [
+            {
+              "actor_id": "T",
+              "max_speed_m_s": 1.43,
+              "leg_index": 4,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "max_speed_m_s": 1.5455,
+              "leg_index": 1,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "max_speed_m_s": 1.5367,
+              "leg_index": 7,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "max_speed_m_s": 1.3947,
+              "leg_index": 5,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "run_id": "B4-1-v2-4actor",
+      "verdict": "PASS",
+      "check_status": {
+        "pair_distance": "PASS",
+        "side_by_side": "PASS",
+        "doors": "PASS",
+        "walls": "PASS",
+        "spawn_exit": "PASS",
+        "seed": "PASS",
+        "speed": "PASS"
+      },
+      "physical_navigation": "UNKNOWN",
+      "rules": {
+        "sample_interval_us": 200000,
+        "subdivisions": 10,
+        "min_pair_distance_m": 0.6,
+        "min_side_by_side_lateral_m": 0.8,
+        "side_by_side_along_m": 0.6,
+        "door_zone_half_depth_m": 0.5,
+        "door_min_stagger_us": 1500000,
+        "min_wall_clearance_m": 0.35,
+        "max_speed_m_s": 1.6,
+        "body_radius_m": 0.35,
+        "body_height_m": 1.85
+      },
+      "checks": {
+        "pair_distance": {
+          "threshold_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "A"
+              ],
+              "overlap_us": [
+                2000000,
+                42000000
+              ],
+              "min_distance_m": 0.6764,
+              "min_at_us": 16539419,
+              "grid_min_distance_m": 0.6809,
+              "grid_min_at_us": 16600000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "overlap_us": [
+                18000000,
+                42000000
+              ],
+              "min_distance_m": 0.9826,
+              "min_at_us": 25901379,
+              "grid_min_distance_m": 1.0,
+              "grid_min_at_us": 26000000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "C"
+              ],
+              "overlap_us": [
+                3000000,
+                42000000
+              ],
+              "min_distance_m": 2.6014,
+              "min_at_us": 6324669,
+              "grid_min_distance_m": 2.6047,
+              "grid_min_at_us": 6400000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "B"
+              ],
+              "overlap_us": [
+                18000000,
+                42000000
+              ],
+              "min_distance_m": 5.1292,
+              "min_at_us": 30974595,
+              "grid_min_distance_m": 5.1294,
+              "grid_min_at_us": 31000000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "C"
+              ],
+              "overlap_us": [
+                3000000,
+                42000000
+              ],
+              "min_distance_m": 0.95,
+              "min_at_us": 7754331,
+              "grid_min_distance_m": 0.9551,
+              "grid_min_at_us": 7800000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "B",
+                "C"
+              ],
+              "overlap_us": [
+                18000000,
+                42000000
+              ],
+              "min_distance_m": 3.2596,
+              "min_at_us": 18000000,
+              "grid_min_distance_m": 3.2596,
+              "grid_min_at_us": 18000000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "side_by_side": {
+          "threshold_m": 0.8,
+          "side_by_side_along_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.888,
+              "at_us": 25680000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "C"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.95,
+              "at_us": 7600000,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "doors": {
+          "door_min_stagger_us": 1500000,
+          "zone_half_depth_m": 0.5,
+          "doors": [
+            {
+              "door_id": "PORTAL_R101",
+              "width_m": 1.2,
+              "geometry_status": "MEASURED: Codex #516 active WALL_JOINED_SHELL cross-section (geometry_ref door_openings)",
+              "passages": [
+                {
+                  "actor_id": "C",
+                  "enter_us": 6080000,
+                  "exit_us": 6720000,
+                  "ref_us": 6400000,
+                  "crossing_refs_us": [
+                    6400000
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "T",
+                  "enter_us": 30100000,
+                  "exit_us": 32420000,
+                  "ref_us": 31900000,
+                  "crossing_refs_us": [
+                    31900000
+                  ],
+                  "kind": "CROSS_X1"
+                }
+              ],
+              "conflicts": [],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "walls": {
+          "threshold_m": 0.35,
+          "method": "ANALYTIC_SEGMENT_DISTANCE_PER_LEG",
+          "actors": [
+            {
+              "actor_id": "T",
+              "min_clearance_m": 0.4507,
+              "at_us": 13252226,
+              "segment_id": "OBSTACLE_SCREEN_CORNER_N:0",
+              "position_xy": [
+                14.478,
+                1.1499
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "min_clearance_m": 0.45,
+              "at_us": 5600000,
+              "segment_id": "WALL_JOINED_SHELL:24",
+              "position_xy": [
+                5.0,
+                1.95
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "min_clearance_m": 0.45,
+              "at_us": 21300000,
+              "segment_id": "WALL_JOINED_SHELL:24",
+              "position_xy": [
+                5.0,
+                1.95
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "min_clearance_m": 0.6,
+              "at_us": 6320000,
+              "segment_id": "WALL_JOINED_SHELL:29",
+              "position_xy": [
+                8.0,
+                -0.12
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "spawn_exit": {
+          "render_camera_ids": [
+            "CAM_W1",
+            "CAM_W2",
+            "CAM_BRANCH",
+            "CAM_R101_IN",
+            "CAM_WIDE"
+          ],
+          "body_radius_m": 0.35,
+          "body_height_m": 1.85,
+          "occlusion": "FULL_HEIGHT_STATIC_WALLS_2D_ONLY",
+          "actors": [
+            {
+              "actor_id": "T",
+              "endpoint": "first",
+              "t_us": 0,
+              "kind": "PRESENT_AT_T0",
+              "note": "Seed person: present and visible at t=0 by design (v1 target route); every other actor appears at t >= 2.0 s out of view.",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "T",
+              "endpoint": "last",
+              "t_us": 42000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "endpoint": "first",
+              "t_us": 2000000,
+              "kind": "SPAWN",
+              "samples": [
+                {
+                  "t_us": 2000000,
+                  "xy": [
+                    2.0,
+                    -1.35
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "OBSTACLE_SCREEN_W_HOOD:x=-1.65:-2..-1.23"
+                    },
+                    {
+                      "camera_id": "CAM_W2",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-2..0"
+                    },
+                    {
+                      "camera_id": "CAM_BRANCH",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_R101_IN",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-5..-2.12"
+                    },
+                    {
+                      "camera_id": "CAM_WIDE",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=12.38:7..14.2"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "endpoint": "last",
+              "t_us": 42000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "endpoint": "first",
+              "t_us": 18000000,
+              "kind": "SPAWN",
+              "samples": [
+                {
+                  "t_us": 18000000,
+                  "xy": [
+                    2.0,
+                    -1.35
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "OBSTACLE_SCREEN_W_HOOD:x=-1.65:-2..-1.23"
+                    },
+                    {
+                      "camera_id": "CAM_W2",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-2..0"
+                    },
+                    {
+                      "camera_id": "CAM_BRANCH",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_R101_IN",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=4.88:-5..-2.12"
+                    },
+                    {
+                      "camera_id": "CAM_WIDE",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=12.38:7..14.2"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "endpoint": "last",
+              "t_us": 42000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "endpoint": "first",
+              "t_us": 3000000,
+              "kind": "SPAWN",
+              "samples": [
+                {
+                  "t_us": 3000000,
+                  "xy": [
+                    6.0,
+                    -4.3
+                  ],
+                  "status": "PASS",
+                  "cameras": [
+                    {
+                      "camera_id": "CAM_W1",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "OBSTACLE_SCREEN_W_HOOD:x=-1.65:-2..-1.23"
+                    },
+                    {
+                      "camera_id": "CAM_W2",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:x=11.0:-5.12..-0.12"
+                    },
+                    {
+                      "camera_id": "CAM_BRANCH",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "OBSTACLE_SCREEN_N:x=15.8:5.25..5.6"
+                    },
+                    {
+                      "camera_id": "CAM_R101_IN",
+                      "status": "OUT_OF_FRUSTUM"
+                    },
+                    {
+                      "camera_id": "CAM_WIDE",
+                      "status": "WALL_OCCLUDED",
+                      "occluder_id": "WALL_JOINED_SHELL:y=2.4:-3.32..15"
+                    }
+                  ]
+                }
+              ],
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "endpoint": "last",
+              "t_us": 42000000,
+              "kind": "STAYS_TO_RECORDING_END",
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "seed": {
+          "seed_actor_id": "T",
+          "exclusive_until_us": 2000000,
+          "violations": [],
+          "status": "PASS"
+        },
+        "speed": {
+          "max_speed_m_s": 1.6,
+          "actors": [
+            {
+              "actor_id": "T",
+              "max_speed_m_s": 1.4151,
+              "leg_index": 6,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "max_speed_m_s": 1.3901,
+              "leg_index": 4,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "max_speed_m_s": 1.4395,
+              "leg_index": 1,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "max_speed_m_s": 1.5,
+              "leg_index": 1,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        }
+      }
+    }
+  ],
+  "geometry": {
+    "ref": "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json",
+    "schema": "amidst.r004-scene-geometry-2d.v1",
+    "provenance": {
+      "source_blend": {
+        "path": "local/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend",
+        "sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "storage": "LOCAL"
+      },
+      "camera_catalog": {
+        "path": "local/data/r004-build-v2-20261021/safe_static/cameras.json",
+        "sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+        "storage": "LOCAL"
+      },
+      "codex_feasibility": {
+        "path": "local/evidence/codex-516-feasibility-20261110/",
+        "artifact_manifest_sha256": "fcf478fe5212b360fc1ff71039c16ea846239d72bf9a322a1ef0b7b29f5c0b46",
+        "scene_export_sha256": "c478866666f9ad2d98df76644420c369eef44c3da5cc3ceb7bba34db704945ac",
+        "geometry_2d_sha256": "fb4e0103bc04c6c1589174f0e0556351f64a5de81cbd6ff65da5dbd0dcd89dc0",
+        "storage": "LOCAL (copied from /tmp/codex-516-feasibility, SHA-256 checked 28/28)",
+        "issue_comment": "https://github.com/Polalalabear/amidst/issues/516#issuecomment-6761965932"
+      },
+      "builder": "scripts/design/build_r004_scene_geometry_2d.py",
+      "gt_read": false,
+      "rgb_read": false
+    }
+  }
+}

@@ -4,6 +4,8 @@
 
 ## 狀態
 
+> **2026-11-10 修訂：**路線、門洞和顏色假設已由 [v2.1 卡](R004_A4B4_SCENARIO_CARDS_V2_1_4ACTOR.md)（D207）取代；Codex #516 的實測幾何下 v2 路線 FAIL。本文件的外觀設計、計分事件和 DP1 方法仍有效。
+
 **PROPOSED，待使用者核定；不授權渲染。**本文件是情境卡（劇本的設計規格），不是劇本、不是 Ground Truth、也不是渲染授權。依 [D197](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6759393818) 的方向，以 [v1 卡](R004_A4B4_SCENARIO_CARDS_V1.md)（D89／D92）的 A4-1、B4-1 為基礎，加到 4 個人。§8 的兩個待決已由使用者決定：歧義以**歧義情境段**計算、5 段即可（D203）；B 的橘紅**落在紅色類別裡面**（D204）。流程比照 D87：使用者核定 → Codex 做 Blender 可行性檢查（不渲染）→ 補齊 §7 的資料並重跑檢查器 → 另外取得渲染授權。
 
 - 所有座標和時刻都是**計畫值**（authored），座標系沿用 v1 producer 劇本草稿（r004 static world，公尺，整數微秒）。沒有讀 RGB、GT、`gt_private/`、visibility、depth 或 renderer 軌跡；只用劇本、圖 v3／v3_1、靜態 patch、契約與 `cross_camera_demo.py`。
