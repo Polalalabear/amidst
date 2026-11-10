@@ -645,45 +645,37 @@ def _g1_report():
     return _load(REPORT)
 
 
-@G1
 def test_g1_report_schema_and_provenance():
     report = _g1_report()
     assert report.get('schema') == REPORT_SCHEMA
     assert check_inputs(report) == []
 
 
-@G1
 def test_g1_geometry_walls_furniture_doors_measured():
     assert check_geometry(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_clearance_unknown_becomes_pass_with_geometry():
     assert check_clearance(_g1_report(), _load(DRAFT)) == []
     assert check_draft_files(DRAFT) == []
 
 
-@G1
 def test_g1_spawn_points_outside_all_render_cameras():
     assert check_spawn(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_b_stays_in_red_band_under_every_camera_light():
     assert check_color(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_ambiguity_episodes_at_least_five():
     assert check_ambiguity(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_render_cost_and_disk_estimate():
     assert check_cost(_g1_report()) == []
 
 
-@G1
 def test_g1_actor_cloning_and_boundary():
     report = _g1_report()
     assert check_actor_cloning(report) == []
