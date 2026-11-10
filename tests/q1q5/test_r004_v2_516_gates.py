@@ -27,14 +27,19 @@ G2 = pytest.mark.xfail(strict=True, reason=f'awaiting Codex G2 render delivery {
 
 REPORT = ROOT / 'docs/evaluation/R004_A4B4_V2_FEASIBILITY_REPORT.json'
 BUNDLE_MANIFEST = ROOT / 'docs/operations/R004_V2_4ACTOR_BUNDLE_MANIFEST.json'
-DRAFT = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json'
+DRAFT_V21 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_1_4ACTOR_DRAFT.json'
+DRAFT_V22 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json'  # Codex's corrected routes (D207)
+FIXLOG_V22 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_2_CODEX_FIXLOG.md'
+DRAFT = DRAFT_V22 if DRAFT_V22.is_file() else DRAFT_V21  # prefer v2.2 once it exists
+HSV_VERSION = 'D131-DEMO-HSV-v1'
+CROP_RATIO = 0.5  # D131-DEMO-HSV-v1 (upper 50% of the bbox)
 CHECKER = ROOT / 'scripts/design/check_actor_clearance.py'
 
 REPORT_SCHEMA = 'amidst.r004-v2-feasibility.v1'
 MANIFEST_SCHEMA = 'amidst.r004-v2-bundle-manifest.v1'
 RUNS = {'A4-1-v2-4actor': 'A4-1', 'B4-1-v2-4actor': 'B4-1'}
 RENDER_CAMERAS = {
-    'A4-1-v2-4actor': ['CAM_EXT_CAR', 'CAM_EXT_CLEAR', 'CAM_W1'],
+    'A4-1-v2-4actor': ['CAM_ENTRY', 'CAM_EXT_CAR', 'CAM_EXT_CLEAR', 'CAM_W1'],
     'B4-1-v2-4actor': ['CAM_BRANCH', 'CAM_R101_IN', 'CAM_W1', 'CAM_W2', 'CAM_WIDE'],
 }
 SPAWN_ACTORS = ('A', 'B', 'C')
@@ -70,7 +75,7 @@ def _segments(items):
     return [{'segment_id': s['segment_id'], 'a': list(s['a']), 'b': list(s['b'])} for s in items]
 
 
-def rerun_clearance(report, draft):
+def rerun_clearance(report, draft, geometry=None):
     """Put the report's measured walls/furniture/doors into the draft and run the checker."""
     chk = _load_checker()
     doc = copy.deepcopy(draft)
@@ -80,7 +85,8 @@ def rerun_clearance(report, draft):
         run['doors'] = [{'door_id': d['door_id'], 'center_xy': d['center_xy'], 'normal_xy': d['normal_xy'],
                          'width_m': d['width_m'], 'geometry_status': 'MEASURED'} for d in geo['doors']]
         run.pop('advisory_boundaries', None)
-    return chk.check_document(doc)
+    # geometry=None: the draft's geometry_ref supplies the cameras/occluders that spawn_exit needs
+    return chk.check_document(doc, geometry=geometry)
 
 
 def _point_in_box(p, box):
@@ -142,7 +148,7 @@ def check_inputs(report):
         if rp.startswith('/') or rp.startswith('~'):
             errs.append(f'inputs[{i}]: relative_path must not be absolute')
     names = ' '.join(i.get('relative_path', '') for i in inputs)
-    for needed in ('R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json', 'check_actor_clearance.py', '.blend'):
+    for needed in (DRAFT.name, 'check_actor_clearance.py', '.blend'):
         if needed not in names:
             errs.append(f'inputs: no entry for {needed}')
     hsv = [i for i in inputs if 'hsv' in (i.get('relative_path') or '').lower()]
@@ -214,8 +220,25 @@ def check_geometry(report, draft):
     return errs
 
 
-def check_clearance(report, draft):
+def check_draft_files(draft_path, fixlog_path=FIXLOG_V22):
+    """A v2.2 draft (Codex-corrected routes) must ship its FIXLOG next to it."""
+    if 'V2_2' in Path(draft_path).name and not Path(fixlog_path).is_file():
+        return [f'draft {Path(draft_path).name} needs {Path(fixlog_path).name} next to it (Codex route fixes are logged)']
+    return []
+
+
+def check_render_cameras(draft):
     errs = []
+    for run in draft['runs']:
+        want = RENDER_CAMERAS[run['run_id']]
+        got = run.get('render_camera_ids')
+        if not isinstance(got, list) or sorted(got) != sorted(want):
+            errs.append(f"clearance: draft {run['run_id']} render_camera_ids must be {want} (CAM_ENTRY is a render camera), got {got}")
+    return errs
+
+
+def check_clearance(report, draft, geometry=None):
+    errs = check_render_cameras(draft)
     claimed = report.get('clearance') or {}
     if claimed.get('verdict') != 'PASS' or claimed.get('walls_status') != 'PASS':
         errs.append('clearance: report must claim verdict PASS and walls_status PASS (was UNKNOWN in the draft)')
@@ -223,7 +246,7 @@ def check_clearance(report, draft):
         if not claimed.get(key):
             errs.append(f'clearance: missing {key}')
     try:
-        result = rerun_clearance(report, draft)
+        result = rerun_clearance(report, draft, geometry)
     except Exception as exc:  # malformed geometry
         return errs + [f'clearance: rerun failed: {type(exc).__name__}: {exc}']
     for run in result['runs']:
@@ -232,6 +255,9 @@ def check_clearance(report, draft):
             errs.append(f"clearance: rerun {run['run_id']} verdict {run['verdict']} {st}")
         if st.get('walls') != 'PASS':
             errs.append(f"clearance: rerun {run['run_id']} walls status {st.get('walls')} (UNKNOWN means no geometry)")
+        if st.get('spawn_exit') != 'PASS':
+            errs.append(f"clearance: rerun {run['run_id']} spawn_exit status {st.get('spawn_exit')} "
+                        '(UNKNOWN means no geometry or render_camera_ids; FAIL means a spawn/exit point is in view)')
     return errs
 
 
@@ -266,10 +292,19 @@ def check_spawn(report, draft):
     return errs
 
 
-def check_color(report):
+def check_color(report, draft=None):
     errs = []
     c = report.get('color') or {}
     band = c.get('red_band_hue') or []
+    hsv = (draft or {}).get('hsv_config')
+    if draft is not None:
+        if not isinstance(hsv, dict) or hsv.get('version') != HSV_VERSION:
+            errs.append(f'color: the draft must carry hsv_config {HSV_VERSION}')
+        else:
+            if band != hsv.get('red_hue_band'):
+                errs.append(f"color: red_band_hue {band} differs from {HSV_VERSION} {hsv.get('red_hue_band')}")
+            if c.get('hsv_config_sha256') != hsv.get('canonical_content_sha256'):
+                errs.append(f'color: hsv_config_sha256 differs from the {HSV_VERSION} canonical_content_sha256 in the draft')
     if len(band) != 2 or not c.get('hsv_config_sha256') or not _is_sha(c.get('hsv_config_sha256')):
         return ['color: needs red_band_hue [lo, hi] and hsv_config_sha256 (formal config, D204)']
     # in-band status is recomputed from the reported hues; the self-reported flags must agree with it
@@ -302,8 +337,8 @@ def check_color(report):
         elif _hue_margin(h, band) < B_BAND_MARGIN:
             errs.append(f"color: B hue {h} in {r.get('camera_id')} is within {B_BAND_MARGIN} of the red-band edge "
                         '(margin, scenario card 7.6)')
-        if not isinstance(r.get('crop_ratio'), (int, float)) or abs(r['crop_ratio'] - 0.3) > 1e-9:
-            errs.append(f"color: {r.get('camera_id')} crop_ratio must be 0.3 (upper 30% of bbox)")
+        if not isinstance(r.get('crop_ratio'), (int, float)) or abs(r['crop_ratio'] - CROP_RATIO) > 1e-9:
+            errs.append(f"color: {r.get('camera_id')} crop_ratio must be {CROP_RATIO} (upper 50% of bbox, {HSV_VERSION})")
     return errs
 
 
@@ -385,17 +420,18 @@ def check_boundary(report):
     return errs
 
 
-def validate_report(report, draft):
+def validate_report(report, draft, geometry=None):
     errs = []
     if report.get('schema') != REPORT_SCHEMA:
         errs.append(f'schema must be {REPORT_SCHEMA}')
-    for fn in (check_inputs, check_color, check_cost, check_actor_cloning, check_boundary):
+    for fn in (check_inputs, check_cost, check_actor_cloning, check_boundary):
         errs += fn(report)
+    errs += check_color(report, draft)
     errs += check_geometry(report, draft)
     errs += check_ambiguity(report, draft)
     errs += check_spawn(report, draft)
     if not any(e.startswith('geometry') for e in errs):
-        errs += check_clearance(report, draft)
+        errs += check_clearance(report, draft, geometry)
     else:
         errs.append('clearance: skipped, geometry invalid')
     return errs
@@ -497,12 +533,27 @@ def validate_manifest(m):
 def _fake_draft():
     return {'runs': [
         {'run_id': rid, 'duration_us': {'A4-1-v2-4actor': 50_000_000, 'B4-1-v2-4actor': 42_000_000}[rid], 'rules': {}, 'doors': [], 'corridors': [], 'walls': None,
-         'seed': None,
+         'seed': None, 'render_camera_ids': list(RENDER_CAMERAS[rid]),
          'estimate_model': {'assumed_camera_coverage_xy_boxes': {c: [[[0, 1], [0, 1]]] for c in RENDER_CAMERAS[rid]}},
          'actors': [{'actor_id': a, 'waypoints': [{'t_us': 2_000_000, 'xy': [50.0, 50.0 + n]},
                                                  {'t_us': 9_000_000, 'xy': [60.0, 50.0 + n]}]}
                     for n, a in enumerate(('T',) + SPAWN_ACTORS)]}
-        for rid in RUNS]}
+        for rid in RUNS],
+        'hsv_config': {'version': HSV_VERSION, 'canonical_content_sha256': 'a' * 64, 'red_hue_band': [0.95, 0.05],
+                       'crop_ratio': CROP_RATIO}}
+
+
+def _fake_geometry():
+    """Synthetic catalog (no real scene): every render camera sits at x=100 looking +x, so the fake
+    actors (x 50..60, behind it) are out of view."""
+    def cam(cid):
+        return {'camera_id': cid, 'camera_to_world': [[0, 0, -1, 100.0], [-1, 0, 0, 50.0], [0, 1, 0, 1.5], [0, 0, 0, 1]],
+                'fx': 480.0, 'fy': 480.0, 'cx': 480.0, 'cy': 270.0, 'width': 960, 'height': 540,
+                'clip_start': 0.05, 'clip_end': 100.0}
+    cams = sorted({c for cs in RENDER_CAMERAS.values() for c in cs})
+    return {'schema': 'fake', 'clearance_segments': [{'segment_id': 'far', 'a': [900, 900], 'b': [901, 900]}],
+            'occluders_full_height': [{'occluder_id': 'far', 'a': [900, 900], 'b': [901, 900]}],
+            'cameras': [cam(c) for c in cams], 'floors': []}
 
 
 def _fake_report(draft=None):
@@ -511,7 +562,7 @@ def _fake_report(draft=None):
     door_for = {'A4-1-v2-4actor': 'R004_WEST_ENTRY', 'B4-1-v2-4actor': 'PORTAL_R101'}
     r = {
         'schema': REPORT_SCHEMA,
-        'inputs': [{'relative_path': 'docs/evaluation/R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json', 'git_sha': 'b' * 40, 'sha256': sha},
+        'inputs': [{'relative_path': f'docs/evaluation/{DRAFT.name}', 'git_sha': 'b' * 40, 'sha256': sha},
                    {'relative_path': 'scripts/design/check_actor_clearance.py', 'git_sha': 'b' * 40, 'sha256': sha},
                    {'relative_path': 'LOCAL/r004/base_a4.blend', 'git_sha': 'b' * 40, 'sha256': sha},
                    {'relative_path': 'configs/red_band_hsv.json', 'git_sha': 'b' * 40, 'sha256': sha}],
@@ -530,7 +581,7 @@ def _fake_report(draft=None):
             for k, wp in (('first', a['waypoints'][0]), ('last', a['waypoints'][-1]))] for run in draft['runs']},
         'color': {'red_band_hue': [0.95, 0.05], 'hsv_config_sha256': sha, 't_hue': 0.0, 'a_hue': 0.99, 'c_hue': 0.6,
                   'a_in_band': True, 'c_in_band': False,
-                  'b_by_camera': [{'run_id': rid, 'camera_id': c, 'b_hue_measured': 0.99, 'in_band': True, 'crop_ratio': 0.3}
+                  'b_by_camera': [{'run_id': rid, 'camera_id': c, 'b_hue_measured': 0.99, 'in_band': True, 'crop_ratio': CROP_RATIO}
                                   for rid, cams in RENDER_CAMERAS.items() for c in cams]},
         'ambiguity': {'unit': 'episode', 'color_variant': 'in_band', 'total_episodes': 5, 'episodes': {
             'A4-1-v2-4actor': [{'start_s': 8.0, 'end_s': 10.4, 'has_distractor': True},
@@ -587,6 +638,7 @@ def test_g1_geometry_walls_furniture_doors_measured():
 @G1
 def test_g1_clearance_unknown_becomes_pass_with_geometry():
     assert check_clearance(_g1_report(), _load(DRAFT)) == []
+    assert check_draft_files(DRAFT) == []
 
 
 @G1
@@ -596,7 +648,7 @@ def test_g1_spawn_points_outside_all_render_cameras():
 
 @G1
 def test_g1_b_stays_in_red_band_under_every_camera_light():
-    assert check_color(_g1_report()) == []
+    assert check_color(_g1_report(), _load(DRAFT)) == []
 
 
 @G1
@@ -651,7 +703,7 @@ def test_g2_runs_frames_cameras_and_rtdetr_index():
 # ------------------------------------------------------------------ self-tests (always run, plain PASS)
 
 def test_selftest_fake_report_passes_every_g1_check():
-    assert validate_report(_fake_report(), _fake_draft()) == []
+    assert validate_report(_fake_report(), _fake_draft(), _fake_geometry()) == []
 
 
 @pytest.mark.parametrize('mutate,needle', [
@@ -676,6 +728,9 @@ def test_selftest_fake_report_passes_every_g1_check():
     # P2-2: HSV input, B margin, recomputed T/A/C
     (lambda r: r['inputs'].pop(), 'HSV config'),
     (lambda r: r['inputs'][-1].update(sha256='e' * 64), 'matches no HSV input'),
+    (lambda r: r['color']['b_by_camera'][0].update(crop_ratio=0.3), 'crop_ratio must be 0.5'),
+    (lambda r: r['color'].update(red_band_hue=[0.9, 0.1]), 'differs from D131-DEMO-HSV-v1'),
+    (lambda r: r['color'].update(hsv_config_sha256='d' * 64), 'canonical_content_sha256'),
     (lambda r: r['color']['b_by_camera'][0].update(b_hue_measured=0.04), 'red-band edge'),
     (lambda r: r['color']['b_by_camera'][0].update(b_hue_measured=0.96), 'red-band edge'),
     (lambda r: r['color'].update(t_hue=0.5), 'T hue'),
@@ -691,7 +746,7 @@ def test_selftest_fake_report_passes_every_g1_check():
 def test_selftest_bad_report_is_rejected(mutate, needle):
     report = _fake_report()
     mutate(report)
-    errs = validate_report(report, _fake_draft())
+    errs = validate_report(report, _fake_draft(), _fake_geometry())
     assert any(needle in e for e in errs), errs
 
 
@@ -700,7 +755,7 @@ def test_selftest_clearance_gate_catches_actor_inside_wall():
     # a wall running through the actors' route (x 50..60, y 50) must flip the rerun to FAIL
     report['geometry']['A4-1-v2-4actor']['walls'].append(
         {'segment_id': 'W_BAD', 'a': [55.0, 40.0], 'b': [55.0, 60.0], 'height_range_m': [0.0, 2.8]})
-    assert any('FAIL' in e for e in check_clearance(report, _fake_draft()))
+    assert any('FAIL' in e for e in check_clearance(report, _fake_draft(), _fake_geometry()))
 
 
 def test_selftest_clearance_without_geometry_is_not_pass():
@@ -711,11 +766,44 @@ def test_selftest_clearance_without_geometry_is_not_pass():
     assert any('walls empty' in e for e in check_geometry(report, _fake_draft()))
 
 
-def test_selftest_real_draft_is_unknown_until_geometry_arrives():
-    """Anchor: today's draft has walls=null, so the checker says UNKNOWN. G1 requires that to change."""
+def test_selftest_real_draft_passes_the_checker_on_repo_geometry():
+    """Anchor: the v2.1+ draft carries geometry_ref, so the checker (walls, spawn_exit) is PASS today.
+    G1 still needs Codex's report to reproduce that on its own measured geometry."""
     result = _load_checker().check_document(_load(DRAFT))
-    assert result['verdict'] == 'UNKNOWN'
-    assert all(r['check_status']['walls'] == 'UNKNOWN' for r in result['runs'])
+    assert result['verdict'] == 'PASS', result['runs']
+    assert all(r['check_status']['walls'] == 'PASS' and r['check_status']['spawn_exit'] == 'PASS' for r in result['runs'])
+    assert check_render_cameras(_load(DRAFT)) == []
+    assert check_draft_files(DRAFT) == []
+
+
+def test_selftest_spawn_exit_pass_fail_and_unknown():
+    report, geo = _fake_report(), _fake_geometry()
+    assert check_clearance(report, _fake_draft(), geo) == []
+    # first point of A moved in front of the cameras (cameras at x=100 look +x): in view -> FAIL
+    draft = _fake_draft()
+    for run in draft['runs']:
+        a = next(a for a in run['actors'] if a['actor_id'] == 'A')
+        a['waypoints'][0]['xy'] = [104.0, 50.0]
+    errs = check_clearance(report, draft, geo)
+    assert any('spawn_exit status FAIL' in e for e in errs), errs
+    # draft without render_camera_ids -> UNKNOWN is not a pass
+    draft = _fake_draft()
+    for run in draft['runs']:
+        run.pop('render_camera_ids')
+    errs = check_clearance(report, draft, geo)
+    assert any('render_camera_ids must be' in e for e in errs) and any('spawn_exit status UNKNOWN' in e for e in errs), errs
+    # CAM_ENTRY missing from the A4 render set is refused
+    draft = _fake_draft()
+    draft['runs'][0]['render_camera_ids'].remove('CAM_ENTRY')
+    assert any('CAM_ENTRY' in e for e in check_clearance(report, draft, geo))
+
+
+def test_selftest_v22_draft_needs_its_fixlog(tmp_path):
+    assert check_draft_files(DRAFT_V21) == []
+    draft = tmp_path / 'R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json'
+    assert check_draft_files(draft, tmp_path / 'LOG.md')
+    (tmp_path / 'LOG.md').write_text('x')
+    assert check_draft_files(draft, tmp_path / 'LOG.md') == []
 
 
 def test_selftest_fake_manifest_passes():
