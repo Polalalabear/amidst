@@ -858,11 +858,26 @@ def test_selftest_bad_manifest_is_rejected(mutate, needle):
 
 
 def test_selftest_gate_markers_are_strict_and_cover_every_gate():
-    src = Path(__file__).read_text(encoding='utf-8')
-    gates = re.findall(r'^@(G1|G2)\ndef (test_g[12]_\w+)', src, flags=re.M)
-    assert len([g for g in gates if g[0] == 'G1']) == 8 and len([g for g in gates if g[0] == 'G2']) == 4
-    assert 'strict=True' in src.split('G1 = ', 1)[1].split('\n', 1)[0]
-    assert 'strict=True' in src.split('G2 = ', 1)[1].split('\n', 1)[0]
+    import ast
+
+    tree = ast.parse(Path(__file__).read_text(encoding='utf-8'))
+    functions = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
+    for group, prefix, expected in (('G1', 'test_g1_', 8), ('G2', 'test_g2_', 4)):
+        gates = [n for n in functions if n.name.startswith(prefix)]
+        assert len(gates) == expected and len({n.name for n in gates}) == expected
+        marked = sum(any(isinstance(d, ast.Name) and d.id == group
+                         for d in n.decorator_list) for n in gates)
+        assert marked in (0, expected), f'{group}: remove all markers together'
+        definitions = [n.value for n in tree.body if isinstance(n, ast.Assign)
+                       and any(isinstance(t, ast.Name) and t.id == group for t in n.targets)]
+        assert len(definitions) <= 1
+        if marked:
+            assert len(definitions) == 1
+        for value in definitions:
+            assert isinstance(value, ast.Call)
+            assert ast.unparse(value.func) == 'pytest.mark.xfail'
+            assert any(k.arg == 'strict' and isinstance(k.value, ast.Constant)
+                       and k.value.value is True for k in value.keywords)
 
 
 def test_selftest_spawn_point_inside_assumed_coverage_box_is_rejected():

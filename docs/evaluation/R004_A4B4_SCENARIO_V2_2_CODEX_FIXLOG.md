@@ -79,3 +79,12 @@ v2.1 checker 兩 run PASS；G1 `--runxfail -k test_g1_` 為7項通過、1項失�
 - 原v2.1 SHA-256 `cda4c6878d634e05b1265818eb07753a76f04b29490ccb5a6fcc5b4eb29baadd`。
 
 LOCAL：`local/evidence/codex-516-v21-feasibility-20261110/`，含原失敗、修正後checker/mesh、顏色proxy與episode估計。最終artifact manifest與渲染資訊見同PR的交接文件。
+
+## 單獨授權：改自我檢查：標記計數→函式計數
+
+使用者在本次chat明確授權只改 `test_selftest_gate_markers_are_strict_and_cover_every_gate`；其他G1/G2驗收斷言與其他自我測試不改。
+
+- 原規則：regex要求檔案永遠有8個`@G1`、4個`@G2`。G1八項通過且依契約移除標記後，全檔為73 passed、4 xfailed、1 failed；失敗的是這個標記自我檢查。
+- 新規則：用AST依函式名確認8個`test_g1_*`、4個`test_g2_*`函式全部存在且名稱不重複；每組標記數只能0或整組數量，不能部分移除。某組仍有標記時其定義必須存在；定義若保留，必須是`pytest.mark.xfail(strict=True)`；整組移除後可刪該組定義。
+- G1/G2的12個實質驗收函式與其他自我測試保持不變；完成某組時只移除對應整組decorators。
+- 修正後結果由本PR最終「實際產出」和CI exact head記錄；不把尚未執行的測試當PASS。
