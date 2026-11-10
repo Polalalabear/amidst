@@ -38,3 +38,7 @@ Before the move, set `AMIDST_DEMO_HOME` to the real owned package (for example `
 - Never edit `~/amidst` directly. It runs the demo and holds `local/`.
 - Never run `git clean -ffdx`, `git checkout .` or `git reset` in `~/amidst`.
 - New sessions may start with `bash ~/amidst/scripts/local/session_bootstrap.sh <task-name>`.
+
+## Not changed on purpose
+
+`scripts/build_office_expanded_static.py` and `scripts/revise_office_static_preview.py` keep their absolute `OUTPUT` constant (plan rows 18–19 deferred). Their exact bytes are the `builder_sha256` pinned in the r005 build receipts, and `tests/q1q5/test_office_expanded_r005.py` checks that match; editing them breaks the provenance pin. Changing them needs new receipts, which is a separate decision.

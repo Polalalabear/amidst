@@ -23,8 +23,7 @@ CORRECTION_SHA='e07218a16875a79aac474a0f5ab1ae714248571414a2d775f1ab2f2c8295aa74
 SOURCE_SHA='5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a'
 SOURCE_RECEIPT_SHA='79c5a9020fd78c19427c54a5c776f1344733eacc71d0b3f8226e9290f493fdc0'
 AUTHORIZATION='https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072'
-from amidst.paths import data_dir  # noqa: E402
-OUTPUT=data_dir()/'d127-418-office-expanded-r005-preview-v2'
+OUTPUT=Path('/Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005-preview-v2')
 
 
 def correction(path=CORRECTION):
@@ -122,7 +121,7 @@ def main(argv=None):
     require(args.check_only or (args.execute and args.authorization_ref==AUTHORIZATION),'EXPLICIT_AUTHORIZATION_REQUIRED')
     require(not(args.execute and args.check_only),'MODE_CONFLICT')
     parameters();profile=correction(args.correction)
-    output=new_output(args.output,approved=args.output)  # --output redefines the approved location
+    output=new_output(args.output,approved=OUTPUT)
     record=disk_record(output,'preflight_v2',start=True)
     receipt,catalog,geometry=source_inputs()
     if args.check_only:
