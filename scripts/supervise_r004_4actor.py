@@ -28,6 +28,8 @@ def main():
         cmd = [
             "/Applications/Blender.app/Contents/MacOS/blender",
             "--background",
+            "--python-exit-code",
+            "1",
             "--disable-autoexec",
             str(
                 a.artifacts_root / "data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend"

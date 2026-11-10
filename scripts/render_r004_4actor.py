@@ -14,6 +14,7 @@ import tempfile
 import time
 
 sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_r004_d124 import (
     json_bytes,
     no_symlink_components,

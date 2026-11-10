@@ -88,3 +88,9 @@ LOCAL：`local/evidence/codex-516-v21-feasibility-20261110/`，含原失敗、�
 - 新規則：用AST依函式名確認8個`test_g1_*`、4個`test_g2_*`函式全部存在且名稱不重複；每組標記數只能0或整組數量，不能部分移除。某組仍有標記時其定義必須存在；定義若保留，必須是`pytest.mark.xfail(strict=True)`；整組移除後可刪該組定義。
 - G1/G2的12個實質驗收函式與其他自我測試保持不變；完成某組時只移除對應整組decorators。
 - 修正後結果由本PR最終「實際產出」和CI exact head記錄；不把尚未執行的測試當PASS。
+
+## 產製入口修正：Blender匯入路徑與錯誤退出碼
+
+- 原值：producer直接匯入同目錄`render_r004_d124`，但Blender `--python`不把script目錄加進sys.path。單格試跑（A4 W1 frame70）在任何LOCK／RGB寫入前發生`ModuleNotFoundError`；Blender預設仍exit0。
+- 新值：producer先將自身scripts目錄加入sys.path；所有實際產製呼叫加`--python-exit-code 1`，supervisor據非零退出碼停止，不把Python例外誤當成功。
+- 修正後：重跑同一單格，必須有hash驗證的PNG與journal記錄；結果由最終交付收據記錄。未改路點、相機、材質或checker。

@@ -38,7 +38,7 @@ git diff --check
 
 ```sh
 df -k ~
-/Applications/Blender.app/Contents/MacOS/blender --background --disable-autoexec "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend" --python "$TASK_REPO/scripts/render_r004_4actor.py" -- --repo "$TASK_REPO" --scenario "$TASK_REPO/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json" --geometry "$TASK_REPO/docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json" --catalog "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/safe_static/cameras.json" --output "$AMIDST_ARTIFACTS/data/r004-4actor-v22-20261110" --label A4-1 --authorization-ref USER_CHAT_2026-11-10_516_FULL_PIPELINE
+/Applications/Blender.app/Contents/MacOS/blender --background --python-exit-code 1 --disable-autoexec "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend" --python "$TASK_REPO/scripts/render_r004_4actor.py" -- --repo "$TASK_REPO" --scenario "$TASK_REPO/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json" --geometry "$TASK_REPO/docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json" --catalog "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/safe_static/cameras.json" --output "$AMIDST_ARTIFACTS/data/r004-4actor-v22-20261110" --label A4-1 --authorization-ref USER_CHAT_2026-11-10_516_FULL_PIPELINE
 ```
 
 B4使用同一命令的`--label B4-1`。原始輸出不存在時不能加`--resume`；已存在時只有相同source／plan／driver／appearance／code commit的LOCK才能resume。`--camera`、`--indices`、`--max-new-frames`只供有界抽樣；完整產製不帶這三項限制。
