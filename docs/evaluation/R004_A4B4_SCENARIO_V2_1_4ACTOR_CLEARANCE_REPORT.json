@@ -1016,7 +1016,7 @@
         "artifact_manifest_sha256": "fcf478fe5212b360fc1ff71039c16ea846239d72bf9a322a1ef0b7b29f5c0b46",
         "scene_export_sha256": "c478866666f9ad2d98df76644420c369eef44c3da5cc3ceb7bba34db704945ac",
         "geometry_2d_sha256": "fb4e0103bc04c6c1589174f0e0556351f64a5de81cbd6ff65da5dbd0dcd89dc0",
-        "storage": "LOCAL (copied from /tmp/codex-516-feasibility, SHA-256 checked 28/28)",
+        "storage": "LOCAL (copied from Codex 暫存目錄, SHA-256 checked 28/28)",
         "issue_comment": "https://github.com/Polalalabear/amidst/issues/516#issuecomment-6761965932"
       },
       "builder": "scripts/design/build_r004_scene_geometry_2d.py",

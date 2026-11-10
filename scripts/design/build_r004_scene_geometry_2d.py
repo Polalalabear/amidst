@@ -140,7 +140,7 @@ def main(argv=None):
                                   'artifact_manifest_sha256': sha256(d / 'ARTIFACT_MANIFEST.json'),
                                   'scene_export_sha256': sha256(d / 'scene_export.json'),
                                   'geometry_2d_sha256': sha256(d / 'geometry_2d.json'),
-                                  'storage': 'LOCAL (copied from /tmp/codex-516-feasibility, SHA-256 checked 28/28)',
+                                  'storage': 'LOCAL (copied from Codex 暫存目錄, SHA-256 checked 28/28)',
                                   'issue_comment': 'https://github.com/Polalalabear/amidst/issues/516#issuecomment-6761965932'},
             'builder': 'scripts/design/build_r004_scene_geometry_2d.py',
             'gt_read': False, 'rgb_read': False,

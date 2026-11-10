@@ -49,7 +49,7 @@ v2 的草稿和報告保留不動（walls 仍是 null，檢查器仍判 UNKNOWN�
 
 ## 2. 幾何資料和檢查器的修改
 
-**幾何 JSON（`R004_SCENE_GEOMETRY_2D_V1.json`）。**全部取自 Codex 的 LOCAL 證據，已從 `/tmp/codex-516-feasibility/` 複製到 `local/evidence/codex-516-feasibility-20261110/`（gitignore），用 `ARTIFACT_MANIFEST.json`（SHA-256 `fcf478fe…0b46`）核對 28/28 個檔案。provenance：
+**幾何 JSON（`R004_SCENE_GEOMETRY_2D_V1.json`）。**全部取自 Codex 的 LOCAL 證據，已從 `Codex 暫存目錄` 複製到 `local/evidence/codex-516-feasibility-20261110/`（gitignore），用 `ARTIFACT_MANIFEST.json`（SHA-256 `fcf478fe…0b46`）核對 28/28 個檔案。provenance：
 
 - `.blend` SHA-256 `466e6fbe…809b`（未開啟、未讀取；hash 取自 Codex 的匯出）
 - 相機 catalog `safe_static/cameras.json` SHA-256 `3eba8572…899f`
