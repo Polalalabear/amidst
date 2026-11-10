@@ -33,3 +33,12 @@ When the coordinating session dispatches a task to a new Claude Code session, se
 **Escalate** to Opus at high effort, or handle the task in the coordinating session, when a sub-session reports an ambiguous spec, fails at the same point twice, or produces numbers that disagree with the expected values. When unsure, pick one level higher; redoing work costs more than the stronger model.
 
 Every result record states the model and effort used (the `Model / effort` line in the AGENTS.md template).
+
+## 協作規則
+
+- 新工作一律開新 session，不送回舊 session。
+- 模型分級照上方表格。
+- 給 Codex 的指派寫成可直接貼上的文字，也同步貼到 GitHub。
+- clone 用 scratchpad 的精簡 clone，用完刪除。同時寫檔的 session 最多 2 個。
+- 只用 merge commit，不 rebase、不 force。main 不動；若必須動 main，要先告知。
+- 被 session 事件喚醒的回合不能開 session，改用提案卡。

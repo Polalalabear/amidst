@@ -1,0 +1,29 @@
+{
+  "schema_version": "dual-camera.render-config.v1",
+  "run_id": "dual-camera-straight-line-v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+  "metres_per_bu": 0.0247,
+  "width": 960,
+  "height": 540,
+  "camera_ids": [
+    "CAM_1F_AUDITORIUM_FRONT",
+    "CAM_1F_AUDITORIUM_REAR"
+  ],
+  "floor_z_m": 0.49594758987426757,
+  "start_m": [
+    46,
+    47.8,
+    0.49594758987426757
+  ],
+  "velocity_m_s": [
+    0,
+    0.5,
+    0
+  ],
+  "height_m": 1,
+  "radius_m": 0.15,
+  "sampling_hz": 5,
+  "frame_count": 17,
+  "randomness": "NOT_USED"
+}
