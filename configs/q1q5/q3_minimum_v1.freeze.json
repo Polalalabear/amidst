@@ -1,0 +1,38 @@
+{
+  "schema_version": "q-demo.minimum-q3-candidate-freeze.v1",
+  "version": "baseline-q3-candidate-v1",
+  "status": "CANDIDATE_BYTES_FROZEN_HUMAN_REVIEW_REQUIRED",
+  "authored_by": "AI_DRAFT_CODEX_NOT_TESTED_QWEN",
+  "public_inputs_ref": "configs/q1q5/q3_minimum_v1.public.jsonl",
+  "public_inputs_file_sha256": "c4255becfb3ceda2454629abbe01cdd5fe0900847ed8134ab8c91fae5845de77",
+  "ordered_ids": [
+    "baseline-q3-v1-01",
+    "baseline-q3-v1-02",
+    "baseline-q3-v1-03",
+    "baseline-q3-v1-04",
+    "baseline-q3-v1-05",
+    "baseline-q3-v1-06",
+    "baseline-q3-v1-07",
+    "baseline-q3-v1-08"
+  ],
+  "categories_by_id": {
+    "baseline-q3-v1-01": "Q1_FIND_CAMERAS",
+    "baseline-q3-v1-02": "Q2_PERSON_COLOR_TIME",
+    "baseline-q3-v1-03": "TIME_EXPRESSIONS",
+    "baseline-q3-v1-04": "CAMERA_REGION_TERMS",
+    "baseline-q3-v1-05": "UNSUPPORTED",
+    "baseline-q3-v1-06": "CLARIFICATION",
+    "baseline-q3-v1-07": "COLLOQUIAL_MIXED_LANGUAGE",
+    "baseline-q3-v1-08": "OUT_OF_SCOPE_INJECTION"
+  },
+  "review_template_file_sha256": "8aa00549f97da92e3aca1689767a5bd38028658ca7b10b27ad32e7bdbb609436",
+  "candidate_rows": 8,
+  "formal_rows": 0,
+  "independent_selection_receipt_sha256": null,
+  "independent_expected_receipt_sha256": null,
+  "context_scope_sha256": null,
+  "human_review_status": "UNREVIEWED",
+  "formal_run_allowed": false,
+  "predictions_used_to_author_questions_or_expected": false,
+  "replaces_issue_89_full_dataset": false
+}

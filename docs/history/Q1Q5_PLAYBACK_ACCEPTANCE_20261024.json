@@ -1,0 +1,223 @@
+{
+  "accuracy": null,
+  "baseline_primary": {
+    "accuracy": null,
+    "llm_used": {
+      "q3": 0,
+      "q5": 0
+    },
+    "model_calls": {
+      "q3": 6,
+      "q5": 3
+    },
+    "physical_display_fps": null,
+    "samples": 12,
+    "stage_replays": 24,
+    "status": "COMPLETE",
+    "timeouts": {
+      "q3": 6,
+      "q5": 3
+    }
+  },
+  "baseline_repeat": {
+    "accuracy": null,
+    "browser_acceptance": "SEPARATE_ENGINEERING_CHECK_REQUIRED",
+    "counts_for_formal_acceptance": false,
+    "display_fps": null,
+    "formal_run": false,
+    "llm_used": {
+      "q3": 0,
+      "q5": 0
+    },
+    "model_calls": {
+      "q3": 6,
+      "q5": 3
+    },
+    "physical_vram_peak_bytes": null,
+    "samples": 12,
+    "schema_version": "q-demo.linked-acceptance.v1",
+    "source_kind": "SYNTHETIC",
+    "stage_replays": 24,
+    "status": "COMPLETE",
+    "timeout_calls": {
+      "q3": 6,
+      "q5": 3
+    }
+  },
+  "browser": {
+    "decode_to_swap_ms_max": 3.9000000953674316,
+    "decode_to_swap_ms_p95": 3.5,
+    "ended_last_valid_frame_us": 5800000,
+    "max_raf_gap_ms": 17.80000000000291,
+    "missing_expected_fail_closed": true,
+    "missing_injected_from_us": 5600000,
+    "missing_no_decoded_main_samples": 24,
+    "missing_tiles": 2,
+    "normal_buffering_samples": 1,
+    "normal_complete_runs": 5,
+    "normal_no_decoded_main_samples": 0,
+    "normal_raf_samples": 1801,
+    "normal_source_heads": [
+      "0c21e422fff445361baf253b1a39a2789ccb17d6",
+      "228bf448f5e40fc1c45ef5a1700de00fa5dc037a"
+    ],
+    "q1_complete_segments": 2,
+    "q1_no_decoded_main_samples": 0,
+    "q1_raf_samples": 300,
+    "raf_hz_range": [
+      59.97800806323348,
+      59.993684875751704
+    ],
+    "seek_2500000_us": {
+      "boxes": 0,
+      "images": [
+        {
+          "alt": "A \u00b7 2.400000 s",
+          "ready": true
+        }
+      ],
+      "state": "\u66ab\u5931 \u00b7 \u641c\u5c0b\u4e2dA \u00b7 2.500000 s \u00b7 \u8eab\u5206\u672a\u78ba\u8a8dSEARCHING \u00b7 COMPLETE \u00b7 RULE_ONLY",
+      "time": "2.500000 s"
+    },
+    "semantics": "DOM decoded-image availability sampled on browser RAF; not physical screen presentation or pixel-black classifier. One normal buffering sample retained the explicitly marked previous view; all final-head normal samples were unbuffered.",
+    "slow_injected_delay_ms": 350,
+    "slow_no_decoded_main_samples": 0,
+    "slow_raf_samples": 361,
+    "wall_duration_ms_range": [
+      6000.699999928474,
+      6017.299999952316
+    ]
+  },
+  "counts_for_formal_acceptance": false,
+  "detector": {
+    "calls": 60,
+    "forward_fps": 3.1777418116957934,
+    "forward_ms": 18881.33258,
+    "index_build_ms": 21152.528709,
+    "model_load_ms": 2498.014083,
+    "person_candidates": 25,
+    "sampled_rss_peak_bytes": {
+      "caller": 801308672
+    }
+  },
+  "draft_pr": "https://github.com/Polalalabear/amidst/pull/209",
+  "fixture": {
+    "duration_us": 6000000,
+    "method": "STATIC_RGB_HOLD_NO_MOTION",
+    "person_motion_verified": false,
+    "segments": [
+      {
+        "camera": "A",
+        "kind": "ON_CAMERA",
+        "range_us": [
+          0,
+          2000000
+        ]
+      },
+      {
+        "kind": "GAP",
+        "range_us": [
+          2000000,
+          3000000
+        ]
+      },
+      {
+        "camera": "B",
+        "kind": "ON_CAMERA",
+        "range_us": [
+          3000000,
+          6000000
+        ]
+      }
+    ],
+    "source_samples": 60,
+    "source_sampling_fps": 5,
+    "unique_rgb_files": 3
+  },
+  "focused_tests": {
+    "backend": {
+      "backend_bytes_unchanged_since_tested_head": "654f18fd5094948e98ec953dc551092aa976dfa8",
+      "command": "UV_PROJECT_ENVIRONMENT=/Users/polalabear/Developer/amidst-claude/.venv PYTHONPATH=<source>/src uv run --project <source> --no-sync python -m pytest tests/q1q5/test_linked_runtime.py tests/q1q5/test_linked_workbench.py tests/q1q5/test_linked_acceptance.py -ra",
+      "failed": 0,
+      "passed": 18
+    },
+    "frontend": {
+      "command": "node --test frontend/workbench-v2/q-playback.test.mjs frontend/workbench-v2/q-time.test.mjs frontend/workbench-v2/store.test.mjs frontend/workbench-v2/q-api.test.mjs frontend/workbench-v2/q2-session-model.test.mjs frontend/workbench-v2/q3-bar-view.test.mjs",
+      "failed": 0,
+      "passed": 61
+    },
+    "git_diff_check": "PASS",
+    "lint": "PASS for four changed Python files",
+    "playback_launcher": {
+      "duration_us": 6000000,
+      "fresh_session_server": true,
+      "model_calls": 0,
+      "owned_test_server_stopped": true,
+      "recordings": 1,
+      "served_source_hash_checks": {
+        "q-playback.mjs": true,
+        "q2-view.mjs": true,
+        "shell-view.mjs": true,
+        "style.css": true
+      },
+      "status": "PASS"
+    }
+  },
+  "formal_dataset": false,
+  "gt_read": false,
+  "identity_verdict": "UNCONFIRMED",
+  "implementation_head": "228bf448f5e40fc1c45ef5a1700de00fa5dc037a",
+  "issue": "https://github.com/Polalalabear/amidst/issues/208",
+  "limitations": [
+    "Two generated static person images and neutral RGB are held over time. This verifies event playback continuity, not continuous person motion.",
+    "Qwen3 timed out on every primary and repeated call; RULE fallback is not LLM success.",
+    "No formal A4/B4 production, independent correctness labels, identity confirmation or physical acceptance. #145 and prior formal gates remain unresolved.",
+    "Shared Ollama, baseline 2-second bundle, yyin package, checkout/index/preexisting dirty files retained."
+  ],
+  "local_bundle": "/Users/polalabear/amidst-artifacts/q1q5-playback-continuity-v2_20261024",
+  "physical_display_fps": null,
+  "physical_vram_peak_bytes": null,
+  "pins": {
+    "DELIVERY_WORKBENCH_COMPOSITION.json": "2ccf99dc5babe2ed97639ac0dddf5e7382f36ad632b31230a612764152afa9d6",
+    "RUNTIME_COMPOSITION.json": "55a9096f7dae438bc123a8a25e064b46191f035f3318a9e9cd0c9250355328d4",
+    "inputs/recordings.json": "b9cf6decbb959f3f53670ae3f2695661eaf6046cfbe42215f084f84d5a80f506",
+    "run/prepared/index/detection_index.json": "fff2e8b25a4431985a975d6b0f79738cda50bb85e6d23aaade8c2429fc54d1c8",
+    "run/prepared/registry.json": "d54b02e7abb39f3ecefd79b2324833aab758be7fed0d74db764d6e7696e45801",
+    "run/query/runtime.json": "207c767aefe0f00f11044abae486e9c86a54b722c169aad96d3409c2097741ce",
+    "run/rgb/rgb.json": "c3ed12ce591b7ee75b11fe3c1957dc03fffe9f245194fdc151e5b745803e53bb"
+  },
+  "preservation": {
+    "branch": "codex/controlled-scene-real-v2-2a",
+    "checkout_head": "60fa8ef64988435530b09fb258d79130e83977af",
+    "index_sha256": "2b9b34dd2c931997cb2f946c32a51c019733a2b53d50d5b33cabc613f21d2c3c",
+    "old_delivery_files_preserved": 1859,
+    "old_delivery_manifest_sha256": "86ddcf623914aaeebc8a8f18b06adf4e62fca6666fdcfaa55de6075752958297",
+    "preexisting_files_preserved": 489,
+    "review_files_preserved": 80,
+    "review_manifest_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+    "source_compositions_verified": 2,
+    "status": "PASS"
+  },
+  "reproduction": {
+    "decision_journals_compared": 6,
+    "decision_journals_equal_excluding_budget_used_ms_and_content_sha256": 6,
+    "exact_domain_output_hash_matches": 9,
+    "note": "Three QWEN pursuit outputs differ in measured budget_used_ms and dependent hashes; timelines and all event counts are unchanged. No claim of all-byte-identical live model audit.",
+    "responses_equal_excluding_stats_and_dependent_hashes": 12,
+    "same_input_files": {
+      "prepared/clock.json": true,
+      "prepared/index/detection_index.json": true,
+      "prepared/index/detection_index.records.jsonl": true,
+      "prepared/parameter.json": true,
+      "query/cases.jsonl": true,
+      "query/runtime.json": true,
+      "rgb/rgb.json": true
+    },
+    "samples": 12,
+    "status": "PASS_WITH_MEASURED_TIMING_DIFFERENCES"
+  },
+  "schema_version": "q-demo.playback-acceptance.v1",
+  "source_kind": "SYNTHETIC",
+  "status": "ENGINEERING_ACCEPTANCE_READY",
+  "url": "http://127.0.0.1:63408/workbench-v2/?mode=review"
+}

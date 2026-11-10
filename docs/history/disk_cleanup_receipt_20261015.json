@@ -1,0 +1,362 @@
+{
+  "before_immediate_bytes": 7236694016,
+  "after_immediate_bytes": 7271817216,
+  "removed": [
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.pytest_cache",
+      "allocated_bytes": 286720
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.ruff_cache",
+      "allocated_bytes": 57344
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.mypy_cache",
+      "allocated_bytes": 34820096
+    }
+  ],
+  "worktree_state_and_index_unchanged": true,
+  "refs_unchanged": true,
+  "office_safe_input_hash_verified": true,
+  "office_rgb_count_size_verified": 100,
+  "original_blend_size_mtime_verified": true,
+  "original_blend_hash_recomputed": false,
+  "worktrees": {
+    "/Users/polalabear/Developer/amidst": {
+      "head": "c5956dc825f669e28e2694578be0fed97432a786",
+      "status": "?? docs/history/LOCAL_STORAGE_CLEANUP_20261014.md\n?? docs/history/storage_cleanup_20261014/archived_worktrees/README.md\n?? docs/history/storage_cleanup_20261014/archived_worktrees/cleanup_receipt.json\n?? docs/history/storage_cleanup_20261014/archived_worktrees/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261006/review_v2/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/APPROVALS.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/HR02_CAMERA_AUDIT.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/approval_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/approval_record.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/approval_validation.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/clarity_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/dashboard_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/audit_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/final_repeat_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/native_ui_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/render_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/renderer_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/source_rerun_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/hr02_camera_audit/view_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/review_clarity/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/hr02_initial_camera_render/generation_note.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/hr02_initial_camera_render/renderer_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/hr02_initial_camera_render/view_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/hr02_initial_ray_audit/audit_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/hr02_initial_ray_audit/generation_note.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/history/hr02_initial_ray_audit/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/hr02_camera_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/topology_motion_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/approvals_recorded/human_review/topology_playback_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/body_motion/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/clarity_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/dashboard_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/review_clarity/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/clarity/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/dashboard_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/dashboard/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/HR02_CAMERA_AUDIT.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/clarity_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/dashboard_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/audit_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/final_repeat_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/native_ui_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/render_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/renderer_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/source_rerun_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/hr02_camera_audit/view_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/review_clarity/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/hr02_initial_camera_render/generation_note.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/hr02_initial_camera_render/renderer_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/hr02_initial_camera_render/view_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/hr02_initial_ray_audit/audit_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/hr02_initial_ray_audit/generation_note.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/history/hr02_initial_ray_audit/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/hr02_camera_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/topology_motion_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/hr02_camera_audit/human_review/topology_playback_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/clarity_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/dashboard_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/review_clarity/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_motion/human_review/topology_motion_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/copy_verification.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/DECISION_APPLICATION.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/clarity_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/dashboard_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/decisions.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/formal_settings.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/motion_context/gif_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/motion_context/motion_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/review_clarity/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/spatial_context/spatial_context_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/topology_context/preview_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/topology_context/topology_data.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/topology_context/topology_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/frames/visual_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/geometry_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/history/blocked_checkpoint/README.md\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/history/blocked_checkpoint/gate.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/history/blocked_checkpoint/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/resume_plan.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/review_template.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/settings_evidence.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/topology_motion_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/old_review_20261007/topology_playback_stable/human_review/topology_playback_integration_manifest.json\n?? docs/history/storage_cleanup_20261014/orphan_54d9/AGENTS.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/README.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/codex_handoff_file_classification.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_disambiguation_approval.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_first_slice_readiness.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_id_assignment.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_id_persistence.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_metadata_governance_proposal.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_missing_resource_audit.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_semantic_baseline.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/data/reports/school_v1_stable_id_candidate_policy.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/00_Project_Map.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/01_PRD.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/02_System_Architecture.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/03_Evaluation_Framework.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/04_Dataset_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/05_Spatial_Model_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/06_Retrieval_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/07_Technical_Decisions.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/08_Repository_and_Data_Publication_Policy.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/09_Data_Types_and_Exchange_Formats.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/10_Cross_Platform_Setup_and_Testing.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/11_Layer_Boundaries_and_Data_Flow.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/CODEX_HANDOFF.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/glossary.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/internal_guide.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9/docs/open_questions.md\n?? \"docs/history/storage_cleanup_20261014/orphan_54d9/docs/\\344\\275\\277\\347\\224\\250\\350\\200\\205\\346\\217\\220\\345\\225\\217.md\"\n?? \"docs/history/storage_cleanup_20261014/orphan_54d9/docs/\\345\\225\\217\\351\\241\\214\\350\\250\\230\\351\\214\\204.md\"\n?? docs/history/storage_cleanup_20261014/orphan_54d9/requirements-dev.lock.txt\n?? docs/history/storage_cleanup_20261014/orphan_54d9/tests/fixtures/downstream_contracts/BOUNDARY_MATRIX.md\n?? docs/history/storage_cleanup_20261014/orphan_54d9_inventory.json\n?? docs/history/storage_cleanup_20261014/orphan_c93d/AGENTS.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/README.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/codex_handoff_file_classification.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_disambiguation_approval.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_first_slice_readiness.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_id_assignment.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_id_persistence.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_metadata_governance_proposal.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_missing_resource_audit.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_semantic_baseline.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/data/reports/school_v1_stable_id_candidate_policy.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/00_Project_Map.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/01_PRD.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/02_System_Architecture.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/03_Evaluation_Framework.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/04_Dataset_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/05_Spatial_Model_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/06_Retrieval_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/07_Technical_Decisions.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/08_Repository_and_Data_Publication_Policy.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/09_Data_Types_and_Exchange_Formats.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/10_Cross_Platform_Setup_and_Testing.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/11_Layer_Boundaries_and_Data_Flow.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/CODEX_HANDOFF.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/glossary.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/internal_guide.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d/docs/open_questions.md\n?? \"docs/history/storage_cleanup_20261014/orphan_c93d/docs/\\344\\275\\277\\347\\224\\250\\350\\200\\205\\346\\217\\220\\345\\225\\217.md\"\n?? \"docs/history/storage_cleanup_20261014/orphan_c93d/docs/\\345\\225\\217\\351\\241\\214\\350\\250\\230\\351\\214\\204.md\"\n?? docs/history/storage_cleanup_20261014/orphan_c93d/requirements-dev.lock.txt\n?? docs/history/storage_cleanup_20261014/orphan_c93d/tests/fixtures/downstream_contracts/BOUNDARY_MATRIX.md\n?? docs/history/storage_cleanup_20261014/orphan_c93d_inventory.json\n?? docs/history/storage_cleanup_20261014/orphan_db5d/AGENTS.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/README.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/codex_handoff_file_classification.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_baseline_v0_1_0_r3/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_camera_sun_candidate_v0_1_0/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_camera_sun_flipped_candidate_v0_1_0/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_diffuse_camera_sun_candidate_v0_1_0/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_diffuse_camera_sun_flipped_candidate_v0_1_0/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_separated_pipeline_baseline_v0_1_0/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_weight1_camera_sun_candidate_v0_1_0_r2/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_camera_0ab45975_weight1_camera_sun_candidate_v0_1_0_r3/comparison_report.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/render_diagnostics/school_v1_observation_render_diagnostic_v0_1_0.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_disambiguation_approval.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_first_slice_pilot_run_pilot_0001.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_first_slice_pilot_run_pilot_0001_failure_analysis.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_first_slice_readiness.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_id_assignment.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_id_persistence.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_metadata_governance_proposal.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_missing_resource_audit.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_render_policy_v0_1_1_diagnostic.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_semantic_baseline.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_stable_id_candidate_policy.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_creation.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_creation_v0_1_1.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_creation_v0_1_1_candidate_dither_1_0.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_validation.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_validation_failed_float32_tolerance_2026_09_15.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_validation_v0_1_1.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/data/reports/school_v1_texture_agnostic_scene_validation_v0_1_1_candidate_dither_1_0.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/00_Project_Map.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/01_PRD.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/02_System_Architecture.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/03_Evaluation_Framework.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/04_Dataset_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/05_Spatial_Model_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/06_Retrieval_Specification.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/07_Technical_Decisions.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/08_Repository_and_Data_Publication_Policy.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/09_Data_Types_and_Exchange_Formats.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/10_Cross_Platform_Setup_and_Testing.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/CODEX_HANDOFF.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/glossary.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/internal_guide.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/docs/open_questions.md\n?? \"docs/history/storage_cleanup_20261014/orphan_db5d/docs/\\345\\225\\217\\351\\241\\214\\350\\250\\230\\351\\214\\204.md\"\n?? docs/history/storage_cleanup_20261014/orphan_db5d/local/handoff_downstream_layers.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/local/handoff_macos_observation_contract.md\n?? docs/history/storage_cleanup_20261014/orphan_db5d/requirements-dev.lock.txt\n?? docs/history/storage_cleanup_20261014/orphan_db5d_inventory.json\n?? docs/history/storage_cleanup_20261014/receipt.json\n",
+      "index_sha256": "24f8c6194729741138ca96827d33045d362b46328e898924ab10d67df96b7231"
+    },
+    "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization": {
+      "head": "c6661dd53507805deb4613f30afb31798987bfd5",
+      "status": " M docs/engineering/DEMO_V1.md\n?? scripts/start_local_demo.py\n?? start-demo.command\n",
+      "index_sha256": "ee89543ac2624b40811853169be1159f83f2cfc4f895cf2c491313927565a98c"
+    },
+    "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal": {
+      "head": "043bed2d6dac34698260bd37faefc31b9009d3ca",
+      "status": "",
+      "index_sha256": "8321c0f06d99974043d5b06e6bb633642466fc41b250acfa21a7b03cc12fe9d9"
+    },
+    "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean": {
+      "head": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+      "status": "?? data/finalization/reviewed_run_case123_clean_v2_20261014/benchmark_table.csv\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/benchmark_table.json\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/benchmark_table.md\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/case3_growth.json\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/delivery_comparison.json\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/joint_inference_freeze.json\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/primary_run_receipt.json\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/source_export_lock.json\n?? data/finalization/reviewed_run_case123_clean_v2_20261014/verification.json\n",
+      "index_sha256": "807fbf515f5b4dd68846186422653f18dda14a3499b236436437750098c686bb"
+    },
+    "/Users/polalabear/Developer/amidst-claude": {
+      "head": "70144aec05bad96a642c370f5d68de45a8629f94",
+      "status": "",
+      "index_sha256": "039b37f79eadfd51fda531aa41a7a46610a93509e8300b8ca6cb5576216b506c"
+    },
+    "/Users/polalabear/.codex/worktrees/mvp-backend-integration/amidst": {
+      "head": "400f42fc22e411cbe833392c5f9bcfddd303c61a",
+      "status": "",
+      "index_sha256": "d084c48c9353fa38c9f01719d6139dc0e5c0945f4eb90057f14fd8276054a7b4"
+    },
+    "/Users/polalabear/.codex/worktrees/demo-v1-main/amidst": {
+      "head": "f9b563fffcfeabeeb828ccff924a81420da6b88f",
+      "status": "",
+      "index_sha256": "c99cb75d3caf2db3b39fdb0c45ca474bdd632a3839922ba408cce4fa4ef4beb6"
+    }
+  },
+  "audit_start_available_bytes": 7276642304,
+  "audit_end_available_bytes": 7267282944,
+  "net_disk_available_change_bytes": -9359360,
+  "deleted_cache_allocated_bytes": 35164160,
+  "approved_followup": {
+    "model_step": {
+      "status": "COMPLETED",
+      "command": "OLLAMA_HOST=http://127.0.0.1:11437 ollama rm qwen2.5:3b-instruct",
+      "exit_code": 0,
+      "stdout": "deleted 'qwen2.5:3b-instruct'\n",
+      "before_bytes": 10905235456,
+      "after_bytes": 12835688448,
+      "delta_bytes": 1930452992,
+      "remaining_models": [
+        "qwen2.5:7b-instruct"
+      ],
+      "seven_b_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "seven_b_manifest_sha256": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "seven_b_blob_metadata": {
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models/blobs/sha256-2f15b3218f0552c60647ce60ada83632d2c09755b16259b13e3e4458e9ae419d": [
+          487,
+          1791877466543088623,
+          83787131
+        ],
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models/blobs/sha256-2bada8a7450677000f678be90653b85d364de7db25eb5ea54136ada5f3933730": [
+          4683073952,
+          1791877464551901561,
+          83786141
+        ],
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models/blobs/sha256-66b9ea09bd5b7099cbb4fc820f31b575c0366fa439b08245566692c6784e281e": [
+          68,
+          1791875465893140122,
+          83770809
+        ],
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models/blobs/sha256-eb4402837c7829a690fa845de4d7f3fd842c2adee476d5341da8a46ea9255175": [
+          1482,
+          1791875466946671085,
+          83770828
+        ],
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/ollama_models/blobs/sha256-832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e": [
+          11343,
+          1791877465697243100,
+          83787126
+        ]
+      },
+      "seven_b_preserved": true
+    },
+    "venv_step": {
+      "status": "COMPLETED",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.venv",
+      "pre_open_file_hits": [],
+      "before_bytes": 12814151680,
+      "after_bytes": 12839727104,
+      "delta_bytes": 25575424,
+      "allocated_bytes_before": 744943616,
+      "environment_check": {
+        "installed": [
+          [
+            "numpy",
+            "2.5.3"
+          ],
+          [
+            "kiwisolver",
+            "1.5.1"
+          ],
+          [
+            "rerun-sdk",
+            "0.38.1"
+          ],
+          [
+            "mypy",
+            "2.3.1"
+          ],
+          [
+            "types-shapely",
+            "2.1.0.20260728"
+          ],
+          [
+            "fonttools",
+            "4.66.1"
+          ],
+          [
+            "packaging",
+            "26.3"
+          ],
+          [
+            "networkx",
+            "3.7"
+          ],
+          [
+            "iniconfig",
+            "2.3.0"
+          ],
+          [
+            "pygments",
+            "2.21.0"
+          ],
+          [
+            "amidst",
+            "0.1.0"
+          ],
+          [
+            "pydantic-core",
+            "2.46.5"
+          ],
+          [
+            "pyarrow",
+            "25.0.1"
+          ],
+          [
+            "shapely",
+            "2.1.2"
+          ],
+          [
+            "contourpy",
+            "1.4.0"
+          ],
+          [
+            "ruff",
+            "0.16.9"
+          ],
+          [
+            "pytest",
+            "9.1.1"
+          ],
+          [
+            "pydantic",
+            "2.13.5"
+          ],
+          [
+            "python-dateutil",
+            "2.9.0.post0"
+          ],
+          [
+            "matplotlib",
+            "3.11.2"
+          ],
+          [
+            "cycler",
+            "0.12.1"
+          ],
+          [
+            "annotated-types",
+            "0.8.0"
+          ],
+          [
+            "typing-inspection",
+            "0.4.4"
+          ],
+          [
+            "pluggy",
+            "1.6.0"
+          ],
+          [
+            "attrs",
+            "26.1.0"
+          ],
+          [
+            "pathspec",
+            "1.1.1"
+          ],
+          [
+            "librt",
+            "0.16.0"
+          ],
+          [
+            "ast-serialize",
+            "0.11.2"
+          ],
+          [
+            "typing-extensions",
+            "4.16.0"
+          ],
+          [
+            "psutil",
+            "7.2.2"
+          ],
+          [
+            "pillow",
+            "12.3.0"
+          ],
+          [
+            "pyparsing",
+            "3.3.3"
+          ],
+          [
+            "mypy-extensions",
+            "1.1.0"
+          ],
+          [
+            "six",
+            "1.17.0"
+          ]
+        ],
+        "direct_urls": [
+          {
+            "url": "file:///Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal",
+            "dir_info": {
+              "editable": true
+            }
+          }
+        ],
+        "unaccounted": [
+          [
+            "bin/activate.bat",
+            2717
+          ],
+          [
+            "bin/activate.ps1",
+            2774
+          ],
+          [
+            "bin/activate.fish",
+            4245
+          ],
+          [
+            "bin/pydoc.bat",
+            1217
+          ],
+          [
+            "bin/activate_this.py",
+            2389
+          ],
+          [
+            "bin/activate",
+            4143
+          ],
+          [
+            "bin/activate.nu",
+            3815
+          ],
+          [
+            "bin/deactivate.bat",
+            1730
+          ],
+          [
+            "bin/activate.csh",
+            2673
+          ]
+        ],
+        "symlinks": [
+          [
+            "bin/python3",
+            "python"
+          ],
+          [
+            "bin/python",
+            "/Users/polalabear/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+          ],
+          [
+            "bin/python3.12",
+            "python"
+          ]
+        ],
+        "record_sizes_verified": 6493,
+        "source_metadata_hashes_verified": 3743,
+        "large_package_binaries_metadata_only": 19,
+        "unique_payload_found": false,
+        "uv_offline_lock_check": "PASS",
+        "lock_unchanged": true
+      },
+      "rebuild_command": "uv sync --locked --group dev",
+      "dependencies_installed": false
+    },
+    "file_verification": {
+      "git_all_head_status_index_unchanged": true,
+      "git_branch_tag_remote_refs_unchanged": true,
+      "codex_internal_refs_changed": true,
+      "protected_metadata_unchanged_files": 3707,
+      "office_safe_input_sha256_verified": true,
+      "office_calibration_camera_count": 2,
+      "office_frames_present_size_verified": 100,
+      "source_blend_metadata_unchanged": true,
+      "formal_worktree_exists": true,
+      "active_finalization_venv_exists": true
+    },
+    "service_verification": {
+      "workbench_http": 200,
+      "ollama_tags_http": 200,
+      "ollama_7b_show_http": 200,
+      "remaining_models": [
+        "qwen2.5:7b-instruct"
+      ],
+      "postgres_select_1": "PASS",
+      "inference_performed": false,
+      "postgres_tcp_policy_rejection_preserved": true
+    },
+    "audit_before_bytes": 9461886976,
+    "final_available_bytes": 12826746880,
+    "whole_turn_net_change_bytes": 3364859904,
+    "sum_immediate_step_delta_bytes": 1956028416,
+    "worktree_sizes_after": {
+      "phase1-finalization": 6665031680,
+      "phase1-case23-formal": 941539328,
+      "phase1-case23-clean": 448282624
+    },
+    "git_connectivity_check": "PASS",
+    "worktree_removal_performed": false,
+    "other_models_removed": false,
+    "dependencies_installed": false
+  }
+}

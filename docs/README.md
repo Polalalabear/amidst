@@ -1,5 +1,7 @@
 # 文件導覽 / Documentation
 
+2026-10-20：[Q1／Q2 第一版 Demo 計畫修訂討論稿](engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md)供 Claude 審查：RT-DETR 畫面辨識、Region／Camera 兩層圖、r003 修改、Codex 主實作與依賴／分支整合計畫；含模型能力限制及待定案項目，尚未實作或取代歷史驗收。
+
 2026-10-20：[受控場景後端第二批 2a](engineering/CONTROLLED_SCENE_BACKEND_BATCH2_20261020.md)提供兩個真實 Blender run 的 v2 bootstrap、D57 RGB 讀取與 token 媒體 URL；含 R4 提案、Claude 交接及尚未開工的 2b–2d 計畫。完整 runtime 仍 NOT_READY。
 
 2026-10-18：[受控場景後端第一批](engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md)提供safe loader、v2逐檔路由及SYNTHETIC端點骨架；契約由[Claude的指定版本](https://github.com/Polalalabear/amidst/blob/16d6304e67c5cedeba533181e57fae6a7cc74f0f/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)維護，後端提案留在工程文件；非真實run或場景驗收。
