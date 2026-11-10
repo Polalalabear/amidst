@@ -172,6 +172,18 @@ def fixture_api(mode="scripted", case_id="supported_candidate"):
         provider_factory=lambda url: provider,
         scheduler_factory=lambda: lambda *values: None,
     )[0]
+    live_factory = run.agent_factory
+
+    def fixed_clock_factory(request, **kwargs):
+        # Flaky-test fix (D182): the Agent budget (budget_used_ms, remaining budget_ms in the
+        # prompt) measures real elapsed time, so journal/prompt hashes change by a millisecond
+        # between runs. A fixed clock makes the control cases deterministic; product default
+        # (time.monotonic) is untouched.
+        controller = live_factory(request, **kwargs)
+        controller.clock = lambda: 0.0
+        return controller
+
+    run = replace(run, agent_factory=fixed_clock_factory)
     return QAPI([run], max_responses=128, max_media_refs=4096), authorize, TOKEN
 
 
