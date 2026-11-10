@@ -1,0 +1,55 @@
+{
+  "schema_version": "q-core.agent-decision-params.v1",
+  "parameter_set_id": "agent_decision_params_v1_exploratory",
+  "report_group": "EXPLORATORY",
+  "mode": "OFF",
+  "decision_points": [
+    "DP1_HANDOFF_ADJUDICATION",
+    "DP3_CONTINUATION_ACCEPTANCE"
+  ],
+  "models": [
+    {
+      "config_id": "astra6",
+      "api_model_id": null
+    },
+    {
+      "config_id": "sol6.1",
+      "api_model_id": null
+    },
+    {
+      "config_id": "terra6.1",
+      "api_model_id": null
+    }
+  ],
+  "per_call": {
+    "timeout_ms": 10000,
+    "max_output_tokens": 300,
+    "max_retries_on_429_5xx": 1
+  },
+  "per_step": {
+    "budget_ms": 30000,
+    "max_rounds": 3
+  },
+  "per_session": {
+    "max_rounds": 12
+  },
+  "rate": {
+    "max_concurrent": 1,
+    "max_requests_per_minute": 30
+  },
+  "budget_usd": 100,
+  "price_table": null,
+  "prompt_tokens_per_call_estimate": 1500,
+  "stages": {
+    "EXPLORATORY": {
+      "approved": false,
+      "approval_ref": null,
+      "max_calls": null,
+      "max_tokens": null,
+      "per_model_max_calls": null,
+      "per_model_max_tokens": null,
+      "note": "Relaxed group (10 s per call, 30 s per step). Locked until the user approves its caps; never reported together with FORMAL."
+    }
+  },
+  "note": "D166 relaxed exploratory group. Separate parameter set; results are labelled EXPLORATORY and never mixed with the formal group."
+}
