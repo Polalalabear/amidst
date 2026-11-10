@@ -3,7 +3,7 @@
  "status": "PROPOSED",
  "approval_ref": null,
  "render_authorized": false,
- "decision_ref": "D198 (issue #93); D197 direction",
+ "decision_ref": "D198 (issue #93); D197 direction; D203 ambiguity counted in episodes; D204 B inside red",
  "coordinate_convention": {
   "frame": "r004 static world (same as v1 producer drafts)",
   "units": "meters",
@@ -615,7 +615,7 @@
      "actor_id": "B",
      "role": "NEAR_COLOR_DISTRACTOR",
      "appearance": {
-      "upper": "orange-red top, hue about 0.04 (14 deg), S >= 0.6, V >= 0.5 (inside the synthetic red band [0.95, 0.05], 0.01 from its edge)",
+      "upper": "orange-red top, target hue 0.02 (7.2 deg) in colorsys [0,1] units, S about 0.75, V about 0.65 (material target; measured hue under each camera must stay inside the red band with margin)",
       "lower": "dark navy trousers",
       "extras": "shoulder bag, no backpack"
      },
@@ -623,9 +623,11 @@
       "expected_labels": [
        "red"
       ],
-      "eligible_vs_target": "ELIGIBLE_IF_HUE_INSIDE_RUN_BAND",
-      "alternative": "If the approved r004 HSV red band ends below hue 0.04, B gets no label -> COLOR_NOT_COMPATIBLE (shown to the Agent as a non-eligible considered candidate, no DP1 question by itself)",
-      "note": "r004 HSVConfig is UNKNOWN (baseline_v1_protocol hsv_method ref null); vocabulary is {red, blue} (class_alias_v1 color_vocabulary, PROPOSED)"
+      "eligible_vs_target": "ELIGIBLE",
+      "decision_ref": "D204 (user: inside the red category)",
+      "margin": "synthetic red band [0.95, 0.05]: 0.03 (10.8 deg) to the upper edge, 0.07 to the lower edge; S/V far above saturation_min 0.2 / value_min 0.15",
+      "risk": "r004 HSVConfig UNKNOWN; per-camera lighting/white balance can shift hue. If the measured hue leaves the band, B gets no label -> COLOR_NOT_COMPATIBLE (kept as the out_of_band sensitivity variant)",
+      "note": "vocabulary is {red, blue} (class_alias_v1 color_vocabulary, PROPOSED)"
      },
      "route_note": "Opposite direction: westbound in the north lane through W1 during c1 (8-11 s), crosses the eastbound target at about 14.2 s with 0.85 m lateral offset, leaves through the west door at about 20.5 s, stops outside during A4-e (26-29 s) and walks off north.",
      "waypoints": [
@@ -706,7 +708,8 @@
       "in_band": [
        "red"
       ],
-      "out_of_band": []
+      "out_of_band": [],
+      "decided": "in_band (D204); out_of_band = lighting-shift sensitivity only"
      }
     },
     {
@@ -1361,7 +1364,7 @@
      "actor_id": "B",
      "role": "NEAR_COLOR_DISTRACTOR",
      "appearance": {
-      "upper": "orange-red top, hue about 0.04 (14 deg), S >= 0.6, V >= 0.5 (inside the synthetic red band [0.95, 0.05], 0.01 from its edge)",
+      "upper": "orange-red top, target hue 0.02 (7.2 deg) in colorsys [0,1] units, S about 0.75, V about 0.65 (material target; measured hue under each camera must stay inside the red band with margin)",
       "lower": "dark navy trousers",
       "extras": "shoulder bag, no backpack"
      },
@@ -1369,9 +1372,11 @@
       "expected_labels": [
        "red"
       ],
-      "eligible_vs_target": "ELIGIBLE_IF_HUE_INSIDE_RUN_BAND",
-      "alternative": "If the approved r004 HSV red band ends below hue 0.04, B gets no label -> COLOR_NOT_COMPATIBLE (shown to the Agent as a non-eligible considered candidate, no DP1 question by itself)",
-      "note": "r004 HSVConfig is UNKNOWN (baseline_v1_protocol hsv_method ref null); vocabulary is {red, blue} (class_alias_v1 color_vocabulary, PROPOSED)"
+      "eligible_vs_target": "ELIGIBLE",
+      "decision_ref": "D204 (user: inside the red category)",
+      "margin": "synthetic red band [0.95, 0.05]: 0.03 (10.8 deg) to the upper edge, 0.07 to the lower edge; S/V far above saturation_min 0.2 / value_min 0.15",
+      "risk": "r004 HSVConfig UNKNOWN; per-camera lighting/white balance can shift hue. If the measured hue leaves the band, B gets no label -> COLOR_NOT_COMPATIBLE (kept as the out_of_band sensitivity variant)",
+      "note": "vocabulary is {red, blue} (class_alias_v1 color_vocabulary, PROPOSED)"
      },
      "route_note": "Opposite direction: eastbound in the north lane during B4-d (21-24 s), crosses the westbound target at about 25.5 s with about 1.07 m lateral offset, reaches CORNER during B4-e (30-32 s) and stays there.",
      "waypoints": [
@@ -1416,7 +1421,8 @@
       "in_band": [
        "red"
       ],
-      "out_of_band": []
+      "out_of_band": [],
+      "decided": "in_band (D204); out_of_band = lighting-shift sensitivity only"
      }
     },
     {

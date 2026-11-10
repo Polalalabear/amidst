@@ -86,23 +86,33 @@ def estimate_run(run, variant, mod):
                    for a in singles]
     amb_rows = [{'t_s': t / S, 'candidates': sorted(owner[r] + '@' + r.split(':')[1] for r in refs),
                  'gold': gold(refs)} for t, refs in sorted(amb.items())]
-    episodes, last = 0, None
+    episode_rows, last = [], None
     for t in sorted(amb):
+        actors = {owner[r] for r in amb[t]}
         if last is None or t - last > 200_000:
-            episodes += 1
+            episode_rows.append({'start_s': t / S, 'end_s': t / S, 'timestamps': 0, 'actors': set()})
+        ep = episode_rows[-1]
+        ep['end_s'], ep['timestamps'] = t / S, ep['timestamps'] + 1
+        ep['actors'] |= actors
         last = t
+    for ep in episode_rows:
+        ep['has_distractor'] = any(a != target for a in ep['actors'])
+        ep['actors'] = sorted(ep['actors'])
+    episodes = len(episode_rows)
     seeds = sum(1 for a in audit if a['reason'] == 'AMBIGUOUS_FIRST_SEED')
     return {
         'run_id': run['run_id'], 'variant': variant, 'synthetic_track_count': len(tracks),
         'dp1_single_candidate': len(single_rows),
         'dp1_single_rule_wrong': sum(1 for r in single_rows if not r['rule_correct']),
         'dp1_ambiguous_timestamps': len(amb_rows), 'dp1_ambiguous_episodes': episodes,
+        'dp1_ambiguous_episodes_with_distractor': sum(1 for e in episode_rows if e['has_distractor']),
         'dp1_ambiguous_with_distractor': sum(1 for refs in amb.values() if any(owner[r] != target for r in refs)),
         'dp1_gold_abstain': (sum(1 for r in amb_rows if r['gold'] == 'ABSTAIN')
                              + sum(1 for r in single_rows if not r['rule_correct'])),
         'dp1_total': len(single_rows) + len(amb_rows),
         'ambiguous_first_seed': seeds,
         'color_not_compatible_timestamps': len(color),
+        'ambiguous_episodes': episode_rows,
         'single_candidate_events': single_rows, 'ambiguous_timestamps': amb_rows,
         'status': 'PLANNING_ESTIMATE_ASSUMED_COVERAGE_PERFECT_DETECTION',
     }

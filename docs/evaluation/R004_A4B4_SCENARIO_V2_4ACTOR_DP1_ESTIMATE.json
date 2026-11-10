@@ -1,5 +1,7 @@
 {
  "status": "PLANNING_ESTIMATE_ASSUMED_COVERAGE_PERFECT_DETECTION",
+ "decided_variant": "in_band (D204)",
+ "ambiguity_unit": "episode (D203)",
  "command": "python scripts/design/estimate_plan_decision_points.py . docs/evaluation/R004_A4B4_SCENARIO_V2_4ACTOR_DRAFT.json --variant <v>",
  "variants": {
   "in_band": [
@@ -11,11 +13,45 @@
     "dp1_single_rule_wrong": 3,
     "dp1_ambiguous_timestamps": 90,
     "dp1_ambiguous_episodes": 3,
+    "dp1_ambiguous_episodes_with_distractor": 3,
     "dp1_ambiguous_with_distractor": 61,
     "dp1_gold_abstain": 16,
     "dp1_total": 94,
     "ambiguous_first_seed": 0,
     "color_not_compatible_timestamps": 26,
+    "ambiguous_episodes": [
+     {
+      "start_s": 8.0,
+      "end_s": 10.4,
+      "timestamps": 13,
+      "actors": [
+       "A",
+       "B"
+      ],
+      "has_distractor": true
+     },
+     {
+      "start_s": 17.8,
+      "end_s": 25.8,
+      "timestamps": 41,
+      "actors": [
+       "A",
+       "B",
+       "T"
+      ],
+      "has_distractor": true
+     },
+     {
+      "start_s": 29.0,
+      "end_s": 36.0,
+      "timestamps": 36,
+      "actors": [
+       "A",
+       "T"
+      ],
+      "has_distractor": true
+     }
+    ],
     "single_candidate_events": [
      {
       "t_s": 10.6,
@@ -811,11 +847,35 @@
     "dp1_single_rule_wrong": 1,
     "dp1_ambiguous_timestamps": 147,
     "dp1_ambiguous_episodes": 2,
+    "dp1_ambiguous_episodes_with_distractor": 2,
     "dp1_ambiguous_with_distractor": 141,
     "dp1_gold_abstain": 8,
     "dp1_total": 148,
     "ambiguous_first_seed": 0,
     "color_not_compatible_timestamps": 148,
+    "ambiguous_episodes": [
+     {
+      "start_s": 11.2,
+      "end_s": 12.6,
+      "timestamps": 8,
+      "actors": [
+       "A",
+       "T"
+      ],
+      "has_distractor": true
+     },
+     {
+      "start_s": 14.2,
+      "end_s": 41.8,
+      "timestamps": 139,
+      "actors": [
+       "A",
+       "B",
+       "T"
+      ],
+      "has_distractor": true
+     }
+    ],
     "single_candidate_events": [
      {
       "t_s": 12.8,
@@ -2188,11 +2248,24 @@
     "dp1_single_rule_wrong": 2,
     "dp1_ambiguous_timestamps": 36,
     "dp1_ambiguous_episodes": 1,
+    "dp1_ambiguous_episodes_with_distractor": 1,
     "dp1_ambiguous_with_distractor": 7,
     "dp1_gold_abstain": 2,
     "dp1_total": 40,
     "ambiguous_first_seed": 0,
     "color_not_compatible_timestamps": 10,
+    "ambiguous_episodes": [
+     {
+      "start_s": 29.0,
+      "end_s": 36.0,
+      "timestamps": 36,
+      "actors": [
+       "A",
+       "T"
+      ],
+      "has_distractor": true
+     }
+    ],
     "single_candidate_events": [
      {
       "t_s": 8.0,
@@ -2530,11 +2603,34 @@
     "dp1_single_rule_wrong": 2,
     "dp1_ambiguous_timestamps": 43,
     "dp1_ambiguous_episodes": 2,
+    "dp1_ambiguous_episodes_with_distractor": 2,
     "dp1_ambiguous_with_distractor": 37,
     "dp1_gold_abstain": 3,
     "dp1_total": 45,
     "ambiguous_first_seed": 0,
     "color_not_compatible_timestamps": 45,
+    "ambiguous_episodes": [
+     {
+      "start_s": 11.2,
+      "end_s": 12.6,
+      "timestamps": 8,
+      "actors": [
+       "A",
+       "T"
+      ],
+      "has_distractor": true
+     },
+     {
+      "start_s": 14.2,
+      "end_s": 21.0,
+      "timestamps": 35,
+      "actors": [
+       "A",
+       "T"
+      ],
+      "has_distractor": true
+     }
+    ],
     "single_candidate_events": [
      {
       "t_s": 12.8,
