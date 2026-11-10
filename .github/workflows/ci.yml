@@ -43,6 +43,7 @@ jobs:
           set +e
           mkdir -p "$RUNNER_TEMP/ci"
           OUT="$RUNNER_TEMP/ci"
+          BASE="${PR_BASE_SHA:-$PUSH_GUARD_BASE}"
           fail=0
 
           .venv/bin/python scripts/check_architecture_guard.py --repo . --base "$BASE" > "$OUT/guard.log" 2>&1
