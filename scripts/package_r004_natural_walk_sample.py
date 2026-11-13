@@ -44,6 +44,8 @@ def main():
     overview=Image.new('RGB',(1920,1280),'#111827')
     previous_inventory={}
     if a.previous_sample_root:
+        assert a.previous_sample_root.resolve().parent==art/'evidence'
+        assert sha(a.previous_sample_root/'MANIFEST.json')=='ad7e191124d1ccb8cd5eebf0fea385955ccfa92d498acfc6ec6d7597d456c0fc'
         old_manifest=json.loads((a.previous_sample_root/'MANIFEST.json').read_text())
         previous_inventory={x['relative_path']:x for x in old_manifest['files']}
     for row,(label,cam,start) in enumerate([('W1','CAM_W1',10),('ENTRY','CAM_ENTRY',18)]):
@@ -154,12 +156,12 @@ def main():
     (root/'REVIEW.html').write_text('''<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>#516 自然步態樣片</title>
 <style>body{background:#111827;color:#eef2ff;font:18px/1.7 system-ui;max-width:1500px;padding:24px;margin:auto}video,img{width:100%}a{color:#67e8f9}</style>
 <h1>人物步態改善 · 短樣片</h1><p>原路線／時刻／材質不變。原版 v2.2 保留；新姿態只是動作展示樣片，未重建索引或取代完整驗收。</p>
-<h2>前版大幅度／走路新版小幅度（同15fps）</h2><video controls src="W1_large_vs_soft_15fps.mp4" poster="W1_large_vs_soft.png"></video>
+PREVIOUS_GAIT_COMPARISON
 <h2>走廊：相同 5 fps 前後對照</h2><video controls src="W1_before_after_5fps.mp4" poster="W1_before_after.png"></video>
 <h2>近景：相同 5 fps 前後對照</h2><video controls src="ENTRY_before_after_5fps.mp4" poster="ENTRY_before_after.png"></video>
 <h2>改善步態 · 15 fps</h2><p>較流暢的顯示版本；不代表原資料或推論索引已改成15fps。</p>
 <video controls src="W1_natural_15fps.mp4"></video><video controls src="ENTRY_natural_15fps.mp4"></video>
-<p>仍是原始幾何人形；本次未製作跑步、進房間或車旁徘徊的新路線。<a href="ACTUAL_OUTPUT.md">實際產出</a> · <a href="MANIFEST.json">SHA-256</a></p></html>''')
+<p>仍是原始幾何人形；本次未製作跑步、進房間或車旁徘徊的新路線。<a href="ACTUAL_OUTPUT.md">實際產出</a> · <a href="MANIFEST.json">SHA-256</a></p></html>'''.replace('PREVIOUS_GAIT_COMPARISON', '<h2>前版大幅度／走路新版小幅度（同15fps）</h2><video controls src="W1_large_vs_soft_15fps.mp4" poster="W1_large_vs_soft.png"></video>' if a.previous_sample_root else ''))
 
 
 if __name__=='__main__':
