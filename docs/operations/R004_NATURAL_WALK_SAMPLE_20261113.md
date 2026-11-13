@@ -3,30 +3,32 @@
 使用者看完 v2.2 後要求改善人物移動的視覺。這次只改善走路姿態，保留 v2.2 路線、時刻、材質、原相機與來源 blend；另產生兩段六秒樣片，不取代 #523 的原交付。跑步、跑進房間、車旁徘徊仍是下一階段的提案。
 
 
-**最新調整：使用者要求「走路屈膝小一點，大幅度留給跑步」。** 目前預設`walk`已降低抬腳與彎曲；前版設定保留為`exaggerated_reference`，只作跑步設計參考，尚未實作真正跑步的騰空期或修改速度政策。
+**前次調整：使用者要求「走路屈膝小一點，大幅度留給跑步」。** 目前預設`walk`已降低抬腳與彎曲；前版設定保留為`exaggerated_reference`，只作跑步設計參考，尚未實作真正跑步的騰空期或修改速度政策。
 
-優先看 `evidence/codex-516-natural-walk-soft-20261113/W1_large_vs_soft_15fps.mp4`：左為前版大幅度、右為新版走路，兩邊同15fps、同路線／速度；`W1_natural_15fps.mp4`可單獨看新版。
+優先看 `evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_15fps.mp4`：左為手臂修正前、右為手臂修正後；腳步／髖部逐姿態相同，兩邊同15fps、同路線／速度；`W1_natural_15fps.mp4`可單獨看新版。
+
+**最新：手臂方向已修正，腳步保持已確認版本。**
 
 ## 觀看入口（全部 LOCAL）
 
 下列路徑都相對於 `$AMIDST_ARTIFACTS`，也就是服務 repo 的 `local/`。媒體沒有上傳 GitHub。
 
-- `evidence/codex-516-natural-walk-soft-20261113/REVIEW.html`：總覽入口。
-- `evidence/codex-516-natural-walk-soft-20261113/W1_before_after_5fps.mp4`：W1，source t=10–16s，左右均5fps，左原版、右改善步態。
-- `evidence/codex-516-natural-walk-soft-20261113/ENTRY_before_after_5fps.mp4`：ENTRY，source t=18–24s，左右均5fps；人物近鏡頭時腳部在構圖外，腳步請以W1為主。
-- `evidence/codex-516-natural-walk-soft-20261113/W1_natural_15fps.mp4`、`ENTRY_natural_15fps.mp4`：各6秒、90格，較流暢的顯示樣片。沒有把原run或索引改成15fps。
-- `evidence/codex-516-natural-walk-soft-20261113/BEFORE_AFTER_OVERVIEW.png`：兩鏡頭中間時刻的對照圖。
+- `evidence/codex-516-natural-walk-arms-20261114/REVIEW.html`：總覽入口。
+- `evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps.mp4`：W1，source t=10–16s，左右均5fps，左原版、右改善步態。
+- `evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps.mp4`：ENTRY，source t=18–24s，左右均5fps；人物近鏡頭時腳部在構圖外，腳步請以W1為主。
+- `evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps.mp4`、`ENTRY_natural_15fps.mp4`：各6秒、90格，較流暢的顯示樣片。沒有把原run或索引改成15fps。
+- `evidence/codex-516-natural-walk-arms-20261114/BEFORE_AFTER_OVERVIEW.png`：兩鏡頭中間時刻的對照圖。
 
 | 影片 | bytes | SHA-256 |
 | --- | ---: | --- |
-| W1_before_after_5fps.mp4 | 803302 | `bd83a0936c07bac44159d14dfa11ff1b682577190ff2b1b5b84038b0b9c627c9` |
-| W1_natural_15fps.mp4 | 455846 | `173a182115ea2570a54f5b049715067e171dcff3b7695df78bd3152786ea9bc8` |
-| W1_large_vs_soft_15fps.mp4 | 891452 | `3f59783eedd0175f180fdba6b6510c164d8e40038d6b832b106d220e288a6b14` |
-| ENTRY_before_after_5fps.mp4 | 310839 | `6ae1475d94e5c6105a0265ad22647f3fadc13b177dbb5a3b84a8936a3731d575` |
-| ENTRY_natural_15fps.mp4 | 166399 | `49e272b669862e665f3116a0c62114ba80d809c410b6e21375e643b7b42c16fe` |
-| ENTRY_large_vs_soft_15fps.mp4 | 312120 | `c01794fe5251c69cf8f24054f60acacf43697e3a3d0a51cde08941365209eaa4` |
+| W1_before_after_5fps.mp4 | 809784 | `1f089a1daaf5bbfc5bc6c9645cf2f292e152cf8767d47fece2ef49c2fba144e4` |
+| W1_natural_15fps.mp4 | 457396 | `535b4bcf23ef8859d1972635db8e05d64fab876de6c8bcc7fb0b895467a1f529` |
+| W1_arm_fix_15fps.mp4 | 885386 | `42f7e795424a62e8415a0592564be5a569f8d587327120cf44a43c541d99ac61` |
+| ENTRY_before_after_5fps.mp4 | 313581 | `99c7074efb1031c6698e794ef605a417dc58fb19b7dfa861e85d3319ae750584` |
+| ENTRY_natural_15fps.mp4 | 170423 | `2cb5757477ae9b8e3b763f18284841d731cb117f1c4a3862e29eb2348f366aa1` |
+| ENTRY_arm_fix_15fps.mp4 | 311455 | `36132bc4ae39e608eb0044dbf8b11201e2a76cab91a148449b17b35b0d751f44` |
 
-固定產物清單：`evidence/codex-516-natural-walk-soft-20261113/MANIFEST.json`，SHA-256 `57aba61d188a2517110dd00dd0d9e79e695f63f1a55007cff459c26554db4102`，222檔／113,126,955 bytes。包含180張最終PNG、影片、程式快照、測試與檢查收據；早期pilot資料夾與後續GitHub／結案紀錄不在此固定清單內。每個檔案的大小和SHA都在manifest中。
+固定產物清單：`evidence/codex-516-natural-walk-arms-20261114/MANIFEST.json`，SHA-256 `bfc49d632acf620a2ebef45342d922d683c16d7a56d0316d78f28a0a517f2005`，222檔／113,094,305 bytes。包含180張最終PNG、影片、程式快照、測試與檢查收據；早期pilot資料夾與後續GitHub／結案紀錄不在此固定清單內。每個檔案的大小和SHA都在manifest中。
 
 ## 具體改動／FIXLOG
 
@@ -53,16 +55,31 @@
 
 `GAIT_STYLE_CHECK.json`保存兩組完整參數與量測。前版LOCAL資料夾 `evidence/codex-516-natural-walk-20261113/`原樣保留，manifest SHA `ad7e191124d1ccb8cd5eebf0fea385955ccfa92d498acfc6ec6d7597d456c0fc`；比較影片逐格核對前版PNG後再編碼。上表是新版本的修正，前面第一輪FIXLOG中的0.95m等數字屬歷史步驟。
 
+
+### 2026-11-14：只修手臂，保留已確認的腳步
+
+使用者指出手的方向相反，上下半身像在往不同方向走，明確要求腳不改。
+
+| 原值／行為 | 新值／行為 | 原因與驗證 |
+| --- | --- | --- |
+| 手臂和膝蓋共用IK pole `[1,0,0]` | 手臂pole改成 `[-1,0,0]`，腿部不動 | 原前臂在人物前向+X上指向後方；改為肘部在後、手腕相對肘部朝前。 |
+| 擺臂用 `-A*sin(2πphase)` | 擺臂由對側腳與同側腳的前後差驅動 | 保證左腳領先時右手領先，反之亦然；轉向後使用相同人物局部前向。 |
+| 僅憑影片看腳有沒有變 | 對已確認小幅度版本逐姿態比較全部非arms欄位 | A4/B4共4,796姿態完全相同：legs、root xyz/yaw、hip height、body pitch、speed、station、weight。新增測試驗證前臂方向、手腳對側連動及90°轉身。 |
+
+比對來源為 `evidence/codex-516-natural-walk-soft-20261113/code/scripts/r004_natural_walk.py`，SHA `c5a158c15c2ae1cedfe8f71b23d0d3e396984b3bf7f495e57bbdee78c588776c`。該版完整manifest SHA `57aba61d188a2517110dd00dd0d9e79e695f63f1a55007cff459c26554db4102`。兩個先前資料夾均保留。
+
+`ARM_FIX_CHECK.json`及`KINEMATIC_ROUTE_CHECK.json`保存腳步不變結果。修正後手臂也適用`exaggerated_reference`參數；保留的是大幅度腿部設定，不是保留錯誤手臂方向。此參數仍不等於完整跑步模式。
+
 模型仍是既有幾何人形，沒有更換成人類寫實模型、骨架資產或motion-capture動作。新關節只供這次producer樣片使用，不進推論、候選排序或重建。
 
 ## 本次實測與限制
 
-- `tests/evaluation/test_r004_natural_walk.py`：8 passed，包含支撐腳不滑、固定腿長、平地腳底不穿地、停步穩定、拒絕不可達肢段、朝向連續、取樣／呼叫順序獨立與門口6cm高差的root保留。
-- `KINEMATIC_ROUTE_CHECK.json`：A4/B4共4,796個姿態可解；相對原D124 sampler的root最大位置差 `8.43769498715119e-15 m`。這是數值精度，不能當物理精度或完整場景碰撞驗收。
+- `tests/evaluation/test_r004_natural_walk.py`：10 passed，包含支撐腳不滑、固定腿長、平地腳底不穿地、停步穩定、拒絕不可達肢段、朝向連續、取樣／呼叫順序獨立與門口6cm高差的root保留。
+- `KINEMATIC_ROUTE_CHECK.json`：A4/B4共4,796個姿態可解；另對上一版4,796個姿態逐項證明非手臂欄位完全相同；相對原D124 sampler的root最大位置差 `8.43769498715119e-15 m`。這是數值精度，不能當物理精度或完整場景碰撞驗收。
 - W1、ENTRY各90個最終姿態：對實際render-visible牆／屏風／車體與不同人物做mesh表面相交檢查，均無相交。地面不列為牆體，以容許接觸。此檢查不等於全身各處均距牆≥0.35m，也不能檢出所有封閉體包含問題。
-- 六支MP4完整decode成功：兩支原版對照各30格／5fps／6s、兩支流暢版各90格／15fps／6s、兩支大幅度／小幅度比較各90格／15fps／6s。60張原始RGB與#523 bundle核對SHA／大小，另180張前版樣片PNG與其固定manifest核對SHA。
+- 六支MP4完整decode成功：兩支原版對照各30格／5fps／6s、兩支流暢版各90格／15fps／6s、兩支手臂修正前／後比較各90格／15fps／6s。60張原始RGB與#523 bundle核對SHA／大小，另180張已採用小幅腳步的前版樣片PNG與其固定manifest核對SHA。
 - 原blend SHA `466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b`、catalog SHA `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`保持不變；原相機matrix未動。
-- 來源v2.2 SHA `14fc3a1eee450923ce799e2e6ca32adae99d8f25afc2dce7a210fb78776eef6c`。sample producer／gait的實際執行程式commit為 `89f3fd01c8af1b7ff76d631567455cf2cbbe1b34`，逐檔程式SHA另在render receipts與LOCAL code快照。
+- 來源v2.2 SHA `14fc3a1eee450923ce799e2e6ca32adae99d8f25afc2dce7a210fb78776eef6c`。sample producer／gait的實際執行程式commit為 `9d2f8b4c4769a4486c3862a5635e3dc29d42d781`，逐檔程式SHA另在render receipts與LOCAL code快照。
 - 渲染前門檻：8GiB＋350MiB預估；每格另保留32MiB。`df_before_render.txt`與`df_after_render.txt`保留原值，未觸發8GiB停止線。
 - no-allow架構守門authority／inference／schemas PASS；`git diff --check` PASS。完整CI另以PR exact head結果為準。
 - **未執行**RT-DETR／local track／Agent／ranking／reconstruction，沒有讀renderer GT／trajectory／visibility／depth。作者路線只供producer與數值檢查，不進上述消費端。
@@ -84,13 +101,13 @@ git -C "$WALK_REPO" fetch origin codex/516-natural-walk-sample
 git -C "$WALK_REPO" switch --detach origin/codex/516-natural-walk-sample
 cd "$WALK_REPO"
 export WALK_BASE="$AMIDST_ARTIFACTS/evidence/codex-516-v21-feasibility-20261110/delivery-049f3b3c"
-export WALK_OUT="$AMIDST_ARTIFACTS/evidence/codex-516-natural-walk-soft-REPRO"
+export WALK_OUT="$AMIDST_ARTIFACTS/evidence/codex-516-natural-walk-arms-REPRO"
 export WALK_PYTHON="$HOME/amidst/.venv/bin/python"
 export WALK_FFMPEG="$HOME/amidst/.venv/lib/python3.12/site-packages/imageio_ffmpeg/binaries/ffmpeg-macos-aarch64-v7.1"
 df -k ~
 uv --no-cache run --offline --no-project --python "$WALK_PYTHON" python -B -m pytest tests/evaluation/test_r004_natural_walk.py -o addopts='' -q
 mkdir -p "$WALK_OUT"
-uv --no-cache run --offline --no-project --python "$WALK_PYTHON" python -B scripts/check_r004_natural_walk_routes.py --scenario "$WALK_BASE/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json" --geometry docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json --out "$WALK_OUT/KINEMATIC_ROUTE_CHECK.json"
+uv --no-cache run --offline --no-project --python "$WALK_PYTHON" python -B scripts/check_r004_natural_walk_routes.py --scenario "$WALK_BASE/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json" --geometry docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json --reference-gait "$AMIDST_ARTIFACTS/evidence/codex-516-natural-walk-soft-20261113/code/scripts/r004_natural_walk.py" --out "$WALK_OUT/KINEMATIC_ROUTE_CHECK.json"
 ```
 
 兩個樣片分別使用下列參數；先加 `--probe-only`，確認無相交，再移除該flag產生影格。輸出路徑必須新建，producer不覆寫任何既有PNG。
@@ -98,7 +115,7 @@ uv --no-cache run --offline --no-project --python "$WALK_PYTHON" python -B scrip
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend" --python-exit-code 1 --python "$WALK_REPO/scripts/render_r004_natural_walk_sample.py" -- --repo "$WALK_REPO" --baseline-snapshot "$WALK_BASE" --scenario "$WALK_BASE/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json" --geometry "$WALK_REPO/docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json" --catalog "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/safe_static/cameras.json" --output "$WALK_OUT/W1" --camera CAM_W1 --start-s 10 --duration-s 6
 /Applications/Blender.app/Contents/MacOS/Blender --background "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend" --python-exit-code 1 --python "$WALK_REPO/scripts/render_r004_natural_walk_sample.py" -- --repo "$WALK_REPO" --baseline-snapshot "$WALK_BASE" --scenario "$WALK_BASE/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json" --geometry "$WALK_REPO/docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json" --catalog "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/safe_static/cameras.json" --output "$WALK_OUT/ENTRY" --camera CAM_ENTRY --start-s 18 --duration-s 6
-uv --no-cache run --offline --no-project --python "$WALK_PYTHON" python -B scripts/package_r004_natural_walk_sample.py --artifacts-root "$AMIDST_ARTIFACTS" --sample-root "$WALK_OUT" --ffmpeg "$WALK_FFMPEG" --previous-sample-root "$AMIDST_ARTIFACTS/evidence/codex-516-natural-walk-20261113"
+uv --no-cache run --offline --no-project --python "$WALK_PYTHON" python -B scripts/package_r004_natural_walk_sample.py --artifacts-root "$AMIDST_ARTIFACTS" --sample-root "$WALK_OUT" --ffmpeg "$WALK_FFMPEG" --previous-sample-root "$AMIDST_ARTIFACTS/evidence/codex-516-natural-walk-soft-20261113" --comparison-kind arm_fix
 ```
 
 GPU／encoder／版本差異可能改變輸出bytes；以收據中的實際SHA驗證本次產物，不承諾跨機逐位元相同。重現完畢後依使用者的scratch clone規則刪除該暫存clone；保留LOCAL產物與GitHub分支。

@@ -1,1118 +1,1118 @@
 {
   "schema": "amidst.natural-walk-sample-manifest.v1",
-  "scope": "fixed final small-knee-flex walking sample payload; later GitHub/closing records excluded",
+  "scope": "fixed arm-correction sample payload; later GitHub/closing records excluded",
   "file_count": 222,
-  "total_bytes": 113126955,
+  "total_bytes": 113094305,
   "files": [
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/BEFORE_AFTER_OVERVIEW.png",
-      "size_bytes": 1419888,
-      "sha256": "5d15cb41069a93e731a7d37cd488e8edef644a760a8058446ee711305182a29c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ARM_FIX_CHECK.json",
+      "size_bytes": 443,
+      "sha256": "9eab379d2390e58f4422ee8b3c243c00ba2657e478d79f9a0a5b4146b4cdfb72"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000000.png",
-      "size_bytes": 489139,
-      "sha256": "e982ba6303d8f5e635f419db510a8c13ceb891c782c3602a0240f4027f05770e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/BEFORE_AFTER_OVERVIEW.png",
+      "size_bytes": 1418522,
+      "sha256": "fa68de0ec4aeb280734e1ffbf35d8e8d7be6e6f48bf3955780e0ae5897275548"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000001.png",
-      "size_bytes": 489203,
-      "sha256": "665f0c5d4dcb0a4ce7d2fd7507e71604c57054bb71ca0e7cf635ead16bb146ac"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000000.png",
+      "size_bytes": 489183,
+      "sha256": "368b341debf9c7f724162ffd6f360ec4ade6bd5d8e068077e8887392dec793b5"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000002.png",
-      "size_bytes": 489101,
-      "sha256": "3f5bb13c82dacdcf967da46d614fbf6e52c5f3fd4ca9c6b8b6d770162fa1b3f6"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000001.png",
+      "size_bytes": 489165,
+      "sha256": "cc6fcd680b050e77bf7704e7c367fee8a8e36ec7dee241737c3d52e148d84649"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000003.png",
-      "size_bytes": 488958,
-      "sha256": "21bb0e00422d5bdb8ccc5fbd9ac8d161b4abbb37514b6b1d01d3604a34efb0d2"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000002.png",
+      "size_bytes": 489013,
+      "sha256": "044d18584bea301de71383a418ac69494269eb9a91b70d3a191b6202595934e7"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000004.png",
-      "size_bytes": 489026,
-      "sha256": "e2400eaebb72e0c65ffe83ac69ace44a9446a9ff6e3e4f62543f9a4ed02a2798"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000003.png",
+      "size_bytes": 489006,
+      "sha256": "a204fd4c83d00fcdba1d2ea3a2fac36c4e7e26e4e7c72c8639fc500c6e126404"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000005.png",
-      "size_bytes": 489153,
-      "sha256": "ae785368481689c72d5e835cfc36bd875a1be801dbc15bd10f52453373d5403f"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000006.png",
-      "size_bytes": 489106,
-      "sha256": "841124eb985c3331c43735a561b09e3d91aafe2c550f0039b844442d8da5c9d7"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000007.png",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000004.png",
       "size_bytes": 489076,
-      "sha256": "4fc56cbd78159a2f265ab6f2d82361d0212c594afdcdeb05b0ac0e9880f68ba1"
+      "sha256": "9e04de728477d39481b2953abf3de80fb3c3035eb771cb1718633ef50ba6291f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000008.png",
-      "size_bytes": 489103,
-      "sha256": "f9729ed9509d5d7ba41189dd30187ff4757a0ad9f483a8d8157395da4a7b540e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000005.png",
+      "size_bytes": 489073,
+      "sha256": "b725efd7f47d034f5864e81505dc10b55584aee1bd5aca9562c8bd7c4ac5e26b"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000009.png",
-      "size_bytes": 489193,
-      "sha256": "c35605f61988d184bc365631351e307a2801650cbf9f2414e1edddd4a6619daf"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000006.png",
+      "size_bytes": 489194,
+      "sha256": "2ac753edfb2b2b821e25e502c1b24648df1a92022e0fb0691a89ce298a8ff412"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000010.png",
-      "size_bytes": 489144,
-      "sha256": "4678e798eed0cce67bdf5ed9f2206ecfabfc687ea174c26f2722ea741e829d3c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000007.png",
+      "size_bytes": 489172,
+      "sha256": "d0ee7972d8f7a9863a5f5888c30f88c5b23867731fa1772c8f98d94d2b898fe7"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000011.png",
-      "size_bytes": 489218,
-      "sha256": "adf54a310ce7b0d5afa95bede61679fa48aef293b27330a58356ec33f44b5c62"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000008.png",
+      "size_bytes": 488939,
+      "sha256": "5609790189a55dadbb28aa067c24f1d70edb59a922cd9a7194ada84ce036136a"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000012.png",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000009.png",
+      "size_bytes": 489223,
+      "sha256": "6a8748a5c3586061c51e20d8fec2af336826c41153f3003635b601a1b0f1c7ef"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000010.png",
       "size_bytes": 489089,
-      "sha256": "a8d470f48aab354b1d22800da8412f1dedfc4d68c85a3555ef6f87103aa3e4f3"
+      "sha256": "863bd5afbf5b2c56a1c133b8bb09830f39a27e1ce31dba0e9c0de1e0136467c2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000013.png",
-      "size_bytes": 489125,
-      "sha256": "32a55d1fa35982b590a5146542e8de9b4d98db2a02d9d391ff53081b49dc23c8"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000011.png",
+      "size_bytes": 489073,
+      "sha256": "975b6723b957f337d0ac6f1bc3520740a24df4c5a0111566e58ea1a5bccda03d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000014.png",
-      "size_bytes": 489022,
-      "sha256": "3db54a895bef866628e180b8f052b6a9eb61028ced112db0da36d25982f61d7e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000012.png",
+      "size_bytes": 489159,
+      "sha256": "04b5a2de677aec6a373e52e6c69ab73bf4b06a739445713f65922d272274f86c"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000015.png",
-      "size_bytes": 489228,
-      "sha256": "b40b9c357b76260550c69855f60491362a3e2a03e31795394128ece3c2acbe87"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000013.png",
+      "size_bytes": 488973,
+      "sha256": "e0fe2142ebc91f4c995026f78ef55ce43c5d62851453e97beebc4bdcb317a39b"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000016.png",
-      "size_bytes": 489105,
-      "sha256": "d2c982170ce5ec2145ae75a703a3030b5babb366e91e333f3df77b9e5a87ce27"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000017.png",
-      "size_bytes": 488901,
-      "sha256": "08c3899d239e801b9caf309605bbdbd030c0ce239dd21120f9225d59dc557de5"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000018.png",
-      "size_bytes": 488979,
-      "sha256": "188add4c49dcd7e1f7d19733d923609a81ecc2c035a0925d5f28586215487075"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000019.png",
-      "size_bytes": 489015,
-      "sha256": "abcf6b43f4f865a81d086030b6af642b56301e38b9ad577010cd7c6f2c7140b7"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000020.png",
-      "size_bytes": 489200,
-      "sha256": "2ade4a82d1bf39119bf9ee4a09ae886d64301b84818bc424e1b0793a7ad04336"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000021.png",
-      "size_bytes": 489284,
-      "sha256": "376bcc87dc415659e70a3dd271a869514f3c24c97640c1cbb4c36787542383af"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000022.png",
-      "size_bytes": 489067,
-      "sha256": "0d84d1c61dd2f8a064b643ef8f08e08722621fb6259b76ab1a955c384c8900df"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000023.png",
-      "size_bytes": 489385,
-      "sha256": "2ab275b2bf0587f0e10a1009efb940d1f092191e26fa4d7ba00ec954d63264f9"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000024.png",
-      "size_bytes": 488996,
-      "sha256": "168523936a459def72c143f99ea90e038f954a7f8afa689036e2fb2034ec34e0"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000025.png",
-      "size_bytes": 489271,
-      "sha256": "905f67bb95b70d1b475dd70177cb2aafa9f38aa25f121eb5a47aa20082dee6f7"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000026.png",
-      "size_bytes": 489261,
-      "sha256": "02087c5e232fc055d5d163c6f4fd3310f6824cd6b116c2d1e4d54807bbff8bab"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000027.png",
-      "size_bytes": 489543,
-      "sha256": "b49de9d7091d686a8445e19835cf2bcd62933364eaf78445be286f4c076e0d4e"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000028.png",
-      "size_bytes": 489534,
-      "sha256": "2c892cca6c51b00459db04656d9ec3dfb1fb1e970cc37447b96f142de04bddde"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000029.png",
-      "size_bytes": 489655,
-      "sha256": "36a165ab7c8a55385a0065a51962e6acd98e34cae4838f772802b74165300e79"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000030.png",
-      "size_bytes": 489739,
-      "sha256": "79bb3d96a7995107c08254401bdbebe7470ade92a7a6e9f5b276154afe69a379"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000031.png",
-      "size_bytes": 489758,
-      "sha256": "0a6132801d4fb8efa3f5ae6bde45714e8139d36792757c3523c3d1fff8598d05"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000032.png",
-      "size_bytes": 489328,
-      "sha256": "a8d481d9bc66da9a2a0846a31d33dab5f91526de397bc21fae8279886209cdf9"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000033.png",
-      "size_bytes": 489875,
-      "sha256": "2811c3e85217f942feffaab51bf601f67ab417caa8984ced583c1c58ced7ed8f"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000034.png",
-      "size_bytes": 489689,
-      "sha256": "99d55e6df775cbb626bcdb2450134092fc55438ef16744fd47483e909b0140bb"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000035.png",
-      "size_bytes": 489427,
-      "sha256": "23d10fc070ea40ce560e357559a69cd15001b7562a70d1984e8e1571b23b7d7e"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000036.png",
-      "size_bytes": 489508,
-      "sha256": "f7f14b20611f9c51f81e4d4e79bdeead3213fbff284408c2e9434628b9a44c7f"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000037.png",
-      "size_bytes": 489514,
-      "sha256": "10a1d3193e645f67a73c77eb441b76208ed15a386188a64b492a63b995336278"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000038.png",
-      "size_bytes": 489229,
-      "sha256": "db0910d41ef74af67e913dd9d492fe723ac5ac0f7461385cdfaeda060e77f8b8"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000039.png",
-      "size_bytes": 490456,
-      "sha256": "407bc616113c065f45116d9d61ec591959fe906b9cfa55fcd25f349920073108"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000040.png",
-      "size_bytes": 491507,
-      "sha256": "f5f7256ca7419324d9ab9025f4c8c370b521ff728f2d708fda418d84836b9845"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000041.png",
-      "size_bytes": 492241,
-      "sha256": "478d258a5125020fda9dcaa267d664136415727a1eee43d19915bd7b1bfb858a"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000042.png",
-      "size_bytes": 492735,
-      "sha256": "60413d3ad8782328086cf96dc7112c88a3aae2497c0124c37943c98fee1fcca8"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000043.png",
-      "size_bytes": 495629,
-      "sha256": "c00971e483fff07216aa2f1b6b5c86130a4bf9c7b3d4676b8b3f65c4de2aef30"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000044.png",
-      "size_bytes": 497864,
-      "sha256": "0c676ec397b6ed9a2c596ef1b6386226f91f4b1149b3ceb27be43775f5538782"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000045.png",
-      "size_bytes": 498572,
-      "sha256": "de963ed7cc28dbf8396a26a89be01a8434dfc03db25b0ecde2104d9610904610"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000046.png",
-      "size_bytes": 497741,
-      "sha256": "3576f2a36b111ad106b7810af4f8480fffc8eaecb7626d676e4beb23527156e0"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000047.png",
-      "size_bytes": 497835,
-      "sha256": "d786f25157116621697f16eac305381767e9d62f90ec70f2202c48a07e8e3731"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000048.png",
-      "size_bytes": 498198,
-      "sha256": "aa0c48200d69eba2368a6bcc08a226c30e6278749b1c5412143fe6812e9955ba"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000049.png",
-      "size_bytes": 501351,
-      "sha256": "bc9d52525cc75bc59e88b0d4b14751c69a8263c6f29e7f9e8be3fd75d54e036e"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000050.png",
-      "size_bytes": 503976,
-      "sha256": "0ee20ab450dd2ca3302dacb3ecfac33f973d11544528e85ff19d80722ac764d2"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000051.png",
-      "size_bytes": 506612,
-      "sha256": "91d51e5ce73955a82664e8956df79095e59662b3d05130bf1816f42bffe757e2"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000052.png",
-      "size_bytes": 508599,
-      "sha256": "0f67fc12f0216343b16f90e34360c0764aea053e0193c062a88ad8982ad4ceba"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000053.png",
-      "size_bytes": 513404,
-      "sha256": "c7d007787e8bbbdf3b029c9de9dfc654a6540e0f78cd3a77b8230d94789875dd"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000054.png",
-      "size_bytes": 513109,
-      "sha256": "7d7c09fa626b2a2e62db8473fdbf1ac46370cd7208be7e810b96a8bdcedd0f65"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000055.png",
-      "size_bytes": 511916,
-      "sha256": "0f6294a2115aa2027c7ac4538e0033f6539be839e4be6e2bad5bd8e0afe081bb"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000056.png",
-      "size_bytes": 510030,
-      "sha256": "207f971100733505f60db7c318de5ede42bc5bbd1314149e5d55e2d3dfcb896d"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000057.png",
-      "size_bytes": 508204,
-      "sha256": "e0f7f6b5c5384f06b1e278ff6479320e2be9c1eecdc84a8f8d62ddbcc9e0c19c"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000058.png",
-      "size_bytes": 504368,
-      "sha256": "9447c66a8ac65d0f739be5a386ba2a0ac123a26a8ce5be425caf29e9f9c4cd8e"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000059.png",
-      "size_bytes": 500185,
-      "sha256": "5d6d6557ede1554b45b5c0d29ffe0d57a958b443dc01e7b6ca4fe1b19943b449"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000060.png",
-      "size_bytes": 497853,
-      "sha256": "5fe5b4eb71b6aa317a38507bb31cc67bcf2507f678f0f5b425cf27072460686c"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000061.png",
-      "size_bytes": 496627,
-      "sha256": "1dbbe11825832c8666007d8f3921a2f9693a8125611e11d28db20d4ebac54fab"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000062.png",
-      "size_bytes": 494616,
-      "sha256": "34c558938ca8a785ce8bf8aa42508b2961bbd60b33b22e1e9ac2e7b609df6175"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000063.png",
-      "size_bytes": 490760,
-      "sha256": "4f6bcbd0fd3256b1ef281da9faae3b42066c0f54a22bcad71de57b9ec62b55ee"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000064.png",
-      "size_bytes": 489621,
-      "sha256": "c151ffb9d78df90beb79a60dbaef56fcac23b99a483f3bfd4a5703db9610b3b0"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000065.png",
-      "size_bytes": 489151,
-      "sha256": "f4462d8ebe9fb671d3f10f84a99528d496ca3b03f9b16258ecbd3b8d8519b010"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000066.png",
-      "size_bytes": 489065,
-      "sha256": "b7c12fe342b58b23ae1156e8264334de0939920064523e4ae84091c296cb3c6c"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000067.png",
-      "size_bytes": 489129,
-      "sha256": "dab2c959802d5fe0167d9171f5b748896bb1c377680acc18619a68607e52fc72"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000068.png",
-      "size_bytes": 489055,
-      "sha256": "535b1cc62076c1542c425743aad4bf1e00472e14dd5119beb734aba8ae2c4e4c"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000069.png",
-      "size_bytes": 489100,
-      "sha256": "5aa4fed4eb014cd779951397978a13b670f80c92e600619c66d68670d7cc6a8c"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000070.png",
-      "size_bytes": 489193,
-      "sha256": "fa53753c837bf7cba0b240147242aa41ded836b349d0241c995ddf24aee53aac"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000071.png",
-      "size_bytes": 489019,
-      "sha256": "ddaded13d143106d5ff10b7acd7b912c0a35b1a2681849357b7650eb8f6dd338"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000072.png",
-      "size_bytes": 489110,
-      "sha256": "82bff79f542ecb057b65865d9089beec97d2fd4812b5c477979fab141673929c"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000073.png",
-      "size_bytes": 489069,
-      "sha256": "4d2a724a9805d6a23726b6b4b84cb99199dbacbdf41bb1aee06a16222fadcbc8"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000074.png",
-      "size_bytes": 489026,
-      "sha256": "f2cf51143f6ab3e7ce781d7ad85cfd0334d5052edc19924ec532cfdd7b3b5269"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000075.png",
-      "size_bytes": 489078,
-      "sha256": "bcbc13fa868dab06936b2d0f724acb0a734457c21f8c03162ad861c04d0cd515"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000076.png",
-      "size_bytes": 489122,
-      "sha256": "9d94d7f7fae7893a6f756f559b928e0ec2ca29696f5938e4679125ea2437ea4b"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000077.png",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000014.png",
       "size_bytes": 489064,
-      "sha256": "c4b35708537efa6d00c3ed78dbbcbfc28fbc760e94de78395901389eb45ee1ff"
+      "sha256": "2c4ff316357339b65d92652756f51f602ea46c7c6724128ce6f930589822fa81"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000078.png",
-      "size_bytes": 489077,
-      "sha256": "d6005074ff4b3b44789769b7a4c37bd6af131d27873ead9a1818fbbeb5edcaa8"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000015.png",
+      "size_bytes": 489112,
+      "sha256": "99731dbcf4d2fb44777caa49c0f09a6fa3f7844d7d6546cfae9bf6be327f1f96"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000079.png",
-      "size_bytes": 488987,
-      "sha256": "486c575bfd2eae944366aec4ab4cf34cc85cfef636a0c64084d1607be41bd439"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000016.png",
+      "size_bytes": 489083,
+      "sha256": "9785e8549820467dfb77ceb0c54cf5153decc2b109b19e55ba602b3ad1d9f2a2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000080.png",
-      "size_bytes": 489182,
-      "sha256": "3c8982b47abcf1aaaa36097dc5f9ca6b5f0a4066220399bff44221fb51bbe232"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000017.png",
+      "size_bytes": 489017,
+      "sha256": "a041646ce961b819033efc0965354951a11dcbc1e3d87212e90b2898ee9be8de"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000081.png",
-      "size_bytes": 489151,
-      "sha256": "222742b190c7fd190ccf49f56f77f563f10530a68ef0cac8d33a9e4d9b06f7ea"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000018.png",
+      "size_bytes": 489253,
+      "sha256": "5aa26b58eab147ee8b20fa6f242e33a5a49b186cb1bfd182178cdc05ca0b3a22"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000082.png",
-      "size_bytes": 489179,
-      "sha256": "4158ab17b2fb9d64ae370365e2656f28bf9665430d75be30282b4fb7fe4c9916"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000019.png",
+      "size_bytes": 489192,
+      "sha256": "2724de46de727a1881cf2358174f8cd9a76a7cf7112676d6e7e361a72333f038"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000083.png",
-      "size_bytes": 489104,
-      "sha256": "78ab59cf64fb5b834f8029967f37ac7cff864c175ae9d58a5f210a2106c8c853"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000020.png",
+      "size_bytes": 489213,
+      "sha256": "0b67aab56d0b8b23ee72843fd30fbe75a3f300eac6b1248168b7f4fded3a1e8d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000084.png",
-      "size_bytes": 489109,
-      "sha256": "f44d8ce74489822753158e646f840991284eac8252bf5afcbf8f4f809ebaec7a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000021.png",
+      "size_bytes": 489188,
+      "sha256": "cac58e1e3ad4d4de604782205eba27ae18a50a18f50b1eaedee13b16245c467d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000085.png",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000022.png",
+      "size_bytes": 489175,
+      "sha256": "8ba377acff98991b5d039c5b83d38c68b5f336db89863f6b8a574dc150986975"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000023.png",
+      "size_bytes": 489283,
+      "sha256": "986defd008cfe4ea4fc62a051918ffee6d314546b956ff04858213cf124e02b7"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000024.png",
+      "size_bytes": 488973,
+      "sha256": "e3467c40406f2956b51ead4fa05e7ff7283e0a1aafd2dda37c0b6a53940f3d4c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000025.png",
+      "size_bytes": 489192,
+      "sha256": "5c6cc085e70838f759580f4a9155a56c2618e557e9bd06f41f25d1c44b7c0dca"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000026.png",
+      "size_bytes": 489022,
+      "sha256": "ac11208d812dcdd463d17d2e2207e6e0954af120474e40ec4c283726d01be65c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000027.png",
+      "size_bytes": 489455,
+      "sha256": "b6bc61f56d9314627f11674ac564686330084b940d18a7dd3976c7e9c1687d05"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000028.png",
+      "size_bytes": 489386,
+      "sha256": "fe61728b619d2b8de7cf9257bd9137ab32aca7b68322b3ba7e54b59f84a80cea"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000029.png",
+      "size_bytes": 489713,
+      "sha256": "729981253ef25d3e4870fadb158afb81601ecbaaa0a938dc9b967955cf2beac1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000030.png",
+      "size_bytes": 489820,
+      "sha256": "d6c4fa218539f50aa14cc9f5e474853f0a7c17f5062bbe7520940a6521dda075"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000031.png",
+      "size_bytes": 489744,
+      "sha256": "1905dcbe689c36c46d18049d654870b16a09d7cb53b394384847c2b88a5389e6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000032.png",
+      "size_bytes": 489510,
+      "sha256": "5d266be1754ff4806787a50703398fef79ad5301cf29e257cc321cd1cbe44a94"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000033.png",
+      "size_bytes": 489811,
+      "sha256": "8e32f71285b024ba582608220e082d9ca3b504b15d0fa2062f9e4408bfe81236"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000034.png",
+      "size_bytes": 489421,
+      "sha256": "6b49fc60ac893dafaed6937e17b2231084fc4c40aa8b36d062d9034e0ca6376e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000035.png",
+      "size_bytes": 489340,
+      "sha256": "a9c928f5d03c1d8438fab1e4f4b48fdf27c678d5cae4d89acba5159bd8cbeeb3"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000036.png",
+      "size_bytes": 489327,
+      "sha256": "0f1fcc90238a5931c9978ff5cdbdd76b90080c8c30e74362a10bcd1a4c856206"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000037.png",
+      "size_bytes": 489246,
+      "sha256": "b3eb44907e98c2634afa94c6f4865c2c6bbff6c0853cc9c87a576bf10a9f711f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000038.png",
+      "size_bytes": 489230,
+      "sha256": "8c65482997426f8d98a453b86493c14f5f9abc3ab5cb631765d2925df4bddf10"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000039.png",
+      "size_bytes": 490283,
+      "sha256": "97d6b33147c65ebdb091866470e262c059e2c3ca1c0b49cc0be00a283985b6db"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000040.png",
+      "size_bytes": 491632,
+      "sha256": "f5b417cdff9d0ccbe49ce32f39bcc571dbc685a3dabfc06ec8a06123760d9a81"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000041.png",
+      "size_bytes": 492538,
+      "sha256": "a91a4766d570eb2cb1370c9f46ef2d65f8286ff9e8187b836a2934d0e73f30c4"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000042.png",
+      "size_bytes": 492511,
+      "sha256": "f61a48659eaa7e760cbb575a4e6e848176787a6b20b0a380d87701828ba0d7e8"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000043.png",
+      "size_bytes": 496235,
+      "sha256": "080ebcb56abdd4725283b22a63a09e0364e0f9d28d40f36dc64115137a1ea3df"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000044.png",
+      "size_bytes": 498828,
+      "sha256": "33b01204ea3f05b8035b138c04f3f7ec8e230a1996b74081ccd70b7fdfdcb9f5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000045.png",
+      "size_bytes": 500341,
+      "sha256": "8a71314f620a5560bb735d93e1a4eddf375b0ee570789c95d020f6b843ca0dca"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000046.png",
+      "size_bytes": 499121,
+      "sha256": "18ca96c517e4ff405e28de627cf07481103c9c541f2ded978f08949c824b46cd"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000047.png",
+      "size_bytes": 499775,
+      "sha256": "e79464dd6ddf76ebee9192b8ad70ae86ae0525651886bf6915e4bf0b5df46384"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000048.png",
+      "size_bytes": 500691,
+      "sha256": "266c8d461678afc2da70e6e3db32df66ea6ebaaaaedda5f228f7e613236d92ad"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000049.png",
+      "size_bytes": 503538,
+      "sha256": "3b2fd706eebec4325e424f73cfc0de2232f64d0b54640d606d8832efcd033bbd"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000050.png",
+      "size_bytes": 506361,
+      "sha256": "b012cfeca26649d5ce925af25a080d042d25e826fbb504661b98d66002ded46c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000051.png",
+      "size_bytes": 508243,
+      "sha256": "2f99f877b514b2e8aa9d05562089f0d19ca7b4223eb3152ecc07d5ae0c74290f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000052.png",
+      "size_bytes": 509262,
+      "sha256": "cc0201f8d9e44031291755b3bc69455d695c1daec67f6197b7dba79e583f450a"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000053.png",
+      "size_bytes": 512284,
+      "sha256": "b2983407fa8bc8eaec7bc281cce1d3e157689e018b8f4e9dcdde83bee23786d5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000054.png",
+      "size_bytes": 511942,
+      "sha256": "1dba00828feeeb4db7a4c751ee057270da104e9266280821d2e4f369ca998c7d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000055.png",
+      "size_bytes": 512102,
+      "sha256": "aca635f854e376909a9ecd692043c31ccec7a117ba2f2147a50bc5c5937f7e96"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000056.png",
+      "size_bytes": 510918,
+      "sha256": "3da201e3ff3aa3225a9103eed61c4970def444c128762781f4e6fe32e68c23d2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000057.png",
+      "size_bytes": 509550,
+      "sha256": "4d037afcbf5dfeee429680fbc98361c2e5ad8fa31bc6d9d2dd3be0fcee79621d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000058.png",
+      "size_bytes": 506208,
+      "sha256": "ef6b4941e1d934196e61dd27ab1415d40c7c99b18f4d7d55b9ee4216a201324c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000059.png",
+      "size_bytes": 502301,
+      "sha256": "93eb9518ce0c7e6e215c651c4addd8f1e0b5fedb7fc41ac11780863f63517130"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000060.png",
+      "size_bytes": 499260,
+      "sha256": "bdd1a0a69b81241c754fa6d034f7978cfc2eedbb4c22fa46af70b0cf06897eb6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000061.png",
+      "size_bytes": 497213,
+      "sha256": "1455b2ab53d57ded9a48f071c12ca14ebfd61f3238fa059927f19413f785610f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000062.png",
+      "size_bytes": 494568,
+      "sha256": "dd54eb7d6b3d6dc63d18016b8e9167314bc74dd0a43d060205ee9edb4c20463b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000063.png",
+      "size_bytes": 490930,
+      "sha256": "5b5e35d5158c4a0d53e82ef1cc88f0d998e21e33e51179c9d77e8c68a30e653e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000064.png",
+      "size_bytes": 490410,
+      "sha256": "a891f586e687173f243dbade024e18c42eaa728088ffd059562781bcb13b79ec"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000065.png",
+      "size_bytes": 489496,
+      "sha256": "82c8d157b639fe8246b7b493142b2637675c57c633e871d14e6ebf2346975939"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000066.png",
+      "size_bytes": 489081,
+      "sha256": "f357f3a2550cbaba7f4aae79c79e70ae6f57d11797b8261fffcd8f4679f16209"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000067.png",
+      "size_bytes": 489112,
+      "sha256": "3f657fffa2d23d31ca568e2545b58ec3da44426a5f0daa3d886064f03a480705"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000068.png",
+      "size_bytes": 489055,
+      "sha256": "4840c0bb2e2128df066ea8627e278fa401a9b23feee7cf9c4bf88ed4f6cdd944"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000069.png",
+      "size_bytes": 489069,
+      "sha256": "7ebedd26a5af947202738b911c8fc38548e464c3b1dee0675b462da708b8fea6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000070.png",
+      "size_bytes": 489165,
+      "sha256": "8629b3c502e1648c3ecd54713dbcbad40320f48afdc6ffa7009840d6ed13fb93"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000071.png",
+      "size_bytes": 489099,
+      "sha256": "24f115f00860ded2cb048168f981bcd0c765b590b493f0bbaeb46406e7788a05"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000072.png",
+      "size_bytes": 489140,
+      "sha256": "2a199e6ad931c1abe7ef9a594ec7735708385110cf873041ec0fe1ce790127df"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000073.png",
+      "size_bytes": 489040,
+      "sha256": "2f4ab78af5e12cc3f3977190ddd96d4b7c183c9cf3bbe80d0898d2c4737e1442"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000074.png",
+      "size_bytes": 489064,
+      "sha256": "fbe4e9831318783b8fe70bab27635e8331368b8f628e1dfd28796161617d1b57"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000075.png",
+      "size_bytes": 489040,
+      "sha256": "be1fc8b943617a1f5ffb1be6ef4048fd14f5f1bb38ec97f9ef4c11f7500daa04"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000076.png",
+      "size_bytes": 489161,
+      "sha256": "bdc37247ad74bf10d0617bfaeccc7222f21e49d9596524a97826a06850cd8ba8"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000077.png",
+      "size_bytes": 489064,
+      "sha256": "2a09bdc92ad1f3a7921e4d2383d50b90be77f1c08ca1ee2f505cab435fe0b002"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000078.png",
+      "size_bytes": 489085,
+      "sha256": "9f265b738ca5a0642cca193614574abbcbe619845811449f58f7c8bedc8a41aa"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000079.png",
+      "size_bytes": 488990,
+      "sha256": "8f53ea48ad82b75e6e163e0e33855a98e294fc6d9be89be2dc2052b5d378ca5f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000080.png",
+      "size_bytes": 489089,
+      "sha256": "292f07f64ee95e24569eb45a5277b441b25731df10eef0ee25de524812f7a5f1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000081.png",
+      "size_bytes": 489127,
+      "sha256": "b8e5d7868f3f364d150c9c366dda72490d61c80dd03a8162ffd5fe1dad163bae"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000082.png",
+      "size_bytes": 489162,
+      "sha256": "e9b9adb9329615f7fe865be1873b2462fbb1a40fa53a4efb9fda1d6fb50a1487"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000083.png",
+      "size_bytes": 489112,
+      "sha256": "0cd09be5645046c0f06698695fa7118b6324df2fe745e7f218ea1495ae34419f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000084.png",
+      "size_bytes": 489084,
+      "sha256": "7185b69be998cbebb80bb55cef2252e3b9275eb208c9598ad577e7010e1bcfdc"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000085.png",
       "size_bytes": 489071,
-      "sha256": "76f6961ae8c48baeafe9f01e4c6e1f61a6aead4310e41fcbdea458e8d9a6944c"
+      "sha256": "86bcde3d018cfac933e9a9da4f3a183c5856424b2a8c51431454be607c46eb0d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000086.png",
-      "size_bytes": 489035,
-      "sha256": "b389c21fcdce46664d2369f62ac1b6a33b002b112bbd023ed7391a6921e8bedf"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000086.png",
+      "size_bytes": 489049,
+      "sha256": "7058c2108106887216b4501abac3c6dd2027a52b56113ff573c305a547c4ca27"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000087.png",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000087.png",
       "size_bytes": 489054,
-      "sha256": "a3c2ff831a8109922e23a741cbbfd1b13e1dcf5e0157faa8666112f4f486cb1c"
+      "sha256": "011ad84819ad4a7b2b7704911601ba9da43cf14b310507f39c869ff3e1cde472"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000088.png",
-      "size_bytes": 488933,
-      "sha256": "6b855e3eeea7dcf6b03b96f6af69276f0289120d84781b9853c00adfb50377a5"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000088.png",
+      "size_bytes": 488900,
+      "sha256": "2bada1cea49ae085caa8b3c462fb7bebde3ec234108d421e945dd6d102481f2e"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/000089.png",
-      "size_bytes": 488996,
-      "sha256": "f82085a7409e959843588da7b37703264053c5e1ae939af41771c891dca8a43f"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000089.png",
+      "size_bytes": 488964,
+      "sha256": "af66ad111cd95ee3c2877765a1683be8347847060255a2ef7c4483b30e591607"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY/render_receipt.json",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/render_receipt.json",
       "size_bytes": 1551,
-      "sha256": "14667f27b424c3f6be95c6f1797c4ae333be1b2351d1f0fee4ceb48283424188"
+      "sha256": "51b929456893283106f1e5637476f942398aac69b592fd42261f3807c7edebaf"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_before_after.png",
-      "size_bytes": 538139,
-      "sha256": "a627db71e0521eb2c13243adebabd53578d53273c278b841d95df8a7c9df5212"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix.png",
+      "size_bytes": 532002,
+      "sha256": "8c2d2fdb84c8648cfafeb62c1d0afb41395c63c8790b41d030710d2a88c75807"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_before_after_5fps.mp4",
-      "size_bytes": 310839,
-      "sha256": "6ae1475d94e5c6105a0265ad22647f3fadc13b177dbb5a3b84a8936a3731d575"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix_15fps.mp4",
+      "size_bytes": 311455,
+      "sha256": "36132bc4ae39e608eb0044dbf8b11201e2a76cab91a148449b17b35b0d751f44"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_before_after_5fps_decode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix_decode.log",
       "size_bytes": 1626,
-      "sha256": "516195c4f27671e005b672dcd42a7b6fa296f51486bfb8ad51b9f347933dedd5"
+      "sha256": "472777d86f4b1187b8935be7f09b7de0fca768563ed27bc88fde792c95bbd3db"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_before_after_5fps_encode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix_encode.log",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_large_vs_soft.png",
-      "size_bytes": 542295,
-      "sha256": "9ecea27055a8ce10d54ec50ce11dea18e65e09f351ea9f72e32c39af8d4cd677"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after.png",
+      "size_bytes": 535483,
+      "sha256": "191a35c7df3eee84ff3920af88b1c6958d6de44d658673f315147d18322040c5"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_large_vs_soft_15fps.mp4",
-      "size_bytes": 312120,
-      "sha256": "c01794fe5251c69cf8f24054f60acacf43697e3a3d0a51cde08941365209eaa4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps.mp4",
+      "size_bytes": 313581,
+      "sha256": "99c7074efb1031c6698e794ef605a417dc58fb19b7dfa861e85d3319ae750584"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_large_vs_soft_decode.log",
-      "size_bytes": 1632,
-      "sha256": "f190804bc65ab520e1069a50477b20a658fb09cd5d485906e48423a07603aae4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps_decode.log",
+      "size_bytes": 1626,
+      "sha256": "044adfa906eb5232b7141e25e69263c6559848abca8bea7d8bc190ac36e64855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_large_vs_soft_encode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps_encode.log",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_natural_15fps.mp4",
-      "size_bytes": 166399,
-      "sha256": "49e272b669862e665f3116a0c62114ba80d809c410b6e21375e643b7b42c16fe"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_natural_15fps.mp4",
+      "size_bytes": 170423,
+      "sha256": "2cb5757477ae9b8e3b763f18284841d731cb117f1c4a3862e29eb2348f366aa1"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_natural_15fps_decode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_natural_15fps_decode.log",
       "size_bytes": 1624,
-      "sha256": "121a6521b8e8f89a9cb23759b44e715b8185b84c68bc658437b3f3350d2c42bb"
+      "sha256": "ea98367bb3f5ebf7c82510e253be7ef8c987baf980cd4a37c2a9562fb5891623"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_natural_15fps_encode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_natural_15fps_encode.log",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_render.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_render.log",
       "size_bytes": 12462,
-      "sha256": "8e764d5b3e42f5426ad97d5453ddbc93b28b3a38e50a860667df01f76b7331ea"
+      "sha256": "9c2b0d85fa59c2cb9daa4943d30fa5ec937ffaf08cd3b7176cffde05d20a4197"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/ENTRY_render_command.json",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_render_command.json",
       "size_bytes": 1029,
-      "sha256": "2d0e1abb4054296a66c96fbc17b560fddbb1352ee330d95545a405c38a6e183d"
+      "sha256": "83df98139cc6936a6351a1afd19a6711a02404d317c7899865a530f08a7788a0"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/GAIT_STYLE_CHECK.json",
-      "size_bytes": 727,
-      "sha256": "7d212e003477c1a9be162d7a894c090a68c89f849424775801db8f299e1acd27"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/KINEMATIC_ROUTE_CHECK.json",
+      "size_bytes": 539,
+      "sha256": "32234019599a939a5bab8b237a7df825a2cbe7bf225849856617ce82165ac5c6"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/KINEMATIC_ROUTE_CHECK.json",
-      "size_bytes": 409,
-      "sha256": "1fd106391c22020fb8f74ecc4ad1f722c269794a5b95f1b9100a9478bee6008d"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/MEDIA_VALIDATION.json",
+      "size_bytes": 25194,
+      "sha256": "cbe46b0db6aee1d41173aa32fbc408eecc01564a7cfa95dcaae94efc52d87c99"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/MEDIA_VALIDATION.json",
-      "size_bytes": 25230,
-      "sha256": "a4f4c63f891a6fcde73175c301877ea336a39de3185728576d7de331b0560998"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/REVIEW.html",
+      "size_bytes": 1236,
+      "sha256": "c7d1ab706cf0773b69bda124626c83539aa068fb59b82dfe58a82b7bd119e7cb"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/REVIEW.html",
-      "size_bytes": 1254,
-      "sha256": "915465a284c69d4409330a2a6ba729f5351ba527e372b7ae70468f9106eea098"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/VIDEOS.json",
+      "size_bytes": 1530,
+      "sha256": "085bfb15623621b1cb98fc5d8e45daef12df49e2caac521ed98532170c17ce1d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/VIDEOS.json",
-      "size_bytes": 1542,
-      "sha256": "d6727c2eb8a818b9a5bf457cc3dcfaea526fefd3b9ef7df45a05287a8655b9cd"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000000.png",
+      "size_bytes": 686181,
+      "sha256": "e5a56de4dde5284473da0ff1e33b754561e94a13784b20cf78bbdddbe19f199c"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000000.png",
-      "size_bytes": 685817,
-      "sha256": "ccff2619d6bb3413cd2177ffb1c8a96c3fffd9fe9fa3cd872936c931d0b55e17"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000001.png",
+      "size_bytes": 686441,
+      "sha256": "36cf5823c88cf6abf1e2fc96418f503e57e25be0cf94ec23584bc65dd64753f2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000001.png",
-      "size_bytes": 685829,
-      "sha256": "2687f5399a8d22fd1359e197ed124c209019de19b1d38124e84ef7d53c023cda"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000002.png",
+      "size_bytes": 686140,
+      "sha256": "e502f8f4fab9e5a7d08f3c87620586420bb84c7853a565885dd0649d8104cabf"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000002.png",
-      "size_bytes": 685845,
-      "sha256": "d4209bb4893e5de9b0f8c708987f73a42c779dc6e5ecec8e10beed22684028ef"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000003.png",
+      "size_bytes": 685669,
+      "sha256": "9bca72e1b457dcde96c3ac03cf81e962056274238a26cd34b4a5a11a21da43e2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000003.png",
-      "size_bytes": 685973,
-      "sha256": "86e48317ee2c138e2db56a49e8db96a4ad8934eae6af4f11da453b9704a4445f"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000004.png",
+      "size_bytes": 684041,
+      "sha256": "f9c50ae61ad8a9cbcfde0b1a92678c920af95df7551f91484ac9e5a3837b08b7"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000004.png",
-      "size_bytes": 685142,
-      "sha256": "22decf6228034b176a28380d9aafea81e82574a20b4112d631337502bb5a7755"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000005.png",
+      "size_bytes": 683636,
+      "sha256": "6da1f165c6b72bd6c42c39163dbd11cbef2985e878db3d430a6aaabb98a38f9f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000005.png",
-      "size_bytes": 684663,
-      "sha256": "975edd063d0b725c4271f02528ec63b14e363e30a5b11b8029506192b9bdd2c6"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000006.png",
+      "size_bytes": 683241,
+      "sha256": "418caa83fe53401a8e82ab2ce643ed56e02d81522ae9d115cdc21b1458057500"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000006.png",
-      "size_bytes": 683729,
-      "sha256": "e73eb9a59a106794abff29f12b8a919157342593b855d201e2f0de24a0718997"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000007.png",
+      "size_bytes": 683799,
+      "sha256": "8e8cd3380b97dd91bd0e5df26d87a83535320275323dc06b7f15e05e3f8eb2da"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000007.png",
-      "size_bytes": 683565,
-      "sha256": "37acd9a942309254b2ad197f090b99c59770da34d1b08c831faf3943ab1c529e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000008.png",
+      "size_bytes": 683423,
+      "sha256": "e1d9c5842a5e741e22ee3494f7f5135b206ab7bf8caaa2fab48861df7a822802"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000008.png",
-      "size_bytes": 682647,
-      "sha256": "315d538f7873f64d86eaf0f88b5b965caf7660b58848507eca08191de0abe5c5"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000009.png",
+      "size_bytes": 682846,
+      "sha256": "759ebfa3efd9435ea229ed19d9ab745a00eaef638c6762d3d779da4998ebf612"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000009.png",
-      "size_bytes": 682024,
-      "sha256": "d738f3c48a4fdca0317d871e256311c1cf77faac0b0b182fcbdfa524b0d23298"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000010.png",
+      "size_bytes": 682107,
+      "sha256": "02395d3cabf91e209c9907c31422e6424e8fc5078e569b179fcf079821949a0b"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000010.png",
-      "size_bytes": 681599,
-      "sha256": "b391717f84c1460d2fd528ecfbf3e7e7dca5d32f09262ee0c28016e80f530581"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000011.png",
+      "size_bytes": 681485,
+      "sha256": "f563e38dc9e498e2aaf229f8175909262edbf4a490439d3836f9eb009068ad69"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000011.png",
-      "size_bytes": 681482,
-      "sha256": "0b972dc2b63bc5672c12b4f689cbcaeafdf17785999351caa10326820045d9d2"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000012.png",
+      "size_bytes": 682310,
+      "sha256": "f0d4e1f9cfd2408b19423b74debc982b4d848f480d6f666292f9241676468633"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000012.png",
-      "size_bytes": 682225,
-      "sha256": "bab2606f30731ac7f09ce12d2e408a4d1e497c18c7fd4e95715223bfb3725c14"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000013.png",
+      "size_bytes": 681692,
+      "sha256": "f2c241da8ec23d40d5014e3db4da39da85af6144994148f3c24dad8b0d12694f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000013.png",
-      "size_bytes": 682209,
-      "sha256": "f5eacfa252a510bf4f65e1030d6d44a603c2002cb37ec2b0a4a21f4f4ba890ed"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000014.png",
+      "size_bytes": 681833,
+      "sha256": "18179bf51c1bb9fbe689ef20358324f107058fa0eb3b5e442b438c1ba24d999f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000014.png",
-      "size_bytes": 682525,
-      "sha256": "dd63eddf3217a7e2e6b85d7b5178e35351d657c79384f734c0a4f7b6c5dfb4f6"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000015.png",
+      "size_bytes": 681758,
+      "sha256": "53429678311cc98b943940dee7f7aca12806b3f3446e6ca8f56e606e81d06e29"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000015.png",
-      "size_bytes": 682652,
-      "sha256": "04afc572f4cceaf8a57a43220d0b0f7d9bd61e9ea358fd865a4efb31729191ab"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000016.png",
+      "size_bytes": 681820,
+      "sha256": "951db6675d5d2de9ece5fcb8061707727a7141e99078fdf24592a2abcc773e73"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000016.png",
-      "size_bytes": 682509,
-      "sha256": "0e54eb8c3fc2993fb2189f4509d9747430f354ad3e35233a2a9bcda767ac24db"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000017.png",
+      "size_bytes": 682718,
+      "sha256": "4fb5ad6f9d66e3ca659ba0a1966e3a183535c15725a2ba2fdc2acbe20eb032ab"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000017.png",
-      "size_bytes": 682652,
-      "sha256": "1a663bfcddbf13d8f32adbc76e922c385131b769c8e41c4ae62a86552a9da4cd"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000018.png",
+      "size_bytes": 682477,
+      "sha256": "4bef77093a8c8ec554bead5a8faf1faa70aa8e7acf5d67c5a9fbe3bd46fead31"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000018.png",
-      "size_bytes": 681853,
-      "sha256": "bf641f534ddd79a7aba35c9a739fa062ea8322ff1f6d6b456cc14f526674f3b4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000019.png",
+      "size_bytes": 682222,
+      "sha256": "11a31cfab79bde4a9094e68b63f135732589252d47b1923dbd2ca3f06b1bdf56"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000019.png",
-      "size_bytes": 682304,
-      "sha256": "b835b65c4d2d03b5205989252e268b80e5ad5d26cf7753399cafe6bc6c4ecdd5"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000020.png",
+      "size_bytes": 682310,
+      "sha256": "48308d4cabdd439b0c7a029b13050890dc4e03b4a578ac282b24e9a681bee88b"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000020.png",
-      "size_bytes": 682445,
-      "sha256": "412dc82add8ecf97fba8e8fd4dc2b9e30206efc094f25dd7fd7ffe7e221cd5c3"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000021.png",
+      "size_bytes": 682195,
+      "sha256": "ae9adc08d265395891fa32992179de7931b11edb6c86422c698b3872e61f9e00"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000021.png",
-      "size_bytes": 682295,
-      "sha256": "ad5795e26c84bc8976d5c62cb719453c1ad52828a211c0c0f1afedafef5472bf"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000022.png",
+      "size_bytes": 681734,
+      "sha256": "415ab8f54af269bd60db6fd5a41e0e04c694f329225a7c4173cee017a0661ab6"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000022.png",
-      "size_bytes": 682524,
-      "sha256": "23b174215e7e6886c53149f87593ce05d626075f724bf81ea4fa974b9b1eb6ce"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000023.png",
+      "size_bytes": 681183,
+      "sha256": "f8f6e703ff1fb770b5421cec040bd7433a4c69c226cc353ec239d52fba647654"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000023.png",
-      "size_bytes": 681723,
-      "sha256": "9c79fb08bea43a17d5a58d5252a762ca0c19eacf115513267fefd04b4f07934c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000024.png",
+      "size_bytes": 681035,
+      "sha256": "866eab53bdb5975eccb1f0eac02fc95c8be64217329e5831adb801022c2b157f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000024.png",
-      "size_bytes": 681386,
-      "sha256": "082405c507bcf768b575716190ffa03dfcaa25bd2cdb3892b3918532cacd551e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000025.png",
+      "size_bytes": 680585,
+      "sha256": "7c9ee239e2c1b4c7258dfec40dc013ead7fb93112a3d4adf1576b5c619100c4d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000025.png",
-      "size_bytes": 680874,
-      "sha256": "43ae000b40e38842bc7c878bd28156ed194b02ac78b5a5d5a25851c0fe7b8c02"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000026.png",
+      "size_bytes": 680244,
+      "sha256": "80ebe6b684c31bc44ce3513b5e9c45b941a93ed0c0edae32c63a73edc3ddea12"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000026.png",
-      "size_bytes": 679933,
-      "sha256": "513cf34a205af220c0d8b01492fb41386952640fcf42b778e7891e0a1af10673"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000027.png",
+      "size_bytes": 678645,
+      "sha256": "9b1dfbe33182ed6d6bee3538b570fe78dc67490d8e1c259683dd5419ce9b64c9"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000027.png",
-      "size_bytes": 677896,
-      "sha256": "4bb02b4afafc9e36d9c0e2cfa06154317e59487773e681a75a11dd49f3df458c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000028.png",
+      "size_bytes": 677740,
+      "sha256": "1b0af4292d30573febfa8f3ba517a0971f376cbe258d1770d1167de2d6b36ca6"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000028.png",
-      "size_bytes": 677443,
-      "sha256": "a3c60182ef286ae57b6f3c2e9c1b9efd2cf840f8744360bb1fee7b10f93a6167"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000029.png",
+      "size_bytes": 677116,
+      "sha256": "2371a584f5596e3f4202bdbccd47ccc35ff3d8d31872c6b8bb35c847337ceae1"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000029.png",
-      "size_bytes": 676874,
-      "sha256": "e8dd3518281152b3b16316b9bcd873733a5c8cc4c103a20cb8c734ac8f928165"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000030.png",
+      "size_bytes": 676989,
+      "sha256": "791a13edc33de1b4c0fc467e739b9d688c1599f7f548feb66aa537cfb10eb278"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000030.png",
-      "size_bytes": 677653,
-      "sha256": "bbc3b59fdaec1fd285c2338c887959b5161892ab729ff0aeb5509a4bddb2386d"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000031.png",
+      "size_bytes": 675972,
+      "sha256": "13a1ccdc50db2f6b5dbb3ebd4ef8bb34152e38b650c556a81b639b2b0eedc622"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000031.png",
-      "size_bytes": 678405,
-      "sha256": "ac05ed6dc8baafb22b118f7908d3b2e46f89b12dbe837f26ac7a421af951128c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000032.png",
+      "size_bytes": 676664,
+      "sha256": "819b4c521f8c3a01ee23fcce6bdbe83f76919588f6912ab1dc300a219ace4abf"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000032.png",
-      "size_bytes": 678678,
-      "sha256": "a23e6e3cdb9109c2d990967be61d8f821c91c0658cfb9da6302ae499e823c221"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000033.png",
+      "size_bytes": 680068,
+      "sha256": "9c34b55c89ff753760ba686103a87d3ed219cfc17566c3c12deff5fae2e89826"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000033.png",
-      "size_bytes": 681747,
-      "sha256": "cc5e1a7d462a39ebc4dbae2f65307c82a36382d5b0ab6dc52082676dc81fde9c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000034.png",
+      "size_bytes": 683577,
+      "sha256": "9627f75e37436a0f7ca7c7157b450f85dee39c246e0597e0a1771022001cec4a"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000034.png",
-      "size_bytes": 684648,
-      "sha256": "20211888d11a5a4b0961f3c04c8600abc2064e8106d3969b0006c822931b7594"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000035.png",
+      "size_bytes": 686556,
+      "sha256": "26d82e2f2227474b0867047961b99828e1344febdc5191d82171c7d28a5ca76f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000035.png",
-      "size_bytes": 687208,
-      "sha256": "903a88f908ad6aaf1b5ed38093111c2b9dc7fc705d2c920f65bca573455ab2c0"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000036.png",
+      "size_bytes": 688766,
+      "sha256": "2ad2ae20c57fb83034a7aa5c32c1d48280b2d05b0c13bc35d0f163ad6b5e864e"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000036.png",
-      "size_bytes": 689894,
-      "sha256": "6e4bbc9bff759ff749e33e116fbb21893e960d47c0cc0894d5d52324cb2dabc5"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000037.png",
+      "size_bytes": 690855,
+      "sha256": "37ad35e8cbfe7af888445da171dc8a95ce123fe7a9d7404c4cb078e3b238634a"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000037.png",
-      "size_bytes": 692521,
-      "sha256": "428a4ac2ae1e2eacf0f5f5d1bbf3ef39307e0b44308e65350640b5ff758d2c85"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000038.png",
+      "size_bytes": 692983,
+      "sha256": "61f607b51b4207eb1ba2eab8d7657ea1b11f378995ba67a77f9e238fb87c9a76"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000038.png",
-      "size_bytes": 694237,
-      "sha256": "e0ce1c02534949ba34c85e30a1e6a151aff6bce34bb65d21ddbf539247990aae"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000039.png",
+      "size_bytes": 693726,
+      "sha256": "e85823ebb8f04a9c397cabf71e7d126c67c291751b6357947c75e6a39e9faa2c"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000039.png",
-      "size_bytes": 694848,
-      "sha256": "67820d06c3ae918818892bc561ffa99e46760fc4889065169de14dd18d6c5b13"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000040.png",
+      "size_bytes": 691792,
+      "sha256": "4a1db77c2b964d4a69dde11fcfc8d1f0192a25e80efb6e2a048b09b492a3f5b3"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000040.png",
-      "size_bytes": 692796,
-      "sha256": "e8b678822949bb7216c3e71462956cd35596c3a2816d08a8f2a11aa73edca2d8"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000041.png",
+      "size_bytes": 691157,
+      "sha256": "564181bee037a7f8846edfae177b2243597a6cd201d2c207bfe1cd8c41ad8bf2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000041.png",
-      "size_bytes": 692053,
-      "sha256": "802cd5eb789fb473cfb630f35cf7085926512eb2d8fabddc27522c875cdb1ba4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000042.png",
+      "size_bytes": 690611,
+      "sha256": "9058831082e94b462a76fe489fb13ee0db7b95a6e4b809188ae00f156df3961a"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000042.png",
-      "size_bytes": 690945,
-      "sha256": "fec5c98e0df8f8eded62894a1255d2e60b1150ab9e75f776625b0262408c1e29"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000043.png",
+      "size_bytes": 691980,
+      "sha256": "7f58ceb5dce0c1ce235108859ad32ac9b96ab01fb5acc848368dbcc57f828bee"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000043.png",
-      "size_bytes": 690832,
-      "sha256": "ddc6aafa19fd2f2e8ec6de9ea9b5172c6aaf0654c61b6ef15b4afd6ca3b18d15"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000044.png",
+      "size_bytes": 691339,
+      "sha256": "82dc6178481020e77a695997a92bc9be43fcf719432ef85050e0ad21d83831e4"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000044.png",
-      "size_bytes": 689669,
-      "sha256": "a79a4255a0f0cde56a823dcbc9d593be08c2b5891c596b42915e62781a0f51a0"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000045.png",
+      "size_bytes": 689799,
+      "sha256": "56e660342c2db6345e902703fd696373036ac2718b89d0d0593474f11c21eb93"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000045.png",
-      "size_bytes": 688431,
-      "sha256": "d1a29cd5fef0e02316cdde1c12cccb64be56d09d6b2f0075d68e9672fd0cd8ae"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000046.png",
+      "size_bytes": 688983,
+      "sha256": "b4a8c10f7a4bc53a6bef9133e19bd1b45dbc92d621c48e33fb4ed511bf0a2c15"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000046.png",
-      "size_bytes": 688159,
-      "sha256": "a6d94b99e9064dc46141b44861157e8aa8bb4431cd7360e92d29241b565c2b8f"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000047.png",
+      "size_bytes": 687989,
+      "sha256": "23624b9f4ba2fc55f4d565ee559ada23bb5934ffc547472c7e565e18e1d24a00"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000047.png",
-      "size_bytes": 687695,
-      "sha256": "6c76db0a05fadef93896353aac16b0ef813d55a37e2f536421332b2e368ba97b"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000048.png",
+      "size_bytes": 688389,
+      "sha256": "0b8181f6b46ef13ff610bdf3ad324cb661ef8b3116d8e907c00a7ce0cbbc6e33"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000048.png",
-      "size_bytes": 688574,
-      "sha256": "7358175b320d839b335311832c2cc4246fa7d25ae8a9cb044447304770bf488d"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000049.png",
+      "size_bytes": 686686,
+      "sha256": "19f0f97ef1765435b8117aaf24deb8df113c218131b3b8f6e7e2191387f69037"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000049.png",
-      "size_bytes": 687380,
-      "sha256": "90203beafd031ecceeb28d594d33174dd899db78b9bc6de550a7c236669af473"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000050.png",
+      "size_bytes": 686257,
+      "sha256": "62c36d024e22b83e10922c033ce80e1738e64d7bb40ec8e49443b47eb752ecac"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000050.png",
-      "size_bytes": 686906,
-      "sha256": "2f2c1cf3d76c0a96fb8b90bb0d9dc79e22b83277594ffa31f7c4f813da6bd62f"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000051.png",
+      "size_bytes": 686279,
+      "sha256": "3634806db821e87af301a9477caf7ac6fe1d14b424fedf2a45f5665862b5d0ef"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000051.png",
-      "size_bytes": 686602,
-      "sha256": "e6a287db85a9daf1a08b512c219bd2d88ac1836688affc0e3bd4bbdfb81c4212"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000052.png",
+      "size_bytes": 686391,
+      "sha256": "addf8a15bc97e8ba13fc1d6b71ad5bce73a4b5f7c98930b45ec4d1eb0de04bbe"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000052.png",
-      "size_bytes": 686256,
-      "sha256": "f9748137278893f624de8ce8a3957e539a681128b68f1fa0859a5088d8486059"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000053.png",
+      "size_bytes": 687355,
+      "sha256": "164bb99e77c5fdff9cdec8ebd2a75b534aafbcd0e261a5fd58cf4248dbb82055"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000053.png",
-      "size_bytes": 686831,
-      "sha256": "bdc7c92a25b52a0f4a7bc44faa555350eb23c1179ae80ae65de9b160c64b1a03"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000054.png",
+      "size_bytes": 687165,
+      "sha256": "2a646041c3c2c6ade190b05e65f40fb1bd467fe9bd713e85dcef8e3e043ec8e8"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000054.png",
-      "size_bytes": 686452,
-      "sha256": "cf712240c6df269333d0b98e4704aff7ab07b604ccb139c98e4f6b0b5189c19a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000055.png",
+      "size_bytes": 687361,
+      "sha256": "4a5565b44da0cb2b8560850d0a6be4303a1a0c82540e1d0d8501128b082521c0"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000055.png",
-      "size_bytes": 687005,
-      "sha256": "57eed426d708e62dab95c68cc1ba054a9f29882339fffe765a895a79f48d1346"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000056.png",
+      "size_bytes": 688180,
+      "sha256": "f77e890184d0b934f9731e5abe768bb32f75530196c292bea8badee7c5b9dae4"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000056.png",
-      "size_bytes": 687998,
-      "sha256": "aa98626a1efe26b38d3fe042544d54ebf9aadd6a5df92bac6d7c229435cd7e42"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000057.png",
+      "size_bytes": 688673,
+      "sha256": "0dc318ddc70fcc72bd3ab6cc4cf22f2b505a31c1bd2e29d379ab46d3eff1ccfe"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000057.png",
-      "size_bytes": 689113,
-      "sha256": "f640cce46259f7a7e454e5c0c55bf4ff89a88015eed9a939a30825b4b87e474a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000058.png",
+      "size_bytes": 689422,
+      "sha256": "dc1dfe68f4c53b9f0a4f55b28eec636614df2fdf339035195a9601735100fff5"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000058.png",
-      "size_bytes": 689753,
-      "sha256": "c50d3a333b22609651c70beb0ad10094d0a5095393c4f6b8a68b7f62b2f15c51"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000059.png",
+      "size_bytes": 687887,
+      "sha256": "be5835f1063d0bf8f3142d5f7b2753c8e4d3cb4e937f78c5dbd94acc5855b1fc"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000059.png",
-      "size_bytes": 688258,
-      "sha256": "42b2eac48b8cb8bc2bff415d822743c4dfbe4afb3377676684e9a51d8e039f98"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000060.png",
+      "size_bytes": 687618,
+      "sha256": "2c26631481f8df22fcec9ba05c8df1926e7de789a07afd16285d6f7a46317b68"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000060.png",
-      "size_bytes": 687593,
-      "sha256": "7be1c3461c45d9bb0a8e9b45264f0682b47c026e0c59ee9dcb618994853c9b99"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000061.png",
+      "size_bytes": 687394,
+      "sha256": "5a10f314e67665018c33feb9e1c72f2e9e9d8a5ed393224629a8dc808b50b81f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000061.png",
-      "size_bytes": 686913,
-      "sha256": "8a9f8d2255daeb3addaf9505ec5569414c809672f0f86012b75751dd2ead7c42"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000062.png",
+      "size_bytes": 687001,
+      "sha256": "6367280ab704a3c61c81f23155de9d3c127edbf174ae52666b9e0c5cbcd64f76"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000062.png",
-      "size_bytes": 686267,
-      "sha256": "2a386e63c64185efbcbb8875f7c0f8cdd1a493a7945bdc5df409493dba0eae14"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000063.png",
+      "size_bytes": 685870,
+      "sha256": "ac16f59efde30e5e70ee44e26bbedc61d85b30ddee296fc783ac3c4fb348b4d2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000063.png",
-      "size_bytes": 684946,
-      "sha256": "3d30e240ad1b696b21a505b1e84d845e8b9f6ece5c89da7e04bfcb82a8c25f5a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000064.png",
+      "size_bytes": 684181,
+      "sha256": "473a2fffa7445869c1f03310085542ef48184a0ad7b8462531aae831cb93a7de"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000064.png",
-      "size_bytes": 683746,
-      "sha256": "29901befbde1b087305894da4c9f307c80215e114e4e47816cedae33221ef23e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000065.png",
+      "size_bytes": 683723,
+      "sha256": "8dfd6583b9f4b5b0042ae74662644f045cb7a9886eea89018542bc12055a24eb"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000065.png",
-      "size_bytes": 683278,
-      "sha256": "9a0b765229ba9110faff5188dd3f7f87a287c0625dccf1f1ab9d825db7376671"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000066.png",
+      "size_bytes": 683083,
+      "sha256": "9e15643ab93966848c6cb8c14beac1b5b747b8c3124269f35b41abd069e8087d"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000066.png",
-      "size_bytes": 682852,
-      "sha256": "9ecc26b7ee95bae6e4aa1e38bd93056fccbaacb8a17f3147cb8704aeb26196ee"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000067.png",
+      "size_bytes": 682386,
+      "sha256": "79778fe75a61d8ca2a0b0fdaadec3e753fc1f507cbbc56a0750613aa863ef804"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000067.png",
-      "size_bytes": 682553,
-      "sha256": "84606075026588afe08d3c997e5fc0cade876c800c5d8941e12f066356be8c08"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000068.png",
+      "size_bytes": 681192,
+      "sha256": "e988f0944449e343e581a582ed5147d2ab4125255d6da74eaa18300957f59665"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000068.png",
-      "size_bytes": 681280,
-      "sha256": "71c5a9600769c6a5b88899bb3252b5c5b93fe6b5faf20938b9eb58a64d1e03fa"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000069.png",
+      "size_bytes": 680524,
+      "sha256": "cafb476dce87c39609d9b2b2fd3448df5c0fed7a9fbf03a7973345bd5d8d5201"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000069.png",
-      "size_bytes": 680394,
-      "sha256": "f11305ea2422683b35137db50182699715b1d2740b378fd266dba4335895d88e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000070.png",
+      "size_bytes": 679913,
+      "sha256": "7a5892e821128595e47cbcbdfb7e19cfee6a5260803365626988de7b7d0804f7"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000070.png",
-      "size_bytes": 679716,
-      "sha256": "61e9621f2ea81fc1769bfb1230d107a7c3bb5ee41725c017ea4290955a6ae429"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000071.png",
+      "size_bytes": 679396,
+      "sha256": "d13ea005ada8f26a40a12098be4d6369aabb3e6e4f8154f780f478843b260a18"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000071.png",
-      "size_bytes": 678570,
-      "sha256": "823306a6f3969fe6c52b4479931de81a31ec3eb22df3e7fb92f7ffc9b256eaa4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000072.png",
+      "size_bytes": 677468,
+      "sha256": "7be7f40497085579f97282096eb08a4bd3abee90cae2385287d7607328fdacaf"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000072.png",
-      "size_bytes": 676968,
-      "sha256": "d2ddb2190fc08676cbfa738aba8493779ae7a0fb06da67b0511edf1c5aef768a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000073.png",
+      "size_bytes": 677144,
+      "sha256": "27ec0097046fa7f6e26d684cd354867ffcbb780e519d563d648b6beed5fb77c1"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000073.png",
-      "size_bytes": 676772,
-      "sha256": "35dbac96aa87bccda87cc85600a4db75193c2015038252440d0574309b28fa2d"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000074.png",
+      "size_bytes": 676735,
+      "sha256": "6f2c7f5a5028a57d01891176c52254705a34ca0494baf75a0822258cc788b352"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000074.png",
-      "size_bytes": 676601,
-      "sha256": "027cd512a8d5655fa6d696a92fcee3799ca2e0f76c4c8c5d7b7e496b5c9fa4dd"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000075.png",
+      "size_bytes": 677220,
+      "sha256": "3957f93463a92e5e301083fef6d22acba172611115056e6b3f3d3f064f646f68"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000075.png",
-      "size_bytes": 677507,
-      "sha256": "229fcac71d90d415eadf9ac7692e24a8d12021f0325b25824b4bfddba7f8851f"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000076.png",
+      "size_bytes": 677383,
+      "sha256": "09bd85f0fb1122ff98b41621d67cf4f4752d7416b2d38207f7c0e4497299b453"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000076.png",
-      "size_bytes": 677867,
-      "sha256": "a4e481bc496abaac8b10007bfc86b515c8a9223dd284686044ab0d3c9c0b924e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000077.png",
+      "size_bytes": 677691,
+      "sha256": "82e7688515eb12ebbfedc5aab2f51d0cb318c20fca3dd6995fd2a5fb2e881d6e"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000077.png",
-      "size_bytes": 678115,
-      "sha256": "eee183edecbb33f3021edcdfd4716fb5a4a79a9b5dcea2b1aa29df8f8f259c82"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000078.png",
+      "size_bytes": 677851,
+      "sha256": "17433fa2ef2eb30e5457c12d41e774f9893123b611627147a686b7f2ad0ca4ad"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000078.png",
-      "size_bytes": 678405,
-      "sha256": "6790ba5cf4b79530a5bb45246a575e35f454c16f351324a1cb78e272a6864509"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000079.png",
+      "size_bytes": 678243,
+      "sha256": "9f74da8844c6974e6abe7144733af9dfe41ab4d67691d7f40f6f40fc03cbd1a5"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000079.png",
-      "size_bytes": 678377,
-      "sha256": "3694e8ae4a04d6b40f94cdb6714676a1a23f6c8179cefa80f9cdd5ee92f4590e"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000080.png",
+      "size_bytes": 678319,
+      "sha256": "a87ca18ffe809f1a26734e2fcea636b2e5d43e3ccb9bad79aa85d4cbcfd94d61"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000080.png",
-      "size_bytes": 677869,
-      "sha256": "6ac9d9a0b3c3bb880372bee2af3ea5a99c21653ce94986486fa63a5551e7624d"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000081.png",
+      "size_bytes": 677831,
+      "sha256": "c8477e2317d3c8d05da16a5e9e3f44033c2779a965a4c3a116bf28a407aa28e2"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000081.png",
-      "size_bytes": 677258,
-      "sha256": "de1a27aaad7ce244fbc5086cd4ab7a9d4b7fd75e0ea7d6841d4ed27b5f288b4a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000082.png",
+      "size_bytes": 677944,
+      "sha256": "1e182944e134fdddfbc1bce371c6f598308143a6d0a4b70d0e92d4581d751f82"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000082.png",
-      "size_bytes": 678126,
-      "sha256": "8a1c3a791b3709027eefcf93df479e447a8a12719fcc9dca63cafdd04b1429d1"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000083.png",
+      "size_bytes": 678020,
+      "sha256": "488870f43c4cf62a985283a6e68ca176ed1a75f557e9cd86f8bd6c80b6fa7308"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000083.png",
-      "size_bytes": 678333,
-      "sha256": "64568207304d8954c18a15cef27d9de4476e18916b1d0833a339ce271ab22416"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000084.png",
+      "size_bytes": 678796,
+      "sha256": "cc4dfba1bfb0ee008e4c28a5a872c407eec5464961a3de8105127d962f42eed1"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000084.png",
-      "size_bytes": 679271,
-      "sha256": "ad51aa33c90c88dbf40d4bfaaf1df98a494e58661dfd6356614180abf0692780"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000085.png",
+      "size_bytes": 678378,
+      "sha256": "8dccb0e8c23c6884e63eaba41bc670497523ffab2365d94f8f298267c983fe79"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000085.png",
-      "size_bytes": 678971,
-      "sha256": "555f6db316c6a76c942479262bdf6692b462f5805093e79fa75adc597c09acc4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000086.png",
+      "size_bytes": 678364,
+      "sha256": "23ef462807e5ad87fdd08fff5b1a1cfe072aeebb3a019b444d56a45b3dba7460"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000086.png",
-      "size_bytes": 678374,
-      "sha256": "bd13688a882ae30e8762307f2cce761bd4c50b3c41f57cbc66148e63a914d1cc"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000087.png",
+      "size_bytes": 678632,
+      "sha256": "986a532dfa6f99c4125c86f860747fd71e27fda154f2474500cec4c0bfa2526f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000087.png",
-      "size_bytes": 678469,
-      "sha256": "8df86fe57d9418733bca13b0222e35baadaff9d508894229e050e1aba9715968"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000088.png",
+      "size_bytes": 678304,
+      "sha256": "e676f9504394cb4e3183a5af6585425b1ca097ab04efa106c4a6b2144b0cd95b"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000088.png",
-      "size_bytes": 678234,
-      "sha256": "0ac6cd6c5450c7e6a62848d136bd802b05b5a86a32754c51e609930f4281401a"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000089.png",
+      "size_bytes": 678743,
+      "sha256": "176bd587363e742ec0e9930b047c08a1bbec581e2270a5a78b0a60a1714750de"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/000089.png",
-      "size_bytes": 678203,
-      "sha256": "295aae9c4f182ff8ec50fb90bf7a412c874c57695e157a7aae1223eec88df040"
-    },
-    {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1/render_receipt.json",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/render_receipt.json",
       "size_bytes": 1548,
-      "sha256": "ed8a8e13911dbffe5c37b86d5eb36915530b1bb39d41092479f79e3ead8f9efa"
+      "sha256": "963533ecfca7f14c849372cb3f748e7f2e1ce4cd06fc852ba1410868dc90b323"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_before_after.png",
-      "size_bytes": 881426,
-      "sha256": "90d6a57e3a8222143dee90fb7766ebd732a0f173db2c2aad75058bdc64656694"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix.png",
+      "size_bytes": 841865,
+      "sha256": "790a3304ae1cb5f86b556c570d8a36ec8474a3edbb42fd77078ed318e17c1706"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_before_after_5fps.mp4",
-      "size_bytes": 803302,
-      "sha256": "bd83a0936c07bac44159d14dfa11ff1b682577190ff2b1b5b84038b0b9c627c9"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_15fps.mp4",
+      "size_bytes": 885386,
+      "sha256": "42f7e795424a62e8415a0592564be5a569f8d587327120cf44a43c541d99ac61"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_before_after_5fps_decode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_decode.log",
       "size_bytes": 1625,
-      "sha256": "2f37c1e87f5baf539ff286d8958f2a1440b4d23ec20dc6e6b66b48cdc79795c8"
+      "sha256": "bd818c0a7ec867550761e5082df3ec0b94bdb553f09150ebb71bf9a19c2ade14"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_before_after_5fps_encode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_encode.log",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_large_vs_soft.png",
-      "size_bytes": 884430,
-      "sha256": "2cf2b9c3450bf900b91f38d8a53767f8bf3a6548364971394ef6080a0a5c23eb"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after.png",
+      "size_bytes": 882859,
+      "sha256": "2d39dcab3124c1750addb30009cacfb3618ccac17af8862fde4ce2bd9f5856a9"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_large_vs_soft_15fps.mp4",
-      "size_bytes": 891452,
-      "sha256": "3f59783eedd0175f180fdba6b6510c164d8e40038d6b832b106d220e288a6b14"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps.mp4",
+      "size_bytes": 809784,
+      "sha256": "1f089a1daaf5bbfc5bc6c9645cf2f292e152cf8767d47fece2ef49c2fba144e4"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_large_vs_soft_decode.log",
-      "size_bytes": 1631,
-      "sha256": "18171bdd147575c9522eac8ca9ba14d4b384abbb0c18f997fa5e8d777409f0f0"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps_decode.log",
+      "size_bytes": 1625,
+      "sha256": "23d1479c1f475de202146222a06e6ea0844b1941cf5fe201fe41e50b010fdc30"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_large_vs_soft_encode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps_encode.log",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_natural_15fps.mp4",
-      "size_bytes": 455846,
-      "sha256": "173a182115ea2570a54f5b049715067e171dcff3b7695df78bd3152786ea9bc8"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps.mp4",
+      "size_bytes": 457396,
+      "sha256": "535b4bcf23ef8859d1972635db8e05d64fab876de6c8bcc7fb0b895467a1f529"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_natural_15fps_decode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps_decode.log",
       "size_bytes": 1621,
-      "sha256": "c390d138d78baa6c97ce8a9ff33071fe57ff220bc584c9111478d6d75c9cffd4"
+      "sha256": "15edb1db5d5261837678be63edb73c367cc7df8b57e6cf5de24037ff568d01e0"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_natural_15fps_encode.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps_encode.log",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_render.log",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_render.log",
       "size_bytes": 12192,
-      "sha256": "454bc711b70e33a6d35ec0aeeea268b8f96f61b93ef6434c9d7b242a25cba222"
+      "sha256": "362792d54ae72469ff91cabf0e08c581357fa0933ff59a9240ad7e953f286d42"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/W1_render_command.json",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_render_command.json",
       "size_bytes": 1023,
-      "sha256": "6e01483293979a061bc75322163dd3ed2b30288712362f83ab965f3b82c5bc02"
+      "sha256": "509e45e6bf8fd71f2e63ebfa716701fd491a7f1c9700443ebbf7bd87fcecd679"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/code/scripts/check_r004_natural_walk_routes.py",
-      "size_bytes": 2492,
-      "sha256": "3a269ef5ff98c8230922fad5340e9d3332210a13172e44ed89fdfa8b0f6eca10"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/check_r004_natural_walk_routes.py",
+      "size_bytes": 3433,
+      "sha256": "afe425c9c537978ccc08bcec09a48650d9dd0a65c94a99caf9af4259856e17da"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/code/scripts/package_r004_natural_walk_sample.py",
-      "size_bytes": 10611,
-      "sha256": "a541a3f3a2def3aa3b625c9631b2ab43ecc7a18a85919e9fda0e3ea05c3043f4"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/package_r004_natural_walk_sample.py",
+      "size_bytes": 11242,
+      "sha256": "1c2cc2ff0735da798bd5a5947f2ec0ba577fef5a0f4b3ad959af7ffec3c0f99b"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/code/scripts/r004_natural_walk.py",
-      "size_bytes": 7905,
-      "sha256": "c5a158c15c2ae1cedfe8f71b23d0d3e396984b3bf7f495e57bbdee78c588776c"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/r004_natural_walk.py",
+      "size_bytes": 8306,
+      "sha256": "832f6d7c038b5874e9690a380fcadd357fcc4ae9d04240a4ce2e7f7fec846519"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/code/scripts/render_r004_natural_walk_sample.py",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/render_r004_natural_walk_sample.py",
       "size_bytes": 10902,
       "sha256": "be43f8ef6a99cc0cacf85bfd59f0adaf5fea39593475956444af7eaf8379975f"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/code/tests/evaluation/test_r004_natural_walk.py",
-      "size_bytes": 3482,
-      "sha256": "62d2cbec0d76a7341c37701101b90c1a85fc3b9f0fb0e16392d3096620473f02"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/tests/evaluation/test_r004_natural_walk.py",
+      "size_bytes": 4447,
+      "sha256": "a9482e563a4d95255d0f3314e06a8a933d0f926b1cb517adab46111e2db4bf27"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/df_after_render.txt",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/df_after_render.txt",
       "size_bytes": 188,
-      "sha256": "735894bd24d6ba689375bc2f3464e9277f2f78d107f1b85ca78a171935cbbc55"
+      "sha256": "cfa187dfafb9288962b799641c477526082a9458180ba2c68e90ca2f68bb2eb3"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/df_before_render.txt",
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/df_before_render.txt",
       "size_bytes": 188,
-      "sha256": "9c8b65d7a56361d8540abab084378c6d0b23c0c8bce3fae97c2679944ff0f878"
+      "sha256": "47bfe7fc7179576d51798a2f6665720574f009bd0c4d9407dadd6c6fe6681633"
     },
     {
-      "relative_path": "evidence/codex-516-natural-walk-soft-20261113/focused_tests.log",
-      "size_bytes": 98,
-      "sha256": "118be220783ac4f7678bdd4b18613c6e5bae02e13467b430d2038e1bca386655"
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/focused_tests.log",
+      "size_bytes": 99,
+      "sha256": "c98726dcb0c9f0252e8160d23de79ed048961494c9d2bff5c5f7d6fc6c831163"
     }
   ]
 }
