@@ -122,6 +122,7 @@ def main():
     p.add_argument('--start-s',type=float,required=True)
     p.add_argument('--duration-s',type=float,default=6)
     p.add_argument('--fps',type=int,default=15)
+    p.add_argument('--gait-profile',choices=['walk','exaggerated_reference'],default='walk')
     p.add_argument('--probe-only',action='store_true')
     p.add_argument('--indices',default='all')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
@@ -147,7 +148,7 @@ def main():
             heights=[f['top_z_m'] for f in geo['floors'] if min(f['x_m'])<=w['xy'][0]<=max(f['x_m'])
                      and min(f['y_m'])<=w['xy'][1]<=max(f['y_m'])]
             points.append({**w,'z_m':w.get('z_m',max(heights) if heights else 0)})
-        plans[actor['actor_id']]=WalkPlan(points)
+        plans[actor['actor_id']]=WalkPlan(points,profile=a.gait_profile)
     # Only actual render-visible wall/screen/car geometry, excluding floors (contact allowed).
     static=[o for o in bpy.data.objects if o.type=='MESH' and not o.hide_render and
             (o.name.startswith(('WALL_','OBSTACLE_','R004_ENV_')))]
@@ -214,6 +215,7 @@ def main():
             'gait_code_sha256':sha(Path(__file__).with_name('r004_natural_walk.py')),
             'producer_code_sha256':sha(__file__),'camera':a.camera,'start_s':a.start_s,
             'duration_s':a.duration_s,'fps':a.fps,'frames_checked':checked,
+            'gait_profile':a.gait_profile,'gait_parameters':WalkPlan.profiles[a.gait_profile],
             'rendered':not a.probe_only,'source_blend_saved':False,'source_blend_copied':False,
             'root_route_changed':False,'camera_matrix_changed':False,
             'static_mesh_objects':[o.name for o in static],

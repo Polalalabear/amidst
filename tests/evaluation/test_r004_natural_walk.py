@@ -75,3 +75,20 @@ def test_source_floor_step_does_not_change_root_height():
                   {'t_us':3_000_000,'xy':[3,0],'z_m':0}])
     assert p.pose(1.025)['root']==pytest.approx((1,0,-.03))
     assert p.pose(1.05)['root']==pytest.approx((1,0,0))
+
+
+def test_walk_bends_less_than_the_saved_exaggerated_reference():
+    points=[{'t_us':0,'xy':[0,0]},{'t_us':10_000_000,'xy':[10,0]}]
+    walk=m.WalkPlan(points)
+    old=m.WalkPlan(points,profile='exaggerated_reference')
+    def peak_flex(plan):
+        peak=0.
+        for n in range(15,135):
+            for leg in plan.pose(n/15)['legs'].values():
+                upper=m.unit(m.sub(leg['knee'],leg['hip']))
+                lower=m.unit(m.sub(leg['ankle'],leg['knee']))
+                peak=max(peak,math.degrees(math.acos(max(-1.,min(1.,m.dot(upper,lower))))))
+        return peak
+    assert peak_flex(walk)<35
+    assert peak_flex(walk)<peak_flex(old)-20
+    assert walk.profile['foot_lift_m']<old.profile['foot_lift_m']/4

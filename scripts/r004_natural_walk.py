@@ -66,7 +66,19 @@ class WalkPlan:
     stride_m = .95
     duty = .62
 
-    def __init__(self, waypoints):
+    # Preserve the first sample for later running design, without pretending its
+    # double-support walking cycle is already a complete running gait.
+    profiles = {
+        'walk': {'stride_m': .85, 'duty': .55, 'foot_lift_m': .018, 'hip_flex_margin_m': .001,
+                 'arm_swing_m': .080, 'body_pitch_rad': .012},
+        'exaggerated_reference': {'stride_m': .95, 'duty': .62, 'foot_lift_m': .085, 'hip_flex_margin_m': .009,
+                                 'arm_swing_m': .150, 'body_pitch_rad': .025},
+    }
+
+    def __init__(self, waypoints, profile='walk'):
+        self.profile = self.profiles[profile]
+        self.stride_m = self.profile['stride_m']
+        self.duty = self.profile['duty']
         self.times = [w['t_us']/1e6 for w in waypoints]
         self.points = [(*map(float, w['xy']), float(w.get('z_m', 0))) for w in waypoints]
         if len(self.times) < 2 or any(b <= a for a,b in zip(self.times,self.times[1:])):
@@ -144,7 +156,7 @@ class WalkPlan:
                 second,nyaw = self.anchor(contact+self.stride_m,side)
                 s = u*u*u*(10-15*u+6*u*u)
                 world = add(first,mul(sub(second,first),s))
-                world = add(world,(0.,0.,.085*math.sin(math.pi*u)**2))
+                world = add(world,(0.,0.,self.profile['foot_lift_m']*math.sin(math.pi*u)**2))
                 fyaw += math.atan2(math.sin(nyaw-fyaw),math.cos(nyaw-fyaw))*s
             local = rotate(sub(world,root),-yaw)
             neutral = (0.,side*.09,.10)
@@ -160,7 +172,7 @@ class WalkPlan:
             if horizontal_sq>=.78**2:
                 raise ValueError('gait horizontal reach exceeded')
             hip_limits.append(z+math.sqrt(.78**2-horizontal_sq))
-        body_z=min(.88,min(hip_limits)-.009*weight)-.88
+        body_z=min(.88,min(hip_limits)-self.profile['hip_flex_margin_m']*weight)-.88
         legs,arms = {},{}
         for side,f in feet.items():
             hip = (0.,side*.09,.88+body_z)
@@ -169,8 +181,8 @@ class WalkPlan:
             legs[side] = {**f,'hip':hip,'knee':knee,'foot':foot}
             phase = cycle+(0 if side==1 else .5)
             shoulder = (.014*weight,side*.19,1.36+body_z)
-            wrist = (-.15*math.sin(2*math.pi*phase)*weight,side*.20, .91+body_z)
+            wrist = (-self.profile['arm_swing_m']*math.sin(2*math.pi*phase)*weight,side*.20, .91+body_z)
             elbow = two_link(shoulder,wrist,.26,.24)
             arms[side] = {'shoulder':shoulder,'elbow':elbow,'wrist':wrist}
         return {'root':root,'yaw':yaw,'station':station,'speed':speed,'weight':weight,
-                'body_z':body_z,'body_pitch':.025*weight,'legs':legs,'arms':arms}
+                'body_z':body_z,'body_pitch':self.profile['body_pitch_rad']*weight,'legs':legs,'arms':arms}

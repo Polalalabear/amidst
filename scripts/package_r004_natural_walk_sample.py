@@ -28,6 +28,7 @@ def main():
     p.add_argument('--artifacts-root',type=Path,required=True)
     p.add_argument('--sample-root',type=Path,required=True)
     p.add_argument('--ffmpeg',type=Path,required=True)
+    p.add_argument('--previous-sample-root',type=Path)
     a=p.parse_args()
     art,root=a.artifacts_root.resolve(),a.sample_root.resolve()
     assert root.parent==art/'evidence'
@@ -41,6 +42,10 @@ def main():
     videos=[]
     validation={}
     overview=Image.new('RGB',(1920,1280),'#111827')
+    previous_inventory={}
+    if a.previous_sample_root:
+        old_manifest=json.loads((a.previous_sample_root/'MANIFEST.json').read_text())
+        previous_inventory={x['relative_path']:x for x in old_manifest['files']}
     for row,(label,cam,start) in enumerate([('W1','CAM_W1',10),('ENTRY','CAM_ENTRY',18)]):
         receipt=json.loads((root/label/'render_receipt.json').read_text())
         assert receipt['frames_checked']==90 and not receipt['surface_intersections']
@@ -106,6 +111,42 @@ def main():
             validation[path.name]={'result':'PASS','decoded_frames':count,'fps':fps,'duration_s':6,
                                    'encode_command':cmd,'decode_command':decode}
             print('Encoded/decoded',path.name,flush=True)
+        if a.previous_sample_root:
+            path=root/f'{label}_large_vs_soft_15fps.mp4'
+            cmd=[str(a.ffmpeg),'-hide_banner','-loglevel','warning','-n','-f','rawvideo','-pix_fmt','rgb24',
+                 '-s:v','1920x640','-r','15','-i','pipe:0','-an','-c:v','libx264','-preset','medium','-crf','18',
+                 '-vf','scale=out_color_matrix=bt709:out_range=tv','-pix_fmt','yuv420p','-color_range','tv',
+                 '-colorspace','bt709','-color_primaries','bt709','-color_trc','bt709','-movflags','+faststart',str(path)]
+            with (root/f'{label}_large_vs_soft_encode.log').open('w') as log:
+                proc=subprocess.Popen(cmd,stdin=subprocess.PIPE,stderr=log)
+                for n in range(90):
+                    old=a.previous_sample_root/label/f'{n:06d}.png'
+                    assert sha(old)==previous_inventory[str(old.relative_to(art))]['sha256']
+                    frame=Image.new('RGB',(1920,640),'#111827')
+                    draw(frame,(18,10),f'{cam} · 前版大幅屈膝（跑步設計參考）',27)
+                    draw(frame,(978,10),'走路新版 · 較小屈膝／較低抬腳',27)
+                    with Image.open(old) as src:
+                        frame.paste(src,(0,60))
+                    with Image.open(root/label/f'{n:06d}.png') as src:
+                        frame.paste(src,(960,60))
+                    draw(frame,(18,606),f't={start+n/15:04.1f}s · 兩邊15fps／相同路線與移動速度',21)
+                    draw(frame,(978,606),'抬腳8.5→1.8cm；步幅0.95→0.85m；保留支撐腳與固定腿長',21)
+                    if n==45:
+                        frame.save(root/f'{label}_large_vs_soft.png')
+                    proc.stdin.write(frame.tobytes())
+                proc.stdin.close()
+                assert proc.wait()==0
+            decode=[str(a.ffmpeg),'-hide_banner','-i',str(path),'-map','0:v:0','-f','null','-',
+                    '-progress','pipe:1','-nostats']
+            check=subprocess.run(decode,capture_output=True,text=True)
+            (root/f'{label}_large_vs_soft_decode.log').write_text(check.stderr+'\n'+check.stdout)
+            fields=dict(l.split('=',1) for l in check.stdout.splitlines() if '=' in l)
+            assert check.returncode==0 and int(fields['frame'])==90 and int(fields['out_time_us'])==6_000_000
+            videos.append({'path':str(path.relative_to(art)),'fps':15,'frames':90,'duration_s':6,
+                           'sha256':sha(path),'size_bytes':path.stat().st_size})
+            validation[path.name]={'result':'PASS','decoded_frames':90,'fps':15,'duration_s':6,
+                                   'encode_command':cmd,'decode_command':decode,'previous_png_hashes_verified':90}
+            print('Encoded/decoded',path.name,flush=True)
     overview.save(root/'BEFORE_AFTER_OVERVIEW.png')
     write(root/'MEDIA_VALIDATION.json',{'result':'PASS','source_original_rgb_hashes_verified':len(verified),
                                       'source_original_rgb':verified,'videos':validation})
@@ -113,6 +154,7 @@ def main():
     (root/'REVIEW.html').write_text('''<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>#516 自然步態樣片</title>
 <style>body{background:#111827;color:#eef2ff;font:18px/1.7 system-ui;max-width:1500px;padding:24px;margin:auto}video,img{width:100%}a{color:#67e8f9}</style>
 <h1>人物步態改善 · 短樣片</h1><p>原路線／時刻／材質不變。原版 v2.2 保留；新姿態只是動作展示樣片，未重建索引或取代完整驗收。</p>
+<h2>前版大幅度／走路新版小幅度（同15fps）</h2><video controls src="W1_large_vs_soft_15fps.mp4" poster="W1_large_vs_soft.png"></video>
 <h2>走廊：相同 5 fps 前後對照</h2><video controls src="W1_before_after_5fps.mp4" poster="W1_before_after.png"></video>
 <h2>近景：相同 5 fps 前後對照</h2><video controls src="ENTRY_before_after_5fps.mp4" poster="ENTRY_before_after.png"></video>
 <h2>改善步態 · 15 fps</h2><p>較流暢的顯示版本；不代表原資料或推論索引已改成15fps。</p>
