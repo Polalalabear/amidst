@@ -9,11 +9,13 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
+sys.dont_write_bytecode=True
 from r004_natural_walk import WalkPlan
 
 SOURCE_SHA='466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b'
@@ -118,20 +120,26 @@ def main():
     p.add_argument('--geometry',type=Path,required=True)
     p.add_argument('--catalog',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--camera',choices=['CAM_W1','CAM_ENTRY'],required=True)
+    p.add_argument('--camera',required=True)
+    p.add_argument('--label',choices=['A4-1','B4-1'],default='A4-1')
     p.add_argument('--start-s',type=float,required=True)
     p.add_argument('--duration-s',type=float,default=6)
     p.add_argument('--fps',type=int,default=15)
     p.add_argument('--gait-profile',choices=['walk','exaggerated_reference'],default='walk')
     p.add_argument('--probe-only',action='store_true')
     p.add_argument('--indices',default='all')
+    p.add_argument('--resume',action='store_true')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     source=Path(bpy.data.filepath)
     assert sha(source)==SOURCE_SHA and sha(a.catalog)==CATALOG_SHA
     assert sha(a.scenario)==SCENARIO_SHA
     appearance=a.baseline_snapshot/'scripts/r004_4actor_common.py'
     assert sha(appearance)==APPEARANCE_SHA
-    assert a.output.resolve().parent.parent==Path.home()/'amidst/local/evidence'
+    out=a.output.resolve()
+    local=Path.home()/'amidst/local'
+    evidence_output=out.parent.parent==local/'evidence'
+    data_output=out.is_relative_to(local/'data') and len(out.relative_to(local/'data').parts)==3 and out.relative_to(local/'data').parts[0].startswith('r004-4actor-natural-walk-')
+    assert evidence_output or data_output
     a.output.mkdir(parents=True,exist_ok=True)
     assert shutil.disk_usage(a.output).free>=8*1024**3+350*1024**2
     spec=importlib.util.spec_from_file_location('sample_pinned_appearance',appearance)
@@ -139,7 +147,8 @@ def main():
     spec.loader.exec_module(module)
     people=module.configure_people(bpy,a.repo)
     adapters={k:Person(v) for k,v in people.items()}
-    run=next(r for r in json.loads(a.scenario.read_text())['runs'] if r['scenario']=='A4-1')
+    run=next(r for r in json.loads(a.scenario.read_text())['runs'] if r['scenario']==a.label)
+    assert 0<=a.start_s<a.start_s+a.duration_s<=run['duration_us']/1e6
     geo=json.loads(a.geometry.read_text())
     plans={}
     for actor in run['actors']:
@@ -172,6 +181,33 @@ def main():
     count=round(a.duration_s*a.fps)
     indices=list(range(count)) if a.indices=='all' else [int(x) for x in a.indices.split(',')]
     assert all(0<=n<count for n in indices)
+    lock={'source_sha256':SOURCE_SHA,'catalog_sha256':CATALOG_SHA,'scenario_sha256':SCENARIO_SHA,
+          'appearance_sha256':APPEARANCE_SHA,'geometry_sha256':sha(a.geometry),
+          'gait_code_sha256':sha(Path(__file__).with_name('r004_natural_walk.py')),
+          'producer_code_sha256':sha(__file__),'camera':a.camera,'camera_matrix':camera_matrix,
+          'appearance_config_sha256':sha(a.repo/'configs/q1q5/producers/r004_d124_v1.json'),
+          'baseline_producer_sha256':sha(a.repo/'scripts/render_r004_d124.py'),
+          'blender_version':bpy.app.version_string,
+          'label':a.label,'start_s':a.start_s,'duration_s':a.duration_s,'fps':a.fps,
+          'gait_profile':a.gait_profile}
+    journal=a.output/'frame_manifest.jsonl'
+    completed={}
+    if not a.probe_only:
+        lockpath=a.output/'RENDER_LOCK.json'
+        if lockpath.exists():
+            assert a.resume and json.loads(lockpath.read_text())==lock,'resume context changed'
+            if journal.exists():
+                for line in journal.read_text().splitlines():
+                    row=json.loads(line)
+                    assert row['frame_index'] not in completed
+                    png=a.output/f"{row['frame_index']:06d}.png"
+                    assert png.stat().st_size==row['size_bytes'] and sha(png)==row['sha256']
+                    completed[row['frame_index']]=row
+            assert {p.name for p in a.output.glob('*.png')}=={f'{n:06d}.png' for n in completed},'unjournaled frame'
+        else:
+            assert not a.resume and not list(a.output.glob('*.png'))
+            with lockpath.open('x') as f:
+                json.dump(lock,f,indent=2)
     failures=[]
     checked=0
     for n in indices:
@@ -202,25 +238,34 @@ def main():
         if not a.probe_only:
             if failures:
                 break
+            if n in completed:
+                continue
             png=a.output/f'{n:06d}.png'
             assert not png.exists()
             assert shutil.disk_usage(a.output).free>=8*1024**3+32*1024**2
             scene.render.filepath=str(png)
             bpy.ops.render.render(write_still=True)
+            row={'frame_index':n,'source_time_us':round(time*1e6),'size_bytes':png.stat().st_size,'sha256':sha(png)}
+            with journal.open('a') as f:
+                f.write(json.dumps(row,separators=(',',':'))+'\n')
+                f.flush()
+                os.fsync(f.fileno())
+            completed[n]=row
     assert sha(source)==SOURCE_SHA and sha(a.catalog)==CATALOG_SHA
     assert camera_matrix==[list(row) for row in camera.matrix_world]
     report={'schema':'amidst.natural-walk-sample-probe.v1','source_sha256':SOURCE_SHA,
-            'authorization_ref':'USER_CHAT_2026-11-13_NATURAL_MOTION_REQUEST',
+            'authorization_ref':'USER_CHAT_2026-11-14_FULL_CORRECTED_5FPS' if data_output or a.duration_s>6 else 'USER_CHAT_2026-11-13_NATURAL_MOTION_REQUEST',
             'scenario_sha256':SCENARIO_SHA,'appearance_sha256':APPEARANCE_SHA,
             'gait_code_sha256':sha(Path(__file__).with_name('r004_natural_walk.py')),
             'producer_code_sha256':sha(__file__),'camera':a.camera,'start_s':a.start_s,
             'duration_s':a.duration_s,'fps':a.fps,'frames_checked':checked,
+            'label':a.label,'completed_render_frames':len(completed),
             'gait_profile':a.gait_profile,'gait_parameters':WalkPlan.profiles[a.gait_profile],
             'rendered':not a.probe_only,'source_blend_saved':False,'source_blend_copied':False,
             'root_route_changed':False,'camera_matrix_changed':False,
             'static_mesh_objects':[o.name for o in static],
             'surface_intersections':failures,
-            'scope':'Sample mesh surface-intersection check only; not >=0.35m articulated surface clearance or full-run/navigation acceptance'}
+            'scope':'Sampled mesh surface-intersection check only; not >=0.35m articulated surface clearance or continuous/navigation acceptance'}
     dump(a.output/('probe.json' if a.probe_only else 'render_receipt.json'),report)
     if failures:
         raise RuntimeError(f'{len(failures)} posed mesh intersections; see probe')
