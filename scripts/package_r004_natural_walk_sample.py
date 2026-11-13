@@ -29,6 +29,7 @@ def main():
     p.add_argument('--sample-root',type=Path,required=True)
     p.add_argument('--ffmpeg',type=Path,required=True)
     p.add_argument('--previous-sample-root',type=Path)
+    p.add_argument('--comparison-kind',choices=['large_vs_soft','arm_fix'],default='large_vs_soft')
     a=p.parse_args()
     art,root=a.artifacts_root.resolve(),a.sample_root.resolve()
     assert root.parent==art/'evidence'
@@ -45,7 +46,9 @@ def main():
     previous_inventory={}
     if a.previous_sample_root:
         assert a.previous_sample_root.resolve().parent==art/'evidence'
-        assert sha(a.previous_sample_root/'MANIFEST.json')=='ad7e191124d1ccb8cd5eebf0fea385955ccfa92d498acfc6ec6d7597d456c0fc'
+        expected={'large_vs_soft':'ad7e191124d1ccb8cd5eebf0fea385955ccfa92d498acfc6ec6d7597d456c0fc',
+                  'arm_fix':'57aba61d188a2517110dd00dd0d9e79e695f63f1a55007cff459c26554db4102'}
+        assert sha(a.previous_sample_root/'MANIFEST.json')==expected[a.comparison_kind]
         old_manifest=json.loads((a.previous_sample_root/'MANIFEST.json').read_text())
         previous_inventory={x['relative_path']:x for x in old_manifest['files']}
     for row,(label,cam,start) in enumerate([('W1','CAM_W1',10),('ENTRY','CAM_ENTRY',18)]):
@@ -114,34 +117,35 @@ def main():
                                    'encode_command':cmd,'decode_command':decode}
             print('Encoded/decoded',path.name,flush=True)
         if a.previous_sample_root:
-            path=root/f'{label}_large_vs_soft_15fps.mp4'
+            comparison=a.comparison_kind
+            path=root/f'{label}_{comparison}_15fps.mp4'
             cmd=[str(a.ffmpeg),'-hide_banner','-loglevel','warning','-n','-f','rawvideo','-pix_fmt','rgb24',
                  '-s:v','1920x640','-r','15','-i','pipe:0','-an','-c:v','libx264','-preset','medium','-crf','18',
                  '-vf','scale=out_color_matrix=bt709:out_range=tv','-pix_fmt','yuv420p','-color_range','tv',
                  '-colorspace','bt709','-color_primaries','bt709','-color_trc','bt709','-movflags','+faststart',str(path)]
-            with (root/f'{label}_large_vs_soft_encode.log').open('w') as log:
+            with (root/f'{label}_{comparison}_encode.log').open('w') as log:
                 proc=subprocess.Popen(cmd,stdin=subprocess.PIPE,stderr=log)
                 for n in range(90):
                     old=a.previous_sample_root/label/f'{n:06d}.png'
                     assert sha(old)==previous_inventory[str(old.relative_to(art))]['sha256']
                     frame=Image.new('RGB',(1920,640),'#111827')
-                    draw(frame,(18,10),f'{cam} · 前版大幅屈膝（跑步設計參考）',27)
-                    draw(frame,(978,10),'走路新版 · 較小屈膝／較低抬腳',27)
+                    draw(frame,(18,10),f'{cam} · '+('修正前（腳步已定版）' if comparison=='arm_fix' else '前版大幅屈膝（跑步設計參考）'),27)
+                    draw(frame,(978,10),'手臂修正後（腳步不變）' if comparison=='arm_fix' else '走路新版 · 較小屈膝／較低抬腳',27)
                     with Image.open(old) as src:
                         frame.paste(src,(0,60))
                     with Image.open(root/label/f'{n:06d}.png') as src:
                         frame.paste(src,(960,60))
                     draw(frame,(18,606),f't={start+n/15:04.1f}s · 兩邊15fps／相同路線與移動速度',21)
-                    draw(frame,(978,606),'抬腳8.5→1.8cm；步幅0.95→0.85m；保留支撐腳與固定腿長',21)
+                    draw(frame,(978,606),'手肘向後／交叉擺臂；腳步、髖部、位置、速度逐姿態相同' if comparison=='arm_fix' else '抬腳8.5→1.8cm；步幅0.95→0.85m；保留支撐腳與固定腿長',21)
                     if n==45:
-                        frame.save(root/f'{label}_large_vs_soft.png')
+                        frame.save(root/f'{label}_{comparison}.png')
                     proc.stdin.write(frame.tobytes())
                 proc.stdin.close()
                 assert proc.wait()==0
             decode=[str(a.ffmpeg),'-hide_banner','-i',str(path),'-map','0:v:0','-f','null','-',
                     '-progress','pipe:1','-nostats']
             check=subprocess.run(decode,capture_output=True,text=True)
-            (root/f'{label}_large_vs_soft_decode.log').write_text(check.stderr+'\n'+check.stdout)
+            (root/f'{label}_{comparison}_decode.log').write_text(check.stderr+'\n'+check.stdout)
             fields=dict(l.split('=',1) for l in check.stdout.splitlines() if '=' in l)
             assert check.returncode==0 and int(fields['frame'])==90 and int(fields['out_time_us'])==6_000_000
             videos.append({'path':str(path.relative_to(art)),'fps':15,'frames':90,'duration_s':6,
@@ -161,7 +165,7 @@ PREVIOUS_GAIT_COMPARISON
 <h2>近景：相同 5 fps 前後對照</h2><video controls src="ENTRY_before_after_5fps.mp4" poster="ENTRY_before_after.png"></video>
 <h2>改善步態 · 15 fps</h2><p>較流暢的顯示版本；不代表原資料或推論索引已改成15fps。</p>
 <video controls src="W1_natural_15fps.mp4"></video><video controls src="ENTRY_natural_15fps.mp4"></video>
-<p>仍是原始幾何人形；本次未製作跑步、進房間或車旁徘徊的新路線。<a href="ACTUAL_OUTPUT.md">實際產出</a> · <a href="MANIFEST.json">SHA-256</a></p></html>'''.replace('PREVIOUS_GAIT_COMPARISON', '<h2>前版大幅度／走路新版小幅度（同15fps）</h2><video controls src="W1_large_vs_soft_15fps.mp4" poster="W1_large_vs_soft.png"></video>' if a.previous_sample_root else ''))
+<p>仍是原始幾何人形；本次未製作跑步、進房間或車旁徘徊的新路線。<a href="ACTUAL_OUTPUT.md">實際產出</a> · <a href="MANIFEST.json">SHA-256</a></p></html>'''.replace('PREVIOUS_GAIT_COMPARISON', f'<h2>{"手臂修正前後：腳步相同" if a.comparison_kind=="arm_fix" else "前版大幅度／走路新版小幅度"}（同15fps）</h2><video controls src="W1_{a.comparison_kind}_15fps.mp4" poster="W1_{a.comparison_kind}.png"></video>' if a.previous_sample_root else ''))
 
 
 if __name__=='__main__':

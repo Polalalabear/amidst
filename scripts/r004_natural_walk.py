@@ -179,10 +179,15 @@ class WalkPlan:
             knee = two_link(hip,f['ankle'],.40,.38)
             foot = add(f['ankle'], rotate((.015,0.,-.05),f['yaw']))
             legs[side] = {**f,'hip':hip,'knee':knee,'foot':foot}
-            phase = cycle+(0 if side==1 else .5)
             shoulder = (.014*weight,side*.19,1.36+body_z)
-            wrist = (-self.profile['arm_swing_m']*math.sin(2*math.pi*phase)*weight,side*.20, .91+body_z)
-            elbow = two_link(shoulder,wrist,.26,.24)
+            # Couple arms to the actual opposite-foot lead, not a quarter-cycle
+            # offset sine. Left foot forward -> right arm forward, and vice versa.
+            lead=(feet[-side]['ankle'][0]-f['ankle'][0])/(self.stride_m*.5)
+            swing=max(-1.,min(1.,lead))*self.profile['arm_swing_m']*weight
+            wrist = (shoulder[0]+swing,side*.20,.91+body_z)
+            # Elbows fold behind the torso; knees fold forward. Sharing the knee
+            # pole made the forearms point backwards even when the root was right.
+            elbow = two_link(shoulder,wrist,.26,.24,pole=(-1.,0.,0.))
             arms[side] = {'shoulder':shoulder,'elbow':elbow,'wrist':wrist}
         return {'root':root,'yaw':yaw,'station':station,'speed':speed,'weight':weight,
                 'body_z':body_z,'body_pitch':self.profile['body_pitch_rad']*weight,'legs':legs,'arms':arms}

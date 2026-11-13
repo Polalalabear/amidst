@@ -92,3 +92,27 @@ def test_walk_bends_less_than_the_saved_exaggerated_reference():
     assert peak_flex(walk)<35
     assert peak_flex(walk)<peak_flex(old)-20
     assert walk.profile['foot_lift_m']<old.profile['foot_lift_m']/4
+
+
+def test_arm_lead_matches_opposite_foot_without_reversing_forearms():
+    p=plan()
+    for n in range(15,135):
+        q=p.pose(n/15)
+        for side in [1,-1]:
+            arm=q['arms'][side]
+            opposite_lead=q['legs'][-side]['ankle'][0]-q['legs'][side]['ankle'][0]
+            hand_lead=arm['wrist'][0]-arm['shoulder'][0]
+            assert hand_lead*opposite_lead>=-1e-10
+            assert arm['wrist'][0]>arm['elbow'][0]
+            assert m.norm(m.sub(arm['shoulder'],arm['elbow']))==pytest.approx(.26)
+            assert m.norm(m.sub(arm['elbow'],arm['wrist']))==pytest.approx(.24)
+
+
+def test_arm_direction_uses_body_local_forward_after_turning():
+    p=m.WalkPlan([{'t_us':0,'xy':[0,0]},{'t_us':10_000_000,'xy':[0,10]}])
+    q=p.pose(2.0)
+    assert q['yaw']==pytest.approx(math.pi/2)
+    for side in [1,-1]:
+        arm=q['arms'][side]
+        forearm_world=m.rotate(m.sub(arm['wrist'],arm['elbow']),q['yaw'])
+        assert forearm_world[1]>0
