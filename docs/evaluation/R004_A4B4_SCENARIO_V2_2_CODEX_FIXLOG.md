@@ -87,10 +87,17 @@ LOCAL：`local/evidence/codex-516-v21-feasibility-20261110/`，含原失敗、�
 - 原規則：regex要求檔案永遠有8個`@G1`、4個`@G2`。G1八項通過且依契約移除標記後，全檔為73 passed、4 xfailed、1 failed；失敗的是這個標記自我檢查。
 - 新規則：用AST依函式名確認8個`test_g1_*`、4個`test_g2_*`函式全部存在且名稱不重複；每組標記數只能0或整組數量，不能部分移除。某組仍有標記時其定義必須存在；定義若保留，必須是`pytest.mark.xfail(strict=True)`；整組移除後可刪該組定義。
 - G1/G2的12個實質驗收函式與其他自我測試保持不變；完成某組時只移除對應整組decorators。
-- 修正後結果由本PR最終「實際產出」和CI exact head記錄；不把尚未執行的測試當PASS。
+- 修正後：G1階段74 passed、4 xfailed；G2交付後全檔78 passed、0 xfailed。最終CI exact head另在PR／issue記錄。
 
 ## 產製入口修正：Blender匯入路徑與錯誤退出碼
 
 - 原值：producer直接匯入同目錄`render_r004_d124`，但Blender `--python`不把script目錄加進sys.path。單格試跑（A4 W1 frame70）在任何LOCK／RGB寫入前發生`ModuleNotFoundError`；Blender預設仍exit0。
 - 新值：producer先將自身scripts目錄加入sys.path；所有實際產製呼叫加`--python-exit-code 1`，supervisor據非零退出碼停止，不把Python例外誤當成功。
-- 修正後：重跑同一單格，必須有hash驗證的PNG與journal記錄；結果由最終交付收據記錄。未改路點、相機、材質或checker。
+- 修正後：同一A4 W1 frame70單格成功，有hash驗證PNG與journal記錄；兩段全量也完成（1000／1050格），見最終交付收據。未改路點、相機、材質或checker。
+
+## 索引啟動環境修正（2026-11-13）
+
+- 原值：僅使用目前demo的精簡`.venv`，啟動official RT-DETR時因`yaml`缺失停止；此env亦沒有Torch／TorchVision。模型尚未載入，沒有產生index輸出。
+- 新值：在該次索引process的`PYTHONPATH`加入既有LOCAL `data/q1q5-dynamic-baseline-v1_20261025/runtime-deps`，唯讀重用Torch2.6.0、TorchVision0.21.0、PyYAML6.0.3；與原D131 detector metadata的Torch／TorchVision版本相同。
+- 原因與驗證：3個package入口SHA均與D169搬遷manifest相同，沒有新建venv、安裝套件或修改服務runtime；實際RT-DETR推論成功啟動。完整數量、相同detector設定、conformance與local replay結果見最終交付收據。
+- 沒有改模型、weights、演算法參數、劇本、checker或關卡邏輯。

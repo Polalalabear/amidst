@@ -45,3 +45,69 @@ B4使用同一命令的`--label B4-1`。原始輸出不存在時不能加`--resu
 
 最終安全bundle、索引與LOCAL檔案逐檔SHA／數量／大小由同PR的
 `docs/operations/R004_V2_4ACTOR_BUNDLE_MANIFEST.json`提供；交件完成後在本文補上實際收據與啟動入口。
+
+## 完整索引與bundle命令
+
+以下命令讀取新run的safe資料；`TASK_REPO`為已簽出此PR產製版本的scratch clone，`TASK_PYTHON`指服務repo既有Python runtime（不建立新venv）。原始來源資料與8785服務的tracked檔案不變。
+
+```sh
+TASK_PYTHON="$AMIDST_ROOT/.venv/bin/python"
+TASK_RUN="$AMIDST_ARTIFACTS/data/r004-4actor-v22-20261110"
+uv --no-cache run --offline --no-project --python "$TASK_PYTHON" python -B "$TASK_REPO/scripts/prepare_r004_4actor_safe.py" --repo "$TASK_REPO" --render-root "$TASK_RUN" --catalog "$AMIDST_ARTIFACTS/data/r004-build-v2-20261021/safe_static/cameras.json" --baseline-config-dir "$AMIDST_ARTIFACTS/data/demo-owned-v1/metadata/config"
+```
+
+`prepare_r004_4actor_safe.py`先核對producer completion、來源／driver lock、完整格點、每張PNG hash與metadata清除結果，再以hardlink產生bundle影格。它與索引是不同程序：只有此producer closure程序可讀private完成收據；索引不接收private路徑或劇本。
+
+從 `SAFE_PREPARED` 取得明確的safe manifest SHA，填入 `TASK_SAFE_SHA`，每個場景分別執行：
+
+本機demo的精簡venv沒有Torch／YAML；索引命令須加 `PYTHONPATH="$AMIDST_ARTIFACTS/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps"`，唯讀重用既有D124/D131 runtime。實測Torch2.6.0／TorchVision0.21.0，未下載套件或修改服務venv。
+
+```sh
+PYTHONPATH="$AMIDST_ARTIFACTS/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps" uv --no-cache run --offline --no-project --python "$TASK_PYTHON" python -B "$TASK_REPO/scripts/index_r004_4actor.py" --safe-root "$TASK_RUN/bundle/safe" --safe-manifest-sha256 "$TASK_SAFE_SHA" --label A4-1 --model-source "$AMIDST_ARTIFACTS/data/demo-owned-v1/models/rtdetr/source/rtdetr_pytorch" --weights "$AMIDST_ARTIFACTS/data/demo-owned-v1/models/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth"
+```
+
+B4同命令改`--label B4-1`。它使用既有official RT-DETR R18、相同weights SHA、CPU FP32／seed7／threads2、stride1／score floor0.3與實際D131 HSV，不讀GT、renderer路線、visibility或depth。source Python檔逐檔hash綁定；不下載weights／依賴。每個index再跑14項既有conformance檢查與決定性RULE_ONLY local track replay。
+
+RULE_ONLY沿用D124的`CAMERA_LOCAL_SELECTED_SEED`：每台鏡頭第一個有person的frame若非唯一候選，回`UNKNOWN_AMBIGUOUS_SEED`；不是完整多人MOT，不合併跨鏡身分。
+
+```sh
+uv --no-cache run --offline --no-project --python "$TASK_PYTHON" python -B "$TASK_REPO/scripts/package_r004_4actor.py" --artifacts-root "$AMIDST_ARTIFACTS" --safe-root "$TASK_RUN/bundle/safe" --repo "$TASK_REPO"
+```
+
+打包後會再核對所有列入檔案的大小／hash，並寫repo內的交付manifest與LOCAL `bundle/BUNDLE_MANIFEST.json`。`stage_inputs`列出safe資料的合法輸入集合；本任務實際執行detection_index與local_track。ranking與reconstruction未執行，對應清單只是可用輸入，不宣稱讀取或驗收完成。
+
+每個產製／索引目錄都拒絕覆寫既有輸出。只對同一producer LOCK作`--resume`，不重用舊run像素。產製程式若要變更，保留舊partial run並建立新的明確來源綁定，不混合不同driver的格點。
+
+## 讀取已完成交付
+
+既有交付可直接讀 `bundle/safe/`，不需要重新啟動renderer。producer／index實際執行版本為
+`8cc7fa6dc8eae088e845a0d3b5c51297ff0dfcfb`；此PR最終版本另補交付manifest、收據、文件與G2標記移除。
+需要重現程式時，使用依本任務規則建立的scratch clone取得這個commit，不在服務repo切分支：
+
+```sh
+git clone --shared --no-checkout "$AMIDST_ROOT" "$TASK_REPO"
+git -C "$TASK_REPO" remote set-url origin https://github.com/Polalalabear/amidst.git
+git -C "$TASK_REPO" fetch origin codex/516-four-actor-delivery
+git -C "$TASK_REPO" switch --detach 8cc7fa6dc8eae088e845a0d3b5c51297ff0dfcfb
+```
+
+原輸出已完成時不要重啟產製或索引。`--resume`只用於相同LOCK的未完成產製，不用來更新已交付的統計；新的輸入／driver需要新run與新clock綁定。
+8785維持原demo pin；這份交付提供safe資料與索引，未切換工作台資料來源。前端接入與獨立人審由Claude接續。
+
+## 實際交付（2026-11-13 記錄）
+
+完整機械收據：`docs/engineering/R004_V2_4ACTOR_ACTUAL_RECEIPT.json`。
+
+| 項目 | A4-1 | B4-1 |
+| --- | ---: | ---: |
+| RGB影格 | 1000 | 1050 |
+| 模型呼叫 | 1000 | 1050 |
+| render supervisor elapsed（s） | 497.01147916700575 | 757.6253203749948 |
+| index elapsed（s） | 290.52920425000775 | 303.8146553340048 |
+| conformance PASS結果數 | 17 | 17 |
+
+G1/G2 12項交付關卡全PASS；指定測試檔78 passed、0 xfailed。Bundle共2,071檔，邏輯大小1,120,534,795 bytes（1.043579 GiB）；整個新run根去除hardlink重複後實占1,125,609,472 bytes。兩段render supervisor合計1254.636800s（不含pilot與暫停／日曆等待），索引合計594.343860s。渲染期間所有df／driver記錄最低可用13,128,429,568 bytes（12.226803 GiB）。
+
+交付manifest SHA-256：`50a9806d0e4549c1c9f5159aa1a7a84058bb181da40b7c6279655e36ccf7f801`。Safe input manifest SHA-256：`1424dc86d5b8d0da1b9c9b38468398e3ef137345ba48ccbc4a093a2f13bab05a`。
+
+RULE_ONLY共9個camera結果：7個LOCAL_SEGMENT，A4 EXT_CAR與W1為UNKNOWN_AMBIGUOUS_SEED。這些是camera-local selected-seed replay，並非完整多人追蹤或已確認身分。ranking、reconstruction、Agent評分、實際影像歧義段數與正式研究驗收未執行；5段是原工具的規劃估計。B的≥0.02紅帶餘裕仍為G1 proxy證據，未宣稱逐鏡頭實際B像素量測。

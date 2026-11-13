@@ -689,25 +689,21 @@ def _g2_manifest():
     return _load(BUNDLE_MANIFEST)
 
 
-@G2
 def test_g2_bundle_manifest_valid():
     assert validate_manifest(_g2_manifest()) == []
 
 
-@G2
 def test_g2_manifest_listing_has_no_gt_names():
     m = _g2_manifest()
     assert not [f['relative_path'] for f in m['files'] if GT_NAME.search(f['relative_path'])]
 
 
-@G2
 def test_g2_stage_inputs_exclude_gt_and_renderer_trajectories():
     m = _g2_manifest()
     for stage in STAGES:
         assert not [p for p in m['stage_inputs'][stage] if GT_NAME.search(p)], stage
 
 
-@G2
 def test_g2_runs_frames_cameras_and_rtdetr_index():
     m = _g2_manifest()
     assert set(m['runs']) == set(RUNS)
