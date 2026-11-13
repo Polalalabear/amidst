@@ -1,0 +1,174 @@
+"""Producer-only procedural walking. No detector, ranking or actor association imports.
+
+Source-time/root positions remain piecewise linear. Gait is distance-driven;
+planted feet have fixed world anchors, and limbs use two-link IK.
+"""
+from __future__ import annotations
+
+import bisect
+import math
+
+
+def add(a, b):
+    return tuple(x+y for x, y in zip(a, b))
+
+
+def sub(a, b):
+    return tuple(x-y for x, y in zip(a, b))
+
+
+def mul(a, s):
+    return tuple(x*s for x in a)
+
+
+def dot(a, b):
+    return sum(x*y for x, y in zip(a, b))
+
+
+def norm(a):
+    return math.sqrt(dot(a, a))
+
+
+def unit(a):
+    length = norm(a)
+    if length < 1e-12:
+        raise ValueError('zero vector')
+    return mul(a, 1/length)
+
+
+def smooth(x):
+    x = max(0., min(1., x))
+    return x*x*(3-2*x)
+
+
+def rotate(p, yaw):
+    c, s = math.cos(yaw), math.sin(yaw)
+    return (c*p[0]-s*p[1], s*p[0]+c*p[1], p[2])
+
+
+def two_link(start, end, upper, lower, pole=(1., 0., 0.)):
+    """Exact two-link lengths; fail instead of silently stretching a limb."""
+    delta = sub(end, start)
+    length = norm(delta)
+    if not abs(upper-lower)-1e-8 <= length <= upper+lower+1e-8:
+        raise ValueError(f'unreachable limb: {length} outside {abs(upper-lower),upper+lower}')
+    axis = unit(delta)
+    perpendicular = sub(pole, mul(axis, dot(pole, axis)))
+    if norm(perpendicular) < 1e-8:
+        perpendicular = sub((0., 1., 0.), mul(axis, axis[1]))
+    perpendicular = unit(perpendicular)
+    along = (upper*upper-lower*lower+length*length)/(2*length)
+    height = math.sqrt(max(0., upper*upper-along*along))
+    return add(start, add(mul(axis, along), mul(perpendicular, height)))
+
+
+class WalkPlan:
+    stride_m = 1.05
+    duty = .62
+
+    def __init__(self, waypoints):
+        self.times = [w['t_us']/1e6 for w in waypoints]
+        self.points = [(*map(float, w['xy']), float(w.get('z_m', 0))) for w in waypoints]
+        if len(self.times) < 2 or any(b <= a for a,b in zip(self.times,self.times[1:])):
+            raise ValueError('strictly increasing route times required')
+        self.lengths = [norm(sub(b,a)) for a,b in zip(self.points,self.points[1:])]
+        self.stations = [0.]
+        for length in self.lengths:
+            self.stations.append(self.stations[-1]+length)
+        self.path_legs = [(self.stations[i], self.stations[i+1], self.points[i], self.points[i+1])
+                          for i,length in enumerate(self.lengths) if length > 1e-9]
+        if not self.path_legs:
+            self.path_legs = [(0., 1., self.points[0], add(self.points[0], (1.,0.,0.)))]
+
+    def at(self, time):
+        time = max(self.times[0], min(self.times[-1], time))
+        i = max(0, min(len(self.times)-2, bisect.bisect_right(self.times,time)-1))
+        f = (time-self.times[i])/(self.times[i+1]-self.times[i])
+        return add(self.points[i],mul(sub(self.points[i+1],self.points[i]),f)), self.stations[i]+f*self.lengths[i], i
+
+    def path_at(self, station):
+        for lo,hi,a,b in self.path_legs:
+            if station <= hi:
+                direction = unit(sub(b,a))
+                return add(a,mul(direction,station-lo)), direction
+        lo,hi,a,b = self.path_legs[-1]
+        direction = unit(sub(b,a))
+        return add(b,mul(direction,station-hi)), direction
+
+    def yaw(self, time):
+        # Symmetric heading blend only; never changes the route or event times.
+        root,_,i = self.at(time)
+        if self.lengths[i] < 1e-9:
+            for j in range(i-1,-1,-1):
+                if self.lengths[j] > 1e-9:
+                    d = sub(self.points[j+1],self.points[j])
+                    return math.atan2(d[1],d[0])
+            return 0.
+        before = self.at(time-.16)[0]
+        after = self.at(time+.16)[0]
+        d = sub(after,before)
+        if norm(d) < 1e-9:
+            d = sub(self.points[i+1],root)
+        return math.atan2(d[1],d[0])
+
+    def anchor(self, station, side):
+        center,direction = self.path_at(station)
+        yaw = math.atan2(direction[1],direction[0])
+        return add(center, rotate((0., side*.09, .10),yaw)), yaw
+
+    def pose(self, time):
+        root,station,leg_index = self.at(time)
+        yaw = self.yaw(time)
+        speed = self.lengths[leg_index]/(self.times[leg_index+1]-self.times[leg_index])
+        # Fade at route boundaries and actual holds; phase follows distance, not fps.
+        lo,hi = leg_index,leg_index
+        while lo > 0 and self.lengths[lo-1] > 1e-9:
+            lo -= 1
+        while hi+1 < len(self.lengths) and self.lengths[hi+1] > 1e-9:
+            hi += 1
+        fade = min(smooth((time-self.times[lo])/.28), smooth((self.times[hi+1]-time)/.28))
+        weight = smooth(speed/.45)*fade if speed > 1e-9 else 0.
+        cycle = station/self.stride_m
+        body_z = weight*(-.09 + .012*math.cos(4*math.pi*cycle))
+        feet = {}
+        for side,offset in [(1,0.),(-1,.5)]:
+            phase = cycle+offset
+            step = math.floor(phase)
+            fraction = phase-step
+            contact = (step-offset)*self.stride_m+self.stride_m*self.duty/2
+            first,fyaw = self.anchor(contact,side)
+            support = fraction < self.duty
+            if support:
+                world = first
+            else:
+                u = (fraction-self.duty)/(1-self.duty)
+                second,nyaw = self.anchor(contact+self.stride_m,side)
+                s = u*u*u*(10-15*u+6*u*u)
+                world = add(first,mul(sub(second,first),s))
+                world = add(world,(0.,0.,.085*math.sin(math.pi*u)**2))
+                fyaw += math.atan2(math.sin(nyaw-fyaw),math.cos(nyaw-fyaw))*s
+            local = rotate(sub(world,root),-yaw)
+            neutral = (0.,side*.09,.10)
+            local = add(neutral,mul(sub(local,neutral),weight))
+            feet[side] = {'ankle':local,'yaw':math.atan2(math.sin(fyaw-yaw),math.cos(fyaw-yaw))*weight,
+                          'support':support and weight > .999,'phase':fraction}
+        # Lower the pelvis enough to solve both legs without stretching.
+        for _ in range(25):
+            if all(norm(sub(f['ankle'],(0.,side*.09,.88+body_z))) <= .78+1e-8 for side,f in feet.items()):
+                break
+            body_z -= .003
+        else:
+            raise ValueError('gait reach exceeded: shorten stride or inspect route')
+        legs,arms = {},{}
+        for side,f in feet.items():
+            hip = (0.,side*.09,.88+body_z)
+            knee = two_link(hip,f['ankle'],.40,.38)
+            foot = add(f['ankle'], rotate((.015,0.,-.05),f['yaw']))
+            legs[side] = {**f,'hip':hip,'knee':knee,'foot':foot}
+            phase = cycle+(0 if side==1 else .5)
+            shoulder = (.014*weight,side*.19,1.36+body_z)
+            wrist = (-.15*math.sin(2*math.pi*phase)*weight,side*.20, .91+body_z)
+            elbow = two_link(shoulder,wrist,.26,.24)
+            arms[side] = {'shoulder':shoulder,'elbow':elbow,'wrist':wrist}
+        return {'root':root,'yaw':yaw,'station':station,'speed':speed,'weight':weight,
+                'body_z':body_z,'body_pitch':.025*weight,'legs':legs,'arms':arms}
