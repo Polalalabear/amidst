@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
-import math
 import shutil
 import sys
 from pathlib import Path
@@ -48,6 +48,7 @@ def bvh(objects):
 
 class Person:
     def __init__(self,person):
+        import bpy
         from mathutils import Matrix
         self.root=person['root']
         self.objects=person['objects']
@@ -59,6 +60,20 @@ class Person:
         if sorted(self.parts)!=sorted(needed):
             raise ValueError('unexpected source mesh parts')
         self.identity=Matrix.Identity(4)
+        self.joints={}
+        for side in ['L','R']:
+            for joint,limb,radius in [('KNEE','SHIN',.052),('ELBOW','FOREARM',.038)]:
+                bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=8,radius=radius)
+                obj=bpy.context.object
+                obj.name='NATURAL_'+self.root.name+'_'+side+'_'+joint
+                obj.parent=self.root
+                obj.matrix_parent_inverse=self.identity
+                for polygon in obj.data.polygons:
+                    polygon.use_smooth=True
+                for material in self.parts[side+'_'+limb].data.materials:
+                    obj.data.materials.append(material)
+                self.joints[side+'_'+joint]=obj
+                self.objects.append(obj)
 
     def segment(self,name,a,b):
         from mathutils import Matrix,Vector
@@ -86,6 +101,8 @@ class Person:
             self.segment(side+'_SHIN',leg['knee'],leg['ankle'])
             self.segment(side+'_UPPER_ARM',arm['shoulder'],arm['elbow'])
             self.segment(side+'_FOREARM',arm['elbow'],arm['wrist'])
+            self.joints[side+'_KNEE'].location=leg['knee']
+            self.joints[side+'_ELBOW'].location=arm['elbow']
             for name,pos,yaw in [(side+'_SHOE',leg['foot'],leg['yaw']),(side+'_HAND',arm['wrist'],0)]:
                 obj=self.parts[name]
                 linear=self.base[obj].to_3x3().to_4x4()
@@ -94,7 +111,6 @@ class Person:
 
 def main():
     import bpy
-    from mathutils import Matrix
     p=argparse.ArgumentParser()
     p.add_argument('--repo',type=Path,required=True)
     p.add_argument('--baseline-snapshot',type=Path,required=True)
@@ -117,9 +133,10 @@ def main():
     assert a.output.resolve().parent.parent==Path.home()/'amidst/local/evidence'
     a.output.mkdir(parents=True,exist_ok=True)
     assert shutil.disk_usage(a.output).free>=8*1024**3+350*1024**2
-    sys.path.append(str(appearance.parent))
-    from r004_4actor_common import configure_people
-    people=configure_people(bpy,a.repo)
+    spec=importlib.util.spec_from_file_location('sample_pinned_appearance',appearance)
+    module=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    people=module.configure_people(bpy,a.repo)
     adapters={k:Person(v) for k,v in people.items()}
     run=next(r for r in json.loads(a.scenario.read_text())['runs'] if r['scenario']=='A4-1')
     geo=json.loads(a.geometry.read_text())
@@ -137,8 +154,8 @@ def main():
     static_tree=bvh(static)
     scene=bpy.context.scene
     camera=bpy.data.objects[a.camera]
-    catalog=json.loads(a.catalog.read_text())
-    # Catalog structure is validated by exact hash and source camera matrices below.
+    # Exact source/catalog hashes bind calibration. Check that this sample does
+    # not change the source camera matrix during pose updates/rendering.
     camera_matrix=[list(row) for row in camera.matrix_world]
     assert a.camera in run['render_camera_ids']
     scene.camera=camera
@@ -192,6 +209,7 @@ def main():
     assert sha(source)==SOURCE_SHA and sha(a.catalog)==CATALOG_SHA
     assert camera_matrix==[list(row) for row in camera.matrix_world]
     report={'schema':'amidst.natural-walk-sample-probe.v1','source_sha256':SOURCE_SHA,
+            'authorization_ref':'USER_CHAT_2026-11-13_NATURAL_MOTION_REQUEST',
             'scenario_sha256':SCENARIO_SHA,'appearance_sha256':APPEARANCE_SHA,
             'gait_code_sha256':sha(Path(__file__).with_name('r004_natural_walk.py')),
             'producer_code_sha256':sha(__file__),'camera':a.camera,'start_s':a.start_s,

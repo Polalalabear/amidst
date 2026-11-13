@@ -66,3 +66,12 @@ def test_pose_is_independent_of_frame_sampling_and_call_order():
     for t in [8.1,.2,2.0]:
         p.pose(t)
     assert a==p.pose(2.4)
+
+
+def test_source_floor_step_does_not_change_root_height():
+    p=m.WalkPlan([{'t_us':0,'xy':[0,0],'z_m':-.06},
+                  {'t_us':1_000_000,'xy':[1,0],'z_m':-.06},
+                  {'t_us':1_050_000,'xy':[1,0],'z_m':0},
+                  {'t_us':3_000_000,'xy':[3,0],'z_m':0}])
+    assert p.pose(1.025)['root']==pytest.approx((1,0,-.03))
+    assert p.pose(1.05)['root']==pytest.approx((1,0,0))

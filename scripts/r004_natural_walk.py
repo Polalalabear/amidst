@@ -63,7 +63,7 @@ def two_link(start, end, upper, lower, pole=(1., 0., 0.)):
 
 
 class WalkPlan:
-    stride_m = 1.05
+    stride_m = .95
     duty = .62
 
     def __init__(self, waypoints):
@@ -129,7 +129,6 @@ class WalkPlan:
         fade = min(smooth((time-self.times[lo])/.28), smooth((self.times[hi+1]-time)/.28))
         weight = smooth(speed/.45)*fade if speed > 1e-9 else 0.
         cycle = station/self.stride_m
-        body_z = weight*(-.09 + .012*math.cos(4*math.pi*cycle))
         feet = {}
         for side,offset in [(1,0.),(-1,.5)]:
             phase = cycle+offset
@@ -152,13 +151,16 @@ class WalkPlan:
             local = add(neutral,mul(sub(local,neutral),weight))
             feet[side] = {'ankle':local,'yaw':math.atan2(math.sin(fyaw-yaw),math.cos(fyaw-yaw))*weight,
                           'support':support and weight > .999,'phase':fraction}
-        # Lower the pelvis enough to solve both legs without stretching.
-        for _ in range(25):
-            if all(norm(sub(f['ankle'],(0.,side*.09,.88+body_z))) <= .78+1e-8 for side,f in feet.items()):
-                break
-            body_z -= .003
-        else:
-            raise ValueError('gait reach exceeded: shorten stride or inspect route')
+        # Rise over the planted leg, lower during double support. A constant low
+        # pelvis would make both knees crouch throughout the cycle.
+        hip_limits=[]
+        for side,f in feet.items():
+            x,y,z=f['ankle']
+            horizontal_sq=x*x+(y-side*.09)**2
+            if horizontal_sq>=.78**2:
+                raise ValueError('gait horizontal reach exceeded')
+            hip_limits.append(z+math.sqrt(.78**2-horizontal_sq))
+        body_z=min(.88,min(hip_limits)-.009*weight)-.88
         legs,arms = {},{}
         for side,f in feet.items():
             hip = (0.,side*.09,.88+body_z)
