@@ -5,6 +5,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import shutil
 import subprocess
 from functools import lru_cache
 from pathlib import Path
@@ -152,6 +153,8 @@ def main():
                 'parent_clock_file':info(clock_path),'fps':5,'duration_s':duration,
                 'camera_ids':cams,'rgb_files_verified':verified,'gait_code_sha256':receipts[0]['gait_code_sha256'],
                 'producer_code_sha256':receipts[0]['producer_code_sha256'],
+                'package_code_sha256':sha(Path(__file__)),
+                'ffmpeg_executable_sha256':sha(a.ffmpeg),
                 'formal_eligible':False,'inference_executed':False,'ranking_executed':False,
                 'reconstruction_executed':False,'new_routes_authored':False,
                 'scope':'Full corrected viewing output; does not replace the original indexed safe bundle',
@@ -174,6 +177,42 @@ def main():
             pages.append(f'<h3>{cam}</h3><video controls preload="none" src="cameras/{label}_{cam}_full_5fps.mp4"></video>')
         pages.append('</details>')
     (out/'REVIEW_FULL.html').write_text('<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>完整修正版 A4／B4</title><style>body{background:#111827;color:#eef2ff;font:18px/1.7 system-ui;max-width:1500px;margin:32px auto;padding:0 24px}video{width:100%;margin:12px 0}summary{cursor:pointer}</style><h1>完整步態修正版 · 5 fps</h1><p>原劇本、原時刻與原相機；已確認的小幅腳步與正確交叉擺臂。所有畫面來自本次新影格。</p>'+''.join(pages)+'</html>')
+    if all((out/f'FULL_MEDIA_{label}.json').exists() for label in ['A4-1','B4-1']) and (out/'RENDER_FULL_COMPLETE.json').exists():
+        repo=Path(__file__).resolve().parents[1]
+        code_paths=['scripts/r004_natural_walk.py','scripts/render_r004_natural_walk_sample.py',
+                    'scripts/check_r004_natural_walk_routes.py','scripts/audit_r004_natural_walk_endpoints.py',
+                    'scripts/produce_r004_natural_walk_full.py','scripts/package_r004_natural_walk_sample.py',
+                    'scripts/package_r004_natural_walk_full.py','tests/evaluation/test_r004_natural_walk.py',
+                    'scripts/render_r004_d124.py','configs/q1q5/producers/r004_d124_v1.json']
+        for relative in code_paths:
+            target=out/'code'/relative
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(repo/relative,target)
+        base_code=art/'evidence/codex-516-v21-feasibility-20261110/delivery-049f3b3c/scripts/r004_4actor_common.py'
+        target=out/'code/baseline/r004_4actor_common.py'
+        target.parent.mkdir(exist_ok=True)
+        shutil.copyfile(base_code,target)
+        runs={label:json.loads((out/f'FULL_MEDIA_{label}.json').read_text()) for label in ['A4-1','B4-1']}
+        assert sum(len(run['rgb_files_verified']) for run in runs.values())==2050
+        assert len({run['gait_code_sha256'] for run in runs.values()})==1
+        assert len({run['producer_code_sha256'] for run in runs.values()})==1
+        assert len({run['package_code_sha256'] for run in runs.values()})==1
+        files=[info(path) for folder in [data,out] for path in sorted(folder.rglob('*'))
+               if path.is_file() and path.name!='FULL_MANIFEST.json']
+        full={'schema':'amidst.corrected-full-view-manifest.v1','local_root':'$AMIDST_ARTIFACTS',
+              'scope':'Fixed full-view payload; later CI/closing records excluded; source render/input assets are not copied',
+              'file_count':len(files),'total_bytes':sum(row['size_bytes'] for row in files),
+              'rendered_png_count':2050,'movie_count':11,'files':files,
+              'source_inputs':[info(script),info(base_code),
+                               info(art/'data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend'),
+                               info(art/'data/r004-build-v2-20261021/safe_static/cameras.json')],
+              'runs':{label:{'display_run_id':run['display_run_id'],'clock_id':run['clock']['clock_id'],
+                             'fps':5,'duration_s':run['duration_s'],'camera_ids':run['camera_ids'],
+                             'rendered_frames':len(run['rgb_files_verified'])} for label,run in runs.items()},
+              'formal_eligible':False,'inference_executed':False,'ranking_executed':False,'reconstruction_executed':False}
+        save(out/'FULL_MANIFEST.json',full)
+        print(json.dumps({'full_manifest_sha256':sha(out/'FULL_MANIFEST.json'),
+                          'files':len(files),'bytes':full['total_bytes']}),flush=True)
 
 
 if __name__=='__main__':
