@@ -97,8 +97,8 @@ def main():
     assert ends['gait_code_sha256']==digest(repo/'scripts/r004_natural_walk.py')
     assert ends['pose_producer_sha256']==digest(producer)
     (evidence/'df_before_full_render.txt').write_text(subprocess.check_output(['df','-k',str(Path.home())],text=True))
-    # Conservative estimate includes all 2050 PNG plus movies and receipts.
-    assert shutil.disk_usage(art).free>=8*1024**3+int(2.0*1024**3),'need 8GiB + 2.0GiB before rendering'
+    # Includes new raw PNG, separately sanitized safe RGB, movies and indexes.
+    assert shutil.disk_usage(art).free>=8*1024**3+int(3.5*1024**3),'need 8GiB + 3.5GiB before rendering'
     reused={}
     if a.reuse_proof:
         proof=json.loads(a.reuse_proof.read_text())
