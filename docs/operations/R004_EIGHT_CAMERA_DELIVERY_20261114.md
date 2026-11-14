@@ -78,3 +78,13 @@ G1：兩段 checker 各 7/7 PASS；96 個 mesh endpoint-camera 測試 PASS，460
 淨距指 checker 定義的人物中心對牆／家具線段 ≥0.35m，不是連續 articulated surface clearance。mesh probe 是 5 fps 表面相交抽樣，不把此結果擴大為連續碰撞／真實安全認證。歧義五段來自不變的規劃 coverage 模型，並非 RT-DETR／實際跨鏡頭身分驗收。
 
 關卡本體維持 #528；沿用使用者先前明確授權的唯一 selftest 修正（標記計數→函式計數），交付通過後整組移除 xfail markers。PR 特別標示此例外供 Claude 逐行檢查，AST 保存證據在 LOCAL evidence。
+
+## 實際驗收收據
+
+- focused tests：93 passed、0 xfailed、0 failed；G1 8／G2 4 全 PASS。驗收函式本體保持 #528，只有已授權 marker selftest 例外。
+- RT-DETR：A4 2,000 次、B4 1,680 次 model calls，各只跑一次；完整安全影格 3,680／3,680，逐組 IDAT 與 clock／records 範圍核對 PASS。
+- 安全 bundle：3,701 檔、1,945,734,640 bytes，manifest SHA-256 `33e1b3f457381cd620e94d4beac6a2d9fba2f9203babab84b14d5ba111cbe311`。
+- 完整觀看與產製固定 payload：7,587 檔、3,907,800,917 bytes，manifest SHA-256 `55aec3d9dfd443a1575692652a0646fce970ab4d203ce21b97e7fbf441e43864`。包含 3,680 個 raw PNG 及另外安全化的 PNG；檔案數／邏輯大小包含兩組，不等於新增磁碟占用。
+- 兩段各 9 支影片全部解碼驗證 PASS（A4 250 幀／50 秒，B4 210 幀／42 秒），共 18 支。
+- #527 凍結 payload 的 2,166 個檔案逐檔 SHA 再驗證 PASS。
+- 完整摘要見 `docs/engineering/R004_EIGHT_CAMERA_ACTUAL_RECEIPT_20261114.json`；CI 最終結果與 PR head 以本 PR checks／issue 實際產出為準。
