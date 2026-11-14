@@ -667,45 +667,37 @@ def _g1_report():
     return _load(REPORT)
 
 
-@G1
 def test_g1_report_schema_and_provenance():
     report = _g1_report()
     assert report.get('schema') == REPORT_SCHEMA
     assert check_inputs(report) == []
 
 
-@G1
 def test_g1_geometry_walls_furniture_doors_measured():
     assert check_geometry(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_clearance_unknown_becomes_pass_with_geometry():
     assert check_clearance(_g1_report(), _load(DRAFT)) == []
     assert check_draft_files(DRAFT) == []
 
 
-@G1
 def test_g1_spawn_points_outside_all_render_cameras():
     assert check_spawn(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_b_stays_in_red_band_under_every_camera_light():
     assert check_color(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_ambiguity_episodes_at_least_five():
     assert check_ambiguity(_g1_report(), _load(DRAFT)) == []
 
 
-@G1
 def test_g1_render_cost_and_disk_estimate():
     assert check_cost(_g1_report()) == []
 
 
-@G1
 def test_g1_actor_cloning_and_boundary():
     report = _g1_report()
     assert check_actor_cloning(report) == []
@@ -914,11 +906,26 @@ def test_selftest_bad_manifest_is_rejected(mutate, needle):
 
 
 def test_selftest_gate_markers_are_strict_and_cover_every_gate():
-    src = Path(__file__).read_text(encoding='utf-8')
-    gates = re.findall(r'^@(G1|G2)\ndef (test_g[12]_\w+)', src, flags=re.M)
-    assert len([g for g in gates if g[0] == 'G1']) == 8 and len([g for g in gates if g[0] == 'G2']) == 4
-    assert 'strict=True' in src.split('G1 = ', 1)[1].split('\n', 1)[0]
-    assert 'strict=True' in src.split('G2 = ', 1)[1].split('\n', 1)[0]
+    import ast
+
+    tree = ast.parse(Path(__file__).read_text(encoding='utf-8'))
+    functions = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
+    for group, prefix, expected in (('G1', 'test_g1_', 8), ('G2', 'test_g2_', 4)):
+        gates = [n for n in functions if n.name.startswith(prefix)]
+        assert len(gates) == expected and len({n.name for n in gates}) == expected
+        marked = sum(any(isinstance(d, ast.Name) and d.id == group
+                         for d in n.decorator_list) for n in gates)
+        assert marked in (0, expected), f'{group}: remove all markers together'
+        definitions = [n.value for n in tree.body if isinstance(n, ast.Assign)
+                       and any(isinstance(t, ast.Name) and t.id == group for t in n.targets)]
+        assert len(definitions) <= 1
+        if marked:
+            assert len(definitions) == 1
+        for value in definitions:
+            assert isinstance(value, ast.Call)
+            assert ast.unparse(value.func) == 'pytest.mark.xfail'
+            assert any(k.arg == 'strict' and isinstance(k.value, ast.Constant)
+                       and k.value.value is True for k in value.keywords)
 
 
 def test_selftest_spawn_point_inside_assumed_coverage_box_is_rejected():
