@@ -31,7 +31,19 @@ BUNDLE_MANIFEST = ROOT / 'docs/operations/R004_V2_4ACTOR_BUNDLE_MANIFEST.json'
 DRAFT_V21 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_1_4ACTOR_DRAFT.json'
 DRAFT_V22 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json'  # Codex's corrected routes (D207)
 FIXLOG_V22 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_2_CODEX_FIXLOG.md'
-DRAFT = DRAFT_V22 if DRAFT_V22.is_file() else DRAFT_V21  # prefer v2.2 once it exists
+DRAFT_V23 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json'  # 8-camera delivery fixes (D211)
+FIXLOG_V23 = ROOT / 'docs/evaluation/R004_A4B4_SCENARIO_V2_3_CODEX_FIXLOG.md'
+
+
+def pick_draft(v23=DRAFT_V23, v22=DRAFT_V22, v21=DRAFT_V21):
+    """Newest existing draft: v2.3 -> v2.2 -> v2.1."""
+    for path in (v23, v22):
+        if Path(path).is_file():
+            return Path(path)
+    return Path(v21)
+
+
+DRAFT = pick_draft()
 HSV_VERSION = 'D131-DEMO-HSV-v1'
 CROP_RATIO = 0.5  # D131-DEMO-HSV-v1 (upper 50% of the bbox)
 CHECKER = ROOT / 'scripts/design/check_actor_clearance.py'
@@ -39,9 +51,11 @@ CHECKER = ROOT / 'scripts/design/check_actor_clearance.py'
 REPORT_SCHEMA = 'amidst.r004-v2-feasibility.v1'
 MANIFEST_SCHEMA = 'amidst.r004-v2-bundle-manifest.v1'
 RUNS = {'A4-1-v2-4actor': 'A4-1', 'B4-1-v2-4actor': 'B4-1'}
+ALL_CAMERAS = ['CAM_BRANCH', 'CAM_ENTRY', 'CAM_EXT_CAR', 'CAM_EXT_CLEAR', 'CAM_R101_IN', 'CAM_W1', 'CAM_W2', 'CAM_WIDE']
+# D211 (2026-11-14, user): both runs render all 8 cameras
 RENDER_CAMERAS = {
-    'A4-1-v2-4actor': ['CAM_ENTRY', 'CAM_EXT_CAR', 'CAM_EXT_CLEAR', 'CAM_W1'],
-    'B4-1-v2-4actor': ['CAM_BRANCH', 'CAM_R101_IN', 'CAM_W1', 'CAM_W2', 'CAM_WIDE'],
+    'A4-1-v2-4actor': list(ALL_CAMERAS),
+    'B4-1-v2-4actor': list(ALL_CAMERAS),
 }
 SPAWN_ACTORS = ('A', 'B', 'C')
 STOP_LINE_GIB = 8.0
@@ -221,10 +235,18 @@ def check_geometry(report, draft):
     return errs
 
 
-def check_draft_files(draft_path, fixlog_path=FIXLOG_V22):
-    """A v2.2 draft (Codex-corrected routes) must ship its FIXLOG next to it."""
-    if 'V2_2' in Path(draft_path).name and not Path(fixlog_path).is_file():
-        return [f'draft {Path(draft_path).name} needs {Path(fixlog_path).name} next to it (Codex route fixes are logged)']
+FIXLOGS = {'V2_3': FIXLOG_V23, 'V2_2': FIXLOG_V22}
+
+
+def check_draft_files(draft_path, fixlog_path=None):
+    """A v2.2 / v2.3 draft (Codex-corrected) must ship its FIXLOG next to it."""
+    name = Path(draft_path).name
+    for tag, default in FIXLOGS.items():
+        if tag in name:
+            fixlog = Path(fixlog_path) if fixlog_path is not None else default
+            if not fixlog.is_file():
+                return [f'draft {name} needs {fixlog.name} next to it (Codex route fixes are logged)']
+            break
     return []
 
 
@@ -802,7 +824,8 @@ def test_selftest_real_draft_passes_the_checker_on_repo_geometry():
     result = _load_checker().check_document(_load(DRAFT))
     assert result['verdict'] == 'PASS', result['runs']
     assert all(r['check_status']['walls'] == 'PASS' and r['check_status']['spawn_exit'] == 'PASS' for r in result['runs'])
-    assert check_render_cameras(_load(DRAFT)) == []
+    if 'V2_3' in DRAFT.name:  # earlier drafts predate the 8-camera set (D211)
+        assert check_render_cameras(_load(DRAFT)) == []
     assert check_draft_files(DRAFT) == []
 
 
@@ -822,18 +845,43 @@ def test_selftest_spawn_exit_pass_fail_and_unknown():
         run.pop('render_camera_ids')
     errs = check_clearance(report, draft, geo)
     assert any('render_camera_ids must be' in e for e in errs) and any('spawn_exit status UNKNOWN' in e for e in errs), errs
+    # one camera missing / one extra from the render set is refused
+    for mutate in (lambda ids: ids.remove('CAM_W2'), lambda ids: ids.append('CAM_EXTRA')):
+        draft = _fake_draft()
+        mutate(draft['runs'][1]['render_camera_ids'])
+        assert check_render_cameras(draft)
     # CAM_ENTRY missing from the A4 render set is refused
     draft = _fake_draft()
     draft['runs'][0]['render_camera_ids'].remove('CAM_ENTRY')
     assert any('CAM_ENTRY' in e for e in check_clearance(report, draft, geo))
 
 
-def test_selftest_v22_draft_needs_its_fixlog(tmp_path):
+def test_selftest_render_cameras_are_all_eight_for_both_runs():
+    for cams in RENDER_CAMERAS.values():
+        assert sorted(cams) == ALL_CAMERAS and len(cams) == 8
+
+
+def test_selftest_v22_v23_draft_needs_its_fixlog(tmp_path):
     assert check_draft_files(DRAFT_V21) == []
-    draft = tmp_path / 'R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json'
-    assert check_draft_files(draft, tmp_path / 'LOG.md')
-    (tmp_path / 'LOG.md').write_text('x')
-    assert check_draft_files(draft, tmp_path / 'LOG.md') == []
+    for tag in ('2', '3'):
+        draft = tmp_path / f'R004_A4B4_SCENARIO_V2_{tag}_4ACTOR_DRAFT.json'
+        assert check_draft_files(draft, tmp_path / f'LOG{tag}.md')
+        (tmp_path / f'LOG{tag}.md').write_text('x')
+        assert check_draft_files(draft, tmp_path / f'LOG{tag}.md') == []
+
+
+def test_selftest_v23_without_fixlog_is_refused_by_default_paths(tmp_path):
+    # default FIXLOG path is the v2.3 one; point a v2.3 draft name at a missing log
+    assert check_draft_files(tmp_path / 'R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json', tmp_path / 'missing.md')
+
+
+def test_selftest_draft_priority_v23_then_v22_then_v21(tmp_path):
+    v21, v22, v23 = (tmp_path / n for n in ('v21.json', 'v22.json', 'v23.json'))
+    assert pick_draft(v23, v22, v21) == v21
+    v22.write_text('{}')
+    assert pick_draft(v23, v22, v21) == v22
+    v23.write_text('{}')
+    assert pick_draft(v23, v22, v21) == v23
 
 
 def test_selftest_fake_manifest_passes():
