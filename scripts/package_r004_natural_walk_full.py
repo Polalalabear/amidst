@@ -195,7 +195,9 @@ def main():
                     'scripts/package_r004_natural_walk_full.py','tests/evaluation/test_r004_natural_walk.py',
                     'scripts/render_r004_d124.py','configs/q1q5/producers/r004_d124_v1.json',
                     'scripts/prepare_r004_eight_camera_reuse.py','scripts/prepare_r004_eight_camera_safe.py',
-                    'scripts/index_r004_4actor.py','scripts/package_r004_4actor.py']
+                    'scripts/index_r004_4actor.py','scripts/package_r004_4actor.py',
+                    'scripts/finish_r004_eight_camera.py','scripts/verify_r004_eight_camera_delivery.py',
+                    'scripts/build_r004_v2_feasibility_report.py','scripts/check_r004_4actor_color_proxy.py']
         for relative in code_paths:
             target=out/'code'/relative
             target.parent.mkdir(parents=True,exist_ok=True)
