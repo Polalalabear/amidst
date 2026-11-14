@@ -51,6 +51,14 @@ def main():
     camera_movies=out/'cameras'
     camera_movies.mkdir(exist_ok=True)
     script=a.scenario or art/'evidence/codex-516-v21-feasibility-20261110/delivery-049f3b3c/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json'
+    if not script.resolve().is_relative_to(art):
+        staged=out/'inputs'/script.name
+        staged.parent.mkdir(exist_ok=True)
+        if staged.exists():
+            assert sha(staged)==sha(script)
+        else:
+            shutil.copyfile(script,staged)
+        script=staged
     doc=json.loads(script.read_text())
     movie_rows=[]
 
@@ -201,8 +209,10 @@ def main():
         assert len({run['gait_code_sha256'] for run in runs.values()})==1
         assert all(run['producer_code_sha256s'] for run in runs.values())
         assert len({run['package_code_sha256'] for run in runs.values()})==1
+        # These supervisor streams continue after this child closes the fixed payload.
+        late={'FULL_MANIFEST.json','encode_review.log','postprocess.log','POSTPROCESS_COMPLETE.json'}
         files=[info(path) for folder in [data,out] for path in sorted(folder.rglob('*'))
-               if path.is_file() and path.name!='FULL_MANIFEST.json']
+               if path.is_file() and path.name not in late]
         full={'schema':'amidst.corrected-full-view-manifest.v1','local_root':'$AMIDST_ARTIFACTS',
               'scope':'Fixed full-view payload; later CI/closing records excluded; source render/input assets are not copied',
               'file_count':len(files),'total_bytes':sum(row['size_bytes'] for row in files),
