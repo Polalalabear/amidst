@@ -1,0 +1,1118 @@
+{
+  "schema": "amidst.natural-walk-sample-manifest.v1",
+  "scope": "fixed arm-correction sample payload; later GitHub/closing records excluded",
+  "file_count": 222,
+  "total_bytes": 113094305,
+  "files": [
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ARM_FIX_CHECK.json",
+      "size_bytes": 443,
+      "sha256": "9eab379d2390e58f4422ee8b3c243c00ba2657e478d79f9a0a5b4146b4cdfb72"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/BEFORE_AFTER_OVERVIEW.png",
+      "size_bytes": 1418522,
+      "sha256": "fa68de0ec4aeb280734e1ffbf35d8e8d7be6e6f48bf3955780e0ae5897275548"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000000.png",
+      "size_bytes": 489183,
+      "sha256": "368b341debf9c7f724162ffd6f360ec4ade6bd5d8e068077e8887392dec793b5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000001.png",
+      "size_bytes": 489165,
+      "sha256": "cc6fcd680b050e77bf7704e7c367fee8a8e36ec7dee241737c3d52e148d84649"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000002.png",
+      "size_bytes": 489013,
+      "sha256": "044d18584bea301de71383a418ac69494269eb9a91b70d3a191b6202595934e7"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000003.png",
+      "size_bytes": 489006,
+      "sha256": "a204fd4c83d00fcdba1d2ea3a2fac36c4e7e26e4e7c72c8639fc500c6e126404"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000004.png",
+      "size_bytes": 489076,
+      "sha256": "9e04de728477d39481b2953abf3de80fb3c3035eb771cb1718633ef50ba6291f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000005.png",
+      "size_bytes": 489073,
+      "sha256": "b725efd7f47d034f5864e81505dc10b55584aee1bd5aca9562c8bd7c4ac5e26b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000006.png",
+      "size_bytes": 489194,
+      "sha256": "2ac753edfb2b2b821e25e502c1b24648df1a92022e0fb0691a89ce298a8ff412"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000007.png",
+      "size_bytes": 489172,
+      "sha256": "d0ee7972d8f7a9863a5f5888c30f88c5b23867731fa1772c8f98d94d2b898fe7"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000008.png",
+      "size_bytes": 488939,
+      "sha256": "5609790189a55dadbb28aa067c24f1d70edb59a922cd9a7194ada84ce036136a"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000009.png",
+      "size_bytes": 489223,
+      "sha256": "6a8748a5c3586061c51e20d8fec2af336826c41153f3003635b601a1b0f1c7ef"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000010.png",
+      "size_bytes": 489089,
+      "sha256": "863bd5afbf5b2c56a1c133b8bb09830f39a27e1ce31dba0e9c0de1e0136467c2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000011.png",
+      "size_bytes": 489073,
+      "sha256": "975b6723b957f337d0ac6f1bc3520740a24df4c5a0111566e58ea1a5bccda03d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000012.png",
+      "size_bytes": 489159,
+      "sha256": "04b5a2de677aec6a373e52e6c69ab73bf4b06a739445713f65922d272274f86c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000013.png",
+      "size_bytes": 488973,
+      "sha256": "e0fe2142ebc91f4c995026f78ef55ce43c5d62851453e97beebc4bdcb317a39b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000014.png",
+      "size_bytes": 489064,
+      "sha256": "2c4ff316357339b65d92652756f51f602ea46c7c6724128ce6f930589822fa81"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000015.png",
+      "size_bytes": 489112,
+      "sha256": "99731dbcf4d2fb44777caa49c0f09a6fa3f7844d7d6546cfae9bf6be327f1f96"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000016.png",
+      "size_bytes": 489083,
+      "sha256": "9785e8549820467dfb77ceb0c54cf5153decc2b109b19e55ba602b3ad1d9f2a2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000017.png",
+      "size_bytes": 489017,
+      "sha256": "a041646ce961b819033efc0965354951a11dcbc1e3d87212e90b2898ee9be8de"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000018.png",
+      "size_bytes": 489253,
+      "sha256": "5aa26b58eab147ee8b20fa6f242e33a5a49b186cb1bfd182178cdc05ca0b3a22"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000019.png",
+      "size_bytes": 489192,
+      "sha256": "2724de46de727a1881cf2358174f8cd9a76a7cf7112676d6e7e361a72333f038"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000020.png",
+      "size_bytes": 489213,
+      "sha256": "0b67aab56d0b8b23ee72843fd30fbe75a3f300eac6b1248168b7f4fded3a1e8d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000021.png",
+      "size_bytes": 489188,
+      "sha256": "cac58e1e3ad4d4de604782205eba27ae18a50a18f50b1eaedee13b16245c467d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000022.png",
+      "size_bytes": 489175,
+      "sha256": "8ba377acff98991b5d039c5b83d38c68b5f336db89863f6b8a574dc150986975"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000023.png",
+      "size_bytes": 489283,
+      "sha256": "986defd008cfe4ea4fc62a051918ffee6d314546b956ff04858213cf124e02b7"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000024.png",
+      "size_bytes": 488973,
+      "sha256": "e3467c40406f2956b51ead4fa05e7ff7283e0a1aafd2dda37c0b6a53940f3d4c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000025.png",
+      "size_bytes": 489192,
+      "sha256": "5c6cc085e70838f759580f4a9155a56c2618e557e9bd06f41f25d1c44b7c0dca"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000026.png",
+      "size_bytes": 489022,
+      "sha256": "ac11208d812dcdd463d17d2e2207e6e0954af120474e40ec4c283726d01be65c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000027.png",
+      "size_bytes": 489455,
+      "sha256": "b6bc61f56d9314627f11674ac564686330084b940d18a7dd3976c7e9c1687d05"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000028.png",
+      "size_bytes": 489386,
+      "sha256": "fe61728b619d2b8de7cf9257bd9137ab32aca7b68322b3ba7e54b59f84a80cea"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000029.png",
+      "size_bytes": 489713,
+      "sha256": "729981253ef25d3e4870fadb158afb81601ecbaaa0a938dc9b967955cf2beac1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000030.png",
+      "size_bytes": 489820,
+      "sha256": "d6c4fa218539f50aa14cc9f5e474853f0a7c17f5062bbe7520940a6521dda075"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000031.png",
+      "size_bytes": 489744,
+      "sha256": "1905dcbe689c36c46d18049d654870b16a09d7cb53b394384847c2b88a5389e6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000032.png",
+      "size_bytes": 489510,
+      "sha256": "5d266be1754ff4806787a50703398fef79ad5301cf29e257cc321cd1cbe44a94"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000033.png",
+      "size_bytes": 489811,
+      "sha256": "8e32f71285b024ba582608220e082d9ca3b504b15d0fa2062f9e4408bfe81236"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000034.png",
+      "size_bytes": 489421,
+      "sha256": "6b49fc60ac893dafaed6937e17b2231084fc4c40aa8b36d062d9034e0ca6376e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000035.png",
+      "size_bytes": 489340,
+      "sha256": "a9c928f5d03c1d8438fab1e4f4b48fdf27c678d5cae4d89acba5159bd8cbeeb3"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000036.png",
+      "size_bytes": 489327,
+      "sha256": "0f1fcc90238a5931c9978ff5cdbdd76b90080c8c30e74362a10bcd1a4c856206"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000037.png",
+      "size_bytes": 489246,
+      "sha256": "b3eb44907e98c2634afa94c6f4865c2c6bbff6c0853cc9c87a576bf10a9f711f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000038.png",
+      "size_bytes": 489230,
+      "sha256": "8c65482997426f8d98a453b86493c14f5f9abc3ab5cb631765d2925df4bddf10"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000039.png",
+      "size_bytes": 490283,
+      "sha256": "97d6b33147c65ebdb091866470e262c059e2c3ca1c0b49cc0be00a283985b6db"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000040.png",
+      "size_bytes": 491632,
+      "sha256": "f5b417cdff9d0ccbe49ce32f39bcc571dbc685a3dabfc06ec8a06123760d9a81"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000041.png",
+      "size_bytes": 492538,
+      "sha256": "a91a4766d570eb2cb1370c9f46ef2d65f8286ff9e8187b836a2934d0e73f30c4"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000042.png",
+      "size_bytes": 492511,
+      "sha256": "f61a48659eaa7e760cbb575a4e6e848176787a6b20b0a380d87701828ba0d7e8"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000043.png",
+      "size_bytes": 496235,
+      "sha256": "080ebcb56abdd4725283b22a63a09e0364e0f9d28d40f36dc64115137a1ea3df"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000044.png",
+      "size_bytes": 498828,
+      "sha256": "33b01204ea3f05b8035b138c04f3f7ec8e230a1996b74081ccd70b7fdfdcb9f5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000045.png",
+      "size_bytes": 500341,
+      "sha256": "8a71314f620a5560bb735d93e1a4eddf375b0ee570789c95d020f6b843ca0dca"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000046.png",
+      "size_bytes": 499121,
+      "sha256": "18ca96c517e4ff405e28de627cf07481103c9c541f2ded978f08949c824b46cd"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000047.png",
+      "size_bytes": 499775,
+      "sha256": "e79464dd6ddf76ebee9192b8ad70ae86ae0525651886bf6915e4bf0b5df46384"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000048.png",
+      "size_bytes": 500691,
+      "sha256": "266c8d461678afc2da70e6e3db32df66ea6ebaaaaedda5f228f7e613236d92ad"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000049.png",
+      "size_bytes": 503538,
+      "sha256": "3b2fd706eebec4325e424f73cfc0de2232f64d0b54640d606d8832efcd033bbd"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000050.png",
+      "size_bytes": 506361,
+      "sha256": "b012cfeca26649d5ce925af25a080d042d25e826fbb504661b98d66002ded46c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000051.png",
+      "size_bytes": 508243,
+      "sha256": "2f99f877b514b2e8aa9d05562089f0d19ca7b4223eb3152ecc07d5ae0c74290f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000052.png",
+      "size_bytes": 509262,
+      "sha256": "cc0201f8d9e44031291755b3bc69455d695c1daec67f6197b7dba79e583f450a"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000053.png",
+      "size_bytes": 512284,
+      "sha256": "b2983407fa8bc8eaec7bc281cce1d3e157689e018b8f4e9dcdde83bee23786d5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000054.png",
+      "size_bytes": 511942,
+      "sha256": "1dba00828feeeb4db7a4c751ee057270da104e9266280821d2e4f369ca998c7d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000055.png",
+      "size_bytes": 512102,
+      "sha256": "aca635f854e376909a9ecd692043c31ccec7a117ba2f2147a50bc5c5937f7e96"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000056.png",
+      "size_bytes": 510918,
+      "sha256": "3da201e3ff3aa3225a9103eed61c4970def444c128762781f4e6fe32e68c23d2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000057.png",
+      "size_bytes": 509550,
+      "sha256": "4d037afcbf5dfeee429680fbc98361c2e5ad8fa31bc6d9d2dd3be0fcee79621d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000058.png",
+      "size_bytes": 506208,
+      "sha256": "ef6b4941e1d934196e61dd27ab1415d40c7c99b18f4d7d55b9ee4216a201324c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000059.png",
+      "size_bytes": 502301,
+      "sha256": "93eb9518ce0c7e6e215c651c4addd8f1e0b5fedb7fc41ac11780863f63517130"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000060.png",
+      "size_bytes": 499260,
+      "sha256": "bdd1a0a69b81241c754fa6d034f7978cfc2eedbb4c22fa46af70b0cf06897eb6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000061.png",
+      "size_bytes": 497213,
+      "sha256": "1455b2ab53d57ded9a48f071c12ca14ebfd61f3238fa059927f19413f785610f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000062.png",
+      "size_bytes": 494568,
+      "sha256": "dd54eb7d6b3d6dc63d18016b8e9167314bc74dd0a43d060205ee9edb4c20463b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000063.png",
+      "size_bytes": 490930,
+      "sha256": "5b5e35d5158c4a0d53e82ef1cc88f0d998e21e33e51179c9d77e8c68a30e653e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000064.png",
+      "size_bytes": 490410,
+      "sha256": "a891f586e687173f243dbade024e18c42eaa728088ffd059562781bcb13b79ec"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000065.png",
+      "size_bytes": 489496,
+      "sha256": "82c8d157b639fe8246b7b493142b2637675c57c633e871d14e6ebf2346975939"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000066.png",
+      "size_bytes": 489081,
+      "sha256": "f357f3a2550cbaba7f4aae79c79e70ae6f57d11797b8261fffcd8f4679f16209"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000067.png",
+      "size_bytes": 489112,
+      "sha256": "3f657fffa2d23d31ca568e2545b58ec3da44426a5f0daa3d886064f03a480705"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000068.png",
+      "size_bytes": 489055,
+      "sha256": "4840c0bb2e2128df066ea8627e278fa401a9b23feee7cf9c4bf88ed4f6cdd944"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000069.png",
+      "size_bytes": 489069,
+      "sha256": "7ebedd26a5af947202738b911c8fc38548e464c3b1dee0675b462da708b8fea6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000070.png",
+      "size_bytes": 489165,
+      "sha256": "8629b3c502e1648c3ecd54713dbcbad40320f48afdc6ffa7009840d6ed13fb93"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000071.png",
+      "size_bytes": 489099,
+      "sha256": "24f115f00860ded2cb048168f981bcd0c765b590b493f0bbaeb46406e7788a05"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000072.png",
+      "size_bytes": 489140,
+      "sha256": "2a199e6ad931c1abe7ef9a594ec7735708385110cf873041ec0fe1ce790127df"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000073.png",
+      "size_bytes": 489040,
+      "sha256": "2f4ab78af5e12cc3f3977190ddd96d4b7c183c9cf3bbe80d0898d2c4737e1442"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000074.png",
+      "size_bytes": 489064,
+      "sha256": "fbe4e9831318783b8fe70bab27635e8331368b8f628e1dfd28796161617d1b57"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000075.png",
+      "size_bytes": 489040,
+      "sha256": "be1fc8b943617a1f5ffb1be6ef4048fd14f5f1bb38ec97f9ef4c11f7500daa04"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000076.png",
+      "size_bytes": 489161,
+      "sha256": "bdc37247ad74bf10d0617bfaeccc7222f21e49d9596524a97826a06850cd8ba8"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000077.png",
+      "size_bytes": 489064,
+      "sha256": "2a09bdc92ad1f3a7921e4d2383d50b90be77f1c08ca1ee2f505cab435fe0b002"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000078.png",
+      "size_bytes": 489085,
+      "sha256": "9f265b738ca5a0642cca193614574abbcbe619845811449f58f7c8bedc8a41aa"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000079.png",
+      "size_bytes": 488990,
+      "sha256": "8f53ea48ad82b75e6e163e0e33855a98e294fc6d9be89be2dc2052b5d378ca5f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000080.png",
+      "size_bytes": 489089,
+      "sha256": "292f07f64ee95e24569eb45a5277b441b25731df10eef0ee25de524812f7a5f1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000081.png",
+      "size_bytes": 489127,
+      "sha256": "b8e5d7868f3f364d150c9c366dda72490d61c80dd03a8162ffd5fe1dad163bae"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000082.png",
+      "size_bytes": 489162,
+      "sha256": "e9b9adb9329615f7fe865be1873b2462fbb1a40fa53a4efb9fda1d6fb50a1487"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000083.png",
+      "size_bytes": 489112,
+      "sha256": "0cd09be5645046c0f06698695fa7118b6324df2fe745e7f218ea1495ae34419f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000084.png",
+      "size_bytes": 489084,
+      "sha256": "7185b69be998cbebb80bb55cef2252e3b9275eb208c9598ad577e7010e1bcfdc"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000085.png",
+      "size_bytes": 489071,
+      "sha256": "86bcde3d018cfac933e9a9da4f3a183c5856424b2a8c51431454be607c46eb0d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000086.png",
+      "size_bytes": 489049,
+      "sha256": "7058c2108106887216b4501abac3c6dd2027a52b56113ff573c305a547c4ca27"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000087.png",
+      "size_bytes": 489054,
+      "sha256": "011ad84819ad4a7b2b7704911601ba9da43cf14b310507f39c869ff3e1cde472"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000088.png",
+      "size_bytes": 488900,
+      "sha256": "2bada1cea49ae085caa8b3c462fb7bebde3ec234108d421e945dd6d102481f2e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/000089.png",
+      "size_bytes": 488964,
+      "sha256": "af66ad111cd95ee3c2877765a1683be8347847060255a2ef7c4483b30e591607"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY/render_receipt.json",
+      "size_bytes": 1551,
+      "sha256": "51b929456893283106f1e5637476f942398aac69b592fd42261f3807c7edebaf"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix.png",
+      "size_bytes": 532002,
+      "sha256": "8c2d2fdb84c8648cfafeb62c1d0afb41395c63c8790b41d030710d2a88c75807"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix_15fps.mp4",
+      "size_bytes": 311455,
+      "sha256": "36132bc4ae39e608eb0044dbf8b11201e2a76cab91a148449b17b35b0d751f44"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix_decode.log",
+      "size_bytes": 1626,
+      "sha256": "472777d86f4b1187b8935be7f09b7de0fca768563ed27bc88fde792c95bbd3db"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_arm_fix_encode.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after.png",
+      "size_bytes": 535483,
+      "sha256": "191a35c7df3eee84ff3920af88b1c6958d6de44d658673f315147d18322040c5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps.mp4",
+      "size_bytes": 313581,
+      "sha256": "99c7074efb1031c6698e794ef605a417dc58fb19b7dfa861e85d3319ae750584"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps_decode.log",
+      "size_bytes": 1626,
+      "sha256": "044adfa906eb5232b7141e25e69263c6559848abca8bea7d8bc190ac36e64855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_before_after_5fps_encode.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_natural_15fps.mp4",
+      "size_bytes": 170423,
+      "sha256": "2cb5757477ae9b8e3b763f18284841d731cb117f1c4a3862e29eb2348f366aa1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_natural_15fps_decode.log",
+      "size_bytes": 1624,
+      "sha256": "ea98367bb3f5ebf7c82510e253be7ef8c987baf980cd4a37c2a9562fb5891623"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_natural_15fps_encode.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_render.log",
+      "size_bytes": 12462,
+      "sha256": "9c2b0d85fa59c2cb9daa4943d30fa5ec937ffaf08cd3b7176cffde05d20a4197"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/ENTRY_render_command.json",
+      "size_bytes": 1029,
+      "sha256": "83df98139cc6936a6351a1afd19a6711a02404d317c7899865a530f08a7788a0"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/KINEMATIC_ROUTE_CHECK.json",
+      "size_bytes": 539,
+      "sha256": "32234019599a939a5bab8b237a7df825a2cbe7bf225849856617ce82165ac5c6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/MEDIA_VALIDATION.json",
+      "size_bytes": 25194,
+      "sha256": "cbe46b0db6aee1d41173aa32fbc408eecc01564a7cfa95dcaae94efc52d87c99"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/REVIEW.html",
+      "size_bytes": 1236,
+      "sha256": "c7d1ab706cf0773b69bda124626c83539aa068fb59b82dfe58a82b7bd119e7cb"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/VIDEOS.json",
+      "size_bytes": 1530,
+      "sha256": "085bfb15623621b1cb98fc5d8e45daef12df49e2caac521ed98532170c17ce1d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000000.png",
+      "size_bytes": 686181,
+      "sha256": "e5a56de4dde5284473da0ff1e33b754561e94a13784b20cf78bbdddbe19f199c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000001.png",
+      "size_bytes": 686441,
+      "sha256": "36cf5823c88cf6abf1e2fc96418f503e57e25be0cf94ec23584bc65dd64753f2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000002.png",
+      "size_bytes": 686140,
+      "sha256": "e502f8f4fab9e5a7d08f3c87620586420bb84c7853a565885dd0649d8104cabf"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000003.png",
+      "size_bytes": 685669,
+      "sha256": "9bca72e1b457dcde96c3ac03cf81e962056274238a26cd34b4a5a11a21da43e2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000004.png",
+      "size_bytes": 684041,
+      "sha256": "f9c50ae61ad8a9cbcfde0b1a92678c920af95df7551f91484ac9e5a3837b08b7"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000005.png",
+      "size_bytes": 683636,
+      "sha256": "6da1f165c6b72bd6c42c39163dbd11cbef2985e878db3d430a6aaabb98a38f9f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000006.png",
+      "size_bytes": 683241,
+      "sha256": "418caa83fe53401a8e82ab2ce643ed56e02d81522ae9d115cdc21b1458057500"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000007.png",
+      "size_bytes": 683799,
+      "sha256": "8e8cd3380b97dd91bd0e5df26d87a83535320275323dc06b7f15e05e3f8eb2da"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000008.png",
+      "size_bytes": 683423,
+      "sha256": "e1d9c5842a5e741e22ee3494f7f5135b206ab7bf8caaa2fab48861df7a822802"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000009.png",
+      "size_bytes": 682846,
+      "sha256": "759ebfa3efd9435ea229ed19d9ab745a00eaef638c6762d3d779da4998ebf612"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000010.png",
+      "size_bytes": 682107,
+      "sha256": "02395d3cabf91e209c9907c31422e6424e8fc5078e569b179fcf079821949a0b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000011.png",
+      "size_bytes": 681485,
+      "sha256": "f563e38dc9e498e2aaf229f8175909262edbf4a490439d3836f9eb009068ad69"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000012.png",
+      "size_bytes": 682310,
+      "sha256": "f0d4e1f9cfd2408b19423b74debc982b4d848f480d6f666292f9241676468633"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000013.png",
+      "size_bytes": 681692,
+      "sha256": "f2c241da8ec23d40d5014e3db4da39da85af6144994148f3c24dad8b0d12694f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000014.png",
+      "size_bytes": 681833,
+      "sha256": "18179bf51c1bb9fbe689ef20358324f107058fa0eb3b5e442b438c1ba24d999f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000015.png",
+      "size_bytes": 681758,
+      "sha256": "53429678311cc98b943940dee7f7aca12806b3f3446e6ca8f56e606e81d06e29"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000016.png",
+      "size_bytes": 681820,
+      "sha256": "951db6675d5d2de9ece5fcb8061707727a7141e99078fdf24592a2abcc773e73"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000017.png",
+      "size_bytes": 682718,
+      "sha256": "4fb5ad6f9d66e3ca659ba0a1966e3a183535c15725a2ba2fdc2acbe20eb032ab"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000018.png",
+      "size_bytes": 682477,
+      "sha256": "4bef77093a8c8ec554bead5a8faf1faa70aa8e7acf5d67c5a9fbe3bd46fead31"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000019.png",
+      "size_bytes": 682222,
+      "sha256": "11a31cfab79bde4a9094e68b63f135732589252d47b1923dbd2ca3f06b1bdf56"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000020.png",
+      "size_bytes": 682310,
+      "sha256": "48308d4cabdd439b0c7a029b13050890dc4e03b4a578ac282b24e9a681bee88b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000021.png",
+      "size_bytes": 682195,
+      "sha256": "ae9adc08d265395891fa32992179de7931b11edb6c86422c698b3872e61f9e00"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000022.png",
+      "size_bytes": 681734,
+      "sha256": "415ab8f54af269bd60db6fd5a41e0e04c694f329225a7c4173cee017a0661ab6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000023.png",
+      "size_bytes": 681183,
+      "sha256": "f8f6e703ff1fb770b5421cec040bd7433a4c69c226cc353ec239d52fba647654"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000024.png",
+      "size_bytes": 681035,
+      "sha256": "866eab53bdb5975eccb1f0eac02fc95c8be64217329e5831adb801022c2b157f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000025.png",
+      "size_bytes": 680585,
+      "sha256": "7c9ee239e2c1b4c7258dfec40dc013ead7fb93112a3d4adf1576b5c619100c4d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000026.png",
+      "size_bytes": 680244,
+      "sha256": "80ebe6b684c31bc44ce3513b5e9c45b941a93ed0c0edae32c63a73edc3ddea12"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000027.png",
+      "size_bytes": 678645,
+      "sha256": "9b1dfbe33182ed6d6bee3538b570fe78dc67490d8e1c259683dd5419ce9b64c9"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000028.png",
+      "size_bytes": 677740,
+      "sha256": "1b0af4292d30573febfa8f3ba517a0971f376cbe258d1770d1167de2d6b36ca6"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000029.png",
+      "size_bytes": 677116,
+      "sha256": "2371a584f5596e3f4202bdbccd47ccc35ff3d8d31872c6b8bb35c847337ceae1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000030.png",
+      "size_bytes": 676989,
+      "sha256": "791a13edc33de1b4c0fc467e739b9d688c1599f7f548feb66aa537cfb10eb278"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000031.png",
+      "size_bytes": 675972,
+      "sha256": "13a1ccdc50db2f6b5dbb3ebd4ef8bb34152e38b650c556a81b639b2b0eedc622"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000032.png",
+      "size_bytes": 676664,
+      "sha256": "819b4c521f8c3a01ee23fcce6bdbe83f76919588f6912ab1dc300a219ace4abf"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000033.png",
+      "size_bytes": 680068,
+      "sha256": "9c34b55c89ff753760ba686103a87d3ed219cfc17566c3c12deff5fae2e89826"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000034.png",
+      "size_bytes": 683577,
+      "sha256": "9627f75e37436a0f7ca7c7157b450f85dee39c246e0597e0a1771022001cec4a"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000035.png",
+      "size_bytes": 686556,
+      "sha256": "26d82e2f2227474b0867047961b99828e1344febdc5191d82171c7d28a5ca76f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000036.png",
+      "size_bytes": 688766,
+      "sha256": "2ad2ae20c57fb83034a7aa5c32c1d48280b2d05b0c13bc35d0f163ad6b5e864e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000037.png",
+      "size_bytes": 690855,
+      "sha256": "37ad35e8cbfe7af888445da171dc8a95ce123fe7a9d7404c4cb078e3b238634a"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000038.png",
+      "size_bytes": 692983,
+      "sha256": "61f607b51b4207eb1ba2eab8d7657ea1b11f378995ba67a77f9e238fb87c9a76"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000039.png",
+      "size_bytes": 693726,
+      "sha256": "e85823ebb8f04a9c397cabf71e7d126c67c291751b6357947c75e6a39e9faa2c"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000040.png",
+      "size_bytes": 691792,
+      "sha256": "4a1db77c2b964d4a69dde11fcfc8d1f0192a25e80efb6e2a048b09b492a3f5b3"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000041.png",
+      "size_bytes": 691157,
+      "sha256": "564181bee037a7f8846edfae177b2243597a6cd201d2c207bfe1cd8c41ad8bf2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000042.png",
+      "size_bytes": 690611,
+      "sha256": "9058831082e94b462a76fe489fb13ee0db7b95a6e4b809188ae00f156df3961a"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000043.png",
+      "size_bytes": 691980,
+      "sha256": "7f58ceb5dce0c1ce235108859ad32ac9b96ab01fb5acc848368dbcc57f828bee"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000044.png",
+      "size_bytes": 691339,
+      "sha256": "82dc6178481020e77a695997a92bc9be43fcf719432ef85050e0ad21d83831e4"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000045.png",
+      "size_bytes": 689799,
+      "sha256": "56e660342c2db6345e902703fd696373036ac2718b89d0d0593474f11c21eb93"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000046.png",
+      "size_bytes": 688983,
+      "sha256": "b4a8c10f7a4bc53a6bef9133e19bd1b45dbc92d621c48e33fb4ed511bf0a2c15"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000047.png",
+      "size_bytes": 687989,
+      "sha256": "23624b9f4ba2fc55f4d565ee559ada23bb5934ffc547472c7e565e18e1d24a00"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000048.png",
+      "size_bytes": 688389,
+      "sha256": "0b8181f6b46ef13ff610bdf3ad324cb661ef8b3116d8e907c00a7ce0cbbc6e33"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000049.png",
+      "size_bytes": 686686,
+      "sha256": "19f0f97ef1765435b8117aaf24deb8df113c218131b3b8f6e7e2191387f69037"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000050.png",
+      "size_bytes": 686257,
+      "sha256": "62c36d024e22b83e10922c033ce80e1738e64d7bb40ec8e49443b47eb752ecac"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000051.png",
+      "size_bytes": 686279,
+      "sha256": "3634806db821e87af301a9477caf7ac6fe1d14b424fedf2a45f5665862b5d0ef"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000052.png",
+      "size_bytes": 686391,
+      "sha256": "addf8a15bc97e8ba13fc1d6b71ad5bce73a4b5f7c98930b45ec4d1eb0de04bbe"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000053.png",
+      "size_bytes": 687355,
+      "sha256": "164bb99e77c5fdff9cdec8ebd2a75b534aafbcd0e261a5fd58cf4248dbb82055"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000054.png",
+      "size_bytes": 687165,
+      "sha256": "2a646041c3c2c6ade190b05e65f40fb1bd467fe9bd713e85dcef8e3e043ec8e8"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000055.png",
+      "size_bytes": 687361,
+      "sha256": "4a5565b44da0cb2b8560850d0a6be4303a1a0c82540e1d0d8501128b082521c0"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000056.png",
+      "size_bytes": 688180,
+      "sha256": "f77e890184d0b934f9731e5abe768bb32f75530196c292bea8badee7c5b9dae4"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000057.png",
+      "size_bytes": 688673,
+      "sha256": "0dc318ddc70fcc72bd3ab6cc4cf22f2b505a31c1bd2e29d379ab46d3eff1ccfe"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000058.png",
+      "size_bytes": 689422,
+      "sha256": "dc1dfe68f4c53b9f0a4f55b28eec636614df2fdf339035195a9601735100fff5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000059.png",
+      "size_bytes": 687887,
+      "sha256": "be5835f1063d0bf8f3142d5f7b2753c8e4d3cb4e937f78c5dbd94acc5855b1fc"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000060.png",
+      "size_bytes": 687618,
+      "sha256": "2c26631481f8df22fcec9ba05c8df1926e7de789a07afd16285d6f7a46317b68"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000061.png",
+      "size_bytes": 687394,
+      "sha256": "5a10f314e67665018c33feb9e1c72f2e9e9d8a5ed393224629a8dc808b50b81f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000062.png",
+      "size_bytes": 687001,
+      "sha256": "6367280ab704a3c61c81f23155de9d3c127edbf174ae52666b9e0c5cbcd64f76"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000063.png",
+      "size_bytes": 685870,
+      "sha256": "ac16f59efde30e5e70ee44e26bbedc61d85b30ddee296fc783ac3c4fb348b4d2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000064.png",
+      "size_bytes": 684181,
+      "sha256": "473a2fffa7445869c1f03310085542ef48184a0ad7b8462531aae831cb93a7de"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000065.png",
+      "size_bytes": 683723,
+      "sha256": "8dfd6583b9f4b5b0042ae74662644f045cb7a9886eea89018542bc12055a24eb"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000066.png",
+      "size_bytes": 683083,
+      "sha256": "9e15643ab93966848c6cb8c14beac1b5b747b8c3124269f35b41abd069e8087d"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000067.png",
+      "size_bytes": 682386,
+      "sha256": "79778fe75a61d8ca2a0b0fdaadec3e753fc1f507cbbc56a0750613aa863ef804"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000068.png",
+      "size_bytes": 681192,
+      "sha256": "e988f0944449e343e581a582ed5147d2ab4125255d6da74eaa18300957f59665"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000069.png",
+      "size_bytes": 680524,
+      "sha256": "cafb476dce87c39609d9b2b2fd3448df5c0fed7a9fbf03a7973345bd5d8d5201"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000070.png",
+      "size_bytes": 679913,
+      "sha256": "7a5892e821128595e47cbcbdfb7e19cfee6a5260803365626988de7b7d0804f7"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000071.png",
+      "size_bytes": 679396,
+      "sha256": "d13ea005ada8f26a40a12098be4d6369aabb3e6e4f8154f780f478843b260a18"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000072.png",
+      "size_bytes": 677468,
+      "sha256": "7be7f40497085579f97282096eb08a4bd3abee90cae2385287d7607328fdacaf"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000073.png",
+      "size_bytes": 677144,
+      "sha256": "27ec0097046fa7f6e26d684cd354867ffcbb780e519d563d648b6beed5fb77c1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000074.png",
+      "size_bytes": 676735,
+      "sha256": "6f2c7f5a5028a57d01891176c52254705a34ca0494baf75a0822258cc788b352"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000075.png",
+      "size_bytes": 677220,
+      "sha256": "3957f93463a92e5e301083fef6d22acba172611115056e6b3f3d3f064f646f68"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000076.png",
+      "size_bytes": 677383,
+      "sha256": "09bd85f0fb1122ff98b41621d67cf4f4752d7416b2d38207f7c0e4497299b453"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000077.png",
+      "size_bytes": 677691,
+      "sha256": "82e7688515eb12ebbfedc5aab2f51d0cb318c20fca3dd6995fd2a5fb2e881d6e"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000078.png",
+      "size_bytes": 677851,
+      "sha256": "17433fa2ef2eb30e5457c12d41e774f9893123b611627147a686b7f2ad0ca4ad"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000079.png",
+      "size_bytes": 678243,
+      "sha256": "9f74da8844c6974e6abe7144733af9dfe41ab4d67691d7f40f6f40fc03cbd1a5"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000080.png",
+      "size_bytes": 678319,
+      "sha256": "a87ca18ffe809f1a26734e2fcea636b2e5d43e3ccb9bad79aa85d4cbcfd94d61"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000081.png",
+      "size_bytes": 677831,
+      "sha256": "c8477e2317d3c8d05da16a5e9e3f44033c2779a965a4c3a116bf28a407aa28e2"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000082.png",
+      "size_bytes": 677944,
+      "sha256": "1e182944e134fdddfbc1bce371c6f598308143a6d0a4b70d0e92d4581d751f82"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000083.png",
+      "size_bytes": 678020,
+      "sha256": "488870f43c4cf62a985283a6e68ca176ed1a75f557e9cd86f8bd6c80b6fa7308"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000084.png",
+      "size_bytes": 678796,
+      "sha256": "cc4dfba1bfb0ee008e4c28a5a872c407eec5464961a3de8105127d962f42eed1"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000085.png",
+      "size_bytes": 678378,
+      "sha256": "8dccb0e8c23c6884e63eaba41bc670497523ffab2365d94f8f298267c983fe79"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000086.png",
+      "size_bytes": 678364,
+      "sha256": "23ef462807e5ad87fdd08fff5b1a1cfe072aeebb3a019b444d56a45b3dba7460"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000087.png",
+      "size_bytes": 678632,
+      "sha256": "986a532dfa6f99c4125c86f860747fd71e27fda154f2474500cec4c0bfa2526f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000088.png",
+      "size_bytes": 678304,
+      "sha256": "e676f9504394cb4e3183a5af6585425b1ca097ab04efa106c4a6b2144b0cd95b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/000089.png",
+      "size_bytes": 678743,
+      "sha256": "176bd587363e742ec0e9930b047c08a1bbec581e2270a5a78b0a60a1714750de"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1/render_receipt.json",
+      "size_bytes": 1548,
+      "sha256": "963533ecfca7f14c849372cb3f748e7f2e1ce4cd06fc852ba1410868dc90b323"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix.png",
+      "size_bytes": 841865,
+      "sha256": "790a3304ae1cb5f86b556c570d8a36ec8474a3edbb42fd77078ed318e17c1706"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_15fps.mp4",
+      "size_bytes": 885386,
+      "sha256": "42f7e795424a62e8415a0592564be5a569f8d587327120cf44a43c541d99ac61"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_decode.log",
+      "size_bytes": 1625,
+      "sha256": "bd818c0a7ec867550761e5082df3ec0b94bdb553f09150ebb71bf9a19c2ade14"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_arm_fix_encode.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after.png",
+      "size_bytes": 882859,
+      "sha256": "2d39dcab3124c1750addb30009cacfb3618ccac17af8862fde4ce2bd9f5856a9"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps.mp4",
+      "size_bytes": 809784,
+      "sha256": "1f089a1daaf5bbfc5bc6c9645cf2f292e152cf8767d47fece2ef49c2fba144e4"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps_decode.log",
+      "size_bytes": 1625,
+      "sha256": "23d1479c1f475de202146222a06e6ea0844b1941cf5fe201fe41e50b010fdc30"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_before_after_5fps_encode.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps.mp4",
+      "size_bytes": 457396,
+      "sha256": "535b4bcf23ef8859d1972635db8e05d64fab876de6c8bcc7fb0b895467a1f529"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps_decode.log",
+      "size_bytes": 1621,
+      "sha256": "15edb1db5d5261837678be63edb73c367cc7df8b57e6cf5de24037ff568d01e0"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_natural_15fps_encode.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_render.log",
+      "size_bytes": 12192,
+      "sha256": "362792d54ae72469ff91cabf0e08c581357fa0933ff59a9240ad7e953f286d42"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/W1_render_command.json",
+      "size_bytes": 1023,
+      "sha256": "509e45e6bf8fd71f2e63ebfa716701fd491a7f1c9700443ebbf7bd87fcecd679"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/check_r004_natural_walk_routes.py",
+      "size_bytes": 3433,
+      "sha256": "afe425c9c537978ccc08bcec09a48650d9dd0a65c94a99caf9af4259856e17da"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/package_r004_natural_walk_sample.py",
+      "size_bytes": 11242,
+      "sha256": "1c2cc2ff0735da798bd5a5947f2ec0ba577fef5a0f4b3ad959af7ffec3c0f99b"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/r004_natural_walk.py",
+      "size_bytes": 8306,
+      "sha256": "832f6d7c038b5874e9690a380fcadd357fcc4ae9d04240a4ce2e7f7fec846519"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/scripts/render_r004_natural_walk_sample.py",
+      "size_bytes": 10902,
+      "sha256": "be43f8ef6a99cc0cacf85bfd59f0adaf5fea39593475956444af7eaf8379975f"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/code/tests/evaluation/test_r004_natural_walk.py",
+      "size_bytes": 4447,
+      "sha256": "a9482e563a4d95255d0f3314e06a8a933d0f926b1cb517adab46111e2db4bf27"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/df_after_render.txt",
+      "size_bytes": 188,
+      "sha256": "cfa187dfafb9288962b799641c477526082a9458180ba2c68e90ca2f68bb2eb3"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/df_before_render.txt",
+      "size_bytes": 188,
+      "sha256": "47bfe7fc7179576d51798a2f6665720574f009bd0c4d9407dadd6c6fe6681633"
+    },
+    {
+      "relative_path": "evidence/codex-516-natural-walk-arms-20261114/focused_tests.log",
+      "size_bytes": 99,
+      "sha256": "c98726dcb0c9f0252e8160d23de79ed048961494c9d2bff5c5f7d6fc6c831163"
+    }
+  ]
+}
