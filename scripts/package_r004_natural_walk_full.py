@@ -38,10 +38,15 @@ def main():
     p.add_argument('--artifacts-root',type=Path,required=True)
     p.add_argument('--ffmpeg',type=Path,required=True)
     p.add_argument('--scene',choices=['A4-1','B4-1','all'],default='all')
+    p.add_argument('--evidence-root',type=Path)
+    p.add_argument('--data-root',type=Path)
     a=p.parse_args()
     art=a.artifacts_root.resolve()
-    data=art/'data/r004-4actor-natural-walk-20261114'
-    out=art/'evidence/codex-516-natural-walk-full-20261114'
+    data=(a.data_root or art/'data/r004-4actor-natural-walk-20261114').resolve()
+    out=(a.evidence_root or art/'evidence/codex-516-natural-walk-full-20261114').resolve()
+    assert out.parent==art/'evidence' and data.parent==art/'data'
+    assert data.name.startswith('r004-4actor-natural-walk-')
+    assert not (out/'FULL_MANIFEST.json').exists(),'frozen output: choose a new evidence/data root'
     camera_movies=out/'cameras'
     camera_movies.mkdir(exist_ok=True)
     script=art/'evidence/codex-516-v21-feasibility-20261110/delivery-049f3b3c/docs/evaluation/R004_A4B4_SCENARIO_V2_2_4ACTOR_DRAFT.json'
@@ -160,6 +165,10 @@ def main():
                 'scope':'Full corrected viewing output; does not replace the original indexed safe bundle',
                 'movies':[r for r in movie_rows if Path(r['file']['relative_path']).name.startswith(label)]}
         result['clock'].pop('content_sha256',None)
+        if data.name!='r004-4actor-natural-walk-20261114':
+            result['display_run_id']=data.name+'-'+label.lower()
+            result['clock']['run_id']=result['display_run_id']
+            result['clock']['clock_id']='clock:'+result['display_run_id']
         result['clock']['schema_version']='amidst.corrected-full-view-clock.v1'
         result['clock']['parent_clock_id']=parent_clock['clock_id']
         result['clock']['content_sha256']=hashlib.sha256(json.dumps(result['clock'],sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()

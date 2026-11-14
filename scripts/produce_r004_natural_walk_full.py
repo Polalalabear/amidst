@@ -16,6 +16,8 @@ def main():
     p.add_argument('--repo',type=Path,required=True)
     p.add_argument('--artifacts-root',type=Path,required=True)
     p.add_argument('--stage',choices=['preflight','render'],required=True)
+    p.add_argument('--evidence-root',type=Path)
+    p.add_argument('--data-root',type=Path)
     a=p.parse_args()
     repo,art=a.repo.resolve(),a.artifacts_root.resolve()
     baseline=art/'evidence/codex-516-v21-feasibility-20261110/delivery-049f3b3c'
@@ -23,8 +25,11 @@ def main():
     geometry=repo/'docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json'
     catalog=art/'data/r004-build-v2-20261021/safe_static/cameras.json'
     source=art/'data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend'
-    evidence=art/'evidence/codex-516-natural-walk-full-20261114'
-    data=art/'data/r004-4actor-natural-walk-20261114'
+    evidence=(a.evidence_root or art/'evidence/codex-516-natural-walk-full-20261114').resolve()
+    data=(a.data_root or art/'data/r004-4actor-natural-walk-20261114').resolve()
+    assert evidence.parent==art/'evidence' and data.parent==art/'data'
+    assert data.name.startswith('r004-4actor-natural-walk-')
+    assert not (evidence/'FULL_MANIFEST.json').exists(),'frozen output: choose a new evidence/data root'
     evidence.mkdir(exist_ok=True)
     doc=json.loads(scenario.read_text())
     blender=['/Applications/Blender.app/Contents/MacOS/Blender','--background',str(source),'--python-exit-code','1','--python']

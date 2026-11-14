@@ -1,6 +1,8 @@
 """Focused kinematic properties, not formal physical-navigation acceptance."""
 import importlib.util
 import math
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -116,3 +118,27 @@ def test_arm_direction_uses_body_local_forward_after_turning():
         arm=q['arms'][side]
         forearm_world=m.rotate(m.sub(arm['wrist'],arm['elbow']),q['yaw'])
         assert forearm_world[1]>0
+
+
+@pytest.mark.parametrize('script_name',[
+    'produce_r004_natural_walk_full.py','package_r004_natural_walk_full.py'])
+def test_full_cli_refuses_to_modify_frozen_delivery(tmp_path,script_name):
+    art=tmp_path/'artifacts'
+    evidence=art/'evidence/frozen'
+    evidence.mkdir(parents=True)
+    marker=evidence/'FULL_MANIFEST.json'
+    marker.write_text('{"frozen":true}\n')
+    data=art/'data/r004-4actor-natural-walk-test'
+    data.mkdir(parents=True)
+    original=marker.read_bytes()
+    args=[sys.executable,'-B',str(P.with_name(script_name)),
+          '--artifacts-root',str(art),'--evidence-root',str(evidence),'--data-root',str(data)]
+    if script_name.startswith('produce_'):
+        args+=['--repo',str(P.parents[1]),'--stage','preflight']
+    else:
+        args+=['--ffmpeg',str(tmp_path/'ffmpeg-not-invoked')]
+    result=subprocess.run(args,capture_output=True,text=True)
+    assert result.returncode!=0 and 'frozen output' in result.stderr
+    assert marker.read_bytes()==original
+    assert sorted(p.name for p in evidence.iterdir())==['FULL_MANIFEST.json']
+    assert not list(data.iterdir())
