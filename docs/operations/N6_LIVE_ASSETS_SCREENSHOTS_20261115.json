@@ -1,0 +1,120 @@
+{
+  "schema": "amidst.n6-screenshots.v1",
+  "screenshots": [
+    {
+      "path": "verification/character_walk.png",
+      "size_bytes": 27474,
+      "sha256": "43291803407d85ddb84249d702cfc7ba0b924c2adfdc9dcc4ae4060113472202"
+    },
+    {
+      "path": "verification/character_run.png",
+      "size_bytes": 27318,
+      "sha256": "e7731e720ca28236af360181a2b72cbf4a03f7e50d121ff9d2aa4238295b365f"
+    },
+    {
+      "path": "verification/character_idle.png",
+      "size_bytes": 24827,
+      "sha256": "3ce42dd9c0d21bb6456f3e491460955b6fe07b34613896b5e991a4124d4c4b34"
+    },
+    {
+      "path": "verification/variant_T.png",
+      "size_bytes": 24827,
+      "sha256": "3ce42dd9c0d21bb6456f3e491460955b6fe07b34613896b5e991a4124d4c4b34"
+    },
+    {
+      "path": "verification/variant_A.png",
+      "size_bytes": 24074,
+      "sha256": "0f7b82fc5164ed0b915768e89734fb7b4965e0cf8c925caac19ed74bb7d5bc6e"
+    },
+    {
+      "path": "verification/variant_B.png",
+      "size_bytes": 23802,
+      "sha256": "4aa0019db363db02e49e6c8b964fe41206fefd7de637dc8a5be4d3b58ea50746"
+    },
+    {
+      "path": "verification/variant_C.png",
+      "size_bytes": 25856,
+      "sha256": "f3c5544f56817ee3801f0ce33a0a3fa1739d72d91fb16eb410a45a8a6dfc6423"
+    },
+    {
+      "path": "verification/CAM_BRANCH.png",
+      "size_bytes": 131436,
+      "sha256": "38f94b44e2066d7bbe542171bf61b8090d6e225932326596bf7248a1a82e8637"
+    },
+    {
+      "path": "verification/CAM_BRANCH_comparison.png",
+      "size_bytes": 562087,
+      "sha256": "d7dce1d6185ac0055f1e1eab8b4f2741eaf473d11a7636ecfb0c793ad06cffd0"
+    },
+    {
+      "path": "verification/CAM_ENTRY.png",
+      "size_bytes": 131050,
+      "sha256": "88b199b35b3c816f3e482534d4c80869cf1d7c04dbee7c3127cce589951b343d"
+    },
+    {
+      "path": "verification/CAM_ENTRY_comparison.png",
+      "size_bytes": 584150,
+      "sha256": "35ad2bc3d2f1d62d6e2cc5d8b9c09020245cd30b26973845905d1c4141644ffb"
+    },
+    {
+      "path": "verification/CAM_EXT_CAR.png",
+      "size_bytes": 155599,
+      "sha256": "d8823ef271f0da5eb42e60cc9f078f41350568aa87e3d39d8e1a8e1adcdb0914"
+    },
+    {
+      "path": "verification/CAM_EXT_CAR_comparison.png",
+      "size_bytes": 692701,
+      "sha256": "ae24244a560592007bd81a81e5d28c0f9733e06dcf08e739070cf867787c377d"
+    },
+    {
+      "path": "verification/CAM_EXT_CLEAR.png",
+      "size_bytes": 117017,
+      "sha256": "e9dcb67e090adcf4f045dc7528500633ea2c5fb443909076a41e64eeee80a6af"
+    },
+    {
+      "path": "verification/CAM_EXT_CLEAR_comparison.png",
+      "size_bytes": 501117,
+      "sha256": "1be5b6cea893d0cfc87f168b85deed7dd304061fe9506f5c1b2ba5a624257b09"
+    },
+    {
+      "path": "verification/CAM_R101_IN.png",
+      "size_bytes": 158742,
+      "sha256": "35aa146e24ee160b327552bed2080b5fffbae9b326d9f3ad6243a5c2db36239b"
+    },
+    {
+      "path": "verification/CAM_R101_IN_comparison.png",
+      "size_bytes": 624080,
+      "sha256": "7d311d3fbb8ca2c369c3f175da94e3de5dd8ffebef330b77cdaf345c7c07b15d"
+    },
+    {
+      "path": "verification/CAM_W1.png",
+      "size_bytes": 141814,
+      "sha256": "21ce537b0104f06c5bd61ae4e71bdde82fa65ad146764797019edb1c805556cb"
+    },
+    {
+      "path": "verification/CAM_W1_comparison.png",
+      "size_bytes": 873519,
+      "sha256": "c0ee443cc0fb43f44d4469d7643879cba3b942f141b6fa998cbfa7750a3c8a18"
+    },
+    {
+      "path": "verification/CAM_W2.png",
+      "size_bytes": 147748,
+      "sha256": "3065b15bd47a9dc44f57fc0f53913f0d2c5764912641280d9014681e70ffbe73"
+    },
+    {
+      "path": "verification/CAM_W2_comparison.png",
+      "size_bytes": 691066,
+      "sha256": "fd5cd9eaea9ca0b080241be074b7082b04205cd73e04bca33920c962a0bef50f"
+    },
+    {
+      "path": "verification/CAM_WIDE.png",
+      "size_bytes": 198223,
+      "sha256": "ff1743f5f6a81527a5aeafdc176a45f4eadc7d9dd8875e330b809280d449a916"
+    },
+    {
+      "path": "verification/CAM_WIDE_comparison.png",
+      "size_bytes": 603345,
+      "sha256": "33d2127661134f42791b6c5ae28005f825af0733197423d5712fc4d72cc52fb8"
+    }
+  ]
+}
