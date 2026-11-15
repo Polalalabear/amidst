@@ -1,0 +1,63 @@
+{
+ "label": "cpu_8cam_320_2fps",
+ "query": "auto=B4&duration=42&model=glb&w=320&h=180&fps=2",
+ "secs": 50,
+ "config": {
+  "w": 320,
+  "h": 180,
+  "fps": 2,
+  "cams": [
+   "CAM_BRANCH",
+   "CAM_ENTRY",
+   "CAM_EXT_CAR",
+   "CAM_EXT_CLEAR",
+   "CAM_R101_IN",
+   "CAM_W1",
+   "CAM_W2",
+   "CAM_WIDE"
+  ],
+  "model": "glb",
+  "auto": "B4",
+  "duration": 42,
+  "run": "B4-1-v2-4actor",
+  "sentence": "a person in a red top",
+  "quality": 0.85,
+  "tris": 3996
+ },
+ "tick_period_ms": 500,
+ "ticks_displayed": 15,
+ "sent": 15,
+ "dropped": 84,
+ "achieved_fps": 0.2978723404255319,
+ "drop_ratio": 0.8484848484848485,
+ "frame_latency_ms": {
+  "p50": 2937.5,
+  "p95": 3739.0999755859375,
+  "max": 3945.300048828125,
+  "n": 11
+ },
+ "stage_ms_p50": {
+  "render_capture": 130.300048828125,
+  "http_roundtrip": 2801.599853515625,
+  "server_total": 2798.0225829815026,
+  "forward": 2761.6707499837503,
+  "color": 1.061333023244515,
+  "channel_to_display": 6
+ },
+ "first_lock_ms": 7349.89990234375,
+ "switch_events": [],
+ "switch_ms": {
+  "p50": null,
+  "p95": null,
+  "n": 0
+ },
+ "correct_active_rate": 0.18181818181818182,
+ "protocol_violations": 0,
+ "usage_mean": {
+  "server_cpu": 262.6714285714286,
+  "chrome_cpu": 34.99714285714286,
+  "gpu_util": 15.885714285714286,
+  "blender_cpu": 0,
+  "load1": 8.316000000000003
+ }
+}
