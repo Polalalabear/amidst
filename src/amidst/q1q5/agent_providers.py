@@ -49,6 +49,48 @@ def load_response_schema(root: Path | None = None) -> dict:
 
 RESPONSE_SCHEMA = load_response_schema()
 
+# Keywords Ollama's grammar compiler (llama.cpp json-schema-to-grammar) cannot express. They stay enforced by
+# ``agent_decision.validate_response`` after the call; dropping them only keeps the request from being rejected.
+_OLLAMA_UNSUPPORTED = frozenset({'if', 'then', 'else', 'not', 'uniqueItems', '$defs', 'definitions', '$schema', '$id'})
+
+
+def load_schema_defs(root: Path | None = None) -> dict:
+    """Load ``$defs`` of the v1 contract schema (the targets of ``$ref`` inside ``$defs/response``)."""
+    base = root if root is not None else amidst_root()
+    candidate = base / SCHEMA_REL_PATH
+    if not candidate.exists():
+        candidate = PACKAGE_ROOT / SCHEMA_REL_PATH
+    return copy.deepcopy(json.loads(candidate.read_text(encoding='utf-8'))['$defs'])
+
+
+def ollama_format_schema(schema: Mapping, defs: Mapping | None = None) -> dict:
+    """Self-contained schema for Ollama's ``format``: every ``$ref`` inlined, unsupported keywords dropped.
+
+    WP5 root cause (Colab L4, 2026-11-15): ``RESPONSE_SCHEMA`` is ``$defs/response`` cut out of the contract, so its
+    ``candidate_id`` kept ``$ref: '#/$defs/opaque_id'`` with no ``$defs`` beside it. Ollama cannot resolve that and
+    answers the DP1/DP3 request with an HTTP error in ~35 ms, which the provider maps to PROVIDER_UNAVAILABLE.
+    """
+    table = defs if defs is not None else load_schema_defs()
+
+    def walk(node, depth=0):
+        if depth > 20:
+            raise ad.AgentDecisionError('PARAMS_INVALID', 'schema $ref nesting too deep')
+        if isinstance(node, Mapping):
+            ref = node.get('$ref')
+            if isinstance(ref, str):
+                m = re.fullmatch(r'#/\$defs/([A-Za-z0-9_]+)', ref)
+                if not m or m.group(1) not in table:
+                    raise ad.AgentDecisionError('PARAMS_INVALID', f'unresolvable $ref {ref!r}')
+                merged = dict(walk(table[m.group(1)], depth + 1))
+                merged.update({k: walk(v, depth + 1) for k, v in node.items() if k != '$ref'})
+                return merged
+            return {k: walk(v, depth + 1) for k, v in node.items() if k not in _OLLAMA_UNSUPPORTED}
+        if isinstance(node, list):
+            return [walk(v, depth + 1) for v in node]
+        return node
+
+    return walk(copy.deepcopy(dict(schema)))
+
 
 class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -434,6 +476,19 @@ def _extract_openai_response_object(data: Mapping) -> object:
     return dict(data)
 
 
+def _body_text(body, limit: int = 300) -> str:
+    if isinstance(body, (bytes, bytearray)):
+        return bytes(body)[:limit].decode('utf-8', 'replace')
+    return str(body)[:limit]
+
+
+def _error_body(exc: urllib.error.HTTPError) -> str:
+    try:
+        return _body_text(exc.read())
+    except Exception:
+        return str(exc.reason)[:300]
+
+
 class OllamaProvider:
     """Loopback-only Ollama structured-output adapter for WP1 decide() (provider_kind='OLLAMA_LOOPBACK')."""
 
@@ -477,7 +532,8 @@ class OllamaProvider:
         self.candidate_order_seed = candidate_order_seed
         self._clock_ms = clock_ms or _default_clock_ms
         self._sleep_ms = sleep_ms or _default_sleep_ms
-        self._response_schema = copy.deepcopy(dict(response_schema)) if response_schema is not None else copy.deepcopy(RESPONSE_SCHEMA)
+        self._response_schema = ollama_format_schema(response_schema if response_schema is not None else RESPONSE_SCHEMA)
+        self.last_error: dict | None = None   # latest failed call: {'http_status': int|None, 'detail': str}
 
     def __repr__(self) -> str:
         return (
@@ -572,6 +628,7 @@ class OllamaProvider:
         except urllib.error.HTTPError as exc:
             wall_ms = max(0.0, float(self._clock_ms()) - start_ms)
             outcome = _status_outcome(int(exc.code))
+            self.last_error = {'http_status': int(exc.code), 'detail': _error_body(exc)}
             return ad.Attempt(outcome, wall_ms)
         except Exception as exc:
             wall_ms = max(0.0, float(self._clock_ms()) - start_ms)
@@ -581,6 +638,7 @@ class OllamaProvider:
                 return ad.Attempt(ad.CALL_TIMEOUT, wall_ms)
             if isinstance(exc, ad.AgentDecisionError):
                 raise
+            self.last_error = {'http_status': None, 'detail': f'{type(exc).__name__}: {exc}'[:300]}
             return ad.Attempt(ad.CALL_UNAVAILABLE, wall_ms)
         finally:
             if self._budget is not None:
@@ -591,7 +649,9 @@ class OllamaProvider:
         wall_ms = reported_wall if reported_wall is not None else elapsed_ms
         outcome = _status_outcome(status)
         if outcome != ad.CALL_OK:
+            self.last_error = {'http_status': status, 'detail': _body_text(raw_body)}
             return ad.Attempt(outcome, wall_ms)
+        self.last_error = None
 
         if wall_ms > timeout_ms:
             return ad.Attempt(ad.CALL_TIMEOUT, wall_ms)

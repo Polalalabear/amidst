@@ -190,7 +190,15 @@ def main(argv: Sequence[str] | None = None, *, context: wp5.Context | None = Non
         'mode': 'LIVE' if args.live else 'FAKE', 'set': args.set_name, 'arm': args.arm, 'models': models, 'types': types,
         'guard': guard.name, 'api_guard': 'ApiGuard' if (args.live and needs_money) else None, 'guard_calls': guard.calls, 'guard_spent_usd': guard.spent_usd,
         'guard_blocked': guard.blocked, 'price_status': wp5.price_status(table), 'approval_ref': approval,
-        'config_sha256': wp5.sha256_file(Path(args.config) if Path(args.config).is_absolute() else wp5._ROOT / args.config)})
+        'config_sha256': wp5.sha256_file(Path(args.config) if Path(args.config).is_absolute() else wp5._ROOT / args.config),
+        'status': summary['status']})
+    for msg in summary['warnings']:
+        print(f'WARNING: {msg}', file=sys.stderr)
+    if summary['status'] == 'FAILED':
+        print('RUN FAILED (results are NOT valid; do not report them):', file=sys.stderr)
+        for msg in summary['failures']:
+            print(f'  - {msg}', file=sys.stderr)
+        return 3
     return 0
 
 

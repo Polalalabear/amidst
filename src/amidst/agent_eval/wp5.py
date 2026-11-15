@@ -304,8 +304,12 @@ def execute_call(ctx: Context, cfg: Mapping, profile: Mapping, model: Mapping, q
             return out
         provider_kind = 'OPENAI' if kind == 'OPENAI' else 'OLLAMA_LOOPBACK'
         budget.begin_session()
+        call = ctx.decision_provider(model)
         rec = ad.decide(req, mode='AGENT_LIVE', params=params, budget=budget, model=model['budget_slot'],
-                        call=ctx.decision_provider(model), provider_kind=provider_kind)
+                        call=call, provider_kind=provider_kind)
+        err = getattr(getattr(call, '__self__', None), 'last_error', None)   # why the provider said UNAVAILABLE (HTTP status + body head)
+        if err:
+            out['provider_error'] = err
         attempts = [a for a in rec.get('attempts') or [] if isinstance(a, Mapping)]
         out.update(latency_ms=sum(float(a.get('wall_ms', 0.0)) for a in attempts), steps=len(attempts),
                    prompt_tokens=_sum_opt(a.get('prompt_tokens') for a in attempts),
@@ -430,6 +434,7 @@ def summarize_rows(rows: list[Mapping]) -> dict:
         lat = [r['latency_ms'] for r in run if r['latency_ms'] is not None]
         costs = [r['cost_usd'] for r in run if r['cost_usd'] is not None]
         n_timeout = sum(1 for r in run if r['timed_out_fallback'])
+        n_unavail = sum(1 for r in run if r['fallback_reason'] == 'PROVIDER_UNAVAILABLE')
         scored = [r for r in run if r.get('accuracy_correct') is not None]
         cells.append({
             'report_group': group, 'model': model, 'task_type': t,
@@ -443,6 +448,10 @@ def summarize_rows(rows: list[Mapping]) -> dict:
                        'n_missing': sum(1 for r in run if r['prompt_tokens'] is None and r['model_kind'] != 'RULE')},
             'timeout_fallback': {'n': n_timeout, 'rate': (n_timeout / len(run)) if run else None},
             'fallback_reasons': _count(r['fallback_reason'] for r in run if r['fallback_reason']),
+            'fallback_rate': (sum(1 for r in run if r['fallback_reason']) / len(run)) if run else None,
+            'provider_unavailable_rate': (n_unavail / len(run)) if run else None,
+            'sources': _count(r['decision_source'] for r in run if r['decision_source']),
+            'provider_error_sample': next((r['provider_error'] for r in run if r.get('provider_error')), None),
             'accuracy_recorded_only': {
                 'n_answers': sum(1 for r in run if r['answer'] is not None),
                 'agreement_with_rule': (sum(1 for r in run if r['matches_rule']) / len(run)) if run else None,
@@ -450,8 +459,32 @@ def summarize_rows(rows: list[Mapping]) -> dict:
                 'correct': sum(1 for r in scored if r['accuracy_correct']) if scored else None,
                 'note': 'accuracy_correct stays null here; the Mac scoring package fills it from GT. Not a pass condition.'},
         })
-    return {'schema_version': 'amidst.wp5-summary.v1', 'cells': cells,
+    failures, warnings = health_check(cells)
+    return {'schema_version': 'amidst.wp5-summary.v1', 'status': 'FAILED' if failures else 'OK',
+            'failures': failures, 'warnings': warnings, 'cells': cells,
             'order_note': 'latency and cost first; accuracy_recorded_only is last and is not a result'}
+
+
+MAX_FALLBACK_RATE = 0.2
+
+
+def health_check(cells: list[Mapping]) -> tuple[list[str], list[str]]:
+    """A model cell that never reached its provider is a FAILED run, not a result (WP5 v1 Colab: DP1/DP3 were 100%
+    PROVIDER_UNAVAILABLE and only the NL cell called the model). A high-but-partial fallback rate is a warning."""
+    failures: list[str] = []
+    warnings: list[str] = []
+    for c in cells:
+        if c['n_ok'] == 0 or c['task_type'] == 'NL':
+            continue
+        label = f"{c['model']} {c['task_type']}"
+        rate = c['provider_unavailable_rate']
+        if c['task_type'] in ('DP1', 'DP3') and rate is not None and rate >= 1.0:
+            sample = c.get('provider_error_sample')
+            failures.append(f"{label}: 100% PROVIDER_UNAVAILABLE ({c['n_ok']}/{c['n_ok']}); the model was never called. "
+                            f"first error: {sample if sample else 'UNKNOWN (no provider_error recorded)'}")
+        elif (c['fallback_rate'] or 0.0) > MAX_FALLBACK_RATE:
+            warnings.append(f"{label}: fallback rate {c['fallback_rate']:.0%} > {MAX_FALLBACK_RATE:.0%} {c['fallback_reasons']}")
+    return failures, warnings
 
 
 def _count(items) -> dict:
@@ -464,7 +497,10 @@ def _count(items) -> dict:
 def render_summary_md(summary: Mapping) -> str:
     def f(v, nd=1):
         return '—' if v is None else (f'{v:.{nd}f}' if isinstance(v, float) else str(v))
-    lines = ['| group | model | type | n | p50 ms | p95 ms | cost total USD | cost p95 USD | timeout-fallback | accuracy (record only: agree w/ Rule) |',
+    lines = []
+    if summary.get('status') == 'FAILED':
+        lines += ['**RUN FAILED — not a result:**', ''] + [f'- {m}' for m in summary['failures']] + ['']
+    lines += ['| group | model | type | n | p50 ms | p95 ms | cost total USD | cost p95 USD | timeout-fallback | accuracy (record only: agree w/ Rule) |',
              '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
     for c in summary['cells']:
         a = c['accuracy_recorded_only']['agreement_with_rule']

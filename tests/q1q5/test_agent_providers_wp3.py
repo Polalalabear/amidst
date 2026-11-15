@@ -672,7 +672,8 @@ def test_ollama_loopback_sends_response_schema_and_records_model_digest(tmp_path
 
     chat_call = transport.calls[1]
     assert chat_call['url'] == 'http://127.0.0.1:11434/api/chat'
-    assert chat_call['body']['format'] == SCHEMA['$defs']['response']
+    assert chat_call['body']['format'] == ap.ollama_format_schema(SCHEMA['$defs']['response'], SCHEMA['$defs'])
+    assert '$ref' not in json.dumps(chat_call['body']['format'])
     entries = recorder.entries()
     assert len(entries) == 1 and entries[0]['model_digest'] == fake_digest
 
@@ -686,6 +687,7 @@ def test_static_only_wp3_files_import_new_modules_and_default_off_unchanged():
         ROOT / 'scripts/agent_decision/run_provider.py',
         ROOT / 'src/amidst/q1q5/nl_query_parse.py',   # N1 Spotlight reuses the #526 transport/extraction helpers (docs/contracts/NL_QUERY_PARSE_V1.md)
         ROOT / 'src/amidst/agent_eval/wp5_runner.py',   # WP5 live adapters (built only after the approval gates pass)
+        ROOT / 'src/amidst/agent_eval/wp5_colab_checks.py',   # WP5 Colab notebook DP1 probe (one request through OllamaProvider)
     }
     pattern = re.compile(r'\b(?:agent_providers|agent_recording)\b')
     offenders = []
