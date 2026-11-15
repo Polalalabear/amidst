@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>即時模式系統端 mockup v1</title>
+<!-- 設計稿用 mockup（LIVE_MODE_GAME_DESIGN_V1 §3.2），不是功能程式碼。系統端只顯示鏡頭像素和自己的推估，沒有操作者座標。 -->
+<style>
+ :root{--bg:#11141a;--card:#191e27;--line:#2a313d;--txt:#eef2f7;--dim:#9aa3b0;--amber:#f5a623;--cyan:#38bdf8;--green:#4ade80;--red:#e5484d}
+ html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,"PingFang TC","Noto Sans TC",sans-serif}
+ .mono{font-family:ui-monospace,Menlo,monospace}
+ .lab{color:var(--dim);font-size:13px}
+ #top{position:absolute;left:0;top:0;right:0;height:56px;display:flex;align-items:center;gap:18px;padding:0 20px;border-bottom:1px solid var(--line);background:#141922}
+ .chip{padding:3px 12px;border-radius:999px;font-weight:700;font-size:13px}
+ #main{position:absolute;left:16px;top:68px;width:1280px;height:720px;background:#000;border:3px solid var(--amber);border-radius:6px;overflow:hidden;box-sizing:border-box}
+ #main img,.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+ .noimg{background:linear-gradient(#cfd2d6,#9aa39e)}
+ .box{position:absolute;border:3px solid var(--red);box-sizing:border-box}
+ .box span{position:absolute;left:-3px;top:-26px;background:var(--red);color:#fff;font:700 13px ui-monospace,Menlo,monospace;padding:2px 8px;white-space:nowrap}
+ .ov{position:absolute;background:#0b0e13cc;border-radius:6px;padding:6px 12px}
+ #strip{position:absolute;left:16px;top:800px;width:1280px;display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+ .thumb{position:relative;height:98px;background:#000;border:2px solid var(--line);border-radius:4px;overflow:hidden;box-sizing:border-box}
+ .thumb.nb{border-color:var(--cyan)} .thumb.idle img{filter:grayscale(.7) brightness(.6)}
+ .thumb b{position:absolute;left:5px;top:3px;font-size:12px;text-shadow:0 0 4px #000}
+ .thumb i{position:absolute;right:4px;bottom:3px;font:normal 600 11px sans-serif;padding:1px 6px;border-radius:3px;background:#000a}
+ .card{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;box-sizing:border-box}
+ .bar{height:10px;border-radius:5px;background:#2a313d;position:relative;margin:5px 0 9px}
+ .bar u{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+ .bar s{position:absolute;top:-4px;bottom:-4px;width:2px;background:#fff}
+ .ev{display:grid;grid-template-columns:62px 92px 1fr;gap:8px;padding:3px 0;border-bottom:1px solid #222834;font-size:13px}
+ .note{position:absolute;font:600 12px ui-monospace,Menlo,monospace;color:#111;background:#ffe066;padding:2px 7px;border-radius:4px;box-shadow:0 2px 6px #0005;z-index:9}
+</style></head><body>
+<div id="top">
+  <b style="font-size:18px">Amidst 即時模式 · 系統端</b>
+  <span class="lab">只看 8 個鏡頭的像素，不知道操作者是誰、在哪裡</span>
+  <span style="flex:1"></span>
+  <span class="lab">查詢</span><b>「穿紅色上衣的人」</b>
+  <span class="chip" style="background:#1f4d33;color:var(--green)">● TRACKING</span>
+  <span class="mono lab">tick 132 · 00:21.4</span>
+</div>
+
+<!-- 作用中鏡頭大畫面 -->
+<div id="main"><img id="mainimg" onerror="imgFallback(this)">
+  <div id="p1" style="position:absolute;left:470px;top:258px"></div>
+  <div class="box" style="left:462px;top:252px;width:136px;height:308px"><span>目標 · 紅 · 0.82</span></div>
+  <div class="ov" style="left:14px;top:12px;display:flex;gap:10px;align-items:center">
+    <span style="width:12px;height:12px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)"></span>
+    <b style="font-size:18px">CAM_W2</b><span class="lab">作用中鏡頭</span></div>
+  <div class="ov mono" style="right:14px;top:12px;font-size:13px">畫面 <b style="color:var(--green)">0.09 s</b> 前 · 偵測框 <b style="color:var(--green)">0.36 s</b> 前</div>
+  <div class="ov" style="left:330px;top:640px;width:600px;border:1px solid #f5a62399;display:flex;gap:14px;align-items:center">
+    <span style="font-size:24px">⇄</span>
+    <div><b style="font-size:16px">切鏡 CAM_W1 → CAM_W2</b>
+      <div class="lab">W1 連續 2 次沒看到目標，W2 看到同一位置的紅色上衣 · 花了 0.38 s</div></div>
+  </div>
+</div>
+
+<!-- 其餘 7 個鏡頭 -->
+<div id="strip"></div>
+<div style="position:absolute;left:16px;top:906px;width:1280px;display:flex;gap:22px" class="lab">
+  <span><b style="color:var(--amber)">■</b> 作用中（每輪都推論）</span>
+  <span><b style="color:var(--cyan)">■</b> 相鄰鏡頭（輪流推論）</span>
+  <span><b style="color:#6b7482">■</b> 只顯示畫面，這一輪不推論</span>
+  <span style="flex:1"></span><span>每個畫面右下角是「這張畫面是多久以前的」</span>
+</div>
+
+<!-- 成本列 -->
+<div class="card" style="left:16px;top:940px;width:1280px;height:124px;display:grid;grid-template-columns:repeat(5,1fr);gap:18px">
+  <div><div class="lab">推論量</div><div class="mono" style="font-size:26px;font-weight:700">7.6 <span class="lab">張/秒</span></div><div class="lab">上限 9–14 張/秒（MPS 實測）</div></div>
+  <div><div class="lab">推論佔用</div><div class="mono" style="font-size:26px;font-weight:700">62%</div><div class="lab">forward 620 ms / 秒</div></div>
+  <div><div class="lab">這一輪推論的鏡頭</div><div class="mono" style="font-size:20px;font-weight:700;margin-top:4px">W2 + W1</div><div class="lab">下一輪：W2 + BRANCH</div></div>
+  <div><div class="lab">丟掉的過時畫面</div><div class="mono" style="font-size:26px;font-weight:700">41%</div><div class="lab">只留最新一張，不排隊</div></div>
+  <div><div class="lab">和「8 鏡頭全推論」相比</div><div class="mono" style="font-size:26px;font-weight:700;color:var(--green)">−76%</div><div class="lab">推論張數（估算）</div></div>
+</div>
+
+<!-- 右欄：地圖 -->
+<div class="card" style="left:1312px;top:68px;width:592px;height:430px;padding:10px">
+  <div style="display:flex;justify-content:space-between;margin:0 4px 4px"><b>場域地圖（北朝上）</b><span class="lab">紅點 = 系統自己推估的位置，虛線圈 = 不確定範圍</span></div>
+  <canvas id="map" width="572" height="386"></canvas>
+</div>
+
+<!-- 右欄：延遲 -->
+<div class="card" style="left:1312px;top:510px;width:592px;height:206px">
+  <div style="display:flex;justify-content:space-between"><b>延遲（操作端擷取 → 這裡顯示）</b><span class="lab">目標：偵測 &lt; 0.5 s</span></div>
+  <div style="display:grid;grid-template-columns:1fr 150px;gap:6px 14px;margin-top:8px;align-items:center">
+    <div><div class="lab">畫面延遲 p50 / p95</div><div class="bar"><u style="width:9%;background:var(--green)"></u><s style="left:50%"></s></div></div>
+    <div class="mono"><b>0.09</b> / 0.14 s</div>
+    <div><div class="lab">偵測延遲 p50 / p95</div><div class="bar"><u style="width:36%;background:var(--green)"></u><u style="left:36%;width:22%;background:#f5a62366"></u><s style="left:50%"></s></div></div>
+    <div class="mono"><b>0.36</b> / 0.58 s</div>
+  </div>
+  <svg width="564" height="58" style="margin-top:2px"><line x1="0" y1="22" x2="564" y2="22" stroke="#fff" stroke-dasharray="4 4" opacity=".5"/>
+    <text x="4" y="16" fill="#9aa3b0" font-size="11">0.5 s</text>
+    <polyline id="spark" fill="none" stroke="#4ade80" stroke-width="2"/></svg>
+</div>
+
+<!-- 右欄：事件 -->
+<div class="card" style="left:1312px;top:728px;width:592px;height:336px">
+  <b>事件</b>
+  <div style="margin-top:6px">
+    <div class="ev"><span class="mono lab">00:21.0</span><b style="color:var(--amber)">切鏡</b><span>W1 → W2 · 0.38 s</span></div>
+    <div class="ev"><span class="mono lab">00:20.6</span><b style="color:var(--dim)">離開視野</b><span>W1 看不到目標</span></div>
+    <div class="ev"><span class="mono lab">00:17.2</span><b style="color:var(--cyan)">同色干擾</b><span>W1 有 2 個紅色上衣，照位置連續性保留原目標</span></div>
+    <div class="ev"><span class="mono lab">00:09.8</span><b style="color:var(--amber)">切鏡</b><span>ENTRY → W1 · 0.44 s</span></div>
+    <div class="ev"><span class="mono lab">00:03.1</span><b style="color:var(--green)">鎖定</b><span>ENTRY 第一次看到唯一的紅色上衣 · 0.31 s</span></div>
+    <div class="ev"><span class="mono lab">00:00.0</span><b style="color:var(--dim)">搜尋</b><span>8 個鏡頭輪流推論，每輪 2 個</span></div>
+  </div>
+</div>
+
+<div class="note" style="left:640px;top:76px">① 作用中鏡頭放大，琥珀色框 = 播出中（tally）</div>
+<div class="note" style="left:1010px;top:112px">② 畫面和偵測各自標「多久以前」</div>
+<div class="note" style="left:1000px;top:742px">③ 切鏡提示：從哪到哪、原因、花多久</div>
+<div class="note" style="left:500px;top:776px">④ 鄰居鏡頭才推論，其餘只顯示畫面</div>
+<div class="note" style="left:1590px;top:462px">⑤ 只有系統推估，沒有操作者座標</div>
+<div class="note" style="left:1160px;top:1034px">⑥ 成本和延遲並列</div>
+
+<script src="scene-data.js"></script>
+<script src="mockup-common.js"></script>
+<script>
+  document.getElementById('mainimg').src = camImg('CAM_W2');
+  document.getElementById('p1').innerHTML = personSVG('#c01818', 120, 276, 'front', 0.6);
+  const st = { CAM_W1: ['nb', '推論 · 0.4 s 前', 'var(--cyan)'], CAM_BRANCH: ['nb', '下一輪推論', 'var(--cyan)'],
+    CAM_R101_IN: ['idle', '只有畫面 · 0.3 s 前'], CAM_WIDE: ['idle', '只有畫面 · 0.3 s 前'], CAM_ENTRY: ['idle', '只有畫面 · 0.3 s 前'],
+    CAM_EXT_CAR: ['idle', '只有畫面 · 0.3 s 前'], CAM_EXT_CLEAR: ['idle', '只有畫面 · 0.3 s 前'] };
+  document.getElementById('strip').innerHTML = Object.entries(st).map(([id, s]) =>
+    `<div class="thumb ${s[0]}"><img src="${camImg(id)}" onerror="imgFallback(this)"><b>${id}</b><i style="color:${s[2] || '#9aa3b0'}">${s[1]}</i></div>`).join('');
+  drawMinimap(document.getElementById('map'), {
+    center: [3.6, 3.6], ppm: 14.6, rotateDeg: 0, wedgeLen: 9, labelSize: 12,
+    cams: { CAM_W2: 'active', CAM_W1: 'neighbor', CAM_BRANCH: 'neighbor' },
+    est: { x: 9.7, y: 1.1, sigma: 0.9 },
+    trail: [[-1.5, 0.3], [0.6, 1.2], [3.8, 0.8], [6.1, 1.4], [8.2, 1.0], [9.7, 1.1]],
+  });
+  const ys = [34, 30, 36, 31, 28, 33, 38, 29, 32, 35, 27, 31, 40, 44, 33, 30, 34, 29, 36, 31, 33, 28, 35, 32, 30, 37, 31, 34];
+  document.getElementById('spark').setAttribute('points', ys.map((y, i) => `${i * 20.8},${y}`).join(' '));
+</script>
+</body></html>
