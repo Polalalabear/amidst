@@ -10,15 +10,15 @@
   "models": [
     {
       "config_id": "astra6",
-      "api_model_id": null
+      "api_model_id": "gpt-6-astra"
     },
     {
       "config_id": "sol6.1",
-      "api_model_id": null
+      "api_model_id": "gpt-6.1-sol"
     },
     {
       "config_id": "terra6.1",
-      "api_model_id": null
+      "api_model_id": "gpt-6.1-terra"
     }
   ],
   "per_call": {

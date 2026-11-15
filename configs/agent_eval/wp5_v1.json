@@ -21,6 +21,7 @@
     {"id": "sol6.1", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "sol6.1"},
     {"id": "terra6.1", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "terra6.1"}
   ],
+  "default_openai_model": "terra6.1",
   "price_table_path": "configs/agent_eval/wp5_price_table_v1.json",
   "sets": {
     "pilot": {

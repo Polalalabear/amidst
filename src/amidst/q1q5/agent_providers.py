@@ -304,7 +304,10 @@ class OpenAIProvider:
         self.candidate_order_seed = candidate_order_seed
         self._clock_ms = clock_ms or _default_clock_ms
         self._sleep_ms = sleep_ms or _default_sleep_ms
-        self._response_schema = copy.deepcopy(dict(response_schema)) if response_schema is not None else copy.deepcopy(RESPONSE_SCHEMA)
+        # D237 (WP5 calibration): OpenAI rejected the raw contract schema (HTTP 400 "'if' is not permitted", plus a dangling
+        # $ref). Send the same self-contained schema Ollama gets; if/then/else and uniqueItems stay enforced by
+        # ``agent_decision.validate_response`` after the call. ``strict`` is false because candidate_id is optional.
+        self._response_schema = ollama_format_schema(response_schema if response_schema is not None else RESPONSE_SCHEMA)
 
     def __repr__(self) -> str:
         return (
@@ -345,7 +348,7 @@ class OpenAIProvider:
                 'type': 'json_schema',
                 'json_schema': {
                     'name': 'agent_decision_response_v1',
-                    'strict': True,
+                    'strict': False,
                     'schema': copy.deepcopy(self._response_schema),
                 },
             },

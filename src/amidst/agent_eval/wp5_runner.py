@@ -33,6 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument('--out', required=True)
     p.add_argument('--models', help='comma separated model ids (default: all in the set, filtered by --arm)')
     p.add_argument('--skip-types', default='', help='comma separated task types to leave out (for example DP4 until #532 is wired)')
+    p.add_argument('--all-openai', action='store_true', help='with --arm and no --models: run every OpenAI model of the set, not only the config default_openai_model (D237)')
     p.add_argument('--arm', choices=['mac', 'colab_l4', 'windows'], help='which machine this process runs on (D175); windows runs the same local models as colab_l4 but its latency is never reported (no L4)')
     p.add_argument('--price-table', help='override the price table path')
     p.add_argument('--fake', action='store_true', help='run the whole flow with fake clients (no network, no key)')
@@ -48,6 +49,9 @@ def _select(cfg, args) -> tuple[list[str], list[str]]:
     unknown = [m for m in models if m not in s['models']]
     if unknown:
         raise wp5.Wp5Error('UNKNOWN_MODEL', ','.join(unknown))
+    default = cfg.get('default_openai_model')
+    if args.arm and not args.models and not args.all_openai and default:
+        models = [m for m in models if wp5.model_by_id(cfg, m)['kind'] != 'OPENAI' or m == default]  # D237: terra is the default OpenAI model
     if args.arm:
         want = 'colab_l4' if args.arm == 'windows' else args.arm  # the Windows machine takes the local-model share
         models = [m for m in models if wp5.model_by_id(cfg, m)['runs_on'] == want]
@@ -96,7 +100,7 @@ def live_context(cfg, table, api_guard=None):
         if model['kind'] == 'OPENAI':
             if api_guard is None:
                 raise wp5.Wp5Error('LIVE_NEEDS_API_GUARD', 'OpenAI calls must go through ApiGuard')
-            return guarded_decision_call(api_guard, cfg, model, prov.OpenAIProvider(model=model['id']).call)
+            return guarded_decision_call(api_guard, cfg, model, prov.OpenAIProvider(model=model['id'], api_model_id=api_model_id(cfg, model['id'])).call)
         digest = model.get('digest')
         return prov.OllamaProvider(model=model['id'], model_digest=None if (digest or '').startswith('UNKNOWN') else digest).call
 
@@ -104,7 +108,7 @@ def live_context(cfg, table, api_guard=None):
         if model['kind'] == 'OPENAI':
             if api_guard is None:
                 raise wp5.Wp5Error('LIVE_NEEDS_API_GUARD', 'OpenAI calls must go through ApiGuard')
-            return ab.GuardedNlClient(nlp.OpenAINlClient(model=model['id'], prices=prices, max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS),
+            return ab.GuardedNlClient(nlp.OpenAINlClient(model=model['id'], api_model_id=api_model_id(cfg, model['id']), prices=prices, max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS),
                                       api_guard, caller='wp5_nl', max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS)
         return nlp.OllamaNlClient(model=model['id'])
 
@@ -112,6 +116,16 @@ def live_context(cfg, table, api_guard=None):
         raise wp5.Wp5Error('DP4_LIVE_NOT_WIRED', 'awaiting #532 (attention_api.ApiRanker); rerun with --skip-types DP4 or wire this hook')
 
     return wp5.Context(decision_provider=decision_provider, dp4_ranker=dp4_ranker, nl_client=nl_client, price_table=table)
+
+
+def api_model_id(cfg, model_id):
+    """The real OpenAI API id for a config id, from the committed (FORMAL) parameter set (D237). Raises when unmapped,
+    so a LIVE call can never send a config id such as 'astra6' to the API."""
+    params = wp5.load_json(cfg['timeout_profiles']['formal']['params_path'])
+    mapped = {m['config_id']: m.get('api_model_id') for m in params['models']}
+    if not mapped.get(model_id):
+        raise wp5.Wp5Error('API_MODEL_ID_UNMAPPED', model_id)
+    return mapped[model_id]
 
 
 def wp5_prices(table):
