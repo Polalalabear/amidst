@@ -125,8 +125,8 @@
     {
       "id": "A13'",
       "path": "docs/operations/Q1Q5_PROGRESS.md",
-      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2（#276）",
-      "sha256": "a011237baa1665421c5ba2fe7373d8e2c2e0c416ee049a17764393b90c446fab",
+      "ref": "claude/feat-ops-progress@43d55046（#548）",
+      "sha256": "35917da59579eedec9a74c13b2b99f9424b1b64cd33800cf69d0eca0ca7446df",
       "status": "現行；D97 後由協調者再刷新，屆時本議題留言更新 SHA",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
     },
@@ -403,6 +403,13 @@
       "requires_commit": "fd431b641ce2caa4b3bfe408ef0a187c11ed59af",
       "issue_ref": "#486",
       "reason": "大掃除收尾 (#486): integration branch main (D200/D214), D216 one-branch-per-feature, D218 single ~/amidst folder with scratchpad clones. Text only; no rule weakened (GT isolation, no-delete, merge-commit-only unchanged)."
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "35917da59579eedec9a74c13b2b99f9424b1b64cd33800cf69d0eca0ca7446df",
+      "requires_commit": "43d55046183a498df3df48b34f81f9d1f81da394",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306#issuecomment-6900168102",
+      "reason": "進度導覽批次補列 #306–#548（D91-4），只改導覽內容，沒有放寬任何規則"
     }
   ]
 }
