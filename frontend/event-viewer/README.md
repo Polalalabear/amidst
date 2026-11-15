@@ -35,3 +35,10 @@ safe 區沒有 manifest／clock，預期結構取自 `runs.mjs`（來自 `docs/e
 ```bash
 node --test frontend/event-viewer/viewer.test.mjs
 ```
+
+## 版面（格狀／焦點）
+
+頁尾工具列的「格狀｜焦點」切換兩種版面，預設格狀，選擇記在 `localStorage`（`amidst.eventViewer.layout`；讀寫失敗就用預設）。內嵌時可用 `?layout=grid|focus` 指定（優先於 localStorage）。所有畫格維持 16:9，不拉伸、不裁切。
+
+- **格狀（A）**：`layout.mjs` 的 `adaptiveGrid` 依視窗長寬比比較各種欄數，取每格最大者（1920×1080 下 8 台為 3×3）；視窗縮放即時重算。
+- **焦點（B）**：主鏡頭約佔 65% 寬，其餘縮成小格排在右側；主鏡頭依序取「追蹤中（`?track=CAM_x`，目前沒有來源，留給 DP4）→ 使用者點選 → 第一台」，點任一格即換主畫面；切換有 200 ms 過場，不影響播放同步。不做任何預測。

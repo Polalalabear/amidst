@@ -14,6 +14,7 @@ const STATIC = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.mjs', ['app.mjs', 'text/javascript; charset=utf-8']],
   ['/sync.mjs', ['sync.mjs', 'text/javascript; charset=utf-8']],
+  ['/layout.mjs', ['layout.mjs', 'text/javascript; charset=utf-8']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
 ]);
 

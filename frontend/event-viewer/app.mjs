@@ -1,9 +1,11 @@
-import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, createSpeedMeter, formatSpeedNote, stampParts, stepFrame, virtualTime, gridShape, fitGrid, cameraStatus, MISSING_TEXT } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, createSpeedMeter, formatSpeedNote, stampParts, stepFrame, virtualTime, cameraStatus, MISSING_TEXT } from './sync.mjs';
+import { layoutRects, pickFocusCamera, readStoredLayout, writeStoredLayout, parseLayoutParams, normalizeLayout, GAP } from './layout.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
 const meter = createSpeedMeter();
-const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0, speed: 1 };
+const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0, speed: 1, layout: 'grid', tracked: null, selected: null, laidOut: false };
+const ANIM_MS = 200;
 
 // 第一行（鏡頭＋虛擬時間）單純模式也顯示；第二行（經過秒數、時鐘標示）只在系統模式。
 function setCap(cap, parts) {
@@ -88,16 +90,50 @@ function tick(now) {
   }
 }
 
-function fitNow() {
+// 依目前視窗與版面模式重算每格位置；切換版面或換主鏡頭時才加 200 ms 過場，縮放視窗時即時重排。播放與 show() 不受影響。
+function fitNow(animate = false) {
   const run = state.run, main = document.querySelector('main'), grid = $('grid');
   if (!run || !main || run.status !== 'OK') return;
   const cs = getComputedStyle(main);
   const w = main.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const h = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-  const f = fitGrid(run.cameras.length, w, h, 10);
-  grid.dataset.cols = String(f.cols); grid.dataset.rows = String(f.rows);
-  grid.style.gridTemplateColumns = f.width ? `repeat(${f.cols}, ${f.width}px)` : '';
+  const pick = pickFocusCamera(run.cameras, state.tracked, state.selected);
+  const L = layoutRects(state.layout, run.cameras, pick.camera, w, h, GAP);
+  grid.dataset.layout = state.layout;
+  grid.dataset.cols = String(L.grid.cols); grid.dataset.rows = String(L.grid.rows);
+  grid.style.width = `${w}px`; grid.style.height = `${h}px`;
+  if (animate && state.laidOut) { grid.classList.add('animate'); clearTimeout(fitNow.t); fitNow.t = setTimeout(() => grid.classList.remove('animate'), ANIM_MS + 50); }
+  for (const cam of run.cameras) {
+    const fig = $(`fig-${cam}`), r = L.rects[cam];
+    if (!fig || !r) continue;
+    Object.assign(fig.style, { left: `${r.x}px`, top: `${r.y}px`, width: `${r.width}px`, height: `${r.height}px` });
+    fig.dataset.focus = cam === L.focus ? 'main' : '';
+    fig.classList.toggle('selected', cam === state.selected);
+  }
+  const banner = $('focus-banner');
+  banner.hidden = !L.banner;
+  if (L.banner) {
+    Object.assign(banner.style, { left: `${L.banner.x}px`, top: `${L.banner.y}px`, width: `${L.banner.width}px`, height: `${L.banner.height}px` });
+    banner.textContent = `${pick.source === 'tracking' ? '追蹤中' : pick.source === 'selected' ? '已選取' : '主畫面（預設）'}：${pick.camera}`;
+  }
+  document.querySelectorAll('#layout-toggle button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.layout === state.layout)));
+  state.laidOut = true;
 }
+
+function setLayout(mode) {
+  const m = normalizeLayout(mode);
+  if (!m || m === state.layout) return;
+  state.layout = m;
+  writeStoredLayout(safeStorage(), m);
+  fitNow(true);
+}
+
+function selectCamera(cam) {
+  state.selected = cam;
+  fitNow(true);
+}
+
+function safeStorage() { try { return window.localStorage; } catch { return null; } }
 
 function setCameraStatus(cam, loaded) {
   const fig = $(`fig-${cam}`);
@@ -109,7 +145,9 @@ function setCameraStatus(cam, loaded) {
 function buildGrid(run) {
   const grid = $('grid');
   grid.className = '';
-  grid.replaceChildren(...run.cameras.map((cam) => {
+  const banner = document.createElement('div');
+  banner.id = 'focus-banner'; banner.hidden = true;
+  grid.replaceChildren(banner, ...run.cameras.map((cam) => {
     const fig = document.createElement('figure');
     fig.id = `fig-${cam}`; fig.dataset.camera = cam; fig.dataset.status = 'PENDING';
     const img = document.createElement('img');
@@ -122,6 +160,7 @@ function buildGrid(run) {
     const cap = document.createElement('figcaption');
     cap.id = `cap-${cam}`;
     setCap(cap, stampParts(cam, null, run.fps, run.clock));
+    fig.addEventListener('click', () => selectCamera(cam));
     fig.append(img, miss, cap);
     return fig;
   }));
@@ -133,6 +172,8 @@ async function selectRun(run) {
   cache.clear();
   state.run = run;
   state.skipped = 0; state.stalls = 0; state.shown = -1;
+  state.tracked = parseLayoutParams(location.search, run.cameras).track;
+  state.selected = null; state.laidOut = false;
   const bad = run.status !== 'OK';
   $('unavailable').hidden = !bad;
   $('grid').hidden = bad;
@@ -168,6 +209,9 @@ async function main() {
   if (embed.embed) {
     window.addEventListener('message', (e) => { const v = acceptViewMessage(e, window.parent); if (v) setView(v); });
   }
+  const lp = parseLayoutParams(location.search, []);
+  state.layout = lp.layout ?? readStoredLayout(safeStorage());
+  document.querySelectorAll('#layout-toggle button').forEach((b) => { b.onclick = () => setLayout(b.dataset.layout); });
   const speedSel = $('speed');
   for (const v of SPEEDS) speedSel.add(new Option(`${v}×`, String(v)));
   speedSel.onchange = () => { state.speed = SPEEDS.includes(Number(speedSel.value)) ? Number(speedSel.value) : 1; state.nextDue = performance.now(); meter.reset(); showSpeedNote(); };
@@ -192,6 +236,6 @@ async function main() {
   setInterval(() => tick(performance.now()), 40);
 }
 
-window.addEventListener('resize', fitNow);
-if (typeof ResizeObserver === 'function') new ResizeObserver(fitNow).observe(document.querySelector('main'));
+window.addEventListener('resize', () => fitNow());
+if (typeof ResizeObserver === 'function') new ResizeObserver(() => fitNow()).observe(document.querySelector('main'));
 main();
