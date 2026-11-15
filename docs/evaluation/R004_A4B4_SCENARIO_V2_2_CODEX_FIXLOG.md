@@ -1,0 +1,103 @@
+# #516 v2.2 Codex 修正紀錄
+
+依使用者 2026-11-10 完整產製授權。基準 main `84a97b64`（#522），v2.1 原檔保留；未修改 checker、關卡斷言、camera graph、相機或來源 blend。
+
+## 觸發與範圍
+
+v2.1 checker 兩 run PASS；G1 `--runxfail -k test_g1_` 為7項通過、1項失敗（spawn gate，14個錯誤）。D207容許錄影結束仍在畫面內，但現行G1另要求所有first/last點在鏡頭外且不在假設覆蓋框內；本修訂用更嚴的終點要求通過驗收，不把錄影結束冒稱畫面外。B4 C 的原出生點雖可由真實mesh證明遮擋，仍在G1的R101假設框 [5,11]×[-5,-0.1] 內。
+
+原終點的無靜態遮擋 mesh sample 像素（x,y）：A4 A EXT_CAR (243.035,148.192)、EXT_CLEAR (694.903,191.261)；B4 A WIDE (464.713,251.323)；B4 B BRANCH (389.125,141.622)、WIDE (446.195,220.841)；B4 C W1 (172.362,332.931)、W2 (496.097,204.735)。完整證據在 LOCAL evidence。
+
+## 每項路點修正
+
+### A4-1 A
+
+43.5s後改在現有門廳南側遮蔽區收尾，消除原50s在EXT_CAR/EXT_CLEAR內的終點。
+
+| 時刻 s | 原值 xy | 新值 xy |
+| ---: | --- | --- |
+| 46 | NONE（新增時刻） | [2, -1.35] |
+| 47 | [-2.6, 0.0] | NONE（移除路點） |
+| 47.85 | [-3.8, 0.0] | NONE（移除路點） |
+| 49.4 | [-5.5, 1.6] | NONE（移除路點） |
+| 50 | [-6.2, 2.1] | [2, -1.35] |
+
+修正後：中心線最小牆／障礙距離 0.4500m ≥0.35m；first/last mesh BVH／凸遮擋面證明均PASS（2端點，各渲染鏡頭逐一檢查，B包含側背包）。
+
+### B4-1 A
+
+公告前停留至28s後沿現有地板向北走，在WIDE相機後／側方收尾，消除原WIDE內的終點。
+
+| 時刻 s | 原值 xy | 新值 xy |
+| ---: | --- | --- |
+| 28 | NONE（新增時刻） | [16.4, 6] |
+| 34 | NONE（新增時刻） | [15.5, 13.7] |
+| 42 | [16.4, 6.0] | [15.5, 13.7] |
+
+修正後：中心線最小牆／障礙距離 0.4500m ≥0.35m；first/last mesh BVH／凸遮擋面證明均PASS（2端點，各渲染鏡頭逐一檢查，B包含側背包）。
+
+### B4-1 B
+
+轉角停留至33.4s後沿東側北走，在WIDE相機後方收尾；與A終點中心距離1.2m。
+
+| 時刻 s | 原值 xy | 新值 xy |
+| ---: | --- | --- |
+| 33.4 | NONE（新增時刻） | [16.4, 0.8] |
+| 34.2 | NONE（新增時刻） | [16.7, 1.8] |
+| 42 | [16.4, 0.8] | [16.7, 13.7] |
+
+修正後：中心線最小牆／障礙距離 0.4500m ≥0.35m；first/last mesh BVH／凸遮擋面證明均PASS（2端點，各渲染鏡頭逐一檢查，B包含側背包）。
+
+### B4-1 C
+
+出生改在門廳既有W_HOOD遮蔽區，避開G1的R101假設覆蓋框；38s後回同一遮蔽區收尾。C仍為藍色對照者；T路線／事件不變。
+
+| 時刻 s | 原值 xy | 新值 xy |
+| ---: | --- | --- |
+| 3 | [6.0, -4.3] | [1, -1.35] |
+| 6 | [8.0, -0.6] | [4, -1.35] |
+| 6.8 | [8.0, 0.6] | NONE（移除路點） |
+| 7.6 | [7.0, 1.0] | [4, 1] |
+| 38 | NONE（新增時刻） | [-0.75, 0.4] |
+| 42 | [-0.75, 0.4] | [1, -1.35] |
+
+修正後：中心線最小牆／障礙距離 0.6500m ≥0.35m；first/last mesh BVH／凸遮擋面證明均PASS（2端點，各渲染鏡頭逐一檢查，B包含側背包）。
+
+## 完整重查
+
+- checker：A4、B4 各7項全PASS，兩run exit0。最小人際距離 A4 0.8000m、B4 0.6764m；每段速度≤1.6m/s。
+- 12個first/last端點全部 mesh PASS，沒有靠其他人物遮擋。A4 B片中消失仍為32.2s，包含32.2s渲染格。
+- T 的整個actor JSON與v2.1逐項相同（含路點、時刻、hold），所以沒有新增／刪除T事件。影像實際LOST/RETURN與detector時刻仍須渲染後另驗；本文件不以路點相同宣稱像素事件驗收。
+- 不改估計模型、顏色或associate()；in-band歧義情境段仍A4 3＋B4 2＝5。這是原工具的假設覆蓋／完美偵測規劃估計，不是渲染觀測題數。
+- B保持H/S/V=0.012/0.75/0.65。模型H範圍0.006520–0.018099，最小紅帶餘裕0.031901≥0.02。AgX／BRDF／真實裁切的像素結果未由此證明。
+- B4 A/B新增北側末段位於原FLOOR_GROUND實際地板（z=0，至y=14.2）；WALK_CORR_N標記支撐面只至y=12。未修改來源或擴大導航authority，完整物理導航仍UNKNOWN。
+
+## 不變的來源
+
+- blend SHA-256 `466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b`；未保存或複製。
+- catalog SHA-256 `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`；8台matrix/fx差值均0。
+- 原v2.1 SHA-256 `cda4c6878d634e05b1265818eb07753a76f04b29490ccb5a6fcc5b4eb29baadd`。
+
+LOCAL：`local/evidence/codex-516-v21-feasibility-20261110/`，含原失敗、修正後checker/mesh、顏色proxy與episode估計。最終artifact manifest與渲染資訊見同PR的交接文件。
+
+## 單獨授權：改自我檢查：標記計數→函式計數
+
+使用者在本次chat明確授權只改 `test_selftest_gate_markers_are_strict_and_cover_every_gate`；其他G1/G2驗收斷言與其他自我測試不改。
+
+- 原規則：regex要求檔案永遠有8個`@G1`、4個`@G2`。G1八項通過且依契約移除標記後，全檔為73 passed、4 xfailed、1 failed；失敗的是這個標記自我檢查。
+- 新規則：用AST依函式名確認8個`test_g1_*`、4個`test_g2_*`函式全部存在且名稱不重複；每組標記數只能0或整組數量，不能部分移除。某組仍有標記時其定義必須存在；定義若保留，必須是`pytest.mark.xfail(strict=True)`；整組移除後可刪該組定義。
+- G1/G2的12個實質驗收函式與其他自我測試保持不變；完成某組時只移除對應整組decorators。
+- 修正後：G1階段74 passed、4 xfailed；G2交付後全檔78 passed、0 xfailed。最終CI exact head另在PR／issue記錄。
+
+## 產製入口修正：Blender匯入路徑與錯誤退出碼
+
+- 原值：producer直接匯入同目錄`render_r004_d124`，但Blender `--python`不把script目錄加進sys.path。單格試跑（A4 W1 frame70）在任何LOCK／RGB寫入前發生`ModuleNotFoundError`；Blender預設仍exit0。
+- 新值：producer先將自身scripts目錄加入sys.path；所有實際產製呼叫加`--python-exit-code 1`，supervisor據非零退出碼停止，不把Python例外誤當成功。
+- 修正後：同一A4 W1 frame70單格成功，有hash驗證PNG與journal記錄；兩段全量也完成（1000／1050格），見最終交付收據。未改路點、相機、材質或checker。
+
+## 索引啟動環境修正（2026-11-13）
+
+- 原值：僅使用目前demo的精簡`.venv`，啟動official RT-DETR時因`yaml`缺失停止；此env亦沒有Torch／TorchVision。模型尚未載入，沒有產生index輸出。
+- 新值：在該次索引process的`PYTHONPATH`加入既有LOCAL `data/q1q5-dynamic-baseline-v1_20261025/runtime-deps`，唯讀重用Torch2.6.0、TorchVision0.21.0、PyYAML6.0.3；與原D131 detector metadata的Torch／TorchVision版本相同。
+- 原因與驗證：3個package入口SHA均與D169搬遷manifest相同，沒有新建venv、安裝套件或修改服務runtime；實際RT-DETR推論成功啟動。完整數量、相同detector設定、conformance與local replay結果見最終交付收據。
+- 沒有改模型、weights、演算法參數、劇本、checker或關卡邏輯。
