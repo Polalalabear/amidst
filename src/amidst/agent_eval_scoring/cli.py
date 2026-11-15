@@ -114,7 +114,8 @@ def _score_dp3_question(
 
 def _assert_no_actor_leak(text: str, actors: set[str]) -> None:
     for actor in actors:
-        if actor and actor in text:
+        # match the actor as a whole JSON string (key or value), not as a substring of other words
+        if actor and json.dumps(actor) in text:
             raise ValueError('actor identifier leaked into scoring output')
 
 
@@ -126,6 +127,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument('--gt-fixture', required=True, type=Path)
     parser.add_argument('--params', required=True, type=Path)
     parser.add_argument('--out', required=True, type=Path)
+    parser.add_argument('--records', type=Path, default=None,
+                        help='optional decision records JSONL (runner decision_records.jsonl): adds FB/TO/SI, Cons_K and cost')
+    parser.add_argument('--labels', type=Path, default=None,
+                        help='optional S2 scoring_private/synthetic_labels_v1.json: adds the inserted-candidate pick rate')
     args = parser.parse_args(argv)
 
     questions = _load_jsonl(args.questions)
@@ -180,6 +185,30 @@ def main(argv: Sequence[str] | None = None) -> int:
         'params_status': str(params.get('status', 'PROPOSED')),
         'sample_sufficiency': 'INSUFFICIENT' if n_scored < 20 else 'SUFFICIENT',
     }
+
+    if args.records is not None:
+        records = _load_jsonl(args.records)
+        summary['call_rates'] = metrics.compute_fallback_and_call_rates(records)
+        summary['cost'] = metrics.compute_cost_per_question(records, None)  # no dated price table -> UNKNOWN
+        answers: dict[str, list[str]] = {}
+        for rec in records:
+            answers.setdefault(str(rec['request_sha256']), []).append(str(rec['final_answer']))
+        repeated = {k: v for k, v in answers.items() if len(v) > 1 and len(v) == len(next(iter(answers.values())))}
+        if repeated:
+            summary['consistency'] = metrics.compute_consistency_k(repeated)
+    if args.labels is not None:
+        labels = json.loads(args.labels.read_text(encoding='utf-8'))
+        n_s2 = 0
+        picked = 0
+        for sha, label in sorted(labels.items()):
+            ans = decisions_by_sha.get(sha)
+            if ans is None:
+                continue
+            n_s2 += 1
+            if ans in label.get('inserted_candidate_ids', []):
+                picked += 1
+        summary['S2'] = {'n': n_s2, 'picked_inserted': picked,
+                         'picked_inserted_rate': float(picked / n_s2) if n_s2 else 0.0}
 
     args.out.mkdir(parents=True, exist_ok=True)
     pq_bytes = b''.join(metrics.canonical_bytes(r) + b'\n' for r in per_question_out)

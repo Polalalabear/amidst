@@ -387,3 +387,32 @@ def test_runner_recordings_are_replayable_design_3_3_rows_and_group_must_match_p
     rc = runner.main(['--questions', str(q_path), '--params', str(params_path), '--stage', 'PILOT_AND_CONSISTENCY',
                       '--group', 'search_relaxed', '--out', str(tmp_path / 'wrong')])
     assert rc != 0
+
+
+def test_scoring_cli_optional_records_and_s2_labels(tmp_path):
+    q_path = _write_questions(tmp_path)
+    questions = [json.loads(line) for line in q_path.read_text(encoding='utf-8').splitlines()]
+    shas = [q['request_sha256'] for q in questions]
+    (tmp_path / 'd.jsonl').write_text(''.join(json.dumps({'request_sha256': s, 'answer': 'B1'}) + '\n' for s in shas), encoding='utf-8')
+    (tmp_path / 'o.json').write_text('{}', encoding='utf-8')
+    (tmp_path / 'g.json').write_text(json.dumps({'fixture': 'FAKE_GT_FIXTURE', 'target': 'T', 'frames': []}), encoding='utf-8')
+    (tmp_path / 'p.json').write_text(ROOT.joinpath('configs/q1q5/agent_scoring_params_v1.json').read_text(encoding='utf-8'), encoding='utf-8')
+    records = [
+        {'request_sha256': shas[0], 'final_answer': 'B1', 'decision_source': 'AGENT', 'fallback_reason': None,
+         'attempts': [{'outcome': 'OK'}]},
+        {'request_sha256': shas[1], 'final_answer': 'ABSTAIN', 'decision_source': 'RULE_FALLBACK',
+         'fallback_reason': 'TIME_BUDGET', 'attempts': [{'outcome': 'PROVIDER_TIMEOUT'}]},
+    ]
+    (tmp_path / 'r.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in records), encoding='utf-8')
+    (tmp_path / 'l.json').write_text(json.dumps({shas[0]: {'inserted_candidate_ids': ['B1']},
+                                                  shas[1]: {'inserted_candidate_ids': ['B2']}}), encoding='utf-8')
+    rc = scoring_cli.main(['--questions', str(q_path), '--decisions', str(tmp_path / 'd.jsonl'),
+                           '--candidate-observations', str(tmp_path / 'o.json'), '--gt-fixture', str(tmp_path / 'g.json'),
+                           '--params', str(tmp_path / 'p.json'), '--out', str(tmp_path / 'out'),
+                           '--records', str(tmp_path / 'r.jsonl'), '--labels', str(tmp_path / 'l.json')])
+    assert rc == 0
+    m = json.loads((tmp_path / 'out' / 'metrics.json').read_text(encoding='utf-8'))
+    assert m['call_rates']['FB'] == 0.5 and m['call_rates']['FB_by_reason'] == {'TIME_BUDGET': 0.5}
+    assert m['call_rates']['TO'] == 0.5 and m['cost']['usd_per_question'] == 'UNKNOWN'
+    assert m['S2'] == {'n': 2, 'picked_inserted': 1, 'picked_inserted_rate': 0.5}
+    assert '"T"' not in json.dumps(m)
