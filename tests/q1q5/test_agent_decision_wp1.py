@@ -185,7 +185,7 @@ def test_params_schema_and_validator_agree():
 
 def test_committed_parameter_sets_match_d165_d166():
     assert [m['config_id'] for m in FORMAL['models']] == ['astra6', 'sol6.1', 'terra6.1']
-    assert all(m['api_model_id'] is None for m in FORMAL['models'])
+    assert {m["config_id"]: m["api_model_id"] for m in FORMAL["models"]} == {"astra6": "gpt-6-astra", "sol6.1": "gpt-6.1-sol", "terra6.1": "gpt-6.1-terra"}
     assert FORMAL['report_group'] == 'FORMAL' and EXPLORATORY['report_group'] == 'EXPLORATORY'
     assert FORMAL['per_call'] == {'timeout_ms': 2000, 'max_output_tokens': 300, 'max_retries_on_429_5xx': 1}
     assert FORMAL['per_step'] == {'budget_ms': 5000, 'max_rounds': 3}

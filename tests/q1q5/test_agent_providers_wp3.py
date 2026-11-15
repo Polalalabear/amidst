@@ -176,7 +176,11 @@ def test_openai_valid_json_returns_agent_decision_and_tokens():
     assert provider.last_api_model_id == 'astra6-2026-11-10'
     sent = transport.calls[0]['body']
     assert sent['response_format']['type'] == 'json_schema'
-    assert sent['response_format']['json_schema']['schema'] == SCHEMA['$defs']['response']
+    sent_schema = sent['response_format']['json_schema']['schema']
+    assert sent_schema == ap.ollama_format_schema(SCHEMA['$defs']['response'], SCHEMA['$defs'])  # D237: OpenAI rejects 'if' and dangling $ref
+    blob = json.dumps(sent_schema)
+    assert not any(k in blob for k in ('"if"', '"then"', '"else"', '"$ref"', 'uniqueItems', '$defs'))
+    assert sent['response_format']['json_schema']['strict'] is False
     assert sent['max_completion_tokens'] == 300
     assert 'max_output_tokens' not in sent
 
