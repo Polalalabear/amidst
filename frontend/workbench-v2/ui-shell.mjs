@@ -41,6 +41,15 @@ export function frameTUs(run, cameraId, t) {
   const origin = Number.isSafeInteger(per.index_grid_origin_frame) ? per.index_grid_origin_frame * step : 0;
   return t < origin ? t : origin + Math.floor((t - origin) / step) * step;
 }
+// Swap a frame picture without ever leaving the element mid-load: the new URL is fetched on a detached image first and only assigned once it
+// is available, so the visible <img> keeps the previous picture (complete, naturalWidth>0) until the new one can be painted at once.
+export function showFrameImage(img, url) {
+  if (img.getAttribute('src') === url) { img.dataset.want = url; return; }
+  if (img.dataset.want === url) return;   // already preloading this URL (paintStage runs on every tick)
+  img.dataset.want = url;
+  const pre = new Image(), apply = () => { if (img.dataset.want === url) img.src = url; };
+  pre.onload = apply; pre.onerror = apply; pre.src = url;
+}
 export function createFrameLoader(fetchFrame, apply) {
   let inflight = false, want = null, dead = false;
   const pump = () => {
@@ -506,7 +515,7 @@ export function mountUi(ctx) {
         const cap = el('div', undefined, 'ui-multi-cap'); cap.append(el('span', cam.cameraId, 'ui-mono'), el('span', '', 'ui-chip ui-chip-neutral'));
         const empty = el('span', presentOn() ? (synthetic ? PLAIN.syntheticFrame : PLAIN.noFrame) : (synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得'), 'ui-media-note');
         tile.append(img, empty, cap); grid.append(tile); const part = {tile, img, cap, empty};
-        part.loader = createFrameLoader(fetchFrame, url => { if (url) { if (img.getAttribute('src') !== url) img.src = url; img.hidden = false; empty.hidden = true; } else { img.hidden = true; img.removeAttribute('src'); empty.hidden = false; } });
+        part.loader = createFrameLoader(fetchFrame, url => { if (url) { showFrameImage(img, url); img.hidden = false; empty.hidden = true; } else { img.hidden = true; img.removeAttribute('src'); delete img.dataset.want; empty.hidden = false; } });
         trackParts.multi.set(cam.cameraId, part);
       }
       main.append(grid);
@@ -540,7 +549,7 @@ export function mountUi(ctx) {
     const P = trackParts; if (!P.stage || !P.cur) return;
     const {kind, cam, last, t, cm, clock, chip, observed, prev} = P.cur, sh = P.shown, wallOf = us => wallClockText(cm, us) ?? `${(us / 1e6).toFixed(2)} s`;
     const url = sh?.url ?? null;
-    if (url) { if (P.img.getAttribute('src') !== url) P.img.src = url; P.img.hidden = false; } else { P.img.hidden = true; P.img.removeAttribute('src'); }
+    if (url) { showFrameImage(P.img, url); P.img.hidden = false; } else { P.img.hidden = true; P.img.removeAttribute('src'); delete P.img.dataset.want; }
     P.stage.dataset.live = String(!!cam);
     const loading = !!cam && !sh && !P.failed;
     if (url || loading) P.note.hidden = true;
