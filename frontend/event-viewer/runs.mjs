@@ -7,6 +7,8 @@ export const FRAME_HEIGHT = 540;
 // 各 run 已宣告的展示時鐘，逐欄取自 configs/q1q5/clocks/r004_{a4,b4}_v1.json（viewer.test.mjs 逐欄比對）。
 // 虛擬世界時間 = wall_origin + 來源時間（frame ÷ fps）；不是牆鐘、不是 GT 或渲染時間。
 const declaredClock = (c) => Object.freeze(c);
+const EIGHT_CAMERAS = ['CAM_BRANCH', 'CAM_ENTRY', 'CAM_EXT_CAR', 'CAM_EXT_CLEAR', 'CAM_R101_IN', 'CAM_W1', 'CAM_W2', 'CAM_WIDE'];
+// 舊 run（A4-1、B4-1：1 人、4／5 鏡頭，source 預設 legacy）保留不動，順序也不變。
 export const RUNS = Object.freeze([
   Object.freeze({
     key: 'A4-1',
@@ -23,5 +25,30 @@ export const RUNS = Object.freeze([
     frames: 210,
     clock: declaredClock({ clock_id: 'clock:r004:b4:declared-demo:v1', mapping_kind: 'DECLARED_DEMO_CLOCK', timezone: 'Asia/Taipei', wall_origin: '2026-11-01T14:10:00+08:00', t0_us: 0, rate: 1 }),
     cameras: Object.freeze(['CAM_W1', 'CAM_W2', 'CAM_BRANCH', 'CAM_R101_IN', 'CAM_WIDE']),
+  }),
+  // ---- #529 八鏡頭 4 人自然步態 run（D214）。素材在 AMIDST_ARTIFACTS 的 data/<EIGHTCAM_DATA_DIR>/bundle/safe（--root-8cam 指向其 bundle/safe），
+  // 影格取自 safe bundle（已移除 PNG 文字／EXIF）。manifest 與其 SHA-256 取自 docs/operations/R004_V2_4ACTOR_BUNDLE_MANIFEST.json；
+  // 每格的 SHA-256 以 runs/<A4-1|B4-1>.json 逐格比對。清單內全部相對於 root，不含絕對路徑。
+  Object.freeze({
+    key: 'A4-1-8CAM',
+    label: 'A4-1（4 人，8 鏡頭）',
+    runId: 'r004-4actor-natural-walk-eightcam-20261114-a4-1',
+    frames: 250,
+    source: 'eightcam',
+    mediaDir: Object.freeze(['rgb', 'r004-4actor-natural-walk-eightcam-20261114-a4-1']),
+    manifest: Object.freeze({ path: Object.freeze(['runs', 'A4-1.json']), sha256: '96545d32ff6cb36ddf62ae5d27949f68229509b24258551424a1832d36ea8443' }),
+    clock: declaredClock({ clock_id: 'clock:r004-4actor-natural-walk-eightcam-20261114-a4-1', mapping_kind: 'DECLARED_DEMO_CLOCK', timezone: 'Asia/Taipei', wall_origin: '2026-11-01T14:00:00+08:00', t0_us: 0, rate: 1 }),
+    cameras: Object.freeze(EIGHT_CAMERAS),
+  }),
+  Object.freeze({
+    key: 'B4-1-8CAM',
+    label: 'B4-1（4 人，8 鏡頭）',
+    runId: 'r004-4actor-natural-walk-eightcam-20261114-b4-1',
+    frames: 210,
+    source: 'eightcam',
+    mediaDir: Object.freeze(['rgb', 'r004-4actor-natural-walk-eightcam-20261114-b4-1']),
+    manifest: Object.freeze({ path: Object.freeze(['runs', 'B4-1.json']), sha256: '41cd24a87d6509481de193ad1b6891c66d6d54249b9d0bf7d854165ba48ff31c' }),
+    clock: declaredClock({ clock_id: 'clock:r004-4actor-natural-walk-eightcam-20261114-b4-1', mapping_kind: 'DECLARED_DEMO_CLOCK', timezone: 'Asia/Taipei', wall_origin: '2026-11-01T14:10:00+08:00', t0_us: 0, rate: 1 }),
+    cameras: Object.freeze(EIGHT_CAMERAS),
   }),
 ]);

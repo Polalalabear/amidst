@@ -15,6 +15,8 @@ export const EVENTS=Object.freeze([
   {id:'b05a',label:'B-05a live 追蹤',kind:'embed',port:'live',path:'/workbench-v2/',note:'live 但預期 fail-closed：檢索→追蹤→點第一列起點→拖時間軸到 5.10／5.15／5.20 s；全程停在 A（5.20 s 仍是 A＋GAP），鏡頭關係圖未核准，系統不猜、不切鏡。'},
   {id:'a41',label:'複雜事件 A4-1',kind:'embed',port:'cx',path:'/',run:'A4-1',note:'只有影像、無推論、無身分（ENGINEERING）：4 鏡頭 5 fps；frame 62＝12.40 s、frame 100＝20.00 s；目前評分器與規則還判斷不了，是 Line 2 要研究的。'},
   {id:'b41',label:'複雜事件 B4-1',kind:'embed',port:'cx',path:'/',run:'B4-1',note:'只有影像、無推論、無身分（ENGINEERING）：5 鏡頭 5 fps，frame 0–209；frame 105＝21.00 s；資料是工程模擬，身分 UNCONFIRMED，物理通行 UNKNOWN。'},
+  {id:'a48',label:'A4-1 八鏡頭（4 人）',kind:'embed',port:'cx',path:'/',run:'A4-1-8CAM',note:'#529 工程合成資料，4 人自然步態、8 鏡頭（含 CAM_ENTRY）、5 fps、250 格（50 s）；只有影像、無推論、無身分（identity UNCONFIRMED），物理通行 UNKNOWN。'},
+  {id:'b48',label:'B4-1 八鏡頭（4 人）',kind:'embed',port:'cx',path:'/',run:'B4-1-8CAM',note:'#529 工程合成資料，4 人自然步態、8 鏡頭、5 fps、210 格（42 s）；只有影像、無推論、無身分（identity UNCONFIRMED），物理通行 UNKNOWN。'},
 ]);
 
 export function validPort(value){

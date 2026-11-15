@@ -76,8 +76,12 @@ export function parseMediaPath(pathname, runs) {
   return { run, camera: m[2], index };
 }
 
+// 舊 run：<key>/safe/media/<camera>/；新 run 可用 mediaDir 宣告相對於其 root 的目錄（rgb/<runId>）。
+export const mediaDirParts = (run) => (run.mediaDir ? [...run.mediaDir] : [run.key, 'safe', 'media']);
+export const rootKeyOf = (run) => run.source ?? 'legacy';
+
 export function relativeMediaPath(run, camera, index) {
-  return path.join(run.key, 'safe', 'media', camera, `${frameName(index)}.png`);
+  return path.join(...mediaDirParts(run), camera, `${frameName(index)}.png`);
 }
 
 // 檢查「實際會送出的 bytes」：簽章；IHDR 在最前、唯一、長度 13 且為 960×540 8-bit RGB 非交錯；
@@ -153,11 +157,11 @@ export async function resolveSafeFile(rootReal, run, camera, index) {
 // 之後對「每一張」影格檢查 PNG 並記錄 SHA-256，供送出時比對。
 export async function validateRun(rootReal, run) {
   const fail = (code) => ({ status: 'UNAVAILABLE', code });
-  const mediaDirParts = [run.key, 'safe', 'media'];
-  const mediaDir = await walkReal(rootReal, mediaDirParts, false);
+  const dirParts = mediaDirParts(run);
+  const mediaDir = await walkReal(rootReal, dirParts, false);
   if (!mediaDir) return fail(CODE_UNAVAILABLE);
   for (const cam of run.cameras) {
-    if (!(await walkReal(rootReal, [...mediaDirParts, cam], false))) return fail(CODE_UNAVAILABLE);
+    if (!(await walkReal(rootReal, [...dirParts, cam], false))) return fail(CODE_UNAVAILABLE);
   }
   let cams;
   try { cams = (await fs.readdir(mediaDir)).sort(); } catch { return fail(CODE_UNAVAILABLE); }
@@ -183,7 +187,32 @@ export async function validateRun(rootReal, run) {
     await Promise.all(Array.from({ length: 8 }, worker));
     if (bad) return fail(bad);
   }
+  if (run.manifest) {
+    const code = await checkManifest(rootReal, run, digests);
+    if (code) return fail(code);
+  }
   return { status: 'OK', fps: FPS, digests };
+}
+
+// 有 manifest 的 run：manifest 檔本身的 SHA-256 須等於 runs.mjs 釘住的值，且每台相機的影格數、
+// 每一格的 relative_path 與 sha256 都須與逐格驗證時算出的 digest 一致；多出或缺少一格都算 INTEGRITY_FAIL。
+async function checkManifest(rootReal, run, digests) {
+  const file = await walkReal(rootReal, [...run.manifest.path], true);
+  if (!file) return CODE_UNAVAILABLE;
+  let raw;
+  try { raw = await fs.readFile(file); } catch { return CODE_UNAVAILABLE; }
+  if (sha256(raw) !== run.manifest.sha256) return CODE_INTEGRITY_FAIL;
+  let m;
+  try { m = JSON.parse(raw.toString('utf8')); } catch { return CODE_INTEGRITY_FAIL; }
+  if (m.run_id !== run.runId || m.fps !== FPS || !Array.isArray(m.frames)) return CODE_INTEGRITY_FAIL;
+  if (JSON.stringify([...(m.camera_ids ?? [])].sort()) !== JSON.stringify([...run.cameras].sort())) return CODE_INTEGRITY_FAIL;
+  if (m.frames.length !== run.cameras.length * run.frames || digests.size !== m.frames.length) return CODE_INTEGRITY_FAIL;
+  const prefix = mediaDirParts(run).join('/');
+  for (const f of m.frames) {
+    if (f.relative_path !== `${prefix}/${f.camera_id}/${frameName(f.frame_index)}.png`) return CODE_INTEGRITY_FAIL;
+    if (digests.get(`${f.camera_id}/${f.frame_index}`) !== f.sha256) return CODE_INTEGRITY_FAIL;
+  }
+  return null;
 }
 
 // 送出前的最後一關：重新讀檔，bytes 的 SHA-256 必須等於啟動驗證時記下的值，且仍通過 PNG 檢查。
