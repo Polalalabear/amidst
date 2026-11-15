@@ -6,6 +6,7 @@
 - 作者：Claude（Sonnet 5.5 / high）。對照：[`docs/agents/Q1Q5_DEMO_SCRIPT.md`](../agents/Q1Q5_DEMO_SCRIPT.md)（講稿與四條界線）、[`docs/agents/Q1Q5_BROWSER_ACCEPTANCE.md`](../agents/Q1Q5_BROWSER_ACCEPTANCE.md)、[`Q1Q5_DEMO_LAUNCH.md`](Q1Q5_DEMO_LAUNCH.md)。
 - 範圍：桌機瀏覽器，視窗寬 ≥1280（建議 1440×900）。Demo 播放**預錄影片**；B-05a 是 live 但預期 fail-closed（D113）；複雜事件段**只有影像、無推論、無身分**。
 - 本手冊不含 GT、劇本事件、真實路徑或標準答案；路徑一律用變數，不寫家目錄絕對路徑。
+- 路徑變數（D171、D218）：先在 repo 根（`~/amidst`）執行 `export AMIDST_ARTIFACTS="${AMIDST_ARTIFACTS:-$PWD/local/evidence}"`。舊的 `~/amidst-artifacts`、`~/amidst-demo-state` 已不再使用；state 目錄在 `$AMIDST_ARTIFACTS/demo-state/`（LOCAL，不進 git）。 <!-- local-ref-ignore -->
 
 ## 0. 三段一覽
 
@@ -24,11 +25,11 @@
 1. **磁碟**：`df -g /` 可用 ≥ 9 GiB（低於 8 GiB 不啟動；啟動器本身也會拒絕）。複雜事件 server 啟動會把約 1.2 GB 的 PNG 全量驗證一次（不佔磁碟）。
 2. **LOCAL 路徑存在且唯讀使用**：
    - P1 v4 包：`/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試/`（含 `MANIFEST.json`，pin `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7`）。
-   - 複雜事件資料根：`$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/`，只讀 `A4-1/safe`、`B4-1/safe`。**不要** `ls`、開啟或複製 `gt_private/`。
+   - 複雜事件資料根：`$AMIDST_ARTIFACTS/r004-cx7-d115-20261102-01a199f8/`，只讀 `A4-1/safe`、`B4-1/safe`。**不要** `ls`、開啟或複製 `gt_private/`。
 3. **Python ≥3.12**：`python3 --version`（2026-11-03 實測 3.14.7）。Node 可用：`node --version`。
 4. **repo checkout 與已合併的 demo 修補**：`git rev-parse HEAD`、`git status` 乾淨。基準是 `97030cd`，之後預期依序合入 #403（已關閉，見 #93） → #400（已關閉，見 #93） → #404（已關閉，見 #93） → #399（已關閉，見 #93） → #401（已關閉，見 #93）。**務必確認 #403（已關閉，見 #93） 已在 checkout 內**：`git merge-base --is-ancestor 6d029ce9328ba922a252b851ae987314cbfd5b00 HEAD && echo 已含#403（已關閉，見 #93）`（或其 merge commit 在 `git log --first-parent` 中）。合併後以 mainline 的實際 SHA 確認（上式回傳即含）；若不含，B-05a／B-05b 的決策證據讀取可能回 HTTP 403（見第 3.1 節與第 6 節）。#404（攝影機時間標籤）同理：`git merge-base --is-ancestor 4fbd8c2447b5e449cae7a508a7dcd74e57492fae HEAD`；未含則畫面沒有左上角標籤，不影響功能。
 5. **埠沒被占**：`lsof -iTCP:8765 -iTCP:8766 -iTCP:8780 -sTCP:LISTEN`，應為空。被占就換埠（指令的 `--port`），不要殺不認得的程序。
-6. **新的 state 目錄**：每次啟動 `--state-root` 必須是**不存在**的新路徑、父目錄存在，例如 `STATE_PARENT=$HOME/amidst-demo-state; mkdir -p "$STATE_PARENT"`，每次用 `$STATE_PARENT/run-$(date +%H%M%S)`。不要放進 P1 包內。**所有路徑都要用絕對、正規（無 `..`、無符號連結）的路徑**：2026-11-03 實測 `--state-root ../x` 這類相對路徑會直接 `DataIntegrityError` 起不來。
+6. **新的 state 目錄**：每次啟動 `--state-root` 必須是**不存在**的新路徑、父目錄存在，例如 `STATE_PARENT=$AMIDST_ARTIFACTS/demo-state; mkdir -p "$STATE_PARENT"`，每次用 `$STATE_PARENT/run-$(date +%H%M%S)`。不要放進 P1 包內。**所有路徑都要用絕對、正規（無 `..`、無符號連結）的路徑**：2026-11-03 實測 `--state-root ../x` 這類相對路徑會直接 `DataIntegrityError` 起不來。
 7. **瀏覽器乾淨**：用**新的瀏覽器 profile／無痕視窗**，或在 DevTools Console 執行
    `localStorage.removeItem('amidst.monitor-room.v1'); localStorage.removeItem('amidst.workbench-v2.track-map-float.v1')`。
    原因（2026-11-03 實測）：後台的速度、起點、顯示鏡頭、循環與選定事件，以及俯視圖的開／關與位置，都存在瀏覽器 localStorage；排練時設過「2×、只看 A」，主畫面下次開啟就只剩 1 台鏡頭。
@@ -50,16 +51,16 @@ A1 與 A2 不是已證明等價；只開其中一個，用同一個埠或不同�
 
 ```bash
 export P1_BUNDLE="/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試"
-mkdir -p "$HOME/amidst-demo-state"
-python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7 --state-root "$HOME/amidst-demo-state/rec-$(date +%H%M%S)" --current-ui --no-open --port 8766
+mkdir -p "$AMIDST_ARTIFACTS/demo-state"
+python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7 --state-root "$AMIDST_ARTIFACTS/demo-state/rec-$(date +%H%M%S)" --current-ui --no-open --port 8766
 ```
 
 **A2 啟動**（只在要照 #279（已關閉，見 #93） 實測方式獨立展示 B-05b 時使用；另開 terminal、另一個新 state）：
 
 ```bash
 export P1_BUNDLE="/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試"
-mkdir -p "$HOME/amidst-demo-state"
-env -i PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin HOME="$HOME" PYTHONDONTWRITEBYTECODE=1 ./start_demo.command --bundle "$P1_BUNDLE" --manifest-sha256 6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7 --state-root "$HOME/amidst-demo-state/replay-$(date +%H%M%S)" --port 8767 --no-open
+mkdir -p "$AMIDST_ARTIFACTS/demo-state"
+env -i PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin HOME="$HOME" PYTHONDONTWRITEBYTECODE=1 ./start_demo.command --bundle "$P1_BUNDLE" --manifest-sha256 6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7 --state-root "$AMIDST_ARTIFACTS/demo-state/replay-$(date +%H%M%S)" --port 8767 --no-open
 ```
 
 A2 的 launcher 會直接印出正確的 `?recording=2777741d96ac9aff5bffb2f61a4d2938` 網址，照印出的開。（#279（已關閉，見 #93） 的完整命令另含 `uv run --no-project --offline …` 與 `UV_CACHE_DIR`；若本機沒有 uv 且系統 `python3` ≥3.12，上式即可，與 #279（已關閉，見 #93） 的差異未另行驗證。）
@@ -103,7 +104,7 @@ A1 終端機印出網址後，開以下網址（**不要**用印出的 `?mode=re
 啟動（與段 A **不同進程、不同 state**，不同埠）：
 
 ```bash
-python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7 --state-root "$HOME/amidst-demo-state/live-$(date +%H%M%S)" --tracking-scope "$PWD/configs/q1q5/p1_live_tracking_scope.json" --tracking-scope-sha256 e2ca308b13181346707660a1ae4edcd7b8cc594709a3e009c2db0a9fea3374b8 --current-ui --no-open --port 8765
+python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7 --state-root "$AMIDST_ARTIFACTS/demo-state/live-$(date +%H%M%S)" --tracking-scope "$PWD/configs/q1q5/p1_live_tracking_scope.json" --tracking-scope-sha256 e2ca308b13181346707660a1ae4edcd7b8cc594709a3e009c2db0a9fea3374b8 --current-ui --no-open --port 8765
 ```
 
 開 `http://127.0.0.1:8765/workbench-v2/`（另開的 terminal 要先 `export P1_BUNDLE=…`，見第 2 節）。此進程帶 tracking scope、不登錄錄製，與段 A 的 recording 綁定不同，所以**分進程**，B-01～B-03、B-05b 仍在段 A 做；段 B 只做 B-05a。一般首頁的 A／B 監控牆 RGB 取自 bootstrap，通常仍會顯示（#279（已關閉，見 #93） 實測 recordings=0 仍有 A／B 兩台）；若看到空牆，多半是殘留的 recording 選擇（清 localStorage，第 1 節第 7 項），不是故障。
@@ -152,7 +153,7 @@ git rev-parse --short HEAD   # 應為 02afeb3
 啟動：
 
 ```bash
-node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8" --port 8780
+node frontend/event-viewer/server.mjs --root "$AMIDST_ARTIFACTS/r004-cx7-d115-20261102-01a199f8" --port 8780
 ```
 
 啟動時會全量驗證每張 PNG，**約 15 秒**（2026-11-03 實測 14.5 s；PR 自述 6.0 s），印出 `A4-1: OK`、`B4-1: OK` 和網址才算好，之前不要開頁。開 `http://127.0.0.1:8780/`。結束：Ctrl-C。
@@ -235,12 +236,12 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 目的：留一份完整、可重播的 demo 影片（LOCAL，不 commit）。
 
 1. **開錄前**：做完第 1 節檢查；解析度固定 1440×900（或整個螢幕 1920×1080）；關閉通知；游標顯示開。
-2. **錄影工具**：macOS 螢幕錄影（`Shift-Cmd-5` →「錄製選取部分」→ 框住瀏覽器視窗；選項勾「顯示滑鼠點按」；麥克風選旁白用的輸入）。輸出存到 `$HOME/amidst-artifacts/demo-recording_20261104/`（LOCAL，新目錄）。
+2. **錄影工具**：macOS 螢幕錄影（`Shift-Cmd-5` →「錄製選取部分」→ 框住瀏覽器視窗；選項勾「顯示滑鼠點按」；麥克風選旁白用的輸入）。輸出存到 `$AMIDST_ARTIFACTS/demo-recording_20261104/`（LOCAL，新目錄）。
 3. **段落分段錄**（方便剪輯與重錄）：01 段 A（B-01～B-03）、02 B-05b、03 後台、04 B-05a、05 複雜事件 A4-1、06 複雜事件 B4-1。每段開錄前重啟對應伺服器並清 localStorage，結束後 Ctrl-C。
 4. **每段旁白照 DEMO_SCRIPT 與第 2–4 節**；複雜事件段必說「只有影像、無推論」。
 5. **錄完驗證**：逐段播放確認可看、時間碼連續、沒有露出 `gt_private`、終端機密鑰或家目錄路徑。
 6. **記錄**：`shasum -a 256` 每支影片，檔名、大小、SHA-256 與錄製日期寫入 #279（已關閉，見 #93） 留言，**標 LOCAL**；不要把影片放進 repo。
-7. **收尾**：Ctrl-C 關閉所有伺服器；`lsof -iTCP:8765 -iTCP:8766 -iTCP:8780 -sTCP:LISTEN` 應為空；刪除 `$HOME/amidst-demo-state/` 下本次的 state 目錄；`git checkout mainline/q1q5` 換回主線。
+7. **收尾**：Ctrl-C 關閉所有伺服器；`lsof -iTCP:8765 -iTCP:8766 -iTCP:8780 -sTCP:LISTEN` 應為空；刪除 `$AMIDST_ARTIFACTS/demo-state/` 下本次的 state 目錄；`git checkout main` 換回主線。
 
 ## 9. 本手冊自身的驗證範圍
 
@@ -309,7 +310,7 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 3. 全部 ready 後印出工作台網址並開瀏覽器：`http://127.0.0.1:8766/workbench-v2/?ev=wall&ev_live=8765&ev_cx=8780`。
 4. 在該視窗按 Ctrl-C 會關掉三個子進程；任何一個子進程中途結束也會報錯並收掉其餘進程。
 
-預設路徑可用環境變數覆蓋：`P1_BUNDLE`、`CX7_ROOT`（預設 `$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8`）、`STATE_PARENT`（預設 `$HOME/amidst-demo-state`）、`PYTHON`（預設 `python3`）、`PORT_REC`／`PORT_LIVE`／`PORT_CX`、`NO_OPEN=1`（不自動開瀏覽器）。不需要、也不讀取 OpenAI key。
+預設路徑可用環境變數覆蓋：`P1_BUNDLE`、`CX7_ROOT`（預設 `$AMIDST_ARTIFACTS/r004-cx7-d115-20261102-01a199f8`）、`STATE_PARENT`（預設 `$AMIDST_ARTIFACTS/demo-state`）、`PYTHON`（預設 `python3`）、`PORT_REC`／`PORT_LIVE`／`PORT_CX`、`NO_OPEN=1`（不自動開瀏覽器）。不需要、也不讀取 OpenAI key。
 
 ### 事件選單（工作台上方列「事件」）
 
