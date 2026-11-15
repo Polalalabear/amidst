@@ -684,6 +684,7 @@ def test_static_only_wp3_files_import_new_modules_and_default_off_unchanged():
         ROOT / 'src/amidst/q1q5/agent_providers.py',
         ROOT / 'src/amidst/q1q5/agent_recording.py',
         ROOT / 'scripts/agent_decision/run_provider.py',
+        ROOT / 'src/amidst/q1q5/nl_query_parse.py',   # N1 Spotlight reuses the #526 transport/extraction helpers (docs/contracts/NL_QUERY_PARSE_V1.md)
     }
     pattern = re.compile(r'\b(?:agent_providers|agent_recording)\b')
     offenders = []

@@ -2631,6 +2631,16 @@
       ],
       "issue_ref": "#489",
       "status": "AGENT_DECISION_WP1_PARAMS_DEFAULT_OFF"
+    },
+    {
+      "value": "q-demo.nl-query-parse.v1",
+      "source_paths": [
+        "docs/contracts/NL_QUERY_PARSE_V1.md",
+        "src/amidst/q1q5/nl_query_parse.py",
+        "frontend/workbench-v2/nl-spotlight-model.test.mjs"
+      ],
+      "issue_ref": "#93",
+      "status": "N1_NL_QUERY_PARSE_FILLS_TAG_PANEL_ONLY"
     }
   ]
 }

@@ -247,6 +247,15 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     try{need(source!==FIXTURE_ORIGIN,'FIXTURE_HAS_NO_RGB');const data=parseRaw(await raw('/api/q_media_grant',{session_ref:session,media_token}));const tile=data.tiles?.[0];need(tile?.status==='READY'&&/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(tile.media_url),'MEDIA_URL');return {ok:true,data:freezeDeep(data)};}
     catch(error){return apiError(error.message);}
   }
-  return Object.freeze({bootstrap,createSession,query,coreSearch,coreTrack,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
+  // N1 Spotlight (docs/contracts/NL_QUERY_PARSE_V1.md): the server returns the fixed parse shape; this never executes a query.
+  async function nlParse(run,text,mode='RULES') {
+    try {
+      need(run&&typeof text==='string'&&['API','LOCAL','RULES'].includes(mode),'NL_PARSE_REQUEST');
+      const data=parseRaw(await raw('/api/nl_query_parse',{session_ref:session,context:{scene_id:run.scene_id,run_ids:[run.run_id]},text,mode}));
+      need(data.schema_version==='q-demo.nl-query-parse.v1'&&Array.isArray(data.location)&&Array.isArray(data.target)&&Array.isArray(data.unrecognized)&&['API','LOCAL','RULES'].includes(data.parser),'NL_PARSE_SCHEMA');
+      return {ok:true,data:freezeDeep(data)};
+    }catch(error){return apiError(error.message);}
+  }
+  return Object.freeze({bootstrap,createSession,nlParse,query,coreSearch,coreTrack,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
     getSession:()=>session,getBootstrap:()=>bootstrapData,getOrigin:()=>origin,getRequests:()=>Object.freeze([...requests]),invalidate:()=>epoch.begin('query')});
 }

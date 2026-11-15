@@ -110,6 +110,7 @@ export function mountSettings(box, {getBootstrap, storage = globalThis.localStor
         row('結果逐張淡入', '關掉則一次顯示', toggle(draft.staggerResults, set('staggerResults')))),
       group('系統 · SYSTEM',
         row('物件偵測', '來源未宣告偵測器名稱', el('span', 'UNKNOWN', 'badge')),
+        row('一句話查詢解析方式', '搜尋框（⌘K）怎麼解析句子；API／本機模型失敗或逾時會自動退到下一種，固定句型不需要金鑰', seg([['RULES', '固定句型'], ['LOCAL', '本機模型'], ['API', 'API']], draft.nlParser, set('nlParser'))),
         row('追蹤方式', '規則串接（RULE_ONLY）或 Agent（需來源支援）', seg([['RULE_ONLY', '規則'], ['AGENT_SEQUENTIAL', 'Agent']], draft.switchMode, set('switchMode'))),
         row('場景圖', run ? `${run.scene_id} · 區域圖 ${String(run.region_graph_sha256 ?? '').slice(0, 8) || 'UNKNOWN'} · 鏡頭圖 ${String(run.camera_graph_sha256 ?? '').slice(0, 8) || 'UNKNOWN'}` : '尚未載入來源', el('span', run ? '檢視' : NOT_MEASURED, 'badge'))));
     box.append(grid);

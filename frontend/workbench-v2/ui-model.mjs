@@ -35,6 +35,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   searchPanelOpen: false,
   staggerResults: true,
   switchMode: 'RULE_ONLY',
+  nlParser: 'RULES',           // N1: Spotlight sentence parser: RULES (fixed patterns, no key) | LOCAL (Ollama) | API; failures fall back down the chain
   presentationMode: true,     // D139: front desk shows plain wording; technical tags move into ⓘ
 });
 
@@ -54,6 +55,7 @@ export function normalizeSettings(raw) {
     searchPanelOpen: typeof r.searchPanelOpen === 'boolean' ? r.searchPanelOpen : d.searchPanelOpen,
     staggerResults: typeof r.staggerResults === 'boolean' ? r.staggerResults : d.staggerResults,
     switchMode: ['RULE_ONLY', 'AGENT_SEQUENTIAL'].includes(r.switchMode) ? r.switchMode : d.switchMode,
+    nlParser: ['RULES', 'LOCAL', 'API'].includes(r.nlParser) ? r.nlParser : d.nlParser,
     presentationMode: typeof r.presentationMode === 'boolean' ? r.presentationMode : d.presentationMode,
   };
 }

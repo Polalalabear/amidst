@@ -20,7 +20,7 @@ from pathlib import Path
 from amidst.q1q5.query_alias import region_catalog
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
-POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_camera_map','q_candidate_view','q_external_prediction','q_physical_prediction'})
+POST_ROUTES=frozenset({'q1_camera_search','q3_parse','nl_query_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_core_search','q_core_track','q_camera_map','q_candidate_view','q_external_prediction','q_physical_prediction'})
 # Recognized error-only paths, not implemented capabilities. Keep them outside
 # POST_ROUTES so the UI-support conformance helpers still report missing wiring.
 UNAVAILABLE_POST_ROUTES=frozenset()
@@ -173,11 +173,11 @@ def _is_multi_run_clarification(bundle):
 
 class QAPI:
     def __init__(self,runs=(),*,max_responses,max_media_refs,recording_store=None,recordings=(),rgb_api=None,
-                 camera_maps=(),camera_display_positions=None,openai_prediction_adapter=None):
+                 camera_maps=(),camera_display_positions=None,openai_prediction_adapter=None,nl_clients=None):
         check(type(max_responses) is int and max_responses>0 and type(max_media_refs) is int and max_media_refs>0,'DataIntegrityError',409)
         self.runs={};self.rgb_api=rgb_api;self.max_responses=max_responses;self.max_media_refs=max_media_refs
         self.camera_maps={};self.camera_display_positions=deepcopy(camera_display_positions or {})
-        self.openai_prediction_adapter=openai_prediction_adapter
+        self.openai_prediction_adapter=openai_prediction_adapter;self.nl_clients=nl_clients
         self.recording_store=recording_store;self.recordings={};self.responses={};self.media_refs={};self._frame_refs={};self._active={};self._jobs={};self._recorded_responses={};self._expired=OrderedDict();self._lock=threading.RLock()
         for run in runs:
             _validate_title(run.title,optional=True)
@@ -528,6 +528,15 @@ class QAPI:
             from amidst.q1q5.q3_parse import parse_query
             response,audit=parse_query(payload,catalog=run.catalog,settings=run.parse_settings,clock_mapping=run.bindings.clock,**run.q3_options)
             self._save_response(payload['session_ref'],self._bundle(payload,response,run,provider_audit=audit));return response
+        if action=='nl_query_parse':
+            # N1 (docs/contracts/NL_QUERY_PARSE_V1.md): fills the tag panel only; no query is executed or saved. Keys stay on the server.
+            check(set(payload)<={'session_ref','context','text','mode'} and {'context','text'}<=set(payload) and isinstance(payload['context'],dict),'FORBIDDEN_INFERENCE_INPUT')
+            scope=payload['context'];run=self._run({'session_ref':payload.get('session_ref'),'scene_id':scope.get('scene_id'),'run_ids':scope.get('run_ids')},authorize,allow_multi=True)
+            from amidst.q1q5 import nl_query_parse as nlp
+            mode=payload.get('mode','RULES');check(mode in nlp.MODES,'FORBIDDEN_INFERENCE_INPUT')
+            clients=self.nl_clients if self.nl_clients is not None else nlp.clients_from_environment()
+            try:return nlp.parse_nl_query(payload['text'],nlp.vocabulary_from_catalog(run.catalog),mode=mode,api=clients.get('API'),local=clients.get('LOCAL'))
+            except ValueError:raise APIError('FORBIDDEN_INFERENCE_INPUT',422) from None
         if action=='q1_camera_search':
             parse_ref=None
             if 'request' in payload:

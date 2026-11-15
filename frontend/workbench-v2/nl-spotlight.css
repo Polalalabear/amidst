@@ -1,0 +1,26 @@
+/* N1 Spotlight: macOS-style centered search bar. Inside #ui-v1 so it uses the front desk tokens. Desktop only. */
+.nl-spot{position:absolute;inset:0;z-index:60;display:flex;justify-content:center;align-items:flex-start;padding-top:14vh;visibility:hidden;pointer-events:none;transition:visibility 0s linear .18s}
+.nl-spot[data-open="true"]{visibility:visible;pointer-events:auto;transition-delay:0s}
+.nl-spot-backdrop{position:absolute;inset:0;background:rgba(10,10,9,.38);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);opacity:0;transition:opacity .18s ease}
+.nl-spot[data-open="true"] .nl-spot-backdrop{opacity:1}
+.nl-spot-panel{position:relative;width:min(720px,calc(100vw - 96px));background:rgba(38,38,36,.72);-webkit-backdrop-filter:blur(28px) saturate(1.6);backdrop-filter:blur(28px) saturate(1.6);border:1px solid rgba(250,249,245,.14);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 .5px rgba(0,0,0,.6);padding:6px 6px 0;opacity:0;transform:translateY(-10px) scale(.97);transition:opacity .18s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
+.nl-spot[data-open="true"] .nl-spot-panel{opacity:1;transform:none}
+.nl-spot-row{display:flex;align-items:center;gap:12px;padding:10px 16px}
+.nl-spot-icon{font-size:26px;color:var(--faint);line-height:1}
+.nl-spot-input{all:unset;box-sizing:border-box;flex:1;font:400 24px var(--sans);color:var(--text);min-width:0}
+.nl-spot-input::placeholder{color:var(--dim)}
+.nl-spot-chips{display:flex;flex-wrap:wrap;gap:8px;padding:2px 20px 0;min-height:0}
+.nl-spot-chips:not(:empty){padding-top:10px;padding-bottom:6px;border-top:1px solid var(--line)}
+.nl-chip{font:500 14px var(--sans);padding:5px 12px;border-radius:999px;background:rgba(250,249,245,.1);color:var(--text);border:1px solid rgba(250,249,245,.16);animation:nlChip .16s ease backwards}
+.nl-chip-action{background:var(--accent);border-color:var(--accent);color:#1b1a19}
+.nl-chip-location{border-color:var(--observed-line);color:var(--observed)}
+.nl-chip-time{font-family:var(--mono);font-size:13px}
+.nl-chip-unrecognized{background:transparent;border:1px dashed #c9a24f;color:#e0bb6a}
+@keyframes nlChip{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.nl-spot-status{margin:0;padding:4px 22px;font-size:13px;color:var(--faint);min-height:0}
+.nl-spot-status:empty{display:none}
+.nl-spot-status[data-state="error"]{color:#e08a7a}
+.nl-spot-foot{display:flex;justify-content:space-between;gap:16px;padding:10px 20px 12px;font-size:12px;color:var(--dim);border-top:1px solid var(--line);margin-top:6px}
+.nl-spot-meta{font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){.nl-spot-backdrop,.nl-spot-panel,.nl-chip{transition:none;animation:none}}
+.ui-nl-open{background:transparent;cursor:pointer;font-family:inherit}
