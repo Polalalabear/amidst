@@ -1,0 +1,112 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>N6 asset verification</title>
+<style>body{margin:0;background:#20252b;color:#eef;font:14px system-ui}canvas{display:block}#controls{padding:12px}button{margin:4px}#status{white-space:pre-wrap}</style>
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
+<div id="viewport"></div>
+<div id="controls">N6 source-bound asset viewer · in-place clips · meters<br>
+<button data-clip="walk">walk · 1.2 m/s</button><button data-clip="run">run · 2.5 m/s</button><button data-clip="idle">idle</button>
+<button data-variant="T">T</button><button data-variant="A">A</button><button data-variant="B">B</button><button data-variant="C">C</button>
+<label><input id="play" type="checkbox">Play loop (in place)</label><select id="cameras"><option value="">Camera view…</option></select>
+<span id="status">Loading…</span></div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setSize(960,540);renderer.setPixelRatio(1);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+// Static textures already include Blender AgX; avoid applying a second transform.
+renderer.toneMapping=THREE.NoToneMapping;
+document.querySelector('#viewport').append(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(.16,.18,.21);
+const camera=new THREE.PerspectiveCamera(40,960/540,.05,100);
+scene.add(new THREE.HemisphereLight(0xffffff,0x666675,2));
+const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(3,6,4);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(10,10),new THREE.MeshStandardMaterial({color:0x777c84,roughness:1}));
+ground.rotation.x=-Math.PI/2;scene.add(ground);
+const loader=new GLTFLoader();
+const character=await loader.loadAsync('/assets/character.glb');scene.add(character.scene);
+const staticAsset=await loader.loadAsync('/assets/scene.glb');scene.add(staticAsset.scene);
+const cameras=await fetch('/assets/cameras.three.json').then(r=>r.json());
+const mixer=new THREE.AnimationMixer(character.scene);
+const clips=Object.fromEntries(character.animations.map(c=>[c.name,c]));
+const lighting=staticAsset.parser.json.asset.extras.n6Lighting.linearIrradiance;
+const irradiance=new EXRLoader().parse(await staticAsset.parser.getDependency('bufferView',lighting.bufferView));
+const render=()=>{scene.updateMatrixWorld(true);renderer.render(scene,camera);};
+async function variant(name){
+  const index=character.parser.json.extensions.KHR_materials_variants.variants.findIndex(v=>v.name===name);
+  const jobs=[];
+  character.scene.traverse(obj=>{
+    if(!obj.isMesh)return;
+    const a=character.parser.associations.get(obj);
+    if(!a||a.meshes===undefined)return;
+    const p=character.parser.json.meshes[a.meshes].primitives[a.primitives];
+    const mapping=p.extensions.KHR_materials_variants.mappings.find(m=>m.variants.includes(index));
+    jobs.push(character.parser.getDependency('material',mapping.material).then(m=>{obj.material=m;}));
+  });
+  if(jobs.length===0)throw new Error('Variant did not bind any meshes');
+  await Promise.all(jobs);render();
+}
+function sample(name,time){
+  mixer.stopAllAction();
+  const action=mixer.clipAction(clips[name]);action.reset().play();
+  mixer.setTime(time);scene.updateMatrixWorld(true);return action;
+}
+async function showClip(name,phase=.15,actor='T'){
+  staticAsset.scene.visible=false;character.scene.visible=true;ground.visible=true;
+  camera.matrixAutoUpdate=true;camera.fov=40;camera.aspect=960/540;camera.updateProjectionMatrix();
+  camera.position.set(2.1,1.3,2.8);camera.up.set(0,1,0);camera.lookAt(0,.84,0);
+  sample(name,clips[name].duration*phase);await variant(actor);render();
+  document.querySelector('#status').textContent=`${name} / ${actor} / ${clips[name].duration.toFixed(6)} s`;
+}
+function showCamera(id){
+  staticAsset.scene.visible=true;character.scene.visible=false;ground.visible=false;
+  const row=cameras.cameras.find(c=>c.camera_id===id);
+  camera.matrixAutoUpdate=false;camera.matrix.set(...row.camera_to_world.flat());
+  camera.matrixWorld.copy(camera.matrix);camera.matrixWorldInverse.copy(camera.matrix).invert();
+  camera.projectionMatrix.set(...row.projection_matrix.flat());
+  camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();render();
+  document.querySelector('#status').textContent=id+' / source catalog calibration';
+}
+function metrics(){
+  staticAsset.scene.visible=false;character.scene.visible=true;
+  const result={};
+  for(const name of ['walk','run','idle']){
+    const duration=clips[name].duration;sample(name,0);
+    const bones=[];character.scene.traverse(o=>{if(o.isBone)bones.push(o)});
+    const first=bones.map(b=>b.matrixWorld.clone());sample(name,duration-1e-8);
+    let seam=0;for(let j=0;j<bones.length;j++)for(let k=0;k<16;k++)seam=Math.max(seam,Math.abs(bones[j].matrixWorld.elements[k]-first[j].elements[k]));
+    let supportSlip=0,minFoot=1e6,motion=0;
+    const duty=name==='walk'?.60:name==='run'?.38:1;
+    const speed=name==='walk'?1.2:name==='run'?2.5:0;
+    for(let j=0;j<240;j++){
+      const phase=j/240;sample(name,duration*phase);
+      for(const [side,offset] of [['L',0],['R',.5]]){
+        const foot=character.scene.getObjectByName(side+'_foot');
+        const p=new THREE.Vector3();foot.getWorldPosition(p);minFoot=Math.min(minFoot,p.y-.10);
+        if(name!=='idle' && (phase+offset)%1<duty-.02 && (phase+offset)%1>.02){
+          sample(name,duration*phase+duration/10000);
+          const q=new THREE.Vector3();foot.getWorldPosition(q);
+          supportSlip=Math.max(supportSlip,Math.abs((q.x-p.x)/(duration/10000)+speed));
+          sample(name,duration*phase);
+        }
+      }
+      const shin=character.scene.getObjectByName('L_shin');
+      motion=Math.max(motion,2*Math.acos(Math.min(1,Math.abs(shin.quaternion.w))));
+    }
+    result[name]={duration_s:duration,seam_matrix_error:seam,support_slip_m_s:supportSlip,min_ankle_minus_shoe_height_m:minFoot,articulated_rotation:motion};
+  }
+  return result;
+}
+document.querySelectorAll('[data-clip]').forEach(b=>b.onclick=()=>showClip(b.dataset.clip));
+document.querySelectorAll('[data-variant]').forEach(b=>b.onclick=()=>variant(b.dataset.variant));
+for(const row of cameras.cameras){const option=document.createElement('option');option.value=option.textContent=row.camera_id;document.querySelector('#cameras').append(option);}
+document.querySelector('#cameras').onchange=e=>{if(e.target.value)showCamera(e.target.value)};
+let last=performance.now();
+function animate(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(document.querySelector('#play').checked&&character.scene.visible){mixer.update(dt);render()}requestAnimationFrame(animate)}
+requestAnimationFrame(animate);
+window.n6={showClip,showCamera,metrics,render,irradiance:{width:irradiance.width,height:irradiance.height},
+  cameraIds:cameras.cameras.map(c=>c.camera_id),ready:true};
+await showClip('walk');
+</script>
