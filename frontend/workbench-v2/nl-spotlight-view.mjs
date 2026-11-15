@@ -3,10 +3,10 @@
 import {PARSER_MODES, chipsFromParse, createSpotlight} from './nl-spotlight-model.mjs';
 
 const MODE_NAME = Object.fromEntries(PARSER_MODES);
-const ERRORS = Object.freeze({NO_RUN: '尚無來源，無法解析', NL_PARSE_REQUEST: '句子或來源不正確', NL_PARSE_SCHEMA: '伺服器回應格式不符', FORBIDDEN_INFERENCE_INPUT: '句子不合規則（1–200 字）'});
+const ERRORS = Object.freeze({NO_RUN: '尚無來源，無法解析', NL_PARSE_REQUEST: '句子或來源不正確', NL_PARSE_SCHEMA: '伺服器回應格式不符', TIMEOUT: '伺服器沒有回應，請再試一次', FORBIDDEN_INFERENCE_INPUT: '句子不合規則（1–200 字）'});
 export const PLACEHOLDER = '例如：追蹤紅衣的人 從西入口 0:10 到 0:30';
 
-export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply, win = globalThis, debounceMs = 220}) {
+export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply, win = globalThis, debounceMs = 220, clientTimeoutMs = 10000}) {
   const doc = host.ownerDocument;
   const el = (tag, text, cls, attrs) => { const n = doc.createElement(tag); if (text != null) n.textContent = text; if (cls) n.className = cls; for (const [k, v] of Object.entries(attrs ?? {})) n.setAttribute(k, v); return n; };
   const overlay = el('div', undefined, 'nl-spot', {'data-open': 'false', 'aria-hidden': 'true'}); overlay.id = 'nl-spot'; overlay.inert = true;
@@ -24,7 +24,7 @@ export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply
   const run = () => store.getState().activeRun;
   const call = mode => async text => {
     const r = run(); if (!r) throw new Error('NO_RUN');
-    const res = await api.nlParse(r, text, mode); if (!res.ok) throw new Error(res.error?.code ?? 'PARSE_FAILED');
+    let guard; const res = await Promise.race([api.nlParse(r, text, mode), new Promise((_, rej) => { guard = win.setTimeout(() => rej(new Error('TIMEOUT')), clientTimeoutMs); })]).finally(() => win.clearTimeout(guard)); if (!res.ok) throw new Error(res.error?.code ?? 'PARSE_FAILED');
     return {parse: res.data, chips: chipsFromParse(res.data, r), parser: res.data.parser, latency_ms: res.data.latency_ms, cost_usd: res.data.cost_usd};
   };
   const controller = createSpotlight({
@@ -53,7 +53,9 @@ export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply
   });
   backdrop.addEventListener('click', () => controller.close());
   const toggle = () => { controller.toggle(); if (controller.state.open) win.requestAnimationFrame?.(() => input.focus()); };
-  const onKey = e => { if ((e.metaKey || e.ctrlKey) && !e.altKey && String(e.key).toLowerCase() === 'k') { e.preventDefault(); toggle(); } };
+  const onKey = e => {
+    if (e.key === 'Escape' && controller.state.open) { e.preventDefault(); controller.close(); return; }   // Esc works even when focus left the input
+    if ((e.metaKey || e.ctrlKey) && !e.altKey && String(e.key).toLowerCase() === 'k') { e.preventDefault(); toggle(); } };
   doc.addEventListener('keydown', onKey);
   return {controller, toggle, open: () => { if (!controller.state.open) toggle(); }, close: () => controller.close(),
     destroy() { win.clearTimeout(timer); doc.removeEventListener('keydown', onKey); overlay.remove(); }};
