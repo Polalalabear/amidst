@@ -19,9 +19,6 @@ from amidst.q1q5 import attention_ranking as ar
 from amidst.q1q5.agent_decision import Attempt
 
 ROOT = Path(__file__).resolve().parents[2]
-ISSUE = 'N3 (DP4 API and Agent, Argon)'
-API_GATE = pytest.mark.xfail(strict=True, reason=f'awaiting {ISSUE}: attention_api.ApiRanker')
-AGENT_GATE = pytest.mark.xfail(strict=True, reason=f'awaiting {ISSUE}: attention_agent.AgentRanker')
 
 SEEN = 10_000_000
 PRICE = (1.0, 4.0)  # USD per million input / output tokens (synthetic)
@@ -321,9 +318,8 @@ def tool(name, **args):
     return {'action': 'TOOL', 'tool': name, 'args': args}
 
 
-# ------------------------------------------------------------------ API gates (xfail until N3)
+# ------------------------------------------------------------------ API gates
 
-@API_GATE
 def test_api_gate_valid_response_has_latency_cost_steps():
     request = make_request('right')
     client = FakeClient([ok({'ranking': good_ranking(request)}, wall_ms=250.0, tokens=(2000, 200))])
@@ -335,7 +331,6 @@ def test_api_gate_valid_response_has_latency_cost_steps():
     assert resp['cost_usd'] == pytest.approx((2000 * PRICE[0] + 200 * PRICE[1]) / 1e6)
 
 
-@API_GATE
 def test_api_gate_cost_unknown_without_price_table():
     from amidst.q1q5.attention_api import ApiRanker
     request = make_request('right')
@@ -344,7 +339,6 @@ def test_api_gate_cost_unknown_without_price_table():
     assert resp['method'] == 'API' and resp['cost_usd'] is None
 
 
-@API_GATE
 def test_api_gate_timeout_falls_back_to_rule():
     request = make_request('left')
     resp = api_ranker(FakeClient([Attempt('TIMEOUT', 3000.0)])).rank(request)
@@ -352,7 +346,6 @@ def test_api_gate_timeout_falls_back_to_rule():
     assert resp['latency_ms'] >= 3000.0
 
 
-@API_GATE
 @pytest.mark.parametrize('payload,reason', [
     ({'ranking': 'nonsense'}, 'INVALID_RESPONSE'),
     ({'ranking': [{'camera_id': 'CAM_C', 'score': 2, 'reason': 'MODEL_RANKED'}]}, 'INVALID_RESPONSE'),
@@ -365,14 +358,12 @@ def test_api_gate_invalid_output_falls_back_to_rule(payload, reason):
     assert_rule_fallback(resp, request, reason, 'API')
 
 
-@API_GATE
 def test_api_gate_unavailable_falls_back_and_never_raises():
     request = make_request('right')
     resp = api_ranker(FakeClient([Attempt('UNAVAILABLE', 5.0)])).rank(request)
     assert_rule_fallback(resp, request, 'PROVIDER_UNAVAILABLE', 'API')
 
 
-@API_GATE
 def test_api_gate_request_to_client_has_no_forbidden_fields():
     request = make_request('right')
     client = FakeClient([ok({'ranking': good_ranking(request)})])
@@ -381,7 +372,6 @@ def test_api_gate_request_to_client_has_no_forbidden_fields():
         ar.scan_forbidden(sent)
 
 
-@API_GATE
 def test_api_gate_forbidden_input_rejected_before_any_call():
     request = make_request('right')
     request['operator_person_id'] = 'P7'
@@ -391,9 +381,8 @@ def test_api_gate_forbidden_input_rejected_before_any_call():
     assert client.seen == []
 
 
-# ------------------------------------------------------------------ Agent gates (xfail until N3)
+# ------------------------------------------------------------------ Agent gates
 
-@AGENT_GATE
 def test_agent_gate_tool_loop_then_final_answer():
     request = make_request('right')
     client = FakeClient([ok(tool('get_graph_neighbors', camera_id='CAM_B')),
@@ -407,7 +396,6 @@ def test_agent_gate_tool_loop_then_final_answer():
     assert resp['cost_usd'] == pytest.approx(3 * (1000 * PRICE[0] + 100 * PRICE[1]) / 1e6)
 
 
-@AGENT_GATE
 def test_agent_gate_update_hypothesis_tool_is_allowed():
     request = make_request('right')
     client = FakeClient([ok(tool('update_hypothesis', ranking=good_ranking(request))),
@@ -416,7 +404,6 @@ def test_agent_gate_update_hypothesis_tool_is_allowed():
     assert resp['method'] == 'AGENT' and resp['steps'] == 2
 
 
-@AGENT_GATE
 def test_agent_gate_step_limit_falls_back_to_rule():
     request = make_request('right')
     client = FakeClient([ok(tool('get_graph_neighbors', camera_id='CAM_B'))])  # never answers
@@ -425,7 +412,6 @@ def test_agent_gate_step_limit_falls_back_to_rule():
     assert resp['steps'] == 4 and len(client.seen) == 4
 
 
-@AGENT_GATE
 def test_agent_gate_budget_limit_falls_back_to_rule():
     request = make_request('right')
     expensive = ok(tool('get_graph_neighbors', camera_id='CAM_B'), tokens=(20_000, 2_000))  # $0.028 > cap
@@ -435,14 +421,12 @@ def test_agent_gate_budget_limit_falls_back_to_rule():
     assert resp['steps'] == 1
 
 
-@AGENT_GATE
 def test_agent_gate_timeout_falls_back_to_rule():
     request = make_request('left')
     resp = agent_ranker(FakeClient([Attempt('TIMEOUT', 3000.0)])).rank(request)
     assert_rule_fallback(resp, request, 'PROVIDER_TIMEOUT', 'AGENT')
 
 
-@AGENT_GATE
 def test_agent_gate_unknown_tool_falls_back_without_running_it():
     request = make_request('right')
     client = FakeClient([ok(tool('read_file', path='/etc/passwd'))])
@@ -451,14 +435,12 @@ def test_agent_gate_unknown_tool_falls_back_without_running_it():
     assert len(client.seen) == 1
 
 
-@AGENT_GATE
 def test_agent_gate_tool_argument_outside_graph_falls_back():
     request = make_request('right')
     resp = agent_ranker(FakeClient([ok(tool('get_recent_detections', camera_id='CAM_Z'))])).rank(request)
     assert_rule_fallback(resp, request, 'ILLEGAL_CANDIDATE', 'AGENT')
 
 
-@AGENT_GATE
 def test_agent_gate_final_ranking_outside_graph_falls_back():
     request = make_request('right')
     bad = [{'camera_id': 'CAM_Z', 'score': 0.9, 'reason': 'MODEL_RANKED'}]
@@ -466,7 +448,6 @@ def test_agent_gate_final_ranking_outside_graph_falls_back():
     assert_rule_fallback(resp, request, 'ILLEGAL_CANDIDATE', 'AGENT')
 
 
-@AGENT_GATE
 def test_agent_gate_model_sees_no_forbidden_fields_in_any_turn():
     summaries = [{'camera_id': 'CAM_C', 'coverage_end_us': SEEN + 1_000_000,
                   'person_detections_since_last_obs': 1, 'last_person_detection_us': SEEN + 500_000,
@@ -481,7 +462,6 @@ def test_agent_gate_model_sees_no_forbidden_fields_in_any_turn():
         ar.scan_forbidden(sent)
 
 
-@AGENT_GATE
 def test_agent_gate_tool_list_is_exactly_the_contract_list():
     from amidst.q1q5.attention_agent import TOOL_NAMES
     assert tuple(TOOL_NAMES) == ar.AGENT_TOOLS
