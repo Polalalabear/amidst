@@ -1,7 +1,7 @@
 #!/bin/bash
 # 一鍵啟動 2026-11-04 demo 的全部進程（段 A 錄製、段 B live、段 C 複雜事件），印出工作台網址並開瀏覽器。
 # 指令與參數照 docs/operations/DEMO_RUNBOOK_20261104.md 第 2、3、4 節；不需要、也不讀取 OpenAI key。
-# 可用環境變數覆蓋：P1_BUNDLE、CX7_ROOT、STATE_PARENT、PYTHON、PORT_REC、PORT_LIVE、PORT_CX、NO_OPEN=1
+# 可用環境變數覆蓋：P1_BUNDLE、CX7_ROOT、CX8_ROOT、STATE_PARENT、PYTHON、PORT_REC、PORT_LIVE、PORT_CX、NO_OPEN=1
 # 結束：在這個視窗按 Ctrl-C，會關掉三個子進程。
 set -u
 set -m  # 每個子進程各自一個 process group，Ctrl-C 時整組關閉
@@ -12,6 +12,7 @@ ROOT="$PWD"
 pick() { if [ -e "$1" ] || [ ! -e "$2" ]; then printf '%s' "$1"; else printf '%s' "$2"; fi; }
 P1_BUNDLE="${P1_BUNDLE:-$(pick "$ROOT/local/archive/p1-clean-room-20261026/Amidst P1 最終測試" "/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試")}"
 CX7_ROOT="${CX7_ROOT:-$(pick "$ROOT/local/evidence/r004-cx7-d115-20261102-01a199f8" "$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8")}"
+CX8_ROOT="${CX8_ROOT:-$ROOT/local/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe}"  # A4-1-8CAM／B4-1-8CAM；沒有這個資料夾時兩個 run 只會顯示 UNAVAILABLE
 STATE_PARENT="${STATE_PARENT:-$(pick "$ROOT/local/data/demo-state" "$HOME/amidst-demo-state")}"
 PYTHON="${PYTHON:-python3}"
 PORT_REC="${PORT_REC:-8766}"
@@ -76,7 +77,8 @@ PIDS+=($!)
   --state-root "$LIVE_STATE" --tracking-scope "$ROOT/configs/q1q5/p1_live_tracking_scope.json" \
   --tracking-scope-sha256 "$SCOPE_SHA" --current-ui --no-open --port "$PORT_LIVE" >"$LOG_DIR/b-live.log" 2>&1 &
 PIDS+=($!)
-node frontend/event-viewer/server.mjs --root "$CX7_ROOT" --port "$PORT_CX" >"$LOG_DIR/c-events.log" 2>&1 &
+CX8_ARGS=(); [ -d "$CX8_ROOT" ] && CX8_ARGS=(--root-8cam "$CX8_ROOT")
+node frontend/event-viewer/server.mjs --root "$CX7_ROOT" ${CX8_ARGS[@]+"${CX8_ARGS[@]}"} --port "$PORT_CX" >"$LOG_DIR/c-events.log" 2>&1 &
 PIDS+=($!)
 
 # --- 等全部 ready（段 C 啟動會全量驗證約 1.2 GB PNG，約 15 秒）---
