@@ -111,12 +111,11 @@ def _readme(target: str, commit: str):
     where = 'Colab（選 NVIDIA L4）' if colab else 'Windows（Python 3.12 以上，已安裝 Ollama）'
     ops = (
         "1. 在 Colab 選執行階段 → 變更執行階段類型 → **L4 GPU**。\n"
-        "2. 左側檔案面板上傳**整個 zip**（本包的 `wp5-pack_colab_l4_%s.zip`），在筆記本第一格之前先解壓：\n"
-        "   在一個新程式格執行 `!unzip -q wp5-pack_colab_l4_%s.zip && mv wp5-pack_colab_l4_%s/* . `，再開 `notebooks/agent_decision/wp5_colab_l4.ipynb`（或把解開後的筆記本上傳到 Colab 開啟）。\n"
-        "3. 由上而下逐格執行。確認 GPU 是 L4（不是 L4 會停）；`SET` 預設 `pilot`；`OLLAMA_VERSION` 預設 `AUTO_LATEST`（取當日最新版並寫進 `ENV.json`）；DP4 先跳過（等 #532）。\n"
+        "2. 在 Colab 用「檔案 → 上傳筆記本」開 `wp5_colab_l4.ipynb`（和本 zip 放在一起的獨立副本；zip 內 `notebooks/agent_decision/` 也有同一份），再在左側檔案面板把**整個 zip**（`wp5-pack_colab_l4_%s.zip`）上傳到 `/content`。\n"
+        "3. 由上而下逐格執行（步驟 0 會自動解壓、切到包根目錄並驗包）。確認 GPU 是 L4（不是 L4 會停）；`SET` 預設 `pilot`；`OLLAMA_VERSION` 預設 `AUTO_LATEST`（取當日最新版並寫進 `ENV.json`）；DP4 先跳過（等 #532）。\n"
         "4. 最後一格會產生 `RETURN/wp5_<set>_colab_l4.zip` 並嘗試下載；沒有自動下載就從檔案面板下載。\n"
         "5. 把下載的 zip 放進 Mac 的 `local/evidence/wp5/<set>/`，用 `shasum -a 256` 記下 SHA-256，回報給協調者。"
-    ) % (PACK_DATE, PACK_DATE, PACK_DATE) if colab else (
+    ) % (PACK_DATE,) if colab else (
         "1. 解壓 zip，進入解壓後的資料夾（以下指令都在此資料夾）。\n"
         "2. 先 dry-run（0 次模型呼叫，不需要 Ollama）：`python run.py --set pilot`。要看到 `VALID` 與估算。\n"
         "3. 安裝 Ollama for Windows 並確認 `ollama --version`；再執行 `python run.py --set pilot --live`（會 pull 兩個 q4_K_M 模型、寫入 digest、一次跑一個模型）。\n"

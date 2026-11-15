@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -25,7 +27,8 @@ def main(argv=None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     results = [wp5_pack.build_wp5_pack(out / f'wp5-pack_{t}_{wp5_pack.PACK_DATE}', repo_root=a.repo, target=t, commit=commit, per_type=a.per_type)
                for t in wp5_pack.TARGETS]
-    (out / 'SHA256SUMS.txt').write_text(''.join(f"{r['zip_sha256']}  {Path(r['zip']).name}\n" for r in results), encoding='utf-8')
+    shutil.copyfile(Path(a.repo) / wp5_pack.NOTEBOOK, out / 'wp5_colab_l4.ipynb')
+    (out / 'SHA256SUMS.txt').write_text(''.join(f"{r['zip_sha256']}  {Path(r['zip']).name}\n" for r in results) + hashlib.sha256((out / 'wp5_colab_l4.ipynb').read_bytes()).hexdigest() + '  wp5_colab_l4.ipynb\n', encoding='utf-8')
     print(json.dumps(results, indent=2))
     return 0
 
