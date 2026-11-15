@@ -416,3 +416,41 @@ def test_scoring_cli_optional_records_and_s2_labels(tmp_path):
     assert m['call_rates']['TO'] == 0.5 and m['cost']['usd_per_question'] == 'UNKNOWN'
     assert m['S2'] == {'n': 2, 'picked_inserted': 1, 'picked_inserted_rate': 0.5}
     assert '"T"' not in json.dumps(m)
+
+
+def test_windows_pack_utf8_readme_forbidden_file_names_and_return_zip(tmp_path):
+    import zipfile
+    src = tmp_path / 'params.json'
+    src.write_text(json.dumps({'mode': 'DRY_RUN'}), encoding='utf-8')
+    pack_dir = tmp_path / 'pack'
+    windows_pack.build_pack(pack_dir, files={'configs/params.json': src})
+    assert '工作內容' in (pack_dir / 'README.md').read_bytes().decode('utf-8')  # written as UTF-8, not the locale codec
+    (pack_dir / 'RETURN' / 'README.txt').read_bytes().decode('utf-8')
+
+    with pytest.raises(ValueError):  # forbidden file name is refused at build time
+        windows_pack.build_pack(tmp_path / 'bad', files={'scoring_private/x.json': src})
+
+    # verify_pack.py also flags a forbidden file name that was dropped into the pack afterwards
+    planted = pack_dir / 'data' / 'scoring_private' / 'x.txt'
+    planted.parent.mkdir(parents=True)
+    planted.write_text('x', encoding='utf-8')
+    ok, errors = windows_pack.verify_pack(pack_dir)
+    assert not ok and any('forbidden file name' in e for e in errors)
+    planted.unlink()
+
+    def run(zip_path):
+        return subprocess.run([sys.executable, str(pack_dir / 'tools' / 'verify_pack.py'), str(zip_path)],
+                              capture_output=True, text=True)
+
+    good = tmp_path / 'good.zip'
+    with zipfile.ZipFile(good, 'w') as zf:
+        zf.writestr('RETURN/decisions_a.jsonl', json.dumps({'request_sha256': 'a' * 64}) + '\n')
+    r = run(good)
+    assert r.returncode == 0 and 'VALID' in r.stdout
+    for member, payload in (('RETURN/leak.json', json.dumps({'gt_private': 1})),
+                            ('RETURN/scoring_private.txt', 'x'), ('../escape.json', '{}')):
+        bad = tmp_path / 'bad.zip'
+        with zipfile.ZipFile(bad, 'w') as zf:
+            zf.writestr(member, payload)
+        r = run(bad)
+        assert r.returncode == 1 and 'INVALID' in r.stdout, member

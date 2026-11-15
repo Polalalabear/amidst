@@ -29,6 +29,14 @@ def _is_safe_rel_path(rel: str) -> bool:
     return all(part and part not in ('.', '..') for part in parts)
 
 
+FORBIDDEN_NAME_PARTS = ('scoring_private', 'gt_private', 'inserted_candidate', 'ground_truth')
+
+
+def _has_forbidden_name(rel: str) -> bool:
+    low = rel.lower()
+    return any(part in low for part in FORBIDDEN_NAME_PARTS)
+
+
 def _is_forbidden_key(key: Any) -> bool:
     if not isinstance(key, str):
         return False
@@ -85,9 +93,11 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import zipfile
 from pathlib import Path
 from typing import Any, Mapping
 
+FORBIDDEN_NAME_PARTS = ("scoring_private", "gt_private", "inserted_candidate", "ground_truth")
 FORBIDDEN_EXACT = frozenset({
     "actor", "actor_id", "gt_actor", "gt_id", "track_id", "raw_track_id",
     "person_id", "target_id", "is_target", "ground_truth", "gt", "depth",
@@ -160,6 +170,8 @@ def verify_directory(pack_dir: Path) -> tuple[bool, list[str]]:
         if not path.is_file():
             continue
         rel_name = path.relative_to(pack_dir).as_posix()
+        if any(part in rel_name.lower() for part in FORBIDDEN_NAME_PARTS):
+            errors.append(f"forbidden file name: {rel_name}")
         if path.suffix == ".json":
             try:
                 doc = json.loads(path.read_text(encoding="utf-8"))
@@ -186,10 +198,42 @@ def verify_directory(pack_dir: Path) -> tuple[bool, list[str]]:
     return len(errors) == 0, errors
 
 
+def verify_return_zip(zip_path: Path) -> tuple[bool, list[str]]:
+    """Check a RETURN zip: safe member names, no forbidden file names, no forbidden JSON keys."""
+    errors: list[str] = []
+    with zipfile.ZipFile(zip_path) as zf:
+        for info in zf.infolist():
+            name = info.filename
+            if name.endswith("/"):
+                continue
+            if not _is_safe_rel_path(name):
+                errors.append(f"unsafe member name: {name!r}")
+                continue
+            if any(part in name.lower() for part in FORBIDDEN_NAME_PARTS):
+                errors.append(f"forbidden file name: {name}")
+            if name.endswith((".json", ".jsonl")):
+                text = zf.read(info).decode("utf-8")
+                docs = text.splitlines() if name.endswith(".jsonl") else [text]
+                for idx, chunk in enumerate(docs, start=1):
+                    if not chunk.strip():
+                        continue
+                    try:
+                        bad = _find_forbidden(json.loads(chunk))
+                    except Exception as exc:
+                        errors.append(f"{name}:{idx}: invalid JSON ({exc})")
+                        continue
+                    if bad:
+                        errors.append(f"{name}:{idx}: forbidden keys {sorted(set(bad))}")
+    return len(errors) == 0, errors
+
+
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     target = Path(args[0]) if args else Path(__file__).resolve().parents[1]
-    ok, errors = verify_directory(target)
+    if target.suffix == ".zip":
+        ok, errors = verify_return_zip(target)
+    else:
+        ok, errors = verify_directory(target)
     if ok:
         print("VALID")
         return 0
@@ -270,6 +314,8 @@ def build_pack(out_dir: Path | str, *, files: Mapping[str, Path | str]) -> dict[
     for rel, src in sorted(files.items(), key=lambda kv: kv[0]):
         if not _is_safe_rel_path(rel):
             raise ValueError(f'unsafe relative path in pack: {rel!r}')
+        if _has_forbidden_name(rel):
+            raise ValueError(f'forbidden file name in pack: {rel!r}')
         src_path = Path(src)
         raw = src_path.read_bytes()
         errs = _scan_json_or_jsonl_bytes(raw, rel)
@@ -289,13 +335,13 @@ def build_pack(out_dir: Path | str, *, files: Mapping[str, Path | str]) -> dict[
         })
 
     (out_path / 'RETURN').mkdir(parents=True, exist_ok=True)
-    (out_path / 'RETURN' / 'README.txt').write_text(_RETURN_README)
+    (out_path / 'RETURN' / 'README.txt').write_text(_RETURN_README, encoding='utf-8')
 
     (out_path / 'tools').mkdir(parents=True, exist_ok=True)
     (out_path / 'tools' / 'verify_pack.py').write_text(_VERIFY_PACK_SCRIPT, encoding='utf-8')
 
     readme_text = _render_readme(upload_list)
-    (out_path / 'README.md').write_text(readme_text)
+    (out_path / 'README.md').write_text(readme_text, encoding='utf-8')
 
     manifest: dict[str, Any] = {
         'upload_list': upload_list,
