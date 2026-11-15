@@ -71,7 +71,7 @@ RT-DETR R18、MPS、單人、1 m 格點 × 4 個朝向、8 鏡頭、顯示門檻
 - 顏色標籤只要偵測到就是對的。
 - 偵測率低會直接拖低 first-lock、switch 與「正確 active 比例」，所以 §2 的追蹤品質數字同時受延遲和偵測兩個因素影響。
 
-## 5. 建議的可行設定（推論；以下組合沒有直接量過）
+## 5. 建議的可行設定（本節為 spike 當時的推論；兩組建議設定已在 §10 以 N6 實測，以 §10 為準）
 
 量測只證明：3 鏡頭×5 fps（15 張/秒）與 8 鏡頭×2 fps（16 張/秒）在這台機器上做不到。以每張 70–115 ms（MPS，且有同機負載）推估，持續吞吐約 9–14 張/秒；保守取約 6–8 張/秒才不會積壓，建議：
 
@@ -123,3 +123,91 @@ cd frontend/live-mode && LIVE_BASE=http://127.0.0.1:8796 OUT=out DEV=cpu node me
 - §5 的可行設定是推論。
 - switch 與 first-lock 每組事件數 ≤1，不能當統計。
 - 沒有跑 Blender、付費 API 或長時間實驗。
+
+## 10. N6 整合（#539 已合併；2026-11-15）
+
+把 N6 素材接進即時模式：`scene.glb`（烘焙、unlit）取代 spike 的擠出牆場景、`cameras.three.json` 取代目錄相機、`character.glb`（T/A/B/C 外觀＋原地 walk/run/idle）取代膠囊與 WIP 人物；干擾者在 `model=glb` 時用變體 A/B/C。素材來自 LOCAL `$AMIDST_ARTIFACTS/data/live-assets-20261115/`（伺服器用 `--assets` 或 `$AMIDST_LIVE_ASSETS`；程式裡沒有絕對路徑；缺素材時退回 spike 場景）。天花板亮度（P2-1）依使用者指示不動。操作端視角在 N6 場景改為高處俯視並隱藏天花板（只影響操作端自己的畫面，虛擬鏡頭照常渲染天花板）。
+
+### 10.1 P2-2 四項契約（`frontend/live-mode/test/n6.test.mjs`，`npm test` 12/12 通過；輸出 `live_mode_n6_20261115/npm_test.txt`）
+
+| 項目 | 測試做什麼 | 結果 |
+|---|---|---|
+| 座標 Blender (x,y,z)→(x,z,−y)、前方 +X | 轉換矩陣；heading θ 對應 `rotation.y=θ`，局部 +X 落在 (cosθ,0,−sinθ)；真 `character.glb` 的 `setPose(5,2,0)` 落在 (5,0,−2)，鞋尖側（+X）比腳跟側長 | 通過 |
+| 相機 row-major、八鏡頭內外參 | `Matrix4.set(...rows.flat())`；刻意驗證 `fromArray` 會讀錯；`world_to_camera` 為 `camera_to_world` 之逆（<1e-5）；three 由 fy/cy 建的投影矩陣等於 JSON 的 `projection_matrix`（<1e-6）；八台 fx/fy/cx/cy/寬高等於來源目錄，`camera_to_world` = R × Blender 矩陣（<1e-5）；Blender 地面點經目錄針孔與 N6 相機投影到同一像素（<0.01 px，八台） | 通過 |
+| `KHR_materials_variants` T/A/B/C | 自寫 GLTFLoader 外掛（three 核心不處理）；四個變體名；A 與 T 上衣同色、褲色不同；B、C 與 T 不同；四種褲材質互異；同一份 glTF 複製兩個人各自切換互不影響；`setVariant('Z')` 丟錯 | 通過 |
+| `timeScale = 實速 / 名義速度`（walk 1.2、run 2.5） | 0.6→walk×0.5、1.2→walk×1、1.5→walk×1.25、2.5→run×1、1.25(跑)→run×0.5、0→idle；實際推進 `action.time` 驗證 timeScale 有作用；站立腳的世界速度中位數：0.6／1.2／2.0／2.5 m/s 皆為 0.0000 m/s（各約 600 取樣）；對照組：walk 片段以 timeScale=1 走 2.5 m/s，站立腳滑動 1.30 m/s | 通過 |
+
+整合時抓到一個 bug：`SkeletonUtils.clone` 會把 `mesh.userData` 以 JSON 複製，變體材質變成純物件而渲染失敗（`material.onBeforeRender is not a function`）。已改成以 mesh 名稱存在 `gltf.userData.variantTable`，測試也檢查複製後仍是真的材質。截圖證據：走（speed 1.2、timeScale 1）、跑（2.5、1）、待機；腳本路線上慢速段 speed 1.00 → timeScale 0.835（見 `shots.meta.json`）。
+
+### 10.2 偵測率（320×180，MPS，1328 個合格樣本，同一份 `measure/detect_sweep.mjs`，每組 2 次）
+
+| 人物 × 場景 | 偵測率 | 兩次相同？ | 備註 |
+|---|---|---|---|
+| 膠囊 × spike 場景（§4） | 16.7% | — | 當時量測，單次 |
+| WIP glb × spike 場景（§4） | 60.6% | — | 當時量測，單次 |
+| **N6 × N6 烘焙場景** | **69.1%** | 是（r1=r2） | 紅標籤正確率 90.0%；每幀誤檢 0；<4 m 44%、4–8 m 66%、12–16 m 82%、>16 m 93%；各鏡頭 CAM_ENTRY 19%、R101_IN 47%、EXT_CAR 67%、其餘 84–95% |
+| N6 × spike 場景 | 83.8% | 是 | 隔離場景效應 |
+| 膠囊 × N6 烘焙場景 | 25.6% | 是 | 隔離場景效應 |
+
+- 掃描是確定性的（兩次完全相同），所以「2 次」只確認重現性，不是變異估計；偵測率不受機器負載影響（掃描在 load1 約 10–25 時跑，仍相同）。
+- N6 比膠囊高 +52 個百分點（同場景 69.1 對 25.6）、比 WIP 高 +8.5。N6 在烘焙場景比在 spike 場景低 14.7 個百分點：烘焙場景牆與地對比較低、整體偏暖，人物陰影不存在，推論是背景與人物的色差變小（未單獨驗證）。膠囊在烘焙場景反而升（16.7→25.6）。
+- 仍不到可靠：CAM_ENTRY（19%）、CAM_R101_IN（47%）差。
+
+### 10.3 延遲與兩組建議設定（N6 × 烘焙場景，MPS，320×180，B4 路線，各 50 秒、每組 2 次）
+
+原始檔 `live_mode_n6_20261115/n6_*.latency.json`（已移除逐 tick rows）。load1 為該次 50 秒內的平均；`load.log` 有前後 load。全部 load1 < 8，沒有需標「高負載」的組，但 GPU 使用率 84–94%（Chrome 與 MPS 共用 GPU），其他 session 仍在跑，不是空閒機器。
+
+| 設定 | 次 | 顯示 | 丟掉 | 丟棄率 | 實際 fps | 延遲 p50 / p95 / max (ms) | forward p50 | first-lock (ms) | 切換事件 (ms) | 正確 active | load1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 鏡頭 @2 | 1 | 99 | 1 | 1% | 1.98 | 243 / 278 / 525 | 174 | 471 | 1742, 1761, 2731 | 0.59 | 6.2 |
+| 3 鏡頭 @2 | 2 | 98 | 1 | 1% | 1.98 | 240 / 277 / 505 | 173 | 447 | 1753, 1754, 2743 | 0.60 | 4.3 |
+| 2 鏡頭 @3 | 1 | 147 | 3 | 2% | 2.94 | 160 / 203 / 564 | 115 | 365 | 2164, 11901 | 0.47 | 6.0 |
+| 2 鏡頭 @3 | 2 | 150 | 3 | 2% | 2.94 | 160 / 191 / 366 | 115 | 376 | 11808 | 0.56 | 3.6 |
+| 2 鏡頭 @4 | 1 | 159 | 40 | 20% | 3.19 | 195 / 300 / 470 | 146 | 375 | 2188, 11659 | 0.51 | 4.9 |
+| 2 鏡頭 @4 | 2 | 152 | 49 | 24% | 3.02 | 194 / 358 / 452 | 147 | 371 | 1178, 2162, 11715 | 0.48 | 4.4 |
+| 3 鏡頭 @5（對照） | 1 | 123 | 128 | 51% | 2.45 | 265 / 315 / 774 | 198 | 462 | 1069, 2254, 2684 | 0.62 | 4.8 |
+| 3 鏡頭 @5（對照） | 2 | 87 | 166 | 66% | 1.73 | 406 / 1381 / 1838 | 324 | 452 | 1483 | 0.45 | 7.6 |
+
+結論（§5 的推論改成量測值）：
+1. **3 鏡頭 × 2 fps：撐得住**（丟 1 個 tick／約 100，延遲 p50 約 240 ms，兩次一致）。
+2. **2 鏡頭 × 3 fps：撐得住**（丟 3／150，p50 160 ms，兩次一致）。
+3. **2 鏡頭 × 4 fps：撐不住**（丟 20–24%，實際約 3.0–3.2 fps）；2 鏡頭的實際上限約 3 fps。
+4. 3 鏡頭 × 5 fps 仍然撐不住（丟 51–66%，且兩次差很大，是負載敏感），和 spike 的結論一致。
+5. 每張影像的 forward 成本：3 鏡頭約 58 ms/張、2 鏡頭約 58–73 ms/張，比 spike 當時（70–115 ms）低，那次是更高負載（load1 8.8–13.2）。
+6. 切換延遲約 1.2–2.7 s；另有約 11.7 s 的事件是目標離開後在路線尾端重新出現。每組事件 1–3 個，樣本太少，**不當統計結論**。正確 active 比例 0.45–0.62，受偵測率（§10.2）與延遲共同影響，無法單獨歸因。
+
+### 10.4 證據與 SHA-256
+
+資料夾 `docs/evaluation/live_mode_n6_20261115/`（約 1.6 MB，已提交）；完整 SHA-256 見該資料夾 `SHA256SUMS.txt`。
+
+| 檔案 | SHA-256（前 16 碼） |
+|---|---|
+| `idle_side_by_side.png` | 8e4328d9c6de035e |
+| `walk_side_by_side.png` | 528a248be995a024 |
+| `run_side_by_side.png` | 3558aa427283ba0f |
+| `switch_before_side_by_side.png` | 9e961e8d09df3f84 |
+| `switch_after_side_by_side.png` | 46194d5fe2d4164a |
+| `shots.meta.json` | be85a12787567dac |
+| `npm_test.txt` | 311d1afb1b8aa73c |
+| `load.log` | 15d4007c0e18a271 |
+
+LOCAL 輸入素材（不在 repo；N6 #539）：`character.glb` `f46139c0d21aa058…`、`scene.glb` `cf9ef5135774fd21…`、`cameras.three.json` `6deb31b032f4a7ce…`（皆為前 16 碼）。逐樣本 `*.rows.json` 只在 scratchpad，未提交。
+
+重現（伺服器 port 8796，不碰 8785）：
+
+```bash
+export AMIDST_ARTIFACTS=<N6 所在的 local 資料夾>
+PYTHONPATH=src:<runtime-deps> python -m amidst.live_mode.server --port 8796 --device mps --models <rtdetr dir>
+cd frontend/live-mode && LIVE_BASE=http://127.0.0.1:8796 OUT=out measure/run_n6.sh   # 掃描與延遲，REPS=2
+LIVE_BASE=http://127.0.0.1:8796 node measure/shots.mjs shots                       # 截圖
+```
+
+### 10.5 沒驗證的部分
+
+- 機器不是空閒的（其他 session 同時在跑，GPU 84–94%）；每組只 2 次且偵測率掃描是確定性的，延遲沒有信賴區間。
+- 兩組建議設定只跑了 B4 路線單人情境；A4 路線、多目標、長時間（>50 秒）沒跑。
+- N6 在烘焙場景的偵測率比 spike 場景低的原因是推論，沒單獨驗證；天花板亮度（P2-1）沒調，因此顏色與偵測可能隨之改變。
+- 步態自然度、分件人偶外觀沒有人工驗收；站立腳滑動只在 node 裡以骨骼世界座標驗證，沒做影片逐幀。
+- 操作端截圖是無頭 Chrome（Metal）的 1280×720，未在使用者的真實視窗確認；未測 WASD 碰撞在 N6 場景中與烘焙牆的對齊（碰撞仍用目錄牆線段，N6 的 `n6Collider` 節點沒用）。
+- `n6Lighting` 的 irradiance 通道（動態 PBR）沒用，場景是 unlit 烘焙貼圖。
+- 以上掃描／延遲跑在作者的 scratch clone；CI 只跑 `npm test`（無 LOCAL 素材時 N6 測試為 skip，僅座標約定測試執行）與 pytest。

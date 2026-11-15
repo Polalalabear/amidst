@@ -1,20 +1,16 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { buildCapsulePerson, COLORS } from './world.mjs';
+import { makeLoader, makeCharacter } from './n6.mjs';
 
 // A person handle hides the coordinate frames: capsule lives in the Z-up root, GLB (Y-up, +X forward)
 // lives directly in the scene.
-export async function makePerson(kind, world, colorName = 'red') {
+export async function makePerson(kind, world, colorName = 'red', variant = 'T') {
   const c = COLORS[colorName];
-  if (kind === 'glb') {
-    const gltf = await new GLTFLoader().loadAsync('/data/character.glb');
-    const o = gltf.scene;
-    world.scene.add(o);
-    return {
-      kind, object: o, tris: countTris(o),
-      setPose(x, y, h) { o.position.set(x, 0, -y); o.rotation.set(0, h, 0); },
-      setVisible(v) { o.visible = v; },
-    };
+  if (kind === 'glb') { // N6 character.glb (#539): variant T/A/B/C, in-place clips driven by speed
+    world.characterGltf ||= await makeLoader().loadAsync('/data/character.glb');
+    const ch = makeCharacter(world.characterGltf, variant);
+    world.scene.add(ch.object);
+    return Object.assign(ch, { kind, setPose: ch.setPose, setVisible: ch.setVisible });
   }
   const o = buildCapsulePerson(c);
   world.root.add(o);
@@ -22,6 +18,7 @@ export async function makePerson(kind, world, colorName = 'red') {
     kind, object: o, tris: countTris(o),
     setPose(x, y, h) { o.position.set(x, y, 0); o.rotation.z = h; },
     setVisible(v) { o.visible = v; },
+    setSpeed() {}, update() {},
   };
 }
 function countTris(o) {

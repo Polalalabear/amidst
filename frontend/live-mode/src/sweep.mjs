@@ -1,6 +1,7 @@
 // Measurement page: a single person placed on a grid of floor positions and headings, rendered by
 // every camera that can see it (ground-truth ray test), sent to /detect. Evaluation only.
-import { buildWorld, buildCameras, groundTruthVisible } from './world.mjs';
+import { groundTruthVisible } from './world.mjs';
+import { setupWorld } from './setup.mjs';
 import { blocked } from './sim.mjs';
 import { makePerson, projectBox } from './person.mjs';
 import { makeCapture, packInfer } from './capture.mjs';
@@ -14,11 +15,11 @@ const iou = (a, b) => {
 
 export async function start() {
   const P = params();
-  const geometry = await fetch('/data/geometry.json').then((r) => r.json());
-  const world = buildWorld(geometry);
-  const cams = buildCameras(geometry, world.root, P.w, P.h);
+  const { geometry, world, cams, n6 } = await setupWorld(P);
+  window.__n6 = n6;
   const person = await makePerson(P.model, world, 'red');
   const cap = makeCapture(world, cams, P.w, P.h, P.quality);
+  person.update(0.5); // apply the idle clip once (glb)
   window.__tris = person.tris;
   window.__runSweep = async ({ step = 1.0, headings = [0, 90, 180, 270], limit = 1e9 } = {}) => {
     const rows = [];

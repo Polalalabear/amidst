@@ -1,0 +1,81 @@
+{
+ "label": "n6_2cam_4fps_r2",
+ "query": "auto=B4&duration=42&model=glb&w=320&h=180&fps=4&cams=CAM_W1,CAM_W2",
+ "secs": 50,
+ "config": {
+  "w": 320,
+  "h": 180,
+  "fps": 4,
+  "cams": [
+   "CAM_W1",
+   "CAM_W2"
+  ],
+  "model": "glb",
+  "scene": "n6",
+  "auto": "B4",
+  "duration": 42,
+  "run": "B4-1-v2-4actor",
+  "sentence": "a person in a red top",
+  "quality": 0.85,
+  "tris": 3996,
+  "n6": true
+ },
+ "tick_period_ms": 250,
+ "ticks_displayed": 152,
+ "sent": 152,
+ "dropped": 49,
+ "achieved_fps": 3.020060401208024,
+ "drop_ratio": 0.24378109452736318,
+ "frame_latency_ms": {
+  "p50": 194.0499267578125,
+  "p95": 358.0100463867188,
+  "max": 452.300048828125,
+  "n": 148
+ },
+ "stage_ms_p50": {
+  "render_capture": 33.89990234375,
+  "http_roundtrip": 168.9500732421875,
+  "server_total": 163.4947709972039,
+  "forward": 147.39589601231273,
+  "color": 0.6394585070665926,
+  "channel_to_display": 2.0999755859375
+ },
+ "first_lock_ms": 371.10009765625,
+ "switch_events": [
+  {
+   "leave_tick": 19,
+   "from": "CAM_W1",
+   "to": "CAM_W2",
+   "ms": 1178.400146484375,
+   "ticks": 3
+  },
+  {
+   "leave_tick": 76,
+   "from": "CAM_W1",
+   "to": "CAM_W2",
+   "ms": 2161.699951171875,
+   "ticks": 6
+  },
+  {
+   "leave_tick": 92,
+   "from": "CAM_W2",
+   "to": "CAM_W2",
+   "ms": 11714.800048828125,
+   "ticks": 35
+  }
+ ],
+ "switch_ms": {
+  "p50": 2161.699951171875,
+  "p95": 10759.490039062499,
+  "n": 3
+ },
+ "correct_active_rate": 0.4785714285714286,
+ "protocol_violations": 0,
+ "usage_mean": {
+  "server_cpu": 133.54871794871795,
+  "chrome_cpu": 43.20256410256411,
+  "gpu_util": 88.15384615384616,
+  "blender_cpu": 0,
+  "load1": 4.439487179487183
+ }
+}

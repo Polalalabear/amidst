@@ -1,0 +1,57 @@
+{
+ "idle": {
+  "x": 4,
+  "y": 1,
+  "speed": 0,
+  "clip": "idle",
+  "timeScale": 1,
+  "variant": "T",
+  "tris": 3996
+ },
+ "walk": {
+  "x": 7.38,
+  "y": 1,
+  "speed": 1.2,
+  "clip": "walk",
+  "timeScale": 1,
+  "variant": "T",
+  "tris": 3996
+ },
+ "run": {
+  "x": 10.21,
+  "y": 1,
+  "speed": 2.5,
+  "clip": "run",
+  "timeScale": 1,
+  "variant": "T",
+  "tris": 3996
+ },
+ "switch_before": {
+  "x": 7.75,
+  "y": 1.23,
+  "speed": 1.002,
+  "clip": "walk",
+  "timeScale": 0.835,
+  "variant": "T",
+  "tris": 3996
+ },
+ "switch_after": {
+  "x": 8.82,
+  "y": 1.26,
+  "speed": 0.945,
+  "clip": "walk",
+  "timeScale": 0.7871,
+  "variant": "T",
+  "tris": 3996
+ },
+ "switch_event": {
+  "tick": 7,
+  "type": "SWITCH",
+  "cam": "CAM_W2",
+  "detail": {
+   "from": "CAM_W1",
+   "gap_ticks": 2
+  }
+ },
+ "switch_found": true
+}
