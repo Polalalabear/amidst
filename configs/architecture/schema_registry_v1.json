@@ -2641,6 +2641,31 @@
       ],
       "issue_ref": "#93",
       "status": "N1_NL_QUERY_PARSE_FILLS_TAG_PANEL_ONLY"
+    },
+    {
+      "value": "amidst.wp5-config.v1",
+      "source_paths": [
+        "configs/agent_eval/wp5_v1.json",
+        "src/amidst/agent_eval/wp5.py"
+      ],
+      "issue_ref": "#93",
+      "status": "WP5_EVAL_CONFIG"
+    },
+    {
+      "value": "amidst.wp5-call.v1",
+      "source_paths": [
+        "src/amidst/agent_eval/wp5.py"
+      ],
+      "issue_ref": "#93",
+      "status": "WP5_EVAL_CALL_ROW"
+    },
+    {
+      "value": "amidst.wp5-summary.v1",
+      "source_paths": [
+        "src/amidst/agent_eval/wp5.py"
+      ],
+      "issue_ref": "#93",
+      "status": "WP5_EVAL_SUMMARY"
     }
   ]
 }
