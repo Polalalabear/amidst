@@ -1,0 +1,54 @@
+{
+  "schema_version": "amidst.wp5-config.v1",
+  "config_id": "wp5_v1",
+  "decision_refs": ["D165", "D166", "D175", "D210", "D218"],
+  "note": "WP5 compares Rule, local models (Colab L4) and OpenAI models on Agent decisions. Main results are latency (median, p95) and cost; accuracy is recorded only and ranked last in every summary. Nothing here approves spending: a set only runs LIVE with an explicit --approved-usd given by the user in chat.",
+  "timeout_profiles": {
+    "formal": {"params_path": "configs/q1q5/agent_decision_params_v1.json", "per_call_ms": 2000, "per_step_ms": 5000, "max_rounds": 3, "report_group": "FORMAL"},
+    "relaxed": {"params_path": "configs/q1q5/agent_decision_params_v1_exploratory.json", "per_call_ms": 10000, "per_step_ms": 30000, "max_rounds": 3, "report_group": "EXPLORATORY"}
+  },
+  "task_types": {
+    "DP1": {"label": "handoff adjudication", "prompt_tokens_est": 1500, "max_output_tokens": 300, "worst_case_calls_per_question": 3},
+    "DP3": {"label": "continuation acceptance", "prompt_tokens_est": 1000, "max_output_tokens": 300, "worst_case_calls_per_question": 3},
+    "DP4": {"label": "proactive attention ranking (docs/contracts/DP4_ATTENTION_RANKING_V1.md, API method; AGENT method adds up to 5 steps)", "prompt_tokens_est": 2500, "max_output_tokens": 300, "worst_case_calls_per_question": 5},
+    "NL": {"label": "one-sentence query parse (docs/contracts/NL_QUERY_PARSE_V1.md)", "prompt_tokens_est": 700, "max_output_tokens": 150, "worst_case_calls_per_question": 2}
+  },
+  "models": [
+    {"id": "rule", "kind": "RULE", "runs_on": "mac", "budget_slot": null, "note": "R0/R1 rule, DP4 Rule ranker, NL RULES parser; cost 0.0"},
+    {"id": "qwen2.5:7b-instruct-q4_K_M", "kind": "LOCAL", "runs_on": "colab_l4", "budget_slot": "astra6", "digest": "UNKNOWN_PIN_ON_RUN_DAY", "note": "Ollama version and digest are pinned in models.txt on the run day (D175); budget_slot is only the CallBudget accounting key, provider_kind records the real identity"},
+    {"id": "llama3.1:8b-instruct-q4_K_M", "kind": "LOCAL", "runs_on": "colab_l4", "budget_slot": "sol6.1", "digest": "UNKNOWN_PIN_ON_RUN_DAY", "note": "same"},
+    {"id": "astra6", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "astra6"},
+    {"id": "sol6.1", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "sol6.1"},
+    {"id": "terra6.1", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "terra6.1"}
+  ],
+  "price_table_path": "configs/agent_eval/wp5_price_table_v1.json",
+  "sets": {
+    "pilot": {
+      "description": "D166 pilot (16 questions x 1) + consistency (same 16 questions x 5 repeats), per model. OpenAI total = 16*(1+5)*3 = 288 calls, the same as the D166 allowance; the 16 questions are split 4 per task type.",
+      "timeout_profile": "formal",
+      "stage": "PILOT_AND_CONSISTENCY",
+      "questions_per_type": {"DP1": 4, "DP3": 4, "DP4": 4, "NL": 4},
+      "phases": [{"name": "pilot", "repeats": 1}, {"name": "consistency", "repeats": 5}],
+      "models": ["rule", "qwen2.5:7b-instruct-q4_K_M", "llama3.1:8b-instruct-q4_K_M", "astra6", "sol6.1", "terra6.1"],
+      "latency_serial": true
+    },
+    "formal": {
+      "description": "Formal group. Question counts are PROPOSED (UNKNOWN until S1+S2 sizes are final); 140 questions x 3 repeats per model. Locked until the user approves the formal amount.",
+      "timeout_profile": "formal",
+      "stage": "FORMAL",
+      "questions_per_type": {"DP1": 30, "DP3": 30, "DP4": 40, "NL": 40},
+      "phases": [{"name": "main", "repeats": 3}],
+      "models": ["rule", "qwen2.5:7b-instruct-q4_K_M", "llama3.1:8b-instruct-q4_K_M", "astra6", "sol6.1", "terra6.1"],
+      "latency_serial": true
+    },
+    "relaxed_exploration": {
+      "description": "Relaxed exploration (10 s per call, 30 s per step). Separate parameter set, labelled EXPLORATORY, never mixed with FORMAL. Optional; needs its own approval.",
+      "timeout_profile": "relaxed",
+      "stage": "EXPLORATORY",
+      "questions_per_type": {"DP1": 30, "DP3": 30, "DP4": 40, "NL": 40},
+      "phases": [{"name": "main", "repeats": 1}],
+      "models": ["rule", "qwen2.5:7b-instruct-q4_K_M", "llama3.1:8b-instruct-q4_K_M", "astra6", "sol6.1", "terra6.1"],
+      "latency_serial": true
+    }
+  }
+}
