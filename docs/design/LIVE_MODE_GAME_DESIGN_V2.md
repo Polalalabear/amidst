@@ -2,6 +2,8 @@
 
 分支 `claude/feat-live-mode`，PR [#544](https://github.com/Polalalabear/amidst/pull/544)。這份文件只有設計，沒有功能程式碼。
 
+> **2026-11-15 更新（使用者）：** B 畫面要保留，改成單一的跟隨視角，由 LLM 判斷並切鏡跟著目標。這取代本文件 §2.1「預設只有操作端一個視窗」和 §2.2。B 畫面的設計、LLM 的接法和 T1 量測結果見 PR [#547](https://github.com/Polalalabear/amidst/pull/547) 的 `docs/design/LIVE_MODE_LLM_DECISION_V1.md` 和 [`LIVE_MODE_T1_20261115.md`](../evaluation/LIVE_MODE_T1_20261115.md)。§3 後台紀錄、§4 HUD、§5 小地圖、§6 寫實化仍然有效。
+
 **和 v1 的關係。** v2 取代 [`LIVE_MODE_GAME_DESIGN_V1.md`](LIVE_MODE_GAME_DESIGN_V1.md) 的 §1.2 決策 G1、§3 畫面顯示、§5.1 和 §5.2 的 P1、§6、§8。v1 的 §2 操作設計、§4 人物動畫、§5.3–§5.5、§7 現有資產仍然有效，這裡不重複。
 
 **分支上的新進展。** 寫這份文件的同時，另一個 commit（`971b9763`）已經把 N6 接進即時模式並重新量測，結果在 [`LIVE_MODE_SPIKE_20261115.md`](../evaluation/LIVE_MODE_SPIKE_20261115.md) 的 §10。這份文件引用的「N6 量測」都來自那裡。
