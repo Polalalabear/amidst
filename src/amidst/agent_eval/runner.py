@@ -7,6 +7,7 @@ import hashlib
 import importlib
 import json
 from pathlib import Path
+import sys
 from typing import Any, Mapping, Sequence
 
 from amidst.agent_eval import latency as latency_mod
@@ -112,9 +113,45 @@ def build_parser() -> argparse.ArgumentParser:
         '--group',
         default='tracking_formal',
         choices=list(latency_mod.GROUPS),
-        help='Latency group (tracking_formal or search_relaxed)',
+        help='Latency group; --params must be that group\'s parameter set (formal / exploratory)',
     )
+    parser.add_argument('--provider-kind', default='OPENAI', choices=['OPENAI', 'OLLAMA_LOOPBACK'],
+                        help='provider_kind recorded in decisions and recordings (default OPENAI)')
     return parser
+
+
+def _check_group_params(params: Mapping[str, Any], group: str) -> str | None:
+    """Return an error text unless ``params`` is exactly the parameter set of ``group``."""
+    path = latency_mod.FORMAL_PARAMS_PATH if group == 'tracking_formal' else latency_mod.EXPLORATORY_PARAMS_PATH
+    expected = json.loads(path.read_text(encoding='utf-8'))
+    if dict(params) != expected:
+        return f'--params does not match the {group} parameter set ({path.name})'
+    return None
+
+
+def _recording_provider(inner, rows: list, *, model: str, provider_kind: str, candidate_order_seed: int):
+    """Wrap a provider so every OK attempt becomes a design-§3.3 recording row (replayable by request_sha256)."""
+
+    def call(request, *, timeout_ms, max_output_tokens):
+        attempt = inner(request, timeout_ms=timeout_ms, max_output_tokens=max_output_tokens)
+        if attempt.outcome == 'OK' and attempt.response is not None:
+            rows.append({
+                'request_sha256': _ad.request_sha256(request),
+                'request': request,
+                'response': attempt.response,
+                'provider': provider_kind,
+                'model': model,
+                'api_model_id': None,
+                'model_digest': None,
+                'seed': None,
+                'temperature': None,
+                'candidate_order_seed': candidate_order_seed,
+                'wall_ms': attempt.wall_ms,
+                'usage': {'prompt_tokens': attempt.prompt_tokens, 'completion_tokens': attempt.completion_tokens},
+            })
+        return attempt
+
+    return call
 
 
 def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
@@ -130,6 +167,11 @@ def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
     params = json.loads(params_bytes.decode('utf-8'))
     questions = _load_questions(q_path)
 
+    _ad.validate_params(params)
+    group_error = _check_group_params(params, args.group)
+    if group_error:
+        print(group_error, file=sys.stderr)
+        return 1
     if args.stage not in (params.get('stages') or {}):
         return 1
 
@@ -163,7 +205,8 @@ def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     budget = _ad.CallBudget(params, args.stage)
 
-    recordings: list[dict[str, Any]] = []
+    recordings: list[dict[str, Any]] = []  # design §3.3 rows (replayable)
+    decision_records: list[dict[str, Any]] = []
     decisions: list[dict[str, Any]] = []
     latency_samples: list[dict[str, Any]] = []
 
@@ -171,6 +214,10 @@ def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
         for q_row in questions:
             req = q_row.get('request', q_row)
             req_sha = q_row.get('request_sha256') or _ad.request_sha256(req)
+            wrapped = _recording_provider(
+                provider, recordings, model=model_name, provider_kind=args.provider_kind,
+                candidate_order_seed=int(q_row.get('candidate_order_seed', 0)),
+            )
             for run_idx in range(args.k):
                 budget.begin_session()
                 rec = _ad.decide(
@@ -179,12 +226,12 @@ def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
                     params=params,
                     budget=budget,
                     model=model_name,
-                    call=provider,
-                    provider_kind='OPENAI',
+                    call=wrapped,
+                    provider_kind=args.provider_kind,
                 )
                 rec_copy = dict(rec)
                 rec_copy['run_index'] = run_idx
-                recordings.append(rec_copy)
+                decision_records.append(rec_copy)
                 attempts = rec.get('attempts') or []
                 step_wall_ms = sum(
                     float(a.get('wall_ms', 0.0))
@@ -215,11 +262,13 @@ def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
                         })
 
     rec_bytes = b''.join(_ad.canonical(r) + b'\n' for r in recordings)
+    dr_bytes = b''.join(_ad.canonical(r) + b'\n' for r in decision_records)
     dec_bytes = b''.join(_ad.canonical(d) + b'\n' for d in decisions)
     lat_summary = latency_mod.summarize(latency_samples)
     lat_bytes = _ad.canonical(lat_summary) + b'\n'
 
     (out_dir / 'recordings.jsonl').write_bytes(rec_bytes)
+    (out_dir / 'decision_records.jsonl').write_bytes(dr_bytes)
     (out_dir / 'decisions.jsonl').write_bytes(dec_bytes)
     (out_dir / 'latency.json').write_bytes(lat_bytes)
 
@@ -233,7 +282,9 @@ def main(argv: Sequence[str] | None = None, *, provider: Any = None) -> int:
         'n_decisions': len(decisions),
         'params_sha256': _sha256_bytes(_ad.canonical(params)),
         'questions_sha256': _sha256_bytes(q_path.read_bytes()),
+        'provider_kind': args.provider_kind,
         'recordings_sha256': _sha256_bytes(rec_bytes),
+        'decision_records_sha256': _sha256_bytes(dr_bytes),
         'decisions_sha256': _sha256_bytes(dec_bytes),
         'latency_sha256': _sha256_bytes(lat_bytes),
     }

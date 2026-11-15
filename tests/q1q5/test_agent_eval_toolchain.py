@@ -164,7 +164,9 @@ def test_s2_generates_at_least_8_clusters_and_counts_episodes_d203(tmp_path):
     )
     assert result['n_clusters'] >= 8
     assert result['n_synthetic'] == 4 * 8
-    assert result['ambiguous_episodes']['n_ambiguous_episodes'] >= 8
+    # D203: segments are the real ones (2), not 2 x 8 seed variants
+    assert result['ambiguous_episodes']['n_ambiguous_episodes'] == 2
+    assert result['n_source_segments'] == 2 and result['n_seed_variants'] == 8
 
 
 def test_scoring_metrics_hand_calculated_and_insufficient_gate():
@@ -268,7 +270,7 @@ def test_runner_live_approved_stage_and_colab_helpers(tmp_path):
         provider=_fake_provider,
     )
     assert rc == 0
-    for fname in ('recordings.jsonl', 'decisions.jsonl', 'latency.json', 'MANIFEST.json'):
+    for fname in ('recordings.jsonl', 'decision_records.jsonl', 'decisions.jsonl', 'latency.json', 'MANIFEST.json'):
         assert (out_dir / fname).is_file()
 
     l4 = runner.detect_colab_gpu('NVIDIA L4\n')
@@ -346,3 +348,42 @@ def test_windows_pack_verify_pack_catches_planted_forbidden_keys_and_tampering(t
 
     with pytest.raises(ValueError):
         windows_pack.build_pack(tmp_path / 'bad_pack', files={'../escape.json': src / 'params.json'})
+
+
+# ------------------------------------------------------------------ review fixes (#525 review)
+
+def _write_questions(tmp_path, n=2):
+    q_path = tmp_path / 'requests_v1.jsonl'
+    q_path.write_text(''.join(json.dumps({'request_sha256': ad.request_sha256(r), 'decision_point': r['decision_point'],
+                                          'request': r}) + '\n' for r in [_sample_dp1(i) for i in range(n)]),
+                      encoding='utf-8')
+    return q_path
+
+
+def _ok_provider(req, *, timeout_ms, max_output_tokens):
+    resp = {'action': 'SELECT', 'candidate_id': req['candidates'][0]['id'], 'reason_codes': ['GRAPH_EDGE'],
+            'rationale': 'synthetic test'}
+    return ad.Attempt('OK', 12.0, resp, 100, 20)
+
+
+def test_runner_recordings_are_replayable_design_3_3_rows_and_group_must_match_params(tmp_path):
+    q_path = _write_questions(tmp_path)
+    params_path = ROOT / 'configs/q1q5/agent_decision_params_v1.json'
+    out_dir = tmp_path / 'run'
+    rc = runner.main(['--questions', str(q_path), '--params', str(params_path), '--stage', 'PILOT_AND_CONSISTENCY',
+                      '--model', 'astra6', '--live', '--out', str(out_dir)], provider=_ok_provider)
+    assert rc == 0
+    rows = [json.loads(line) for line in (out_dir / 'recordings.jsonl').read_text(encoding='utf-8').splitlines()]
+    assert len(rows) == 2
+    keys = {'request_sha256', 'request', 'response', 'provider', 'model', 'api_model_id', 'model_digest', 'seed',
+            'temperature', 'candidate_order_seed', 'wall_ms', 'usage'}
+    for row in rows:
+        assert set(row) == keys and row['request_sha256'] == ad.request_sha256(row['request'])
+    decisions = (out_dir / 'decision_records.jsonl').read_text(encoding='utf-8').splitlines()
+    assert len(decisions) == 2 and 'attempts' in json.loads(decisions[0])
+    assert json.loads((out_dir / 'MANIFEST.json').read_text(encoding='utf-8'))['provider_kind'] == 'OPENAI'
+
+    # the latency group must use its own parameter set
+    rc = runner.main(['--questions', str(q_path), '--params', str(params_path), '--stage', 'PILOT_AND_CONSISTENCY',
+                      '--group', 'search_relaxed', '--out', str(tmp_path / 'wrong')])
+    assert rc != 0

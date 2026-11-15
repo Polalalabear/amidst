@@ -207,7 +207,7 @@ def generate_synthetic_clusters(
     per_point: int = 2,
     out_dir: str | Path,
 ) -> dict:
-    """Generate >=8 S2 clusters ((source_run, seed) pairs) and count D203 ambiguity episodes."""
+    """Generate >=8 S2 seed variants ((source_run, seed) pairs); D203 episodes are counted on the real segments."""
     if len(seeds) < 8:
         raise ad.AgentDecisionError('REQUEST_INVALID', 'S2 requires at least 8 cluster seeds')
     out_path = Path(out_dir)
@@ -245,12 +245,17 @@ def generate_synthetic_clusters(
     combined_l_path = private_dir / 'synthetic_labels_v1.json'
     combined_l_path.write_bytes(ad.canonical(all_labels) + b'\n')
 
-    episodes = qb.count_ambiguous_episodes(all_questions)
+    # D203: count ambiguity per original scenario segment, never per seed variant.  The seed
+    # variants are perturbations of the same real decision points, so counting them (or counting
+    # the extra distractors they add) would inflate the number of segments.
+    episodes = qb.count_ambiguous_episodes(questions)
     return {
         'questions_path': str(combined_q_path),
         'labels_path': str(combined_l_path),
         'n_synthetic': len(all_questions),
         'n_clusters': len(cluster_ids),
+        'n_seed_variants': len(seeds),
+        'n_source_segments': episodes['n_ambiguous_episodes'],
         'clusters': cluster_ids,
         'ambiguous_episodes': episodes,
     }
