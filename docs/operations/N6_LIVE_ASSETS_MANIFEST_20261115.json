@@ -1,0 +1,278 @@
+{
+  "schema": "amidst.n6-live-assets-manifest.v1",
+  "date": "2026-11-15",
+  "status": "ENGINEERING_DELIVERY_REVIEW_REQUESTED",
+  "local_relative_root": "data/live-assets-20261115",
+  "source": {
+    "blend_path": "data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend",
+    "blend_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+  },
+  "code_base_main_sha": "d3f032d860d97f151e58fa8864ea420b13a06af3",
+  "code_branch": "codex/feat-n6-live-assets",
+  "code_sha256": {
+    "scripts/audit_n6_character.py": "f9b8b4e37c1f7e07c5de94c227c7c53befa505096b9d372048aacd1b4ba7c1b1",
+    "scripts/n6_character_rig.py": "6feeca851e2d0cb235ef6814a8af97dea10c5668baa8e3f6c4d08753ac93cd67",
+    "scripts/n6_gait.py": "27ddfc823c83e38e20385640aa12b6623b344b007aa318ec784c5e35dd0c6181",
+    "scripts/export_n6_live_assets.py": "f7253b983726f1fff3c4053728d0b69a7496c702702be4f00028232a013172a3",
+    "scripts/package_n6_gltf.py": "e04a134e63e6f24462591085ef24f7d23f23f9787ab75efdd2363b14b1ea2310",
+    "scripts/verify_n6_geometry.py": "1bbd1f3a46f1ca4bfbfa5708382a90aa4381b68777d0e7b429082b221016ea4b",
+    "scripts/verify_n6_assets.mjs": "601eee7c316e473476ea218d61cdb37bea1820bfeab5292a01e500f0c709f592",
+    "scripts/capture_n6_viewer.mjs": "7ad2a97fa7684377e921a8a79ed5be1d75c0f85b477d7ded9aa8d11906d53180",
+    "scripts/compare_n6_rgb.py": "6526d6d1e21851687106ac3456ae13b2b7c7dcb00ac29c7975a49e2a3d57d2a6",
+    "scripts/manifest_n6_assets.py": "2768a46ad87354f63d150119d33e8a49c06c4ce1acf6a967a3d1967fc147512c",
+    "scripts/n6_viewer/index.html": "07d959db7dcf338fc4b781515119ed75a8c70eb41d485134b3e69b52dfdc3744",
+    "scripts/render_r004_natural_walk_sample.py": "f02e5d877ac3a98bd766a32c438b6a44aaa0010b1bc481cf0e972fe06a9cf43b",
+    "scripts/r004_natural_walk.py": "832f6d7c038b5874e9690a380fcadd357fcc4ae9d04240a4ce2e7f7fec846519",
+    "scripts/render_r004_d124.py": "c48244be9e01915a725bf6af29b13c8a637b5f2577e4b5527da1604167d8b596"
+  },
+  "blender": {
+    "version": "5.2.1 LTS",
+    "build_hash": "9e2066aef7ef"
+  },
+  "export_settings": {
+    "character": {
+      "format": "GLB",
+      "selection_only": true,
+      "yup": true,
+      "extras": "N6 allowlist only",
+      "cameras": false,
+      "lights": false,
+      "animations": true
+    },
+    "scene": {
+      "format": "GLB",
+      "selection_only": true,
+      "yup": true,
+      "extras": "N6 allowlist only",
+      "cameras": false,
+      "lights": false,
+      "animations": false
+    },
+    "animation_sampling_hz": 960,
+    "lightmap_size_px": [
+      4096,
+      4096
+    ],
+    "bake_samples": 32,
+    "bake_engine": "Cycles CPU"
+  },
+  "coordinate_system": "Y-up meters; same origin; Blender(x,y,z)->glTF(x,z,-y)",
+  "runtime_requirements": {
+    "material_variants": "KHR_materials_variants; see isolated viewer loader",
+    "appearance": "Standard KHR_materials_unlit baked baseColor, no second tone map",
+    "irradiance": "EXR attached in scene GLB asset.extras.n6Lighting.linearIrradiance.bufferView; UV1"
+  },
+  "character_size_bytes": 658080,
+  "scene_size_bytes": 33941072,
+  "file_count": 38,
+  "total_size_bytes": 74649816,
+  "files": [
+    {
+      "path": "REVIEW.html",
+      "size_bytes": 1970,
+      "sha256": "a14011eef442c9f0676dde601ea15933f2a05eaaa5cdd89e609ddb936afe0a1d"
+    },
+    {
+      "path": "baked_appearance.png",
+      "size_bytes": 4416589,
+      "sha256": "caf863698154976721c6c76593aaae57e6ac0da5179ab6dd317a3a347ee1572e"
+    },
+    {
+      "path": "cameras.catalog.json",
+      "size_bytes": 12793,
+      "sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+    },
+    {
+      "path": "cameras.three.json",
+      "size_bytes": 14185,
+      "sha256": "6deb31b032f4a7ce2e1734db07b666d118e1b0de17e8e37be7008814ba0f4f41"
+    },
+    {
+      "path": "character.glb",
+      "size_bytes": 658080,
+      "sha256": "f46139c0d21aa0583cef9361d3c214efa09aea9cb3a257354f0792f5238ecf43"
+    },
+    {
+      "path": "character_audit.json",
+      "size_bytes": 12467,
+      "sha256": "fdc679abb839890a1349a4217c2804b358339dede8a6963891b4e2954792699b"
+    },
+    {
+      "path": "export_character.json",
+      "size_bytes": 1957,
+      "sha256": "fd00ab298b118c2a6fa2fc3f04c3511f55724f9fa277790f56693a4114a95a8b"
+    },
+    {
+      "path": "export_scene.json",
+      "size_bytes": 4385,
+      "sha256": "033fcb3b272fdd5571dcc3aa29d648a16bdaff2ac87f77d9aaf8830e12ce3d5b"
+    },
+    {
+      "path": "lightmap_irradiance.exr",
+      "size_bytes": 29066874,
+      "sha256": "d6d57fe588a213fd489e29f18d29c7f652e519d95762684531ae07063bd1af1b"
+    },
+    {
+      "path": "scene.glb",
+      "size_bytes": 33941072,
+      "sha256": "cf9ef5135774fd215090b8448c8757bcf241d29e9bfdf44fabde728a3be7d4f3"
+    },
+    {
+      "path": "verification/CAM_BRANCH.png",
+      "size_bytes": 131436,
+      "sha256": "38f94b44e2066d7bbe542171bf61b8090d6e225932326596bf7248a1a82e8637"
+    },
+    {
+      "path": "verification/CAM_BRANCH_comparison.png",
+      "size_bytes": 562087,
+      "sha256": "d7dce1d6185ac0055f1e1eab8b4f2741eaf473d11a7636ecfb0c793ad06cffd0"
+    },
+    {
+      "path": "verification/CAM_ENTRY.png",
+      "size_bytes": 131050,
+      "sha256": "88b199b35b3c816f3e482534d4c80869cf1d7c04dbee7c3127cce589951b343d"
+    },
+    {
+      "path": "verification/CAM_ENTRY_comparison.png",
+      "size_bytes": 584150,
+      "sha256": "35ad2bc3d2f1d62d6e2cc5d8b9c09020245cd30b26973845905d1c4141644ffb"
+    },
+    {
+      "path": "verification/CAM_EXT_CAR.png",
+      "size_bytes": 155599,
+      "sha256": "d8823ef271f0da5eb42e60cc9f078f41350568aa87e3d39d8e1a8e1adcdb0914"
+    },
+    {
+      "path": "verification/CAM_EXT_CAR_comparison.png",
+      "size_bytes": 692701,
+      "sha256": "ae24244a560592007bd81a81e5d28c0f9733e06dcf08e739070cf867787c377d"
+    },
+    {
+      "path": "verification/CAM_EXT_CLEAR.png",
+      "size_bytes": 117017,
+      "sha256": "e9dcb67e090adcf4f045dc7528500633ea2c5fb443909076a41e64eeee80a6af"
+    },
+    {
+      "path": "verification/CAM_EXT_CLEAR_comparison.png",
+      "size_bytes": 501117,
+      "sha256": "1be5b6cea893d0cfc87f168b85deed7dd304061fe9506f5c1b2ba5a624257b09"
+    },
+    {
+      "path": "verification/CAM_R101_IN.png",
+      "size_bytes": 158742,
+      "sha256": "35aa146e24ee160b327552bed2080b5fffbae9b326d9f3ad6243a5c2db36239b"
+    },
+    {
+      "path": "verification/CAM_R101_IN_comparison.png",
+      "size_bytes": 624080,
+      "sha256": "7d311d3fbb8ca2c369c3f175da94e3de5dd8ffebef330b77cdaf345c7c07b15d"
+    },
+    {
+      "path": "verification/CAM_W1.png",
+      "size_bytes": 141814,
+      "sha256": "21ce537b0104f06c5bd61ae4e71bdde82fa65ad146764797019edb1c805556cb"
+    },
+    {
+      "path": "verification/CAM_W1_comparison.png",
+      "size_bytes": 873519,
+      "sha256": "c0ee443cc0fb43f44d4469d7643879cba3b942f141b6fa998cbfa7750a3c8a18"
+    },
+    {
+      "path": "verification/CAM_W2.png",
+      "size_bytes": 147748,
+      "sha256": "3065b15bd47a9dc44f57fc0f53913f0d2c5764912641280d9014681e70ffbe73"
+    },
+    {
+      "path": "verification/CAM_W2_comparison.png",
+      "size_bytes": 691066,
+      "sha256": "fd5cd9eaea9ca0b080241be074b7082b04205cd73e04bca33920c962a0bef50f"
+    },
+    {
+      "path": "verification/CAM_WIDE.png",
+      "size_bytes": 198223,
+      "sha256": "ff1743f5f6a81527a5aeafdc176a45f4eadc7d9dd8875e330b809280d449a916"
+    },
+    {
+      "path": "verification/CAM_WIDE_comparison.png",
+      "size_bytes": 603345,
+      "sha256": "33d2127661134f42791b6c5ae28005f825af0733197423d5712fc4d72cc52fb8"
+    },
+    {
+      "path": "verification/GEOMETRY_REPORT.json",
+      "size_bytes": 3479,
+      "sha256": "154c23ea91a97047934e28955428fbc88921ae6a375b00e75fb7cc8699503a79"
+    },
+    {
+      "path": "verification/GLTF_VALIDATION.json",
+      "size_bytes": 11586,
+      "sha256": "327c281aa25d2a78e0316389e11160e82a52a6f11522bd8a14ff76ed7e6f400b"
+    },
+    {
+      "path": "verification/RGB_COMPARISON.json",
+      "size_bytes": 7230,
+      "sha256": "af14b9124f9321be7e5abf6f331f0816d15d75deefc10ce288bee7a36deb545f"
+    },
+    {
+      "path": "verification/SCREENSHOT_LIST.json",
+      "size_bytes": 4029,
+      "sha256": "366710cd8841f8fc735e6247e06f1e87c9c1ce82a315c8a417399f9e572548a3"
+    },
+    {
+      "path": "verification/VIEWER_REPORT.json",
+      "size_bytes": 1248,
+      "sha256": "2064dc396c0330211d1397958971f6a4e74e284a1590f2849fae15c25a25dea0"
+    },
+    {
+      "path": "verification/character_idle.png",
+      "size_bytes": 24827,
+      "sha256": "3ce42dd9c0d21bb6456f3e491460955b6fe07b34613896b5e991a4124d4c4b34"
+    },
+    {
+      "path": "verification/character_run.png",
+      "size_bytes": 27318,
+      "sha256": "e7731e720ca28236af360181a2b72cbf4a03f7e50d121ff9d2aa4238295b365f"
+    },
+    {
+      "path": "verification/character_walk.png",
+      "size_bytes": 27474,
+      "sha256": "43291803407d85ddb84249d702cfc7ba0b924c2adfdc9dcc4ae4060113472202"
+    },
+    {
+      "path": "verification/variant_A.png",
+      "size_bytes": 24074,
+      "sha256": "0f7b82fc5164ed0b915768e89734fb7b4965e0cf8c925caac19ed74bb7d5bc6e"
+    },
+    {
+      "path": "verification/variant_B.png",
+      "size_bytes": 23802,
+      "sha256": "4aa0019db363db02e49e6c8b964fe41206fefd7de637dc8a5be4d3b58ea50746"
+    },
+    {
+      "path": "verification/variant_C.png",
+      "size_bytes": 25856,
+      "sha256": "f3c5544f56817ee3801f0ce33a0a3fa1739d72d91fb16eb410a45a8a6dfc6423"
+    },
+    {
+      "path": "verification/variant_T.png",
+      "size_bytes": 24827,
+      "sha256": "3ce42dd9c0d21bb6456f3e491460955b6fe07b34613896b5e991a4124d4c4b34"
+    }
+  ],
+  "boundary": {
+    "engineering_demo": true,
+    "identity": "UNCONFIRMED",
+    "physical_navigation": "UNKNOWN",
+    "gt_trajectories_visibility_depth_exported": false,
+    "inference_or_index_run": false,
+    "source_saved_or_copied": false,
+    "video_rendered": false,
+    "port_8785_touched": false
+  },
+  "not_verified": [
+    "Human acceptance of gait naturalness/appearance",
+    "WASD/Shift workbench integration and system tracking (separate UI owner)",
+    "Continuous articulated clearance / physical safety",
+    "Pixel equality to EEVEE #529 RGB; per-camera differences quantified separately"
+  ]
+}
