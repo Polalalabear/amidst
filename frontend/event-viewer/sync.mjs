@@ -128,3 +128,30 @@ export function formatSpeedNote(setting, actual) {
   const x = (n) => `${Math.round(n * 10) / 10}×`;
   return Number.isFinite(actual) ? `設定 ${x(setting)} · 實際 ${x(actual)}` : `設定 ${x(setting)}`;
 }
+
+// ---- 畫格排法（依鏡頭數決定，不寫死）-------------------------------------------------------
+// 1→1×1、2→2×1、3→3×1、4→2×2（維持舊版）、5–6→3×2（維持舊版）、7–8→4×2、其後每列 4 台。
+export function gridShape(count) {
+  const n = Math.max(0, Math.floor(Number(count) || 0));
+  if (n === 0) return { cols: 0, rows: 0 };
+  if (n <= 3) return { cols: n, rows: 1 };
+  if (n === 4) return { cols: 2, rows: 2 };
+  if (n <= 6) return { cols: 3, rows: 2 };
+  return { cols: 4, rows: Math.ceil(n / 4) };
+}
+
+// 在 width×height（px）內放下全部畫格，維持 16:9、不需捲動。回傳每格寬高（整數）。
+export function fitGrid(count, width, height, gap = 10) {
+  const { cols, rows } = gridShape(count);
+  if (!cols || !(width > 0) || !(height > 0)) return { cols, rows, width: 0, height: 0 };
+  const byWidth = (width - gap * (cols - 1)) / cols;
+  const byHeight = ((height - gap * (rows - 1)) / rows) * 16 / 9;
+  const w = Math.max(0, Math.floor(Math.min(byWidth, byHeight)));
+  return { cols, rows, width: w, height: Math.round((w * 9) / 16) };
+}
+
+// 單一鏡頭的畫面狀態：影像載入成功 READY；載入失敗（沒有影片／檔案）MISSING，顯示「無畫面」，與「有畫面」分開。
+export const MISSING_TEXT = '無畫面 · MISSING';
+export function cameraStatus(loaded) {
+  return loaded === true ? 'READY' : loaded === false ? 'MISSING' : 'PENDING';
+}

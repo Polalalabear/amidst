@@ -1,4 +1,4 @@
-import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, createSpeedMeter, formatSpeedNote, stampParts, stepFrame, virtualTime } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, createSpeedMeter, formatSpeedNote, stampParts, stepFrame, virtualTime, gridShape, fitGrid, cameraStatus, MISSING_TEXT } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
@@ -26,7 +26,8 @@ function load(runKey, camera, index) {
 
 function framesReady(index) {
   const run = state.run;
-  return run.cameras.every((cam) => load(run.key, cam, index).ok === true);
+  // 已載入完成（成功或失敗）即可換格；沒有影片的鏡頭（ok === false）顯示「無畫面」，不拖住其他鏡頭。
+  return run.cameras.every((cam) => load(run.key, cam, index).ok !== null);
 }
 
 function prefetch(from) {
@@ -87,20 +88,44 @@ function tick(now) {
   }
 }
 
+function fitNow() {
+  const run = state.run, main = document.querySelector('main'), grid = $('grid');
+  if (!run || !main || run.status !== 'OK') return;
+  const cs = getComputedStyle(main);
+  const w = main.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const h = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const f = fitGrid(run.cameras.length, w, h, 10);
+  grid.dataset.cols = String(f.cols); grid.dataset.rows = String(f.rows);
+  grid.style.gridTemplateColumns = f.width ? `repeat(${f.cols}, ${f.width}px)` : '';
+}
+
+function setCameraStatus(cam, loaded) {
+  const fig = $(`fig-${cam}`);
+  if (!fig) return;
+  fig.dataset.status = cameraStatus(loaded);
+  $(`miss-${cam}`).hidden = loaded !== false;
+}
+
 function buildGrid(run) {
   const grid = $('grid');
-  grid.className = run.cameras.length > 4 ? 'cols3' : '';
+  grid.className = '';
   grid.replaceChildren(...run.cameras.map((cam) => {
     const fig = document.createElement('figure');
+    fig.id = `fig-${cam}`; fig.dataset.camera = cam; fig.dataset.status = 'PENDING';
     const img = document.createElement('img');
     img.id = `img-${cam}`;
     img.alt = cam;
+    img.addEventListener('load', () => setCameraStatus(cam, true));
+    img.addEventListener('error', () => setCameraStatus(cam, false));
+    const miss = document.createElement('div');
+    miss.id = `miss-${cam}`; miss.className = 'missing'; miss.hidden = true; miss.textContent = MISSING_TEXT;
     const cap = document.createElement('figcaption');
     cap.id = `cap-${cam}`;
     setCap(cap, stampParts(cam, null, run.fps, run.clock));
-    fig.append(img, cap);
+    fig.append(img, miss, cap);
     return fig;
   }));
+  fitNow();
 }
 
 async function selectRun(run) {
@@ -167,4 +192,6 @@ async function main() {
   setInterval(() => tick(performance.now()), 40);
 }
 
+window.addEventListener('resize', fitNow);
+if (typeof ResizeObserver === 'function') new ResizeObserver(fitNow).observe(document.querySelector('main'));
 main();
