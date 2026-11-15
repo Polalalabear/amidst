@@ -33,7 +33,9 @@ SCHEMA_REL_PATH = 'docs/contracts/schemas/q-core.agent-decision.v1.schema.json'
 SYSTEM_PROMPT = (
     'You are a bounded cross-camera adjudication assistant. '
     'Select a rule-eligible candidate id or ABSTAIN for DP1, or ACCEPT_SEGMENT/REJECT_SEGMENT for DP3. '
-    'Respond strictly with a JSON object matching the response schema.'
+    'Respond strictly with a JSON object matching the response schema. '
+    'Include candidate_id only when action is SELECT; for every other action leave the key out (never an empty string, never the action name). '
+    'List each reason code at most once.'
 )
 
 
@@ -204,6 +206,64 @@ def _extract_tokens(data: Mapping) -> tuple[int | None, int | None]:
             c if type(c) is int and c >= 0 else None)
 
 
+RAW_HEAD_CHARS = 240   # debug: first N characters of the MODEL's reply only (never the request / prompt)
+
+
+def normalize_response(obj) -> tuple[object, list[str]]:
+    """Repair the two constraints we strip from the schema we send (``if/then/else`` and ``uniqueItems``).
+
+    WP5 (2026-11-16): the model-facing schema cannot express "candidate_id only with SELECT" or unique reason codes, so
+    models answer ABSTAIN with ``"candidate_id": ""`` (or a real id) or repeat a reason code, and ``validate_response``
+    then rejects an otherwise usable answer. Only those two defects are repaired; every repair is returned as a note and
+    recorded in the call row, so the rate is visible. SELECT without a candidate_id, bad enums and extra keys stay invalid."""
+    if not isinstance(obj, dict):
+        return obj, []
+    out, notes = dict(obj), []
+    if out.get('action') != 'SELECT' and 'candidate_id' in out:
+        out.pop('candidate_id')
+        notes.append('DROPPED_CANDIDATE_ID_NON_SELECT')
+    codes = out.get('reason_codes')
+    if isinstance(codes, list) and all(isinstance(c, str) for c in codes):
+        unique = list(dict.fromkeys(codes))
+        if len(unique) != len(codes):
+            out['reason_codes'] = unique
+            notes.append('DEDUPED_REASON_CODES')
+    return out, notes
+
+
+def _content_text(data) -> str | None:
+    """The model's raw reply text from an OpenAI- or Ollama-shaped body (None when absent)."""
+    if not isinstance(data, Mapping):
+        return None
+    if isinstance(data.get('choices'), list) and data['choices'] and isinstance(data['choices'][0], Mapping):
+        msg = data['choices'][0].get('message')
+    else:
+        msg = data.get('message')
+    content = msg.get('content') if isinstance(msg, Mapping) else data.get('response')
+    if isinstance(content, str):
+        return content
+    return json.dumps(content, ensure_ascii=False, sort_keys=True) if isinstance(content, Mapping) else None
+
+
+def _detail_of(parsed, request) -> str | None:
+    try:
+        ad.validate_response(parsed, request)
+        return None
+    except ad.AgentDecisionError as exc:
+        return f'{exc.code}:{exc.detail}' if exc.detail else exc.code
+    except Exception as exc:  # noqa: BLE001
+        return type(exc).__name__
+
+
+def _diagnose(data, parsed, request) -> tuple[object, dict]:
+    """(response to hand to decide(), debug dict). Debug: raw reply head, repairs made, why the raw / repaired reply is invalid."""
+    raw = _content_text(data)
+    fixed, notes = normalize_response(parsed)
+    return fixed, {'raw_head': None if raw is None else raw[:RAW_HEAD_CHARS], 'normalized': notes,
+                   'invalid_before_repair': _detail_of(parsed, request) if parsed is not None else 'NO_JSON_OBJECT',
+                   'invalid_after_repair': _detail_of(fixed, request) if fixed is not None else 'NO_JSON_OBJECT'}
+
+
 def _try_record(provider, entry: dict) -> None:
     """Write one recording row; a recording failure must never escape the provider.
 
@@ -308,6 +368,8 @@ class OpenAIProvider:
         # $ref). Send the same self-contained schema Ollama gets; if/then/else and uniqueItems stay enforced by
         # ``agent_decision.validate_response`` after the call. ``strict`` is false because candidate_id is optional.
         self._response_schema = ollama_format_schema(response_schema if response_schema is not None else RESPONSE_SCHEMA)
+        self.last_error: dict | None = None   # latest failed call: {'http_status': int|None, 'detail': str}
+        self.last_diag: dict | None = None    # latest answered call: raw_head / normalized / invalid_* (see _diagnose)
 
     def __repr__(self) -> str:
         return (
@@ -366,6 +428,7 @@ class OpenAIProvider:
         if type(max_output_tokens) is not int or max_output_tokens < 1:
             raise ad.AgentDecisionError('ATTEMPT_INVALID', 'max_output_tokens')
 
+        self.last_error = self.last_diag = None
         api_key = self._read_api_key_now()
         if api_key is None:
             logger.warning('openai_provider: OPENAI_API_KEY is not set; returning UNAVAILABLE')
@@ -392,6 +455,7 @@ class OpenAIProvider:
         except urllib.error.HTTPError as exc:
             wall_ms = max(0.0, float(self._clock_ms()) - start_ms)
             outcome = _status_outcome(int(exc.code))
+            self.last_error = {'http_status': int(exc.code), 'detail': _error_body(exc)}
             logger.warning('openai_provider http error: status=%d outcome=%s', int(exc.code), outcome)
             return ad.Attempt(outcome, wall_ms)
         except Exception as exc:
@@ -415,6 +479,7 @@ class OpenAIProvider:
         wall_ms = reported_wall if reported_wall is not None else elapsed_ms
         outcome = _status_outcome(status)
         if outcome != ad.CALL_OK:
+            self.last_error = {'http_status': status, 'detail': _body_text(raw_body)}
             return ad.Attempt(outcome, wall_ms)
 
         if wall_ms > timeout_ms:
@@ -428,7 +493,7 @@ class OpenAIProvider:
         if isinstance(data.get('model'), str) and data['model'].strip():
             self.last_api_model_id = data['model'].strip()
 
-        parsed_response = _extract_openai_response_object(data)
+        parsed_response, self.last_diag = _diagnose(data, _extract_openai_response_object(data), request)
         attempt = ad.Attempt(ad.CALL_OK, wall_ms, parsed_response, prompt_tokens, completion_tokens)
         if self._recorder is not None:
             _try_record(self, {
@@ -615,6 +680,7 @@ class OllamaProvider:
         if type(max_output_tokens) is not int or max_output_tokens < 1:
             raise ad.AgentDecisionError('ATTEMPT_INVALID', 'max_output_tokens')
 
+        self.last_diag = None
         payload = self._build_payload(request, max_output_tokens=max_output_tokens)
         body_bytes = ad.canonical(payload)
         headers = {'Content-Type': 'application/json'}
@@ -668,7 +734,7 @@ class OllamaProvider:
             self.model_digest = digest.strip().removeprefix('sha256:')
 
         prompt_tokens, completion_tokens = _extract_tokens(data)
-        parsed_response = _extract_ollama_response_object(data)
+        parsed_response, self.last_diag = _diagnose(data, _extract_ollama_response_object(data), request)
         attempt = ad.Attempt(ad.CALL_OK, wall_ms, parsed_response, prompt_tokens, completion_tokens)
         if self._recorder is not None:
             _try_record(self, {

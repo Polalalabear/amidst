@@ -80,12 +80,20 @@ def guarded_decision_call(api_guard, cfg, model, inner):
         if not out.allowed:
             return ad.Attempt(ad.CALL_UNAVAILABLE, 0.0)
         return out.value
+    call.provider = getattr(inner, '__self__', None)   # execute_call reads last_error / last_diag from it
     return call
 
 
 def _attempt_with_usage(inner, request, timeout_ms, max_output_tokens):
+    """``(attempt, prompt_tokens, completion_tokens)`` for ``ApiGuard.run``. A request the API rejected before running the
+    model (HTTP 4xx other than 429) was not billed: record 0/0 instead of letting the guard charge the worst-case estimate
+    (WP5 ledger: 11 rows of 400 rejections carried null tokens and were charged USD 0.034 that OpenAI never billed)."""
     attempt = inner(request, timeout_ms=timeout_ms, max_output_tokens=max_output_tokens)
-    return attempt, getattr(attempt, 'prompt_tokens', None), getattr(attempt, 'completion_tokens', None)
+    pt, ct = getattr(attempt, 'prompt_tokens', None), getattr(attempt, 'completion_tokens', None)
+    status = ((getattr(getattr(inner, '__self__', None), 'last_error', None) or {}).get('http_status'))
+    if pt is None and ct is None and attempt.outcome == ad.CALL_UNAVAILABLE and isinstance(status, int) and 400 <= status < 500 and status != 429:
+        pt, ct = 0, 0
+    return attempt, pt, ct
 
 
 def live_context(cfg, table, api_guard=None):

@@ -1,6 +1,6 @@
 # WP5 OpenAI 試跑校準（2026-11-15，D233／D237）
 
-- Model / effort：Sonnet 5.5 / medium。使用者核准的上限是 **USD 3**，用來量每個模型、每種題型的 token、延遲和費用，再推算 pilot 與更大題組。
+- Model / effort：Sonnet 5.5 / medium。2026-11-16 補：新增 §9（異常查證與修法）；§3、§4 的數字已用 59 列帳本重算。使用者核准的上限是 **USD 3**，用來量每個模型、每種題型的 token、延遲和費用，再推算 pilot 與更大題組。
 - **題目是合成題**（`wp5_fake.synthetic_rows`，真題庫未定），所以所有數字都是「**合成題基準**」。DP4 的即時呼叫在 runner 裡還沒接上，**這次沒有量 DP4**。
 - 每次呼叫都經過 `ApiGuard`（`--approved-usd 3`，`AMIDST_API_USD_PER_DAY=3`，`AMIDST_API_MAX_CALLS_PER_DAY=60`，每分鐘照預設 10）。不讀、不存 API key；帳本已用 `grep sk-` 檢查沒有 key。
 - 標示：**〔量測〕** 來自這次實跑；**〔推算〕** 用量測平均乘上題數；**〔UNKNOWN〕** 沒有量。
@@ -29,8 +29,8 @@
 - 逾時用 **relaxed（10 s／30 s，標 EXPLORATORY）**，不用 formal（見 §5：formal 的 2 s 對這些模型幾乎一定逾時，會讓每題重試而混淆 token 量測）。
 - 取樣：terra 每種題型 6 題（DP1／DP3／NL，共 18），sol、astra 每種 2 題（各 6），共 30 步、**每步 1 次呼叫**；加上 2 次除錯探測（確認 400 的原因和 `candidate_id` 空字串）。DP4 跳過。
 - 每分鐘上限 10：分段執行，每段之間等 66 秒，沒有調高。
-- **實際花費：USD 0.1025（依帳本裡有 token 用量的 31 列，用 PINNED 價目計；這是量到的真實用量）。護欄帳本總估計 0.1360 USD 是上界**（多出的 0.034 是 11 筆被 HTTP 400 在模型執行前就拒絕的請求、1 筆錯誤，都用預估價記，OpenAI 實際沒有計費）。**遠低於 USD 3 上限。**
-- 帳本 51 列：OK 且有用量 31、OK 但無用量（400 拒絕）11、DENIED 8（第一次實跑撞到每分鐘上限）、ERROR 1（terra 的一次 NL 呼叫，被規則退回）。token：輸入 15,230、輸出 3,900。實跑總呼叫（含被拒的 400）約 43 次，低於 60。
+- **實際花費（含 2026-11-16 補跑 8 次診斷呼叫）：USD 0.1130（依帳本裡有 token 用量的 39 列，用 PINNED 價目計；量到的真實用量）。護欄帳本總估計 0.1465 USD 是上界**（多出的 0.034 是 11 筆被 HTTP 400 在模型執行前就拒絕的請求、1 筆錯誤，都用預估價記，OpenAI 實際沒有計費）。**遠低於 USD 3 上限；剩餘額度約 USD 2.85（以帳本上界計 2.85、以實際用量計 2.89）。**
+- 帳本 59 列（原 51 列＋8 次診斷）：OK 且有用量 39、OK 但無用量（400 拒絕）11、DENIED 8（RATE_LIMIT，見 §9）、ERROR 1（terra 的一次 NL 呼叫，被規則退回，以預估價 0.0026 記）。token：輸入 19,422、輸出 5,164。實跑總呼叫（含被拒的 400）約 43 次，低於 60。
 
 ### 每個模型×題型（由 `scripts/agent_decision/wp5_calib_report.py` 算出）
 
@@ -51,7 +51,7 @@
 ### 發現（要使用者知道）
 
 1. **延遲遠超 formal 的 2 s 單次上限**：所有模型 p50 約 2.7–4.7 s。formal 設定下這些呼叫幾乎都會 TIMEOUT 退回規則，並（最多 3 輪）重試；逾時的呼叫 OpenAI 仍會計費。formal 組的結果會變成「幾乎都是規則」，要不要放寬 formal 逾時是決策，不是這份文件能決定的。
-2. **terra 的 DP1／DP3 多半被判 INVALID_RESPONSE**（DP1 0/6、DP3 1/6）：探測顯示它在不選候選時回 `"candidate_id": ""`，不符合 opaque id 規則；sol／astra 沒有這樣。這是非 strict 模式的副作用；建議的修法是在 provider 解析後，action 不是 SELECT 時丟掉空的 `candidate_id`。**這次沒有改**（它改變模型輸出的處理，應該另外決定），所以 terra 的 DP1／DP3 成本是量到了，但「有效率」偏低，不能引用為品質結論。準確度本來只記錄不排名。
+2. **terra 的 DP1／DP3 多半被判 INVALID_RESPONSE**（DP1 0/6、DP3 1/6）：**根本原因與修法見 §9**（已修；診斷 8 次，修正後 8/8 為 AGENT）。上表前 6 欄是量到的成本，不受影響；「有效答案」欄是修正前的原始比例，不能引用為品質結論。
 3. 實際輸入 token（394–594）只有設定估計（700–1500）的約 40–60%；輸出 token 約 80–210，遠低於上限 300（含推理 token，API 的 completion 計數）。
 
 ## 4. 推算〔推算〕（合成題基準；不含 DP4）
@@ -111,4 +111,53 @@ python scripts/agent_decision/wp5_calib_report.py <evidence dir>
 - DP4 的即時呼叫（#541 的 API／Agent 版本）還沒接到 WP5 runner，DP4 的 token、延遲、費用 **UNKNOWN**，上面只有上界推算。
 - 真題的 token 數 UNKNOWN（合成題基準）。sol／astra 每格 n=2，變異估計很粗。
 - 延遲只有一台 Mac、單一時段、序列呼叫；不是 L4 數字，也沒有並行。
-- terra 的 `candidate_id: ""` 問題（§3 發現 2）和 formal 逾時是否放寬，是待決策項目，這份 PR 沒改。
+- formal 逾時是否放寬，是待決策項目，這份 PR 沒改（terra 的無效回應問題已在 §9 修正）。
+
+## 9. 異常查證與修法（2026-11-16，同一個 PR #546）
+
+### 9.1 `terra_DP1` 6 題全部 `RULE_FALLBACK`（`INVALID_RESPONSE`）：根本原因〔量測〕
+
+舊的 `calls.jsonl` 沒存回覆內容，所以先在 provider 加上除錯欄位（`raw_head`：只存**模型回覆**的前 240 字元，不含輸入；`invalid_before_repair`：驗證器的原因），再用 terra 補跑 DP1×4、DP3×4（8 次，USD 0.0105，經 `ApiGuard`，`runs/terra_diag_v3/`）。結果：**8 次裡 6 次的回覆在 `action` 是 `ABSTAIN`／`ACCEPT_SEGMENT` 時仍帶了 `candidate_id`**（`""` 3 次、`"ABSTAIN"` 2 次、`"A1"` 1 次；DP1 4 次全有、DP3 2 次），驗證器因此回 `INVALID_RESPONSE:candidate_id only with SELECT`。其餘 2 次沒有這個欄位、本來就有效。
+
+原因是我們送給模型的 schema 拿掉了 `if/then/else/not`（OpenAI 與 Ollama 的文法都不接受，見 §2），所以「`candidate_id` 只能在 `SELECT` 出現」和「`reason_codes` 不得重複（`uniqueItems`）」這兩條限制模型看不到、`format` 也不強制；非 strict 模式下，模型常把欄位補上。sol／astra 恰好沒這樣做。
+
+修法：（1）`SYSTEM_PROMPT` 明講「只有 SELECT 才寫 `candidate_id`，其他動作不要寫（不要空字串、不要寫動作名稱）；每個 reason code 最多一次」；（2）`agent_providers.normalize_response`：只修這兩個缺陷（非 SELECT 丟掉 `candidate_id`、`reason_codes` 去重），每次修正記在列的 `normalized`（`DROPPED_CANDIDATE_ID_NON_SELECT`／`DEDUPED_REASON_CODES`）。**SELECT 沒有 id、列舉值錯、多餘欄位、空陣列、不是 JSON 都仍是 INVALID_RESPONSE**，驗證器沒有放寬。因為有 `normalized` 欄位，報告可以分開列「原樣有效」和「修正後有效」的比例，不會把修正藏起來。
+
+測試：`tests/q1q5/test_wp5_v3_fixes.py`（可修的三種回覆、不可修的五種、`raw_head` 截斷且不含輸入、非 JSON 回覆、runner 列有除錯欄位、`decide()` 用修正後答案）。
+
+### 9.2 terra 的 8 次 `DENIED`：每分鐘上限〔量測〕
+
+8 列都是 `reason=RATE_LIMIT`，同一秒（15:30:31）。護欄預設每分鐘 10 次；第一次實跑開頭的 10 次 DP1／DP3 請求（都被 HTTP 400 拒絕、很快）用掉了這分鐘的額度，緊接著的 2 個 DP 與 6 個 NL 請求被擋。沒有任何一筆撞到單次上限、每日上限或總額上限。被擋的請求沒有送出、沒有計費。之後的分段實跑每段間隔 66 秒，沒有再被擋。
+
+### 9.3 帳本 `prompt_tokens` 為 null〔量測〕
+
+不是全部為 null：59 列裡 39 列有 token；**null 的 11 列全是被 HTTP 400 拒絕的請求**（`provider` 回 UNAVAILABLE，沒有 usage），護欄對「未知用量」按最壞估計記帳（0.0025–0.003 USD／列，共約 0.034），但 OpenAI 實際沒有計費。ERROR 的 1 列也是 null（呼叫丟例外）。`calls.jsonl` 有 token 數是因為它從 provider 的 `Attempt` 取，而 `_attempt_with_usage` 對被拒的請求取不到。
+
+修法：`OpenAIProvider` 新增 `last_error`（HTTP 狀態＋內容前 300 字）；`wp5_runner._attempt_with_usage` 對「HTTP 4xx（429 除外）且沒有 usage」記 `0／0`（沒有跑模型、沒計費），其餘未知用量（429、逾時、例外）仍按最壞估計記帳，不會因此低估。另外 `guarded_decision_call` 的結果帶 `.provider`，runner 才讀得到 `last_error`／除錯欄位。測試：`test_ledger_records_tokens_of_answered_call`、`…zero_for_http_400…`、`…worst_case_when_status_is_429…`。**舊的 11 列帳本沒有改**（帳本是證據，保留原樣；報告用 `wp5_calib_report.py` 區分「有用量」與「無用量」）。
+
+### 9.4 是否需要補跑？
+
+不需要再補。pilot／formal 的推算只要每種題型的 token 平均和變異；DP1／DP3／NL 各有 6–10 筆 terra 量測（診斷組的 8 筆另外證實回覆格式問題已修），sol／astra 每格 n=2 當對照。DP4 的即時呼叫還沒接到 runner，補跑也量不到。使用者核准的上限仍是 USD 3，**實際總花費 USD 0.1130（帳本上界 0.1465），其中 2026-11-16 的 8 次診斷 USD 0.0105**。
+
+### 9.5 推算更新（59 列帳本，合成題基準）
+
+| 組 | 模型 | 呼叫 | 合成 USD (±2 SE) | 設定估計 USD（上界） | 誤差來源 |
+| --- | --- | ---: | ---: | ---: | --- |
+| pilot | terra6.1（預設） | 72 | 0.084 ± 0.013 | 0.126 | 輸出 token 抽樣誤差；輸入 token 在合成題為固定值 |
+| pilot | sol6.1（對照） | 72 | 0.142 ± 0.045 | 0.227 | n=2／格，誤差偏低估 |
+| pilot | astra6（對照） | 72 | 0.824 ± 0.223 | 1.246 | 同上 |
+| formal | terra6.1（預設） | 300 | 0.345 ± 0.061 | 0.512 | 同上 |
+| formal | sol6.1（對照） | 300 | 0.593 ± 0.206 | 0.927 | 同上 |
+| formal | astra6（對照） | 300 | 3.446 ± 1.032 | 5.118 | 同上 |
+
+**哪些是量到的、哪些是推算的：** 輸入／輸出 token、單次費用、延遲 p50／p95 是**量到的**（合成題）；pilot／formal 的總額是**推算的**（量測平均 × 題數）；DP4 整項（含在 §4 的上界裡）是 **UNKNOWN／上界推算**；真題的 token 數是 **UNKNOWN**，所以每列都附「設定估計」欄當真題偏長時的上界（輸入換成設定檔的 700–1500）。±誤差只含輸出 token 的抽樣誤差；若真題輸入 token 比合成題長，費用以設定估計欄為準，不是 ±。
+
+### 9.6 額度方案（USD 3 上限已用掉約 5%；以下是「下一次要核准多少」，金額含 §4 的 DP4 上界與最壞 3.25 倍重試）
+
+| 方案 | 內容 | 名義上界 | 最壞（×3.25） | 建議核准額 |
+| --- | --- | ---: | ---: | ---: |
+| **A 便宜（預設 terra）** | terra：pilot（72 步）＋formal（300 步）＋DP4 上界 | 1.12 | 3.62 | **USD 4**（若逾時不放寬，實際會接近名義值） |
+| **B 混合** | A＋sol、astra 各跑一次 pilot 當對照 | 3.50 | 11.36 | **USD 12** |
+| **C 全部最強** | 三個模型 pilot＋formal 全跑 | 14.08 | 45.76 | **USD 46**（astra 約占 78%） |
+
+仍建議先核准 A。已用掉的 USD 0.113 計入原本核准的 USD 3，不計入新的額度。

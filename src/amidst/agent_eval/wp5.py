@@ -307,9 +307,14 @@ def execute_call(ctx: Context, cfg: Mapping, profile: Mapping, model: Mapping, q
         call = ctx.decision_provider(model)
         rec = ad.decide(req, mode='AGENT_LIVE', params=params, budget=budget, model=model['budget_slot'],
                         call=call, provider_kind=provider_kind)
-        err = getattr(getattr(call, '__self__', None), 'last_error', None)   # why the provider said UNAVAILABLE (HTTP status + body head)
+        owner = getattr(call, 'provider', None) or getattr(call, '__self__', None)   # guarded OpenAI calls carry .provider
+        err = getattr(owner, 'last_error', None)   # why the provider said UNAVAILABLE (HTTP status + body head)
         if err:
             out['provider_error'] = err
+        diag = getattr(owner, 'last_diag', None)   # raw reply head (model output only), repairs made, why it was invalid
+        if diag:
+            out['raw_head'], out['normalized'] = diag.get('raw_head'), diag.get('normalized') or []
+            out['invalid_before_repair'], out['invalid_after_repair'] = diag.get('invalid_before_repair'), diag.get('invalid_after_repair')
         attempts = [a for a in rec.get('attempts') or [] if isinstance(a, Mapping)]
         out.update(latency_ms=sum(float(a.get('wall_ms', 0.0)) for a in attempts), steps=len(attempts),
                    prompt_tokens=_sum_opt(a.get('prompt_tokens') for a in attempts),
@@ -359,8 +364,23 @@ def execute_call(ctx: Context, cfg: Mapping, profile: Mapping, model: Mapping, q
         wall = ctx.clock_ms() - t0
         out.update(latency_ms=min(wall, float(profile['per_call_ms'])) if code == 'TIMEOUT' else wall, steps=1,
                    fallback_reason='TIMEOUT' if code == 'TIMEOUT' else code, decision_source='RULES', answer=rule_parse)
-    out['matches_rule'] = out['answer'] == rule_parse
+    out['matches_rule'], out['nl_field_agree'] = nl_agreement(out['answer'], rule_parse)
     return out
+
+
+NL_COMPARED_FIELDS = ('action', 'location', 'target', 'time')
+
+
+def nl_agreement(answer: Mapping, rule_parse: Mapping) -> tuple[bool, dict[str, bool]]:
+    """Does a model's NL parse agree with the rule parse on the STRUCTURED fields (action, location set, target set, time)?
+
+    WP5 (2026-11-16): the old check was ``answer == rule_parse`` over the whole dict, including ``unrecognized`` - free text
+    the rules fill with leftover pieces and a model never reproduces - so agreement was 0/24 for both local models even where
+    the structured fields matched. ``unrecognized`` is no longer compared; per-field results are returned too."""
+    def norm(v):
+        return sorted(v) if isinstance(v, list) else v
+    per = {k: norm(answer.get(k)) == norm(rule_parse.get(k)) for k in NL_COMPARED_FIELDS}
+    return all(per.values()), per
 
 
 def _sum_opt(values) -> int | None:

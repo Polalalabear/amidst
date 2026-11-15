@@ -9,8 +9,12 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
+import threading
+import time
+import urllib.request
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 MAX_FALLBACK_RATE = 0.2
 _GPU_ONLY = re.compile(r'(\d+)%\s*GPU\b')
@@ -42,6 +46,70 @@ def gpu_residency(ps_text: str, model: str) -> dict[str, Any]:
         if row['name'] == model or row['name'] == f'{model}:latest':
             return dict(row, ok=row['gpu_percent'] == 100)
     return {'name': model, 'gpu_percent': None, 'line': None, 'ok': False}
+
+
+def gpu_from_api_ps(doc: Any, model: str) -> dict[str, Any]:
+    """GPU share from Ollama's ``/api/ps`` JSON (``size_vram / size``): the authoritative source; the CLI table is only a view of it."""
+    for m in (doc.get('models') or []) if isinstance(doc, dict) else []:
+        if isinstance(m, dict) and m.get('name') in (model, f'{model}:latest'):
+            size, vram = m.get('size'), m.get('size_vram')
+            if isinstance(size, int) and size > 0 and isinstance(vram, int):
+                return {'name': m['name'], 'gpu_percent': round(100 * min(vram, size) / size), 'size': size, 'size_vram': vram,
+                        'ok': vram >= size}
+    return {'name': model, 'gpu_percent': None, 'ok': False}
+
+
+def _cli_ps() -> str:
+    return subprocess.run(['ollama', 'ps'], capture_output=True, text=True, timeout=15).stdout
+
+
+def _api_ps(endpoint: str = 'http://127.0.0.1:11434') -> Any:
+    return json.loads(urllib.request.urlopen(f'{endpoint}/api/ps', timeout=5).read())
+
+
+def sample_gpu_residency(model: str, *, cli_ps: Callable[[], str] = _cli_ps, api_ps: Callable[[], Any] = _api_ps,
+                         tries: int = 10, interval_s: float = 0.5, sleep: Callable[[float], None] = time.sleep,
+                         during: Callable[[], Any] | None = None) -> dict[str, Any]:
+    """Sample ``ollama ps`` / ``/api/ps`` WHILE THE MODEL IS LOADED, retrying until it is listed.
+
+    WP5 (Colab v2): ``ollama ps`` was read after the model had already been unloaded and only the header line was captured, so
+    the GPU was never confirmed. Call this right after a warm-up that used ``keep_alive`` (see ``KEEP_ALIVE``), or pass
+    ``during`` (e.g. a probe request): it runs in a thread and the samples are taken while it is in flight. ``ok`` is True when
+    either source shows the model 100% on the GPU; ``samples`` keeps the raw text so a miss is diagnosable."""
+    box: dict[str, Any] = {}
+    worker = None
+    if during is not None:
+        worker = threading.Thread(target=lambda: box.setdefault('during', during()), daemon=True)
+        worker.start()
+    samples: list[dict[str, Any]] = []
+    best: dict[str, Any] = {'name': model, 'gpu_percent': None, 'line': None, 'ok': False, 'source': None}
+    for i in range(tries):
+        text, doc, err = '', None, None
+        try:
+            text = cli_ps()
+        except Exception as exc:  # noqa: BLE001
+            err = f'cli:{type(exc).__name__}'
+        try:
+            doc = api_ps()
+        except Exception as exc:  # noqa: BLE001
+            err = (err or '') + f' api:{type(exc).__name__}'
+        cli, api = gpu_residency(text, model), gpu_from_api_ps(doc, model)
+        samples.append({'try': i, 'cli_text': text, 'cli_gpu_percent': cli['gpu_percent'], 'api_gpu_percent': api['gpu_percent'], 'error': err})
+        if cli['gpu_percent'] is not None or api['gpu_percent'] is not None:
+            best = dict(cli if cli['gpu_percent'] is not None else api, ok=bool(cli['ok'] or api['ok']),
+                        source='ollama ps' if cli['gpu_percent'] is not None else '/api/ps',
+                        api_gpu_percent=api['gpu_percent'], cli_gpu_percent=cli['gpu_percent'])
+            if best['ok']:
+                break
+        if worker is not None and not worker.is_alive() and i >= 1 and best['gpu_percent'] is None:
+            sleep(interval_s)   # probe finished; one more look, then give up
+        sleep(interval_s)
+    if worker is not None:
+        worker.join(timeout=120)
+    return dict(best, samples=samples[-5:], n_samples=len(samples), during_result=box.get('during'))
+
+
+KEEP_ALIVE = '10m'   # warm-up keep_alive so the model is still resident when ``ollama ps`` runs
 
 
 def probe_dp1(model: str, *, endpoint: str = 'http://127.0.0.1:11434', timeout_ms: int = 60000) -> dict[str, Any]:
