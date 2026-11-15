@@ -20,6 +20,8 @@ est_cost_usd. Never a key, header, prompt or response. Unknown usage is charged 
 from __future__ import annotations
 
 import json
+import logging
+import math
 import os
 import re
 import threading
@@ -30,11 +32,13 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-REASONS = ('API_DISABLED', 'PRICE_UNKNOWN', 'PER_CALL_TOKEN_CAP', 'PER_CALL_COST_CAP', 'RATE_LIMIT', 'DAILY_CALL_CAP',
+logger = logging.getLogger(__name__)
+REASONS = ('API_DISABLED', 'LEDGER_UNAVAILABLE', 'PRICE_UNKNOWN', 'PER_CALL_TOKEN_CAP', 'PER_CALL_COST_CAP', 'RATE_LIMIT', 'DAILY_CALL_CAP',
            'DAILY_COST_CAP', 'TOTAL_BUDGET')
 _CALLER = re.compile(r'[A-Za-z0-9_.:-]{1,64}')
 _MODEL = re.compile(r'[A-Za-z0-9_.:/-]{1,100}')
 LEDGER_NAME = 'usage.jsonl'
+NL_MAX_OUTPUT_TOKENS = 400   # sent to the provider and used in the guard's worst-case estimate
 
 
 def default_usage_dir() -> Path:
@@ -89,11 +93,17 @@ class GuardConfig:
 
 
 def estimate_cost(prices: Mapping | None, model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
-    price = (prices or {}).get(model)
+    """USD for the tokens at the table's USD-per-million-token prices; None when the model, a price or a token count is unusable
+    (missing, non-numeric, negative, NaN or infinite) so a bad table can never make a call look free."""
+    price = (prices or {}).get(model) if isinstance(prices, Mapping) else None
     try:
-        return (prompt_tokens * float(price['input_usd_per_mtok']) + completion_tokens * float(price['output_usd_per_mtok'])) / 1e6
+        pin, pout = float(price['input_usd_per_mtok']), float(price['output_usd_per_mtok'])
+        if not (isinstance(prompt_tokens, int) and isinstance(completion_tokens, int) and prompt_tokens >= 0 and completion_tokens >= 0):
+            return None
+        cost = (prompt_tokens * pin + completion_tokens * pout) / 1e6
     except (TypeError, KeyError, ValueError):
         return None
+    return cost if math.isfinite(cost) and pin >= 0 and pout >= 0 else None
 
 
 @dataclass(frozen=True)
@@ -113,6 +123,7 @@ class ApiGuard:
         self._starts: deque = deque()   # call start times (s) for the per-minute window
         self._pending_usd = 0.0
         self._pending_calls = 0
+        self._unpersisted: list[dict] = []   # rows whose ledger write failed; still counted so a broken disk never lifts the caps
 
     @property
     def ledger_path(self) -> Path:
@@ -120,10 +131,11 @@ class ApiGuard:
 
     # -- ledger -----------------------------------------------------------------------------------------------
     def _rows(self) -> list[dict]:
+        """Ledger rows plus in-memory rows that could not be written. Raises OSError when an existing ledger cannot be read (fail closed)."""
         try:
             lines = self.ledger_path.read_text('utf-8').splitlines()
-        except OSError:
-            return []
+        except FileNotFoundError:
+            lines = []
         rows = []
         for line in lines:
             try:
@@ -132,7 +144,7 @@ class ApiGuard:
                 continue
             if isinstance(row, dict):
                 rows.append(row)
-        return rows
+        return rows + self._unpersisted
 
     def _append(self, row: dict) -> None:
         try:
@@ -140,7 +152,10 @@ class ApiGuard:
             with open(self.ledger_path, 'a', encoding='utf-8') as fh:
                 fh.write(json.dumps(row, sort_keys=True, ensure_ascii=True) + '\n')
         except OSError:
-            pass   # ledger failure must not break the demo; spend state then falls back to in-memory pending only
+            # Never let a ledger failure make spend unlimited: keep charged rows in memory and keep counting them.
+            logger.warning('api_budget: ledger write failed (outcome %s); charged rows are kept in memory', row.get('outcome'))
+            if row.get('outcome') != 'DENIED':
+                self._unpersisted.append(row)
 
     def _row(self, caller, model, outcome, reason, pt, ct, cost) -> dict:
         return {'ts': datetime.fromtimestamp(self._clock(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'caller': caller, 'model': model,
@@ -167,7 +182,11 @@ class ApiGuard:
         today = datetime.fromtimestamp(now, timezone.utc).strftime('%Y-%m-%d')
         total = self._pending_usd
         day_cost, day_calls = self._pending_usd, self._pending_calls
-        for r in self._rows():
+        try:
+            ledger_rows = self._rows()
+        except OSError:
+            return 'LEDGER_UNAVAILABLE', cost
+        for r in ledger_rows:
             if r.get('outcome') == 'DENIED' or not isinstance(r.get('est_cost_usd'), (int, float)):
                 continue
             total += r['est_cost_usd']
@@ -217,14 +236,18 @@ class ApiGuard:
 _SHARED: dict = {}
 
 
+_SHARED_LOCK = threading.Lock()
+
+
 def shared_guard(env: Mapping | None = None) -> ApiGuard:
     """Process-wide guard so the per-minute window survives across requests; rebuilt when the server config changes."""
     cfg = GuardConfig.from_env(env)
     key = (cfg.enabled, cfg.max_usd_total, cfg.max_usd_per_day, cfg.max_calls_per_day, cfg.max_usd_per_call, cfg.max_tokens_per_call,
            cfg.max_calls_per_min, json.dumps(cfg.prices, sort_keys=True, default=str))
-    if _SHARED.get('key') != key:
-        _SHARED.update(key=key, guard=ApiGuard(cfg))
-    return _SHARED['guard']
+    with _SHARED_LOCK:   # one guard per config, even under concurrent requests (pending/rate state must not split)
+        if _SHARED.get('key') != key:
+            _SHARED.update(key=key, guard=ApiGuard(cfg))
+        return _SHARED['guard']
 
 
 # ---- dry-run estimate (WP5: show to the user before LIVE) ------------------------------------------------------
@@ -253,7 +276,7 @@ class GuardedNlClient:
     to the next layer and the reason shows in ``fallback_trail``. ``None`` ``inner`` = key absent (NOT_CONFIGURED upstream)."""
     name = 'API'
 
-    def __init__(self, inner, guard: ApiGuard, *, caller: str = 'nl_parse', max_output_tokens: int = 400):
+    def __init__(self, inner, guard: ApiGuard, *, caller: str = 'nl_parse', max_output_tokens: int = NL_MAX_OUTPUT_TOKENS):
         self.inner, self.guard, self.caller, self.max_output_tokens = inner, guard, caller, max_output_tokens
         self.model = getattr(inner, 'model', 'unknown')
 

@@ -146,3 +146,68 @@ def test_nl_guarded_client_denies_with_total_zero_and_allows_when_set(tmp_path):
     assert e.value.code == 'TOTAL_BUDGET'
     c = ab.GuardedNlClient(FakeNl(), guard(tmp_path / 'b'))
     assert c.parse('找人', VOCAB, 1000).prompt_tokens == 100
+
+
+# ---- review fixes ------------------------------------------------------------------------------------------------
+@pytest.mark.parametrize('bad', [{'input_usd_per_mtok': float('nan'), 'output_usd_per_mtok': 1}, {'input_usd_per_mtok': -1, 'output_usd_per_mtok': 1},
+                                 {'input_usd_per_mtok': float('inf'), 'output_usd_per_mtok': 1}, {'input_usd_per_mtok': 'x', 'output_usd_per_mtok': 1}])
+def test_bad_price_is_unknown_not_free(tmp_path, bad):
+    g = guard(tmp_path, prices={'astra6': bad})
+    assert g.run('t', 'astra6', 10, 10, ok()).reason == 'PRICE_UNKNOWN'
+
+
+def test_negative_reported_usage_is_charged_worst_case(tmp_path):
+    g = guard(tmp_path)
+    g.run('t', 'astra6', 1000, 1000, lambda: ('v', -10**6, -10**6))
+    assert json.loads(g.ledger_path.read_text().splitlines()[-1])['est_cost_usd'] == pytest.approx(0.003)
+
+
+def test_ledger_write_failure_keeps_counting(tmp_path):
+    ro = tmp_path / 'ro'
+    ro.mkdir()
+    ro.chmod(0o555)   # ledger missing and not creatable -> every append fails
+    try:
+        g = ab.ApiGuard(ab.GuardConfig(enabled=True, max_usd_total=0.0005, prices=PRICES), usage_dir=ro)
+        if (ro / 'probe').exists() or not _unwritable(ro):
+            pytest.skip('directory permissions not enforced (root?)')
+        assert g.run('t', 'astra6', 100, 100, ok(100, 100)).allowed
+        assert g.run('t', 'astra6', 100, 100, ok(100, 100)).reason == 'TOTAL_BUDGET'
+    finally:
+        ro.chmod(0o755)
+
+
+def test_unreadable_ledger_denies(tmp_path):
+    g = guard(tmp_path)
+    g.ledger_path.mkdir()   # exists but is a directory -> read fails with OSError
+    called = []
+    r = g.run('t', 'astra6', 10, 10, lambda: called.append(1) or ('v', 1, 1))
+    assert (r.allowed, r.reason, called) == (False, 'LEDGER_UNAVAILABLE', [])
+
+
+def test_concurrent_calls_never_exceed_total(tmp_path):
+    import threading
+    import time
+    g = guard(tmp_path, max_usd_total=0.0007, max_calls_per_min=1000, max_calls_per_day=1000)   # each call reserves 0.0003 -> at most 2 fit
+
+    def slow():
+        time.sleep(0.05)
+        return 'v', 100, 100
+    results = []
+    ts = [threading.Thread(target=lambda: results.append(g.run('t', 'astra6', 100, 100, slow))) for _ in range(8)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert sum(r.allowed for r in results) == 2
+
+
+def test_shared_guard_is_one_instance_per_config():
+    env = {'AMIDST_API_ENABLED': '1', 'AMIDST_API_MAX_USD_TOTAL': '1'}
+    assert ab.shared_guard(env) is ab.shared_guard(dict(env))
+
+
+def _unwritable(d):
+    try:
+        (d / 'probe').write_text('x')
+    except OSError:
+        return True
+    (d / 'probe').unlink()
+    return False
