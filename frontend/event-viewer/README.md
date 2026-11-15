@@ -10,6 +10,16 @@ node frontend/event-viewer/server.mjs --root "$PWD/local/evidence/r004-cx7-d115-
 
 再開 <http://127.0.0.1:8765/>。`--root` 是 LOCAL 的 CX-7 輸出根目錄；server 只讀 `<run>/safe/media/<camera>/<index>.png`，其餘路徑（含 `gt_private/`）、`..`、symlink 一律 404，且只綁 127.0.0.1。
 
+### 八鏡頭 4 人 run（#529，D214）
+
+`A4-1-8CAM`、`B4-1-8CAM`（各 8 台，250／210 格）取自 safe bundle，另用 `--root-8cam` 指向 `$AMIDST_ARTIFACTS/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe`（`$AMIDST_ARTIFACTS` 預設 `~/amidst/local`）：
+
+```bash
+node frontend/event-viewer/server.mjs --root "$PWD/local/evidence/r004-cx7-d115-20261102-01a199f8" --root-8cam "$PWD/local/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe" --port 8765
+```
+
+只給其中一個 root 時，另一組 run 顯示 UNAVAILABLE，不影響已通過的 run。舊的 `A4-1`／`B4-1`（1 人）保留。8 鏡頭 run 另外核對 `runs/<A4-1|B4-1>.json`：檔案 SHA-256 等於 `runs.mjs` 釘住的值，且每台相機的影格數、每格 `relative_path` 與 `sha256` 都等於逐格驗證算出的值；不符即 `INTEGRITY_FAIL`。
+
 ## 啟動驗證（fail-closed）
 
 safe 區沒有 manifest／clock，預期結構取自 `runs.mjs`（來自 `docs/engineering/R004_EVENT_RUNS_RECEIPT.md`，#394）。

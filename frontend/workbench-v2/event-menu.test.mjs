@@ -9,7 +9,7 @@ const cfgOf=search=>parseConfig(search);
 const byId=id=>EVENTS.find(e=>e.id===id);
 
 test('EVENTS lists every demo event with a one-line note; ids are unique',()=>{
-  assert.deepEqual(EVENTS.map(e=>e.id),['wall','q1','b05b','b05a','a41','b41']);
+  assert.deepEqual(EVENTS.map(e=>e.id),['wall','q1','b05b','b05a','a41','b41','a48','b48']);
   assert.equal(new Set(EVENTS.map(e=>e.id)).size,EVENTS.length);
   for(const e of EVENTS){assert.ok(e.note.length>10&&!e.note.includes('\n'));}
   assert.match(byId('a41').note,/frame 62＝12\.40 s.*frame 100＝20\.00 s/);
@@ -37,7 +37,7 @@ test('embed URLs are always loopback http on a validated port; run and view are 
   assert.equal(embedSrc(byId('b05a'),c,'system'),'http://127.0.0.1:8765/workbench-v2/?embed=1&view=system&evmode=view');assert.equal(embedSrc(byId('b05a'),c,'simple','track'),'http://127.0.0.1:8765/workbench-v2/?embed=1&view=simple&evmode=track');
   const none=cfgOf('');
   assert.equal(embedSrc(byId('a41'),none,'system'),null);
-  assert.deepEqual(EVENTS.filter(e=>!available(e,none)).map(e=>e.id),['b05a','a41','b41']);
+  assert.deepEqual(EVENTS.filter(e=>!available(e,none)).map(e=>e.id),['b05a','a41','b41','a48','b48']);
   assert.deepEqual(EVENTS.filter(e=>!available(e,c)).map(e=>e.id),[]);
   const evil=cfgOf('?ev_cx=8780@evil.test');assert.equal(evil.ports.cx,null);
 });
@@ -81,7 +81,7 @@ test('mount: embedded events show the stage with the right iframe and pass the v
   const doc=fakeDoc(),win=winOf();winOf.last=win;win.location.assign=u=>win.assigned.push(u);
   const menu=mountEventMenu({doc,simple:null,url:`${BASE}?ev_live=8765&ev_cx=8780`,win});
   const select=findById(doc,'event-select'),stage=findById(doc,'event-stage'),frame=findById(doc,'event-frame');
-  assert.equal(select.children.length,6);
+  assert.equal(select.children.length,8);
   assert.equal(menu.current,'wall');assert.equal(stage.hidden,true);
   doc.body.dataset.view='simple';
   select.value='a41';select.onchange();
@@ -99,7 +99,7 @@ test('mount: ports missing => embedded entries are disabled and cannot be select
   const doc=fakeDoc(),win=winOf();winOf.last=win;
   const menu=mountEventMenu({doc,simple:null,url:BASE,win});
   const select=findById(doc,'event-select');
-  assert.deepEqual(select.children.filter(o=>o.disabled).map(o=>o.value),['b05a','a41','b41']);
+  assert.deepEqual(select.children.filter(o=>o.disabled).map(o=>o.value),['b05a','a41','b41','a48','b48']);
   select.value='a41';select.onchange();
   assert.equal(menu.current,'wall');assert.equal(findById(doc,'event-stage').hidden,true);
 });
@@ -215,4 +215,14 @@ test('mount: complex event 查找 shows the 尚未支援 notice and loads no fra
   assert.deepEqual(clicks,[]);                       // source not loaded yet
   run={run_id:'r'};store.subs.forEach(f=>f());store.subs.forEach(f=>f());
   assert.deepEqual(clicks,['radio','open']);         // once; the user presses 開始檢索 themself
+});
+
+test('D214: 8-camera events embed the new run keys; old a41/b41 keep their 1-person runs',()=>{
+  const c=cfgOf('?ev_cx=8780');
+  assert.equal(embedSrc(byId('a48'),c,'system','view'),'http://127.0.0.1:8780/?embed=1&view=system&run=A4-1-8CAM');
+  assert.equal(embedSrc(byId('b48'),c,'simple','view'),'http://127.0.0.1:8780/?embed=1&view=simple&run=B4-1-8CAM');
+  assert.match(embedSrc(byId('a41'),c,'system','view'),/run=A4-1$/);
+  assert.match(embedSrc(byId('b41'),c,'system','view'),/run=B4-1$/);
+  for(const id of ['a48','b48']){assert.equal(trackingStatus(id).status,'NOT_PRODUCED');assert.equal(embedSrc(byId(id),c,'system','track'),null);}  // no fabricated tracking
+  assert.match(byId('a48').note,/UNCONFIRMED/);
 });

@@ -19,6 +19,8 @@ export const EVENT_CHOICES = Object.freeze([
   Object.freeze({ id: 'b05b', label: 'B-05' }),
   Object.freeze({ id: 'a41', label: 'A4-1' }),
   Object.freeze({ id: 'b41', label: 'B4-1' }),
+  Object.freeze({ id: 'a48', label: 'A4-1 · 8 鏡頭' }),
+  Object.freeze({ id: 'b48', label: 'B4-1 · 8 鏡頭' }),
 ]);
 
 export const DEFAULT_SETTINGS = Object.freeze({
