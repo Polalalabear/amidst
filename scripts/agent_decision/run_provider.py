@@ -215,6 +215,7 @@ def main(
 
         records = []
         for req in loaded_requests:
+            budget.begin_session()
             rec = ad.decide(
                 req,
                 mode='AGENT_LIVE',
@@ -251,6 +252,7 @@ def main(
     budget.begin_session()
     records = []
     for req in loaded_requests:
+        budget.begin_session()
         rec = ad.decide(
             req,
             mode='AGENT_REPLAY',
