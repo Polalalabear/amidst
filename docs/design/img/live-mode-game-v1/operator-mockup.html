@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>即時模式操作端 mockup v1</title>
+<!-- 設計稿用 mockup（LIVE_MODE_GAME_DESIGN_V1 §3.1），不是功能程式碼。3D 主畫面以 N6 CAM_W1 靜態圖代替越肩鏡頭。 -->
+<style>
+ :root{--hud:#0e1218cc;--line:#ffffff1f;--txt:#eef2f7;--dim:#9aa3b0;--amber:#f5a623;--cyan:#38bdf8;--green:#4ade80;--red:#e5484d}
+ html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#20242b;color:var(--txt);font:15px/1.45 -apple-system,"PingFang TC","Noto Sans TC",sans-serif}
+ #view{position:absolute;inset:0;overflow:hidden}
+ #view img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) brightness(.97)}
+ #view.noimg{background:linear-gradient(#cfd2d6,#9aa39e)}
+ #vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 55%,rgba(0,0,0,.42))}
+ #char{position:absolute;left:640px;top:470px}
+ .panel{position:absolute;background:var(--hud);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(6px);box-shadow:0 6px 24px #0006}
+ .k{display:inline-block;min-width:22px;padding:1px 7px;margin-right:6px;border:1px solid #ffffff55;border-bottom-width:3px;border-radius:6px;font:600 13px ui-monospace,Menlo,monospace;text-align:center;color:#fff;background:#ffffff14}
+ .lab{color:var(--dim);font-size:13px}
+ .note{position:absolute;font:600 12px ui-monospace,Menlo,monospace;color:#111;background:#ffe066;padding:2px 7px;border-radius:4px;box-shadow:0 2px 6px #0005}
+ .note:before{content:"";position:absolute}
+</style></head><body>
+<div id="view"><img onerror="imgFallback(this)"></div><div id="vig"></div>
+<div id="char"></div>
+
+<!-- 任務卡（左上） -->
+<div class="panel" style="left:28px;top:24px;width:430px;padding:16px 18px">
+  <div class="lab">任務 · B4 場景 · 你扮演 T</div>
+  <div style="font-size:20px;font-weight:700;margin:4px 0 8px">讓系統從畫面認出你，一路跟到 CAM_BRANCH</div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <div style="width:16px;height:16px;border-radius:4px;background:#c01818"></div>
+    <div>系統收到的句子：「<b>穿紅色上衣的人</b>」</div>
+  </div>
+  <div style="display:flex;gap:18px;margin-top:10px" class="lab">
+    <span>經過鏡頭 <b style="color:var(--txt)">2 / 4</b></span><span>被跟上 <b style="color:var(--txt)">78%</b> 的時間</span><span>00:21</span>
+  </div>
+</div>
+
+<!-- 系統反應延遲（上中） -->
+<div class="panel" style="left:760px;top:24px;width:400px;padding:10px 16px;display:flex;gap:18px;align-items:center;justify-content:center">
+  <div><div class="lab">系統看到畫面</div><div style="font:700 22px ui-monospace,Menlo,monospace;color:var(--green)">0.09 s</div></div>
+  <div style="width:1px;height:38px;background:var(--line)"></div>
+  <div><div class="lab">系統認出你</div><div style="font:700 22px ui-monospace,Menlo,monospace;color:var(--green)">0.38 s</div></div>
+  <div style="width:1px;height:38px;background:var(--line)"></div>
+  <div class="lab" style="line-height:1.3">目標<br><b style="color:var(--txt)">&lt; 0.5 s</b></div>
+</div>
+
+<!-- 小地圖（右上，面向朝上） -->
+<div class="panel" style="right:28px;top:24px;width:380px;padding:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:0 4px 6px">
+    <b>小地圖</b><span class="lab"><span class="k">M</span>北朝上 / 面向朝上 · <span class="k">Tab</span>全圖</span>
+  </div>
+  <div style="position:relative;width:360px;height:360px;border-radius:50%;overflow:hidden;background:#141820;border:2px solid #ffffff2a">
+    <canvas id="mm" width="360" height="360"></canvas>
+    <div style="position:absolute;left:0;right:0;top:4px;text-align:center;font:700 13px sans-serif;color:var(--amber)" id="north">N</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin:10px 4px 2px;font-size:13px">
+    <span><b style="color:var(--amber)">■</b> 系統作用中鏡頭</span><span><b style="color:var(--green)">■</b> 實際看得到你 *</span>
+    <span><b style="color:var(--cyan)">■</b> 系統同時推論的鄰居</span><span><b style="color:#fff">▲</b> 你和面向</span>
+    <span class="lab" style="grid-column:1/3">* 只在操作端顯示，不會傳給系統端</span>
+  </div>
+</div>
+
+<!-- 系統正在看你（右側） -->
+<div class="panel" style="right:28px;top:520px;width:380px;padding:12px 14px">
+  <div class="lab">系統目前用哪個鏡頭追你</div>
+  <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+    <span style="width:12px;height:12px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)"></span>
+    <b style="font-size:20px">CAM_W2</b><span class="lab">TRACKING · 信心 0.82</span>
+  </div>
+  <div class="lab" style="margin-top:6px">實際看得到你：W1、W2 · 系統推論中：W2、W1、BRANCH</div>
+</div>
+
+<!-- 切鏡通知（下中） -->
+<div class="panel" style="left:960px;top:900px;width:480px;padding:12px 18px;border-color:#f5a62399">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:22px">⇄</span>
+    <div><b>系統切鏡 CAM_W1 → CAM_W2</b><div class="lab">你離開 W1 後 0.38 s 系統跟上</div></div>
+  </div>
+</div>
+
+<!-- 操作提示與速度（左下） -->
+<div class="panel" style="left:28px;bottom:28px;width:430px;padding:14px 18px">
+  <div style="display:flex;justify-content:space-between;align-items:end;margin-bottom:10px">
+    <div><div class="lab">移動</div><div style="font-size:22px;font-weight:700">步行 <span style="font:700 22px ui-monospace,Menlo,monospace">1.2</span> <span class="lab">m/s</span></div></div>
+    <div style="display:flex;gap:6px;align-items:end">
+      <div style="width:10px;height:14px;background:#ffffff55;border-radius:2px"></div>
+      <div style="width:10px;height:26px;background:var(--txt);border-radius:2px"></div>
+      <div style="width:10px;height:38px;background:#ffffff33;border-radius:2px"></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:14px">
+    <span><span class="k">W</span><span class="k">A</span><span class="k">S</span><span class="k">D</span>移動</span>
+    <span><span class="k">Shift</span>按住跑步</span>
+    <span><span class="k">滑鼠</span>轉動鏡頭</span>
+    <span><span class="k">V</span>換肩</span>
+    <span><span class="k">Q</span><span class="k">E</span>鍵盤轉鏡頭</span>
+    <span><span class="k">Esc</span>放開滑鼠</span>
+  </div>
+</div>
+
+<!-- 設計標注 -->
+<div class="note" style="left:740px;top:440px">① 越肩：右肩 0.45 m、後 3.2 m、俯 10°，人物在畫面左 1/3</div>
+<div class="note" style="left:1060px;top:300px">⑥ 鏡頭以 N6 CAM_W1 靜態圖代替（mockup）</div>
+<div class="note" style="right:440px;top:30px">② 面向朝上小地圖 + 8 鏡頭視野扇形</div>
+<div class="note" style="left:760px;top:104px">③ 兩段延遲：畫面 / 偵測</div>
+<div class="note" style="left:960px;top:870px">④ 系統切鏡回饋（系統 → 操作端方向）</div>
+<div class="note" style="left:28px;bottom:250px">⑤ 速度三段：待機 / 步行 / 跑步</div>
+
+<script src="scene-data.js"></script>
+<script src="mockup-common.js"></script>
+<script>
+  document.querySelector('#view img').src = camImg('CAM_W1');
+  document.getElementById('char').innerHTML = personSVG('#c01818', 220, 506, 'back', 0.7);
+  const heading = 0; // facing +X (east) along the corridor, B4 t≈5.5 s on the v2.3 T route
+  drawMinimap(document.getElementById('mm'), {
+    center: [9.4, 1.25], ppm: 13, rotateDeg: heading - 90, wedgeLen: 8, labelSize: 12,
+    cams: { CAM_W2: 'active', CAM_W1: 'seen', CAM_BRANCH: 'neighbor' },
+    player: { x: 9.4, y: 1.25, headingDeg: heading },
+    trail: [[4, 1], [5.5, 1.07], [7, 1.15], [8, 1.2], [9.4, 1.25]], trailColor: 'rgba(255,255,255,.55)',
+  });
+  // north marker follows the heading-up rotation: north is to the left when facing east
+  const n = document.getElementById('north'); n.style.top = '170px'; n.style.left = '8px'; n.style.right = 'auto';
+</script>
+</body></html>
