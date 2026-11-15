@@ -177,7 +177,8 @@ def test_openai_valid_json_returns_agent_decision_and_tokens():
     sent = transport.calls[0]['body']
     assert sent['response_format']['type'] == 'json_schema'
     assert sent['response_format']['json_schema']['schema'] == SCHEMA['$defs']['response']
-    assert sent['max_output_tokens'] == 300
+    assert sent['max_completion_tokens'] == 300
+    assert 'max_output_tokens' not in sent
 
 
 def test_openai_adapter_wires_into_agent_decider_end_to_end():
@@ -715,3 +716,30 @@ def test_static_only_wp3_files_import_new_modules_and_default_off_unchanged():
     )
     assert base_out == with_off
     assert ap.RESPONSE_SCHEMA == SCHEMA['$defs']['response']
+
+
+# ------------------------------------------------------------------ review fixes (#526 review)
+
+def test_recorder_failure_does_not_escape_the_provider(tmp_path):
+    clock = FakeClock()
+    transport = ScriptedTransport((200, _openai_envelope(_select('C2')), 100.0), clock=clock)
+    budget = CallBudget(FORMAL, STAGE)
+
+    def broken_recorder(entry):
+        raise AgentDecisionError('FORBIDDEN_INFERENCE_INPUT', 'filesystem path in recording')
+
+    provider = OpenAIProvider(model='astra6', params=FORMAL, transport=transport,
+                              env={'OPENAI_API_KEY': FAKE_KEY}, budget=budget, recorder=broken_recorder,
+                              clock_ms=clock.now_ms, sleep_ms=clock.sleep_ms)
+    record = ad.decide(_dp1(), mode='AGENT_LIVE', params=FORMAL, budget=budget, model='astra6',
+                       call=provider, provider_kind='OPENAI', provider_meta=provider.provider_meta())
+    assert record['decision_source'] == 'AGENT' and record['final_answer'] == 'C2'
+    assert provider.record_errors == 1
+
+
+def test_run_provider_replay_resets_session_per_request(tmp_path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('run_provider_wp3', ROOT / 'scripts/agent_decision/run_provider.py')
+    src = Path(spec.origin).read_text(encoding='utf-8')
+    # every decide() call in the CLI is preceded by begin_session() (session cap is per decision, not per batch)
+    assert src.count('budget.begin_session()') >= src.count('ad.decide(') + 2

@@ -162,6 +162,20 @@ def _extract_tokens(data: Mapping) -> tuple[int | None, int | None]:
             c if type(c) is int and c >= 0 else None)
 
 
+def _try_record(provider, entry: dict) -> None:
+    """Write one recording row; a recording failure must never escape the provider.
+
+    The call has already been made (and paid for), so a rejected row (leak scan, path
+    pattern, disk error) is counted in ``provider.record_errors`` instead of raising
+    through decide().
+    """
+    try:
+        provider._recorder(entry)
+    except Exception as exc:  # noqa: BLE001
+        provider.record_errors = getattr(provider, 'record_errors', 0) + 1
+        logger.warning('agent_providers: recording row rejected: %s', type(exc).__name__)
+
+
 def _apply_rate_gate(
     budget: ad.CallBudget | None,
     clock_ms: Callable[[], float],
@@ -284,7 +298,6 @@ class OpenAIProvider:
                 {'role': 'system', 'content': SYSTEM_PROMPT},
                 {'role': 'user', 'content': canonical_req},
             ],
-            'max_output_tokens': int(max_output_tokens),
             'max_completion_tokens': int(max_output_tokens),
             'response_format': {
                 'type': 'json_schema',
@@ -336,7 +349,7 @@ class OpenAIProvider:
             outcome = _status_outcome(int(exc.code))
             logger.warning('openai_provider http error: status=%d outcome=%s', int(exc.code), outcome)
             return ad.Attempt(outcome, wall_ms)
-        except BaseException as exc:
+        except Exception as exc:
             wall_ms = max(0.0, float(self._clock_ms()) - start_ms)
             if _is_timeout_exception(exc):
                 if wall_ms <= 0.0:
@@ -373,7 +386,7 @@ class OpenAIProvider:
         parsed_response = _extract_openai_response_object(data)
         attempt = ad.Attempt(ad.CALL_OK, wall_ms, parsed_response, prompt_tokens, completion_tokens)
         if self._recorder is not None:
-            self._recorder({
+            _try_record(self, {
                 'request_sha256': ad.request_sha256(request),
                 'request': copy.deepcopy(dict(request)),
                 'response': copy.deepcopy(parsed_response),
@@ -500,7 +513,7 @@ class OllamaProvider:
                 body=b'',
                 timeout_s=max(0.1, timeout_ms / 1000.0),
             )
-        except BaseException:
+        except Exception:
             return self.model_digest
         status, raw_body, _ = _normalize_transport_output(raw_out)
         if status != 200:
@@ -533,7 +546,6 @@ class OllamaProvider:
             ],
             'stream': False,
             'format': copy.deepcopy(self._response_schema),
-            'max_output_tokens': int(max_output_tokens),
             'options': options,
         }
 
@@ -561,7 +573,7 @@ class OllamaProvider:
             wall_ms = max(0.0, float(self._clock_ms()) - start_ms)
             outcome = _status_outcome(int(exc.code))
             return ad.Attempt(outcome, wall_ms)
-        except BaseException as exc:
+        except Exception as exc:
             wall_ms = max(0.0, float(self._clock_ms()) - start_ms)
             if _is_timeout_exception(exc):
                 if wall_ms <= 0.0:
@@ -596,7 +608,7 @@ class OllamaProvider:
         parsed_response = _extract_ollama_response_object(data)
         attempt = ad.Attempt(ad.CALL_OK, wall_ms, parsed_response, prompt_tokens, completion_tokens)
         if self._recorder is not None:
-            self._recorder({
+            _try_record(self, {
                 'request_sha256': ad.request_sha256(request),
                 'request': copy.deepcopy(dict(request)),
                 'response': copy.deepcopy(parsed_response),
