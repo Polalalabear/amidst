@@ -6,7 +6,7 @@ import hashlib
 import importlib
 import json
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 _ad = importlib.import_module('amidst.q1q5.agent_decision')
 
@@ -304,7 +304,13 @@ def verify_pack(pack_dir: Path | str) -> tuple[bool, list[str]]:
     return verifier(Path(pack_dir))
 
 
-def build_pack(out_dir: Path | str, *, files: Mapping[str, Path | str]) -> dict[str, Any]:
+def build_pack(
+    out_dir: Path | str,
+    *,
+    files: Mapping[str, Path | str],
+    readme_renderer: Callable[[list[dict[str, str]]], str] | None = None,
+    return_readme: str | None = None,
+) -> dict[str, Any]:
     """Build a self-contained Windows/Colab pack with MANIFEST.json, README.md, RETURN/, and verify_pack.py."""
     out_path = Path(out_dir)
     if not files:
@@ -335,12 +341,12 @@ def build_pack(out_dir: Path | str, *, files: Mapping[str, Path | str]) -> dict[
         })
 
     (out_path / 'RETURN').mkdir(parents=True, exist_ok=True)
-    (out_path / 'RETURN' / 'README.txt').write_text(_RETURN_README, encoding='utf-8')
+    (out_path / 'RETURN' / 'README.txt').write_text(return_readme if return_readme is not None else _RETURN_README, encoding='utf-8')
 
     (out_path / 'tools').mkdir(parents=True, exist_ok=True)
     (out_path / 'tools' / 'verify_pack.py').write_text(_VERIFY_PACK_SCRIPT, encoding='utf-8')
 
-    readme_text = _render_readme(upload_list)
+    readme_text = (readme_renderer or _render_readme)(upload_list)
     (out_path / 'README.md').write_text(readme_text, encoding='utf-8')
 
     manifest: dict[str, Any] = {

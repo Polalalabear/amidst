@@ -33,7 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument('--out', required=True)
     p.add_argument('--models', help='comma separated model ids (default: all in the set, filtered by --arm)')
     p.add_argument('--skip-types', default='', help='comma separated task types to leave out (for example DP4 until #532 is wired)')
-    p.add_argument('--arm', choices=['mac', 'colab_l4'], help='which machine this process runs on (D175)')
+    p.add_argument('--arm', choices=['mac', 'colab_l4', 'windows'], help='which machine this process runs on (D175); windows runs the same local models as colab_l4 but its latency is never reported (no L4)')
     p.add_argument('--price-table', help='override the price table path')
     p.add_argument('--fake', action='store_true', help='run the whole flow with fake clients (no network, no key)')
     p.add_argument('--fake-timeout-every', type=int, default=None, help='fake backend: every Nth model call times out')
@@ -49,7 +49,8 @@ def _select(cfg, args) -> tuple[list[str], list[str]]:
     if unknown:
         raise wp5.Wp5Error('UNKNOWN_MODEL', ','.join(unknown))
     if args.arm:
-        models = [m for m in models if wp5.model_by_id(cfg, m)['runs_on'] == args.arm]
+        want = 'colab_l4' if args.arm == 'windows' else args.arm  # the Windows machine takes the local-model share
+        models = [m for m in models if wp5.model_by_id(cfg, m)['runs_on'] == want]
     skip = [t for t in args.skip_types.split(',') if t]
     types = [t for t in wp5.TASK_TYPES if t not in skip and cfg['sets'][args.set_name]['questions_per_type'].get(t)]
     return models, types

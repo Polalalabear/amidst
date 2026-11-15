@@ -193,7 +193,7 @@ def test_rule_does_not_touch_associate():
     # attention_api.py / attention_agent.py (N3) must import the shared contract module; nothing else may.
     own = {'attention_ranking.py', 'attention_api.py', 'attention_agent.py'}
     # WP5 evaluation harness (PR claude/feat-wp5): measures DP4 through the shared contract; it never touches associate().
-    own |= {'wp5.py', 'wp5_fake.py', 'wp5_runner.py'}
+    own |= {'wp5.py', 'wp5_fake.py', 'wp5_runner.py', 'wp5_pack.py'}  # wp5_pack.py only lists the file to ship
     for path in (ROOT / 'src/amidst').rglob('*.py'):
         if path.name not in own:
             assert 'attention_ranking' not in path.read_text(encoding='utf-8'), path
