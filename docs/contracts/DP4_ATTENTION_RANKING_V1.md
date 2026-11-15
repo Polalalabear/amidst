@@ -30,7 +30,7 @@
 | `elapsed_us` | 整數 ≥ 0，必須等於 `as_of_us - last_observation.time_us`（`ELAPSED_MISMATCH`） |
 | `last_observation` | `camera_id`（必須是圖的節點）、`time_us`、`bbox_xyxy_px`（`[x1,y1,x2,y2]`，偵測框），選填 `recent_boxes`（同一目標在該鏡頭、`time_us` 以前的偵測框，每筆只有 `time_us` 和 `bbox_xyxy_px`）、`direction_estimate`（`null` 或偵測框算出的影像速度摘要；Rule 自己用 `recent_boxes` 重算，不信這個欄位） |
 | `graph` | 完整的 `q-demo.camera-transition-graph.v1` 文件（r004 graph v3：節點 `cameras[].camera_id`、邊 `transitions[]`、出口區 `exit_zones[]`）。圖的狀態維持 `DRAFT`／`GRAPH_NOT_APPROVED`，不因此獲得物理權威 |
-| `camera_summaries` | 各鏡頭最近的偵測摘要陣列，每個鏡頭最多一筆：`camera_id`、`coverage_end_us`（偵測分析涵蓋到的時間，≤ `as_of_us`）、`person_detections_since_last_obs`（自目標最後觀測後的人物偵測數，整數）、選填 `last_person_detection_us`、`max_score`。**沒有人物 ID、座標、影像** |
+| `camera_summaries` | 各鏡頭最近的偵測摘要陣列，每個鏡頭最多一筆：`camera_id`、`coverage_end_us`（偵測分析涵蓋到的時間，≤ `as_of_us`）、`person_detections_since_last_obs`（自目標最後觀測後的人物偵測數，整數）、選填 `last_person_detection_us`（≤ `as_of_us`）、`max_score`。**沒有人物 ID、座標、影像** |
 
 ### 2.1 禁止的欄位
 
@@ -51,13 +51,13 @@
  "latency_ms": 12.3, "cost_usd": 0.0, "steps": 0, "fallback_reason": null}
 ```
 
-- `ranking`：非空，依 `score` 由高到低，每個鏡頭最多一筆，`camera_id` **只能是請求 `graph` 的節點**（否則 `ILLEGAL_CANDIDATE`），`score` ∈ [0,1]，`reason` 是封閉 enum：`STILL_IN_VIEW`、`EXIT_ALIGNED`、`EXIT_LAST_POSITION`、`DIRECTION_UNKNOWN`、`OVERDUE`、`NEGATIVE_EVIDENCE`、`NOT_ADJACENT`、`MODEL_RANKED`（API／Agent 用）。Rule 一律回傳**所有**節點；API／Agent 至少回前 3 名（節點少於 3 個則全部）。
+- `ranking`：非空，依 `score` 由高到低，每個鏡頭最多一筆，`camera_id` **只能是請求 `graph` 的節點**（否則 `ILLEGAL_CANDIDATE`），`score` ∈ [0,1]，`reason` 是封閉 enum：`STILL_IN_VIEW`、`EXIT_ALIGNED`、`EXIT_NOT_ALIGNED`（方向已知但該出口不順向）、`EXIT_LAST_POSITION`、`DIRECTION_UNKNOWN`、`OVERDUE`、`NEGATIVE_EVIDENCE`、`NOT_ADJACENT`、`MODEL_RANKED`（API／Agent 用）。Rule 一律回傳**所有**節點；API／Agent 至少回前 3 名（節點少於 3 個則全部）。
 - `method`：實際產生這份排序的方法。退回 Rule 時 `method=RULE`、`requested_method` 保留原本要求的方法、`fallback_reason` 非 `null`；`method` 不是 `RULE` 時 `fallback_reason` 必須是 `null`。
 - `latency_ms`：整次呼叫的牆鐘時間（Agent 為各步 `Attempt.wall_ms` 之和；退回 Rule 時再加上原本的呼叫時間）。
 - `cost_usd`：依價目表 `price_per_mtok=(輸入, 輸出)`（USD 每百萬 token，**由使用者提供、附日期和來源**）與 `Attempt.prompt_tokens`／`completion_tokens` 計算；沒有價目表或沒有 token 數就是 `null`（UNKNOWN，不估）。Rule 是 `0.0`。
 - `steps`：模型呼叫次數。Rule 為 0，API 為 1（退回時也是實際呼叫次數），Agent 為已用的步數。
 - `fallback_reason`：沿用 `agent_decision.FALLBACK_REASONS`，**不新增 enum 值**：逾時 `PROVIDER_TIMEOUT`、連不上 `PROVIDER_UNAVAILABLE`、找不到錄製 `REPLAY_MISS`、格式錯 `INVALID_RESPONSE`、id 不在圖裡 `ILLEGAL_CANDIDATE`、步數用完 `ROUND_LIMIT`、費用超過上限 `CALL_BUDGET_EXHAUSTED`。
-- 共用驗證：`attention_ranking.validate_response(response, request)`；三種方法的輸出都必須通過。
+- 共用驗證：`attention_ranking.validate_response(response, request)`；三種方法的輸出都必須通過。它也檢查：`latency_ms`／`cost_usd` 是有限數；`method` 與 `requested_method` 不同若且唯若 `method=RULE` 且 `fallback_reason` 非 `null`；Rule 回傳所有節點，API／Agent 至少前 3 名。
 
 ## 4. 方法細節
 
@@ -65,7 +65,7 @@
 
 `rank_attention(request, *, params)`，純函式、決定性（同請求同排序）。公式（參數是 PROPOSED，非核定參數組）：
 
-1. 盲區假設：`predict_next_cameras`（出口區排序、方向、每跳時間窗 1–8 s）。
+1. 盲區假設：`predict_next_cameras`（出口區排序、方向、每跳時間窗 1–8 s）。這是鏡頭圖層級的重用；`blind_hypothesis` 引擎（樓層地圖上的區域與路徑）需要地圖端點和幾何輸入，請求裡沒有，所以不用，也沒有另寫一套幾何。
 2. 分數：信心 `HIGH` 0.9、`MEDIUM` 0.6、`LOW` 0.3、`UNKNOWN` 0.2。
 3. 時間：`as_of` 早於時間窗起點 ×0.7；晚於時間窗終點 ×0.5 並標 `OVERDUE`。
 4. 負證據剪枝：鄰居鏡頭 `person_detections_since_last_obs == 0` 且空窗長度（`coverage_end_us - max(窗起點, 最後觀測時間)`）≥ 2 s 時，分數 ×0.2；涵蓋到時間窗終點則設為 0。標 `NEGATIVE_EVIDENCE`。

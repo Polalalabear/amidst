@@ -22,10 +22,10 @@ from amidst.q1q5 import physical_prediction as pp
 REQUEST_SCHEMA = 'q-demo.dp4-attention-request.v1'
 RESPONSE_SCHEMA = 'q-demo.dp4-attention-response.v1'
 METHODS = ('RULE', 'API', 'AGENT')
-REASONS = ('STILL_IN_VIEW', 'EXIT_ALIGNED', 'EXIT_LAST_POSITION', 'DIRECTION_UNKNOWN',
+REASONS = ('STILL_IN_VIEW', 'EXIT_ALIGNED', 'EXIT_NOT_ALIGNED', 'EXIT_LAST_POSITION', 'DIRECTION_UNKNOWN',
            'OVERDUE', 'NEGATIVE_EVIDENCE', 'NOT_ADJACENT', 'MODEL_RANKED')
 # Fallback reasons are exactly agent_decision.FALLBACK_REASONS (no new enum values; a gate compares
-# them). Copied, not imported: only agent_wiring may import agent_decision. Step limit -> ROUND_LIMIT,
+# them). Copied here to keep this module free of the agent stack; a gate compares the tuples. Step limit -> ROUND_LIMIT,
 # USD budget -> CALL_BUDGET_EXHAUSTED, timeout -> PROVIDER_TIMEOUT.
 FALLBACK_REASONS = ('ROUND_LIMIT', 'TIME_BUDGET', 'PROVIDER_UNAVAILABLE', 'PROVIDER_TIMEOUT',
                     'INVALID_RESPONSE', 'ILLEGAL_CANDIDATE', 'MODE_NOT_AUTHORIZED',
@@ -154,7 +154,8 @@ def validate_request(request) -> list[str]:
             raise AttentionInputError('FUTURE_INPUT')
         _int(item['person_detections_since_last_obs'], 'INVALID_SUMMARY')
         if item.get('last_person_detection_us') is not None:
-            _int(item['last_person_detection_us'], 'INVALID_TIME')
+            if _int(item['last_person_detection_us'], 'INVALID_TIME') > as_of:
+                raise AttentionInputError('FUTURE_INPUT')
         if item.get('max_score') is not None:
             _num(item['max_score'], 'INVALID_SUMMARY')
     return nodes
@@ -184,10 +185,11 @@ def validate_response(response, request) -> None:
     scores = [r['score'] for r in rows]
     if scores != sorted(scores, reverse=True):
         raise AttentionInputError('INVALID_RESPONSE', 'not sorted by score')
-    if type(response['latency_ms']) not in (int, float) or response['latency_ms'] < 0:
+    if type(response['latency_ms']) not in (int, float) or not math.isfinite(response['latency_ms']) \
+            or response['latency_ms'] < 0:
         raise AttentionInputError('INVALID_RESPONSE', 'latency_ms')
     cost = response['cost_usd']
-    if cost is not None and (type(cost) not in (int, float) or cost < 0):
+    if cost is not None and (type(cost) not in (int, float) or not math.isfinite(cost) or cost < 0):
         raise AttentionInputError('INVALID_RESPONSE', 'cost_usd')
     if type(response['steps']) is not int or response['steps'] < 0:
         raise AttentionInputError('INVALID_RESPONSE', 'steps')
@@ -195,6 +197,16 @@ def validate_response(response, request) -> None:
         raise AttentionInputError('INVALID_RESPONSE', 'fallback_reason')
     if response['method'] != 'RULE' and response['fallback_reason'] is not None:
         raise AttentionInputError('INVALID_RESPONSE', 'fallback must report method RULE')
+    # Contract section 3: a fallback is exactly "method differs from requested_method, and says why".
+    fell_back = response['method'] != response['requested_method']
+    if fell_back and (response['method'] != 'RULE' or response['fallback_reason'] is None):
+        raise AttentionInputError('INVALID_RESPONSE', 'method differs from requested_method without a fallback')
+    if not fell_back and response['fallback_reason'] is not None:
+        raise AttentionInputError('INVALID_RESPONSE', 'fallback_reason set but method is the requested one')
+    # Rule ranks every node; API/Agent return at least the top 3 (all nodes if fewer than 3).
+    needed = len(nodes) if response['method'] == 'RULE' else min(3, len(nodes))
+    if len(rows) < needed:
+        raise AttentionInputError('INVALID_RESPONSE', f'ranking has {len(rows)} rows, needs {needed}')
 
 
 def request_sha256(request: Mapping) -> str:
@@ -226,8 +238,10 @@ def rank_attention(request: Mapping, *, params: AttentionParams = DEFAULT_PARAMS
             reason = 'EXIT_ALIGNED'
         elif cand['exit_match'] == 'LAST_POSITION_INSIDE':
             reason = 'EXIT_LAST_POSITION'
-        else:
-            reason = 'DIRECTION_UNKNOWN' if doc['direction']['status'] == 'UNKNOWN' else 'EXIT_ALIGNED'
+        elif doc['direction']['status'] == 'UNKNOWN':
+            reason = 'DIRECTION_UNKNOWN'
+        else:  # direction known but this exit (or no exit zone) does not match it
+            reason = 'EXIT_NOT_ALIGNED'
         if as_of < start:
             score *= params.before_window_factor
         elif as_of > end:

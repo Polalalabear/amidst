@@ -229,6 +229,42 @@ def test_response_validator_rejects_bad_documents():
     broken(lambda d: d.update(fallback_reason='NOPE'))
 
 
+def test_response_validator_enforces_contract_section_3_consistency():
+    request = make_request('right')
+    good = ar.rank_attention(request)
+
+    def rejected(**changes):
+        with pytest.raises(ar.AttentionInputError):
+            ar.validate_response(dict(copy.deepcopy(good), **changes), request)
+
+    rejected(latency_ms=float('nan'))
+    rejected(latency_ms=float('inf'))
+    rejected(cost_usd=float('nan'))
+    rejected(requested_method='API')                       # silent fallback (no reason)
+    rejected(requested_method='API', method='AGENT')       # only RULE may stand in
+    rejected(fallback_reason='ROUND_LIMIT')                # reason without a fallback
+    rejected(ranking=good['ranking'][:2])                  # Rule must rank every node
+    ar.validate_response(dict(good, requested_method='API', fallback_reason='PROVIDER_TIMEOUT'), request)
+    api = dict(good, method='API', requested_method='API', ranking=good['ranking'][:3])
+    ar.validate_response(api, request)
+    with pytest.raises(ar.AttentionInputError):            # API/Agent: at least the top 3
+        ar.validate_response(dict(api, ranking=good['ranking'][:2]), request)
+
+
+def test_rule_rejects_future_last_person_detection():
+    summary = {'camera_id': 'CAM_C', 'coverage_end_us': SEEN, 'person_detections_since_last_obs': 1,
+               'last_person_detection_us': SEEN + 2_000_001}
+    with pytest.raises(ar.AttentionInputError) as err:
+        ar.rank_attention(make_request('right', elapsed_us=2_000_000, summaries=[summary]))
+    assert err.value.code == 'FUTURE_INPUT'
+
+
+def test_rule_labels_non_aligned_exit_honestly():
+    resp = ar.rank_attention(make_request('right'))
+    reasons = {r['camera_id']: r['reason'] for r in resp['ranking']}
+    assert reasons['CAM_C'] == 'EXIT_ALIGNED' and reasons['CAM_A'] == 'EXIT_NOT_ALIGNED'
+
+
 def test_metrics_hit_lead_and_false_switch():
     def resp(top, second):
         return {'ranking': [{'camera_id': top}, {'camera_id': second}, {'camera_id': 'CAM_D'}]}
@@ -484,7 +520,7 @@ def test_selftest_fake_client_and_helpers_discriminate():
     assert len(client.seen) == 3
     doc = ar.rank_attention(request)
     doc['method'] = 'API'
-    with pytest.raises(AssertionError):
+    with pytest.raises((AssertionError, ar.AttentionInputError)):
         assert_rule_fallback(doc, request, 'PROVIDER_TIMEOUT', 'API')
     bad = dict(request, operator_position=[1, 2])
     with pytest.raises(ar.AttentionInputError):
