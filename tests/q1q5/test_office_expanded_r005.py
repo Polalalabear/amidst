@@ -18,6 +18,10 @@ b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 sys.path.insert(0,str(ROOT/'scripts'))
 import office_expanded_static_graphs as g
 GRAPH=ROOT/'configs/q1q5/graphs/office_expanded_r005'
+# The receipts record the producer bytes that built the committed outputs (git blob at d3f032d8). #486 only moved
+# the default OUTPUT path to amidst.paths (AMIDST_ARTIFACTS), so the receipts stay as built and the pins live here.
+BUILDER_SHA_AT_BUILD='bde6d537fd51bbba790e8005bed9171c89ca887b155700f6252175c83a19fa6b'
+PRODUCER_SHA_AT_BUILD='2d357bdfab4758499fd4405dca1438f9c5faf0f50204ea7dd000f190a0923cc3'
 
 
 def chunk(tag,raw):
@@ -96,7 +100,7 @@ def compile_values(values):
 
 def test_source_bound_curated_static_inputs_and_four_room_coverage():
     d=source_documents();pins=d['source_pins.json']
-    assert d['build_receipt.json']['builder_sha256']==b.sha(Path(b.__file__).read_bytes())
+    assert d['build_receipt.json']['builder_sha256']==BUILDER_SHA_AT_BUILD
     for name,pin in pins['files'].items():assert b.sha((GRAPH/name).read_bytes())==pin
     region,camera=compile_values(d)
     assert region==g.parse((GRAPH/'region_graph.json').read_bytes())
@@ -150,7 +154,7 @@ def test_v2_selected_graphs_keep_v1_and_camera_geometry():
     assert b.sha((GRAPH/'source_pins.json').read_bytes())=='fe4f08a96972a190b8375dcdd0974f65e2b95e1f1a7e7ad13bdb809275b73470'
     for name,pin in v2['source_pins.json']['files'].items():assert b.sha((directory/name).read_bytes())==pin
     producer=ROOT/'scripts/revise_office_static_preview.py'
-    assert v2['build_receipt.json']['builder_sha256']==b.sha(producer.read_bytes())
+    assert v2['build_receipt.json']['builder_sha256']==PRODUCER_SHA_AT_BUILD
     r,c=compile_values(v2)
     assert r==g.parse((directory/'region_graph.json').read_bytes())
     assert c==g.parse((directory/'camera_graph.json').read_bytes())

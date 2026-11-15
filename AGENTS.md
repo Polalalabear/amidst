@@ -14,7 +14,7 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - Follow [docs/DEVELOPMENT_RULES.md](docs/DEVELOPMENT_RULES.md); it is the source of truth for architecture, source assets, GT isolation, camera conventions, uncertainty, and research boundaries. Do not duplicate or weaken those rules here.
 - Preserve source/run/clock/hash provenance. Ground Truth, renderer trajectories, visibility, and depth stay out of inference, ranking, and reconstruction. Keep source observations, projections, inferences, `MISSING`, and `UNKNOWN` distinct; identity remains unconfirmed and physical navigation/collision remains unknown unless authorized evidence says otherwise.
 - Do not delete, overwrite, render, copy, or otherwise modify original Blender, video, dataset, calibration, or Ground Truth assets without explicit authorization. Do not inspect large media unless a scoped task needs it.
-- Use `frontend/workbench/` as the primary UI. Task ownership follows [§4 of the baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md#4-工作分配) and the [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; file `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`, on mainline once #252 merges). One owner per file set; hand off through data contracts. Interface contracts are drafted by Claude Code and confirmed by Codex before parallel work starts.
+- Use `frontend/workbench/` as the primary UI. Task ownership follows [§4 of the baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md#4-工作分配) and the [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`). One owner per file set; hand off through data contracts. Interface contracts are drafted by Claude Code and confirmed by Codex before parallel work starts.
 - Work on one concrete task per session. Do not recursively explore unrelated modules or the whole repository without explicit approval. Start from the named handoff and task paths; mark unresolved paths/dependencies `UNKNOWN` for the bounded audit.
 - Do not create worktrees. Preserve existing checkout, branch, uncommitted changes, and frozen inputs. Never reset, rebase, force-push, or merge without explicit authorization. Stage only task files; use a narrow commit and PR workflow on the assigned branch.
 - Make changes reproducible and source-bound. For code tasks, run only the focused tests named in the task and `git diff --check`; do not run full suites, Blender renders, inference, or research experiments unless the task explicitly requires and authorizes them.
@@ -23,9 +23,9 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 ## Source-of-truth documents
 
 - [Development rules](docs/DEVELOPMENT_RULES.md)
-- [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) — the current version is on `codex/q1q5-staging` (contract B, [#237](https://github.com/Polalalabear/amidst/pull/237), SHA `b700bf86…`); the mainline copy is not edited by hand
+- [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) — contract B ([#237](https://github.com/Polalalabear/amidst/pull/237), SHA `b700bf86…`, pinned in `configs/architecture/authority_pins_v1.json`); not edited by hand
 - [Baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) (Line 1)
-- [Two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md` once #252 merges)
+- [Two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`)
 - [D79 decision-window document](docs/evaluation/Q5_DECISION_WINDOW_D79.md)
 - [A4/B4 scenario cards v1](https://github.com/Polalalabear/amidst/pull/253) (D89; `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md` once #253 merges)
 - [Progress guide](docs/operations/Q1Q5_PROGRESS.md)
@@ -36,9 +36,15 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 
 ## Git workflow
 
-The integration branch is `mainline/q1q5` (D63, 2026-10-20). The old integration branch `claude/office-demo-visualization` is frozen at `f481fe0` (tag `archive/office-demo-visualization`); the paused 2D→3D line is archived on `archive/3d-line`; other superseded branches keep `archive/<branch>` tags. Work on feature branches with prefix `codex/*`, `claude/*` or `team/<name>/<task>` (team members) and merge into `mainline/q1q5` through PRs with **merge commits only** — no squash or rebase, because documents cite commit SHAs. Review each other's PRs. Check branch and status before work, keep commits scoped to the assigned task, and publish only when the user has authorized push/PR. Update `main` only after the first Demo passes and the user explicitly authorizes it, and never change another agent's checkout or worktree.
+The integration branch is `main` (D200; the GitHub default since D214). `mainline/q1q5` is frozen at `8c741451` and is history only; the old `claude/office-demo-visualization` is frozen at `f481fe0` (tag `archive/office-demo-visualization`), the paused 2D→3D line is on `archive/3d-line`, and other superseded branches keep `archive/<branch>` tags. Every PR has base `main`, needs the CI check `checks` green, and merges with a **merge commit only** (no squash, rebase or force-push; documents cite commit SHAs). Merging needs the user's explicit approval in chat. Review each other's PRs, keep commits scoped to the task, and publish only when the user has authorized push/PR. Never change another agent's checkout.
 
-Q1–Q5 work is self-selected from the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93): take only `ready` issues with your own `owner:*` label, claim by comment and `in-progress`, one task at a time, open a Draft PR (base `mainline/q1q5`) with the actual-output record, and stop at `needs-auth` or checkpoints. Claude maintains the `ready`/`blocked`/`needs-auth` labels.
+**Branches (D216):** one feature line, one branch, one PR, named `claude/feat-<line>` (Codex: `codex/feat-<line>`; team: `team/<name>/<task>`). Follow-up work for that feature commits to the same branch; only one writing session per branch at a time.
+
+**Folder (D171, D218):** the only local checkout is `~/amidst` (branch `main`), shared by Claude and Codex as the project folder. It runs the demo on 8785 with `local/demo-pin.json` locked to a commit, so never edit, switch branches or commit there, and never run `git clean`, `git checkout .` or `git reset` in it. All writing happens in a scratchpad clone: `git clone --shared --no-checkout ~/amidst <scratchpad>/clone`, set `origin` to the GitHub remote, branch from `origin/main`, and delete the clone when done. At most three writing sessions at once, with non-overlapping files; check `df` first.
+
+**LOCAL artifacts:** non-git items live under the git-ignored `~/amidst/local/{data,evidence,archive}` (code finds them through `amidst.paths`; `AMIDST_ARTIFACTS` overrides the evidence root). Never use `/tmp`, absolute home paths or the old `~/amidst-artifacts` <!-- local-ref-ignore -->. Documents cite a LOCAL artifact by its path relative to `local/…` or `$AMIDST_ARTIFACTS`, with its SHA-256 (or "cannot be rebuilt" / "not applicable"); `scripts/check_local_artifact_refs.py` reports violations in CI (warning only for now).
+
+Q1–Q5 work is self-selected from the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93): take only `ready` issues with your own `owner:*` label, claim by comment and `in-progress`, one task at a time, open a Draft PR (base `main`) with the actual-output record, and stop at `needs-auth` or checkpoints. Claude maintains the `ready`/`blocked`/`needs-auth` labels.
 
 ### Progress guide
 
@@ -47,11 +53,10 @@ Q1–Q5 work is self-selected from the pinned task board [#93](https://github.co
 - **Opening a PR:** the coordinator adds its row and moves the rows of the issues it advances in a batch (D91-4), updates the overview counts and the snapshot date, and keeps numbering without gaps.
 - **Opening an issue:** the coordinator adds its row in the same batch (D91-4). Task authors do not add rows in their own PRs.
 - **Merging or closing:** the coordinator moves the row to 已完成 in a batch (note the merge branch, or "關閉未合併" / "已完成" / "關閉（不處理）"). Task authors do not update the guide in their next PR.
-- **PRs based on `codex/q1q5-staging`:** the coordinator adds their rows in a batch on `mainline/q1q5` (D91-4), never on staging. When staging merges into `mainline/q1q5`, the coordinator resolves guide conflicts in a follow-up batch, keeping every row once and recounting the overview; the merge PR itself does not edit the guide.
 
 ### Handoff documents go on GitHub
 
-Codex and Claude must both follow this rule (user, 2026-10-25). The trigger was that Codex's handoff and reproduction documents (`DEMO_V1_HANDOFF.md`, `HANDOFF_REQUIREMENTS.json`, `CURRENT.md`, `BASELINE_READINESS.md`, `DELIVERY_COMPOSITION.json`) existed only in `~/amidst-artifacts` and on no GitHub branch.
+Codex and Claude must both follow this rule (user, 2026-10-25). The trigger was that Codex's handoff and reproduction documents (`DEMO_V1_HANDOFF.md`, `HANDOFF_REQUIREMENTS.json`, `CURRENT.md`, `BASELINE_READINESS.md`, `DELIVERY_COMPOSITION.json`) existed only in `~/amidst-artifacts` (since replaced by `local/evidence`) and on no GitHub branch. <!-- local-ref-ignore -->
 
 - **Commit every handoff document.** This covers any document written for another agent, the user or the team member:
   - handoff, reproduction or delivery notes;
@@ -59,9 +64,9 @@ Codex and Claude must both follow this rule (user, 2026-10-25). The trigger was 
   - readiness lists;
   - source compositions.
 
-  Commit it in the same PR as the work it describes, under `docs/operations/` or `docs/engineering/`. A copy only in `~/amidst-artifacts`, `/private/tmp` or chat does not count.
+  Commit it in the same PR as the work it describes, under `docs/operations/` or `docs/engineering/`. A copy only in `local/`, `/private/tmp` or chat does not count. <!-- local-ref-ignore -->
 - **Keep raw artifacts LOCAL** ([DEVELOPMENT_RULES](docs/DEVELOPMENT_RULES.md)): RGB, recordings, weights, databases and human returns. The committed document lists each LOCAL artifact:
-  - path relative to `$AMIDST_ARTIFACTS`, with no absolute home paths;
+  - path relative to `local/{data,evidence,archive}` or `$AMIDST_ARTIFACTS`, with no absolute home paths;
   - size and file count;
   - SHA-256 (or the MANIFEST SHA-256);
   - whether and how it can be regenerated.
