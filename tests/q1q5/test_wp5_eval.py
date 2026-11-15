@@ -149,9 +149,9 @@ def test_guard_hook_blocks_before_the_call_and_rule_bypasses_it():
 def test_live_gates_refuse(tmp_path, capsys):
     base = ['--set', 'pilot', '--live', '--out', str(tmp_path / 'o')]
     assert runner.main(base) == 2 and 'LIVE_NEEDS_APPROVAL' in capsys.readouterr().err
-    unpinned = tmp_path / 'unpinned.json'   # the committed table is PINNED since D237; an unpinned one must still be refused
-    unpinned.write_text(json.dumps(dict(wp5.load_json('configs/agent_eval/wp5_price_table_v1.json'), status='UNPINNED_PLACEHOLDER')), encoding='utf-8')
-    assert runner.main(base + ['--approved-usd', '10', '--price-table', str(unpinned)]) == 2 and 'LIVE_NEEDS_PINNED_PRICES' in capsys.readouterr().err
+    unpinned = tmp_path / 'unpinned.json'  # the committed table is PINNED since D237, so use an explicit placeholder
+    unpinned.write_text(json.dumps(dict(TABLE, status='UNPINNED_PLACEHOLDER')), encoding='utf-8')
+    assert runner.main(base + ['--price-table', str(unpinned), '--approved-usd', '10']) == 2 and 'LIVE_NEEDS_PINNED_PRICES' in capsys.readouterr().err
     pin = ['--price-table', str(_pinned(tmp_path)), '--approved-usd', '10']
     assert runner.main(base + pin) == 2 and 'LIVE_NEEDS_ARM' in capsys.readouterr().err
     assert runner.main(base + pin + ['--arm', 'mac']) == 2 and 'LIVE_NEEDS_QUESTIONS' in capsys.readouterr().err
@@ -171,12 +171,12 @@ def test_live_with_injected_clients_obeys_the_cap(tmp_path):
     q = tmp_path / 'q.jsonl'
     q.write_text(''.join(json.dumps(r) + '\n' for r in fake.synthetic_rows(4)), encoding='utf-8')
     out = tmp_path / 'live'
-    rc = runner.main(['--set', 'pilot', '--live', '--arm', 'mac', '--questions', str(q), '--approved-usd', '1.5',
-                      '--price-table', str(_pinned(tmp_path)), '--models', 'terra6.1,rule', '--out', str(out)], context=ctx)  # D237: astra's pinned price exceeds the 1.5 USD preflight
+    rc = runner.main(['--set', 'pilot', '--live', '--arm', 'mac', '--questions', str(q), '--approved-usd', '5',
+                      '--price-table', str(_pinned(tmp_path)), '--models', 'astra6,rule', '--out', str(out)], context=ctx)
     assert rc == 0
     m = json.loads((out / 'MANIFEST.json').read_text())
-    assert m['mode'] == 'LIVE' and m['guard_spent_usd'] <= 1.5 and m['guard'].startswith('LOCAL_CAP_GUARD')
-    assert 'approved USD 1.5' in m['approval_ref']
+    assert m['mode'] == 'LIVE' and m['guard_spent_usd'] <= 5 and m['guard'].startswith('LOCAL_CAP_GUARD')
+    assert 'approved USD 5.0' in m['approval_ref']
 
 
 def test_decision_side_never_imports_scoring_or_reads_env():
