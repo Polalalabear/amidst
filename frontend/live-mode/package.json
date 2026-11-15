@@ -1,0 +1,9 @@
+{
+  "name": "amidst-live-mode-spike",
+  "private": true,
+  "type": "module",
+  "description": "Live mode spike (D210): operator + system windows, three.js virtual cameras",
+  "scripts": {"test": "node --test test/*.test.mjs"},
+  "dependencies": {"three": "0.186.1"},
+  "devDependencies": {"puppeteer-core": "24.2.0"}
+}

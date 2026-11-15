@@ -1,0 +1,105 @@
+"""Simplified system-side tracking and camera switching for the spike.
+
+This is NOT associate()/Q4/Q5 (their inputs are offline detection indexes); it is a minimal
+stand-in so end-to-end latency can be measured: red person seeded when exactly one red person is
+visible; follow by ground-plane continuity; switch when the active camera lost the target for
+`hold_ticks` and another camera sees it (the Q5 decision-window analogue). Inputs are pixels-derived
+detections only.
+"""
+from __future__ import annotations
+
+import math
+
+import numpy as np
+
+
+class Projector:
+    """Pixel foot point -> ground (z=0) world XY using catalog calibration (inference-side only)."""
+
+    def __init__(self, cameras: list[dict]):
+        self.cams = {}
+        for c in cameras:
+            M = np.array(c["camera_to_world"], dtype=float)
+            self.cams[c["camera_id"]] = (M, c["fx"], c["fy"], c["cx"], c["cy"], c["width"], c["height"])
+
+    def ground(self, cam: str, u: float, v: float, img_w: int, img_h: int):
+        M, fx, fy, cx, cy, W, H = self.cams[cam]
+        u, v = u * W / img_w, v * H / img_h
+        d_cam = np.array([(u - cx) / fx, -(v - cy) / fy, -1.0])  # Blender cam: -Z fwd, +Y up
+        d = M[:3, :3] @ d_cam
+        o = M[:3, 3]
+        if d[2] >= -1e-6:
+            return None
+        t = -o[2] / d[2]
+        if t <= 0 or t > 80:
+            return None
+        p = o + t * d
+        return [float(p[0]), float(p[1])]
+
+
+class Tracker:
+    def __init__(self, projector: Projector, hold_ticks: int = 2, gate_m: float = 3.0, lost_after: int = 15):
+        self.proj, self.hold, self.gate, self.lost_after = projector, hold_ticks, gate_m, lost_after
+        self.state = "SEARCHING"
+        self.est = None
+        self.active = None
+        self.last_seen = {}      # cam -> tick last seen target
+        self.lost = 0
+        self.events: list[dict] = []
+
+    def _emit(self, tick, typ, cam=None, detail=None):
+        self.events.append({"tick": tick, "type": typ, "cam": cam, "detail": detail})
+
+    def update(self, tick: int, dets: dict, img_size: tuple[int, int]) -> dict:
+        self.events = []
+        W, H = img_size
+        cands = []  # (cam, det, xy)
+        for cam, lst in dets.items():
+            for d in lst:
+                if d["color"] != "red":
+                    continue
+                x0, y0, x1, y1 = d["bbox"]
+                xy = self.proj.ground(cam, (x0 + x1) / 2, y1, W, H)
+                d["est_xy"] = xy
+                if xy is not None:
+                    cands.append((cam, d, xy))
+        seen = {}
+        if self.state == "SEARCHING":
+            # seed only when every red person sits at one place (several cameras may see the same one)
+            same = bool(cands) and all(math.dist(c[2], cands[0][2]) < 1.5 for c in cands)
+            if same:
+                best = max(cands, key=lambda c: c[1]["score"])
+                self.est, self.state, self.active = best[2], "TRACKING", best[0]
+                seen[best[0]] = best
+                self._emit(tick, "ACQUIRE", best[0])
+        else:
+            near = [c for c in cands if math.dist(c[2], self.est) <= self.gate]
+            if near:
+                tgt = min(near, key=lambda c: math.dist(c[2], self.est))
+                self.est = tgt[2]
+                for c in near:
+                    if math.dist(c[2], tgt[2]) < 1.5:
+                        seen[c[0]] = c
+                self.lost = 0
+                if self.state == "LOST":
+                    self.state = "TRACKING"
+                    self._emit(tick, "REACQUIRE", tgt[0])
+                    self.active = tgt[0]
+            else:
+                self.lost += 1
+                if self.lost == 1:
+                    self._emit(tick, "TARGET_OUT_OF_VIEW", self.active)
+                if self.lost >= self.lost_after and self.state != "LOST":
+                    self.state = "LOST"
+                    self._emit(tick, "LOST", self.active)
+        for cam in seen:
+            self.last_seen[cam] = tick
+        if self.state == "TRACKING" and self.active is not None:
+            gap = tick - self.last_seen.get(self.active, -10**9)
+            if gap >= self.hold and seen:
+                new = max(seen.values(), key=lambda c: c[1]["bbox"][3] - c[1]["bbox"][1])[0]
+                if new != self.active:
+                    self._emit(tick, "SWITCH", new, {"from": self.active, "gap_ticks": gap})
+                    self.active = new
+        return {"state": self.state, "active_cam": self.active, "seen_cams": sorted(seen),
+                "est_xy": self.est, "events": list(self.events), "lost_ticks": self.lost}
