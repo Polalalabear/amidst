@@ -7,6 +7,8 @@ export const COLORS = {
   red: 0xc01818, orange: 0xd9420e, blue: 0x2547c8, trousers: 0x23262e, skin: 0xd9b08c,
 };
 
+// opts.sceneGltf: baked N6 scene.glb (#539). It is already Y-up metres, so it is added to the scene, not the
+// Z-up root; the catalog walls stay as invisible blockers for the evaluation-only visibility ray test.
 export function buildWorld(geometry, opts = {}) {
   const root = new THREE.Group();
   root.rotation.x = -Math.PI / 2; // Blender (x,y,z) -> three (x,z,-y)
@@ -18,12 +20,14 @@ export function buildWorld(geometry, opts = {}) {
   sun.position.set(6, 12, 4);
   scene.add(sun);
 
+  if (opts.sceneGltf) scene.add(opts.sceneGltf.scene);
   // floors
   const floorMat = new THREE.MeshLambertMaterial({ color: 0x8d949c });
   for (const f of geometry.floors) {
     const w = f.x_m[1] - f.x_m[0], d = f.y_m[1] - f.y_m[0];
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), floorMat);
     m.position.set((f.x_m[0] + f.x_m[1]) / 2, (f.y_m[0] + f.y_m[1]) / 2, f.top_z_m);
+    m.visible = !opts.sceneGltf;
     root.add(m);
   }
   // walls: every clearance segment becomes a thin full-height slab (vehicle lower)
@@ -41,10 +45,11 @@ export function buildWorld(geometry, opts = {}) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, h), mat);
     m.position.set((ax + bx) / 2, (ay + by) / 2, h / 2);
     m.rotation.z = Math.atan2(by - ay, bx - ax);
+    m.visible = !opts.sceneGltf;
     root.add(m);
     blockers.push(m);
   }
-  return { scene, root, blockers, segments: geometry.clearance_segments, wallMats };
+  return { scene, root, blockers, baked: !!opts.sceneGltf, segments: geometry.clearance_segments, wallMats };
 }
 
 // catalog camera -> three PerspectiveCamera at a chosen render size (principal point is centred in

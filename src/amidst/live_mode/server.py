@@ -31,6 +31,18 @@ GEOMETRY = REPO / "docs" / "evaluation" / "R004_SCENE_GEOMETRY_2D_V1.json"
 SCENARIO = REPO / "docs" / "evaluation" / "R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json"
 
 
+N6_FILES = {"/data/character.glb": "character.glb", "/data/scene.glb": "scene.glb",
+            "/data/cameras.three.json": "cameras.three.json"}
+
+
+def assets_dir(arg: str | None) -> Path | None:
+    """N6 LOCAL assets (#539): --assets, else $AMIDST_LIVE_ASSETS, else $AMIDST_ARTIFACTS/data/live-assets-20261115."""
+    if arg or os.environ.get("AMIDST_LIVE_ASSETS"):
+        return Path(arg or os.environ["AMIDST_LIVE_ASSETS"])
+    art = os.environ.get("AMIDST_ARTIFACTS")
+    return Path(art) / "data" / "live-assets-20261115" if art else None
+
+
 class State:
     def __init__(self, args):
         self.lock = threading.Lock()
@@ -39,7 +51,8 @@ class State:
         self.tracker = Tracker(self.projector)
         self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads)
         self.args = args
-        self.glb = os.environ.get("AMIDST_LIVE_CHARACTER_GLB")
+        self.assets = assets_dir(args.assets)
+        self.n6 = bool(self.assets and all((self.assets / f).is_file() for f in N6_FILES.values()))
 
     def infer(self, header: dict, jpegs: dict, track: bool) -> dict:
         t0 = time.perf_counter()
@@ -101,11 +114,11 @@ def make_handler(state: State):
                 return self._file(GEOMETRY)
             if p == "/data/scenario.json":
                 return self._file(SCENARIO)
-            if p == "/data/character.glb" and state.glb:
-                return self._file(Path(state.glb))
+            if p in N6_FILES and state.n6:
+                return self._file(state.assets / N6_FILES[p])
             if p == "/config":
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
-                                                   "glb": bool(state.glb)}).encode())
+                                                   "glb": state.n6, "n6": state.n6}).encode())
             self._send(404, b"not found", "text/plain")
 
         def do_POST(self):
@@ -136,13 +149,14 @@ def main():
     ap.add_argument("--device", default="cpu", choices=["cpu", "mps"])
     ap.add_argument("--min-score", type=float, default=0.35)
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--assets", default=None, help="N6 asset dir (character.glb, scene.glb, cameras.three.json)")
     ap.add_argument("--models", default=str(REPO / "local/data/demo-owned-v1/models/rtdetr"))
     args = ap.parse_args()
     if args.port == 8785:
         raise SystemExit("8785 is the pinned demo port; refusing")
     state = State(args)
     srv = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(state))
-    print(f"live-mode server on http://127.0.0.1:{args.port} device={args.device}", flush=True)
+    print(f"live-mode server on http://127.0.0.1:{args.port} device={args.device} n6={state.n6}", flush=True)
     srv.serve_forever()
 
 
