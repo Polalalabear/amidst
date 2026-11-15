@@ -38,7 +38,7 @@ class NlSchemaError(ValueError):
 
 
 class NlClientError(RuntimeError):
-    """code: NOT_CONFIGURED | TIMEOUT | UNAVAILABLE | SCHEMA_REJECTED"""
+    """code: NOT_CONFIGURED | TIMEOUT | UNAVAILABLE | SCHEMA_REJECTED | a guard denial (api_budget.REASONS, e.g. API_DISABLED)"""
 
     def __init__(self, code: str):
         super().__init__(code)
@@ -297,13 +297,18 @@ def pinned_prices(params: Mapping | None) -> dict:
     return dict(table['models']) if isinstance(table, Mapping) and isinstance(table.get('models'), Mapping) else {}
 
 
-def clients_from_environment(env: Mapping | None = None) -> dict:
-    """Server-side wiring from environment. A layer without configuration is simply absent (-> NOT_CONFIGURED). The key is never read here."""
+def clients_from_environment(env: Mapping | None = None, guard=None) -> dict:
+    """Server-side wiring from environment. A layer without configuration is simply absent (-> NOT_CONFIGURED). The key is never read here.
+    The paid layer always goes through the shared spend guard (api_budget): server switch off (default) -> API_DISABLED."""
+    from amidst.q1q5 import api_budget as ab
     env = os.environ if env is None else env
+    guard = guard if guard is not None else ab.shared_guard(env)
     out = {}
-    if env.get('OPENAI_API_KEY', '').strip():
+    if not guard.config.enabled:
+        out['API'] = ab.DisabledApiClient()
+    elif env.get('OPENAI_API_KEY', '').strip():
         try:
-            out['API'] = OpenAINlClient(model=env.get('AMIDST_NL_OPENAI_MODEL', 'astra6'), env=env)
+            out['API'] = ab.GuardedNlClient(OpenAINlClient(model=env.get('AMIDST_NL_OPENAI_MODEL', 'astra6'), env=env, prices=guard.config.prices), guard)
         except ValueError:
             pass
     if env.get('AMIDST_NL_OLLAMA_MODEL'):
