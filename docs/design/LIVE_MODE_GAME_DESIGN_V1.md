@@ -1,5 +1,7 @@
 # 即時模式遊戲化設計 v1（D210，2026-11-15）
 
+> **2026-11-15 更新：** [`LIVE_MODE_GAME_DESIGN_V2.md`](LIVE_MODE_GAME_DESIGN_V2.md) 取代這份文件的 §1.2 決策 G1、§3 畫面顯示、§5.1、§5.2 的 P1、§6、§8。§2 操作設計、§4 人物動畫、§5.3–§5.5、§7 現有資產仍然有效。
+
 分支 `claude/feat-live-mode`，PR [#544](https://github.com/Polalalabear/amidst/pull/544)。這份文件只有設計，沒有功能程式碼。它回應使用者試玩 spike 後的五點回饋：
 
 | 回饋 | 對應章節 | 設計上的回答 |

@@ -1,0 +1,19 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>ready</title>
+<!-- 設計 v2：寫實化前後對比。四張圖都是 live-render.html 的實際 three.js 渲染（960×540）。 -->
+<style>
+ html,body{margin:0;width:1920px;height:1200px;background:#11141a;color:#eef2f7;font:15px/1.45 -apple-system,"PingFang TC",sans-serif;overflow:hidden}
+ h1{font-size:22px;margin:0;padding:14px 20px 6px} .g{display:grid;grid-template-columns:1fr 1fr;gap:8px 8px;padding:0 20px}
+ .c{position:relative} .c img{width:936px;height:526px;display:block;border-radius:6px}
+ .t{position:absolute;left:10px;top:10px;background:rgba(11,14,19,.82);padding:5px 12px;border-radius:6px;font-weight:700}
+ .s{position:absolute;left:10px;bottom:10px;background:rgba(11,14,19,.82);padding:4px 10px;border-radius:6px;font:13px ui-monospace,Menlo,monospace;color:#cbd3de}
+ p{margin:8px 20px 0;color:#aab3c0;font-size:14px}
+</style></head><body>
+<h1>即時模式寫實化：前後對比（同一個場景、同一個鏡頭位置，three.js 實際渲染）</h1>
+<div class="g">
+ <div class="c"><img src="realism-before-ots.png"><div class="t">前 · 操作端越肩視角（spike：擠出牆面 + 膠囊）</div><div class="s">159 draw calls · 3,048 三角面 · 1.9 ms/幀</div></div>
+ <div class="c"><img src="realism-after-ots.png"><div class="t" style="color:#4ade80">後 · N6 烘焙場景 + 骨架人物 + 接觸陰影 + ACES</div><div class="s">188 draw calls · 29,802 三角面 · 2.8 ms/幀</div></div>
+ <div class="c"><img src="realism-before-cam-w2.png"><div class="t">前 · 虛擬攝影機 CAM_W2（系統實際收到的像素）</div><div class="s">181 draw calls · 3,332 三角面 · 1.9 ms/幀</div></div>
+ <div class="c"><img src="realism-after-cam-w2.png"><div class="t" style="color:#4ade80">後 · 虛擬攝影機 CAM_W2</div><div class="s">194 draw calls · 30,130 三角面 · 2.7 ms/幀（320×180 時 2.2 ms）</div></div>
+</div>
+<p>毫秒數是 headless Chrome、Apple M3、960×540、連續 60 幀同步渲染的平均值，各跑一次，機器上有其他負載，只能當粗略參考。人物位置是示意，不是 v2.3 路線的某一刻。</p>
+</body></html>
