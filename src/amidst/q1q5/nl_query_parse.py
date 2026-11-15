@@ -38,7 +38,7 @@ class NlSchemaError(ValueError):
 
 
 class NlClientError(RuntimeError):
-    """code: NOT_CONFIGURED | TIMEOUT | UNAVAILABLE | SCHEMA_REJECTED"""
+    """code: NOT_CONFIGURED | TIMEOUT | UNAVAILABLE | SCHEMA_REJECTED | a guard denial (api_budget.REASONS, e.g. API_DISABLED)"""
 
     def __init__(self, code: str):
         super().__init__(code)
@@ -224,11 +224,12 @@ class OpenAINlClient:
     provider_kind = 'OPENAI'
 
     def __init__(self, *, model='astra6', transport: Callable | None = None, env: Mapping | None = None, prices: Mapping | None = None,
-                 recorder: Callable | None = None, endpoint: str = ap.OPENAI_CHAT_URL, clock: Callable[[], float] = time.monotonic):
+                 recorder: Callable | None = None, endpoint: str = ap.OPENAI_CHAT_URL, clock: Callable[[], float] = time.monotonic,
+                 max_output_tokens: int | None = None):
         if model not in ad.MODELS:
             raise ValueError(f'model must be one of {ad.MODELS}')
         self.model, self._transport, self._env, self._prices = model, transport or ap.default_http_transport, env, dict(prices or {})
-        self._recorder, self.endpoint, self._clock = recorder, endpoint, clock
+        self._recorder, self.endpoint, self._clock, self._max_out = recorder, endpoint, clock, max_output_tokens
 
     def __repr__(self):
         return f'OpenAINlClient(model={self.model!r})'
@@ -244,6 +245,8 @@ class OpenAINlClient:
         payload = {'model': self.model, 'messages': [{'role': 'system', 'content': SYSTEM_PROMPT},
                    {'role': 'user', 'content': ad.canonical(_request_doc(text, vocab)).decode('ascii')}],
                    'response_format': {'type': 'json_schema', 'json_schema': {'name': 'nl_query_parse_v1', 'strict': True, 'schema': response_schema(vocab)}}}
+        if self._max_out:   # makes the spend guard's output-token estimate a real limit, not just an assumption
+            payload['max_completion_tokens'] = int(self._max_out)
         headers = {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json'}
         del key
         doc, wall_ms = _call(self._transport, self.endpoint, headers, ad.canonical(payload), timeout_ms, self._clock)
@@ -297,13 +300,19 @@ def pinned_prices(params: Mapping | None) -> dict:
     return dict(table['models']) if isinstance(table, Mapping) and isinstance(table.get('models'), Mapping) else {}
 
 
-def clients_from_environment(env: Mapping | None = None) -> dict:
-    """Server-side wiring from environment. A layer without configuration is simply absent (-> NOT_CONFIGURED). The key is never read here."""
+def clients_from_environment(env: Mapping | None = None, guard=None) -> dict:
+    """Server-side wiring from environment. A layer without configuration is simply absent (-> NOT_CONFIGURED). The key is never read here.
+    The paid layer always goes through the shared spend guard (api_budget): server switch off (default) -> API_DISABLED."""
+    from amidst.q1q5 import api_budget as ab
     env = os.environ if env is None else env
+    guard = guard if guard is not None else ab.shared_guard(env)
     out = {}
-    if env.get('OPENAI_API_KEY', '').strip():
+    if not guard.config.enabled:
+        out['API'] = ab.DisabledApiClient()
+    elif env.get('OPENAI_API_KEY', '').strip():
         try:
-            out['API'] = OpenAINlClient(model=env.get('AMIDST_NL_OPENAI_MODEL', 'astra6'), env=env)
+            out['API'] = ab.GuardedNlClient(OpenAINlClient(model=env.get('AMIDST_NL_OPENAI_MODEL', 'astra6'), env=env, prices=guard.config.prices,
+                                                    max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS), guard, max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS)
         except ValueError:
             pass
     if env.get('AMIDST_NL_OLLAMA_MODEL'):

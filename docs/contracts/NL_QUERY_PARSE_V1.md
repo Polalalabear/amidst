@@ -66,3 +66,7 @@ failures never break a parse. Tests use fake clients or recordings; no real API 
 The Spotlight bar (⌘K / magnifier, centered, blurred backdrop, Esc closes) shows the parsed fields as chips while typing (debounced, RULES
 locally via the same endpoint) and 「未辨識」 chips for `unrecognized`. Enter fills the existing query window (action → 查找/追蹤 window, location, class,
 colour, start/end) for the user to confirm or edit; no query is started by Enter. Settings key `nlParser`: `RULES` (default) | `API` | `LOCAL`.
+
+## Paid-API guard (shared spend guard)
+
+`mode=API` is only a request. The paid layer runs only when the server opts in (`AMIDST_API_ENABLED=1`) **and** sets `AMIDST_API_MAX_USD_TOTAL` above 0 (default 0). Otherwise the layer reports `API_DISABLED` (or a cap reason: `PRICE_UNKNOWN`, `PER_CALL_TOKEN_CAP`, `PER_CALL_COST_CAP`, `RATE_LIMIT`, `DAILY_CALL_CAP`, `DAILY_COST_CAP`, `TOTAL_BUDGET`) as its `fallback_trail` outcome and the chain falls back to LOCAL, then RULES. Implementation and ledger (`local/evidence/api-usage/usage.jsonl`, LOCAL): `src/amidst/q1q5/api_budget.py`. Dry-run estimate: `scripts/api_budget_estimate.py`.
