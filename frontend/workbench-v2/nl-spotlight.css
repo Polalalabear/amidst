@@ -23,3 +23,4 @@
 .nl-spot-foot{display:flex;justify-content:space-between;gap:16px;padding:10px 20px 12px;font-size:12px;color:var(--dim);border-top:1px solid var(--line);margin-top:6px}
 .nl-spot-meta{font-family:var(--mono)}
 @media (prefers-reduced-motion:reduce){.nl-spot-backdrop,.nl-spot-panel,.nl-chip{transition:none;animation:none}}
+.ui-nl-open{background:transparent;cursor:pointer;font-family:inherit}
