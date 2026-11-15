@@ -6,14 +6,10 @@
 
 ## 工作內容
 
-1. 在 Mac 準備包（只含程式、設定、題目；沒有 GT、影像、key）：
-   ```bash
-   git -C ~/amidst archive --format=zip -o wp5_code.zip HEAD src configs/agent_eval configs/q1q5 docs/contracts
-   ```
-   題目檔 `data/wp5_questions.jsonl` 的每列是 DP1／DP3 請求、DP4 請求或 NL `{text, vocab}`，由 `scripts/agent_decision/extract_questions.py` 和各契約的建構函式產生；檔案本身不得含 `gt_`、`truth*`、`trajectory` 等鍵（runner 在呼叫前就會整批拒絕）。
-2. 在 Colab 選 **L4** 執行環境，上傳並解開 `wp5_code.zip`、題目檔，開筆記本。
+1. 在 Mac 用 `python scripts/agent_decision/build_wp5_packs.py --out local/data/wp5-packs-<日期>` 打包（Colab L4 包與 Windows 包；只含程式、設定、合成題；沒有 GT、影像、key）。交付說明與 SHA-256 見 [`WP5_PACKS_20261115.md`](WP5_PACKS_20261115.md)。題目檔 `data/wp5_questions.jsonl` 目前是合成題（真題庫 UNKNOWN）；真題的每列是 DP1／DP3 請求、DP4 請求或 NL `{text, vocab}`，檔案本身不得含 `gt_`、`truth*`、`trajectory` 等鍵（runner 在呼叫前就會整批拒絕）。
+2. 在 Colab 選 **L4** 執行環境，上傳 `wp5-pack_colab_l4_<日期>.zip`，解開後在包根目錄開 `notebooks/agent_decision/wp5_colab_l4.ipynb`。
 3. 依序執行各步驟：確認 L4（不是 L4 就停）→ 設定 `SET`、**釘死 `OLLAMA_VERSION`** → 安裝並讓 Ollama 一次只載入一個模型 → 拉模型、寫 `models.txt`（`名稱@digest`）並驗證 q4_K_M 與 digest → dry-run（0 次呼叫）→ 逐一模型（暖機一次、跑題組、卸載）→ 打包。
-4. 下載 `wp5_<set>_colab_l4.zip`，放進 Mac 的 `local/evidence/wp5/<set>/`，記下 SHA-256。
+4. 下載 `RETURN/wp5_<set>_colab_l4.zip`，放進 Mac 的 `local/evidence/wp5/<set>/`，記下 SHA-256。
 
 ## 要帶回來的東西
 
