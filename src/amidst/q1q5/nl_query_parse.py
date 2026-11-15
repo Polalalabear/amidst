@@ -29,6 +29,7 @@ FIELDS = ('action', 'location', 'target', 'time', 'unrecognized')
 MAX_TEXT = 200
 MAX_UNRECOGNIZED = 16
 MAX_PIECE = 64
+MAX_SECONDS = 10 * 86400   # elapsed source time cap (10 days): a typed or model-made 1e150 is not a time range
 DEFAULT_TIMEOUT_MS = 2500
 
 
@@ -85,7 +86,7 @@ def validate_parse(obj, vocab: NlVocabulary) -> dict:
             raise NlSchemaError(key)
     t = obj['time']
     if t is not None:
-        if not isinstance(t, dict) or set(t) != {'start', 'end'} or not (_num(t['start']) and _num(t['end'])) or not 0 <= t['start'] < t['end']:
+        if not isinstance(t, dict) or set(t) != {'start', 'end'} or not (_num(t['start']) and _num(t['end'])) or not 0 <= t['start'] < t['end'] <= MAX_SECONDS:
             raise NlSchemaError('time')
     u = obj['unrecognized']
     if not isinstance(u, list) or len(u) > MAX_UNRECOGNIZED or any(not isinstance(i, str) or not i or len(i) > MAX_PIECE for i in u):
@@ -144,7 +145,7 @@ def parse_rules(text: str, vocab: NlVocabulary) -> dict:
     pieces = list(dict.fromkeys(p for p in rest.split() if p))
     window = None
     spans = [(m.group(), _seconds(m.group())) for m in times]
-    if len(spans) == 2 and all(s is not None for _, s in spans) and spans[0][1] < spans[1][1]:
+    if len(spans) == 2 and all(s is not None and s <= MAX_SECONDS for _, s in spans) and spans[0][1] < spans[1][1]:
         window = {'start': spans[0][1], 'end': spans[1][1]}
     else:
         pieces.extend(t for t, _ in spans)

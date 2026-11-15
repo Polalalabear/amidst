@@ -221,3 +221,11 @@ def test_replay_client_answers_from_recording():
     assert replay.parse('找人', VOCAB, 2500).parsed == GOOD
     with pytest.raises(nlp.NlClientError):
         replay.parse('別的句子', VOCAB, 2500)
+
+
+def test_huge_time_is_unrecognized_not_a_window_and_never_raises():
+    for text in ('追蹤 0:10 到 ' + '9' * 150 + '秒', '找 0秒 到 ' + '9' * 190 + '秒'):
+        out = nlp.parse_nl_query(text[:200], VOCAB)
+        assert out['time'] is None and out['parser'] == 'RULES'
+    with pytest.raises(nlp.NlSchemaError):
+        nlp.validate_parse({'action': None, 'location': [], 'target': [], 'time': {'start': 0, 'end': 1e150}, 'unrecognized': []}, VOCAB)
