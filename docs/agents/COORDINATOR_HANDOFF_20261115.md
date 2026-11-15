@@ -2,6 +2,45 @@
 
 前一位協調者是 Claude Opus 5.5，從 `HANDOFF_COORDINATOR_20261110_B.md` 接手。下一個決策編號是 **D220**，要同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
 
+## 2026-11-16 更新
+
+以這一節為準。§1–§6 是 2026-11-15 交接時的原文，保留作為紀錄。問題和解法的完整清單在 `docs/operations/ISSUES_AND_FIXES_20261115.md`。
+
+| 項目 | 值 |
+|---|---|
+| 主線 | `main` @ `8b023775`（#545 的 merge） |
+| 8785 | pin `b24d6a26`（tree `ca6d0687`）。使用者 11-15 照 #545 的步驟更新，閘門全過（D234、D235）。舊 pin 備份在 LOCAL `local/demo-pin.74b84463.bak.json` |
+| 下一個決策編號 | **D239**（D220–D238 在 [#93](https://github.com/Polalalabear/amidst/issues/93)） |
+
+**已合併**（都由使用者執行，merge commit）：
+
+| PR | 內容 | merge |
+|---|---|---|
+| [#537](https://github.com/Polalalabear/amidst/pull/537) | API 預算護欄 `ApiGuard` | `57dd761b` |
+| [#538](https://github.com/Polalalabear/amidst/pull/538) | WP5 比較 harness，修好 OpenAI 繞過護欄的問題 | `18715e69` |
+| [#539](https://github.com/Polalalabear/amidst/pull/539) | Codex N6 人物和烘焙場景 | `1aea09cd` |
+| [#540](https://github.com/Polalalabear/amidst/pull/540) | 本交接文件 | `52b3ab2b` |
+| [#541](https://github.com/Polalalabear/amidst/pull/541) | Argon N3：DP4 API／Agent 排序器（#532 已關閉） | `80f36220` |
+| [#542](https://github.com/Polalalabear/amidst/pull/542) | core-e2e check 91 修正、`env_templates.sh` grep | `b24d6a26` |
+| [#543](https://github.com/Polalalabear/amidst/pull/543) | WP5 Colab L4 和 Windows 資料包 | `4972f0f9` |
+| [#545](https://github.com/Polalalabear/amidst/pull/545) | 8785 更新計畫，launcher 加 `--root-8cam` | `8b023775` |
+
+**開著的 PR**：
+
+- [#544](https://github.com/Polalalabear/amidst/pull/544)（Draft，`claude/feat-live-mode`）：即時模式 spike 報告和 N6 整合。可用設定是 3 鏡頭×2 fps（p50 約 240 ms）或 2 鏡頭×3 fps（p50 約 160 ms）；N6×烘焙場景的偵測率 69.1%。
+- [#546](https://github.com/Polalalabear/amidst/pull/546)（`claude/feat-wp5`）：WP5 Colab DP1/DP3 修正（Colab v2 已驗證），加上 OpenAI 試跑校準 `f1ebdded`（實際花費 USD 0.1025）。D238：可以合併。session `wp5-calib-finish` 還在這條分支上收尾。
+- [#547](https://github.com/Polalalabear/amidst/pull/547)（Draft，`claude/feat-live-llm-decision`）：即時模式的 LLM 決策設計 v1，使用者自己開的。
+
+**§4 未完成工作（現況，依優先序）**：
+
+1. **WP5 收尾**（進行中，session `wp5-calib-finish`）：降低 Colab v2 的 `INVALID_RESPONSE`（qwen 17–21%、llama 63–71%），修 `ollama ps` 的抓取時機（GPU 還沒證實）和 NL rule_agree 0/24 的指標，重產一鍵筆記本 v3；補完 OpenAI 校準報告。完成後由使用者合併 #546。
+2. **待使用者決定**：OpenAI 正式額度（A USD 4／B USD 12／C USD 46）和 formal 2 s 逾時要不要放寬；真人模型對照實驗（D236）；8785 新 UI 要不要加 8CAM run（D234）；#547 的設計方向。
+3. **即時模式**：#544 還是 Draft。CAM_ENTRY（19%）、R101_IN（47%）偵測率偏低。Codex 的偵測器加速和偵測改進，等真人模型的決定之後再寫指派（D230、D236）。
+4. **延後**：N6 天花板亮度和接縫（D227）；`start_all_demo.ps1` 同步 `--root-8cam` 和 `.command` 的啟動時間註解（D234）；下次更新 8785 pin 時帶上 #543、#545。
+5. **WP5 DP4 實跑**：runner 的 DP4 即時呼叫還是預留掛點（`DP4_LIVE_NOT_WIRED`，用 `--skip-types DP4`）。#541 的排序器已經合併，接上 runner 的工作還沒派。
+6. 之後：Spotlight「追蹤」接 DP4 和即時模式；ENTRY 鏡頭加進 graph；第 5 章補 WP5 數字（`docs/report/CH5_CONCLUSION_DRAFT.md`）。
+7. **流程教訓**（第 15、16 條）：長任務要分段 commit、分段 push；demo 和延遲量測期間不同時跑閘門，量測要記錄 load1。
+
 ## 1. 現況與 SHA
 
 | 項目 | 值 |
@@ -33,6 +72,8 @@
 - 決策寫到 #93，清理寫到 #486，報告素材寫到 #479。
 
 ## 4. 未完成工作（依優先序）
+
+> 這是 2026-11-15 的原文。現況見最上面的〈2026-11-16 更新〉。
 
 1. **待合併**（使用者執行）：
    - [#537](https://github.com/Polalalabear/amidst/pull/537) API 預算護欄：審查通過。殘留 P2 #5：`OpenAIProvider` 繞過護欄，DP4 和 WP5 實跑前要接上護欄。
