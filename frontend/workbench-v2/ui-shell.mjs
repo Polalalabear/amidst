@@ -21,6 +21,8 @@ import {
   AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
 } from './core-search-track-model.mjs';
 import {eventDisplayName} from './event-names.mjs';
+import {planFromParse} from './nl-spotlight-model.mjs';
+import {mountSpotlight} from './nl-spotlight-view.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
 // Same range the player uses (app.mjs playbackBounds); kept here so this module does not import the composition root.
@@ -142,7 +144,8 @@ export function mountUi(ctx) {
     const u = new URL(url); u.search = ''; u.searchParams.set('run', run.run_id); u.searchParams.set('screen', screen);
     globalThis.location?.assign?.(u.toString());
   }
-  const topRight = el('div', undefined, 'ui-top-right'); topRight.append(sourceSelect, progChip, layoutSeg, badge);
+  const searchBtn = el('button', '⌕ 搜尋 ⌘K', 'ui-pill-link ui-nl-open', {type: 'button', 'aria-label': '用一句話查詢（⌘K）', title: '用一句話查詢（⌘K）'}); searchBtn.id = 'ui-nl-open';
+  const topRight = el('div', undefined, 'ui-top-right'); topRight.append(searchBtn, sourceSelect, progChip, layoutSeg, badge);
   const topAdmin = el('a', '後台', 'ui-pill-link', {href: 'admin.html'});
   topRight.append(topAdmin);
   top.append(topLeft, topRight);
@@ -826,8 +829,22 @@ export function mountUi(ctx) {
   renderCatalog();
   const initial = route.initial ?? (settings.coverAnimation ? 'cover' : nextAfterCover(settings));
   go(initial);
+  // N1 Spotlight: the parse only fills the existing query window for the user to confirm; no query is started here.
+  function applyParsedQuery(parse) {
+    const plan = planFromParse(parse, store.getState().activeRun, screen);
+    go(plan.screen);
+    const w = plan.kind === 'track' ? q2 : q1;
+    w.form.regions.clear(); for (const id of plan.regionIds) w.form.regions.add(id);
+    w.form.classLabel = plan.classLabel; w.form.colorLabel = plan.colorLabel;
+    if (plan.start && plan.end) { w.start.value = plan.start; w.end.value = plan.end; }
+    renderCatalog(); setQuery(true);
+    w.feedback.textContent = plan.notes.join('；'); w.feedback.dataset.state = plan.notes.length ? 'error' : '';
+    return plan;
+  }
+  const spotlight = ctx.api?.nlParse ? mountSpotlight({host, store, api: ctx.api, getMode: () => settings.nlParser, apply: applyParsedQuery}) : null;
+  if (spotlight) { searchBtn.addEventListener('click', () => spotlight.toggle()); disposers.push(() => spotlight.destroy()); } else searchBtn.hidden = true;
   return {
-    get screen() { return screen; }, go, setQuery,
+    get screen() { return screen; }, go, setQuery, applyParsedQuery, spotlight,
     get settings() { return settings; },
     destroy() { destroyed = true; for (const d of disposers.splice(0)) d(); closeLightbox(); host.replaceChildren(); },
   };
