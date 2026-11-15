@@ -193,6 +193,22 @@ def test_rgb_source_mismatch_fails_closed(corrupt):
     with pytest.raises(APIError):api.call('q_media_grant',{'session_ref':TOKEN,'media_token':rep['media_token']},authorize)
 
 
+def test_nl_query_parse_route_rules_default_and_fake_api_fallback():
+    from amidst.q1q5 import nl_query_parse as nlp
+    api,run=api_fixture();scope={'scene_id':run.catalog['scene_id'],'run_ids':[run.catalog['run_id']]}
+    base={'session_ref':TOKEN,'context':scope,'text':'追蹤人'}
+    r=api.call('nl_query_parse',base,authorize)
+    assert r['schema_version']=='q-demo.nl-query-parse.v1' and r['parser']=='RULES' and r['action']=='追蹤' and len(api.responses)==0
+    class Slow:
+        name='API'
+        def parse(self,*a):raise nlp.NlClientError('TIMEOUT')
+    api.nl_clients={'API':Slow()}
+    r=api.call('nl_query_parse',dict(base,mode='API'),authorize)
+    assert r['parser']=='RULES' and [t['outcome'] for t in r['fallback_trail']]==['TIMEOUT','NOT_CONFIGURED','OK']
+    for bad in [dict(base,mode='BOGUS'),dict(base,text=''),dict(base,extra=1)]:
+        with pytest.raises(APIError):api.call('nl_query_parse',bad,authorize)
+
+
 def test_q3_is_parser_only_and_client_executes_only_parsed_result():
     api,run=api_fixture();q={'schema_version':'q-demo.q3-parse-request.v1','session_ref':TOKEN,'text':'車13:00:00到13:00:01','locale':'zh-TW',
         'context':{'scene_id':run.catalog['scene_id'],'run_ids':[run.catalog['run_id']],'clock_mapping_sha256':run.bindings.clock_sha256},'parser_mode':'RULE_ONLY'}

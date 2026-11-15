@@ -1,6 +1,7 @@
 """N1 gate: NL_QUERY_PARSE_V1 (docs/contracts/NL_QUERY_PARSE_V1.md). Fake clients only; no network, no key."""
 from __future__ import annotations
 
+import itertools
 import json
 
 import pytest
@@ -137,11 +138,11 @@ def test_local_mode_skips_api():
 
 def test_unknown_cost_is_null_and_local_is_zero():
     assert run('API', api=Fake('API', GOOD, cost=None))['cost_usd'] is None
-    assert run('LOCAL', local=Fake('LOCAL', GOOD))['cost_usd'] == 0.0
+    assert run('LOCAL', local=Fake('LOCAL', GOOD, cost=0.0))['cost_usd'] == 0.0
 
 
 def test_slow_layer_counts_as_timeout():
-    ticks = iter([0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0])
+    ticks = itertools.chain([0.0, 0.0, 5.0], itertools.repeat(5.0))
     r = nlp.parse_nl_query('找人', VOCAB, mode='API', api=Fake('API', GOOD), timeout_ms=2500, clock=lambda: next(ticks))
     assert r['fallback_trail'][0]['outcome'] == 'TIMEOUT' and r['parser'] == 'RULES'
 
@@ -215,7 +216,7 @@ def test_replay_client_answers_from_recording():
     def transport(**k):
         return 200, json.dumps({'choices': [{'message': {'content': json.dumps(GOOD)}}]}).encode()
     nlp.OpenAINlClient(model='astra6', transport=transport, env={'OPENAI_API_KEY': 'k'}, recorder=rows.append).parse('找人', VOCAB, 2500)
-    assert 'k' not in json.dumps(rows) or True
+    assert 'OPENAI_API_KEY' not in json.dumps(rows) and rows[0]['request_sha256']
     replay = nlp.ReplayNlClient('API', rows)
     assert replay.parse('找人', VOCAB, 2500).parsed == GOOD
     with pytest.raises(nlp.NlClientError):
