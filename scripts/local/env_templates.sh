@@ -57,8 +57,8 @@ safe_rmdir(){
 # List the files in venv $1 that still name path $2.
 abs_left(){
   {
-    grep -rIl -- "$2" "$1/bin" 2>/dev/null
-    grep -rIl --include='*.pth' --include='RECORD' --include='direct_url.json' -- "$2" "$1/lib" 2>/dev/null
+    grep -rIl -- "$2" "$1/bin" 2>/dev/null || true   # grep exits 1 when nothing matches: that is the good case, not an error
+    grep -rIl --include='*.pth' --include='RECORD' --include='direct_url.json' -- "$2" "$1/lib" 2>/dev/null || true
   } | sort -u
 }
 
@@ -68,7 +68,7 @@ abs_left(){
 relocate(){
   local v="$1"
   rm -f -- "${v:?}/bin/activate.csh"
-  grep -rIl -- "^#!$v/bin/python" "$v/bin" 2>/dev/null | while read -r f; do
+  { grep -rIl -- "^#!$v/bin/python" "$v/bin" 2>/dev/null || true; } | while read -r f; do   # no match = nothing to relocate, not an error
     python3 -I -c '
 import sys
 f = sys.argv[1]
