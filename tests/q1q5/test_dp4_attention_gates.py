@@ -193,9 +193,15 @@ def test_fallback_reasons_match_agent_decision():
 
 
 def test_rule_does_not_touch_associate():
+    # attention_api.py / attention_agent.py (N3) must import the shared contract module; nothing else may.
+    own = {'attention_ranking.py', 'attention_api.py', 'attention_agent.py'}
     for path in (ROOT / 'src/amidst').rglob('*.py'):
-        if path.name != 'attention_ranking.py':
+        if path.name not in own:
             assert 'attention_ranking' not in path.read_text(encoding='utf-8'), path
+    for name in ('attention_api', 'attention_agent'):
+        for path in (ROOT / 'src/amidst').rglob('*.py'):
+            if path.name not in own:
+                assert name not in path.read_text(encoding='utf-8'), path
     import amidst.q1q5.cross_camera_demo as demo
     assert not hasattr(demo, 'attention_ranking')
 
