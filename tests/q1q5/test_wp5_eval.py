@@ -196,3 +196,47 @@ def test_colab_local_only_run_needs_no_money_gate(tmp_path):
     assert len(rows) == 96 and {r['model'] for r in rows} == {'qwen2.5:7b-instruct-q4_K_M'}
     assert all(r['cost_usd'] == 0.0 for r in rows)
     assert json.loads((out / 'MANIFEST.json').read_text())['approval_ref'].startswith('NO_SPEND')
+
+
+# ---- every paid OpenAI call goes through ApiGuard (review fix) ----
+def _api_guard(tmp_path, **kw):
+    ab = importlib.import_module('amidst.q1q5.api_budget')
+    cfg = ab.GuardConfig(enabled=True, max_usd_total=kw.pop('total', 1.0), max_calls_per_min=100, max_calls_per_day=1000,
+                         prices={'astra6': {'input_usd_per_mtok': 5.0, 'output_usd_per_mtok': 15.0}}, **kw)
+    return ab.ApiGuard(cfg, usage_dir=tmp_path)
+
+
+def test_openai_decision_call_is_gated_and_ledgered(tmp_path):
+    cfg = wp5.load_config()
+    model = wp5.model_by_id(cfg, 'astra6')
+    seen = []
+
+    def inner(request, *, timeout_ms, max_output_tokens):
+        seen.append(1)
+        return ad.Attempt(ad.CALL_OK, 5.0, {}, 100, 20)
+    req = fake.synthetic_rows(1)[0]
+    req = req.get('request', req)
+    g = _api_guard(tmp_path)
+    call = runner.guarded_decision_call(g, cfg, model, inner)
+    att = call(req, timeout_ms=2000, max_output_tokens=300)
+    assert att.outcome == ad.CALL_OK and seen == [1]
+    assert 'wp5_decision' in g.ledger_path.read_text()
+    closed = _api_guard(tmp_path / 'z', total=0.0)
+    att = runner.guarded_decision_call(closed, cfg, model, inner)(req, timeout_ms=2000, max_output_tokens=300)
+    assert att.outcome == ad.CALL_UNAVAILABLE and seen == [1]   # denied: inner never ran
+
+
+def test_live_context_refuses_openai_without_api_guard():
+    cfg = wp5.load_config()
+    ctx = runner.live_context(cfg, wp5.load_json(cfg['price_table_path']), None)
+    with pytest.raises(wp5.Wp5Error) as e:
+        ctx.decision_provider(wp5.model_by_id(cfg, 'astra6'))
+    assert e.value.code == 'LIVE_NEEDS_API_GUARD'
+    with pytest.raises(wp5.Wp5Error):
+        ctx.nl_client(wp5.model_by_id(cfg, 'astra6'))
+
+
+def test_make_api_guard_is_closed_unless_approved_and_priced(tmp_path):
+    g = runner.make_api_guard({'models': {'astra6': {'input_usd_per_mtok': 1.0, 'output_usd_per_mtok': 2.0}}}, 3.0,
+                              env={'AMIDST_API_USAGE_DIR': str(tmp_path)})
+    assert g.config.enabled and g.config.max_usd_total == 3.0 and 'astra6' in g.config.prices

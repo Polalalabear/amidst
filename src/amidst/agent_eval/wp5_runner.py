@@ -55,21 +55,56 @@ def _select(cfg, args) -> tuple[list[str], list[str]]:
     return models, types
 
 
-def live_context(cfg, table):
-    """Real clients. Built only after every LIVE gate has passed. DP4 is a reserved hook until #532 (ApiRanker) merges."""
+def make_api_guard(table, approved_usd, env=None):
+    """The shared spend guard (D165/D166) for a LIVE run: caps and daily/per-minute limits come from the server
+    environment (``AMIDST_API_*``); the CLI only supplies the approved total and the PINNED price table.
+    Every OpenAI call below goes through ``ApiGuard.run`` (ledger in ``AMIDST_API_USAGE_DIR``)."""
+    import dataclasses
+    from amidst.q1q5 import api_budget as ab
+    cfg = dataclasses.replace(ab.GuardConfig.from_env(env), enabled=True, max_usd_total=float(approved_usd), prices=wp5_prices(table))
+    return ab.ApiGuard(cfg)
+
+
+def guarded_decision_call(api_guard, cfg, model, inner):
+    """Wrap a DP1/DP3 OpenAI ``call`` so it only runs when ``ApiGuard`` allows it. A denial is an UNAVAILABLE attempt
+    (the decider falls back to the rule); the reason is in the guard ledger."""
+    def call(request, *, timeout_ms, max_output_tokens):
+        spec = cfg['task_types'][wp5._DP_NAMES.get(request.get('decision_point'), 'DP1')]
+        out = api_guard.run('wp5_decision', model['id'], spec['prompt_tokens_est'], max_output_tokens,
+                            lambda: _attempt_with_usage(inner, request, timeout_ms, max_output_tokens))
+        if not out.allowed:
+            return ad.Attempt(ad.CALL_UNAVAILABLE, 0.0)
+        return out.value
+    return call
+
+
+def _attempt_with_usage(inner, request, timeout_ms, max_output_tokens):
+    attempt = inner(request, timeout_ms=timeout_ms, max_output_tokens=max_output_tokens)
+    return attempt, getattr(attempt, 'prompt_tokens', None), getattr(attempt, 'completion_tokens', None)
+
+
+def live_context(cfg, table, api_guard=None):
+    """Real clients. Built only after every LIVE gate has passed. DP4 is a reserved hook until #532 (ApiRanker) merges.
+    OpenAI clients exist only with an ``ApiGuard``; without one the paid layer is refused."""
     from amidst.q1q5 import agent_providers as prov
+    from amidst.q1q5 import api_budget as ab
     from amidst.q1q5 import nl_query_parse as nlp
     prices = wp5_prices(table)
 
     def decision_provider(model):
         if model['kind'] == 'OPENAI':
-            return prov.OpenAIProvider(model=model['id']).call
+            if api_guard is None:
+                raise wp5.Wp5Error('LIVE_NEEDS_API_GUARD', 'OpenAI calls must go through ApiGuard')
+            return guarded_decision_call(api_guard, cfg, model, prov.OpenAIProvider(model=model['id']).call)
         digest = model.get('digest')
         return prov.OllamaProvider(model=model['id'], model_digest=None if (digest or '').startswith('UNKNOWN') else digest).call
 
     def nl_client(model):
         if model['kind'] == 'OPENAI':
-            return nlp.OpenAINlClient(model=model['id'], prices=prices)
+            if api_guard is None:
+                raise wp5.Wp5Error('LIVE_NEEDS_API_GUARD', 'OpenAI calls must go through ApiGuard')
+            return ab.GuardedNlClient(nlp.OpenAINlClient(model=model['id'], prices=prices, max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS),
+                                      api_guard, caller='wp5_nl', max_output_tokens=ab.NL_MAX_OUTPUT_TOKENS)
         return nlp.OllamaNlClient(model=model['id'])
 
     def dp4_ranker(model, profile):
@@ -129,7 +164,8 @@ def main(argv: Sequence[str] | None = None, *, context: wp5.Context | None = Non
             verdict = guard.preflight(estimate) if needs_money else None
             if verdict:
                 raise wp5.Wp5Error('LIVE_GUARD_REFUSED', verdict)
-            ctx = context or live_context(cfg, table)
+            api_guard = make_api_guard(table, args.approved_usd) if needs_money else None
+            ctx = context or live_context(cfg, table, api_guard)
             if 'DP4' in types and context is None:
                 ctx.dp4_ranker(None, None)  # raises DP4_LIVE_NOT_WIRED while the hook is reserved
             approval = (f'user approved USD {args.approved_usd} for set {args.set_name}' if needs_money
@@ -151,7 +187,7 @@ def main(argv: Sequence[str] | None = None, *, context: wp5.Context | None = Non
     summary = wp5.summarize_rows(rows)
     write_outputs(out, rows, summary, {
         'mode': 'LIVE' if args.live else 'FAKE', 'set': args.set_name, 'arm': args.arm, 'models': models, 'types': types,
-        'guard': guard.name, 'guard_calls': guard.calls, 'guard_spent_usd': guard.spent_usd,
+        'guard': guard.name, 'api_guard': 'ApiGuard' if (args.live and needs_money) else None, 'guard_calls': guard.calls, 'guard_spent_usd': guard.spent_usd,
         'guard_blocked': guard.blocked, 'price_status': wp5.price_status(table), 'approval_ref': approval,
         'config_sha256': wp5.sha256_file(Path(args.config) if Path(args.config).is_absolute() else wp5._ROOT / args.config)})
     return 0
