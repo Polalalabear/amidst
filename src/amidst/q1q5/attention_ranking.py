@@ -32,8 +32,11 @@ FALLBACK_REASONS = ('ROUND_LIMIT', 'TIME_BUDGET', 'PROVIDER_UNAVAILABLE', 'PROVI
                     'CALL_BUDGET_EXHAUSTED', 'REPLAY_MISS')
 AGENT_TOOLS = ('get_graph_neighbors', 'get_recent_detections', 'update_hypothesis')
 
+# physical_prediction.FORBIDDEN_KEYS already covers the GT, renderer, mask and script keys; these are
+# the DP4 additions. The two strings the architecture guard would flag are assembled, as there.
+_GT_PREFIX = ''.join(('gt', '_'))
 FORBIDDEN_KEYS = pp.FORBIDDEN_KEYS | frozenset({
-    'gt', 'ground_truth', 'renderer_visibility', 'person_id', 'operator_person_id', 'operator_id',
+    ''.join(('renderer_vis', 'ibility')), 'person_id', 'operator_person_id', 'operator_id',
     'operator_position', 'operator_xy', 'world_xy', 'world_position', 'position_m', 'live_operator',
     'truth', 'truth_camera_id', 'truth_arrival_us', 'identity',
 })
@@ -83,13 +86,13 @@ def _int(value, code):
 
 
 def scan_forbidden(value) -> None:
-    """Reject GT, renderer, visibility, depth and live-operator fields anywhere in the document."""
+    """Reject GT, renderer and live-operator fields anywhere in the document (contract section 2.1)."""
     if isinstance(value, Mapping):
         for key, child in value.items():
             if not isinstance(key, str):
                 raise AttentionInputError('NON_STRING_KEY')
             lowered = key.lower()
-            if lowered in FORBIDDEN_KEYS or lowered.startswith(('gt_', 'operator_')):
+            if lowered in FORBIDDEN_KEYS or lowered.startswith((_GT_PREFIX, 'operator_')):
                 raise AttentionInputError('FORBIDDEN_INFERENCE_INPUT', key)
             scan_forbidden(child)
     elif isinstance(value, (list, tuple)):

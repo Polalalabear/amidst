@@ -44,8 +44,8 @@
 
 ## 3. 輸出（`q-demo.dp4-attention-response.v1`）
 
-```json
-{"schema_version": "q-demo.dp4-attention-response.v1",
+```text
+{"schema_version": <RESPONSE_SCHEMA>,
  "method": "RULE|API|AGENT", "requested_method": "RULE|API|AGENT",
  "ranking": [{"camera_id": "CAM_C", "score": 0.6, "reason": "EXIT_ALIGNED"}],
  "latency_ms": 12.3, "cost_usd": 0.0, "steps": 0, "fallback_reason": null}
