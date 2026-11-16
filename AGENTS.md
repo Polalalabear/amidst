@@ -17,6 +17,7 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - Use `frontend/workbench/` as the primary UI. Task ownership follows [§4 of the baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md#4-工作分配) and the [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`). One owner per file set; hand off through data contracts. Interface contracts are drafted by Claude Code and confirmed by Codex before parallel work starts.
 - Work on one concrete task per session. Do not recursively explore unrelated modules or the whole repository without explicit approval. Start from the named handoff and task paths; mark unresolved paths/dependencies `UNKNOWN` for the bounded audit.
 - Do not create worktrees. Preserve existing checkout, branch, uncommitted changes, and frozen inputs. Never reset, rebase, force-push, or merge without explicit authorization. Stage only task files; use a narrow commit and PR workflow on the assigned branch.
+- Paid API calls always go through `ApiGuard` (#537): dry-run first, and run only after the user approves the amount in chat. An approved budget covers only its stated purpose and does not carry over to other uses or later runs (D242).
 - Make changes reproducible and source-bound. For code tasks, run only the focused tests named in the task and `git diff --check`; do not run full suites, Blender renders, inference, or research experiments unless the task explicitly requires and authorizes them.
 - Stop when the assigned task and its focused verification are complete; report exact files, evidence, blockers, and anything not verified.
 
@@ -29,16 +30,18 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - [D79 decision-window document](docs/evaluation/Q5_DECISION_WINDOW_D79.md)
 - [A4/B4 scenario cards v1](https://github.com/Polalalabear/amidst/pull/253) (D89; `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md` once #253 merges)
 - [Progress guide](docs/operations/Q1Q5_PROGRESS.md)
-- [Latest coordinator handoff (2026-10-27)](docs/agents/COORDINATOR_HANDOFF_20261027.md)
+- [Latest coordinator handoff (2026-11-16)](docs/agents/COORDINATOR_HANDOFF_20261116.md)
 - [Task board and decision log #93](https://github.com/Polalalabear/amidst/issues/93)
 - [Archive index](docs/archive/ARCHIVE_20261027.md) — superseded Office, 3D-line, Phase 1/2 and early Q1–Q5 documents (D91)
 - [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) — replaces the archived PRD, system design, data schema and interfaces
 
 ## Git workflow
 
-The integration branch is `main` (D200; the GitHub default since D214). `mainline/q1q5` is frozen at `8c741451` and is history only; the old `claude/office-demo-visualization` is frozen at `f481fe0` (tag `archive/office-demo-visualization`), the paused 2D→3D line is on `archive/3d-line`, and other superseded branches keep `archive/<branch>` tags. Every PR has base `main`, needs the CI check `checks` green, and merges with a **merge commit only** (no squash, rebase or force-push; documents cite commit SHAs). Merging needs the user's explicit approval in chat. Review each other's PRs, keep commits scoped to the task, and publish only when the user has authorized push/PR. Never change another agent's checkout.
+The integration branch is `main` (D200; the GitHub default since D214). `mainline/q1q5` is frozen at `8c741451` and is history only; the old `claude/office-demo-visualization` is frozen at `f481fe0` (tag `archive/office-demo-visualization`), the paused 2D→3D line is on `archive/3d-line`, and other superseded branches keep `archive/<branch>` tags. Every PR has base `main`, needs the CI check `checks` green, and merges with a **merge commit only** (no squash, rebase or force-push; documents cite commit SHAs). Merging needs the user's explicit approval in chat. The user runs merges, branch deletions, file deletions and process kills in their own terminal; commands given to the user include `--repo Polalalabear/amidst`. Review each other's PRs, keep commits scoped to the task, and publish only when the user has authorized push/PR. Never change another agent's checkout.
 
-**Branches (D216):** one feature line, one branch, one PR, named `claude/feat-<line>` (Codex: `codex/feat-<line>`; team: `team/<name>/<task>`). Follow-up work for that feature commits to the same branch; only one writing session per branch at a time.
+**Branches (D216, D248):** open a branch only for a large feature: one feature line, one branch, one PR, named `claude/feat-<line>` (Codex: `codex/feat-<line>`; team: `team/<name>/<task>`). Small fixes, review fixes, document updates and follow-up work commit to the existing feature branch instead of a new one. Merge into `main` as soon as possible, and delete merged branches (the user runs the deletion). Only one writing session per branch at a time; long tasks commit and push in stages.
+
+**GitHub (D245):** interact with GitHub through `gh` (`gh pr view/diff/checks/comment`, `gh issue comment`, `gh api` to read files on other branches). Do not `git fetch` in `~/amidst` to read other branches.
 
 **Folder (D171, D218):** the only local checkout is `~/amidst` (branch `main`), shared by Claude and Codex as the project folder. It runs the demo on 8785 with `local/demo-pin.json` locked to a commit, so never edit, switch branches or commit there, and never run `git clean`, `git checkout .` or `git reset` in it. All writing happens in a scratchpad clone: `git clone --shared --no-checkout ~/amidst <scratchpad>/clone`, set `origin` to the GitHub remote, branch from `origin/main`, and delete the clone when done. At most three writing sessions at once, with non-overlapping files; check `df` first.
 
