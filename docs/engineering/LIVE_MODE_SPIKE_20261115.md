@@ -1,6 +1,6 @@
 # Live mode spike (WIP, 2026-11-15) — INCOMPLETE
 
-Status: prototype + detection-rate sweeps done; latency matrix, CPU comparison, screenshots and the final feasibility write-up are NOT done (usage limit reached). Latency runs were started in the session scratchpad (`/private/tmp/claude-501/lat`) and are not committed.
+Status: prototype + detection-rate sweeps done; latency matrix, CPU comparison, screenshots and the final feasibility write-up are NOT done (usage limit reached). Latency runs were started in a session scratchpad (a temporary folder, cannot be rebuilt as such); their results are kept as LOCAL `local/evidence/live-mode-spike-20261115/lat/*.latency.json` (SHA-256 in `docs/evaluation/live_mode_spike_20261115/SHA256SUMS_local.txt`).
 
 ## Detection rate (RT-DETR R18, MPS, person alone, 1 m grid x 4 headings, 8 cameras, live display threshold 0.35)
 Eligible = ray-visible, >=60% of box in frame, height >=16 px; detected = IoU>=0.3.

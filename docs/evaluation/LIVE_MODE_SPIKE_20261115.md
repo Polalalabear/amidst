@@ -13,7 +13,7 @@
 
 ### 2.1 MPS 延遲矩陣（5 組，各 50 秒；量出）
 
-來源：`local/evidence/live-mode-spike-20261115/lat/*.latency.json`（LOCAL，見 §7）。tick 週期 = 1000/fps，50 秒共約 250 個（2 fps 為 100 個）排程 tick。
+來源：`local/evidence/live-mode-spike-20261115/lat/*.latency.json`（LOCAL，量測值無法重建為同值，各檔 SHA-256 見 §7 和 `live_mode_spike_20261115/SHA256SUMS_local.txt`）。tick 週期 = 1000/fps，50 秒共約 250 個（2 fps 為 100 個）排程 tick。
 
 | 設定 | 顯示 tick | 丟掉 tick | 丟棄率 | 實際 fps | 延遲 p50 / p95 / max (ms) | first-lock (ms) | switch (ms) | 正確 active 比例 |
 |---|---|---|---|---|---|---|---|---|

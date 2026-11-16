@@ -341,4 +341,6 @@ node docs/design/img/live-mode-game-v2/capture.mjs "http://127.0.0.1:8797/m/live
 
 `look=before` 是 spike 的樣子，`view=CAM_W2` 是虛擬攝影機，`state=lost` 是失聯中的 HUD。
 
+LOCAL 截圖：`local/evidence/live-mode-design-v2-20261115/`（8 個檔，不進 Git，重新截圖無法重建為同樣的位元，SHA-256 在 `docs/evaluation/live_mode_design_v2_20261115/SHA256SUMS_local.txt`，可由 `look=`/`view=`/`state=` 參數重新截圖）。
+
 LOCAL 來源：`local/data/live-assets-20261115/scene.glb`（33,941,072 bytes）、`character.glb`（658,080 bytes）、`cameras.three.json`，MANIFEST SHA-256 `d92aa7453f13903252b306b42249239168561766677a5180a85afcc4dbff7b29`（N6 #539）。GLB 不進 Git。
