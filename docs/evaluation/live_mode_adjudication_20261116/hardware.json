@@ -1,0 +1,14 @@
+{
+ "gpu_name": "NVIDIA L4",
+ "gpu_memory_total": "23034 MiB",
+ "gpu_memory_used_at_start": "0 MiB",
+ "gpu_driver": "580.82.07",
+ "gpu_count": 1,
+ "cpu_model": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+ "cpu_logical_cores": 12,
+ "ram_total_gib": 53.0,
+ "disk_free_gib": 233.2,
+ "os": "Linux-6.6.159+-x86_64-with-glibc2.39",
+ "python": "3.13.16",
+ "captured_at_utc": "2026-11-16T02:42:36Z"
+}

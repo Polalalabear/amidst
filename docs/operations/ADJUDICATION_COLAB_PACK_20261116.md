@@ -3,7 +3,8 @@
 - Model / effort：Fable 5.2；effort 沒有記錄（這個 session 看不到自己的 effort 設定）。
 - 設計：PR [#547](https://github.com/Polalalabear/amidst/pull/547) 的 `docs/design/LIVE_MODE_LLM_DECISION_V1.md` §0D。OpenAI 那一邊的結果：[`LIVE_MODE_ADJUDICATION_20261116.md`](../evaluation/LIVE_MODE_ADJUDICATION_20261116.md)。
 - **不需要 API key，不呼叫 OpenAI，不花錢。** 包裡沒有標準答案；正確率回到 Mac 上評分。
-- 這個包還沒有在真的 Colab 上跑過。執行腳本只用假的 Ollama 伺服器在 Mac 上測過流程。
+- **2026-11-16 更新：使用者已經在 Colab L4 上跑完這個包。** 兩個 Qwen 視覺模型正常跑完；`llama3.2-vision` 在 Ollama 0.40.16 上載入失敗（`unknown model architecture: 'mllama'`），沒有結果。結果和硬體規格在 [`LIVE_MODE_ADJUDICATION_20261116.md`](../evaluation/LIVE_MODE_ADJUDICATION_20261116.md) §3.2。下面「沒驗證的部分」是出包當時的狀態。
+- 下一次要再跑：把 `llama3.2-vision` 換成 `gemma3:12b-it-q4_K_M`（標籤確認存在，沒有跑過）。
 
 ## 工作內容
 
