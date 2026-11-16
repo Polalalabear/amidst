@@ -2,7 +2,9 @@
 
 - Model / effort：Sonnet 5.5 / medium。2026-11-16 補：新增 §9（異常查證與修法）；§3、§4 的數字已用 59 列帳本重算。使用者核准的上限是 **USD 3**，用來量每個模型、每種題型的 token、延遲和費用，再推算 pilot 與更大題組。
 - **題目是合成題**（`wp5_fake.synthetic_rows`，真題庫未定），所以所有數字都是「**合成題基準**」。DP4 的即時呼叫在 runner 裡還沒接上，**這次沒有量 DP4**。
-- 每次呼叫都經過 `ApiGuard`（`--approved-usd 3`，`AMIDST_API_USD_PER_DAY=3`，`AMIDST_API_MAX_CALLS_PER_DAY=60`，每分鐘照預設 10）。不讀、不存 API key；帳本已用 `grep sk-` 檢查沒有 key。
+> **更正（2026-11-17）：** 環境變數名稱以 `src/amidst/q1q5/api_budget.py` 為準，每日美元上限是 `AMIDST_API_MAX_USD_PER_DAY`；此前寫的 `AMIDST_API_USD_PER_DAY` 不存在，會被忽略，所以那次校準實際用的是預設的 USD 5／天（`AMIDST_API_MAX_CALLS_PER_DAY=60` 與每分鐘 10 次有效）。實跑方案 C 要另設 `AMIDST_API_MAX_CALLS_PER_MIN`（預設 10 對序列呼叫可能不夠，會 `RATE_LIMIT` 並靜默退規則）。
+
+- 每次呼叫都經過 `ApiGuard`（`--approved-usd 3`，`AMIDST_API_MAX_USD_PER_DAY=3`，`AMIDST_API_MAX_CALLS_PER_DAY=60`，每分鐘照預設 10）。不讀、不存 API key；帳本已用 `grep sk-` 檢查沒有 key。
 - 標示：**〔量測〕** 來自這次實跑；**〔推算〕** 用量測平均乘上題數；**〔UNKNOWN〕** 沒有量。
 
 ## 1. 價目（PINNED）
@@ -81,6 +83,8 @@
 | **B 混合** | A＋sol 與 astra 各跑一次 pilot 當價格／延遲對照 | 3.50 | 11.36 | **USD 12** | 主結果之外，回答「貴的模型多花多少、延遲差多少」 |
 | **C 全部最強** | 三個模型 pilot＋formal 全跑（含 DP4） | 14.08 | 45.76 | **USD 46**（astra 占約 78%） | 完整三模型比較；astra 單價最貴，必要性要使用者決定 |
 
+> **方案 C 註記（2026-11-17）：** 上表的 14.08／45.76 含 DP4 上界（約名義 5.93、最壞 19.3）。DP4 尚未接上 live（`DP4_LIVE_NOT_WIRED`），實跑一律 `--skip-types DP4`；扣掉 DP4 後方案 C 約名義 8.15、最壞 ≈ 26.5（dry-run 以最大輸出算為 29.88）。46 的上限不用改，DP4 的 token／延遲仍 `UNKNOWN`。
+
 建議先核准 **A（USD 4）**：花費最小、直接對應預設模型；等 DP4 即時呼叫接上、terra 的空 `candidate_id` 處理決定後再執行。B、C 沒有技術阻礙，但 C 的大部分花費來自 astra，而且 formal 的 2 s 逾時不調整的話，三個模型的 formal 結果大多是規則退回，額外花費的價值有限。
 
 ## 6. LOCAL 成品（`local/evidence/wp5-openai-calib-20261115/`，不進 git，無 key，用 `grep sk-` 檢查過）
@@ -99,7 +103,7 @@
 # 只估算，0 次呼叫
 python -m amidst.agent_eval.wp5_runner --config <calib config> --set calib_terra --skip-types DP4 --out <out>
 # 實跑（需 OPENAI_API_KEY 在環境；不要把 key 寫進指令）
-AMIDST_API_USD_PER_DAY=3 AMIDST_API_MAX_CALLS_PER_DAY=60 AMIDST_API_USAGE_DIR=<ledger dir> \
+AMIDST_API_MAX_USD_PER_DAY=3 AMIDST_API_MAX_CALLS_PER_DAY=60 AMIDST_API_USAGE_DIR=<ledger dir> \
 python -m amidst.agent_eval.wp5_runner --config <calib config> --set calib_terra --models terra6.1 \
   --questions <questions.jsonl> --arm mac --skip-types DP4,DP3,NL --price-table configs/agent_eval/wp5_price_table_v1.json \
   --approved-usd 3 --live --out <out>
