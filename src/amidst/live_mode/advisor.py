@@ -9,6 +9,8 @@ What leaves the backend: two JPEGs made from camera pixels and the number of can
 ids, no scripted positions; the backend has none of those. A chosen candidate is an appearance hypothesis; identity
 stays unconfirmed.
 
+A question needs at least two candidates in one camera (see LiveDecider). A lone candidate is left to the rule.
+
 Modes (server flag --advisor):
   off     rule tracker only; nothing in this module runs
   review  the rule keeps deciding; an answer that arrives while its person is still tracked takes over
@@ -189,10 +191,14 @@ class LiveDecider:
     """Glue between the rule tracker, the people tracker and the advisor. One ``step`` per inference tick."""
 
     def __init__(self, mode: str, advisor: Advisor, people, gate_m: float = 3.0, lock_keep_s: float = 1.5, lost_ticks_before_ask: int = 2,
-                 max_candidates: int = 4, recheck_s: float = 4.0, fallback_show_s: float = 3.0):
+                 max_candidates: int = 4, recheck_s: float = 4.0, fallback_show_s: float = 3.0, lost_min_candidates: int = 2):
         assert mode in ("review", "lead")
         self.mode, self.advisor, self.people = mode, advisor, people
         self.gate, self.keep, self.lost_n, self.max_c, self.recheck, self.show = gate_m, lock_keep_s, lost_ticks_before_ask, max_candidates, recheck_s, fallback_show_s
+        # With a single candidate the model tends to say "yes": in the first live runs all 10 wrong answers were
+        # one-candidate questions where the target was absent, while 16 of 16 two-candidate questions were right
+        # (docs/evaluation/LIVE_MODE_ADVISOR_20261116.md). So a question needs at least two candidates by default.
+        self.lost_min = lost_min_candidates
         self.locked: int | None = None
         self.lock_xy = None
         self.lock_seen = -1e9
@@ -262,7 +268,7 @@ class LiveDecider:
             if matched and len(near) >= 2:
                 kind, pool, need = "SILENT_PICK", near, 2
             elif not matched and out.get("state") != "SEARCHING" and (out.get("lost_ticks") or 0) >= self.lost_n and people:
-                kind, pool = "LOST_WITH_CANDIDATES", people
+                kind, pool, need = "LOST_WITH_CANDIDATES", people, self.lost_min
             if kind:
                 per_cam: dict = {}
                 for p in pool:

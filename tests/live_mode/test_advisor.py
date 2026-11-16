@@ -220,18 +220,36 @@ def test_decider_choice_zero_releases_and_invalid_reply_keeps_rule():
     assert out["decision_source"] == "RULE_FALLBACK" and out["fallback_reason"] == "INVALID_RESPONSE" and out["est_xy"] == [1.0, 0]
 
 
-def test_decider_asks_when_lost_with_a_candidate_and_not_when_one_person_is_tracked():
+def test_decider_lone_candidate_is_not_asked_by_default():
     d, calls, _ = decider(reply={"choice": 1, "reason": "相符"})
     tr = tracker_stub([0, 0]); lock(d, tr)
     out = d.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100)), FRAME)     # one person, matched: no question
     assert not calls and out["advisor"]["state"] == "IDLE"
     far = cand("W1", (8, 3), x0=600)                                                               # outside the 3 m gate: the rule is lost
-    d.step(2, 1.0, tr, tracking([0.5, 0], lost=1), dets_of(far), FRAME)
+    for tick, lost in ((2, 1), (3, 2), (4, 3)):
+        out = d.step(tick, tick * 0.5, tr, tracking([0.5, 0], lost=lost), dets_of(far), FRAME)
+    assert not calls and out["decision_source"] == "RULE_ONLY" and out["est_xy"] == [0.5, 0]      # a lone candidate is left to the rule
+
+
+def test_decider_asks_when_lost_with_two_candidates():
+    d, calls, _ = decider(reply={"choice": 2, "reason": "相符"})
+    tr = tracker_stub([0, 0]); lock(d, tr)
+    two = lambda dx: (cand("W1", (8 + dx, 3), x0=300), cand("W1", (11 + dx, 3), x0=600))          # noqa: E731 - both outside the gate
+    d.step(1, 0.5, tr, tracking([0, 0], lost=1), dets_of(*two(0)), FRAME)
     assert not calls                                                                              # lost for one tick only
-    out = d.step(3, 1.5, tr, tracking([0.5, 0], lost=2), dets_of(far), FRAME)
+    out = d.step(2, 1.0, tr, tracking([0, 0], lost=2), dets_of(*two(0)), FRAME)
+    assert calls == [(True, True, 2)] and out["events"][-1]["detail"] == {"kind": "LOST_WITH_CANDIDATES", "candidates": 2}
+    out = d.step(3, 1.5, tr, tracking([0, 0], lost=3), dets_of(*two(0.5)), FRAME)
+    assert out["decision_source"] == "AGENT" and out["est_xy"] == [11.5, 3] and out["state"] == "TRACKING" and tr.state == "TRACKING"
+
+
+def test_decider_lone_candidate_can_be_asked_when_configured():
+    d, calls, _ = decider(reply={"choice": 1, "reason": "相符"}, lost_min_candidates=1)
+    tr = tracker_stub([0, 0]); lock(d, tr)
+    far = cand("W1", (8, 3), x0=600)
+    d.step(1, 0.5, tr, tracking([0, 0], lost=1), dets_of(far), FRAME)
+    out = d.step(2, 1.0, tr, tracking([0, 0], lost=2), dets_of(far), FRAME)
     assert calls == [(True, True, 1)] and out["events"][-1]["detail"]["kind"] == "LOST_WITH_CANDIDATES"
-    out = d.step(4, 2.0, tr, tracking([0.5, 0], lost=3), dets_of(cand("W1", (8.5, 3), x0=600)), FRAME)
-    assert out["decision_source"] == "AGENT" and out["est_xy"] == [8.5, 3] and out["state"] == "TRACKING" and tr.state == "TRACKING"
 
 
 def test_decider_candidates_are_numbered_left_to_right():
@@ -248,6 +266,7 @@ def test_server_builds_no_decider_when_the_advisor_is_off():
     st = object.__new__(server.State)
     st.args, st.guard = types.SimpleNamespace(advisor="off"), None
     assert st._new_decider() is None
-    st.args = types.SimpleNamespace(advisor="lead", advisor_provider="fake", advisor_model="sol6.1", advisor_timeout_s=5.0, advisor_fake_delay_s=0.0)
+    st.args = types.SimpleNamespace(advisor="lead", advisor_provider="fake", advisor_model="sol6.1", advisor_timeout_s=5.0, advisor_fake_delay_s=0.0,
+                                    advisor_lost_min_candidates=2)
     dec = st._new_decider()
-    assert dec.mode == "lead" and dec.advisor.model_id == "fake" and dec.advisor.guard is None
+    assert dec.mode == "lead" and dec.advisor.model_id == "fake" and dec.advisor.guard is None and dec.lost_min == 2

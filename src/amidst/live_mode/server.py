@@ -78,7 +78,8 @@ class State:
                 time.sleep(a.advisor_fake_delay_s)
                 return {"choice": 1, "reason": "假模型：固定回答 1", "prompt_tokens": 0, "completion_tokens": 0, "api_model": "fake"}
             model_id = "fake"
-        return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker())
+        return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker(),
+                           lost_min_candidates=a.advisor_lost_min_candidates)
 
     def reset(self):
         self.tracker = Tracker(self.projector)
@@ -200,6 +201,8 @@ def main():
     ap.add_argument("--advisor-provider", default="openai", choices=["openai", "fake"], help="fake = no network, no cost, always answers 1")
     ap.add_argument("--advisor-timeout-s", type=float, default=5.0)
     ap.add_argument("--advisor-fake-delay-s", type=float, default=2.5)
+    ap.add_argument("--advisor-lost-min-candidates", type=int, default=2, choices=[1, 2],
+                    help="candidates needed to ask while the target is lost; 1 restores the first version, which often picked a lone wrong person")
     args = ap.parse_args()
     if args.port == 8785:
         raise SystemExit("8785 is the pinned demo port; refusing")
