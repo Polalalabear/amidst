@@ -1,3 +1,5 @@
+> 已由 [COORDINATOR_HANDOFF_20261116.md](COORDINATOR_HANDOFF_20261116.md) 取代。
+
 # 協調者交接 2026-11-15
 
 前一位協調者是 Claude Opus 5.5，從 `HANDOFF_COORDINATOR_20261110_B.md` 接手。下一個決策編號是 **D220**，要同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
