@@ -32,10 +32,10 @@ SAME = 1.5
 class OracleAdvisor(Advisor):
     """Answers with the candidate that stands where the target truly is (evaluation only), ``delay_s`` later."""
 
-    def __init__(self, people: PeopleTracker, delay_s: float):
+    def __init__(self, people: PeopleTracker, delay_s: float, oracle_m: float = SAME):
         self.now = 0.0
         super().__init__(provider=None, clock=lambda: self.now, run_async=False, timeout_s=5.0)
-        self.people, self.delay_s, self.truth = people, delay_s, None
+        self.people, self.delay_s, self.truth, self.oracle_m = people, delay_s, None, oracle_m
         self.ready: dict | None = None
 
     def ask(self, kind, cam, pids, frame):
@@ -45,7 +45,7 @@ class OracleAdvisor(Advisor):
         self.calls += 1
         d = [math.dist(self.people.tracks[p]["xy"], self.truth) if self.truth else 1e9 for p in pids]
         best = min(range(len(pids)), key=lambda i: d[i])
-        self.ready = {"choice": best + 1 if d[best] <= SAME else 0}
+        self.ready = {"choice": best + 1 if d[best] <= self.oracle_m else 0}
         return True
 
     def poll(self):
@@ -58,11 +58,11 @@ class OracleAdvisor(Advisor):
 
 
 def replay(raw: dict, mode: str, delay_s: float, lost_min: int, apply: str = "reseed", contest_m: float = 0.7, gate_m: float = 3.0,
-           gate_growth: float = 0.0, max_gate: float = 8.0) -> dict:
+           gate_growth: float = 0.0, max_gate: float = 8.0, oracle_m: float = SAME) -> dict:
     proj = Projector(json.loads(GEOMETRY.read_text())["cameras"])
     tracker = Tracker(proj, gate_m=gate_m, gate_growth_m_s=gate_growth, max_gate_m=max_gate)
     people = PeopleTracker(contest_m=contest_m)
-    adv = OracleAdvisor(people, delay_s)
+    adv = OracleAdvisor(people, delay_s, oracle_m)
     dec = LiveDecider(mode, adv, people, gate_m=gate_m, lost_min_candidates=lost_min, apply=apply) if mode != "off" else None
     frames = {c: Image.new("RGB", (raw["cfg"]["w"], raw["cfg"]["h"]), (128, 128, 128)) for c in raw["cfg"]["cams"]}
     out = copy.deepcopy(raw)
@@ -77,7 +77,7 @@ def replay(raw: dict, mode: str, delay_s: float, lost_min: int, apply: str = "re
             tracking = dec.step(i, t_s, tracker, tracking, dets, frames)
         out["infer"][i]["dets"], out["infer"][i]["tracking"] = dets, tracking
     out["label"] = raw["label"]
-    out["replay"] = {"mode": mode, "delay_s": delay_s, "lost_min_candidates": lost_min, "questions": adv.calls,
+    out["replay"] = {"mode": mode, "delay_s": delay_s, "lost_min_candidates": lost_min, "oracle_m": oracle_m, "questions": adv.calls,
                      "note": "evaluation-only oracle answers; not a model result"}
     return out
 
@@ -94,6 +94,8 @@ def main() -> int:
     ap.add_argument("--gate-growth", type=float, default=0.0, help="metres per second the rule gate widens while the target is unseen")
     ap.add_argument("--max-gate", type=float, default=8.0)
     ap.add_argument("--contest-m", type=float, default=0.7, help="0 switches the close-pass check off")
+    ap.add_argument("--oracle-m", type=float, default=SAME, help="the stand-in answers 0 unless the nearest candidate is within this many metres of the true position "
+                    "(1.5 reproduces the numbers before 2026-11-17; with people walking 1.3 m apart it names a bystander as the target)")
     ap.add_argument("--tag", default="", help="suffix for the output label")
     ap.add_argument("--only", default="", help="keep source labels containing this text (e.g. _off_)")
     a = ap.parse_args()
@@ -104,7 +106,7 @@ def main() -> int:
             continue
         route, rep = raw["label"].split("_")[0], raw["label"].split("_")[-1]
         src_mode = "".join(raw["label"].split("_")[1:-1])
-        res = replay(raw, a.mode, a.delay_s, a.lost_min_candidates, a.apply, a.contest_m, a.gate_m, a.gate_growth, a.max_gate)
+        res = replay(raw, a.mode, a.delay_s, a.lost_min_candidates, a.apply, a.contest_m, a.gate_m, a.gate_growth, a.max_gate, a.oracle_m)
         res["label"] = f"{route}_{a.mode}{a.tag}_from{src_mode}_{rep}"
         (Path(a.out) / f"{res['label']}.t1raw.json").write_text(json.dumps(res))
         print(res["label"], "questions", res["replay"]["questions"])
