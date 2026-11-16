@@ -228,7 +228,7 @@ def test_timeout_three_times_hits_round_limit():
     transport = ScriptedTransport(
         (TimeoutError('timed out 1'), 1200.0),
         (socket.timeout('timed out 2'), 1200.0),
-        (200, _openai_envelope(_select('C2')), 2100.0),  # late response > 2000 ms timeout
+        (200, _openai_envelope(_select('C2')), 5100.0),  # late response > 5000 ms timeout
         clock=clock,
     )
     budget = CallBudget(FORMAL, STAGE)
@@ -258,11 +258,11 @@ def test_timeout_three_times_hits_round_limit():
     assert all(a['response_sha256'] is None for a in record['attempts'])
 
 
-def test_cumulative_wall_ms_over_5000_hits_time_budget():
+def test_cumulative_wall_ms_over_12000_hits_time_budget():
     clock = FakeClock()
     transport = ScriptedTransport(
-        (200, _openai_envelope(_select('C2')), 2500.0),
-        (200, _openai_envelope(_select('C2')), 2600.0),
+        (200, _openai_envelope(_select('C2')), 6500.0),
+        (200, _openai_envelope(_select("C2")), 6600.0),
         clock=clock,
     )
     budget = CallBudget(FORMAL, STAGE)

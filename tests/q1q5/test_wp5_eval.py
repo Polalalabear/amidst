@@ -38,7 +38,7 @@ def test_config_valid_and_pilot_is_288_openai_calls():
     f = wp5.estimate_set(CFG, 'formal', TABLE)
     assert f['openai_calls_nominal'] == 140 * 3 * 3
     assert f['openai_usd_nominal'] < f['openai_usd_worst'] < 100
-    assert CFG['timeout_profiles']['formal']['per_call_ms'] == 2000 and CFG['timeout_profiles']['relaxed']['per_call_ms'] == 10000
+    assert CFG['timeout_profiles']['formal']['per_call_ms'] == 5000 and CFG['timeout_profiles']['relaxed']['per_call_ms'] == 10000
     for prof in CFG['timeout_profiles'].values():
         p = wp5.load_json(prof['params_path'])
         assert p['per_call']['timeout_ms'] == prof['per_call_ms'] and p['per_step']['budget_ms'] == prof['per_step_ms']

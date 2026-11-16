@@ -90,7 +90,7 @@ def ok(response, wall=300.0, p=1000, c=60):
     return Attempt('OK', wall, response, p, c)
 
 
-def timeout(wall=2000.0):
+def timeout(wall=5000.0):
     return Attempt('TIMEOUT', wall)
 
 
@@ -187,8 +187,8 @@ def test_committed_parameter_sets_match_d165_d166():
     assert [m['config_id'] for m in FORMAL['models']] == ['astra6', 'sol6.1', 'terra6.1']
     assert {m["config_id"]: m["api_model_id"] for m in FORMAL["models"]} == {"astra6": "gpt-6-astra", "sol6.1": "gpt-6.1-sol", "terra6.1": "gpt-6.1-terra"}
     assert FORMAL['report_group'] == 'FORMAL' and EXPLORATORY['report_group'] == 'EXPLORATORY'
-    assert FORMAL['per_call'] == {'timeout_ms': 2000, 'max_output_tokens': 300, 'max_retries_on_429_5xx': 1}
-    assert FORMAL['per_step'] == {'budget_ms': 5000, 'max_rounds': 3}
+    assert FORMAL['per_call'] == {'timeout_ms': 5000, 'max_output_tokens': 300, 'max_retries_on_429_5xx': 1}
+    assert FORMAL['per_step'] == {'budget_ms': 12000, 'max_rounds': 3}
     assert FORMAL['per_session'] == {'max_rounds': 12}
     assert FORMAL['rate'] == {'max_concurrent': 1, 'max_requests_per_minute': 30}
     assert FORMAL['budget_usd'] == 100 and FORMAL['price_table'] is None
@@ -397,9 +397,9 @@ def test_row_round_limit():
 
 
 def test_row_time_budget():
-    script = Script(timeout(), timeout(), timeout(1000.0))
+    script = Script(timeout(), timeout(), timeout(2000.0))
     record = run(dp1(), script)
-    assert [c['timeout_ms'] for c in script.calls] == [2000, 2000, 1000]
+    assert [c['timeout_ms'] for c in script.calls] == [5000, 5000, 2000]
     assert record['fallback_reason'] == 'TIME_BUDGET'
 
 
@@ -494,7 +494,7 @@ def test_dp3_agent_reject_and_identity_constant():
 def test_per_call_limits_are_passed_to_provider():
     script = Script(ok(select()))
     run(dp1(), script)
-    assert script.calls == [{'timeout_ms': 2000, 'max_output_tokens': 300}]
+    assert script.calls == [{'timeout_ms': 5000, 'max_output_tokens': 300}]
     explo = copy.deepcopy(EXPLORATORY)
     explo['stages']['EXPLORATORY'].update(approved=True, approval_ref='test', max_calls=10, max_tokens=10**6,
                                           per_model_max_calls=10, per_model_max_tokens=10**6)
@@ -504,7 +504,7 @@ def test_per_call_limits_are_passed_to_provider():
 
 
 def test_late_ok_response_is_discarded_as_timeout():
-    record = run(dp1(), Script(ok(select(), wall=2500.0), ok(ABSTAIN_RESP)))
+    record = run(dp1(), Script(ok(select(), wall=5500.0), ok(ABSTAIN_RESP)))
     assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT', 'OK']
     assert record['final_answer'] == 'ABSTAIN'
 

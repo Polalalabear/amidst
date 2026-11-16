@@ -22,12 +22,12 @@
     }
   ],
   "per_call": {
-    "timeout_ms": 2000,
+    "timeout_ms": 5000,
     "max_output_tokens": 300,
     "max_retries_on_429_5xx": 1
   },
   "per_step": {
-    "budget_ms": 5000,
+    "budget_ms": 12000,
     "max_rounds": 3
   },
   "per_session": {

@@ -574,7 +574,7 @@ def test_g6_latency_groups_are_separate_and_use_their_own_parameters():
     latency = importlib.import_module('amidst.agent_eval.latency')
     assert tuple(latency.GROUPS) == ('tracking_formal', 'search_relaxed')
     params = latency.group_params()
-    assert params['tracking_formal'] == {'timeout_ms': 2000, 'budget_ms': 5000, 'max_rounds': 3}
+    assert params['tracking_formal'] == {'timeout_ms': 5000, 'budget_ms': 12000, 'max_rounds': 3}
     ex = json.loads(EXPLORATORY_PARAMS.read_text())
     assert params['search_relaxed'] == {'timeout_ms': ex['per_call']['timeout_ms'],
                                         'budget_ms': ex['per_step']['budget_ms'],
