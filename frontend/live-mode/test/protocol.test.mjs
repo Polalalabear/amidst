@@ -41,3 +41,20 @@ test('backend request header has only tick, clock, camera ids and byte sizes', (
   assert.deepEqual(Object.keys(h).sort(), ['frames', 't_capture_ms', 'tick']);
   assert.deepEqual(Object.keys(h.frames[0]).sort(), ['bytes', 'cam']);
 });
+
+test('advisor status passes; operator keys inside it are stripped and flagged', () => {
+  const result = backendResult();
+  Object.assign(result.tracking, { decision_source: 'AGENT', fallback_reason: null,
+    advisor: { state: 'IDLE', pending_ms: null, operator_xy: SENTINEL_XY,
+      last: { kind: 'SILENT_PICK', cam: 'CAM_W1', choice: 2, reason: 'r', latency_ms: 2900, applied: true, model: 'm', source: 'AGENT',
+        fallback_reason: null, person_id: OPERATOR.person_id } } });
+  const msg = buildSystemMessage({ tick: 4, tCaptureMs: 1, frames: [], result });
+  assert.equal(msg.tracking.decision_source, 'AGENT');
+  assert.equal(msg.tracking.advisor.last.choice, 2);
+  const text = JSON.stringify(msg);
+  assert.ok(!text.includes('OPERATOR_SENTINEL_ID') && !text.includes('1234.5678'));
+  assert.deepEqual(validateSystemMessage(msg), []);
+  msg.tracking.advisor.gt = 1; msg.tracking.advisor.last.actor_id = 'T';
+  const bad = validateSystemMessage(msg);
+  assert.ok(bad.includes('tracking.advisor.gt') && bad.includes('tracking.advisor.last.actor_id'));
+});

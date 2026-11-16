@@ -21,8 +21,10 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
 from .detector import LiveDetector
+from .people import PeopleTracker
 from .tracker import Projector, Tracker
 
 REPO = Path(__file__).resolve().parents[3]
@@ -53,27 +55,65 @@ class State:
         self.args = args
         self.assets = assets_dir(args.assets)
         self.n6 = bool(self.assets and all((self.assets / f).is_file() for f in N6_FILES.values()))
+        self.guard = None
+        if args.advisor != "off" and args.advisor_provider == "openai":   # paid: server-side opt-in only (AMIDST_API_* env)
+            import dataclasses
+            from amidst.q1q5.api_budget import ApiGuard, GuardConfig
+            cfg = GuardConfig.from_env()
+            if cfg.prices is None:   # D237 prices, keyed by API model id
+                cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
+            self.guard = ApiGuard(cfg)
+        self.decider = self._new_decider()
+
+    def _new_decider(self):
+        """None when the advisor is off, so the rule-only path is exactly what it was before."""
+        a = self.args
+        if a.advisor == "off":
+            return None
+        if a.advisor_provider == "openai":
+            provider = OpenAIAdjudicator(a.advisor_model)
+            model_id = provider.api_model
+        else:   # no network, no cost: answers 1 after a delay; only for exercising the flow
+            def provider(ref, frame, k, timeout_s):
+                time.sleep(a.advisor_fake_delay_s)
+                return {"choice": 1, "reason": "假模型：固定回答 1", "prompt_tokens": 0, "completion_tokens": 0, "api_model": "fake"}
+            model_id = "fake"
+        return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker())
+
+    def reset(self):
+        self.tracker = Tracker(self.projector)
+        self.decider = self._new_decider()
 
     def infer(self, header: dict, jpegs: dict, track: bool) -> dict:
         t0 = time.perf_counter()
         cams = list(jpegs)
         imgs = [Image.open(io.BytesIO(jpegs[c])).convert("RGB") for c in cams]
         t1 = time.perf_counter()
+        # Larger frames (e.g. 960x540, kept for adjudication crops) are shrunk for detection so the detector and the
+        # colour judgement see the same size as before; boxes are then scaled back to the received frame.
+        dw, dh = self.args.det_width, self.args.det_height
+        det_imgs = [im if im.width <= dw else im.resize((dw, dh), Image.Resampling.BILINEAR) for im in imgs]
         with self.lock:  # one inference at a time on the device
-            dets, timing = self.det.detect(imgs)
+            dets, timing = self.det.detect(det_imgs)
             t2 = time.perf_counter()
             out = {}
-            for cam, im, lst in zip(cams, imgs, dets):
-                arr = np.asarray(im)
+            for cam, im, dim, lst in zip(cams, imgs, det_imgs, dets):
+                arr = np.asarray(dim)
                 if track:  # live path shows/uses only detections above the display threshold
                     lst = [d for d in lst if d["score"] >= self.args.min_score]
                 for d in lst:
                     d.update(judge(arr, d["bbox"]))
+                    if dim is not im:
+                        k = im.width / dim.width
+                        d["bbox"] = [v * k for v in d["bbox"]]
                 out[cam] = lst
             t3 = time.perf_counter()
             tracking = None
             if track:
                 tracking = self.tracker.update(header["tick"], out, imgs[0].size)
+                if self.decider is not None:
+                    tracking = self.decider.step(header["tick"], float(header.get("t_capture_ms") or 0) / 1000.0, self.tracker, tracking, out,
+                                                 dict(zip(cams, imgs)))
             t4 = time.perf_counter()
         timing.update({"decode": (t1 - t0) * 1e3, "detect_total": (t2 - t1) * 1e3,
                        "color": (t3 - t2) * 1e3, "track": (t4 - t3) * 1e3,
@@ -118,7 +158,9 @@ def make_handler(state: State):
                 return self._file(state.assets / N6_FILES[p])
             if p == "/config":
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
-                                                   "glb": state.n6, "n6": state.n6}).encode())
+                                                   "glb": state.n6, "n6": state.n6,
+                                                   "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
+                                                   "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None}).encode())
             self._send(404, b"not found", "text/plain")
 
         def do_POST(self):
@@ -127,7 +169,7 @@ def make_handler(state: State):
             p = self.path.split("?")[0]
             if p == "/reset":
                 with state.lock:
-                    state.tracker = Tracker(state.projector)
+                    state.reset()
                 return self._send(200, b"{}")
             if p in ("/infer", "/detect"):
                 hl = struct.unpack("<I", body[:4])[0]
@@ -151,6 +193,13 @@ def main():
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--assets", default=None, help="N6 asset dir (character.glb, scene.glb, cameras.three.json)")
     ap.add_argument("--models", default=str(REPO / "local/data/demo-owned-v1/models/rtdetr"))
+    ap.add_argument("--det-width", type=int, default=320, help="frames wider than this are shrunk to det-width x det-height for detection")
+    ap.add_argument("--det-height", type=int, default=180)
+    ap.add_argument("--advisor", default="off", choices=["off", "review", "lead"], help="image adjudication (advisor.py); off = rule tracker only")
+    ap.add_argument("--advisor-model", default="sol6.1", choices=sorted(ADVISOR_MODELS))
+    ap.add_argument("--advisor-provider", default="openai", choices=["openai", "fake"], help="fake = no network, no cost, always answers 1")
+    ap.add_argument("--advisor-timeout-s", type=float, default=5.0)
+    ap.add_argument("--advisor-fake-delay-s", type=float, default=2.5)
     args = ap.parse_args()
     if args.port == 8785:
         raise SystemExit("8785 is the pinned demo port; refusing")

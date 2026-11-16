@@ -4,7 +4,11 @@
 
 const FRAME_KEYS = new Set(['cam', 'jpeg']);
 const DET_KEYS = new Set(['bbox', 'score', 'color', 'red_ratio', 'blue_ratio', 'est_xy']);
-const TRACK_KEYS = new Set(['state', 'active_cam', 'seen_cams', 'est_xy', 'events', 'lost_ticks']);
+const TRACK_KEYS = new Set(['state', 'active_cam', 'seen_cams', 'est_xy', 'events', 'lost_ticks',
+  // image adjudication (src/amidst/live_mode/advisor.py): who decided, and the advisor's own status. Backend outputs only.
+  'decision_source', 'fallback_reason', 'advisor']);
+const ADVISOR_KEYS = new Set(['state', 'pending_ms', 'last']);
+const ADVISOR_LAST_KEYS = new Set(['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'model', 'source', 'fallback_reason']);
 const EVENT_KEYS = new Set(['tick', 'type', 'cam', 'detail']);
 const TOP_KEYS = new Set(['type', 'tick', 't_capture_ms', 'frames', 'dets', 'tracking', 'timing_ms']);
 
@@ -17,6 +21,10 @@ export function buildSystemMessage({ tick, tCaptureMs, frames, result }) {
   const tr = result.tracking || {};
   const tracking = pick(tr, TRACK_KEYS);
   if (tracking.events) tracking.events = tracking.events.map((e) => pick(e, EVENT_KEYS));
+  if (tracking.advisor) {
+    tracking.advisor = pick(tracking.advisor, ADVISOR_KEYS);
+    if (tracking.advisor.last) tracking.advisor.last = pick(tracking.advisor.last, ADVISOR_LAST_KEYS);
+  }
   return {
     type: 'frame-batch', tick, t_capture_ms: tCaptureMs,
     frames: frames.map((f) => pick(f, FRAME_KEYS)),
@@ -45,6 +53,10 @@ export function validateSystemMessage(msg) {
   if (msg.tracking) {
     chk(msg.tracking, TRACK_KEYS, 'tracking');
     for (const [i, e] of (msg.tracking.events || []).entries()) chk(e, EVENT_KEYS, `events[${i}]`);
+    if (msg.tracking.advisor) {
+      chk(msg.tracking.advisor, ADVISOR_KEYS, 'tracking.advisor');
+      if (msg.tracking.advisor.last) chk(msg.tracking.advisor.last, ADVISOR_LAST_KEYS, 'tracking.advisor.last');
+    }
   }
   return bad;
 }
