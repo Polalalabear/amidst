@@ -32,6 +32,8 @@ MODEL_KINDS = ('RULE', 'LOCAL', 'OPENAI')
 _ROOT = Path(__file__).resolve().parents[3]
 _DP_NAMES = {ad.DP1: 'DP1', ad.DP3: 'DP3'}
 TIMEOUT_FALLBACKS = ('PROVIDER_TIMEOUT', 'TIME_BUDGET', 'TIMEOUT')
+# reply came back but was unusable (DP: agent_decision fallback reasons; NL: nl_query_parse SCHEMA_REJECTED)
+FORMAT_FALLBACKS = ('INVALID_RESPONSE', 'ILLEGAL_CANDIDATE', 'EXPLANATION_INVALID', 'SCHEMA_REJECTED')
 
 
 class Wp5Error(ValueError):
@@ -455,6 +457,8 @@ def summarize_rows(rows: list[Mapping]) -> dict:
         costs = [r['cost_usd'] for r in run if r['cost_usd'] is not None]
         n_timeout = sum(1 for r in run if r['timed_out_fallback'])
         n_unavail = sum(1 for r in run if r['fallback_reason'] == 'PROVIDER_UNAVAILABLE')
+        n_format = sum(1 for r in run if r['fallback_reason'] in FORMAT_FALLBACKS)
+        kept = [r for r in run if not r['fallback_reason']]      # answered by the model itself (not the fallback rule)
         scored = [r for r in run if r.get('accuracy_correct') is not None]
         cells.append({
             'report_group': group, 'model': model, 'task_type': t,
@@ -467,6 +471,8 @@ def summarize_rows(rows: list[Mapping]) -> dict:
                        'completion': sum(r['completion_tokens'] or 0 for r in run),
                        'n_missing': sum(1 for r in run if r['prompt_tokens'] is None and r['model_kind'] != 'RULE')},
             'timeout_fallback': {'n': n_timeout, 'rate': (n_timeout / len(run)) if run else None},
+            'format_error_fallback': {'n': n_format, 'rate': (n_format / len(run)) if run else None,
+                                      'reasons': list(FORMAT_FALLBACKS)},
             'fallback_reasons': _count(r['fallback_reason'] for r in run if r['fallback_reason']),
             'fallback_rate': (sum(1 for r in run if r['fallback_reason']) / len(run)) if run else None,
             'provider_unavailable_rate': (n_unavail / len(run)) if run else None,
@@ -474,7 +480,10 @@ def summarize_rows(rows: list[Mapping]) -> dict:
             'provider_error_sample': next((r['provider_error'] for r in run if r.get('provider_error')), None),
             'accuracy_recorded_only': {
                 'n_answers': sum(1 for r in run if r['answer'] is not None),
-                'agreement_with_rule': (sum(1 for r in run if r['matches_rule']) / len(run)) if run else None,
+                'agreement_with_rule': (sum(1 for r in kept if r['matches_rule']) / len(kept)) if kept else None,
+                'agreement_denominator': len(kept),
+                'n_excluded_fallback': len(run) - len(kept),
+                'agreement_note': 'denominator = rows answered by the model itself; rows that fell back to the rule are excluded (they would agree with the rule by construction)',
                 'n_scored': len(scored),
                 'correct': sum(1 for r in scored if r['accuracy_correct']) if scored else None,
                 'note': 'accuracy_correct stays null here; the Mac scoring package fills it from GT. Not a pass condition.'},
@@ -520,13 +529,18 @@ def render_summary_md(summary: Mapping) -> str:
     lines = []
     if summary.get('status') == 'FAILED':
         lines += ['**RUN FAILED — not a result:**', ''] + [f'- {m}' for m in summary['failures']] + ['']
-    lines += ['| group | model | type | n | p50 ms | p95 ms | cost total USD | cost p95 USD | timeout-fallback | accuracy (record only: agree w/ Rule) |',
-             '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+    if summary.get('warnings'):
+        lines += ['**Warnings:**', ''] + [f'- {m}' for m in summary['warnings']] + ['']
+    lines += ['Agree w/ Rule = agreeing rows / rows the model answered itself (fallback rows excluded; excluded count in the last column). Accuracy is record only.', '',
+              '| group | model | type | n | p50 ms | p95 ms | cost total USD | cost p95 USD | timeout-fallback | format-error-fallback | agree w/ Rule (answered rows) | excluded fallback rows |',
+              '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
     for c in summary['cells']:
-        a = c['accuracy_recorded_only']['agreement_with_rule']
+        acc = c['accuracy_recorded_only']
+        a = acc['agreement_with_rule']
+        agree = '—' if a is None else f"{a:.2f} ({acc['agreement_denominator']})"
         lines.append(f"| {c['report_group']} | {c['model']} | {c['task_type']} | {c['n_ok']} | {f(c['latency_ms']['p50'])} | "
                      f"{f(c['latency_ms']['p95'])} | {f(c['cost_usd']['total'], 4)} | {f(c['cost_usd']['p95'], 4)} | "
-                     f"{f(c['timeout_fallback']['rate'], 3)} | {f(a, 2)} |")
+                     f"{f(c['timeout_fallback']['rate'], 3)} | {f(c['format_error_fallback']['rate'], 3)} | {agree} | {acc['n_excluded_fallback']} |")
     return '\n'.join(lines) + '\n'
 
 

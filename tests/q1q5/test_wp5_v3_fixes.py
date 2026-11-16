@@ -221,3 +221,32 @@ def test_ledger_charges_worst_case_when_status_is_429_or_timeout(tmp_path):
     runner.guarded_decision_call(g, cfg, wp5.model_by_id(cfg, 'terra6.1'), p.call)(fake.dp1_request(0), timeout_ms=2000, max_output_tokens=300)
     r = _rows(g)[0]
     assert r['prompt_tokens'] is None and r['est_cost_usd'] > 0
+
+
+# ---- 7. summary: format-error rate, agreement excludes fallback rows, warnings in summary.md --------------------------
+def _row(i, reason=None, agree=True, task='DP1'):
+    return {'report_group': 'g', 'model': 'm', 'task_type': task, 'outcome': 'OK', 'latency_ms': 100.0, 'cost_usd': None,
+            'timed_out_fallback': reason in wp5.TIMEOUT_FALLBACKS, 'fallback_reason': reason, 'prompt_tokens': 1,
+            'completion_tokens': 1, 'model_kind': 'LOCAL', 'decision_source': 'RULES' if reason else 'M',
+            'answer': {}, 'matches_rule': True if reason else agree, 'accuracy_correct': None}
+
+
+def test_summary_separates_format_errors_and_excludes_fallback_from_agreement():
+    rows = [_row(0), _row(1, agree=False), _row(2, 'INVALID_RESPONSE'), _row(3, 'INVALID_RESPONSE'), _row(4, 'PROVIDER_TIMEOUT')]
+    s = wp5.summarize_rows(rows)
+    c = s['cells'][0]
+    assert c['format_error_fallback']['n'] == 2 and c['format_error_fallback']['rate'] == pytest.approx(0.4)
+    assert c['timeout_fallback']['n'] == 1 and c['timeout_fallback']['rate'] == pytest.approx(0.2)
+    acc = c['accuracy_recorded_only']
+    assert acc['agreement_with_rule'] == pytest.approx(0.5) and acc['agreement_denominator'] == 2 and acc['n_excluded_fallback'] == 3
+    md = wp5.render_summary_md(s)
+    assert 'format-error-fallback' in md and '0.400' in md and '0.50 (2)' in md
+    assert 'Warnings' in md and 'fallback rate 60%' in md          # health_check warning is printed, not only in summary.json
+
+
+def test_resummary_recomputes_from_calls_jsonl(tmp_path):
+    rs = importlib.import_module('amidst.agent_eval.wp5_resummary')
+    (tmp_path / 'calls.jsonl').write_text('\n'.join(json.dumps(_row(i, 'INVALID_RESPONSE' if i else None)) for i in range(3)) + '\n')
+    s = rs.resummarize(tmp_path)
+    assert s['cells'][0]['format_error_fallback']['n'] == 2
+    assert 'format-error-fallback' in (tmp_path / 'summary.md').read_text()
