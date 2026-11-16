@@ -94,6 +94,10 @@ def timeout(wall=5000.0):
     return Attempt('TIMEOUT', wall)
 
 
+WIDE = copy.deepcopy(FORMAL)
+WIDE['per_step']['budget_ms'] = 12000   # only to reach ROUND_LIMIT / retry-after-timeout paths; the committed formal step budget (D246) is 5000
+
+
 def run(request, script, *, params=FORMAL, mode='AGENT_LIVE', budget=None, model='astra6', stage=STAGE):
     budget = budget or CallBudget(params, stage)
     record = ad.decide(request, mode=mode, params=params, budget=budget, model=model, call=script,
@@ -188,7 +192,7 @@ def test_committed_parameter_sets_match_d165_d166():
     assert {m["config_id"]: m["api_model_id"] for m in FORMAL["models"]} == {"astra6": "gpt-6-astra", "sol6.1": "gpt-6.1-sol", "terra6.1": "gpt-6.1-terra"}
     assert FORMAL['report_group'] == 'FORMAL' and EXPLORATORY['report_group'] == 'EXPLORATORY'
     assert FORMAL['per_call'] == {'timeout_ms': 5000, 'max_output_tokens': 300, 'max_retries_on_429_5xx': 1}
-    assert FORMAL['per_step'] == {'budget_ms': 12000, 'max_rounds': 3}
+    assert FORMAL['per_step'] == {'budget_ms': 5000, 'max_rounds': 3}
     assert FORMAL['per_session'] == {'max_rounds': 12}
     assert FORMAL['rate'] == {'max_concurrent': 1, 'max_requests_per_minute': 30}
     assert FORMAL['budget_usd'] == 100 and FORMAL['price_table'] is None
@@ -383,7 +387,7 @@ def test_row_mode_not_authorized_when_stage_locked():
 
 def test_row_single_call_timeout_is_retried_and_recorded():
     two = dp1(cand('B1'), cand('C2', 'CAM_C'))
-    record = run(two, Script(timeout(), ok(select('C2'))))
+    record = run(two, Script(timeout(), ok(select('C2'))), params=WIDE)
     assert record['decision_source'] == 'AGENT' and record['final_answer'] == 'C2' and record['rule_answer'] == 'ABSTAIN'
     assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT', 'OK']
     assert record['fallback_reason'] is None
@@ -391,16 +395,26 @@ def test_row_single_call_timeout_is_retried_and_recorded():
 
 def test_row_round_limit():
     script = Script(timeout(), Attempt('RETRYABLE', 100.0), timeout())
-    record = run(dp1(), script)
+    record = run(dp1(), script, params=WIDE)
     assert record['fallback_reason'] == 'ROUND_LIMIT' and len(record['attempts']) == 3
     assert record['final_answer'] == 'B1'
 
 
 def test_row_time_budget():
     script = Script(timeout(), timeout(), timeout(2000.0))
-    record = run(dp1(), script)
+    record = run(dp1(), script, params=WIDE)
     assert [c['timeout_ms'] for c in script.calls] == [5000, 5000, 2000]
     assert record['fallback_reason'] == 'TIME_BUDGET'
+
+
+@pytest.mark.parametrize('wall', [5000.0, 4990.0, 100.0])
+def test_formal_timeout_is_not_retried_d246(wall):
+    # D246: per-call timeout == per-step budget == 5000 ms -> one timed-out call uses the whole step; 0 retries,
+    # even if the provider reports a wall time a few ms (or much) below the timeout.
+    script = Script(timeout(wall), ok(select()))
+    record = run(dp1(), script)
+    assert len(script.calls) == 1 and [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT']
+    assert record['fallback_reason'] == 'TIME_BUDGET' and record['decision_source'] == 'RULE_FALLBACK'
 
 
 def test_row_call_budget_exhausted_session():
@@ -504,7 +518,7 @@ def test_per_call_limits_are_passed_to_provider():
 
 
 def test_late_ok_response_is_discarded_as_timeout():
-    record = run(dp1(), Script(ok(select(), wall=5500.0), ok(ABSTAIN_RESP)))
+    record = run(dp1(), Script(ok(select(), wall=5500.0), ok(ABSTAIN_RESP)), params=WIDE)
     assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT', 'OK']
     assert record['final_answer'] == 'ABSTAIN'
 

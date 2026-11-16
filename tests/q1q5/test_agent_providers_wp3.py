@@ -30,6 +30,8 @@ SCHEMA = json.loads((ROOT / 'docs/contracts/schemas/q-core.agent-decision.v1.sch
 FORMAL = json.loads((ROOT / 'configs/q1q5/agent_decision_params_v1.json').read_text(encoding='utf-8'))
 EXPLORATORY = json.loads((ROOT / 'configs/q1q5/agent_decision_params_v1_exploratory.json').read_text(encoding='utf-8'))
 STAGE = 'PILOT_AND_CONSISTENCY'
+WIDE = copy.deepcopy(FORMAL)
+WIDE['per_step']['budget_ms'] = 20000   # reach ROUND_LIMIT after timeouts; committed formal budget (D246) is 5000
 FAKE_KEY = 'sk-test-FAKE-WP3-SECRET-987654321'
 
 
@@ -231,10 +233,10 @@ def test_timeout_three_times_hits_round_limit():
         (200, _openai_envelope(_select('C2')), 5100.0),  # late response > 5000 ms timeout
         clock=clock,
     )
-    budget = CallBudget(FORMAL, STAGE)
+    budget = CallBudget(WIDE, STAGE)
     provider = OpenAIProvider(
         model='astra6',
-        params=FORMAL,
+        params=WIDE,
         transport=transport,
         env={'OPENAI_API_KEY': FAKE_KEY},
         budget=budget,
@@ -244,7 +246,7 @@ def test_timeout_three_times_hits_round_limit():
     record = ad.decide(
         _dp1(),
         mode='AGENT_LIVE',
-        params=FORMAL,
+        params=WIDE,
         budget=budget,
         model='astra6',
         call=provider,
@@ -258,11 +260,10 @@ def test_timeout_three_times_hits_round_limit():
     assert all(a['response_sha256'] is None for a in record['attempts'])
 
 
-def test_cumulative_wall_ms_over_12000_hits_time_budget():
+def test_cumulative_wall_ms_over_5000_hits_time_budget():
     clock = FakeClock()
     transport = ScriptedTransport(
-        (200, _openai_envelope(_select('C2')), 6500.0),
-        (200, _openai_envelope(_select("C2")), 6600.0),
+        (200, _openai_envelope(_select('C2')), 5100.0),
         clock=clock,
     )
     budget = CallBudget(FORMAL, STAGE)
@@ -287,8 +288,8 @@ def test_cumulative_wall_ms_over_12000_hits_time_budget():
     ad.validate_record(record)
     assert record['decision_source'] == 'RULE_FALLBACK'
     assert record['fallback_reason'] == 'TIME_BUDGET'
-    assert len(record['attempts']) == 2
-    assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT', 'PROVIDER_TIMEOUT']
+    assert len(record['attempts']) == 1
+    assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT']
 
 
 # ------------------------------------------------------------------ 3. Malformed response & illegal candidate

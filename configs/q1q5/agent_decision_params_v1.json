@@ -27,7 +27,7 @@
     "max_retries_on_429_5xx": 1
   },
   "per_step": {
-    "budget_ms": 12000,
+    "budget_ms": 5000,
     "max_rounds": 3
   },
   "per_session": {
