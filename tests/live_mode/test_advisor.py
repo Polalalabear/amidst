@@ -37,6 +37,27 @@ def test_people_drop_after_keep_and_new_id_for_far_jump():
     assert pt.last_seen(p0) is None
 
 
+def test_people_two_boxes_in_one_camera_are_two_people_even_when_close():
+    pt = PeopleTracker()
+    people = pt.update(0.0, [cand("W1", (0, 0), x0=100), cand("W1", (0.8, 0.2), x0=200)])
+    assert len(people) == 2 and len({p["pid"] for p in people}) == 2
+    assert pt.contested_since(people[0]["pid"], 0.0) and pt.contested_since(people[1]["pid"], 0.0)   # 0.82 m apart
+
+
+def test_people_ids_follow_direction_when_two_people_pass_each_other():
+    pt = PeopleTracker()
+    # A walks east along y=0, B walks west along y=0.9: they pass each other around t=1.5 s
+    ids = None
+    for k in range(7):
+        t = 0.5 * k
+        a, b = (0.6 * k, 0.0), (3.6 - 0.6 * k, 0.9)
+        people = pt.update(t, [cand("W1", a, x0=100), cand("W1", b, x0=400)])
+        now = {("A" if abs(p["xy"][1]) < 0.1 else "B"): p["pid"] for p in people}
+        ids = ids or now
+        assert now == ids, (t, now, ids)
+    assert pt.contested_since(ids["A"], 1.0) and not pt.contested_since(ids["A"], 2.6)   # close around 1.5 s only
+
+
 # ---------------------------------------------------------------- advisor
 class Clock:
     def __init__(self):
@@ -188,6 +209,17 @@ def test_decider_reference_then_silent_pick_then_follows_the_chosen_person():
     assert out["est_xy"] == [3.3, 0.5] and out["lost_ticks"] == 0
 
 
+def test_decider_reseed_moves_the_rule_once_and_keeps_no_lock():
+    d, _, _ = decider(apply="reseed")
+    tr = tracker_stub([0, 0]); lock(d, tr)
+    d.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100), cand("W1", (2.2, 0.5), x0=500)), FRAME)
+    out = d.step(2, 1.0, tr, tracking([1.0, 0]), dets_of(cand("W1", (1.0, 0), x0=100), cand("W1", (2.7, 0.5), x0=500)), FRAME)
+    assert out["est_xy"] == [2.7, 0.5] and tr.est == [2.7, 0.5] and out["advisor"]["last"]["applied"] is True
+    assert d.locked is None and out["decision_source"] == "RULE_ONLY"      # one correction, then the rule is in charge again
+    out = d.step(3, 1.5, tr, tracking([3.2, 0.5]), dets_of(cand("W1", (3.2, 0.5), x0=500)), FRAME)
+    assert out["est_xy"] == [3.2, 0.5]                                     # whatever the rule says next is shown as is
+
+
 def test_decider_lead_mode_holds_the_view_while_asking():
     d, _, _ = decider("lead")
     tr = tracker_stub([0, 0]); lock(d, tr)
@@ -205,6 +237,18 @@ def test_decider_answer_for_a_person_no_longer_tracked_is_not_applied():
     last = out["advisor"]["last"]
     assert last["applied"] is False and last["source"] == "RULE_FALLBACK" and last["fallback_reason"] == "TIME_BUDGET"
     assert out["decision_source"] == "RULE_FALLBACK" and out["fallback_reason"] == "TIME_BUDGET" and out["est_xy"] == [3.0, 0]
+
+
+def test_decider_does_not_apply_an_answer_after_the_chosen_person_passed_close_to_another():
+    d, _, _ = decider()   # the model will answer "2" (the right-hand person at ask time)
+    tr = tracker_stub([0, 0]); lock(d, tr)
+    d.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100), cand("W1", (2.2, 0.5), x0=500)), FRAME)
+    # while the question is open the two people pass within 1.2 m of each other
+    d.step(2, 1.0, tr, tracking([1.0, 0]), dets_of(cand("W1", (1.0, 0), x0=100), cand("W1", (1.8, 0.5), x0=500)), FRAME)
+    out = d.step(3, 1.5, tr, tracking([1.5, 0]), dets_of(cand("W1", (1.5, 0), x0=500), cand("W1", (1.2, 0.5), x0=100)), FRAME)
+    last = out["advisor"]["last"]
+    assert last is not None and last["applied"] is False and last["fallback_reason"] == "TIME_BUDGET"
+    assert out["decision_source"] != "AGENT" and out["est_xy"] == [1.5, 0]      # the rule's own estimate stands
 
 
 def test_decider_choice_zero_releases_and_invalid_reply_keeps_rule():
@@ -267,6 +311,6 @@ def test_server_builds_no_decider_when_the_advisor_is_off():
     st.args, st.guard = types.SimpleNamespace(advisor="off"), None
     assert st._new_decider() is None
     st.args = types.SimpleNamespace(advisor="lead", advisor_provider="fake", advisor_model="sol6.1", advisor_timeout_s=5.0, advisor_fake_delay_s=0.0,
-                                    advisor_lost_min_candidates=2)
+                                    advisor_lost_min_candidates=2, advisor_apply="reseed")
     dec = st._new_decider()
-    assert dec.mode == "lead" and dec.advisor.model_id == "fake" and dec.advisor.guard is None and dec.lost_min == 2
+    assert dec.mode == "lead" and dec.advisor.model_id == "fake" and dec.advisor.guard is None and dec.lost_min == 2 and dec.apply == "reseed"

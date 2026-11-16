@@ -191,14 +191,18 @@ class LiveDecider:
     """Glue between the rule tracker, the people tracker and the advisor. One ``step`` per inference tick."""
 
     def __init__(self, mode: str, advisor: Advisor, people, gate_m: float = 3.0, lock_keep_s: float = 1.5, lost_ticks_before_ask: int = 2,
-                 max_candidates: int = 4, recheck_s: float = 4.0, fallback_show_s: float = 3.0, lost_min_candidates: int = 2):
-        assert mode in ("review", "lead")
+                 max_candidates: int = 4, recheck_s: float = 4.0, fallback_show_s: float = 3.0, lost_min_candidates: int = 2,
+                 apply: str = "lock"):
+        assert mode in ("review", "lead") and apply in ("lock", "reseed")
         self.mode, self.advisor, self.people = mode, advisor, people
         self.gate, self.keep, self.lost_n, self.max_c, self.recheck, self.show = gate_m, lock_keep_s, lost_ticks_before_ask, max_candidates, recheck_s, fallback_show_s
         # With a single candidate the model tends to say "yes": in the first live runs all 10 wrong answers were
         # one-candidate questions where the target was absent, while 16 of 16 two-candidate questions were right
         # (docs/evaluation/LIVE_MODE_ADVISOR_20261116.md). So a question needs at least two candidates by default.
         self.lost_min = lost_min_candidates
+        # "lock": keep following the chosen track id. "reseed": move the rule tracker onto the chosen person once and
+        # let the rule carry on (no id is trusted beyond the moment the answer is applied).
+        self.apply = apply
         self.locked: int | None = None
         self.lock_xy = None
         self.lock_seen = -1e9
@@ -206,6 +210,8 @@ class LiveDecider:
         self.last: dict | None = None
         self.last_t = -1e9
         self.hold: dict | None = None
+        self.ask_t = -1e9
+        self.reseed = False
 
     @staticmethod
     def _tallest(person: dict):
@@ -233,9 +239,12 @@ class LiveDecider:
                 else:
                     pid = res["pids"][res["choice"] - 1]
                     seen = self.people.last_seen(pid)
-                    if seen is not None and t_s - seen <= self.keep:
+                    # Use the answer only if its person is still tracked and did not pass close to someone else while
+                    # the question was open: after such a pass the id may belong to the other person.
+                    if seen is not None and t_s - seen <= self.keep and not self.people.contested_since(pid, self.ask_t):
                         self.locked, self.lock_seen, self.lock_xy, applied = pid, seen, list(self.people.tracks[pid]["xy"]), True
-                    else:   # the chosen person is no longer tracked: the answer came too late to use
+                        self.reseed = self.apply == "reseed"
+                    else:   # too late to use: the person is gone, or the id is no longer trustworthy
                         res["source"], res["fallback_reason"] = "RULE_FALLBACK", "TIME_BUDGET"
             self.last = {"kind": res["kind"], "cam": res["cam"], "choice": res["choice"], "reason": res["reason"], "latency_ms": res["latency_ms"],
                          "applied": applied, "model": res["model"], "source": res["source"], "fallback_reason": res["fallback_reason"]}
@@ -245,7 +254,9 @@ class LiveDecider:
         # follow the person an answer picked
         if self.locked is not None:
             me = by_pid.get(self.locked)
-            if me is not None:
+            if me is None and self.reseed:
+                self.locked = None          # the person is not in view at this very tick: nothing to move onto
+            elif me is not None:
                 cam = self._tallest(me)[0]; prev = tracker.active
                 tracker.est, tracker.state, tracker.lost, tracker.active = list(me["xy"]), "TRACKING", 0, cam
                 tracker.last_seen[cam] = tick
@@ -253,6 +264,8 @@ class LiveDecider:
                 if prev is not None and cam != prev:
                     events.append({"tick": tick, "type": "SWITCH", "cam": cam, "detail": {"from": prev, "by": "AGENT"}})
                 self.lock_seen, self.lock_xy = t_s, list(me["xy"])
+                if self.reseed:
+                    self.locked = None      # one correction; the rule tracker continues from here
             elif t_s - self.lock_seen > self.keep:
                 self.locked = None
             else:   # not detected this tick: wait at the last position instead of jumping to whoever is near
@@ -279,6 +292,7 @@ class LiveDecider:
                     cs = sorted(per_cam[cam], key=lambda pd: pd[1]["bbox"][0] + pd[1]["bbox"][2])[: self.max_c]   # left to right
                     if self.advisor.ask(kind, cam, [p["pid"] for p, _ in cs], frame_jpeg(frames[cam], [d["bbox"] for _, d in cs])):
                         self.hold = {"cam": tracking.get("active_cam"), "est": self.prev_est}
+                        self.ask_t = t_s
                         events.append({"tick": tick, "type": "ADJUDICATE_ASK", "cam": cam, "detail": {"kind": kind, "candidates": len(cs)}})
         if not self.advisor.busy():
             self.hold = None
