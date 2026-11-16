@@ -96,6 +96,7 @@ def main() -> int:
     ap.add_argument("--models", default="terra6.1,sol6.1,astra6")
     ap.add_argument("--variants", default="image,text")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--offset", type=int, default=0, help="skip the first N questions (after a smoke run)")
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--approved-usd", type=float, default=0.0)
     ap.add_argument("--calls-per-min", type=int, default=10)
@@ -104,6 +105,7 @@ def main() -> int:
     a = ap.parse_args()
     root = Path(a.questions)
     qs = [json.loads(line) for line in (root / "questions.jsonl").read_text().splitlines() if line.strip()]
+    qs = qs[a.offset:]
     if a.limit:
         qs = qs[: a.limit]
     models, variants = a.models.split(","), a.variants.split(",")
