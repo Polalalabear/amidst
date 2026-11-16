@@ -1,0 +1,26 @@
+
+> test
+> node --test test/*.test.mjs
+
+FOOT_SLIP [{"speed":0.6,"median_stance_foot_world_speed_mps":0,"samples":599},{"speed":1.2,"median_stance_foot_world_speed_mps":0,"samples":599},{"speed":2,"median_stance_foot_world_speed_mps":0,"samples":599},{"speed":2.5,"median_stance_foot_world_speed_mps":0,"samples":596}]
+FOOT_SLIP_CONTROL {"speed":2.5,"clip":"walk","timeScale":1,"median_mps":1.3}
+✔ coordinates: Blender (x,y,z) -> (x,z,-y); +X stays forward (2.757ms)
+✔ coordinates: character handle puts (x,y) at (x,0,-y), facing +X at heading 0 (21.340708ms)
+✔ cameras: row-major matrices, three Matrix4.set vs fromArray differ, inverse + projection agree (1.099833ms)
+✔ cameras: all 8 intrinsics/extrinsics match the source catalog (R * Blender camera_to_world) (0.308458ms)
+✔ cameras: a Blender floor point projects to the same pixel through catalog and N6 cameras (0.475791ms)
+✔ variants: KHR_materials_variants T/A/B/C switch materials, independently per person (10.083833ms)
+✔ locomotion: action.timeScale = actualSpeed / nominalSpeed (walk 1.2, run 2.5) (8.938583ms)
+✔ locomotion: stance-foot world speed ~ 0 when timeScale = speed/nominal (no sliding), at 0.6/1.2/2.0/2.5 m/s (47.072833ms)
+✔ scene.glb: baked scene carries unlit material, n6Collider nodes and the lighting extras contract (6.758834ms)
+✔ system message carries no operator id or coordinates (extra keys stripped) (2.27075ms)
+✔ validator flags any non-whitelisted key (0.129542ms)
+✔ backend request header has only tick, clock, camera ids and byte sizes (0.219917ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 266.759625

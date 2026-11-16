@@ -1,0 +1,170 @@
+{
+ "hardware": {
+  "gpu_name": "NVIDIA L4",
+  "gpu_memory_total": "23034 MiB",
+  "gpu_memory_used_at_start": "0 MiB",
+  "gpu_driver": "580.82.07",
+  "gpu_count": 1,
+  "cpu_model": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+  "cpu_logical_cores": 12,
+  "ram_total_gib": 53.0,
+  "disk_free_gib": 233.2,
+  "os": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "python": "3.13.16",
+  "captured_at_utc": "2026-11-16T02:42:36Z"
+ },
+ "env": {
+  "ollama_version": "ollama version is 0.40.16",
+  "questions": 36,
+  "variants": [
+   "image",
+   "text"
+  ],
+  "num_predict": 200,
+  "num_ctx": 4096,
+  "models": [
+   {
+    "name": "qwen2.5vl:7b-q4_K_M",
+    "digest": "5ced39dfa4bac325dc183dd1e4febaa1c46b3ea28bce48896c8e69c1e79611cc",
+    "ollama_ps_line": "qwen2.5vl:7b-q4_K_M    5ced39dfa4ba    5.4 GB    100% GPU     4096       llamacpp    9 minutes from now",
+    "ollama_ps_processor": "100% GPU",
+    "gpu_memory_used_loaded": "6640 MiB"
+   },
+   {
+    "name": "qwen3-vl:8b-instruct-q4_K_M",
+    "digest": "70e58e37beb15464e19aa903dedb2cba828b89c0fb186f75ff2738c7347b96eb",
+    "ollama_ps_line": "qwen3-vl:8b-instruct-q4_K_M    70e58e37beb1    5.8 GB    100% GPU     4096       llamacpp    9 minutes from now",
+    "ollama_ps_processor": "100% GPU",
+    "gpu_memory_used_loaded": "7096 MiB"
+   },
+   {
+    "name": "llama3.2-vision:11b-instruct-q4_K_M",
+    "digest": "6f2f9757ae97e8a3f8ea33d6adb2b11d93d9a35bef277cd2c0b1b5af8e8d0b1e",
+    "warmup_error": "HTTPError: HTTP Error 500: Internal Server Error",
+    "ollama_ps_line": null,
+    "ollama_ps_processor": null,
+    "gpu_memory_used_loaded": "0 MiB"
+   }
+  ]
+ },
+ "rows": [
+  {
+   "model": "llama3.2-vision:11b-instruct-q4_K_M",
+   "variant": "image",
+   "calls": 36,
+   "valid": 0,
+   "valid_rate": 0.0,
+   "errors": 36,
+   "latency_ms_valid_p50": null,
+   "latency_ms_valid_p90": null,
+   "latency_ms_valid_max": null,
+   "prompt_tokens_mean": null,
+   "completion_tokens_mean": null,
+   "prompt_eval_ms_mean": null,
+   "eval_ms_mean": null,
+   "output_tokens_per_s": null,
+   "answers": {}
+  },
+  {
+   "model": "llama3.2-vision:11b-instruct-q4_K_M",
+   "variant": "text",
+   "calls": 36,
+   "valid": 0,
+   "valid_rate": 0.0,
+   "errors": 36,
+   "latency_ms_valid_p50": null,
+   "latency_ms_valid_p90": null,
+   "latency_ms_valid_max": null,
+   "prompt_tokens_mean": null,
+   "completion_tokens_mean": null,
+   "prompt_eval_ms_mean": null,
+   "eval_ms_mean": null,
+   "output_tokens_per_s": null,
+   "answers": {}
+  },
+  {
+   "model": "qwen2.5vl:7b-q4_K_M",
+   "variant": "image",
+   "calls": 36,
+   "valid": 36,
+   "valid_rate": 1.0,
+   "errors": 0,
+   "latency_ms_valid_p50": 1439,
+   "latency_ms_valid_p90": 1471,
+   "latency_ms_valid_max": 18399,
+   "prompt_tokens_mean": 1176,
+   "completion_tokens_mean": 23,
+   "prompt_eval_ms_mean": 1362,
+   "eval_ms_mean": 494,
+   "output_tokens_per_s": 47.2,
+   "answers": {
+    "1": 26,
+    "2": 10
+   }
+  },
+  {
+   "model": "qwen2.5vl:7b-q4_K_M",
+   "variant": "text",
+   "calls": 36,
+   "valid": 36,
+   "valid_rate": 1.0,
+   "errors": 0,
+   "latency_ms_valid_p50": 542,
+   "latency_ms_valid_p90": 593,
+   "latency_ms_valid_max": 620,
+   "prompt_tokens_mean": 378,
+   "completion_tokens_mean": 18,
+   "prompt_eval_ms_mean": 108,
+   "eval_ms_mean": 393,
+   "output_tokens_per_s": 46.7,
+   "answers": {
+    "1": 26,
+    "2": 6,
+    "3": 1,
+    "0": 3
+   }
+  },
+  {
+   "model": "qwen3-vl:8b-instruct-q4_K_M",
+   "variant": "image",
+   "calls": 36,
+   "valid": 36,
+   "valid_rate": 1.0,
+   "errors": 0,
+   "latency_ms_valid_p50": 1699,
+   "latency_ms_valid_p90": 1742,
+   "latency_ms_valid_max": 6046,
+   "prompt_tokens_mean": 1176,
+   "completion_tokens_mean": 23,
+   "prompt_eval_ms_mean": 1210,
+   "eval_ms_mean": 537,
+   "output_tokens_per_s": 43.3,
+   "answers": {
+    "1": 24,
+    "2": 10,
+    "3": 2
+   }
+  },
+  {
+   "model": "qwen3-vl:8b-instruct-q4_K_M",
+   "variant": "text",
+   "calls": 36,
+   "valid": 36,
+   "valid_rate": 1.0,
+   "errors": 0,
+   "latency_ms_valid_p50": 698,
+   "latency_ms_valid_p90": 784,
+   "latency_ms_valid_max": 869,
+   "prompt_tokens_mean": 378,
+   "completion_tokens_mean": 24,
+   "prompt_eval_ms_mean": 95,
+   "eval_ms_mean": 514,
+   "output_tokens_per_s": 46.8,
+   "answers": {
+    "1": 13,
+    "2": 17,
+    "0": 6
+   }
+  }
+ ]
+}

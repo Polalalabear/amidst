@@ -1,0 +1,3644 @@
+{
+ "gate_m": 3,
+ "same_person_m": 1.5,
+ "groups": [
+  {
+   "group": "a4_lead",
+   "runs": 3,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 271.333,
+   "on_target": 0.317,
+   "wrong_person": 0.219,
+   "lost": 0.465,
+   "ticks_with_2plus_red_people": 0.505,
+   "silent_pick_episodes_per_min": 4.97,
+   "lost_with_candidate_episodes_per_min": 9.103,
+   "lost_with_2plus_candidates_episodes_per_min": 7.863,
+   "lost_episodes": {
+    "n": 21,
+    "censored": 0,
+    "started_with_target_detected": 9,
+    "seconds_p50": 3.34,
+    "seconds_max": 7.31
+   },
+   "wrong_person_episodes": {
+    "n": 15,
+    "started_ambiguous": 3,
+    "started_target_not_detected": 4,
+    "seconds_p50": 1.84,
+    "seconds_max": 7.34
+   },
+   "not_on_target_episodes": {
+    "n": 22,
+    "censored": 0,
+    "seconds_p50": 3.335,
+    "seconds_max": 13.34,
+    "recovered_on_target": 19
+   },
+   "load1_end": [
+    3.59,
+    2,
+    2.01
+   ]
+  },
+  {
+   "group": "a4_off",
+   "runs": 3,
+   "achieved_hz": 1.957,
+   "roundtrip_ms_p50": 273,
+   "on_target": 0.514,
+   "wrong_person": 0.243,
+   "lost": 0.243,
+   "ticks_with_2plus_red_people": 0.495,
+   "silent_pick_episodes_per_min": 10.34,
+   "lost_with_candidate_episodes_per_min": 7.86,
+   "lost_with_2plus_candidates_episodes_per_min": 2.067,
+   "lost_episodes": {
+    "n": 20,
+    "censored": 0,
+    "started_with_target_detected": 3,
+    "seconds_p50": 0.845,
+    "seconds_max": 4.33
+   },
+   "wrong_person_episodes": {
+    "n": 16,
+    "started_ambiguous": 5,
+    "started_target_not_detected": 8,
+    "seconds_p50": 2.085,
+    "seconds_max": 5.84
+   },
+   "not_on_target_episodes": {
+    "n": 29,
+    "censored": 0,
+    "seconds_p50": 1.34,
+    "seconds_max": 14.84,
+    "recovered_on_target": 26
+   },
+   "load1_end": [
+    3.27,
+    3.92,
+    4.48
+   ]
+  },
+  {
+   "group": "a4_review",
+   "runs": 3,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 271.667,
+   "on_target": 0.437,
+   "wrong_person": 0.313,
+   "lost": 0.25,
+   "ticks_with_2plus_red_people": 0.512,
+   "silent_pick_episodes_per_min": 9.93,
+   "lost_with_candidate_episodes_per_min": 7.863,
+   "lost_with_2plus_candidates_episodes_per_min": 2.893,
+   "lost_episodes": {
+    "n": 24,
+    "censored": 0,
+    "started_with_target_detected": 8,
+    "seconds_p50": 1.095,
+    "seconds_max": 4.35
+   },
+   "wrong_person_episodes": {
+    "n": 20,
+    "started_ambiguous": 4,
+    "started_target_not_detected": 9,
+    "seconds_p50": 1.8450000000000002,
+    "seconds_max": 8.84
+   },
+   "not_on_target_episodes": {
+    "n": 27,
+    "censored": 0,
+    "seconds_p50": 2.33,
+    "seconds_max": 14.34,
+    "recovered_on_target": 24
+   },
+   "load1_end": [
+    4.53,
+    4.63,
+    4.23
+   ]
+  },
+  {
+   "group": "b4_lead",
+   "runs": 3,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 197.667,
+   "on_target": 0.65,
+   "wrong_person": 0.119,
+   "lost": 0.232,
+   "ticks_with_2plus_red_people": 0.329,
+   "silent_pick_episodes_per_min": 1.49,
+   "lost_with_candidate_episodes_per_min": 4.47,
+   "lost_with_2plus_candidates_episodes_per_min": 2.98,
+   "lost_episodes": {
+    "n": 9,
+    "censored": 0,
+    "started_with_target_detected": 6,
+    "seconds_p50": 3.24,
+    "seconds_max": 12.76
+   },
+   "wrong_person_episodes": {
+    "n": 3,
+    "started_ambiguous": 0,
+    "started_target_not_detected": 3,
+    "seconds_p50": 3.76,
+    "seconds_max": 3.78
+   },
+   "not_on_target_episodes": {
+    "n": 10,
+    "censored": 0,
+    "seconds_p50": 2.745,
+    "seconds_max": 6.74,
+    "recovered_on_target": 7
+   },
+   "load1_end": [
+    2.7,
+    2.76,
+    3.13
+   ]
+  },
+  {
+   "group": "b4_off",
+   "runs": 3,
+   "achieved_hz": 1.947,
+   "roundtrip_ms_p50": 196.333,
+   "on_target": 0.538,
+   "wrong_person": 0.063,
+   "lost": 0.399,
+   "ticks_with_2plus_red_people": 0.332,
+   "silent_pick_episodes_per_min": 2.483,
+   "lost_with_candidate_episodes_per_min": 4.47,
+   "lost_with_2plus_candidates_episodes_per_min": 1.987,
+   "lost_episodes": {
+    "n": 8,
+    "censored": 2,
+    "started_with_target_detected": 4,
+    "seconds_p50": 9.245000000000001,
+    "seconds_max": 11.24
+   },
+   "wrong_person_episodes": {
+    "n": 7,
+    "started_ambiguous": 0,
+    "started_target_not_detected": 5,
+    "seconds_p50": 0.75,
+    "seconds_max": 1.74
+   },
+   "not_on_target_episodes": {
+    "n": 7,
+    "censored": 2,
+    "seconds_p50": 1.23,
+    "seconds_max": 17.74,
+    "recovered_on_target": 2
+   },
+   "load1_end": [
+    3.74,
+    3.16,
+    3.16
+   ]
+  },
+  {
+   "group": "b4_review",
+   "runs": 3,
+   "achieved_hz": 1.953,
+   "roundtrip_ms_p50": 199.667,
+   "on_target": 0.812,
+   "wrong_person": 0.142,
+   "lost": 0.045,
+   "ticks_with_2plus_red_people": 0.331,
+   "silent_pick_episodes_per_min": 4.47,
+   "lost_with_candidate_episodes_per_min": 1.49,
+   "lost_with_2plus_candidates_episodes_per_min": 0,
+   "lost_episodes": {
+    "n": 7,
+    "censored": 0,
+    "started_with_target_detected": 0,
+    "seconds_p50": 1.75,
+    "seconds_max": 8.75
+   },
+   "wrong_person_episodes": {
+    "n": 6,
+    "started_ambiguous": 0,
+    "started_target_not_detected": 6,
+    "seconds_p50": 2.4850000000000003,
+    "seconds_max": 3.75
+   },
+   "not_on_target_episodes": {
+    "n": 10,
+    "censored": 0,
+    "seconds_p50": 1.495,
+    "seconds_max": 3.75,
+    "recovered_on_target": 7
+   },
+   "load1_end": [
+    2.35,
+    4.13,
+    3.56
+   ]
+  }
+ ],
+ "runs": [
+  {
+   "label": "a4_lead_r1",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 96,
+   "dropped": 1,
+   "achieved_hz": 1.97,
+   "roundtrip_ms_p50": 269,
+   "load1_end": 3.59,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.006
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.51,
+    "silent_pick_episodes_per_min": 4.97,
+    "silent_pick_ticks": 7,
+    "lost_with_candidate_episodes_per_min": 12.41,
+    "lost_with_2plus_candidates_episodes_per_min": 8.69,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 3.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 6.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 10.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 13.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 16.05,
+      "ticks": 10,
+      "censored": false,
+      "seconds": 5.33,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 27.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.55,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 38.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 39.05,
+      "ticks": 10,
+      "censored": false,
+      "seconds": 5.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 95,
+    "on_target": 0.28421052631578947,
+    "wrong_person": 0.24210526315789474,
+    "lost": 0.47368421052631576,
+    "wrong_person_episodes": [
+     {
+      "start_s": 11.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.83,
+      "ended_on": "LOST",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.55,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.83,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 21.05,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 6.82,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 5
+     },
+     {
+      "start_s": 28.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.82,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 36.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.82,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 3.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 6.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 10.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 11.55,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 6.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 18.55,
+      "ticks": 26,
+      "censored": false,
+      "seconds": 13.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 36.05,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.32,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 38.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 39.05,
+      "ticks": 10,
+      "censored": false,
+      "seconds": 5.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 27,
+     "A": 7,
+     "B": 15,
+     "C": 0,
+     "null": 1
+    }
+   }
+  },
+  {
+   "label": "a4_lead_r2",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 95,
+   "dropped": 2,
+   "achieved_hz": 1.94,
+   "roundtrip_ms_p50": 273,
+   "load1_end": 2,
+   "clock_fit": {
+    "offset_s": 0.06,
+    "mean_err_m": 0.007
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.484,
+    "silent_pick_episodes_per_min": 4.97,
+    "silent_pick_ticks": 8,
+    "lost_with_candidate_episodes_per_min": 8.69,
+    "lost_with_2plus_candidates_episodes_per_min": 8.69,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 3.57,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 7.31,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 13.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 16.07,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.36,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 27.07,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 11,
+      "censored": false,
+      "seconds": 5.87,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 44.57,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 94,
+    "on_target": 0.2127659574468085,
+    "wrong_person": 0.2765957446808511,
+    "lost": 0.5106382978723404,
+    "wrong_person_episodes": [
+     {
+      "start_s": 11.57,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.85,
+      "ended_on": "LOST",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.57,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.85,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 20.07,
+      "ticks": 14,
+      "censored": false,
+      "seconds": 7.34,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 43.07,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.84,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 3.57,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 7.31,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 11.57,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 6.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 24,
+      "censored": false,
+      "seconds": 12.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 19,
+      "censored": false,
+      "seconds": 9.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 20,
+     "A": 10,
+     "B": 14,
+     "C": 0,
+     "null": 2
+    }
+   }
+  },
+  {
+   "label": "a4_lead_r3",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 96,
+   "dropped": 1,
+   "achieved_hz": 1.97,
+   "roundtrip_ms_p50": 272,
+   "load1_end": 2.01,
+   "clock_fit": {
+    "offset_s": 0.06,
+    "mean_err_m": 0.009
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.521,
+    "silent_pick_episodes_per_min": 4.97,
+    "silent_pick_ticks": 5,
+    "lost_with_candidate_episodes_per_min": 6.21,
+    "lost_with_2plus_candidates_episodes_per_min": 6.21,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 7.07,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.42,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 13.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 16.07,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.37,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 12,
+      "censored": false,
+      "seconds": 6.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 95,
+    "on_target": 0.45263157894736844,
+    "wrong_person": 0.1368421052631579,
+    "lost": 0.4105263157894737,
+    "wrong_person_episodes": [
+     {
+      "start_s": 11.07,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.57,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.84,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 20.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.57,
+      "ticks": 10,
+      "censored": false,
+      "seconds": 5.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 7.07,
+      "ticks": 22,
+      "censored": false,
+      "seconds": 11.34,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 12,
+      "censored": false,
+      "seconds": 6.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 43,
+     "A": 8,
+     "B": 0,
+     "C": 0,
+     "null": 5
+    }
+   }
+  },
+  {
+   "label": "a4_off_r1",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 96,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 272,
+   "load1_end": 3.27,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.01
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.49,
+    "silent_pick_episodes_per_min": 11.17,
+    "silent_pick_ticks": 10,
+    "lost_with_candidate_episodes_per_min": 8.69,
+    "lost_with_2plus_candidates_episodes_per_min": 2.48,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 4.05,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 7.05,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.85,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 13.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 25.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 39.05,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 95,
+    "on_target": 0.5052631578947369,
+    "wrong_person": 0.24210526315789474,
+    "lost": 0.25263157894736843,
+    "wrong_person_episodes": [
+     {
+      "start_s": 9.55,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.83,
+      "ended_on": "LOST",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 4
+     },
+     {
+      "start_s": 13.55,
+      "ticks": 9,
+      "censored": false,
+      "seconds": 4.83,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 18.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 28.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.55,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 3.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 4.05,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 7.05,
+      "ticks": 22,
+      "censored": false,
+      "seconds": 11.33,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 18.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 25.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.05,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 39.05,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 48,
+     "A": 20,
+     "B": 0,
+     "C": 0,
+     "null": 4
+    }
+   }
+  },
+  {
+   "label": "a4_off_r2",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 96,
+   "dropped": 1,
+   "achieved_hz": 1.97,
+   "roundtrip_ms_p50": 272,
+   "load1_end": 3.92,
+   "clock_fit": {
+    "offset_s": 0.06,
+    "mean_err_m": 0.01
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.5,
+    "silent_pick_episodes_per_min": 9.93,
+    "silent_pick_ticks": 11,
+    "lost_with_candidate_episodes_per_min": 7.45,
+    "lost_with_2plus_candidates_episodes_per_min": 1.24,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 3.57,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.33,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 13.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 25.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 95,
+    "on_target": 0.4842105263157895,
+    "wrong_person": 0.28421052631578947,
+    "lost": 0.23157894736842105,
+    "wrong_person_episodes": [
+     {
+      "start_s": 7.57,
+      "ticks": 11,
+      "censored": false,
+      "seconds": 5.84,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 13.57,
+      "ticks": 9,
+      "censored": false,
+      "seconds": 4.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 3.57,
+      "ticks": 29,
+      "censored": false,
+      "seconds": 14.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 25.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 46,
+     "A": 24,
+     "B": 0,
+     "C": 0,
+     "null": 4
+    }
+   }
+  },
+  {
+   "label": "a4_off_r3",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.4,
+   "ticks": 95,
+   "dropped": 2,
+   "achieved_hz": 1.94,
+   "roundtrip_ms_p50": 275,
+   "load1_end": 4.48,
+   "clock_fit": {
+    "offset_s": 0.06,
+    "mean_err_m": 0.006
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.495,
+    "silent_pick_episodes_per_min": 9.92,
+    "silent_pick_ticks": 14,
+    "lost_with_candidate_episodes_per_min": 7.44,
+    "lost_with_2plus_candidates_episodes_per_min": 2.48,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 7.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.36,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 10.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 13.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 25.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.41,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 94,
+    "on_target": 0.5531914893617021,
+    "wrong_person": 0.20212765957446807,
+    "lost": 0.24468085106382978,
+    "wrong_person_episodes": [
+     {
+      "start_s": 8.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 11.57,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.84,
+      "ended_on": "LOST",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.57,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.57,
+      "ticks": 10,
+      "censored": false,
+      "seconds": 5.85,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 7.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.36,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 8.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 10.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 11.57,
+      "ticks": 12,
+      "censored": false,
+      "seconds": 6.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 25.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.41,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 52,
+     "A": 16,
+     "B": 0,
+     "C": 0,
+     "null": 4
+    }
+   }
+  },
+  {
+   "label": "a4_review_r1",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 96,
+   "dropped": 1,
+   "achieved_hz": 1.97,
+   "roundtrip_ms_p50": 272,
+   "load1_end": 4.53,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.005
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.49,
+    "silent_pick_episodes_per_min": 9.93,
+    "silent_pick_ticks": 9,
+    "lost_with_candidate_episodes_per_min": 7.45,
+    "lost_with_2plus_candidates_episodes_per_min": 2.48,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 4.05,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 6.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 11.05,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 25.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 38.05,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 95,
+    "on_target": 0.5052631578947369,
+    "wrong_person": 0.2631578947368421,
+    "lost": 0.23157894736842105,
+    "wrong_person_episodes": [
+     {
+      "start_s": 7.55,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.83,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 12.05,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.55,
+      "ticks": 9,
+      "censored": false,
+      "seconds": 4.83,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 18.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 28.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.55,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 4.05,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 6.55,
+      "ticks": 23,
+      "censored": false,
+      "seconds": 11.83,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 18.55,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 25.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 36.05,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 38.05,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 48,
+     "A": 23,
+     "B": 0,
+     "C": 0,
+     "null": 3
+    }
+   }
+  },
+  {
+   "label": "a4_review_r2",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 96,
+   "dropped": 1,
+   "achieved_hz": 1.97,
+   "roundtrip_ms_p50": 272,
+   "load1_end": 4.63,
+   "clock_fit": {
+    "offset_s": 0.06,
+    "mean_err_m": 0.008
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.531,
+    "silent_pick_episodes_per_min": 7.45,
+    "silent_pick_ticks": 13,
+    "lost_with_candidate_episodes_per_min": 8.69,
+    "lost_with_2plus_candidates_episodes_per_min": 3.72,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 3.57,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.35,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 10.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 13.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 27.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.86,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 29.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 95,
+    "on_target": 0.3157894736842105,
+    "wrong_person": 0.3894736842105263,
+    "lost": 0.29473684210526313,
+    "wrong_person_episodes": [
+     {
+      "start_s": 7.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 11.57,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.84,
+      "ended_on": "LOST",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.57,
+      "ticks": 9,
+      "censored": false,
+      "seconds": 4.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 17,
+      "censored": false,
+      "seconds": 8.84,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 27.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 29.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 3.57,
+      "ticks": 12,
+      "censored": false,
+      "seconds": 6.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 10.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 11.57,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 6.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 28,
+      "censored": false,
+      "seconds": 14.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 30,
+     "A": 11,
+     "B": 24,
+     "C": 0,
+     "null": 3
+    }
+   }
+  },
+  {
+   "label": "a4_review_r3",
+   "run": "A4-1-v2-4actor",
+   "cams": 4,
+   "fps_set": 2,
+   "seconds": 48.3,
+   "ticks": 95,
+   "dropped": 2,
+   "achieved_hz": 1.94,
+   "roundtrip_ms_p50": 271,
+   "load1_end": 4.23,
+   "clock_fit": {
+    "offset_s": 0.06,
+    "mean_err_m": 0.008
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.516,
+    "silent_pick_episodes_per_min": 12.41,
+    "silent_pick_ticks": 11,
+    "lost_with_candidate_episodes_per_min": 7.45,
+    "lost_with_2plus_candidates_episodes_per_min": 2.48,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 4.07,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 6.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.33,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 11.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 25.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 29.07,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.85,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 39.07,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 94,
+    "on_target": 0.48936170212765956,
+    "wrong_person": 0.2872340425531915,
+    "lost": 0.22340425531914893,
+    "wrong_person_episodes": [
+     {
+      "start_s": 7.57,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.84,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 11.57,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.85,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 13.57,
+      "ticks": 9,
+      "censored": false,
+      "seconds": 4.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.86,
+      "ended_on": "LOST",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 43.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 0.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 3.33,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 4.07,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 6.57,
+      "ticks": 23,
+      "censored": false,
+      "seconds": 11.84,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 18.57,
+      "ticks": 4,
+      "censored": false,
+      "seconds": 2.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 3
+     },
+     {
+      "start_s": 25.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 26.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.84,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 28.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.35,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 36.57,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 37.57,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 39.07,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.83,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 43.07,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.34,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 46,
+     "A": 26,
+     "B": 0,
+     "C": 0,
+     "null": 2
+    }
+   }
+  },
+  {
+   "label": "b4_lead_r1",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 80,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 197,
+   "load1_end": 2.7,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.008
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.338,
+    "silent_pick_episodes_per_min": 1.49,
+    "silent_pick_ticks": 1,
+    "lost_with_candidate_episodes_per_min": 4.47,
+    "lost_with_2plus_candidates_episodes_per_min": 2.98,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 10.05,
+      "ticks": 24,
+      "censored": false,
+      "seconds": 12.24,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 26.55,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 59,
+    "on_target": 0.6610169491525424,
+    "wrong_person": 0.11864406779661017,
+    "lost": 0.22033898305084745,
+    "wrong_person_episodes": [
+     {
+      "start_s": 23.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.78,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 10.05,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.74,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 12,
+      "censored": false,
+      "seconds": 6.25,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 39,
+     "A": 0,
+     "B": 9,
+     "C": 0,
+     "null": 0
+    }
+   }
+  },
+  {
+   "label": "b4_lead_r2",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 80,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 199,
+   "load1_end": 2.76,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.005
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.325,
+    "silent_pick_episodes_per_min": 1.49,
+    "silent_pick_ticks": 1,
+    "lost_with_candidate_episodes_per_min": 4.47,
+    "lost_with_2plus_candidates_episodes_per_min": 2.98,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 10.05,
+      "ticks": 25,
+      "censored": false,
+      "seconds": 12.76,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 27.05,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.24,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.76,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 59,
+    "on_target": 0.6440677966101694,
+    "wrong_person": 0.11864406779661017,
+    "lost": 0.23728813559322035,
+    "wrong_person_episodes": [
+     {
+      "start_s": 23.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 10.05,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.74,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 27.05,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.24,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.76,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 38,
+     "A": 0,
+     "B": 8,
+     "C": 0,
+     "null": 0
+    }
+   }
+  },
+  {
+   "label": "b4_lead_r3",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 80,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 197,
+   "load1_end": 3.13,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.004
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.325,
+    "silent_pick_episodes_per_min": 1.49,
+    "silent_pick_ticks": 1,
+    "lost_with_candidate_episodes_per_min": 4.47,
+    "lost_with_2plus_candidates_episodes_per_min": 2.98,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 10.05,
+      "ticks": 24,
+      "censored": false,
+      "seconds": 12.26,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 26.55,
+      "ticks": 6,
+      "censored": false,
+      "seconds": 3.24,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 59,
+    "on_target": 0.6440677966101694,
+    "wrong_person": 0.11864406779661017,
+    "lost": 0.23728813559322035,
+    "wrong_person_episodes": [
+     {
+      "start_s": 23.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.76,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 10.05,
+      "ticks": 5,
+      "censored": false,
+      "seconds": 2.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": true,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 13,
+      "censored": false,
+      "seconds": 6.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 38,
+     "A": 0,
+     "B": 9,
+     "C": 0,
+     "null": 0
+    }
+   }
+  },
+  {
+   "label": "b4_off_r1",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 79,
+   "dropped": 2,
+   "achieved_hz": 1.94,
+   "roundtrip_ms_p50": 198,
+   "load1_end": 3.74,
+   "clock_fit": {
+    "offset_s": 0.02,
+    "mean_err_m": 0.008
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.342,
+    "silent_pick_episodes_per_min": 1.49,
+    "silent_pick_ticks": 4,
+    "lost_with_candidate_episodes_per_min": 5.96,
+    "lost_with_2plus_candidates_episodes_per_min": 2.98,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 14.53,
+      "ticks": 18,
+      "censored": false,
+      "seconds": 9.24,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 24.03,
+      "ticks": 9,
+      "censored": false,
+      "seconds": 4.74,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 29.53,
+      "ticks": 23,
+      "censored": true,
+      "seconds": 11.24,
+      "ended_on": null,
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 58,
+    "on_target": 0.3620689655172414,
+    "wrong_person": 0.06896551724137931,
+    "lost": 0.5689655172413793,
+    "wrong_person_episodes": [
+     {
+      "start_s": 12.03,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.73,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.53,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.74,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 28.53,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.23,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 12.03,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.73,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.03,
+      "ticks": 36,
+      "censored": true,
+      "seconds": 17.74,
+      "ended_on": null,
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 21,
+     "A": 5,
+     "B": 2,
+     "C": 0,
+     "null": 1
+    }
+   }
+  },
+  {
+   "label": "b4_off_r2",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 79,
+   "dropped": 2,
+   "achieved_hz": 1.94,
+   "roundtrip_ms_p50": 198,
+   "load1_end": 3.16,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.008
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.329,
+    "silent_pick_episodes_per_min": 4.47,
+    "silent_pick_ticks": 7,
+    "lost_with_candidate_episodes_per_min": 1.49,
+    "lost_with_2plus_candidates_episodes_per_min": 0,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 14.55,
+      "ticks": 19,
+      "censored": false,
+      "seconds": 9.73,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 58,
+    "on_target": 0.896551724137931,
+    "wrong_person": 0.017241379310344827,
+    "lost": 0.08620689655172414,
+    "wrong_person_episodes": [
+     {
+      "start_s": 12.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 12.05,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.23,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 52,
+     "A": 5,
+     "B": 0,
+     "C": 0,
+     "null": 0
+    }
+   }
+  },
+  {
+   "label": "b4_off_r3",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 80,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 193,
+   "load1_end": 3.16,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.005
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.325,
+    "silent_pick_episodes_per_min": 1.49,
+    "silent_pick_ticks": 3,
+    "lost_with_candidate_episodes_per_min": 5.96,
+    "lost_with_2plus_candidates_episodes_per_min": 2.98,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 14.55,
+      "ticks": 18,
+      "censored": false,
+      "seconds": 9.25,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 24.05,
+      "ticks": 8,
+      "censored": false,
+      "seconds": 4.24,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 29.55,
+      "ticks": 23,
+      "censored": true,
+      "seconds": 11.24,
+      "ended_on": null,
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 1
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 59,
+    "on_target": 0.3559322033898305,
+    "wrong_person": 0.1016949152542373,
+    "lost": 0.5423728813559322,
+    "wrong_person_episodes": [
+     {
+      "start_s": 11.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.23,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.55,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.74,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 2
+     },
+     {
+      "start_s": 28.05,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.74,
+      "ended_on": "LOST",
+      "started_ambiguous": false,
+      "start_target_detected": true,
+      "start_red_people": 2
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 11.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.23,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 36,
+      "censored": true,
+      "seconds": 17.74,
+      "ended_on": null,
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 21,
+     "A": 6,
+     "B": 3,
+     "C": 0,
+     "null": 1
+    }
+   }
+  },
+  {
+   "label": "b4_review_r1",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 79,
+   "dropped": 2,
+   "achieved_hz": 1.94,
+   "roundtrip_ms_p50": 203,
+   "load1_end": 2.35,
+   "clock_fit": {
+    "offset_s": 0.02,
+    "mean_err_m": 0.009
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.342,
+    "silent_pick_episodes_per_min": 4.47,
+    "silent_pick_ticks": 7,
+    "lost_with_candidate_episodes_per_min": 1.49,
+    "lost_with_2plus_candidates_episodes_per_min": 0,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 14.53,
+      "ticks": 17,
+      "censored": false,
+      "seconds": 8.75,
+      "ended_on": "WRONG_PERSON",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 32.53,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 58,
+    "on_target": 0.8103448275862069,
+    "wrong_person": 0.13793103448275862,
+    "lost": 0.05172413793103448,
+    "wrong_person_episodes": [
+     {
+      "start_s": 12.03,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.03,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 12.03,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.03,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.53,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 47,
+     "A": 5,
+     "B": 7,
+     "C": 0,
+     "null": 0
+    }
+   }
+  },
+  {
+   "label": "b4_review_r2",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 80,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 198,
+   "load1_end": 4.13,
+   "clock_fit": {
+    "offset_s": 0.02,
+    "mean_err_m": 0.008
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.325,
+    "silent_pick_episodes_per_min": 4.47,
+    "silent_pick_ticks": 7,
+    "lost_with_candidate_episodes_per_min": 1.49,
+    "lost_with_2plus_candidates_episodes_per_min": 0,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 14.53,
+      "ticks": 16,
+      "censored": false,
+      "seconds": 8.25,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 32.53,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 33.53,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 59,
+    "on_target": 0.8305084745762712,
+    "wrong_person": 0.13559322033898305,
+    "lost": 0.03389830508474576,
+    "wrong_person_episodes": [
+     {
+      "start_s": 12.03,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.03,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.73,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 12.03,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.03,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.73,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.53,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 33.53,
+      "ticks": 1,
+      "censored": false,
+      "seconds": 0.74,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 49,
+     "A": 5,
+     "B": 8,
+     "C": 0,
+     "null": 0
+    }
+   }
+  },
+  {
+   "label": "b4_review_r3",
+   "run": "B4-1-v2-4actor",
+   "cams": 3,
+   "fps_set": 2,
+   "seconds": 40.2,
+   "ticks": 80,
+   "dropped": 1,
+   "achieved_hz": 1.96,
+   "roundtrip_ms_p50": 198,
+   "load1_end": 3.56,
+   "clock_fit": {
+    "offset_s": 0.04,
+    "mean_err_m": 0.003
+   },
+   "pixel_only": {
+    "ticks_with_2plus_red_people": 0.325,
+    "silent_pick_episodes_per_min": 4.47,
+    "silent_pick_ticks": 6,
+    "lost_with_candidate_episodes_per_min": 1.49,
+    "lost_with_2plus_candidates_episodes_per_min": 0,
+    "seed_blocked_ticks": 0,
+    "lost_episodes": [
+     {
+      "start_s": 14.55,
+      "ticks": 15,
+      "censored": false,
+      "seconds": 7.75,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ]
+   },
+   "evaluation_only": {
+    "target_visible_ticks": 59,
+    "on_target": 0.7966101694915254,
+    "wrong_person": 0.15254237288135594,
+    "lost": 0.05084745762711865,
+    "wrong_person_episodes": [
+     {
+      "start_s": 11.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.24,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     }
+    ],
+    "not_on_target_episodes": [
+     {
+      "start_s": 11.55,
+      "ticks": 2,
+      "censored": false,
+      "seconds": 1.24,
+      "ended_on": "TARGET_NOT_VISIBLE",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 23.05,
+      "ticks": 7,
+      "censored": false,
+      "seconds": 3.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 1
+     },
+     {
+      "start_s": 32.55,
+      "ticks": 3,
+      "censored": false,
+      "seconds": 1.75,
+      "ended_on": "ON_TARGET",
+      "started_ambiguous": false,
+      "start_target_detected": false,
+      "start_red_people": 0
+     }
+    ],
+    "first_tick_following": "T",
+    "followed_actor_ticks": {
+     "T": 47,
+     "A": 6,
+     "B": 9,
+     "C": 0,
+     "null": 0
+    }
+   }
+  }
+ ]
+}
