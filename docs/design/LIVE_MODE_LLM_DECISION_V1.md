@@ -485,6 +485,12 @@ sol6.1，A4 和 B4 路線，三種設定各 3 次：
 - §0F.1／§0F.2 原本寫「4 m 加裁決讓 A4 變差，原因不明」：原因是重播替身答錯（§0F.1 更正）。
 - §4 開頭「前一個沒過關，後面就不做，定案只用演算法」：使用者已決定 LLM 決策依然要做，做成工作台設定的切換（D242）。過關條件現在只用來報告和選參數。
 - §0C「待使用者決定」第 14、16 項：14 已決定；16（真人模型對照實驗，D236）仍由協調者那一線處理。
+- §0B、§0C 第 5 項、§1 原本寫「還沒接進即時模式」「沒有接任何 LLM」：看圖裁決已經接進 #544，預設關閉（§0E）。v1.9 已改。
+- §0A.4「demo 預設用哪一種，等 §0D 的結果再定」：已決定用「LLM 覆核」（§0F.3）。v1.9 加註。
+- §3.4「只送文字摘要，不送影像」：即時模式的裁決已改成丟圖。v1.9 加註。
+- §6 的 A1、A3：大部分已經在 #544 做了，請求也改成看圖。v1.9 加「狀態」說明。
+- §0C 第 7 項和 §0 第 3 點原本寫「三個模型 p50 2.7–4.4 秒」：2.7 秒是 terra 0/6 合法回應的時間，不算。v1.9 已改。
+- §0F.3 D243 列原本寫「一步總上限 12000 ms 的提案」：D246 定為 5000 ms、逾時後不重試。v1.9 已改。
 
 ## 1. 現有設計盤點
 
@@ -700,16 +706,20 @@ WP5 的正式組和放寬組照原計畫跑，那是報告裡模型比較的資�
 
 ## 6. 實作拆分
 
+**v1.9 狀態註**：「狀態」欄說明哪些已經在 #544 做了。#544 裡已有 `src/amidst/live_mode/advisor.py`（背景呼叫、看圖請求、追蹤編號的採用規則、0.7 m 交錯檢查、`timeout_s` 預設 5 秒）、`people.py`（跨輪的人物編號）、`scripts/live_mode/replay_advisor.py`、`replay_bench.py`（替身重播）。請求已改成看圖，不是文字 DP1 請求檔。
+
 | 編號 | 內容 | 主要檔案 | 驗收測試 | 依賴 |
 | --- | --- | --- | --- | --- |
-| A1 | 追蹤器記錄歧義時刻和失聯秒數，產生 DP1 請求檔（T1） | `src/amidst/live_mode/tracker.py`、新增 `src/amidst/live_mode/dp1_request.py` | 兩個候選人的假資料會產生一筆通過 request schema 的請求；請求裡沒有座標和角色代號；只有一個候選人時不產生 | PR #544 的分支 |
+| A1 | 追蹤器記錄歧義時刻和失聯秒數，產生 DP1 請求檔（T1）。**狀態：已由 #544 取代**：裁決時刻的判定和看圖請求在 `advisor.py`；文字 DP1 請求檔沒有做，現在只是文字特徵對照組要用 | `src/amidst/live_mode/tracker.py`、新增 `src/amidst/live_mode/dp1_request.py` | 兩個候選人的假資料會產生一筆通過 request schema 的請求；請求裡沒有座標和角色代號；只有一個候選人時不產生 | PR #544 的分支 |
 | A2 | WP5 剩下的 6 項修改（§5 第 1–6 項；第 7 項已在 #546 做完） | `src/amidst/agent_eval/wp5*.py`、`configs/agent_eval/wp5_v1.json` | 假的 provider 延遲 3 秒時，`latency_probe` 記到約 3000 ms，不是 2000；不同 `deployment_scenario` 的列不會被合併彙總；樣本 24 筆時不輸出 p95 | 等 #546 合併，由 `claude/feat-wp5` 的下一個寫入者做（D216） |
-| A3 | 即時參數集和背景呼叫（§3.1–§3.3） | 新增 `configs/q1q5/agent_decision_params_live_v1.json`、`src/amidst/live_mode/advisor.py` | Agent 模式關閉時，追蹤器的輸出和現在逐 byte 相同；假的 provider 晚於 `T_live` 回答時記 `RULE_FALLBACK`；答案回來時候選人已經變了就不採用；同時最多一個呼叫 | A1 |
-| A4 | 離線重播（T3） | 新增 `scripts/live_mode/replay_llm_benefit.py` | 固定的假紀錄算出的失聯秒數和手算的相等；讀 Ground Truth 的部分只在評分函式裡 | A1、A2 |
-| A5 | HUD 和後台紀錄對應（§3.5） | 即時模式的 HUD 和紀錄模組 | 三種 `decision_source` 顯示三種文字；`llm.jsonl` 每行通過現有的決策紀錄 schema | A3，以及即時模式設計稿 v2 的 L4、L6 |
-| A6 | **工作台設定切換 LLM 裁決**（D242）。三個選項：關閉（預設）、LLM 覆核、LLM 主導；可以選模型（預設 sol6.1）。屬於 Claude 的工作台 UI | 工作台的設定畫面（`frontend/workbench/`；即時模式畫面在 `frontend/live-mode/`，設定放哪一邊 UNKNOWN）；後台接收設定的介面（檔案 UNKNOWN，看 #544 合併後的結構） | 預設是關閉，重新載入後仍是關閉；關閉時後台不送任何 LLM 請求、追蹤輸出和現在逐 byte 相同；切到覆核或主導時，後台收到對應的裁決模式（`off`／`review`／`lead`）；護欄沒開時顯示「演算法暫代（沒開）」 | A3；#544 合併 |
+| A3 | 即時參數集和背景呼叫（§3.1–§3.3）。**狀態：背景呼叫已在 #544 `advisor.py` 做完；參數目前寫在程式的預設值，獨立的參數檔沒有做** | 新增 `configs/q1q5/agent_decision_params_live_v1.json`、`src/amidst/live_mode/advisor.py` | Agent 模式關閉時，追蹤器的輸出和現在逐 byte 相同；假的 provider 晚於 `T_live` 回答時記 `RULE_FALLBACK`；LLM 選的人的追蹤編號已經不在、或和別人交錯過（0.7 m）就不採用（§3.1）；同時最多一個呼叫 | A1 |
+| A4 | 離線重播（T3）。**狀態：#544 已有替身重播（`replay_advisor.py`、`replay_bench.py`）；用錄下的真模型答案重播沒有做** | 新增 `scripts/live_mode/replay_llm_benefit.py` | 固定的假紀錄算出的失聯秒數和手算的相等；讀 Ground Truth 的部分只在評分函式裡 | A1、A2 |
+| A5 | HUD 和後台紀錄對應（§3.5）。**狀態：沒做**（HUD 只有設計稿，§0F.2 第 8 項） | 即時模式的 HUD 和紀錄模組 | 三種 `decision_source` 顯示三種文字；`llm.jsonl` 每行通過現有的決策紀錄 schema | A3，以及即時模式設計稿 v2 的 L4、L6 |
+| A6 | **工作台設定切換 LLM 裁決**（D242）。三個選項：關閉（預設）、LLM 覆核、LLM 主導；可以選模型（預設 sol6.1）。屬於 Claude 的工作台 UI | 工作台的設定畫面（`frontend/workbench/`；即時模式畫面在 `frontend/live-mode/`，設定放哪一邊 UNKNOWN）；後台接收設定的介面（檔案 UNKNOWN，看 #544 合併後的結構） | 預設是關閉，重新載入後仍是關閉；關閉時後台不送任何 LLM 請求、追蹤輸出和現在逐 byte 相同；切到覆核或主導時，後台收到對應的裁決模式（`off`／`review`／`lead`）；護欄沒開時顯示「演算法暫代（沒開）」 | A3；A7；#544 合併 |
 
-A1 和 A2 的檔案不重疊。A6 只改工作台 UI 和後台的設定入口，不碰 `tracker.py`。A2 要等 #546 合併之後才動（見 §5）。
+| A7 | **`people.py` 的 `group()` 併人規則修正**（D245，[Opus 判定](https://github.com/Polalalabear/amidst/pull/544#issuecomment-6924091618)第 1 點）。**任何開 `--advisor review/lead` 的 demo 之前要修完**，所以是 A6 的前提。改法：同鏡頭 IoU ≥ 0.6 的框只留分數高的；`same_m` 1.5 → 1.0 m（1.0 m 也是從 A4、B4 兩條路線挑的，要註明）；跨鏡頭配對依距離排序後一對一配；一個人的 `xy` 取成員落地點的平均；加兩個計數器（同鏡頭去重掉的框數、跨鏡頭併入時兩框相距 > 1.0 m 的次數），寫進重播輸出 | 只改 `src/amidst/live_mode/people.py` 和 `tests/live_mode/test_advisor.py` | 單元測試新增 4 個：同鏡頭兩框 IoU 0.8 → 1 人；不同鏡頭相距 1.3 m → 2 人；不同鏡頭相距 0.5 m → 1 人；同鏡頭相距 0.3 m 但 IoU < 0.6 → 2 人。現有 29 個加新增的全部通過。重播（不付費，`--oracle-m 1.0`，`sol2`＋`gate` 共 n=38）：4 m 覆核比 4 m 關閉差的紀錄維持 0/38；A4 路線鏡頭跟對 ≥ 0.38、ALL ≥ 0.66；跨鏡頭相距 > 1.0 m 的併入 0 次；回報同鏡頭去重次數。用 `trace_ticks.py` 重跑第 27–34 輪，p2 和 p5 仍是兩個人 | #544 合併；寫在 `claude/feat-live-mode`（D216） |
+
+A1 和 A2 的檔案不重疊。A6 只改工作台 UI 和後台的設定入口，不碰 `tracker.py`。A7 只改 `people.py` 和它的測試。A2 要等 #546 合併之後才動（見 §5）。
 
 A1 的驗收測試加一條：請求裡沒有角色代號，也沒有寫死的「顏色對應角色」。
 
