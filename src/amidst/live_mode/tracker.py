@@ -113,4 +113,3 @@ class Tracker:
                     self.active = new
         return {"state": self.state, "active_cam": self.active, "seen_cams": sorted(seen),
                 "est_xy": self.est, "events": list(self.events), "lost_ticks": self.lost}
-
