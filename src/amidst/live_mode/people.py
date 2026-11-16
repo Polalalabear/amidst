@@ -19,7 +19,7 @@ import math
 
 
 class PeopleTracker:
-    def __init__(self, same_m: float = 1.5, vmax_m_s: float = 2.5, keep_s: float = 2.0, max_gate_m: float = 6.0, contest_m: float = 1.2):
+    def __init__(self, same_m: float = 1.5, vmax_m_s: float = 2.5, keep_s: float = 2.0, max_gate_m: float = 6.0, contest_m: float = 0.7):
         self.same, self.vmax, self.keep, self.max_gate, self.contest = same_m, vmax_m_s, keep_s, max_gate_m, contest_m
         self.tracks: dict[int, dict] = {}   # pid -> {xy, t, v, contested_t}
         self._next = 1

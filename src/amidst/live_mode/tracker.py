@@ -38,8 +38,14 @@ class Projector:
 
 
 class Tracker:
-    def __init__(self, projector: Projector, hold_ticks: int = 2, gate_m: float = 3.0, lost_after: int = 15):
+    def __init__(self, projector: Projector, hold_ticks: int = 2, gate_m: float = 3.0, lost_after: int = 15,
+                 gate_growth_m_s: float = 0.0, max_gate_m: float = 8.0):
+        # The gate is how far from the last estimate a red detection may be and still count as the target. With
+        # gate_growth_m_s > 0 it widens while the target is unseen (gate_m + growth * seconds, up to max_gate_m), so
+        # a target that walked on while undetected can be picked up again. 0 keeps the fixed gate of the spike.
         self.proj, self.hold, self.gate, self.lost_after = projector, hold_ticks, gate_m, lost_after
+        self.growth, self.max_gate = gate_growth_m_s, max_gate_m
+        self.t_seen = None
         self.state = "SEARCHING"
         self.est = None
         self.active = None
@@ -50,8 +56,10 @@ class Tracker:
     def _emit(self, tick, typ, cam=None, detail=None):
         self.events.append({"tick": tick, "type": typ, "cam": cam, "detail": detail})
 
-    def update(self, tick: int, dets: dict, img_size: tuple[int, int]) -> dict:
+    def update(self, tick: int, dets: dict, img_size: tuple[int, int], t_s: float | None = None) -> dict:
         self.events = []
+        t = tick * 0.5 if t_s is None else t_s
+        gate = self.gate if not self.growth or self.t_seen is None else min(self.max_gate, self.gate + self.growth * max(0.0, t - self.t_seen))
         W, H = img_size
         cands = []  # (cam, det, xy)
         for cam, lst in dets.items():
@@ -70,13 +78,15 @@ class Tracker:
             if same:
                 best = max(cands, key=lambda c: c[1]["score"])
                 self.est, self.state, self.active = best[2], "TRACKING", best[0]
+                self.t_seen = t
                 seen[best[0]] = best
                 self._emit(tick, "ACQUIRE", best[0])
         else:
-            near = [c for c in cands if math.dist(c[2], self.est) <= self.gate]
+            near = [c for c in cands if math.dist(c[2], self.est) <= gate]
             if near:
                 tgt = min(near, key=lambda c: math.dist(c[2], self.est))
                 self.est = tgt[2]
+                self.t_seen = t
                 for c in near:
                     if math.dist(c[2], tgt[2]) < 1.5:
                         seen[c[0]] = c
@@ -103,3 +113,4 @@ class Tracker:
                     self.active = new
         return {"state": self.state, "active_cam": self.active, "seen_cams": sorted(seen),
                 "est_xy": self.est, "events": list(self.events), "lost_ticks": self.lost}
+

@@ -1,0 +1,204 @@
+{
+ "configs": {
+  "gate3_off": "--mode off",
+  "gate4_off": "--mode off --gate-m 4",
+  "gate3_review": "--mode review",
+  "gate4_review": "--mode review --gate-m 4",
+  "gate4_review_2s": "--mode review --gate-m 4 --delay-s 2",
+  "gate4_lead": "--mode lead --gate-m 4"
+ },
+ "table": {
+  "gate3_off": {
+   "a4 8cam": {
+    "n": 7,
+    "on_target": 0.41,
+    "wrong_person": 0.296,
+    "lost": 0.294
+   },
+   "a4 route cams": {
+    "n": 27,
+    "on_target": 0.446,
+    "wrong_person": 0.294,
+    "lost": 0.26
+   },
+   "b4 8cam": {
+    "n": 7,
+    "on_target": 0.445,
+    "wrong_person": 0.278,
+    "lost": 0.276
+   },
+   "b4 route cams": {
+    "n": 27,
+    "on_target": 0.621,
+    "wrong_person": 0.062,
+    "lost": 0.317
+   },
+   "ALL": {
+    "n": 68,
+    "on_target": 0.512,
+    "wrong_person": 0.201,
+    "lost": 0.288
+   }
+  },
+  "gate4_off": {
+   "a4 8cam": {
+    "n": 7,
+    "on_target": 0.346,
+    "wrong_person": 0.367,
+    "lost": 0.287
+   },
+   "a4 route cams": {
+    "n": 27,
+    "on_target": 0.409,
+    "wrong_person": 0.327,
+    "lost": 0.264
+   },
+   "b4 8cam": {
+    "n": 7,
+    "on_target": 0.78,
+    "wrong_person": 0.153,
+    "lost": 0.067
+   },
+   "b4 route cams": {
+    "n": 27,
+    "on_target": 0.894,
+    "wrong_person": 0.043,
+    "lost": 0.063
+   },
+   "ALL": {
+    "n": 68,
+    "on_target": 0.633,
+    "wrong_person": 0.2,
+    "lost": 0.166
+   }
+  },
+  "gate3_review": {
+   "a4 8cam": {
+    "n": 7,
+    "on_target": 0.6,
+    "wrong_person": 0.245,
+    "lost": 0.155
+   },
+   "a4 route cams": {
+    "n": 27,
+    "on_target": 0.458,
+    "wrong_person": 0.285,
+    "lost": 0.256
+   },
+   "b4 8cam": {
+    "n": 7,
+    "on_target": 0.644,
+    "wrong_person": 0.162,
+    "lost": 0.194
+   },
+   "b4 route cams": {
+    "n": 27,
+    "on_target": 0.816,
+    "wrong_person": 0.045,
+    "lost": 0.139
+   },
+   "ALL": {
+    "n": 68,
+    "on_target": 0.634,
+    "wrong_person": 0.173,
+    "lost": 0.193
+   }
+  },
+  "gate4_review": {
+   "a4 8cam": {
+    "n": 7,
+    "on_target": 0.486,
+    "wrong_person": 0.313,
+    "lost": 0.201
+   },
+   "a4 route cams": {
+    "n": 27,
+    "on_target": 0.319,
+    "wrong_person": 0.358,
+    "lost": 0.322
+   },
+   "b4 8cam": {
+    "n": 7,
+    "on_target": 0.78,
+    "wrong_person": 0.153,
+    "lost": 0.067
+   },
+   "b4 route cams": {
+    "n": 27,
+    "on_target": 0.899,
+    "wrong_person": 0.038,
+    "lost": 0.063
+   },
+   "ALL": {
+    "n": 68,
+    "on_target": 0.614,
+    "wrong_person": 0.205,
+    "lost": 0.181
+   }
+  },
+  "gate4_review_2s": {
+   "a4 8cam": {
+    "n": 7,
+    "on_target": 0.533,
+    "wrong_person": 0.322,
+    "lost": 0.145
+   },
+   "a4 route cams": {
+    "n": 27,
+    "on_target": 0.192,
+    "wrong_person": 0.405,
+    "lost": 0.404
+   },
+   "b4 8cam": {
+    "n": 7,
+    "on_target": 0.78,
+    "wrong_person": 0.153,
+    "lost": 0.067
+   },
+   "b4 route cams": {
+    "n": 27,
+    "on_target": 0.901,
+    "wrong_person": 0.036,
+    "lost": 0.063
+   },
+   "ALL": {
+    "n": 68,
+    "on_target": 0.569,
+    "wrong_person": 0.224,
+    "lost": 0.207
+   }
+  },
+  "gate4_lead": {
+   "a4 8cam": {
+    "n": 7,
+    "on_target": 0.39,
+    "wrong_person": 0.185,
+    "lost": 0.425
+   },
+   "a4 route cams": {
+    "n": 27,
+    "on_target": 0.222,
+    "wrong_person": 0.268,
+    "lost": 0.51
+   },
+   "b4 8cam": {
+    "n": 7,
+    "on_target": 0.447,
+    "wrong_person": 0.085,
+    "lost": 0.468
+   },
+   "b4 route cams": {
+    "n": 27,
+    "on_target": 0.515,
+    "wrong_person": 0.011,
+    "lost": 0.474
+   },
+   "ALL": {
+    "n": 68,
+    "on_target": 0.379,
+    "wrong_person": 0.139,
+    "lost": 0.483
+   }
+  }
+ }
+}

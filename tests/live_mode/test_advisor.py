@@ -41,21 +41,43 @@ def test_people_two_boxes_in_one_camera_are_two_people_even_when_close():
     pt = PeopleTracker()
     people = pt.update(0.0, [cand("W1", (0, 0), x0=100), cand("W1", (0.8, 0.2), x0=200)])
     assert len(people) == 2 and len({p["pid"] for p in people}) == 2
-    assert pt.contested_since(people[0]["pid"], 0.0) and pt.contested_since(people[1]["pid"], 0.0)   # 0.82 m apart
+    assert not pt.contested_since(people[0]["pid"], 0.0)                                             # 0.82 m apart: not a close pass
 
 
 def test_people_ids_follow_direction_when_two_people_pass_each_other():
     pt = PeopleTracker()
-    # A walks east along y=0, B walks west along y=0.9: they pass each other around t=1.5 s
+    # A walks east along y=0, B walks west along y=0.5: they pass each other around t=1.5 s, 0.5 m apart
     ids = None
     for k in range(7):
         t = 0.5 * k
-        a, b = (0.6 * k, 0.0), (3.6 - 0.6 * k, 0.9)
+        a, b = (0.6 * k, 0.0), (3.6 - 0.6 * k, 0.5)
         people = pt.update(t, [cand("W1", a, x0=100), cand("W1", b, x0=400)])
         now = {("A" if abs(p["xy"][1]) < 0.1 else "B"): p["pid"] for p in people}
         ids = ids or now
         assert now == ids, (t, now, ids)
-    assert pt.contested_since(ids["A"], 1.0) and not pt.contested_since(ids["A"], 2.6)   # close around 1.5 s only
+    assert pt.contested_since(ids["A"], 1.0) and not pt.contested_since(ids["A"], 2.6)   # closer than 0.7 m around 1.5 s only
+
+
+def test_tracker_gate_is_fixed_by_default_and_can_widen_with_time():
+    import json
+    from pathlib import Path
+
+    from amidst.live_mode.tracker import Projector, Tracker
+    proj = Projector(json.loads((Path(__file__).resolve().parents[2] / "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json").read_text())["cameras"])
+
+    def run(**kw):
+        tr = Tracker(proj, **kw)
+        tr.state, tr.est, tr.active, tr.t_seen = "TRACKING", [0.0, 0.0], "CAM_W1", 0.0
+        orig = proj.ground
+        proj.ground = lambda cam, u, v, w, h: [5.0, 0.0]      # the only red person is 5 m from the last estimate
+        try:
+            return tr.update(8, {"CAM_W1": [{"bbox": [0, 0, 10, 20], "score": 0.9, "color": "red"}]}, (320, 180), t_s=4.0)
+        finally:
+            proj.ground = orig
+    assert run()["lost_ticks"] == 1                                         # fixed 3 m gate: not the target
+    assert run(gate_growth_m_s=1.0)["lost_ticks"] == 0                      # 3 + 1.0 * 4 s = 7 m
+    assert run(gate_growth_m_s=1.0, max_gate_m=4.0)["lost_ticks"] == 1      # capped at 4 m
+    assert run(gate_m=6.0)["lost_ticks"] == 0
 
 
 # ---------------------------------------------------------------- advisor
@@ -243,8 +265,8 @@ def test_decider_does_not_apply_an_answer_after_the_chosen_person_passed_close_t
     d, _, _ = decider()   # the model will answer "2" (the right-hand person at ask time)
     tr = tracker_stub([0, 0]); lock(d, tr)
     d.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100), cand("W1", (2.2, 0.5), x0=500)), FRAME)
-    # while the question is open the two people pass within 1.2 m of each other
-    d.step(2, 1.0, tr, tracking([1.0, 0]), dets_of(cand("W1", (1.0, 0), x0=100), cand("W1", (1.8, 0.5), x0=500)), FRAME)
+    # while the question is open the two people pass within 0.7 m of each other
+    d.step(2, 1.0, tr, tracking([1.0, 0]), dets_of(cand("W1", (1.0, 0), x0=100), cand("W1", (1.4, 0.3), x0=500)), FRAME)
     out = d.step(3, 1.5, tr, tracking([1.5, 0]), dets_of(cand("W1", (1.5, 0), x0=500), cand("W1", (1.2, 0.5), x0=100)), FRAME)
     last = out["advisor"]["last"]
     assert last is not None and last["applied"] is False and last["fallback_reason"] == "TIME_BUDGET"
@@ -311,6 +333,6 @@ def test_server_builds_no_decider_when_the_advisor_is_off():
     st.args, st.guard = types.SimpleNamespace(advisor="off"), None
     assert st._new_decider() is None
     st.args = types.SimpleNamespace(advisor="lead", advisor_provider="fake", advisor_model="sol6.1", advisor_timeout_s=5.0, advisor_fake_delay_s=0.0,
-                                    advisor_lost_min_candidates=2, advisor_apply="reseed")
+                                    advisor_lost_min_candidates=2, advisor_apply="reseed", gate_m=3.0)
     dec = st._new_decider()
     assert dec.mode == "lead" and dec.advisor.model_id == "fake" and dec.advisor.guard is None and dec.lost_min == 2 and dec.apply == "reseed"

@@ -50,7 +50,8 @@ class State:
         self.lock = threading.Lock()
         self.geometry = json.loads(GEOMETRY.read_text())
         self.projector = Projector(self.geometry["cameras"])
-        self.tracker = Tracker(self.projector)
+        self.args = args
+        self.tracker = self._new_tracker()
         self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads)
         self.args = args
         self.assets = assets_dir(args.assets)
@@ -64,6 +65,10 @@ class State:
                 cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
             self.guard = ApiGuard(cfg)
         self.decider = self._new_decider()
+
+    def _new_tracker(self):
+        a = self.args
+        return Tracker(self.projector, gate_m=a.gate_m, gate_growth_m_s=a.gate_growth, max_gate_m=a.max_gate)
 
     def _new_decider(self):
         """None when the advisor is off, so the rule-only path is exactly what it was before."""
@@ -79,10 +84,10 @@ class State:
                 return {"choice": 1, "reason": "假模型：固定回答 1", "prompt_tokens": 0, "completion_tokens": 0, "api_model": "fake"}
             model_id = "fake"
         return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker(),
-                           lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
+                           gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
 
     def reset(self):
-        self.tracker = Tracker(self.projector)
+        self.tracker = self._new_tracker()
         self.decider = self._new_decider()
 
     def infer(self, header: dict, jpegs: dict, track: bool) -> dict:
@@ -111,9 +116,10 @@ class State:
             t3 = time.perf_counter()
             tracking = None
             if track:
-                tracking = self.tracker.update(header["tick"], out, imgs[0].size)
+                t_s = float(header.get("t_capture_ms") or 0) / 1000.0
+                tracking = self.tracker.update(header["tick"], out, imgs[0].size, t_s)
                 if self.decider is not None:
-                    tracking = self.decider.step(header["tick"], float(header.get("t_capture_ms") or 0) / 1000.0, self.tracker, tracking, out,
+                    tracking = self.decider.step(header["tick"], t_s, self.tracker, tracking, out,
                                                  dict(zip(cams, imgs)))
             t4 = time.perf_counter()
         timing.update({"decode": (t1 - t0) * 1e3, "detect_total": (t2 - t1) * 1e3,
@@ -194,6 +200,11 @@ def main():
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--assets", default=None, help="N6 asset dir (character.glb, scene.glb, cameras.three.json)")
     ap.add_argument("--models", default=str(REPO / "local/data/demo-owned-v1/models/rtdetr"))
+    ap.add_argument("--gate-m", type=float, default=4.0,
+                    help="how far from the last estimate a red detection may be and still be the target. The spike used 3; 4 lost the "
+                         "target much less often in replay and in fresh runs (docs/evaluation/LIVE_MODE_TRACKER_20261116.md)")
+    ap.add_argument("--gate-growth", type=float, default=0.0, help="metres per second the gate widens while the target is unseen (0 = fixed)")
+    ap.add_argument("--max-gate", type=float, default=8.0)
     ap.add_argument("--det-width", type=int, default=320, help="frames wider than this are shrunk to det-width x det-height for detection")
     ap.add_argument("--det-height", type=int, default=180)
     ap.add_argument("--advisor", default="off", choices=["off", "review", "lead"], help="image adjudication (advisor.py); off = rule tracker only")

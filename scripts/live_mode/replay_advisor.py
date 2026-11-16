@@ -57,19 +57,21 @@ class OracleAdvisor(Advisor):
                 "choice": self.ready["choice"], "reason": "重播：依劇本位置作答", "model": "oracle", "source": "AGENT", "fallback_reason": None}
 
 
-def replay(raw: dict, mode: str, delay_s: float, lost_min: int, apply: str = "lock") -> dict:
+def replay(raw: dict, mode: str, delay_s: float, lost_min: int, apply: str = "reseed", contest_m: float = 0.7, gate_m: float = 3.0,
+           gate_growth: float = 0.0, max_gate: float = 8.0) -> dict:
     proj = Projector(json.loads(GEOMETRY.read_text())["cameras"])
-    tracker = Tracker(proj)
-    people = PeopleTracker()
+    tracker = Tracker(proj, gate_m=gate_m, gate_growth_m_s=gate_growth, max_gate_m=max_gate)
+    people = PeopleTracker(contest_m=contest_m)
     adv = OracleAdvisor(people, delay_s)
-    dec = LiveDecider(mode, adv, people, lost_min_candidates=lost_min, apply=apply) if mode != "off" else None
+    dec = LiveDecider(mode, adv, people, gate_m=gate_m, lost_min_candidates=lost_min, apply=apply) if mode != "off" else None
     frames = {c: Image.new("RGB", (raw["cfg"]["w"], raw["cfg"]["h"]), (128, 128, 128)) for c in raw["cfg"]["cams"]}
     out = copy.deepcopy(raw)
     n = min(len(raw["ticks"]), len(raw["infer"]))
     for i in range(n):
         dets = {cam: [{k: v for k, v in d.items() if k != "est_xy"} for d in lst] for cam, lst in raw["infer"][i]["dets"].items()}
         t_s = raw["ticks"][i]["t_capture"] / 1000.0
-        tracking = tracker.update(i, dets, (raw["cfg"]["w"], raw["cfg"]["h"]))
+        size = (raw["cfg"]["w"], raw["cfg"]["h"])
+        tracking = tracker.update(i, dets, size, t_s)
         if dec is not None:
             adv.now, adv.truth = t_s, raw["infer"][i].get("gt_xy")
             tracking = dec.step(i, t_s, tracker, tracking, dets, frames)
@@ -87,7 +89,12 @@ def main() -> int:
     ap.add_argument("--mode", required=True, choices=["off", "review", "lead"])
     ap.add_argument("--delay-s", type=float, default=3.5)
     ap.add_argument("--lost-min-candidates", type=int, default=2)
-    ap.add_argument("--apply", default="lock", choices=["lock", "reseed"])
+    ap.add_argument("--apply", default="reseed", choices=["lock", "reseed"])
+    ap.add_argument("--gate-m", type=float, default=3.0)
+    ap.add_argument("--gate-growth", type=float, default=0.0, help="metres per second the rule gate widens while the target is unseen")
+    ap.add_argument("--max-gate", type=float, default=8.0)
+    ap.add_argument("--contest-m", type=float, default=0.7, help="0 switches the close-pass check off")
+    ap.add_argument("--tag", default="", help="suffix for the output label")
     ap.add_argument("--only", default="", help="keep source labels containing this text (e.g. _off_)")
     a = ap.parse_args()
     Path(a.out).mkdir(parents=True, exist_ok=True)
@@ -96,9 +103,9 @@ def main() -> int:
         if a.only and a.only not in raw["label"]:
             continue
         route, rep = raw["label"].split("_")[0], raw["label"].split("_")[-1]
-        src_mode = raw["label"].split("_")[1]
-        res = replay(raw, a.mode, a.delay_s, a.lost_min_candidates, a.apply)
-        res["label"] = f"{route}_{a.mode}_from{src_mode}_{rep}"
+        src_mode = "".join(raw["label"].split("_")[1:-1])
+        res = replay(raw, a.mode, a.delay_s, a.lost_min_candidates, a.apply, a.contest_m, a.gate_m, a.gate_growth, a.max_gate)
+        res["label"] = f"{route}_{a.mode}{a.tag}_from{src_mode}_{rep}"
         (Path(a.out) / f"{res['label']}.t1raw.json").write_text(json.dumps(res))
         print(res["label"], "questions", res["replay"]["questions"])
     return 0
