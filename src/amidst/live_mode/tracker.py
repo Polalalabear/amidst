@@ -8,9 +8,30 @@ detections only.
 """
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 
 import numpy as np
+
+
+CATALOG_REL = "r004-build-v2-20261021/safe_static/cameras.json"
+
+
+def catalog_path(arg: str | None = None) -> Path:
+    """Camera catalog the runtime may read (safe_static, controlled-scene.cameras.v1); --cameras overrides it."""
+    if arg:
+        return Path(arg)
+    from amidst.paths import data_dir
+    return data_dir() / CATALOG_REL
+
+
+def load_cameras(arg: str | None = None) -> list[dict]:
+    """Calibration only (camera_to_world, fx/fy/cx/cy, width/height) from the safe_static catalog; raises if it is absent."""
+    path = catalog_path(arg)
+    if not path.is_file():
+        raise FileNotFoundError(f"camera catalog not found: {path} (pass --cameras or restore local/data/{CATALOG_REL})")
+    return json.loads(path.read_text())["cameras"]
 
 
 class Projector:

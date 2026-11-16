@@ -25,7 +25,7 @@ from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjud
 from .color import judge
 from .detector import LiveDetector
 from .people import PeopleTracker
-from .tracker import Projector, Tracker
+from .tracker import Projector, Tracker, load_cameras
 
 REPO = Path(__file__).resolve().parents[3]
 FRONT = REPO / "frontend" / "live-mode"
@@ -35,6 +35,11 @@ SCENARIO = REPO / "docs" / "evaluation" / "R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.
 
 N6_FILES = {"/data/character.glb": "character.glb", "/data/scene.glb": "scene.glb",
             "/data/cameras.three.json": "cameras.three.json"}
+
+
+def inside(path: Path, root: Path) -> bool:
+    """True when path, after resolving '..' and symlinks, is still under root (blocks --path-as-is traversal)."""
+    return path.resolve().is_relative_to(root.resolve())
 
 
 def assets_dir(arg: str | None) -> Path | None:
@@ -48,8 +53,7 @@ def assets_dir(arg: str | None) -> Path | None:
 class State:
     def __init__(self, args):
         self.lock = threading.Lock()
-        self.geometry = json.loads(GEOMETRY.read_text())
-        self.projector = Projector(self.geometry["cameras"])
+        self.projector = Projector(load_cameras(args.cameras))   # safe_static camera catalog, calibration only
         self.args = args
         self.tracker = self._new_tracker()
         self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads)
@@ -141,7 +145,9 @@ def make_handler(state: State):
             self.end_headers()
             self.wfile.write(body)
 
-        def _file(self, path: Path):
+        def _file(self, path: Path, root: Path | None = None):
+            if root is not None and not inside(path, root):
+                return self._send(404, b"not found", "text/plain")
             if not path.is_file():
                 return self._send(404, b"not found", "text/plain")
             ctype = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
@@ -154,9 +160,10 @@ def make_handler(state: State):
             if p in ("/", "/index.html"):
                 return self._file(FRONT / "index.html")
             if p.startswith("/src/"):
-                return self._file(FRONT / p[1:])
+                return self._file(FRONT / p[1:], root=FRONT)
             if p.startswith("/vendor/three/"):
-                return self._file(FRONT / "node_modules" / "three" / p[len("/vendor/three/"):])
+                three = FRONT / "node_modules" / "three"
+                return self._file(three / p[len("/vendor/three/"):], root=three)
             if p == "/data/geometry.json":
                 return self._file(GEOMETRY)
             if p == "/data/scenario.json":
@@ -198,6 +205,7 @@ def main():
     ap.add_argument("--device", default="cpu", choices=["cpu", "mps"])
     ap.add_argument("--min-score", type=float, default=0.35)
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--cameras", default=None, help="camera catalog (controlled-scene.cameras.v1); default local/data/r004-build-v2-20261021/safe_static/cameras.json")
     ap.add_argument("--assets", default=None, help="N6 asset dir (character.glb, scene.glb, cameras.three.json)")
     ap.add_argument("--models", default=str(REPO / "local/data/demo-owned-v1/models/rtdetr"))
     ap.add_argument("--gate-m", type=float, default=4.0,

@@ -22,10 +22,9 @@ from PIL import Image
 
 from amidst.live_mode.advisor import Advisor, LiveDecider
 from amidst.live_mode.people import PeopleTracker
-from amidst.live_mode.tracker import Projector, Tracker
+from amidst.live_mode.tracker import Projector, Tracker, load_cameras
 
 REPO = Path(__file__).resolve().parents[2]
-GEOMETRY = REPO / "docs" / "evaluation" / "R004_SCENE_GEOMETRY_2D_V1.json"
 SAME = 1.5
 
 
@@ -59,7 +58,7 @@ class OracleAdvisor(Advisor):
 
 def replay(raw: dict, mode: str, delay_s: float, lost_min: int, apply: str = "reseed", contest_m: float = 0.7, gate_m: float = 3.0,
            gate_growth: float = 0.0, max_gate: float = 8.0, oracle_m: float = SAME) -> dict:
-    proj = Projector(json.loads(GEOMETRY.read_text())["cameras"])
+    proj = Projector(load_cameras())
     tracker = Tracker(proj, gate_m=gate_m, gate_growth_m_s=gate_growth, max_gate_m=max_gate)
     people = PeopleTracker(contest_m=contest_m)
     adv = OracleAdvisor(people, delay_s, oracle_m)
