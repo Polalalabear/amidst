@@ -1,0 +1,138 @@
+{
+ "configs": {
+  "gate4_off": "--mode off --gate-m 4",
+  "gate4_review": "--mode review --gate-m 4",
+  "gate3_off": "--mode off --gate-m 3",
+  "gate3_review": "--mode review --gate-m 3"
+ },
+ "table": {
+  "gate4_off": {
+   "a4 8cam": {
+    "n": 4,
+    "on_target": 0.472,
+    "wrong_person": 0.37,
+    "lost": 0.158
+   },
+   "a4 route cams": {
+    "n": 15,
+    "on_target": 0.382,
+    "wrong_person": 0.367,
+    "lost": 0.251
+   },
+   "b4 8cam": {
+    "n": 4,
+    "on_target": 0.726,
+    "wrong_person": 0.181,
+    "lost": 0.093
+   },
+   "b4 route cams": {
+    "n": 15,
+    "on_target": 0.922,
+    "wrong_person": 0.028,
+    "lost": 0.05
+   },
+   "ALL": {
+    "n": 38,
+    "on_target": 0.641,
+    "wrong_person": 0.214,
+    "lost": 0.145
+   }
+  },
+  "gate4_review": {
+   "a4 8cam": {
+    "n": 4,
+    "on_target": 0.609,
+    "wrong_person": 0.276,
+    "lost": 0.114
+   },
+   "a4 route cams": {
+    "n": 15,
+    "on_target": 0.259,
+    "wrong_person": 0.403,
+    "lost": 0.337
+   },
+   "b4 8cam": {
+    "n": 4,
+    "on_target": 0.726,
+    "wrong_person": 0.181,
+    "lost": 0.093
+   },
+   "b4 route cams": {
+    "n": 15,
+    "on_target": 0.922,
+    "wrong_person": 0.028,
+    "lost": 0.05
+   },
+   "ALL": {
+    "n": 38,
+    "on_target": 0.607,
+    "wrong_person": 0.219,
+    "lost": 0.175
+   }
+  },
+  "gate3_off": {
+   "a4 8cam": {
+    "n": 4,
+    "on_target": 0.429,
+    "wrong_person": 0.291,
+    "lost": 0.281
+   },
+   "a4 route cams": {
+    "n": 15,
+    "on_target": 0.383,
+    "wrong_person": 0.337,
+    "lost": 0.281
+   },
+   "b4 8cam": {
+    "n": 4,
+    "on_target": 0.481,
+    "wrong_person": 0.305,
+    "lost": 0.214
+   },
+   "b4 route cams": {
+    "n": 15,
+    "on_target": 0.676,
+    "wrong_person": 0.045,
+    "lost": 0.279
+   },
+   "ALL": {
+    "n": 38,
+    "on_target": 0.514,
+    "wrong_person": 0.213,
+    "lost": 0.273
+   }
+  },
+  "gate3_review": {
+   "a4 8cam": {
+    "n": 4,
+    "on_target": 0.702,
+    "wrong_person": 0.202,
+    "lost": 0.096
+   },
+   "a4 route cams": {
+    "n": 15,
+    "on_target": 0.39,
+    "wrong_person": 0.33,
+    "lost": 0.281
+   },
+   "b4 8cam": {
+    "n": 4,
+    "on_target": 0.654,
+    "wrong_person": 0.173,
+    "lost": 0.173
+   },
+   "b4 route cams": {
+    "n": 15,
+    "on_target": 0.848,
+    "wrong_person": 0.031,
+    "lost": 0.121
+   },
+   "ALL": {
+    "n": 38,
+    "on_target": 0.631,
+    "wrong_person": 0.182,
+    "lost": 0.187
+   }
+  }
+ }
+}
