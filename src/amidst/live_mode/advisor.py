@@ -166,7 +166,9 @@ class Advisor:
         except Exception:  # noqa: BLE001 - a broken provider must never break tracking
             out.update(source="RULE_FALLBACK", fallback_reason="PROVIDER_UNAVAILABLE")
         with self._lock:
-            self._done = out
+            # a late thread from a question already given up on (TIME_BUDGET) must not overwrite the current question's answer
+            if self._pending is not None and self._pending["seq"] == seq:
+                self._done = out
 
     def poll(self) -> dict | None:
         p = self._pending
@@ -232,10 +234,10 @@ class LiveDecider:
         # a finished question
         res = self.advisor.poll()
         if res is not None:
-            applied = False
+            applied = cleared = False
             if res["source"] == "AGENT":
                 if res["choice"] == 0:
-                    self.locked, applied = None, True   # none of them: stop following whoever the rule or an earlier answer picked
+                    self.locked, cleared = None, True   # none of them: stop following whoever the rule or an earlier answer picked; nothing is applied to the tracker
                 else:
                     pid = res["pids"][res["choice"] - 1]
                     seen = self.people.last_seen(pid)
@@ -247,9 +249,9 @@ class LiveDecider:
                     else:   # too late to use: the person is gone, or the id is no longer trustworthy
                         res["source"], res["fallback_reason"] = "RULE_FALLBACK", "TIME_BUDGET"
             self.last = {"kind": res["kind"], "cam": res["cam"], "choice": res["choice"], "reason": res["reason"], "latency_ms": res["latency_ms"],
-                         "applied": applied, "model": res["model"], "source": res["source"], "fallback_reason": res["fallback_reason"]}
+                         "applied": applied, "cleared": cleared, "model": res["model"], "source": res["source"], "fallback_reason": res["fallback_reason"]}
             self.last_t = t_s
-            events.append({"tick": tick, "type": "ADJUDICATED", "cam": res["cam"], "detail": {"choice": res["choice"], "applied": applied,
+            events.append({"tick": tick, "type": "ADJUDICATED", "cam": res["cam"], "detail": {"choice": res["choice"], "applied": applied, "cleared": cleared,
                                                                                                "source": res["source"], "latency_ms": res["latency_ms"]}})
         # follow the person an answer picked
         if self.locked is not None:
@@ -260,6 +262,7 @@ class LiveDecider:
                 cam = self._tallest(me)[0]; prev = tracker.active
                 tracker.est, tracker.state, tracker.lost, tracker.active = list(me["xy"]), "TRACKING", 0, cam
                 tracker.last_seen[cam] = tick
+                tracker.t_seen = t_s    # keep the gate-growth clock in step with the relocated estimate
                 out.update(state="TRACKING", est_xy=list(me["xy"]), active_cam=cam, seen_cams=sorted({c for c, _ in me["dets"]}), lost_ticks=0)
                 if prev is not None and cam != prev:
                     events.append({"tick": tick, "type": "SWITCH", "cam": cam, "detail": {"from": prev, "by": "AGENT"}})

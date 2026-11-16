@@ -156,6 +156,24 @@ def test_advisor_time_budget_drops_late_reply():
     assert adv.poll() is None and not adv.busy()
 
 
+def test_advisor_stale_thread_does_not_overwrite_the_current_answer():
+    adv, clock = make(lambda *a: {"choice": 1})
+    adv.set_reference(b"r")
+    real = adv._work
+    adv._work = lambda *a: None               # question 1 never reports back
+    adv.ask("K", "W1", [1, 2], b"f")
+    clock.t += 5.1
+    assert adv.poll()["fallback_reason"] == "TIME_BUDGET"
+    clock.t += 1.1
+    adv._work = real
+    adv.ask("K", "W1", [1, 2], b"f")          # question 2 completes at once
+    assert adv._done["seq"] == 2 and adv._done["choice"] == 1
+    adv.provider = lambda *a: {"choice": 2}
+    Advisor._work(adv, 1, b"r", b"f", 2)      # question 1's thread finally finishes
+    r = adv.poll()
+    assert r["source"] == "AGENT" and r["choice"] == 1
+
+
 def test_advisor_guard_denial_maps_to_fallback_reason():
     class Guard:
         def __init__(self, reason):
@@ -237,6 +255,7 @@ def test_decider_reseed_moves_the_rule_once_and_keeps_no_lock():
     d.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100), cand("W1", (2.2, 0.5), x0=500)), FRAME)
     out = d.step(2, 1.0, tr, tracking([1.0, 0]), dets_of(cand("W1", (1.0, 0), x0=100), cand("W1", (2.7, 0.5), x0=500)), FRAME)
     assert out["est_xy"] == [2.7, 0.5] and tr.est == [2.7, 0.5] and out["advisor"]["last"]["applied"] is True
+    assert tr.t_seen == 1.0                                                # the gate-growth clock moved with the estimate
     assert d.locked is None and out["decision_source"] == "RULE_ONLY"      # one correction, then the rule is in charge again
     out = d.step(3, 1.5, tr, tracking([3.2, 0.5]), dets_of(cand("W1", (3.2, 0.5), x0=500)), FRAME)
     assert out["est_xy"] == [3.2, 0.5]                                     # whatever the rule says next is shown as is
@@ -278,7 +297,8 @@ def test_decider_choice_zero_releases_and_invalid_reply_keeps_rule():
     tr = tracker_stub([0, 0]); lock(d, tr)
     d.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100), cand("W1", (2.2, 0.5), x0=500)), FRAME)
     out = d.step(2, 1.0, tr, tracking([1.0, 0]), dets_of(cand("W1", (1.0, 0), x0=100), cand("W1", (2.7, 0.5), x0=500)), FRAME)
-    assert out["advisor"]["last"]["applied"] is True and out["decision_source"] == "RULE_ONLY" and out["est_xy"] == [1.0, 0]
+    last = out["advisor"]["last"]
+    assert last["applied"] is False and last["cleared"] is True and out["decision_source"] == "RULE_ONLY" and out["est_xy"] == [1.0, 0]
     d2, _, _ = decider(reply={"choice": 9})
     tr = tracker_stub([0, 0]); lock(d2, tr)
     d2.step(1, 0.5, tr, tracking([0.5, 0]), dets_of(cand("W1", (0.5, 0), x0=100), cand("W1", (2.2, 0.5), x0=500)), FRAME)
@@ -336,3 +356,30 @@ def test_server_builds_no_decider_when_the_advisor_is_off():
                                     advisor_lost_min_candidates=2, advisor_apply="reseed", gate_m=3.0)
     dec = st._new_decider()
     assert dec.mode == "lead" and dec.advisor.model_id == "fake" and dec.advisor.guard is None and dec.lost_min == 2 and dec.apply == "reseed"
+
+
+def test_server_static_files_cannot_leave_their_root(tmp_path):
+    server = pytest.importorskip("amidst.live_mode.server")
+    root = tmp_path / "front"; root.mkdir()
+    (root / "ok.js").write_text("1"); (tmp_path / "secret.txt").write_text("x")
+    assert server.inside(root / "ok.js", root)
+    assert not server.inside(root / ".." / "secret.txt", root)
+    assert not server.inside(root / ".." / ".." / ".." / "etc" / "passwd", root)
+
+
+def test_server_cameras_come_from_the_catalog_and_match_the_projection_geometry(tmp_path):
+    import json
+    from pathlib import Path
+    from amidst.live_mode.tracker import catalog_path, load_cameras
+    cams = [{"camera_id": "C", "camera_to_world": [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 2], [0, 0, 0, 1]], "fx": 1, "fy": 1, "cx": 0, "cy": 0, "width": 2, "height": 2}]
+    f = tmp_path / "c.json"; f.write_text(json.dumps({"schema_version": "controlled-scene.cameras.v1", "cameras": cams}))
+    assert load_cameras(str(f)) == cams
+    with pytest.raises(FileNotFoundError):
+        load_cameras(str(tmp_path / "missing.json"))
+    default = catalog_path()
+    if default.is_file():   # LOCAL catalog present: the numbers the runtime uses equal the old geometry file's
+        geo = json.loads((Path(__file__).resolve().parents[2] / "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json").read_text())["cameras"]
+        got = {c["camera_id"]: c for c in load_cameras()}
+        for g in geo:
+            for k in ("camera_to_world", "fx", "fy", "cx", "cy", "width", "height"):
+                assert got[g["camera_id"]][k] == g[k]
