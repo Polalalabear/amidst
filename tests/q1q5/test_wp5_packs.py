@@ -69,3 +69,27 @@ def test_windows_arm_selects_local_models_only():
     args = wp5_runner.build_parser().parse_args(['--set', 'pilot', '--arm', 'windows', '--out', 'x'])
     models, _ = wp5_runner._select(cfg, args)
     assert models == list(wp5_pack.LOCAL_MODELS)
+
+
+def test_oneclick_notebook_embeds_the_pack_and_keeps_old_outputs(tmp_path):
+    import ast, base64, hashlib, importlib.util, json
+    spec = importlib.util.spec_from_file_location('build_oneclick', ROOT / 'scripts/agent_decision/build_oneclick_notebook.py')
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    pack = tmp_path / 'wp5-pack_colab_l4_20261115.zip'
+    pack.write_bytes(b'PK-fake-pack-bytes' * 50)
+    out = tmp_path / 'oneclick'
+    assert mod.main(['--pack-zip', str(pack), '--out', str(out)]) == 0
+    assert mod.main(['--pack-zip', str(pack), '--out', str(out)]) == 0               # second run keeps the first as .v1
+    assert (out / 'wp5_colab_oneclick.ipynb.v1').exists() and (out / 'wp5_colab_oneclick.zip.v1').exists()
+    nb = json.loads((out / 'wp5_colab_oneclick.ipynb').read_text(encoding='utf-8'))
+    assert [c['cell_type'] for c in nb['cells']][:2] == ['markdown', 'code'] and len(nb['cells']) == 9
+    for c in nb['cells']:
+        if c['cell_type'] == 'code':
+            ast.parse(''.join(c['source']))
+    step0 = ''.join(nb['cells'][1]['source'])
+    ns = {}
+    exec(step0.split('base = Path')[0], ns)                                          # only the constants
+    assert hashlib.sha256(base64.b64decode(''.join(ns['PACK_B64']))).hexdigest() == ns['EXPECTED_SHA256'] == hashlib.sha256(pack.read_bytes()).hexdigest()
+    text = '\n'.join(''.join(c['source']) for c in nb['cells'])
+    assert 'ollama ps' in text and 'probe_dp1' in text and 'fallback_report' in text and '沒使用到 GPU' in text

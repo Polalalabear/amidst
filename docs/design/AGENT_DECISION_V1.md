@@ -97,6 +97,8 @@ DP1 是主要假設（對應 #397 的 M1／H1-Q2）。DP3 是次要，只報點�
 
 沿用已核定的值（#397 §3.12；`configs/q1q5/parameter_set_v1.json`＠staging `434e579`）：`agent_call_timeout_ms`＝2000、`agent_total_budget_ms`＝5000、`agent_max_rounds`＝3、`session_max_agent_rounds`＝12。**這些值還沒綁到 r004 的 run（`run_bound_approval`＝UNRESOLVED）**，列為未決問題 Q2。
 
+> **D243＋D246 更新（2026-11-17，使用者決定）：** 離線正式組（`configs/q1q5/agent_decision_params_v1.json`、`configs/agent_eval/wp5_v1.json` 的 `formal`）單次逾時 2000 → 5000 ms（D243）；單步預算維持 5000 ms（D246，取代曾提案的 12000），所以單次逾時就用完整步預算，**逾時後不重試**（每步最多 1 次呼叫；429／5xx 的 1 次重試照舊）。`decide()` 因此把逾時呼叫算作用掉整個 timeout（不論 provider 回報的 wall_ms），避免差幾毫秒又多試一次。以下表格與敘述中的 2000 ms 為此前的值。即時模式參數與探索組（10 s／30 s）不變。已打包的 Colab v3 pack 未重打，仍內含舊值。
+
 | 情況 | 結果 | `fallback_reason` |
 | --- | --- | --- |
 | 模式不是 AGENT（預設） | 用規則答案 | 不記（`decision_source=RULE_ONLY`） |
