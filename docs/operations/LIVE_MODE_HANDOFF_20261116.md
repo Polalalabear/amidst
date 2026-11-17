@@ -288,3 +288,4 @@ B 畫面是單一跟隨視角：主區域只顯示後台目前判定的作用中
 | `03_review_judging.png`、`03_review_applied.png` | 覆核：規則繼續、LLM 判斷中；採用 LLM 答案 | a49beb7207282bd4888b6f3a719e46306c6f3d3c7ea41c961613928dafd0cbcc<br>9ca275de47583f8e8dc52706cc3f1c2d0c1bb0f74c2e74a398930ff191ff568c |
 | `04_fallback_fallback.png` | 覆核，LLM 逾時，演算法暫代 | 88cc1a6d5f886f7aed661dd0bbac04d4cd4437777dd6c65884bd1aef3d223a3d |
 | `05_lead_judging.png`、`05_lead_applied.png` | 主導：畫面停住等回答；採用答案 | f143dbeb4e2674dbeca3c992479c0bc7399ea99a9b96b2c0ae467898814bf387<br>40a2fc10b663d8bb0bfa6654dc236b2aac576c1554060161f714ad8f6d66618e |
+| `06_review_none_none.png` | 覆核，LLM 回答「都不是」（假模型固定回答 0；啟動器在 scratchpad，不進 repo）：結果顯示「已採用（不跟隨任何人）」 | 3fa8f645e450e02e51473634cfbdb2da1e87d12e60ea50bfc49e82fbb2835b3f |

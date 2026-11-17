@@ -1,7 +1,7 @@
 // B 畫面截圖（工程驗證用）：開操作端跑自動路線，系統端（?role=system）在同一個瀏覽器；
 // 當 HUD 狀態符合條件時截系統端畫面。只讀系統端 window.__hud（後台輸出推出來的顯示狀態），不讀操作端任何東西。
 //   LIVE_BASE=http://127.0.0.1:8797 OUT=<資料夾> node measure/bscreen_shots.mjs "<操作端 query>" <秒數> <條件,條件,...> [檔名前綴]
-// 條件：tracking | switch | lost | applied | fallback | judging
+// 條件：tracking | switch | lost | applied | none（回答都不是）| fallback | judging
 import fs from 'node:fs';
 import { launch, BASE, sleep } from './lib.mjs';
 const [query, secs = '45', conds = 'tracking', prefix = ''] = process.argv.slice(2);
@@ -13,6 +13,7 @@ const test = {
   lost: (v) => v.track.kind === 'lost' && v.track.seconds >= 4,
   judging: (v) => v.track.kind === 'adjudicating' || v.status.text.startsWith('LLM 判斷中'),
   applied: (v) => v.decision && v.decision.applied && v.status.tone === 'llm',
+  none: (v) => v.decision && v.decision.pick === '都不是' && v.status.tone === 'llm',
   fallback: (v) => v.source.tone === 'fallback' && v.status.tone === 'fallback',
 };
 const b = await launch(['--window-size=1600,900']);
