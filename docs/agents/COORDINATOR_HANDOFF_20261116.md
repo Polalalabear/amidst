@@ -1,5 +1,7 @@
 # 協調者交接 2026-11-16
 
+> 已被 [`COORDINATOR_HANDOFF_20261117.md`](COORDINATOR_HANDOFF_20261117.md)（11-17 版）取代；本檔保留作為紀錄。
+
 這份文件是新協調者對話的入口，取代 `COORDINATOR_HANDOFF_20261115.md`（舊檔保留作為紀錄）。前一位協調者是 Claude Opus 5.5。下一個決策編號是 **D242**，要同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
 
 - Model / effort：Opus 5.5 / medium（交接文件 session `ops-handoff-1116`）。

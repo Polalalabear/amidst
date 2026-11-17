@@ -336,6 +336,22 @@
       "sha256": "970590665cc96939ae9fc6f6acb2c3550cd7371f18a286abb45df1c49306426f",
       "status": "現行；進度導覽補到 #557＋#490 設計稿搬移註記（D91-4、D250）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D255-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@89d42aa30acaa49b902832e0d33f5a739794b7ab",
+      "sha256": "8532f3fc7e787e289c13460265b87858d0559e0369fdbc668602862f7e3facc1",
+      "status": "現行（D242 付費 API、D245 gh、D248/D249 分支規則、交接 11-17）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D255-A3",
+      "path": "CLAUDE.md",
+      "ref": "claude/feat-ops-docs@89d42aa30acaa49b902832e0d33f5a739794b7ab",
+      "sha256": "0109546faee369c76330d1295483fcad2ce5c67cda2f6894af4ad8cf87b6fb3e",
+      "status": "現行（D255 交接規則、交接 11-17）",
+      "issue_ref": "#93"
     }
   ],
   "authorized_changes": [
@@ -485,6 +501,20 @@
       "requires_commit": "c5d447fd1b02a353e8ec64cc71c1db1227f2d04a",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
       "reason": "#490 列註明設計稿已搬進 main、#93 列更新到 D250（D250、D91-4），只改導覽內容"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "8532f3fc7e787e289c13460265b87858d0559e0369fdbc668602862f7e3facc1",
+      "requires_commit": "89d42aa30acaa49b902832e0d33f5a739794b7ab",
+      "issue_ref": "#93",
+      "reason": "交接連結改 COORDINATOR_HANDOFF_20261117（D255）。只改連結，沒有放寬任何規則"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "0109546faee369c76330d1295483fcad2ce5c67cda2f6894af4ad8cf87b6fb3e",
+      "requires_commit": "89d42aa30acaa49b902832e0d33f5a739794b7ab",
+      "issue_ref": "#93",
+      "reason": "D255 交接規則（使用者 2026-11-17）：依類型整理所有工作、交接文件進 GitHub、新協調者用繁體中文；讀取順序改 11-17 交接。只加規則，沒有放寬任何規則"
     }
   ]
 }
