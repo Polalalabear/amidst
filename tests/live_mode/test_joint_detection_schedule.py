@@ -45,13 +45,16 @@ def test_scheduled_batches_keep_entry_override_and_do_not_fabricate_skipped_obse
     data = io.BytesIO()
     Image.new("RGB", (320, 180), "red").save(data, format="JPEG")
     frames = {c: data.getvalue() for c in state.registered_cameras}
-    header = {"tick": 0, "available_cameras": state.registered_cameras}
+    header = {"tick": 0, "t_capture_ms": 1000, "available_cameras": state.registered_cameras}
     first = state.infer(header, frames, True)
     assert len(first["dets"]["CAM_ENTRY"]) == 1
     assert first["dets"]["CAM_W1"] == []
-    second = state.infer(dict(header, tick=1), frames, True)
-    assert batches == [4, 3]
-    assert "CAM_ENTRY" not in second["dets"]
+    second = state.infer(dict(header, tick=1, t_capture_ms=1500), frames, True)
+    assert batches == [4, 4]
+    assert "CAM_ENTRY" in second["dets"]
+    third = state.infer(dict(header, tick=2, t_capture_ms=4001), frames, True)
+    assert batches == [4, 4, 3]
+    assert "CAM_ENTRY" not in third["dets"]
     assert second["schedule"]["reason"] == "ACTIVE_NEIGHBORS"
 
 

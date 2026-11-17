@@ -1,8 +1,10 @@
 """Scheduling must use only registered graph ids and backend tracking state."""
 
-from amidst.live_mode.scheduler import CameraScheduler, load_graph
-import pytest
 import json
+
+import pytest
+
+from amidst.live_mode.scheduler import CameraScheduler, load_graph
 
 
 def graph():
@@ -10,7 +12,9 @@ def graph():
     return {
         "schema_version": "q-demo.camera-transition-graph.v1",
         "cameras": [{"camera_id": c} for c in ids],
-        "transitions": [{"from_camera_id": a, "to_camera_id": b} for a, b in zip(ids, ids[1:])],
+        "transitions": [
+            {"from_camera_id": a, "to_camera_id": b} for a, b in zip(ids, ids[1:], strict=False)
+        ],
     }
 
 
@@ -57,10 +61,13 @@ def test_graph_load_is_hash_and_camera_catalog_bound(tmp_path):
 
 
 def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations():
-    from amidst.live_mode.server import State
+    import io
+    import threading
     from types import SimpleNamespace
+
     from PIL import Image
-    import io, threading
+
+    from amidst.live_mode.server import State
 
     state = object.__new__(State)
     state.registered_cameras = list("ABCDE")
@@ -92,3 +99,31 @@ def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations
     )
     assert sizes == [3] and list(result["dets"]) == list("ABC")
     assert result["schedule"]["next_camera_ids"] == list("CDE")
+
+
+def test_recent_pixel_red_camera_survives_active_neighborhood_switch_then_expires():
+    s = CameraScheduler(graph(), recent_red_s=2.0)
+    s.observe({"A": [{"color": "red"}], "B": [{"color": "blue"}]}, 10.0)
+    assert s.plan("E", 0, list("ABCDE"), t_s=11.0)["camera_ids"] == list("ADE")
+    assert s.plan("E", 0, list("BCDE"), t_s=11.0)["camera_ids"] == list("DE")
+    assert s.plan("E", 0, list("ABCDE"), t_s=12.01)["camera_ids"] == list("DE")
+
+
+def test_recent_camera_memory_resets_with_session_or_backwards_capture_clock():
+    s = CameraScheduler(graph())
+    s.observe({"A": [{"color": "red", "gt_visible": ["C"], "actor_id": "forbidden"}]}, 10.0)
+    s.reset()
+    assert s.plan("E", 0, list("ABCDE"), t_s=10.1)["camera_ids"] == list("DE")
+    s.observe({"A": [{"color": "red"}]}, 20.0)
+    assert s.plan("E", 0, list("ABCDE"), t_s=19.0)["camera_ids"] == list("DE")
+    for value in [float("nan"), float("inf"), -1]:
+        with pytest.raises(ValueError, match="CAPTURE_CLOCK"):
+            s.plan("E", 0, list("ABCDE"), t_s=value)
+
+
+def test_camera_memory_is_bounded_to_registered_ids_and_does_not_invent_graph_edges():
+    s = CameraScheduler(graph())
+    s.observe({"X": [{"color": "red"}], "A": [{"color": "none"}]}, 1.0)
+    assert s.plan("E", 0, list("ABCDE"), t_s=1.0)["camera_ids"] == list("DE")
+    assert s.adj["E"] == {"D"}
+    assert s.plan("ENTRY", 0, list("ABCDE") + ["ENTRY"], t_s=1.0)["reason"] == "GRAPH_SCOPE_UNKNOWN"

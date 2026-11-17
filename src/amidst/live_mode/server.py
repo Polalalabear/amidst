@@ -99,6 +99,8 @@ class State:
                            gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
 
     def reset(self):
+        if getattr(self, "scheduler", None):
+            self.scheduler.reset()
         self.tracker = self._new_tracker()
         self.decider = self._new_decider()
 
@@ -111,7 +113,8 @@ class State:
                 raise ValueError('AVAILABLE_CAMERA_IDS_REQUIRED')
             available = [c for c in dict.fromkeys(available) if c in registered]
             scheduler = getattr(self,'scheduler',None) if track else None
-            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available) if scheduler else None
+            t_s = float(header.get('t_capture_ms') or 0) / 1000.0
+            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_s) if scheduler else None
             wanted = set(plan['camera_ids']) if plan else set(jpegs)
             cams = [c for c in jpegs if c in wanted and (not track or c in registered)]
             if not cams and track:
@@ -149,7 +152,8 @@ class State:
             t4 = time.perf_counter()
             schedule = None
             if scheduler:
-                following = scheduler.plan(self.tracker.active,self.tracker.lost,available)
+                scheduler.observe(out, t_s)
+                following = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_s)
                 schedule = dict(plan,camera_ids=cams,next_camera_ids=following['camera_ids'])
         timing.update({"decode": (t1 - t0) * 1e3, "detect_total": (t2 - t1) * 1e3,
                        "color": (t3 - t2) * 1e3, "track": (t4 - t3) * 1e3,
@@ -203,7 +207,9 @@ def make_handler(state: State):
                                                    "camera_min_scores": state.args.camera_min_scores,
                                                    "det_size": [state.args.det_width, state.args.det_height],
                                                    "schedule_mode":state.args.schedule,
-                                                   "schedule_policy":{"expand_every":state.args.expand_every,**state.graph_meta},
+                                                   "schedule_policy":{"expand_every":state.args.expand_every,
+                                                                      "recent_red_s":getattr(state.scheduler,"recent_red_s",0) if hasattr(state,"scheduler") else 0,
+                                                                      **state.graph_meta},
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
                                                    "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None}).encode())
