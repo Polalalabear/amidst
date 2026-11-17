@@ -46,7 +46,7 @@ test('only local, unprivileged, non-demo ports are accepted as the live address'
 test('requests go only to the allowed live origin and carry only advisor and advisor_model; extra config fields are dropped', async () => {
   const base = liveBase('?live_port=8797'), calls = [];
   const fetchFn = async (url, init = {}) => { calls.push({url, method: init.method || 'GET', body: init.body}); return {ok: true, json: async () => ({advisor: 'off', device: 'mps', threads: 4, llm_switch: {requested: 'off', effective: 'off', secret: 'x', models: ['sol6.1']}})}; };
-  const r = await saveLiveLlm({advisor: 'review', advisor_model: 'sol6.1', gt_xy: [0, 0], api_key: 'k'}, fetchFn, base);
+  const r = await saveLiveLlm({advisor: 'review', advisor_model: 'sol6.1', extra_field: 1, api_key: 'k'}, fetchFn, base);
   assert.deepEqual(calls.map((c) => c.url), ['http://127.0.0.1:8797/config', 'http://127.0.0.1:8797/config']);
   assert.deepEqual(JSON.parse(calls[0].body), {advisor: 'review', advisor_model: 'sol6.1'});
   assert.equal(calls[0].method, 'POST'); assert.equal(calls[1].method, 'GET');
