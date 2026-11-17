@@ -23,7 +23,7 @@ from PIL import Image
 
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
-from .detector import LiveDetector
+from .detector import DEFAULT_CAMERA_MIN_SCORES, DEFAULT_MIN_SCORE, LiveDetector
 from .people import PeopleTracker
 from .tracker import Projector, Tracker, load_cameras
 
@@ -56,7 +56,8 @@ class State:
         self.projector = Projector(load_cameras(args.cameras))   # safe_static camera catalog, calibration only
         self.args = args
         self.tracker = self._new_tracker()
-        self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads)
+        self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads,
+                                resize_mode=args.det_resize_mode)
         self.args = args
         self.assets = assets_dir(args.assets)
         self.n6 = bool(self.assets and all((self.assets / f).is_file() for f in N6_FILES.values()))
@@ -110,7 +111,8 @@ class State:
             for cam, im, dim, lst in zip(cams, imgs, det_imgs, dets):
                 arr = np.asarray(dim)
                 if track:  # live path shows/uses only detections above the display threshold
-                    lst = [d for d in lst if d["score"] >= self.args.min_score]
+                    threshold = self.args.camera_min_scores.get(cam, self.args.min_score)
+                    lst = [d for d in lst if d["score"] >= threshold]
                 for d in lst:
                     d.update(judge(arr, d["bbox"]))
                     if dim is not im:
@@ -172,6 +174,10 @@ def make_handler(state: State):
                 return self._file(state.assets / N6_FILES[p])
             if p == "/config":
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
+                                                   "det_resize_mode": state.args.det_resize_mode,
+                                                   "min_score": state.args.min_score,
+                                                   "camera_min_scores": state.args.camera_min_scores,
+                                                   "det_size": [state.args.det_width, state.args.det_height],
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
                                                    "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None}).encode())
@@ -199,11 +205,28 @@ def make_handler(state: State):
     return H
 
 
+def camera_min_score(value: str):
+    try:
+        camera, score = value.split('=', 1)
+        score = float(score)
+        if not camera or not 0.05 <= score <= 1:
+            raise ValueError
+        return camera, score
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError('expected CAMERA=SCORE with 0.05 <= SCORE <= 1') from exc
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8791)
     ap.add_argument("--device", default="cpu", choices=["cpu", "mps"])
-    ap.add_argument("--min-score", type=float, default=0.35)
+    ap.add_argument("--min-score", type=float, default=DEFAULT_MIN_SCORE,
+                    help="live person threshold; calibrated with letterbox on frozen N6 RGB (#552)")
+    ap.add_argument("--camera-min-score", action="append", type=camera_min_score,
+                    default=list(DEFAULT_CAMERA_MIN_SCORES.items()),
+                    help="repeatable CAMERA=SCORE override; CAM_ENTRY=0.05 by default; last value wins")
+    ap.add_argument("--det-resize-mode", choices=["letterbox", "stretch"], default="letterbox",
+                    help="preserve source aspect ratio (default); stretch reproduces the spike")
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--cameras", default=None, help="camera catalog (controlled-scene.cameras.v1); default local/data/r004-build-v2-20261021/safe_static/cameras.json")
     ap.add_argument("--assets", default=None, help="N6 asset dir (character.glb, scene.glb, cameras.three.json)")
@@ -226,6 +249,7 @@ def main():
     ap.add_argument("--advisor-lost-min-candidates", type=int, default=2, choices=[1, 2],
                     help="candidates needed to ask while the target is lost; 1 restores the first version, which often picked a lone wrong person")
     args = ap.parse_args()
+    args.camera_min_scores = dict(args.camera_min_score)
     if args.port == 8785:
         raise SystemExit("8785 is the pinned demo port; refusing")
     state = State(args)
