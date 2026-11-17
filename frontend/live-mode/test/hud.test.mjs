@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import { createHudState, reduce, view, pickTarget, reasonText } from '../src/hud.mjs';
 import { buildSystemMessage, validateSystemMessage } from '../src/protocol.mjs';
 
-const mk = (tick, tracking, extra = {}) => ({ type: 'frame-batch', tick, t_capture_ms: 5000 + (tick - 1) * 500, frames: [], dets: {}, tracking, timing_ms: {}, ...extra });
+// 每則訊息都先走 buildSystemMessage（白名單），HUD 只看得到白名單放行的欄位；這樣被剝掉的欄位會讓測試失敗。
+const mk = (tick, tracking) => buildSystemMessage({ tick, tCaptureMs: 5000 + (tick - 1) * 500, frames: [], result: { dets: {}, tracking, timing_ms: {} } });
 const base = { state: 'TRACKING', active_cam: 'CAM_W1', seen_cams: ['CAM_W1'], est_xy: [3, 1], events: [], lost_ticks: 0 };
 const run = (msgs, nowAfterMs = 0) => { const st = createHudState(); let t = 5000; for (const m of msgs) { reduce(st, m, t); t += 500; } return { st, now: t - 500 + nowAfterMs }; };
 
@@ -95,7 +96,8 @@ test('a timeout with no answer is not shown as an invalid answer', () => {
 test('choice 0 reads as none of them', () => {
   const { st, now } = run([mk(2, base), answered({ ...goodLast, choice: 0, applied: false, cleared: true, reason: '都不像' })]);
   const d = view(st, now, { advisor: 'review' }).decision;
-  assert.equal(d.pick, '都不是'); assert.equal(d.outcome, '已採用（不跟隨任何人）');
+  assert.equal(d.pick, '都不是'); assert.equal(d.outcome, '已採用（不跟隨任何人）');   // cleared must survive the whitelist
+  assert.equal(view(st, now, { advisor: 'review' }).status.text.startsWith('LLM 選了都不是'), true);
 });
 
 test('fallback: algorithm stands in, with the reason, for each backend code', () => {
@@ -115,6 +117,21 @@ test('late answer is shown as discarded, not as chosen-and-used', () => {
   const { st, now } = run([mk(2, base), answered(last, { decision_source: 'RULE_FALLBACK', fallback_reason: 'TIME_BUDGET' })]);
   const v = view(st, now, { advisor: 'review' });
   assert.equal(v.decision.outcome, '太晚，已丟棄'); assert.equal(v.status.text, '演算法暫代：答案太晚，已丟棄');
+});
+
+test('timeout without an answer reads as no answer, not as a late discard', () => {
+  const last = { kind: 'SILENT_PICK', cam: 'CAM_W1', choice: null, reason: null, latency_ms: 1000, applied: false, cleared: false, model: null, source: 'RULE_FALLBACK', fallback_reason: 'TIME_BUDGET' };
+  const { st, now } = run([mk(2, base), mk(8, { ...base, decision_source: 'RULE_FALLBACK', fallback_reason: 'TIME_BUDGET', advisor: { state: 'IDLE', pending_ms: null, last },
+    events: [{ tick: 8, type: 'ADJUDICATED', cam: 'CAM_W1', detail: {} }] })]);
+  const d = view(st, now, { advisor: 'review' }).decision;
+  assert.equal(d.pick, '逾時，沒收到答案'); assert.match(d.outcome, /^沒收到答案，改用規則/); assert.equal(d.late, false);
+});
+
+test('every advisor.last field the HUD reads survives buildSystemMessage', () => {
+  const read = ['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'cleared', 'model', 'source', 'fallback_reason'];
+  const last = Object.fromEntries(read.map((k) => [k, k === 'cleared' ? true : k]));
+  const msg = mk(1, { ...base, advisor: { state: 'IDLE', pending_ms: null, last } });
+  for (const k of read) assert.ok(k in msg.tracking.advisor.last, `${k} was stripped`);
 });
 
 test('lead: held view shows LLM judging with a running timer', () => {

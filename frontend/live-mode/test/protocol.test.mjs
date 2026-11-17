@@ -58,3 +58,14 @@ test('advisor status passes; operator keys inside it are stripped and flagged', 
   const bad = validateSystemMessage(msg);
   assert.ok(bad.includes('tracking.advisor.gt') && bad.includes('tracking.advisor.last.actor_id'));
 });
+
+test('advisor.last.cleared (answer 0, none of them) passes the whitelist; GT-like keys still do not', () => {
+  const result = backendResult();
+  Object.assign(result.tracking, { decision_source: 'AGENT', advisor: { state: 'IDLE', pending_ms: null,
+    last: { kind: 'LOST_WITH_CANDIDATES', cam: 'CAM_W1', choice: 0, reason: 'r', latency_ms: 1200, applied: false, cleared: true, model: 'm', source: 'AGENT',
+      fallback_reason: null, gt_visible: ['CAM_W1'], actor_id: 'T' } } });
+  const msg = buildSystemMessage({ tick: 5, tCaptureMs: 1, frames: [], result });
+  assert.equal(msg.tracking.advisor.last.cleared, true);
+  assert.ok(!('gt_visible' in msg.tracking.advisor.last) && !('actor_id' in msg.tracking.advisor.last));
+  assert.deepEqual(validateSystemMessage(msg), []);
+});

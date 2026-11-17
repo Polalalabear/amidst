@@ -83,7 +83,7 @@ export function view(st, nowMs, cfg = {}) {
   const last = tr.advisor && tr.advisor.last;
   let decision = null;
   if (last) {
-    const late = last.source === 'RULE_FALLBACK' && last.fallback_reason === 'TIME_BUDGET';
+    const late = last.source === 'RULE_FALLBACK' && last.fallback_reason === 'TIME_BUDGET' && last.choice != null;   // 有答案但太晚；沒有答案的逾時算「沒收到答案」
     let pick;
     if (last.source === 'RULE_FALLBACK' && last.choice == null) pick = last.fallback_reason === 'TIME_BUDGET' || last.fallback_reason === 'PROVIDER_TIMEOUT' ? '逾時，沒收到答案' : '沒有有效答案';
     else if (last.cleared || last.choice === 0) pick = '都不是';
@@ -92,6 +92,7 @@ export function view(st, nowMs, cfg = {}) {
     if (last.applied) outcome = '已採用';
     else if (last.cleared) outcome = '已採用（不跟隨任何人）';
     else if (late) outcome = '太晚，已丟棄';
+    else if (last.source === 'RULE_FALLBACK' && last.choice == null) outcome = `沒收到答案，改用規則（${reasonText(last.fallback_reason) || '原因未知'}）`;
     else outcome = `未採用：${reasonText(last.fallback_reason) || '原因未知'}`;
     decision = { candidates: count == null ? null : count, camera: last.cam, pick, reason: clip(last.reason), latencyMs: last.latency_ms, outcome,
       applied: !!last.applied, fallback: last.source === 'RULE_FALLBACK', late, model: last.model || null, at: st.decision ? st.decision.at : null };

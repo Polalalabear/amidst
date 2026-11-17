@@ -126,6 +126,7 @@ export async function start(body) {
       });
       if (prevCam && prevCam !== tr.active_cam) { cv.classList.remove('fade'); void cv.offsetWidth; cv.classList.add('fade'); }
     }
+    else ctx.clearRect(0, 0, cv.width, cv.height);   // no frame for the active camera: do not keep showing another camera
     drawMap(tr);
     for (const e of tr.events || []) events.unshift(`#${e.tick} ${TYPE_ZH[e.type] || e.type} ${e.cam || ''}`);
     $('events').textContent = events.slice(0, 40).join('\n'); $('events').style.whiteSpace = 'pre';
