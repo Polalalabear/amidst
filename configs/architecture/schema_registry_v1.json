@@ -2666,6 +2666,31 @@
       ],
       "issue_ref": "#93",
       "status": "WP5_EVAL_SUMMARY"
+    },
+    {
+      "value": "live-ab.a-log.v1",
+      "source_paths": [
+        "frontend/live-mode/src/operator.mjs",
+        "scripts/live_ab_score.py"
+      ],
+      "issue_ref": "#569",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "live-ab.b-log.v1",
+      "source_paths": [
+        "scripts/live_ab_score.py"
+      ],
+      "issue_ref": "#570",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "live-ab.score.v1",
+      "source_paths": [
+        "scripts/live_ab_score.py"
+      ],
+      "issue_ref": "#570",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
     }
   ]
 }

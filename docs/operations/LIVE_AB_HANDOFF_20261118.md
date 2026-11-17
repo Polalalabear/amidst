@@ -202,3 +202,16 @@ the same source N6 assets/scenario; timing, screenshots and logs are not byte-id
 No real pointer-lock feel, full B/backend, detector latency, session reset across B,
 identity or physical safety verified. Real acceptance remains gated on #568 decision
 and #559/#571/#572/#574, not this fake backend.
+
+### #569 CI follow-up: schema inventory
+
+Initial CI at5771ef79 rejected the new A schema literal as SCHEMA_UNREGISTERED;
+the two cross-platform verifier assertions consequently failed. Register A/B private
+log v1 and the offline score v1 with their owning source paths and issues in
+configs/architecture/schema_registry_v1.json. Registration grants no inference
+or approval authority. Architecture guard now PASS (zero findings); the exact two
+CI-failing pytest nodes pass. LOCAL `local/evidence/cx569-ci-20261118/MANIFEST.json`, SHA-256 `129c6bbb579af788c62d8c86c461d91922a0019a0b739bb6174699740932e132`, 3 files /40,255bytes:
+pre-fix CI log, post-fix guard and focused pytest output. Rebuild the guard with
+scripts/check_architecture_guard.py and the two test_verify_clean_clone nodes in
+tests/q1q5/test_cross_platform_scripts.py; the historical CI log is a retained receipt.
+C-5 is unchanged and still not accepted.
