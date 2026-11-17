@@ -2,7 +2,7 @@
 
 本文件接續[第三份指示](https://github.com/Polalalabear/amidst/pull/559#issuecomment-6952347393)。
 此階段只修排程，不改預設為all、不改偵測門檻、graph、tracker gate或原t1評分。
-**目前不是聯合驗收通過；新的串行實跑及最終收據待補。** 保持Draft。
+**結果：NOT_PASSED；排程品質與protocol條件通過，ENTRY為baseline追蹤問題、尚無可比較的正確重鎖延遲。** 保持Draft。被測runtime為4fbc4af1。
 
 ## 為何選近期候選鏡頭
 
@@ -77,3 +77,70 @@ LOCAL `local/evidence/cx552-d-20261118/diagnosis.json`，SHA-256 `eabdb5622ce23f
 LOCAL `local/evidence/cx552-d-20261118/recent-fixed/quality.json`，SHA-256 `e3720a63dede0b24c6511ec6efa984a57fe2c0097397c093ec3a72e39c3ece2f`，1檔1,810bytes。
 LOCAL `local/evidence/cx552-d-20261118/recent-fresh/quality.json`，SHA-256 `0ccbe145b14f85c25896035ac875c3d4605cb2aa267e4de7a4286aad5183ff11`，1檔2,864bytes。
 可用同一凍結C輸入與上述腳本重建；新實跑時鐘、MPS浮點、延遲不保證逐bytes一致。
+
+
+## 新實跑與逐條驗收
+
+同一runtime `4fbc4af1f5d1e0594561fd3f224c419284658e15`、相同一般0.15／ENTRY0.05、
+letterbox、gate4、advisor off、8台、320×180、要求5fps，串行all A4/B4後adaptive A4/B4。
+A4各58秒、B4各50秒。4個瀏覽器量測exit0，自建HTTPserver已正常shutdown並join；
+沒有kill既有程序或接觸8785。瀏覽器結束時已有請求的BrokenPipe保留在LOCAL log，不藏掉。
+
+| 條件 | all→adaptive 跟對 | 跟對不降 | all→adaptive 失聯 | 失聯≤all+.02 |
+| --- | --- | --- | --- | --- |
+| 固定RGB A4 | .705263→.705263 | PASS | .042105→.042105 | PASS |
+| 固定RGB B4 | .966667→.966667 | PASS | .016667→.016667 | PASS |
+| 新實跑A4 | 7/60=.116667→10/69=.144928 | PASS | 28/60=.466667→27/69=.391304 | PASS |
+| 新實跑B4 | 20/49=.408163→59/65=.907692 | PASS | 12/49=.244898→2/65=.030769 | PASS |
+
+Protocol：4組全部0違規，PASS。新實跑仍是各1次、不同取樣tick，不把B4明顯變好全部
+歸因為排程；固定同RGB對照才隔離排程影響。A4兩模式跟對率仍低，不能當身分追蹤保證。
+固定RGB沿用C階段已由redetect_route.py用新偵測器重跑的凍結結果，這次runtime只改排程，
+沒有把沿用偵測說成又重跑模型；另4次MPS是本日新像素推論。t1 scorer未改。
+
+ENTRY：新all A4 tick52@50.3294s、adaptive tick62@50.5108s均查全部8台且各有2個
+目標樣紅衣投影，最近投影距前估計分別4.7596m／4.6824m，均在4m gate外。
+整段仍無正確鎖定，兩個target_lock_ms都null/censored；ENTRY首次處理819.1／880.4ms
+只代表處理觀測，不能代替鎖定延遲。B4無ENTRY episode。機器收據標
+`BASELINE_TRACKER_NO_RELOCK, pass:null`，不記排程FAIL也不記PASS，整體仍NOT_PASSED。
+首次出現與再入鏡分開計算；缺值保留為UNKNOWN。
+
+| 實跑 | 輪/s | p50 ms | p95 ms | 平均推論台數 |
+| --- | --- | --- | --- | --- |
+| all A4 | 1.040 | 822.3 | 932.3 | 8 |
+| all B4 | 1.033 | 843.9 | 968.5 | 8 |
+| adaptive A4 | 1.194 | 817.3 | 961.5 | 6.323 |
+| adaptive B4 | 1.369 | 733.4 | 883.4 | 5.484 |
+
+完整機器收據：`live_detection_20261118/d273_validation.json`。最終Python focused（含收據的
+censoring與隱去絕對LOCAL輸入路徑測試）**71 passed／0 skipped**；Node36 passed／0 skipped。
+LOCAL `local/evidence/cx552-d-20261118/MANIFEST.json`，SHA-256 `803e6e09ade8ab128f9e7387e42cf568127858832335892389aff7348f507090`，80清單檔／6,482,648bytes。
+原C輸入37檔SHA均相符；原來源、RGB、GLB、校正、權重、scenario、GT都未改。新證據
+只含新推論／重播／診斷與log，原RGB不另複製。manifest及public receipt不構成身分或實體安全驗收。
+
+有限實跑與收據命令（在自己的clone，SHARED_LOCAL/PYTHON由執行者指定，輸出用新LOCAL目錄）：
+
+```bash
+export PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+export UV_CACHE_DIR=.local/demo-cache/uv
+PYTHONPATH=src:$SHARED_LOCAL/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps uv run --offline --no-project --python "$PYTHON" python -B scripts/live_mode/run_joint_validation.py --out "$D_OUT/fresh" --models "$SHARED_LOCAL/data/demo-owned-v1/models/rtdetr" --assets "$SHARED_LOCAL/data/live-assets-20261115" --cameras "$SHARED_LOCAL/data/r004-build-v2-20261021/safe_static/cameras.json"
+PYTHONPATH=src uv run --offline --no-project --python "$PYTHON" python -B -m pytest tests/live_mode tests/operations/test_live_launcher.py -q
+node --test frontend/live-mode/test/hud.test.mjs frontend/live-mode/test/n6.test.mjs frontend/live-mode/test/protocol.test.mjs frontend/live-mode/test/schedule.test.mjs
+PYTHONPATH=src uv run --offline --no-project --python "$PYTHON" python -B scripts/live_mode/joint_schedule_d_receipt.py --work "$D_OUT" --out docs/evaluation/live_detection_20261118/d273_validation.json --python-passed 71 --node-passed 36
+git diff --check
+```
+
+`D_OUT`需先有本文件前述baseline/recent固定RGB與原fresh-source重播，receipt在實跑完全結束後才freeze manifest。
+它引用LOCAL完整composition的SHA，提交的副本移除絕對輸入路徑。raw composition保留精確args、
+runtime檔案SHA與4個exit code；未宣稱最終文件commit也重新實跑了runtime。
+
+## 待決定與整合限制
+
+依使用者原限制，此次不碰tracker.py。可比較的ENTRY正確重鎖延遲仍缺；需要Claude／使用者
+另定4m gate外、已有多個像素候選時如何重新取得目標的契約／owner，或指定可用的既有RETURN
+錄製來驗證。目前baseline問題不能靠新增ENTRY graph邊修掉，也不能拿兩個null放行。
+
+此外GitHub目前回報本分支與新main（#563的server LLM開關）有衝突。原修改C的兩親merge
+4ac1738a仍保留；本次沒有重新merge、rebase、force-push或合併PR。按目前AGENTS，merge由
+使用者在自己終端執行；需要先安排main整合，再依保留雙邊/config與逐cam門檻原則處理衝突、
+跑相同focused與聯合檢查。當前結果不代表已包含#563或可直接合併。#559保持Draft。
