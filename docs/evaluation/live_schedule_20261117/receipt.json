@@ -1,0 +1,183 @@
+{
+  "tested_code_head": "12e58b50c88cefb9b5e1b57bf3fb9a6f97846ec4",
+  "tested_tree": "dc1405c03c5f895b31af3e3d85ce3931a37822a8",
+  "artifact_root": "$AMIDST_ARTIFACTS/cx553-20261117",
+  "manifest_sha256": "4663e61259098a2da904426a3836a42f1c11be77f678c775c6078cba697d3fc2",
+  "artifact_files": 182,
+  "artifact_bytes": 18635589,
+  "focused_tests": {
+    "python": 44,
+    "node": 36,
+    "failures": 0
+  },
+  "graph": {
+    "graph_sha256": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
+    "graph_id": "cgraph:r004:static:57f70c94ca21d63a",
+    "uncovered_cameras": [
+      "CAM_ENTRY"
+    ]
+  },
+  "quality_runs": 38,
+  "quality_mean": {
+    "1": {
+      "all": {
+        "on_target": 0.6408421869370408,
+        "wrong_person": 0.21384968833069345,
+        "lost": 0.14530812473226581
+      },
+      "adaptive": {
+        "on_target": 0.6572608997948565,
+        "wrong_person": 0.17960225273216246,
+        "lost": 0.1631368474729811
+      }
+    },
+    "3": {
+      "all": {
+        "on_target": 0.6408421869370408,
+        "wrong_person": 0.21384968833069345,
+        "lost": 0.14530812473226581
+      },
+      "adaptive": {
+        "on_target": 0.6086138833813312,
+        "wrong_person": 0.1474263313028911,
+        "lost": 0.24395978531577767
+      }
+    }
+  },
+  "latency": {
+    "adaptive-A4": {
+      "achieved_fps": 1.1635823042261388,
+      "frame_latency_ms": {
+        "p50": 822.0999755859375,
+        "p95": 922.3099243164063,
+        "max": 1336.300048828125,
+        "n": 64
+      },
+      "schedule": {
+        "inferred_camera_count": {
+          "p50": 7,
+          "mean": 6.328125
+        },
+        "reasons": {
+          "ACTIVE_NEIGHBORS": 32,
+          "LOST_EXPAND": 7,
+          "LOST_ALL": 25
+        }
+      },
+      "ticks_displayed": 68,
+      "protocol_violations": 0,
+      "query": "auto=A4&run=A4-1-v2-4actor&duration=50&model=glb&w=320&h=180&fps=5",
+      "secs": 58,
+      "stage_ms_p50": {
+        "render_capture": 108.5001220703125,
+        "http_roundtrip": 713.300048828125,
+        "server_total": 709.2718125059037,
+        "forward": 676.8416459963191,
+        "color": 1.3819370069541037,
+        "channel_to_display": 3.3499755859375
+      }
+    },
+    "adaptive-B4": {
+      "achieved_fps": 1.2459175799311608,
+      "frame_latency_ms": {
+        "p50": 764.0498046875,
+        "p95": 1026.8047851562499,
+        "max": 1410.999755859375,
+        "n": 58
+      },
+      "schedule": {
+        "inferred_camera_count": {
+          "p50": 7,
+          "mean": 6.155172413793103
+        },
+        "reasons": {
+          "ACTIVE_NEIGHBORS": 37,
+          "LOST_EXPAND": 2,
+          "LOST_ALL": 19
+        }
+      },
+      "ticks_displayed": 62,
+      "protocol_violations": 0,
+      "query": "auto=B4&run=B4-1-v2-4actor&duration=42&model=glb&w=320&h=180&fps=5",
+      "secs": 50,
+      "stage_ms_p50": {
+        "render_capture": 104.1998291015625,
+        "http_roundtrip": 655.25,
+        "server_total": 651.5722915064543,
+        "forward": 619.9957914941479,
+        "color": 1.7086250009015203,
+        "channel_to_display": 3.2998046875
+      }
+    },
+    "all-A4": {
+      "achieved_fps": 0.8750958214969289,
+      "frame_latency_ms": {
+        "p50": 933.89990234375,
+        "p95": 1527.170043945312,
+        "max": 1715.699951171875,
+        "n": 47
+      },
+      "schedule": {
+        "inferred_camera_count": {
+          "p50": 8,
+          "mean": 8
+        },
+        "reasons": {
+          "ALL_CAMERAS": 47
+        }
+      },
+      "ticks_displayed": 51,
+      "protocol_violations": 0,
+      "query": "auto=A4&run=A4-1-v2-4actor&duration=50&model=glb&w=320&h=180&fps=5",
+      "secs": 58,
+      "stage_ms_p50": {
+        "render_capture": 121.800048828125,
+        "http_roundtrip": 807.39990234375,
+        "server_total": 802.7428749774117,
+        "forward": 769.734207977308,
+        "color": 2.0875000045634806,
+        "channel_to_display": 4.000244140625
+      }
+    },
+    "all-B4": {
+      "achieved_fps": 0.8969489126309944,
+      "frame_latency_ms": {
+        "p50": 938.699951171875,
+        "p95": 1288.6648193359374,
+        "max": 1424.2998046875,
+        "n": 40
+      },
+      "schedule": {
+        "inferred_camera_count": {
+          "p50": 8,
+          "mean": 8
+        },
+        "reasons": {
+          "ALL_CAMERAS": 40
+        }
+      },
+      "ticks_displayed": 44,
+      "protocol_violations": 0,
+      "query": "auto=B4&run=B4-1-v2-4actor&duration=42&model=glb&w=320&h=180&fps=5",
+      "secs": 50,
+      "stage_ms_p50": {
+        "render_capture": 129.5,
+        "http_roundtrip": 803.75,
+        "server_total": 797.0652494987007,
+        "forward": 765.7672500208719,
+        "color": 1.698166990536265,
+        "channel_to_display": 3.599853515625
+      }
+    }
+  },
+  "paid_calls": 0,
+  "gt_in_policy": false,
+  "limits": [
+    "N=1 selected on this same cohort, not a held-out evaluation",
+    "CAM_ENTRY topology UNKNOWN: all-camera fallback",
+    "graph hubs retain seven cameras",
+    "one real latency run per route and mode; shared GPU not exclusive",
+    "fresh latency active-camera visibility is not person-following correctness",
+    "unmerged #559 detector plus scheduler integration not tested"
+  ]
+}
