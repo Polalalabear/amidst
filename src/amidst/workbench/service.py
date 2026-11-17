@@ -1262,6 +1262,14 @@ class Application:
                 if scene_id not in session.scene_ids or (audit and session.role != "research"):
                     raise Denied("SCENE_DENIED")
             return self.q_api.dispatch(environ, authorize_q)
+        if path == "/api/live_llm" and method in {"GET", "POST"}:   # same-origin proxy to the live server's /config (D265)
+            from amidst.workbench.live_llm_proxy import handle as live_llm
+            size = int(environ.get("CONTENT_LENGTH") or 0) if method == "POST" else 0
+            if not 0 <= size <= 4096:
+                raise Denied("REQUEST_SIZE_DENIED")
+            code, body = live_llm(method, host, environ.get("HTTP_ORIGIN"), environ.get("CONTENT_TYPE", ""),
+                                  environ["wsgi.input"].read(size) if size else b"")
+            return BinaryResponse(code, "application/json; charset=utf-8", (), _json(body))
         # Q frontend assets are explicit program/fixture filenames only.
         if method == "GET" and path.startswith("/workbench-v2/"):
             from amidst.q1q5.api import Q_STATIC_PATHS, static_response as q_static
@@ -1374,6 +1382,7 @@ class Application:
             assets["/observation-selection.mjs"] = "observation-selection.mjs"
             assets["/demo-steps.office.json"] = "demo-steps.office.json"
             assets["/blind-hypothesis.mjs"] = "blind-hypothesis.mjs"
+            assets["/live-llm.mjs"] = "live-llm.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:

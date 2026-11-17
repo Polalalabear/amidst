@@ -100,7 +100,7 @@ def preflight():
         REPO / "scripts/materialize_office_display.py",
         *(
             UI_REPO / "frontend/workbench" / name
-            for name in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css")
+            for name in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css", "live-llm.mjs")
         ),
         *(VENDOR / name for name in VENDOR_FILES.values()),
         *sorted((REPO / "src/amidst/blind_hypothesis").glob("*.py")),
