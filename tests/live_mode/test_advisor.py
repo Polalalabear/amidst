@@ -383,3 +383,50 @@ def test_server_cameras_come_from_the_catalog_and_match_the_projection_geometry(
         for g in geo:
             for k in ("camera_to_world", "fx", "fy", "cx", "cy", "width", "height"):
                 assert got[g["camera_id"]][k] == g[k]
+
+
+# ---------------------------------------------------------------- people grouping (D: #544 Opus ruling, point 1)
+def boxed(cam, xy, bbox, score=0.9):
+    return cam, {"bbox": list(bbox), "score": score, "color": "red"}, xy
+
+
+def test_group_same_camera_duplicate_boxes_with_high_iou_are_one_person():
+    stats = {}
+    people = PeopleTracker.group([boxed("W1", (0, 0), (100, 40, 120, 100)), boxed("W1", (0.1, 0), (101, 41, 121, 101), score=0.5)], 1.0, stats=stats)
+    assert len(people) == 1 and stats["dup_dropped"] == 1
+    assert people[0]["dets"][0][1]["score"] == 0.9                       # the higher-scored box is kept
+
+
+def test_group_same_camera_close_boxes_with_low_iou_stay_two_people():
+    stats = {}
+    people = PeopleTracker.group([boxed("W1", (0, 0), (100, 40, 120, 100)), boxed("W1", (0.3, 0), (200, 40, 220, 100))], 1.0, stats=stats)
+    assert len(people) == 2 and stats["dup_dropped"] == 0
+
+
+def test_group_cross_camera_1_3m_apart_are_two_people_and_0_5m_apart_one():
+    assert len(PeopleTracker.group([boxed("W1", (0, 0), (10, 40, 30, 100)), boxed("W2", (1.3, 0), (10, 40, 30, 100))], 1.0)) == 2
+    stats = {}
+    one = PeopleTracker.group([boxed("W1", (0, 0), (10, 40, 30, 100)), boxed("W2", (0.5, 0), (10, 40, 30, 100))], 1.0, stats=stats)
+    assert len(one) == 1 and stats["merges"] == 1 and stats["far_merges"] == 0
+
+
+def test_group_person_xy_is_the_mean_of_members_and_far_merges_are_counted():
+    stats = {}
+    people = PeopleTracker.group([boxed("W1", (0, 0), (10, 40, 30, 100), 0.9), boxed("W2", (0.6, 0), (10, 40, 30, 100), 0.8),
+                                  boxed("W3", (1.2, 0), (10, 40, 30, 100), 0.7)], 1.0, stats=stats)
+    assert len(people) == 1 and people[0]["xy"] == pytest.approx([0.6, 0.0])
+    assert stats["merges"] == 2 and stats["far_merges"] == 1             # W1-W3 are 1.2 m apart but both sit within 1 m of the group mean
+
+
+def test_group_pairing_is_by_distance_not_score_order():
+    # W1 box A (high score) is 0.9 m from W2's box, B (low score) is 0.2 m from it: B must get the W2 box
+    people = PeopleTracker.group([boxed("W1", (0, 0), (10, 40, 30, 100), 0.9), boxed("W1", (0.7, 0), (200, 40, 220, 100), 0.5),
+                                  boxed("W2", (0.9, 0), (10, 40, 30, 100), 0.8)], 1.0)
+    pair = next(p for p in people if len(p["dets"]) == 2)
+    assert pair["dets"][1][1]["bbox"][0] == 200 or pair["dets"][0][1]["bbox"][0] == 200
+
+
+def test_people_tracker_counts_in_update():
+    pt = PeopleTracker()
+    pt.update(0.0, [boxed("W1", (0, 0), (100, 40, 120, 100)), boxed("W1", (0, 0), (101, 41, 121, 101), 0.5)])
+    assert pt.stats["dup_dropped"] == 1

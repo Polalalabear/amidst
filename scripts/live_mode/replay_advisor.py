@@ -77,6 +77,7 @@ def replay(raw: dict, mode: str, delay_s: float, lost_min: int, apply: str = "re
         out["infer"][i]["dets"], out["infer"][i]["tracking"] = dets, tracking
     out["label"] = raw["label"]
     out["replay"] = {"mode": mode, "delay_s": delay_s, "lost_min_candidates": lost_min, "oracle_m": oracle_m, "questions": adv.calls,
+                     "people_stats": dict(people.stats),
                      "note": "evaluation-only oracle answers; not a model result"}
     return out
 
