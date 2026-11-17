@@ -25,6 +25,7 @@ from PIL import Image
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
 from .detector import LiveDetector
+from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, host_ok, resolve as resolve_llm
 from .people import PeopleTracker
 from .tracker import Projector, Tracker, load_cameras, catalog_path
 from .scheduler import CameraScheduler, load_graph, DEFAULT_GRAPH, DEFAULT_GRAPH_SHA256, DEFAULT_EXPAND_EVERY
@@ -76,6 +77,25 @@ class State:
                 cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
             self.guard = ApiGuard(cfg)
         self.decider = self._new_decider()
+        self.llm_switch = {"requested": args.advisor, "effective": args.advisor, "available": True, "reason": None, "reason_code": None, "reason_text": None}
+
+    def set_llm_mode(self, requested: str, model: str | None = None) -> dict:
+        """Workbench switch (llm_switch.py). Off or an unusable provider leaves the decider None: the rule-only path."""
+        res = resolve_llm(requested, self.args.advisor_provider)
+        with self.lock:
+            if model in ADVISOR_MODELS:
+                self.args.advisor_model = model
+            self.args.advisor = res["effective"]
+            if res["effective"] != "off" and self.args.advisor_provider == "openai" and self.guard is None:
+                import dataclasses
+                from amidst.q1q5.api_budget import ApiGuard, GuardConfig
+                cfg = GuardConfig.from_env()
+                if cfg.prices is None:
+                    cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
+                self.guard = ApiGuard(cfg)
+            self.decider = self._new_decider()
+            self.llm_switch = res
+        return res
 
     def _new_tracker(self):
         a = self.args
@@ -165,8 +185,19 @@ def make_handler(state: State):
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
+            for k, v in getattr(self, "_cors", {}).items():   # only /config, only for an allow-listed workbench origin
+                self.send_header(k, v)
             self.end_headers()
             self.wfile.write(body)
+
+        def _config_cors(self):
+            self._cors = cors_headers(self.headers.get("Origin"), allowed_origins(getattr(state.args, "workbench_ports", (8785,))))
+
+        def do_OPTIONS(self):
+            if self.path.split("?")[0] != "/config":
+                return self._send(404, b"not found", "text/plain")
+            self._config_cors()
+            self._send(204 if self._cors else 403, b"")
 
         def _file(self, path: Path, root: Path | None = None):
             if root is not None and not inside(path, root):
@@ -194,18 +225,36 @@ def make_handler(state: State):
             if p in N6_FILES and state.n6:
                 return self._file(state.assets / N6_FILES[p])
             if p == "/config":
+                self._config_cors()
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
                                                    "schedule_mode":state.args.schedule,
                                                    "schedule_policy":{"expand_every":state.args.expand_every,**state.graph_meta},
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
-                                                   "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None}).encode())
+                                                   "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None,
+                                                   "llm_switch": {**state.llm_switch, "provider": state.args.advisor_provider, "model": state.args.advisor_model,
+                                                                  "models": sorted(ADVISOR_MODELS)}}).encode())
             self._send(404, b"not found", "text/plain")
 
         def do_POST(self):
             n = int(self.headers.get("Content-Length", "0"))
             body = self.rfile.read(n)
             p = self.path.split("?")[0]
+            if p == "/config":   # workbench LLM switch: {"advisor": "off|review|lead", "advisor_model": optional}; nothing else is accepted
+                if not host_ok(self.headers.get("Host"), self.server.server_port):   # DNS rebinding: the Host must be loopback plus this port
+                    return self._send(403, b'{"error":"host not allowed"}')
+                self._config_cors()
+                origin = self.headers.get("Origin")
+                if origin and not self._cors and origin != f"http://{self.headers.get('Host')}":   # a page from any other origin may not change the switch
+                    return self._send(403, b'{"error":"origin not allowed"}')
+                try:
+                    req = json.loads(body or b"{}")
+                    mode = req["advisor"]
+                except (ValueError, KeyError, TypeError):
+                    return self._send(400, b'{"error":"advisor required"}')
+                if not isinstance(mode, str) or mode not in LLM_MODES:
+                    return self._send(400, b'{"error":"bad advisor"}')
+                return self._send(200, json.dumps(state.set_llm_mode(mode, req.get("advisor_model"))).encode())
             if p == "/reset":
                 with state.lock:
                     state.reset()
@@ -244,6 +293,8 @@ def main():
     ap.add_argument("--max-gate", type=float, default=8.0)
     ap.add_argument("--det-width", type=int, default=320, help="frames wider than this are shrunk to det-width x det-height for detection")
     ap.add_argument("--det-height", type=int, default=180)
+    ap.add_argument("--workbench-ports", type=lambda v: [int(x) for x in v.split(",")], default=[8785],
+                    help="ports of the workbench page(s) allowed to read and set /config from the browser (loopback origins only; default 8785)")
     ap.add_argument("--advisor", default="off", choices=["off", "review", "lead"], help="image adjudication (advisor.py); off = rule tracker only")
     ap.add_argument("--advisor-model", default="sol6.1", choices=sorted(ADVISOR_MODELS))
     ap.add_argument("--advisor-provider", default="openai", choices=["openai", "fake"], help="fake = no network, no cost, always answers 1")
