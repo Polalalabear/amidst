@@ -48,3 +48,67 @@ independent ready work. #571/#572/#574 remain blocked until board prerequisites 
 #559 remains a separate feature branch/PR with D273 follow-up; do not merge it into
 this branch before the user merges it to main. No rebase, force-push, PR merge or
 cleanup process/file deletion is performed by this session (current AGENTS workflow).
+
+
+## #570: offline scorer complete, producer integration pending
+
+`python scripts/live_ab_score.py --operator-json A.json --system-json B.json --out result.json`
+reads only those two logs, imports only Python stdlib, and refuses output aliases (including
+hard links) of either input. Malformed JSON/unsupported schemas return nonzero without
+writing output. JSON NaN/Infinity are rejected. No live backend, HTTP, scenario, assets,
+key, model or inference is accessed.
+
+Canonical v1 input container shapes for #569/#572:
+
+- A: `schema_version:live-ab.a-log.v1`, `session_id`, `run_id`, selected `actor_id`,
+  `config:{r_person,eps_m}`, `ticks:[{tick,t_capture,actors:[{id,present,xy,gt_visible}],
+  pause_total_i:{actor:seconds},block_wait:[{i,j:'player',waited_s}],forced_pairs:[[i,j]]}]`.
+  Every actor must have its own visibility; absent actor xy=null. All these data stay
+  private to A and its downloaded log. `forced_pairs` is a private active-interval
+  annotation from crowd.snapshot, needed to exclude only declared script/script
+  overlap intervals; it never crosses frame-batch. Top-level `forced_overlap`,
+  `spawn_adjusted`, `block_wait` retain ended events. Ended block_wait has event tick;
+  ongoing wait entries on the latest capture tick have no event tick. Event tick is
+  simulation-step clock; log ticks[].tick is capture clock, not interchangeable.
+- B: `schema_version:live-ab.b-log.v1`, own backend `session_id`, `ticks:[{tick,
+  t_capture,t_resp,t_display,tracking}]`, `actions:[{type,t_op,...}]`.
+  Successful pick stores cand_id, candidate source `tick` and `est_xy`. A successful
+  synchronous start with mode=TRACKING also stores its one candidate's source tick
+  and est_xy. Ordinary start ends the previous segment; reselect (or start with
+  reselect=true) keeps it until a successful pick; rejected operations use ok=false.
+  AUTO_SINGLE events emitted during infer are deduplicated by source tick and take
+  that frame's capture time as their effective frame. Synchronous start/pick use the
+  recorded successful-operation t_op, not candidate tick; source target annotation
+  still uses candidate tick. Source frames missing GT/clock yield UNKNOWN.
+
+Full synthetic examples: `tests/evaluation/fixtures/live_ab/a.json`, `b.json`.
+Output `live-ab.score.v1` reports each segment's target_gt (offline annotation only),
+MISPICK/AMBIGUOUS_PICK, six tick categories, visible-known denominator, rates, camera
+switches, >=2-consecutive-tick wrong-person proxy episodes and lost episodes with
+sample-clock duration/censoring. UNKNOWN and invisible-target frames are excluded
+from visible ratios; explicit absent actor is out of view. No hard tracking threshold
+is imposed. Session mismatch returns a wholly UNKNOWN result with no metrics.
+
+Two latency distributions are separate: raw t_resp−t_capture and an inclusive trailing
+1000ms median per response, windowed by t_resp. This follows v2's requested calculation;
+current main@0606b164 HUD source has no rolling-latency implementation, so matching it
+with #572 UI remains to be integrated, not claimed already verified. The scorer derives
+its own series instead of trusting a downloaded precomputed median. Negative/missing
+response clocks cannot become successful tracking ticks.
+
+Collision statistics include raw/adjusted player overlap, separation with active forced
+pairs excluded, chain/nonchain/player counts, spawn records, ended+current block waits
+without repeated-event double counting, and latest own pause totals. A player pair cannot
+be concealed by an invalid script-only forced-pair marker. GT fields never leave this
+standalone offline evaluator.
+
+Focused `uv run --offline --no-project --python "$PYTHON" python -B -m pytest
+tests/evaluation/test_live_ab_score.py -q`: **27 passed**. Test-first failed collection
+before module existed. Targeted ruff check and git diff --check passed. CLI executed on
+both fixtures; inputs unchanged, expected result PARTIAL due intentional missing GT.
+No frontend or backend runtime file changed for #570.
+
+LOCAL `local/evidence/cx570-20261118/MANIFEST.json` SHA-256 `70502c38edff6be63cff7d4799f74ec2d05f986ef0a06480f94343527ab85477`;
+5 listed files / 4,518 bytes. Contains test-first and
+focused logs plus fixture-score.json. Rebuild by the above CLI and focused command
+with a fresh LOCAL output path; fixtures are synthetic committed test data.
