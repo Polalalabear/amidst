@@ -8,6 +8,7 @@ clock; it has no access to the operator's person id or coordinates.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import mimetypes
@@ -25,7 +26,8 @@ from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjud
 from .color import judge
 from .detector import LiveDetector
 from .people import PeopleTracker
-from .tracker import Projector, Tracker, load_cameras
+from .tracker import Projector, Tracker, load_cameras, catalog_path
+from .scheduler import CameraScheduler, load_graph, DEFAULT_GRAPH, DEFAULT_GRAPH_SHA256, DEFAULT_EXPAND_EVERY
 
 REPO = Path(__file__).resolve().parents[3]
 FRONT = REPO / "frontend" / "live-mode"
@@ -54,6 +56,11 @@ class State:
     def __init__(self, args):
         self.lock = threading.Lock()
         self.projector = Projector(load_cameras(args.cameras))   # safe_static camera catalog, calibration only
+        self.registered_cameras = list(self.projector.cams)
+        graph, self.graph_meta = load_graph(args.camera_graph, args.graph_sha256,
+            hashlib.sha256(catalog_path(args.cameras).read_bytes()).hexdigest(), self.registered_cameras)
+        self.scheduler = CameraScheduler(graph, expand_every=args.expand_every, mode=args.schedule,
+                                        graph_sha256=self.graph_meta['graph_sha256'])
         self.args = args
         self.tracker = self._new_tracker()
         self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads)
@@ -96,14 +103,25 @@ class State:
 
     def infer(self, header: dict, jpegs: dict, track: bool) -> dict:
         t0 = time.perf_counter()
-        cams = list(jpegs)
-        imgs = [Image.open(io.BytesIO(jpegs[c])).convert("RGB") for c in cams]
-        t1 = time.perf_counter()
-        # Larger frames (e.g. 960x540, kept for adjudication crops) are shrunk for detection so the detector and the
-        # colour judgement see the same size as before; boxes are then scaled back to the received frame.
-        dw, dh = self.args.det_width, self.args.det_height
-        det_imgs = [im if im.width <= dw else im.resize((dw, dh), Image.Resampling.BILINEAR) for im in imgs]
         with self.lock:  # one inference at a time on the device
+            available = header.get('available_cameras', list(jpegs))
+            registered = getattr(self,'registered_cameras',list(jpegs))
+            if not isinstance(available,list) or any(not isinstance(c,str) for c in available):
+                raise ValueError('AVAILABLE_CAMERA_IDS_REQUIRED')
+            available = [c for c in dict.fromkeys(available) if c in registered]
+            scheduler = getattr(self,'scheduler',None) if track else None
+            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available) if scheduler else None
+            wanted = set(plan['camera_ids']) if plan else set(jpegs)
+            cams = [c for c in jpegs if c in wanted and (not track or c in registered)]
+            if not cams and track:
+                cams = [c for c in jpegs if c in registered]
+                if plan: plan['reason']='REQUEST_PLAN_MISS'
+            if not cams:
+                raise ValueError('NO_CAMERA_FRAMES')
+            imgs = [Image.open(io.BytesIO(jpegs[c])).convert("RGB") for c in cams]
+            t1 = time.perf_counter()
+            dw, dh = self.args.det_width, self.args.det_height
+            det_imgs = [im if im.width <= dw else im.resize((dw, dh), Image.Resampling.BILINEAR) for im in imgs]
             dets, timing = self.det.detect(det_imgs)
             t2 = time.perf_counter()
             out = {}
@@ -126,10 +144,15 @@ class State:
                     tracking = self.decider.step(header["tick"], t_s, self.tracker, tracking, out,
                                                  dict(zip(cams, imgs)))
             t4 = time.perf_counter()
+            schedule = None
+            if scheduler:
+                following = scheduler.plan(self.tracker.active,self.tracker.lost,available)
+                schedule = dict(plan,camera_ids=cams,next_camera_ids=following['camera_ids'])
         timing.update({"decode": (t1 - t0) * 1e3, "detect_total": (t2 - t1) * 1e3,
                        "color": (t3 - t2) * 1e3, "track": (t4 - t3) * 1e3,
                        "server_total": (t4 - t0) * 1e3})
-        return {"tick": header["tick"], "dets": out, "tracking": tracking, "timing_ms": timing}
+        return {"tick": header["tick"], "dets": out, "tracking": tracking, "timing_ms": timing,
+                "schedule": schedule}
 
 
 def make_handler(state: State):
@@ -172,6 +195,8 @@ def make_handler(state: State):
                 return self._file(state.assets / N6_FILES[p])
             if p == "/config":
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
+                                                   "schedule_mode":state.args.schedule,
+                                                   "schedule_policy":{"expand_every":state.args.expand_every,**state.graph_meta},
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
                                                    "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None}).encode())
@@ -205,6 +230,10 @@ def main():
     ap.add_argument("--device", default="cpu", choices=["cpu", "mps"])
     ap.add_argument("--min-score", type=float, default=0.35)
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument('--schedule',choices=['adaptive','all'],default='adaptive')
+    ap.add_argument('--expand-every',type=int,default=DEFAULT_EXPAND_EVERY,help='lost rounds per expansion; full search after twice this')
+    ap.add_argument('--camera-graph',type=Path,default=DEFAULT_GRAPH)
+    ap.add_argument('--graph-sha256',default=DEFAULT_GRAPH_SHA256)
     ap.add_argument("--cameras", default=None, help="camera catalog (controlled-scene.cameras.v1); default local/data/r004-build-v2-20261021/safe_static/cameras.json")
     ap.add_argument("--assets", default=None, help="N6 asset dir (character.glb, scene.glb, cameras.three.json)")
     ap.add_argument("--models", default=str(REPO / "local/data/demo-owned-v1/models/rtdetr"))
