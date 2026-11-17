@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { createHudState, reduce, view, pickTarget, reasonText } from '../src/hud.mjs';
 import { buildSystemMessage, validateSystemMessage } from '../src/protocol.mjs';
 
-const mk = (tick, tracking, extra = {}) => ({ type: 'frame-batch', tick, t_capture_ms: 1000 + tick * 500, frames: [], dets: {}, tracking, timing_ms: {}, ...extra });
+const mk = (tick, tracking, extra = {}) => ({ type: 'frame-batch', tick, t_capture_ms: 5000 + (tick - 1) * 500, frames: [], dets: {}, tracking, timing_ms: {}, ...extra });
 const base = { state: 'TRACKING', active_cam: 'CAM_W1', seen_cams: ['CAM_W1'], est_xy: [3, 1], events: [], lost_ticks: 0 };
 const run = (msgs, nowAfterMs = 0) => { const st = createHudState(); let t = 5000; for (const m of msgs) { reduce(st, m, t); t += 500; } return { st, now: t - 500 + nowAfterMs }; };
 
@@ -35,6 +35,7 @@ test('lost: counter starts at the previous tick capture and keeps running betwee
   const s0 = v.track.seconds;
   v = view(st, now + 2000, { advisor: 'off' });
   assert.ok(Math.abs(v.track.seconds - s0 - 2) < 1e-9);
+  assert.equal(view(st, now + 4000, { advisor: 'off' }).track.kind, 'lost');   // 3 s and more: red
   const lostSt = run([mk(1, base), mk(2, { ...base, state: 'LOST', lost_ticks: 15 })]);
   assert.equal(view(lostSt.st, lostSt.now, {}).track.kind, 'lost');
   // reacquire stops the counter
@@ -76,6 +77,19 @@ test('review: pending timer, then applied decision with candidate count, reason,
 test('reason is clipped to 40 characters', () => {
   const { st, now } = run([mk(2, base), answered({ ...goodLast, reason: '字'.repeat(60) })]);
   assert.equal(Array.from(view(st, now, { advisor: 'review' }).decision.reason).length, 40);
+});
+
+test('an applied answer keeps the LLM source visible for a while, then the rule label returns', () => {
+  const { st, now } = run([mk(2, base), answered(goodLast, { decision_source: 'RULE_ONLY' })]);
+  assert.equal(view(st, now + 1000, { advisor: 'review' }).source.label, 'LLM 覆核');
+  assert.equal(view(st, now + 9000, { advisor: 'review' }).source.label, '規則');
+  assert.equal(view(st, now + 1000, { advisor: 'off' }).source.label, '規則');
+});
+
+test('a timeout with no answer is not shown as an invalid answer', () => {
+  const last = { kind: 'SILENT_PICK', cam: 'CAM_W1', choice: null, reason: null, latency_ms: 5000, applied: false, cleared: false, model: null, source: 'RULE_FALLBACK', fallback_reason: 'PROVIDER_TIMEOUT' };
+  const { st, now } = run([mk(2, base), mk(8, { ...base, decision_source: 'RULE_FALLBACK', fallback_reason: 'PROVIDER_TIMEOUT', advisor: { state: 'IDLE', pending_ms: null, last }, events: [] })]);
+  assert.equal(view(st, now, { advisor: 'review' }).decision.pick, '逾時，沒收到答案');
 });
 
 test('choice 0 reads as none of them', () => {

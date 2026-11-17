@@ -14,6 +14,8 @@ export const reasonText = (code) => (code ? REASON_TEXT[code] || String(code) : 
 export const MODE_TEXT = { off: '規則（advisor off）', review: 'LLM 覆核', lead: 'LLM 主導' };
 export const SOURCE_TEXT = { review: 'LLM 覆核', lead: 'LLM 主導' };
 const REASON_MAX = 40;
+const LOST_RED_MS = 3000;     // 失聯超過這個秒數用紅色；更短的是「短暫失聯」（琥珀色）
+const APPLIED_SHOW_MS = 8000; // 採用 LLM 答案後，決策來源繼續標示 LLM 的秒數（覆核的 reseed 只修正一次，後台很快就退回 RULE_ONLY）
 const clip = (s) => (s ? Array.from(String(s)).slice(0, REASON_MAX).join('') : '');
 
 export function createHudState() {
@@ -65,14 +67,16 @@ export function view(st, nowMs, cfg = {}) {
   let track;
   if (tr.state === 'ADJUDICATING') track = { kind: 'adjudicating', text: `LLM 判斷中 ${sec(pendingMs || 0)} 秒`, seconds: (pendingMs || 0) / 1000 };
   else if (tr.state === 'SEARCHING' || !tr.active_cam) track = { kind: 'searching', text: '尚未鎖定目標' };
-  else if (lostMs != null) track = { kind: tr.state === 'LOST' ? 'lost' : 'brief', text: `失聯 ${sec(lostMs)} 秒`, seconds: lostMs / 1000 };
+  else if (lostMs != null) track = { kind: tr.state === 'LOST' || lostMs >= LOST_RED_MS ? 'lost' : 'brief', text: `失聯 ${sec(lostMs)} 秒`, seconds: lostMs / 1000 };
   else track = { kind: 'tracking', text: '跟蹤中' };
 
   const fb = reasonText(tr.fallback_reason);
+  const lastD = tr.advisor && tr.advisor.last;
+  const recentApplied = !!(lastD && lastD.applied && st.decision && nowMs - st.decision.at < APPLIED_SHOW_MS);
   let source;
   if (mode === 'off') source = { label: '規則', reason: null, tone: 'rule' };
   else if (tr.state === 'ADJUDICATING') source = { label: 'LLM 判斷中', reason: null, tone: 'wait' };
-  else if (tr.decision_source === 'AGENT') source = { label: SOURCE_TEXT[mode] || 'LLM', reason: null, tone: 'llm' };
+  else if (tr.decision_source === 'AGENT' || recentApplied) source = { label: SOURCE_TEXT[mode] || 'LLM', reason: null, tone: 'llm' };
   else if (tr.decision_source === 'RULE_FALLBACK') source = { label: '演算法暫代', reason: fb || '原因未知', tone: 'fallback' };
   else source = { label: pendingMs != null ? `規則（LLM 覆核中 ${sec(pendingMs)} 秒）` : '規則', reason: null, tone: pendingMs != null ? 'wait' : 'rule' };
 
@@ -81,7 +85,7 @@ export function view(st, nowMs, cfg = {}) {
   if (last) {
     const late = last.source === 'RULE_FALLBACK' && last.fallback_reason === 'TIME_BUDGET';
     let pick;
-    if (last.source === 'RULE_FALLBACK' && last.choice == null) pick = '沒有有效答案';
+    if (last.source === 'RULE_FALLBACK' && last.choice == null) pick = last.fallback_reason === 'TIME_BUDGET' || last.fallback_reason === 'PROVIDER_TIMEOUT' ? '逾時，沒收到答案' : '沒有有效答案';
     else if (last.cleared || last.choice === 0) pick = '都不是';
     else pick = `第 ${last.choice} 號（由左至右）`;
     let outcome;

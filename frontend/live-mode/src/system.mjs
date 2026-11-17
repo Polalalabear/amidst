@@ -121,7 +121,7 @@ export async function start(body) {
         ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
         if (isT) {
           ctx.font = `600 ${Math.max(11, Math.round(bmp.width / 50))}px sans-serif`; ctx.fillStyle = '#f5a623';
-          ctx.fillText('目標', x0, Math.max(12, y0 - 4));
+          const ly = Math.max(12, y0 - 4); ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText('目標', x0, ly); ctx.fillText('目標', x0, ly);
         }
       });
       if (prevCam && prevCam !== tr.active_cam) { cv.classList.remove('fade'); void cv.offsetWidth; cv.classList.add('fade'); }
