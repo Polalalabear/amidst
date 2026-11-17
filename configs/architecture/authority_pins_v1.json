@@ -353,6 +353,23 @@
       "status": "現行（D255 交接規則、交接 11-17）",
       "issue_ref": "#93"
     }
+,
+    {
+      "id": "D268-A1",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@9235c18b06ab16f8bb51a0879359482ce262a76b",
+      "sha256": "a8bf0e613b417b939a4c65cc2ea57d33cf53030e0bc63b57d34844df64eb2adb",
+      "status": "現行（主要 UI 改 frontend/workbench-v2/，舊工作台下線中，D268）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D268-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@9235c18b06ab16f8bb51a0879359482ce262a76b",
+      "sha256": "a6b1921f91f7d4894cb4a5db2617ddbc31bad1a31f8ae446fcc7bdfee26a946e",
+      "status": "現行；進度導覽補到 #564（D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    }
   ],
   "authorized_changes": [
     {
@@ -515,6 +532,20 @@
       "requires_commit": "89d42aa30acaa49b902832e0d33f5a739794b7ab",
       "issue_ref": "#93",
       "reason": "D255 交接規則（使用者 2026-11-17）：依類型整理所有工作、交接文件進 GitHub、新協調者用繁體中文；讀取順序改 11-17 交接。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "a8bf0e613b417b939a4c65cc2ea57d33cf53030e0bc63b57d34844df64eb2adb",
+      "requires_commit": "9235c18b06ab16f8bb51a0879359482ce262a76b",
+      "issue_ref": "#93",
+      "reason": "使用者 2026-11-17 決定舊工作台下線（D268）：primary UI 由 frontend/workbench/ 改為 frontend/workbench-v2/，並註明舊工作台下線中。只改 UI 路徑，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "a6b1921f91f7d4894cb4a5db2617ddbc31bad1a31f8ae446fcc7bdfee26a946e",
+      "requires_commit": "9235c18b06ab16f8bb51a0879359482ce262a76b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "reason": "協調者批次補列到 #564、更新數量與快照日期（D91-4），只改導覽內容"
     }
   ]
 }
