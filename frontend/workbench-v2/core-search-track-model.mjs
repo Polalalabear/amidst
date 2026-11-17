@@ -34,6 +34,10 @@ export const ERROR_TEXT = Object.freeze({
   FEATURE_REQUIRED: '請指定特徵',
   NOW_REQUIRED: '需提供非負整數的目前回放時間',
   Q_RESPONSE_EXPIRED: '這筆結果已過期，請重新查詢',
+  // 2026-11-17: server refusals that reached the user as raw codes.
+  FORBIDDEN_DATA_SCOPE: '連線已失效（伺服器重新啟動過），請重新整理頁面後再試',
+  AUTOMATIC_SEED_PRESET_ONLY: '這段示範錄影只能追蹤「人物」、不指定顏色、從錄影開頭開始；請取消顏色或時間後再試',
+  TIME_SCOPE: '時間超出這段錄影的範圍',
 });
 
 // Server-side failures: a known code gets its plain-language text; anything else stays an explicit UNKNOWN.
