@@ -24,6 +24,7 @@ from PIL import Image
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
 from .detector import LiveDetector
+from .llm_switch import MODES as LLM_MODES, resolve as resolve_llm
 from .people import PeopleTracker
 from .tracker import Projector, Tracker, load_cameras
 
@@ -69,6 +70,25 @@ class State:
                 cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
             self.guard = ApiGuard(cfg)
         self.decider = self._new_decider()
+        self.llm_switch = {"requested": args.advisor, "effective": args.advisor, "available": True, "reason": None, "reason_code": None, "reason_text": None}
+
+    def set_llm_mode(self, requested: str, model: str | None = None) -> dict:
+        """Workbench switch (llm_switch.py). Off or an unusable provider leaves the decider None: the rule-only path."""
+        res = resolve_llm(requested, self.args.advisor_provider)
+        with self.lock:
+            if model in ADVISOR_MODELS:
+                self.args.advisor_model = model
+            self.args.advisor = res["effective"]
+            if res["effective"] != "off" and self.args.advisor_provider == "openai" and self.guard is None:
+                import dataclasses
+                from amidst.q1q5.api_budget import ApiGuard, GuardConfig
+                cfg = GuardConfig.from_env()
+                if cfg.prices is None:
+                    cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
+                self.guard = ApiGuard(cfg)
+            self.decider = self._new_decider()
+            self.llm_switch = res
+        return res
 
     def _new_tracker(self):
         a = self.args
@@ -174,13 +194,24 @@ def make_handler(state: State):
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
-                                                   "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None}).encode())
+                                                   "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None,
+                                                   "llm_switch": {**state.llm_switch, "provider": state.args.advisor_provider, "model": state.args.advisor_model,
+                                                                  "models": sorted(ADVISOR_MODELS)}}).encode())
             self._send(404, b"not found", "text/plain")
 
         def do_POST(self):
             n = int(self.headers.get("Content-Length", "0"))
             body = self.rfile.read(n)
             p = self.path.split("?")[0]
+            if p == "/config":   # workbench LLM switch: {"advisor": "off|review|lead", "advisor_model": optional}; nothing else is accepted
+                try:
+                    req = json.loads(body or b"{}")
+                    mode = req["advisor"]
+                except (ValueError, KeyError, TypeError):
+                    return self._send(400, b'{"error":"advisor required"}')
+                if not isinstance(mode, str) or mode not in LLM_MODES:
+                    return self._send(400, b'{"error":"bad advisor"}')
+                return self._send(200, json.dumps(state.set_llm_mode(mode, req.get("advisor_model"))).encode())
             if p == "/reset":
                 with state.lock:
                     state.reset()
