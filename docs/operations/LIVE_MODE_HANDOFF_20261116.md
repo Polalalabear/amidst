@@ -199,7 +199,8 @@ cd frontend/live-mode && node --test test/*.test.mjs
 | 檔案 | 做什麼 |
 | --- | --- |
 | `frontend/live-mode/src/operator.mjs` | 操作端：WASD、渲染、擷取虛擬攝影機、送後台 |
-| `frontend/live-mode/src/system.mjs` | 系統端的除錯頁（8 個鏡頭、偵測框、地圖）。不顯示裁決狀態 |
+| `frontend/live-mode/src/system.mjs`、`hud.mjs` | 系統端 B 畫面：單一跟隨視角＋HUD（§13）。`hud.mjs` 是不碰 DOM 的純函式，有 node 測試 |
+| `frontend/live-mode/src/system_grid.mjs` | 舊的系統端除錯頁（8 個鏡頭、偵測框、地圖），`?role=system&view=grid` |
 | `frontend/live-mode/src/protocol.mjs` | 可以離開操作端的欄位白名單。新增欄位要改這裡和它的測試 |
 | `frontend/live-mode/src/n6.mjs` | 載入 N6 素材（另一個 session 寫的） |
 | `src/amidst/live_mode/server.py` | 後台。偵測、顏色、追蹤、裁決 |
@@ -238,3 +239,53 @@ cd frontend/live-mode && node --test test/*.test.mjs
 - 遊戲化設計裡的延遲預算、GPU 記憶體、寫實化對偵測率的影響。
 - 交接時 #544 的 CI 還在跑最新的 commit；前一個 commit 的 CI 是通過的。
 - `frontend/live-mode/` 的 `npm install` 這個 session 沒有自己跑過。
+
+## 13. B 畫面（系統端）怎麼開、HUD 各欄位的意思（PR #551，2026-11-17）
+
+B 畫面是單一跟隨視角：主區域只顯示後台目前判定的作用中鏡頭（`active_cam`），目標有橘框和「目標」字樣，其他紅衣人紅框、藍衣人藍框。
+
+**怎麼開。** 後台照 §9 的指令啟動（例如開在 8797）。同一個瀏覽器開兩個分頁，兩頁要同一個來源（BroadcastChannel 只在同源的頁面之間傳）：
+
+- 操作端：`http://127.0.0.1:8797/?auto=B4&run=B4-1-v2-4actor&cams=CAM_W1,CAM_W2,CAM_R101_IN&model=glb&fps=2&w=960&h=540`（不加 `auto` 就是 WASD 手動）
+- B 畫面：`http://127.0.0.1:8797/?role=system`
+- 舊的 8 鏡頭格狀版：`?role=system&view=grid`
+
+只看桌面版面（建議 1600×900 以上）。B 畫面只認後台經 `protocol.mjs` 白名單送出的訊息和 `/config`；白名單只加了 `advisor.last.cleared` 一個鍵（後台輸出，回答「都不是」時為真，和 `applied` 同性質；原本漏掉，HUD 會把選 0 顯示成「未採用」），GT、操作端座標、`gt_visible`、演員代號進不來（`test/hud.test.mjs` 有測試釘住：B 畫面的原始碼不 import 操作端的程式、不出現這些字，後台回送這些鍵會被剝掉並被驗證器標出）。
+
+**畫面上的東西。**
+
+| 位置 | 內容 |
+| --- | --- |
+| 左上角 | 作用中鏡頭名稱 |
+| 上方中央（橘色，2.5 秒） | 切鏡提示：`切鏡 W2 → W1（規則）`；括號是誰切的，`LLM` 表示這次切鏡是採用 LLM 答案時發生的。切鏡時畫面有 150 ms 淡入 |
+| 畫面邊框和上方中央的黑底提示 | 失聯：邊框橘色（短暫失聯）或紅色（失聯 3 秒以上或後台狀態 `LOST`），提示寫失聯秒數和最後鎖定的鏡頭，**畫面仍是該鏡頭的即時影像**，不標目標框。尚未鎖定時顯示「尚未鎖定目標」。LLM 主導且等回答時顯示「LLM 判斷中 x.x 秒，畫面停在原鏡頭」 |
+| 下方一條 | 狀態列：`LLM 判斷中 1.4 秒（2 位候選人）`、`LLM 選了第 1 號（由左至右）：理由`、`演算法暫代：原因`、或 `規則追蹤中（LLM 沒開）` |
+| 右側 | 小地圖（後台的位置估計）和事件清單 |
+
+**HUD 四格（畫面最上方，左到右）。**
+
+| 欄位 | 內容 | 資料來源（都是後台輸出） |
+| --- | --- | --- |
+| 目前鏡頭・追蹤 | `W2・跟蹤中`／`W1・失聯 2.4 秒`／`LLM 判斷中 0.3 秒`／`尚未鎖定目標`。失聯秒數從「目標離開視野」那一輪的前一輪擷取時間算起，在兩則訊息之間每 100 ms 更新 | `tracking.state`、`active_cam`、`lost_ticks`、擷取時鐘 `t_capture_ms` |
+| 決策來源 | `規則`／`LLM 覆核`／`LLM 主導`／`LLM 判斷中`／`演算法暫代`＋原因。原因：逾時（`PROVIDER_TIMEOUT`）、逾時或答案太晚（`TIME_BUDGET`）、回應不合法（`INVALID_RESPONSE`）、額度用完（`CALL_BUDGET_EXHAUSTED`）、沒開（`MODE_NOT_AUTHORIZED`）、服務無法使用（`PROVIDER_UNAVAILABLE`）。advisor off 時一律是「規則」 | `decision_source`、`fallback_reason`、`/config` 的 `advisor` |
+| 最近一次裁決 | `2 人 → 第 1 號（由左至右）`、一行「理由」（上限 40 字）、延遲 ms、結果：`已採用`／`已採用（不跟隨任何人）`（回答都不是）／`太晚，已丟棄`／`未採用：原因`。尚無裁決時寫「尚無裁決」 | `tracking.advisor.last`；候選人數取自同一鏡頭前一則 `ADJUDICATE_ASK` 事件，沒看到那則事件（頁面中途才開）就顯示 `?` |
+| 模式・模型 | `規則（advisor off）`／`LLM 覆核 · gpt-6.1-sol (sol6.1)`／`LLM 主導 · …`。用假模型時寫「假模型（測試，不連網）」 | `/config` 的 `advisor`、`advisor_model`、`advisor_provider`；`last.model` |
+
+**取捨（保守版本）。**
+
+- 覆核模式採用 LLM 答案後，後台只修正一次（`reseed`），下一輪 `decision_source` 就退回 `RULE_ONLY`。為了讓畫面看得到，HUD 在答案被採用後 8 秒內仍把決策來源標成「LLM 覆核」（只在 `applied` 為真時）。
+- 「選了誰」只有「第 N 號」：後台沒有給候選人其他描述，編號是問題圖裡由左至右的黃色框，不一定是目前畫面裡的鏡頭。
+- 候選人數沒有放進 `last`（避免動 `advisor.py`，另有寫手在改）；HUD 用事件配對。要改成後台直接給，是 `advisor.py` 的小改動，留待那條線合併後。
+- 短暫失聯（少於 3 秒、後台狀態仍是 `TRACKING`）用橘色，不等後台的 `LOST`（15 輪）。
+
+**截圖（LOCAL，不進 Git）。** `local/evidence/live-mode-bscreen-20261117/`，SHA-256 見該資料夾的 `SHA256SUMS.txt`。後台用 8797（advisor off）、8798（review，假模型延遲 1.5 秒）、8799（review，假模型延遲 2.5 秒、逾時 1 秒）、8800（lead，假模型延遲 2.5 秒）；假模型固定回答 1，不連網、不讀 API key、沒有任何付費呼叫。產生截圖的指令：`LIVE_BASE=http://127.0.0.1:<埠> OUT=<資料夾> node measure/bscreen_shots.mjs "<操作端 query>" <秒數> <條件> <前綴>`，條件是 `tracking,switch,lost,judging,applied,fallback`。
+
+| 檔名 | 狀態 | SHA-256 |
+| --- | --- | --- |
+| `01_off_b4_tracking.png` | advisor off，跟蹤中 | c5a7a0168bf8866acd0c2dec37e48e001e1389dff37bf6fd1f4469de16b1dd24 |
+| `01_off_b4_switch.png` | advisor off，切鏡提示 | d7a260548bfdf824e8955557dc5897c8c27c4346a6871c0703a59c2644ed37c6 |
+| `02_off_a4_lost.png` | advisor off，失聯（A4 室外鏡頭偵測率低） | ef33393bd614ffbf3b1e31a5957aa2fc595a670ebd33ec46bfd4a6c6320de285 |
+| `03_review_judging.png`、`03_review_applied.png` | 覆核：規則繼續、LLM 判斷中；採用 LLM 答案 | a49beb7207282bd4888b6f3a719e46306c6f3d3c7ea41c961613928dafd0cbcc<br>9ca275de47583f8e8dc52706cc3f1c2d0c1bb0f74c2e74a398930ff191ff568c |
+| `04_fallback_fallback.png` | 覆核，LLM 逾時，演算法暫代 | 88cc1a6d5f886f7aed661dd0bbac04d4cd4437777dd6c65884bd1aef3d223a3d |
+| `05_lead_judging.png`、`05_lead_applied.png` | 主導：畫面停住等回答；採用答案 | f143dbeb4e2674dbeca3c992479c0bc7399ea99a9b96b2c0ae467898814bf387<br>40a2fc10b663d8bb0bfa6654dc236b2aac576c1554060161f714ad8f6d66618e |
+| `06_review_none_none.png` | 覆核，LLM 回答「都不是」（假模型固定回答 0；啟動器在 scratchpad，不進 repo）：結果顯示「已採用（不跟隨任何人）」 | 3fa8f645e450e02e51473634cfbdb2da1e87d12e60ea50bfc49e82fbb2835b3f |

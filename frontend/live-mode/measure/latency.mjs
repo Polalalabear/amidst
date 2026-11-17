@@ -74,7 +74,13 @@ const res = {
     server_total: med('server_total'), forward: med('forward'), color: med('color'), channel_to_display: pct(steady.map((r) => r.t_display - r.t_post), 0.5) },
   first_lock_ms, switch_events: switches, switch_ms: { p50: pct(switches.map((x) => x.ms), 0.5), p95: pct(switches.map((x) => x.ms), 0.95), n: switches.length },
   correct_active_rate: correctRate, protocol_violations: s.viol.length,
+  schedule: {
+    inferred_camera_count: { p50: pct(steady.map((r) => r.schedule?.camera_ids.length).filter(Number.isFinite), 0.5),
+      mean: steady.reduce((a, r) => a + (r.schedule?.camera_ids.length || 0), 0) / steady.length },
+    reasons: Object.fromEntries([...new Set(steady.map((r) => r.schedule?.reason).filter(Boolean))]
+      .map((reason) => [reason, steady.filter((r) => r.schedule?.reason === reason).length])),
+  },
   usage_mean: Object.fromEntries(['server_cpu', 'chrome_cpu', 'gpu_util', 'blender_cpu', 'load1'].map((k) => [k, samples.reduce((a, x) => a + (x[k] || 0), 0) / samples.length])),
 };
-fs.writeFileSync(`${out}/${label}.latency.json`, JSON.stringify({ ...res, rows: rows.map((r) => ({ tick: r.tick, lat: r.t_display - r.t_capture, active: r.active, gt: r.gt_visible, state: r.state })) }));
+fs.writeFileSync(`${out}/${label}.latency.json`, JSON.stringify({ ...res, rows: rows.map((r) => ({ tick: r.tick, lat: r.t_display - r.t_capture, active: r.active, gt: r.gt_visible, state: r.state, schedule: r.schedule })) }));
 console.log(JSON.stringify(res));

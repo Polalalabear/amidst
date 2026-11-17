@@ -71,6 +71,24 @@ def test_windows_arm_selects_local_models_only():
     assert models == list(wp5_pack.LOCAL_MODELS)
 
 
+@pytest.mark.parametrize('target', wp5_pack.TARGETS)
+def test_pack_can_construct_both_dp4_rankers_without_network_or_key(packs,target):
+    d=Path(packs[target]['dir'])
+    code='''
+from amidst.agent_eval import wp5, wp5_runner as r
+cfg=wp5.load_config();table=wp5.load_json(cfg['price_table_path'])
+model=wp5.model_by_id(cfg,'qwen2.5:7b-instruct-q4_K_M')
+for method in ['API','AGENT']:
+    ranker=r.live_context(cfg,table,dp4_method=method).dp4_ranker(model,cfg['timeout_profiles']['formal'])
+    assert ranker.provider.kind=='LOCAL'
+print('DP4_API_AGENT_PACK_OK')
+'''
+    result=subprocess.run([sys.executable,'-s','-c',code],cwd=d,
+        env={'PATH':os.defpath,'PYTHONPATH':str(d/'src')},capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    assert 'DP4_API_AGENT_PACK_OK' in result.stdout
+
+
 def test_oneclick_notebook_embeds_the_pack_and_keeps_old_outputs(tmp_path):
     import ast, base64, hashlib, importlib.util, json
     spec = importlib.util.spec_from_file_location('build_oneclick', ROOT / 'scripts/agent_decision/build_oneclick_notebook.py')

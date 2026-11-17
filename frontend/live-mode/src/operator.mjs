@@ -5,7 +5,7 @@ import { groundTruthVisible } from './world.mjs';
 import { setupWorld } from './setup.mjs';
 import { stepPlayer, scriptedPose, WALK, RUN } from './sim.mjs';
 import { makePerson, projectBox } from './person.mjs';
-import { makeCapture, packInfer } from './capture.mjs';
+import { makeCapture, packInfer, chooseCaptureIds } from './capture.mjs';
 import { buildSystemMessage, buildInferHeader } from './protocol.mjs';
 import { CHANNEL, params, now } from './common.mjs';
 
@@ -17,7 +17,7 @@ export async function start(body) {
     <label>Person <select id="who"><option>red top</option><option>blue top</option></select></label>
     <p class="kv">WASD move · Shift run · The system window (<code>?role=system</code>) sees only camera pixels.</p>
     <div id="stats" class="kv"></div></div></div>`);
-  const { scenario, world, cams, n6 } = await setupWorld(P, { scenario: true });
+  const { scenario, world, cams, n6, config } = await setupWorld(P, { scenario: true });
   const ceiling = world.scene.getObjectByName('CEILING_STATIC_LIVE'); // hidden in the operator's own view only
   const camIds = P.cams || Object.keys(cams);
   const run = scenario.runs.find((r) => r.run_id === P.run);
@@ -44,7 +44,8 @@ export async function start(body) {
   addEventListener('keydown', (e) => { const k = e.key.toLowerCase(); if (k === 'shift') keys.shift = true; else keys[k] = true; });
   addEventListener('keyup', (e) => { const k = e.key.toLowerCase(); if (k === 'shift') keys.shift = false; else keys[k] = false; });
 
-  const log = { ticks: [], dropped: 0, sent: 0, fpsStart: now(), config: { ...P, cams: camIds, tris: player.tris, n6 } };
+  const log = { ticks: [], dropped: 0, sent: 0, fpsStart: now(), config: { ...P, cams: camIds, tris: player.tris, n6,
+    schedule_mode:config.schedule_mode } };
   window.__log = log;
   window.__setKeys = (k) => Object.assign(keys, k);
   window.__op = { P0, player, world, cams, setHeading: (h) => { P0.heading = h; } };
@@ -87,7 +88,7 @@ export async function start(body) {
   }
   requestAnimationFrame(frame);
 
-  let tick = 0, inflight = false;
+  let tick = 0, inflight = false, schedule = null;
   async function captureTick() {
     if (inflight) { log.dropped++; return; }
     inflight = true;
@@ -96,17 +97,19 @@ export async function start(body) {
       const present = player.object.visible !== false;
       const gt = present ? groundTruthVisible(cams, world.blockers, world.root, P0.x, P0.y) : [];
       const frames = [];
-      for (const id of camIds) frames.push({ cam: id, jpeg: await cap.shoot(id) });
-      const header = buildInferHeader({ tick, tCaptureMs: tCap, frames });
+      for (const id of chooseCaptureIds(camIds,schedule)) frames.push({ cam: id, jpeg: await cap.shoot(id) });
+      const header = buildInferHeader({ tick, tCaptureMs: tCap, frames, availableCameras:camIds });
       const tSend = now();
       const res = await fetch('/infer', { method: 'POST', body: packInfer(header, frames.map((f) => f.jpeg)) }).then((r) => r.json());
       const tResp = now();
+      schedule = res.schedule || null;
       const msg = buildSystemMessage({ tick, tCaptureMs: tCap, frames, result: res });
       chan.postMessage(msg);
       log.sent++;
       // evaluation-only log (stays in this window; never part of the channel message)
       log.ticks.push({ tick, t_capture: tCap, t_send: tSend, t_resp: tResp, t_post: now(), gt_visible: gt, timing: res.timing_ms,
-        active: res.tracking && res.tracking.active_cam, state: res.tracking && res.tracking.state });
+        active: res.tracking && res.tracking.active_cam, state: res.tracking && res.tracking.state,
+        schedule:res.schedule });
       document.getElementById('stats').textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`;
       tick++;
     } finally { inflight = false; }

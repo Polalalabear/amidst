@@ -2,6 +2,7 @@
 
 - Model / effort：Sonnet 5.5 / medium。2026-11-16 補：新增 §9（異常查證與修法）；§3、§4 的數字已用 59 列帳本重算。使用者核准的上限是 **USD 3**，用來量每個模型、每種題型的 token、延遲和費用，再推算 pilot 與更大題組。
 - **題目是合成題**（`wp5_fake.synthetic_rows`，真題庫未定），所以所有數字都是「**合成題基準**」。DP4 的即時呼叫在 runner 裡還沒接上，**這次沒有量 DP4**。
+> **CX-L3更新（2026-11-17，#554）：** 上句及§1–§9是歷史校準紀錄。DP4現在已接上runner的API／Agent兩條路，但本任務只有fake provider與dry-run，沒有新的付費量測；實際token／延遲仍UNKNOWN。當前token估計與更新後的方案表見§10，不能再把舊5.93 USD當成與目前config一致的上界。
 > **更正（2026-11-17）：** 環境變數名稱以 `src/amidst/q1q5/api_budget.py` 為準，每日美元上限是 `AMIDST_API_MAX_USD_PER_DAY`；此前寫的 `AMIDST_API_USD_PER_DAY` 不存在，會被忽略，所以那次校準實際用的是預設的 USD 5／天（`AMIDST_API_MAX_CALLS_PER_DAY=60` 與每分鐘 10 次有效）。實跑方案 C 要另設 `AMIDST_API_MAX_CALLS_PER_MIN`（預設 10 對序列呼叫可能不夠，會 `RATE_LIMIT` 並靜默退規則）。
 
 - 每次呼叫都經過 `ApiGuard`（`--approved-usd 3`，`AMIDST_API_MAX_USD_PER_DAY=3`，`AMIDST_API_MAX_CALLS_PER_DAY=60`，每分鐘照預設 10）。不讀、不存 API key；帳本已用 `grep sk-` 檢查沒有 key。
@@ -165,3 +166,43 @@ python scripts/agent_decision/wp5_calib_report.py <evidence dir>
 | **C 全部最強** | 三個模型 pilot＋formal 全跑 | 14.08 | 45.76 | **USD 46**（astra 約占 78%） |
 
 仍建議先核准 A。已用掉的 USD 0.113 計入原本核准的 USD 3，不計入新的額度。
+
+## 10. CX-L3：DP4接線後的零呼叫估計與方案表（2026-11-17，#554）
+
+這節只使用repo內釘住的2026-11-15價目與`configs/agent_eval/wp5_v1.json`，不更新價目、不讀API key、不呼叫OpenAI／Ollama；不核准任何支出。API單次與Agent最多五步都已用fake provider測過；正式／exploratory的時限沿現行config（formal每次5s／整題5s，relaxed每次10s／整題30s），本任務沒有改參數或放寬門檻。
+
+### 10.1 每次DP4的輸入token〔粗估，非量測〕
+
+序列化`messages`加response schema，取UTF8 bytes再`ceil(bytes/4)`；這是**粗估，不是tokenizer結果或實際計費用量**。使用合成DP4題：pilot四題、formal四十題；Agent只計第一輪，後續工具結果取決於模型，保持UNKNOWN。輸出只用300上限，沒有估出實際completion／reasoning token。完整收據：`wp5_dp4_20261117/dry_run_report.json`。
+
+| 方法／題組 | 首輪輸入 bytes min–max | token粗估 min–max | config輸入保留/次 | 輸出上限/次 |
+| --- | ---: | ---: | ---: | ---: |
+| API pilot | 3433–3433 | 859–859 | 2500 | 300 |
+| API formal | 3433–3434 | 859–859 | 2500 | 300 |
+| Agent pilot | 3900–3900 | 975–975 | 2500 | 300 |
+| Agent formal | 3900–3901 | 975–976 | 2500 | 300 |
+
+config保留值仍是2500／300，沒有因粗估較小而降低護欄。每個OpenAI工具輪都經ApiGuard；保留輸入取config與當輪序列化粗估之較大值，未知用量不記成免費，HTTP400等已知未執行的拒絕才記0／0；429／timeout仍按未知用量保守記帳。
+
+DP4每個模型pilot 4×6=24題、formal 40×3=120題；三個OpenAI模型合計432次名義呼叫。config最壞係數5合計2160次（保守共用上界；API實作每題只呼叫1次，Agent至多5次）。
+
+| DP4三模型pilot＋formal | 首輪粗估名義USD（不是上界） | config名義USD | config最壞USD |
+| --- | ---: | ---: | ---: |
+| API | 4.416048 | 7.488 | 37.440 |
+| Agent（只計每題首輪） | 4.634760 | 7.488 | 37.440 |
+
+**舊5.93 USD混用DP3平均輸出與DP4估計輸入，並非目前config的上界。** 新的7.488／37.440完全來自現行2500／300／5；API首輪粗估4.416仍不是實際成本。Agent後續輪輸入與真題長度未量，不能拿首輪粗估乘5宣稱嚴格上界。ApiGuard在當輪估計超過其上限時才會於送出前拒絕；粗估可能低估實際token，config計畫值不是任意真題的嚴格計費上界。真正實跑仍需另行核准並留下實際usage。
+
+### 10.2 更新方案表〔全項統一用config估計；不是核准〕
+
+這次不把舊DP1／DP3／NL的平均量測與DP4上限混算，也不沿用一律×3.25。所有DP1／DP3／DP4／NL都由`wp5.estimate_set()`按現行config計算，最壞係數分別為3／3／5／2。下表供下一次另行決定；本任務支出為0，既有核准不因本表自動增加。
+
+| 方案 | 內容 | 名義呼叫 | config最壞呼叫 | config名義USD | config最壞USD | 最壞進位（未核准） |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| A | terra pilot＋formal，含全部四題型 | 516 | 1692 | 1.4118 | 5.1786 | 6 |
+| B | A＋sol、astra各pilot | 708 | 2316 | 4.5654 | 16.5258 | 17 |
+| C | 三模型pilot＋formal，含全部四題型 | 1548 | 5076 | 18.3534 | 67.3218 | 68 |
+
+上述額度是保守計畫值，不是新的預設budget或已核准花費；runner沒有填入任何approved-usd。實際billable tokens、延遲、Agent工具選擇與真題效果全部未驗證，不能由fake／dry-run推論。
+
+重現：先以runner的`--dp4-method API|AGENT --skip-types DP1,DP3,NL`對pilot／formal各做dry-run，再執行`uv run --no-project --python "$PYTHON" python scripts/agent_decision/wp5_dp4_dry_report.py --work <LOCAL/cx554-20261117> --out <report.json>`。完整零費用指令與來源hash在`docs/operations/WP5_DP4_HANDOFF_20261117.md`。

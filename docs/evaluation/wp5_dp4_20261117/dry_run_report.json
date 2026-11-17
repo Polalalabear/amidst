@@ -1,0 +1,135 @@
+{
+  "scope": "SYNTHETIC_DRY_RUN_NOT_BILLED",
+  "provider_calls": 0,
+  "source_sha256": {
+    "configs/agent_eval/wp5_v1.json": "d45b09ca74ffafd68de3174b162f82428d6dd4ca904feb3c4bd5aec2219dc12a",
+    "configs/agent_eval/wp5_price_table_v1.json": "c1883cfdf0f681ad7d22936fe148c643a2b212822d5c1702fa0727c78f4a9839"
+  },
+  "price_date": "2026-11-15",
+  "price_source": "https://developers.openai.com/api/docs/pricing",
+  "inputs": {
+    "API_pilot": {
+      "agent_later_steps": "UNKNOWN: depends on model tool choices/results; config reserve and ApiGuard apply each round",
+      "configured_prompt_tokens_per_call": 2500,
+      "configured_worst_calls_per_question": 5,
+      "estimator": "ceil(serialized messages + response schema UTF8 bytes / 4), NOT a tokenizer or billed usage",
+      "first_call_tokens_heuristic": {
+        "max": 859,
+        "mean": 859,
+        "min": 859
+      },
+      "first_call_utf8_bytes": {
+        "max": 3433,
+        "mean": 3433,
+        "min": 3433
+      },
+      "max_output_tokens": 300,
+      "method": "API",
+      "questions": 4
+    },
+    "API_formal": {
+      "agent_later_steps": "UNKNOWN: depends on model tool choices/results; config reserve and ApiGuard apply each round",
+      "configured_prompt_tokens_per_call": 2500,
+      "configured_worst_calls_per_question": 5,
+      "estimator": "ceil(serialized messages + response schema UTF8 bytes / 4), NOT a tokenizer or billed usage",
+      "first_call_tokens_heuristic": {
+        "max": 859,
+        "mean": 859,
+        "min": 859
+      },
+      "first_call_utf8_bytes": {
+        "max": 3434,
+        "mean": 3433.15,
+        "min": 3433
+      },
+      "max_output_tokens": 300,
+      "method": "API",
+      "questions": 40
+    },
+    "AGENT_pilot": {
+      "agent_later_steps": "UNKNOWN: depends on model tool choices/results; config reserve and ApiGuard apply each round",
+      "configured_prompt_tokens_per_call": 2500,
+      "configured_worst_calls_per_question": 5,
+      "estimator": "ceil(serialized messages + response schema UTF8 bytes / 4), NOT a tokenizer or billed usage",
+      "first_call_tokens_heuristic": {
+        "max": 975,
+        "mean": 975,
+        "min": 975
+      },
+      "first_call_utf8_bytes": {
+        "max": 3900,
+        "mean": 3900,
+        "min": 3900
+      },
+      "max_output_tokens": 300,
+      "method": "AGENT",
+      "questions": 4
+    },
+    "AGENT_formal": {
+      "agent_later_steps": "UNKNOWN: depends on model tool choices/results; config reserve and ApiGuard apply each round",
+      "configured_prompt_tokens_per_call": 2500,
+      "configured_worst_calls_per_question": 5,
+      "estimator": "ceil(serialized messages + response schema UTF8 bytes / 4), NOT a tokenizer or billed usage",
+      "first_call_tokens_heuristic": {
+        "max": 976,
+        "mean": 975.15,
+        "min": 975
+      },
+      "first_call_utf8_bytes": {
+        "max": 3901,
+        "mean": 3900.15,
+        "min": 3900
+      },
+      "max_output_tokens": 300,
+      "method": "AGENT",
+      "questions": 40
+    }
+  },
+  "dp4_pilot_plus_formal_three_openai_models": {
+    "API": {
+      "openai_calls_nominal": 432,
+      "openai_calls_config_worst": 2160,
+      "usd_nominal_config": 7.488,
+      "usd_worst_config": 37.44,
+      "usd_first_call_heuristic_not_bound": 4.416048,
+      "implementation_max_steps_per_question": 1
+    },
+    "AGENT": {
+      "openai_calls_nominal": 432,
+      "openai_calls_config_worst": 2160,
+      "usd_nominal_config": 7.488,
+      "usd_worst_config": 37.44,
+      "usd_first_call_heuristic_not_bound": 4.63476,
+      "implementation_max_steps_per_question": 5
+    }
+  },
+  "config_scenarios": {
+    "A": {
+      "model_calls_nominal": 516,
+      "model_calls_worst_config": 1692,
+      "usd_nominal_config": 1.4118,
+      "usd_worst_config": 5.1786,
+      "unapproved_ceiling_rounded_usd": 6
+    },
+    "B": {
+      "model_calls_nominal": 708,
+      "model_calls_worst_config": 2316,
+      "usd_nominal_config": 4.5654,
+      "usd_worst_config": 16.5258,
+      "unapproved_ceiling_rounded_usd": 17
+    },
+    "C": {
+      "model_calls_nominal": 1548,
+      "model_calls_worst_config": 5076,
+      "usd_nominal_config": 18.3534,
+      "usd_worst_config": 67.3218,
+      "unapproved_ceiling_rounded_usd": 68
+    }
+  },
+  "limits": [
+    "UTF8 bytes/4 is a heuristic, not tokenizer or billed usage",
+    "Agent later tool rounds and real question tokens/latency are UNKNOWN",
+    "Config reserves stay 2500 input / 300 max output / 5 worst calls; API is one call",
+    "All USD values use the committed dated price table; no spend approval is granted"
+  ]
+}

@@ -105,8 +105,9 @@ def _h(*parts) -> int:
 class FakeBackend:
     """Deterministic fake. Token counts equal the config estimates, so the dry-run flow reproduces the plan arithmetic."""
 
-    def __init__(self, cfg: Mapping, *, timeout_every: int | None = None):
+    def __init__(self, cfg: Mapping, *, timeout_every: int | None = None, dp4_method: str = 'API'):
         self.cfg, self.timeout_every, self.calls = cfg, timeout_every, 0
+        self.dp4_method = dp4_method
 
     def _latency(self, model: Mapping, key) -> float:
         base = 150.0 if model['kind'] == 'LOCAL' else 400.0
@@ -139,7 +140,7 @@ class FakeBackend:
             def rank(self, request):
                 backend.calls += 1
                 resp = ar.rank_attention(request)
-                resp = dict(resp, method='API', requested_method='API', latency_ms=backend._latency(model, ar.request_sha256(request)),
+                resp = dict(resp, method=backend.dp4_method, requested_method=backend.dp4_method, latency_ms=backend._latency(model, ar.request_sha256(request)),
                             steps=1, cost_usd=None)
                 self.last_usage = {'prompt_tokens': spec['prompt_tokens_est'], 'completion_tokens': spec['max_output_tokens'] // 2}
                 return resp
@@ -160,8 +161,9 @@ class FakeBackend:
         return _Client()
 
 
-def fake_context(cfg: Mapping, table: Mapping | None, *, timeout_every: int | None = None) -> tuple[wp5.Context, FakeBackend]:
-    backend = FakeBackend(cfg, timeout_every=timeout_every)
+def fake_context(cfg: Mapping, table: Mapping | None, *, timeout_every: int | None = None,
+                 dp4_method: str = 'API') -> tuple[wp5.Context, FakeBackend]:
+    backend = FakeBackend(cfg, timeout_every=timeout_every, dp4_method=dp4_method)
     clock = _FakeClock(backend)
     ctx = wp5.Context(decision_provider=backend.decision_provider, dp4_ranker=backend.dp4_ranker,
                       nl_client=backend.nl_client, clock_ms=clock, price_table=table)
