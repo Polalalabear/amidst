@@ -26,6 +26,7 @@ CODE_FILES = (
     'src/amidst/agent_eval/wp5_runner.py', 'src/amidst/agent_eval/wp5_colab_checks.py',
     'src/amidst/q1q5/agent_decision.py', 'src/amidst/q1q5/agent_providers.py', 'src/amidst/q1q5/agent_wiring.py',
     'src/amidst/q1q5/api_budget.py', 'src/amidst/q1q5/attention_ranking.py', 'src/amidst/q1q5/nl_query_parse.py',
+    'src/amidst/q1q5/attention_api.py', 'src/amidst/q1q5/attention_agent.py',
     'src/amidst/q1q5/physical_prediction.py', 'src/amidst/q1q5/q3_rules.py',
 )
 DATA_FILES = (
