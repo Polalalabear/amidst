@@ -1,5 +1,7 @@
 # 8785 下一次更新準備（#555，2026-11-17）
 
+**修改C後狀態：聯合驗收NOT_PASSED，#559保持Draft，不可用本文件的歷史gate核准新部署。新組成／失敗條件見 `docs/evaluation/LIVE_DETECTION_SCHEDULE_JOINT_20261117.md`。**
+
 **執行位置：所有啟動器／uv命令請在自己的 clone 執行；uv cache 預設寫入該 clone 的 `.local/demo-cache/uv`，不要在pin住的checkout啟動。**
 
 這是更新準備，不是pin核准或部署。讀到的現行pin是`b24d6a26dc3f556f34270055cab45f5c5dd6382b`（D235）；8785資料夾不改檔、不切分支、不commit、不重啟。合併與pin更新都由使用者執行。D234的舊閘門早已過期，不能沿用。

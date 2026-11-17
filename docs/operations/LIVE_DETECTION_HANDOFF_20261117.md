@@ -1,5 +1,7 @@
 # CX-L1 啟動與評估交接（#552）
 
+**最新狀態：修改C已merge main並實跑，驗收NOT_PASSED；#559保持Draft。** 組成、逐條條件、新證據與重現命令見 `docs/evaluation/LIVE_DETECTION_SCHEDULE_JOINT_20261117.md`。以下修改A時的等待記錄屬歷史狀態。
+
 以本 PR 的 `codex/feat-live-detection` 為單一程式來源，base `main@31a69177`。不需要其他未合併分支，不更新8785或demo-pin。評估報告：`docs/evaluation/LIVE_DETECTION_20261117.md`；精簡收據與檔案hash：`docs/evaluation/live_detection_20261117/`。
 
 ## 啟動
