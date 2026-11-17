@@ -10,7 +10,9 @@ RESPONSE_SCHEMAS = {
 TIME_SOURCES = {'EXPLICIT_SOURCE', 'EXPLICIT_WALL', 'DEFAULT_SELECTED_RUN'}
 V2_SCHEMA_SOURCE = '82798fbd100cdad230ca8eb8469dc51a0b91f842'
 V2_SCHEMA_PINS = {
-    'common.v2.schema.json': 'bbc998ed811cd1678e4e1544b8eed0e0183a45f43bd14711165c358604d65283',
+    # D168 (#489): additive fallback_reason values CALL_BUDGET_EXHAUSTED and REPLAY_MISS; previous pin
+    # bbc998ed811cd1678e4e1544b8eed0e0183a45f43bd14711165c358604d65283 (see test_agent_decision_wp1).
+    'common.v2.schema.json': '02d8ed2c5b0ccdad47008100e1a1b64af1e16f7b76c2c1256f2325a88c9a5b63',
     'q1-response.v2.schema.json': '664005cf267f3bf6e32f8e1d4b3441c21135948b5bc3a6703a45004e3b260f10',
     'q2-response.v2.schema.json': '718fa14a785fab6a107aa9e3e73fff5ba44f4c156229fd38b87d8682466b82eb',
     'q3-parse-response.v2.schema.json': '16cee077d86ddf2f32a88c9f6c1859352be4f54b28603496c97e0fd614e74483',

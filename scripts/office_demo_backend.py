@@ -26,6 +26,10 @@ DEFAULT_PRESETS = REPO / "configs/office_demo_presets_v1.json"
 
 
 def assets_repo() -> Path:
+    from amidst.paths import office_canonical_root
+    configured = office_canonical_root()
+    if configured is not None:
+        return configured
     common = subprocess.check_output(
         ["git", "rev-parse", "--git-common-dir"], cwd=REPO, text=True).strip()
     return (REPO / common).resolve().parent

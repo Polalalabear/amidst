@@ -20,6 +20,7 @@ from build_team_review_pack import (
     safe_file,
     sha,
 )
+from amidst.paths import artifacts_output_root  # noqa: E402
 
 
 def read_csv(raw):
@@ -187,7 +188,7 @@ def main(argv=None):
     for key in ['text-csv','review-csv','annotations']:parser.add_argument('--'+key)
     a=parser.parse_args(argv);output=Path(a.output).absolute()
     try:
-        if not output.is_relative_to((Path.home()/'amidst-artifacts').resolve()):raise PackError('LOCAL output must be under ~/amidst-artifacts')
+        if not output.is_relative_to(artifacts_output_root()):raise PackError('LOCAL output must be under the artifacts output root (AMIDST_ARTIFACTS, default local/evidence)')
         report=import_pack(a.pack,manifest_sha256=a.manifest_sha256,output=output,text_csv=a.text_csv,review_csv=a.review_csv,annotations=a.annotations)
         register_import(a.registry,report);print(json.dumps(report,ensure_ascii=False))
     except (PackError,OSError,ValueError,TypeError,KeyError) as exc:

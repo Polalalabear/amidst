@@ -3,6 +3,7 @@ import {readFile,realpath} from 'node:fs/promises';
 import {resolve,extname,join,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 
 const INTEGRATION_BASE='ac6cd12225ceb2c8f236ce9e1f9f2420f29bfdb4';
 const MEDIA_URL='/api/controlled_scene_media?token='+'s'.repeat(43);
@@ -12,7 +13,10 @@ const body=async request=>{let text='';for await(const chunk of request){text+=c
 const banner='<div id="synthetic-api-banner" role="note" style="position:fixed;z-index:99999;top:0;left:0;right:0;background:#8b1e1e;color:white;text-align:center;padding:6px;font:bold 14px system-ui">SYNTHETIC API FIXTURE · 合成畫面／合成回應 · 非真實 RGB 或正式驗收</div><style>body{padding-top:32px!important}</style>';
 const image=(camera)=>`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><rect width="640" height="360" fill="#17243b"/><rect x="4" y="4" width="632" height="352" fill="none" stroke="#e06868" stroke-width="8"/><text x="320" y="140" text-anchor="middle" fill="#fff" font-size="45" font-family="sans-serif">SYNTHETIC</text><text x="320" y="215" text-anchor="middle" fill="#ddd" font-size="26" font-family="sans-serif">${camera}</text></svg>`;
 
-export async function startPreview({source,port=8765}={}){
+// Frame URLs differ per camera and per timestamp, and /api/q_frames answers slowly (like a real server), so the page has to keep the
+// previous picture on screen and cannot count on a reply arriving before the playhead moves on.
+const frameUrl=(camera,t)=>'/api/controlled_scene_media?token='+createHash('sha256').update(camera+'|'+t).digest('base64url').slice(0,43);
+export async function startPreview({source,port=8765,frameLatencyMs=Number(process.env.CORE_FRAME_LATENCY_MS??300)}={}){
   if(!source)throw Error('SOURCE_REQUIRED');
   const root=await realpath(source),head=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
   const REQUIRED_HEAD=process.env.CORE_INTEGRATION_HEAD ?? execFileSync('git',['rev-parse','refs/heads/claude/445-demo-integration'],{cwd:root,encoding:'utf8'}).trim();
@@ -68,7 +72,7 @@ export async function startPreview({source,port=8765}={}){
       if(req.method==='GET'&&url.pathname==='/api/q_bootstrap'){send(res,200,bootstrap);return;}
       if(req.method==='GET'&&url.pathname==='/'){res.writeHead(302,{location:'/workbench-v2/'});res.end();return;}
       if(req.method==='GET'&&url.pathname==='/__preview/health'){send(res,200,{status:'SYNTHETIC',source_head:head,route_calls:routeCalls.length});return;}
-      if(req.method==='GET'&&url.pathname==='/api/controlled_scene_media'&&url.search===MEDIA_URL.slice('/api/controlled_scene_media'.length)){send(res,200,image('CAM A / B'),'image/svg+xml; charset=utf-8');return;}
+      if(req.method==='GET'&&url.pathname==='/api/controlled_scene_media'&&/^\?token=[A-Za-z0-9_-]{43}$/.test(url.search)){send(res,200,image('CAM A / B'),'image/svg+xml; charset=utf-8');return;}
       if(req.method==='GET'&&url.pathname.startsWith('/workbench-v2/')){
         const relative=url.pathname.slice('/workbench-v2/'.length)||'index.html';
         const file=resolve(webroot,relative);if(!file.startsWith(webroot+sep)||!MIME[extname(file)]){send(res,404,{error_code:'NOT_FOUND'});return;}
@@ -85,7 +89,8 @@ export async function startPreview({source,port=8765}={}){
       if(url.pathname==='/api/q_media_grant'){const grant=mediaTokens.get(payload.media_token);if(!grant)throw Error('SYNTHETIC_GRANT_SCOPE');const {run,camera}=grant;send(res,200,{schema_version:'controlled-scene.synced-frames.v1',resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},clock_id:run.clock_id,data_origin:'SYNTHETIC',t_us:300000,provenance:{['g'+'t_read']:false},identity_verdict:'UNCONFIRMED',tiles:[{camera_id:camera,status:'READY',media_url:MEDIA_URL}]});return;}
       if(url.pathname==='/api/q_frames'){
         const run=resolveRun(payload),camera=payload.camera_ids?.[0];if(!run.camera_ids.includes(camera))throw Error('SYNTHETIC_CAMERA_SCOPE');
-        send(res,200,{schema_version:'controlled-scene.synced-frames.v1',resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},clock_id:run.clock_id,data_origin:'SYNTHETIC',t_us:payload.timestamp_us,provenance:{['g'+'t_read']:false},identity_verdict:'UNCONFIRMED',tiles:[{camera_id:camera,status:'READY',media_url:MEDIA_URL}]});return;
+        await new Promise(done=>setTimeout(done,frameLatencyMs));
+        send(res,200,{schema_version:'controlled-scene.synced-frames.v1',resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},clock_id:run.clock_id,data_origin:'SYNTHETIC',t_us:payload.timestamp_us,provenance:{['g'+'t_read']:false},identity_verdict:'UNCONFIRMED',tiles:[{camera_id:camera,status:'READY',media_url:frameUrl(camera,payload.timestamp_us)}]});return;
       }
       send(res,503,{error_code:'Q_RESOURCE_UNAVAILABLE'});
     }catch(error){send(res,503,{error_code:error.message==='ENOENT'?'NOT_FOUND':'SYNTHETIC_FIXTURE_ERROR'});}

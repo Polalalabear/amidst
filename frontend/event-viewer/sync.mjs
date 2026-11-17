@@ -128,3 +128,11 @@ export function formatSpeedNote(setting, actual) {
   const x = (n) => `${Math.round(n * 10) / 10}×`;
   return Number.isFinite(actual) ? `設定 ${x(setting)} · 實際 ${x(actual)}` : `設定 ${x(setting)}`;
 }
+
+// 畫格排法已移到 layout.mjs（格狀／焦點兩種版面）。
+
+// 單一鏡頭的畫面狀態：影像載入成功 READY；載入失敗（沒有影片／檔案）MISSING，顯示「無畫面」，與「有畫面」分開。
+export const MISSING_TEXT = '無畫面 · MISSING';
+export function cameraStatus(loaded) {
+  return loaded === true ? 'READY' : loaded === false ? 'MISSING' : 'PENDING';
+}

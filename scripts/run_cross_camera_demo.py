@@ -13,6 +13,7 @@ import stat
 import subprocess
 
 from amidst.q1q5.cross_camera_demo import Observation, Parameters, Track, declared_wall, response
+from amidst.q1q5.demo_local_tracks import local_candidates
 
 ROLES = {'index', 'records', 'local_tracks', 'receipt', 'config', 'clock'}
 ROW_FIELDS = {'frame_ref', 'camera_id', 'frame_index', 'timestamp_us', 'rgb_file_sha256',
@@ -159,12 +160,18 @@ def load_run(spec, graph, binding, parameters):
             projected.append(Observation(track['camera_id'], timestamp, oid, detection['score'], labels))
         require(seed['frame_ref'] == observations[seed['observation_id']][0]['frame_ref'], 'SEED_FRAME_BINDING')
         tracks.append(Track(track['camera_id'], 'local-seed:' + seed['observation_id'], tuple(projected)))
-    return tracks, clock, index
+    # Legacy first-seed artifacts remain immutable evidence. Replay every local
+    # candidate from the same pinned records/config; do not truncate each camera
+    # at the first SEARCHING state. No inference or parameter approval occurs.
+    rows = [loads(line) for line in raw['records'].splitlines() if line]
+    candidates, _ = local_candidates(index, rows, config, sha(canonical(config)))
+    return candidates, clock, index
 
 
 def run_job(job_path, job_sha256, out_dir):
     source_root = Path(__file__).resolve().parents[1]
-    source_paths = [Path(__file__).resolve(), source_root/'src/amidst/q1q5/cross_camera_demo.py']
+    source_paths = [Path(__file__).resolve(), *[source_root / ('src/amidst/q1q5/' + name)
+                    for name in ('cross_camera_demo.py', 'demo_local_tracks.py', 'linker.py')]]
     executed_files = {str(p.relative_to(source_root)): sha(p.read_bytes()) for p in source_paths}
     executed_head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source_root, text=True).strip()
     job = loads(read_pin({'path': str(job_path), 'sha256': job_sha256}))

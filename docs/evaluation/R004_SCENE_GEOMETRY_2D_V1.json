@@ -1,0 +1,4324 @@
+{
+ "schema": "amidst.r004-scene-geometry-2d.v1",
+ "status": "DESIGN_FEASIBILITY_ONLY_NOT_RUNTIME_AUTHORITY",
+ "decision_ref": "D207 (issue #93); Codex #516 feasibility comment 6761965932",
+ "must_not_enter": [
+  "RUNTIME_INFERENCE",
+  "CANDIDATE_RANKING",
+  "DETECTION_INDEX",
+  "RECONSTRUCTION",
+  "SAFE_BUNDLE"
+ ],
+ "provenance": {
+  "source_blend": {
+   "path": "local/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend",
+   "sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+   "storage": "LOCAL"
+  },
+  "camera_catalog": {
+   "path": "local/data/r004-build-v2-20261021/safe_static/cameras.json",
+   "sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+   "storage": "LOCAL"
+  },
+  "codex_feasibility": {
+   "path": "local/evidence/codex-516-feasibility-20261110/",
+   "artifact_manifest_sha256": "fcf478fe5212b360fc1ff71039c16ea846239d72bf9a322a1ef0b7b29f5c0b46",
+   "scene_export_sha256": "c478866666f9ad2d98df76644420c369eef44c3da5cc3ceb7bba34db704945ac",
+   "geometry_2d_sha256": "fb4e0103bc04c6c1589174f0e0556351f64a5de81cbd6ff65da5dbd0dcd89dc0",
+   "storage": "LOCAL (copied from Codex 暫存目錄, SHA-256 checked 28/28)",
+   "issue_comment": "https://github.com/Polalalabear/amidst/issues/516#issuecomment-6761965932"
+  },
+  "builder": "scripts/design/build_r004_scene_geometry_2d.py",
+  "gt_read": false,
+  "rgb_read": false
+ },
+ "units": "meters; world frame of the r004 static scene (Blender, Z up)",
+ "body_height_band_m": [
+  0,
+  1.700001
+ ],
+ "clearance_method": "exact active mesh face cross-sections at each vertex-height interval through 0..1.700001m; deduplicated XY; walls/screens/vehicle; no bounding box substituted for joined shell",
+ "clearance_segments": [
+  {
+   "segment_id": "OBSTACLE_SCREEN_CORNER_N:0",
+   "collider": "OBSTACLE_SCREEN_CORNER_N",
+   "a": [
+    14.5,
+    1.6
+   ],
+   "b": [
+    14.5,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_CORNER_N:1",
+   "collider": "OBSTACLE_SCREEN_CORNER_N",
+   "a": [
+    14.5,
+    2.4
+   ],
+   "b": [
+    14.65,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_CORNER_N:2",
+   "collider": "OBSTACLE_SCREEN_CORNER_N",
+   "a": [
+    14.65,
+    1.6
+   ],
+   "b": [
+    14.65,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_CORNER_N:3",
+   "collider": "OBSTACLE_SCREEN_CORNER_N",
+   "a": [
+    14.5,
+    1.6
+   ],
+   "b": [
+    14.65,
+    1.6
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_N:0",
+   "collider": "OBSTACLE_SCREEN_N",
+   "a": [
+    15.0,
+    5.25
+   ],
+   "b": [
+    15.0,
+    5.6
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_N:1",
+   "collider": "OBSTACLE_SCREEN_N",
+   "a": [
+    15.0,
+    5.6
+   ],
+   "b": [
+    15.799999,
+    5.6
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_N:2",
+   "collider": "OBSTACLE_SCREEN_N",
+   "a": [
+    15.799999,
+    5.25
+   ],
+   "b": [
+    15.799999,
+    5.6
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_N:3",
+   "collider": "OBSTACLE_SCREEN_N",
+   "a": [
+    15.0,
+    5.25
+   ],
+   "b": [
+    15.799999,
+    5.25
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_R102:0",
+   "collider": "OBSTACLE_SCREEN_R102",
+   "a": [
+    18.0,
+    7.8
+   ],
+   "b": [
+    18.0,
+    10.2
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_R102:1",
+   "collider": "OBSTACLE_SCREEN_R102",
+   "a": [
+    18.0,
+    10.2
+   ],
+   "b": [
+    18.150002,
+    10.2
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_R102:2",
+   "collider": "OBSTACLE_SCREEN_R102",
+   "a": [
+    18.150002,
+    7.8
+   ],
+   "b": [
+    18.150002,
+    10.2
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_R102:3",
+   "collider": "OBSTACLE_SCREEN_R102",
+   "a": [
+    18.0,
+    7.8
+   ],
+   "b": [
+    18.150002,
+    7.8
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W:0",
+   "collider": "OBSTACLE_SCREEN_W",
+   "a": [
+    10.400001,
+    0.0
+   ],
+   "b": [
+    10.400001,
+    0.8
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W:1",
+   "collider": "OBSTACLE_SCREEN_W",
+   "a": [
+    10.400001,
+    0.8
+   ],
+   "b": [
+    10.55,
+    0.8
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W:2",
+   "collider": "OBSTACLE_SCREEN_W",
+   "a": [
+    10.55,
+    0.0
+   ],
+   "b": [
+    10.55,
+    0.8
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W:3",
+   "collider": "OBSTACLE_SCREEN_W",
+   "a": [
+    10.400001,
+    0.0
+   ],
+   "b": [
+    10.55,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W_HOOD:0",
+   "collider": "OBSTACLE_SCREEN_W_HOOD",
+   "a": [
+    -1.65,
+    -2.0
+   ],
+   "b": [
+    -1.65,
+    -1.23
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W_HOOD:1",
+   "collider": "OBSTACLE_SCREEN_W_HOOD",
+   "a": [
+    -1.65,
+    -1.23
+   ],
+   "b": [
+    -1.6,
+    -1.23
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W_HOOD:2",
+   "collider": "OBSTACLE_SCREEN_W_HOOD",
+   "a": [
+    -1.6,
+    -2.0
+   ],
+   "b": [
+    -1.6,
+    -1.23
+   ]
+  },
+  {
+   "segment_id": "OBSTACLE_SCREEN_W_HOOD:3",
+   "collider": "OBSTACLE_SCREEN_W_HOOD",
+   "a": [
+    -1.65,
+    -2.0
+   ],
+   "b": [
+    -1.6,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_BODY:0",
+   "collider": "R004_ENV_VEHICLE_BODY",
+   "a": [
+    -9.9,
+    -3.85
+   ],
+   "b": [
+    -9.9,
+    -2.15
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_BODY:1",
+   "collider": "R004_ENV_VEHICLE_BODY",
+   "a": [
+    -9.9,
+    -2.15
+   ],
+   "b": [
+    -6.1,
+    -2.15
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_BODY:2",
+   "collider": "R004_ENV_VEHICLE_BODY",
+   "a": [
+    -6.1,
+    -3.85
+   ],
+   "b": [
+    -6.1,
+    -2.15
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_BODY:3",
+   "collider": "R004_ENV_VEHICLE_BODY",
+   "a": [
+    -9.9,
+    -3.85
+   ],
+   "b": [
+    -6.1,
+    -3.85
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_CABIN:0",
+   "collider": "R004_ENV_VEHICLE_CABIN",
+   "a": [
+    -9.15,
+    -3.75
+   ],
+   "b": [
+    -9.15,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_CABIN:1",
+   "collider": "R004_ENV_VEHICLE_CABIN",
+   "a": [
+    -9.15,
+    -2.25
+   ],
+   "b": [
+    -7.25,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_CABIN:2",
+   "collider": "R004_ENV_VEHICLE_CABIN",
+   "a": [
+    -7.25,
+    -3.75
+   ],
+   "b": [
+    -7.25,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_VEHICLE_CABIN:3",
+   "collider": "R004_ENV_VEHICLE_CABIN",
+   "a": [
+    -9.15,
+    -3.75
+   ],
+   "b": [
+    -7.25,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:0",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.092832,
+    -3.95
+   ],
+   "b": [
+    -9.092832,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:1",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.207167,
+    -3.95
+   ],
+   "b": [
+    -9.207167,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:2",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.207167,
+    -3.95
+   ],
+   "b": [
+    -9.092832,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:3",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.207167,
+    -3.75
+   ],
+   "b": [
+    -9.092832,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:4",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -8.984091,
+    -3.95
+   ],
+   "b": [
+    -8.984091,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:5",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.315908,
+    -3.95
+   ],
+   "b": [
+    -9.315908,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:6",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.315908,
+    -3.95
+   ],
+   "b": [
+    -8.984091,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:7",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.315908,
+    -3.75
+   ],
+   "b": [
+    -8.984091,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:8",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -8.891591,
+    -3.95
+   ],
+   "b": [
+    -8.891591,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:9",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.408408,
+    -3.95
+   ],
+   "b": [
+    -9.408408,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:10",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.408408,
+    -3.95
+   ],
+   "b": [
+    -8.891591,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:11",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.408408,
+    -3.75
+   ],
+   "b": [
+    -8.891591,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:12",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -8.824386,
+    -3.95
+   ],
+   "b": [
+    -8.824386,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:13",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.475613,
+    -3.95
+   ],
+   "b": [
+    -9.475613,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:14",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.475613,
+    -3.95
+   ],
+   "b": [
+    -8.824386,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:15",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.475613,
+    -3.75
+   ],
+   "b": [
+    -8.824386,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:16",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -8.789054,
+    -3.95
+   ],
+   "b": [
+    -8.789054,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:17",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.510945,
+    -3.95
+   ],
+   "b": [
+    -9.510945,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:18",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.510945,
+    -3.95
+   ],
+   "b": [
+    -8.789054,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL:19",
+   "collider": "R004_ENV_WHEEL",
+   "a": [
+    -9.510945,
+    -3.75
+   ],
+   "b": [
+    -8.789054,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:0",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.092832,
+    -2.25
+   ],
+   "b": [
+    -9.092832,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:1",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.207167,
+    -2.25
+   ],
+   "b": [
+    -9.207167,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:2",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.207167,
+    -2.25
+   ],
+   "b": [
+    -9.092832,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:3",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.207167,
+    -2.05
+   ],
+   "b": [
+    -9.092832,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:4",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -8.984091,
+    -2.25
+   ],
+   "b": [
+    -8.984091,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:5",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.315908,
+    -2.25
+   ],
+   "b": [
+    -9.315908,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:6",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.315908,
+    -2.25
+   ],
+   "b": [
+    -8.984091,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:7",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.315908,
+    -2.05
+   ],
+   "b": [
+    -8.984091,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:8",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -8.891591,
+    -2.25
+   ],
+   "b": [
+    -8.891591,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:9",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.408408,
+    -2.25
+   ],
+   "b": [
+    -9.408408,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:10",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.408408,
+    -2.25
+   ],
+   "b": [
+    -8.891591,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:11",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.408408,
+    -2.05
+   ],
+   "b": [
+    -8.891591,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:12",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -8.824386,
+    -2.25
+   ],
+   "b": [
+    -8.824386,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:13",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.475613,
+    -2.25
+   ],
+   "b": [
+    -9.475613,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:14",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.475613,
+    -2.25
+   ],
+   "b": [
+    -8.824386,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:15",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.475613,
+    -2.05
+   ],
+   "b": [
+    -8.824386,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:16",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -8.789054,
+    -2.25
+   ],
+   "b": [
+    -8.789054,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:17",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.510945,
+    -2.25
+   ],
+   "b": [
+    -9.510945,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:18",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.510945,
+    -2.25
+   ],
+   "b": [
+    -8.789054,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.001:19",
+   "collider": "R004_ENV_WHEEL.001",
+   "a": [
+    -9.510945,
+    -2.05
+   ],
+   "b": [
+    -8.789054,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:0",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.792832,
+    -3.95
+   ],
+   "b": [
+    -6.792832,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:1",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.907168,
+    -3.95
+   ],
+   "b": [
+    -6.907168,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:2",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.907168,
+    -3.95
+   ],
+   "b": [
+    -6.792832,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:3",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.907168,
+    -3.75
+   ],
+   "b": [
+    -6.792832,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:4",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.684091,
+    -3.95
+   ],
+   "b": [
+    -6.684091,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:5",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.015909,
+    -3.95
+   ],
+   "b": [
+    -7.015909,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:6",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.015909,
+    -3.95
+   ],
+   "b": [
+    -6.684091,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:7",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.015909,
+    -3.75
+   ],
+   "b": [
+    -6.684091,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:8",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.591591,
+    -3.95
+   ],
+   "b": [
+    -6.591591,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:9",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.108408,
+    -3.95
+   ],
+   "b": [
+    -7.108408,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:10",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.108408,
+    -3.95
+   ],
+   "b": [
+    -6.591591,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:11",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.108408,
+    -3.75
+   ],
+   "b": [
+    -6.591591,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:12",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.524386,
+    -3.95
+   ],
+   "b": [
+    -6.524386,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:13",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.175614,
+    -3.95
+   ],
+   "b": [
+    -7.175614,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:14",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.175614,
+    -3.95
+   ],
+   "b": [
+    -6.524386,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:15",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.175614,
+    -3.75
+   ],
+   "b": [
+    -6.524386,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:16",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -6.489054,
+    -3.95
+   ],
+   "b": [
+    -6.489054,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:17",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.210945,
+    -3.95
+   ],
+   "b": [
+    -7.210945,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:18",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.210945,
+    -3.95
+   ],
+   "b": [
+    -6.489054,
+    -3.95
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.002:19",
+   "collider": "R004_ENV_WHEEL.002",
+   "a": [
+    -7.210945,
+    -3.75
+   ],
+   "b": [
+    -6.489054,
+    -3.75
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:0",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.792832,
+    -2.25
+   ],
+   "b": [
+    -6.792832,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:1",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.907168,
+    -2.25
+   ],
+   "b": [
+    -6.907168,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:2",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.907168,
+    -2.25
+   ],
+   "b": [
+    -6.792832,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:3",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.907168,
+    -2.05
+   ],
+   "b": [
+    -6.792832,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:4",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.684091,
+    -2.25
+   ],
+   "b": [
+    -6.684091,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:5",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.015909,
+    -2.25
+   ],
+   "b": [
+    -7.015909,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:6",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.015909,
+    -2.25
+   ],
+   "b": [
+    -6.684091,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:7",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.015909,
+    -2.05
+   ],
+   "b": [
+    -6.684091,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:8",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.591591,
+    -2.25
+   ],
+   "b": [
+    -6.591591,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:9",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.108408,
+    -2.25
+   ],
+   "b": [
+    -7.108408,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:10",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.108408,
+    -2.25
+   ],
+   "b": [
+    -6.591591,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:11",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.108408,
+    -2.05
+   ],
+   "b": [
+    -6.591591,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:12",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.524386,
+    -2.25
+   ],
+   "b": [
+    -6.524386,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:13",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.175614,
+    -2.25
+   ],
+   "b": [
+    -7.175614,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:14",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.175614,
+    -2.25
+   ],
+   "b": [
+    -6.524386,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:15",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.175614,
+    -2.05
+   ],
+   "b": [
+    -6.524386,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:16",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -6.489054,
+    -2.25
+   ],
+   "b": [
+    -6.489054,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:17",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.210945,
+    -2.25
+   ],
+   "b": [
+    -7.210945,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:18",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.210945,
+    -2.25
+   ],
+   "b": [
+    -6.489054,
+    -2.25
+   ]
+  },
+  {
+   "segment_id": "R004_ENV_WHEEL.003:19",
+   "collider": "R004_ENV_WHEEL.003",
+   "a": [
+    -7.210945,
+    -2.05
+   ],
+   "b": [
+    -6.489054,
+    -2.05
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:0",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.32,
+    -2.0
+   ],
+   "b": [
+    -3.32,
+    -0.7
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:1",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.32,
+    -2.0
+   ],
+   "b": [
+    -3.2,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:2",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.32,
+    0.7
+   ],
+   "b": [
+    -3.32,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:4",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.32,
+    2.4
+   ],
+   "b": [
+    -3.2,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:5",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    -2.0
+   ],
+   "b": [
+    -3.2,
+    -0.7
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:7",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    0.7
+   ],
+   "b": [
+    -3.2,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:9",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    2.4
+   ],
+   "b": [
+    -3.2,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:11",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    -2.12
+   ],
+   "b": [
+    -3.2,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:12",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    -2.12
+   ],
+   "b": [
+    4.88,
+    -2.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:13",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    -2.0
+   ],
+   "b": [
+    4.88,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:14",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    2.4
+   ],
+   "b": [
+    4.88,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:15",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.2,
+    2.52
+   ],
+   "b": [
+    4.88,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:16",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    -5.0
+   ],
+   "b": [
+    4.88,
+    -2.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:17",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -5.0
+   ],
+   "b": [
+    5.0,
+    -2.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:18",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    -5.0
+   ],
+   "b": [
+    5.0,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:19",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -2.12
+   ],
+   "b": [
+    5.0,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:20",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    -2.0
+   ],
+   "b": [
+    4.88,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:21",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -2.0
+   ],
+   "b": [
+    5.0,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:22",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    -0.12
+   ],
+   "b": [
+    4.88,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:23",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    0.0
+   ],
+   "b": [
+    5.0,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:24",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    2.4
+   ],
+   "b": [
+    5.0,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:25",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    4.88,
+    2.52
+   ],
+   "b": [
+    5.0,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:26",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -5.12
+   ],
+   "b": [
+    5.0,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:27",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -5.12
+   ],
+   "b": [
+    7.4,
+    -5.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:28",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -5.0
+   ],
+   "b": [
+    7.4,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:29",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    7.4,
+    -0.12
+   ],
+   "b": [
+    7.4,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:30",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    -0.12
+   ],
+   "b": [
+    7.4,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:31",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    0.0
+   ],
+   "b": [
+    7.4,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:32",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    2.4
+   ],
+   "b": [
+    7.4,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:33",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    5.0,
+    2.52
+   ],
+   "b": [
+    7.4,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:38",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    7.4,
+    -5.12
+   ],
+   "b": [
+    8.6,
+    -5.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:39",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    7.4,
+    -5.0
+   ],
+   "b": [
+    8.6,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:40",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    7.4,
+    2.4
+   ],
+   "b": [
+    8.6,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:41",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    7.4,
+    2.52
+   ],
+   "b": [
+    8.6,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:42",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    -5.12
+   ],
+   "b": [
+    11.0,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:43",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    -5.12
+   ],
+   "b": [
+    11.0,
+    -5.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:44",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    -5.0
+   ],
+   "b": [
+    11.0,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:45",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    -0.12
+   ],
+   "b": [
+    8.6,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:46",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    -0.12
+   ],
+   "b": [
+    11.0,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:47",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    0.0
+   ],
+   "b": [
+    11.0,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:48",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    2.4
+   ],
+   "b": [
+    11.0,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:49",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    8.6,
+    2.52
+   ],
+   "b": [
+    11.0,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:50",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    -5.0
+   ],
+   "b": [
+    11.0,
+    -2.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:51",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    -5.0
+   ],
+   "b": [
+    11.120001,
+    -2.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:52",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    -5.0
+   ],
+   "b": [
+    11.120001,
+    -5.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:53",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    -2.12
+   ],
+   "b": [
+    11.0,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:54",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    -2.12
+   ],
+   "b": [
+    11.120001,
+    -2.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:55",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    -2.0
+   ],
+   "b": [
+    11.0,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:56",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    -2.0
+   ],
+   "b": [
+    11.120001,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:57",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    0.0
+   ],
+   "b": [
+    11.120001,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:58",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    2.4
+   ],
+   "b": [
+    11.120001,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:59",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.0,
+    2.52
+   ],
+   "b": [
+    11.120001,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:60",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    -0.12
+   ],
+   "b": [
+    12.379999,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:61",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    0.0
+   ],
+   "b": [
+    12.379999,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:62",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    2.4
+   ],
+   "b": [
+    12.379999,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:63",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    11.120001,
+    2.52
+   ],
+   "b": [
+    12.379999,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:64",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    -0.12
+   ],
+   "b": [
+    12.5,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:65",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    0.0
+   ],
+   "b": [
+    12.5,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:66",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    2.4
+   ],
+   "b": [
+    12.5,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:67",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    2.52
+   ],
+   "b": [
+    12.5,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:68",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    7.0
+   ],
+   "b": [
+    12.379999,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:69",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    7.0
+   ],
+   "b": [
+    12.5,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:70",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    7.0
+   ],
+   "b": [
+    12.5,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:71",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    8.4
+   ],
+   "b": [
+    12.379999,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:72",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    8.4
+   ],
+   "b": [
+    12.5,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:73",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    9.599999
+   ],
+   "b": [
+    12.379999,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:74",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    9.599999
+   ],
+   "b": [
+    12.5,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:75",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    9.6
+   ],
+   "b": [
+    12.379999,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:76",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    9.6
+   ],
+   "b": [
+    12.5,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:77",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    11.0
+   ],
+   "b": [
+    12.379999,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:78",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    11.0
+   ],
+   "b": [
+    12.5,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:79",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    11.120001
+   ],
+   "b": [
+    12.379999,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:80",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    11.120001
+   ],
+   "b": [
+    12.5,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:81",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    14.2
+   ],
+   "b": [
+    12.379999,
+    14.200001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:82",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.379999,
+    14.200001
+   ],
+   "b": [
+    12.5,
+    14.200001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:83",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    -0.12
+   ],
+   "b": [
+    14.879999,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:84",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    0.0
+   ],
+   "b": [
+    14.879999,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:85",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    2.4
+   ],
+   "b": [
+    14.879999,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:86",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    2.52
+   ],
+   "b": [
+    14.879999,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:87",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    6.88
+   ],
+   "b": [
+    12.5,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:88",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    6.88
+   ],
+   "b": [
+    14.879999,
+    6.88
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:89",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    7.0
+   ],
+   "b": [
+    14.879999,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:90",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    14.2
+   ],
+   "b": [
+    14.879999,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:91",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    14.200001
+   ],
+   "b": [
+    12.5,
+    14.320001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:92",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    12.5,
+    14.320001
+   ],
+   "b": [
+    14.879999,
+    14.320001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:93",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    -0.12
+   ],
+   "b": [
+    15.0,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:94",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    0.0
+   ],
+   "b": [
+    15.0,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:97",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    2.4
+   ],
+   "b": [
+    15.0,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:98",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    2.4
+   ],
+   "b": [
+    15.0,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:99",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    2.52
+   ],
+   "b": [
+    14.879999,
+    6.88
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:100",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    2.52
+   ],
+   "b": [
+    15.0,
+    6.88
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:101",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    6.88
+   ],
+   "b": [
+    15.0,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:102",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    7.0
+   ],
+   "b": [
+    15.0,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:103",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    7.0
+   ],
+   "b": [
+    14.879999,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:104",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    7.0
+   ],
+   "b": [
+    15.0,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:105",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    8.4
+   ],
+   "b": [
+    14.879999,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:106",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    8.4
+   ],
+   "b": [
+    15.0,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:107",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    9.599999
+   ],
+   "b": [
+    14.879999,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:108",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    9.599999
+   ],
+   "b": [
+    15.0,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:109",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    9.6
+   ],
+   "b": [
+    14.879999,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:110",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    9.6
+   ],
+   "b": [
+    15.0,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:111",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    11.0
+   ],
+   "b": [
+    14.879999,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:112",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    11.0
+   ],
+   "b": [
+    15.0,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:113",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    11.120001
+   ],
+   "b": [
+    14.879999,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:114",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    11.120001
+   ],
+   "b": [
+    15.0,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:115",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    14.320001
+   ],
+   "b": [
+    15.0,
+    14.320001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:116",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    -0.12
+   ],
+   "b": [
+    17.4,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:117",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    -0.12
+   ],
+   "b": [
+    17.4,
+    -0.12
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:118",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    0.0
+   ],
+   "b": [
+    17.4,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:119",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    14.2
+   ],
+   "b": [
+    17.4,
+    14.200001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:120",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    14.2
+   ],
+   "b": [
+    17.4,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:121",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    14.200001
+   ],
+   "b": [
+    17.4,
+    14.320001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:122",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    15.0,
+    14.320001
+   ],
+   "b": [
+    17.4,
+    14.320001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:123",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    0.0
+   ],
+   "b": [
+    17.4,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:124",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    0.0
+   ],
+   "b": [
+    17.519999,
+    2.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:125",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    0.0
+   ],
+   "b": [
+    17.519999,
+    0.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:128",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    2.4
+   ],
+   "b": [
+    17.4,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:129",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    2.4
+   ],
+   "b": [
+    17.519999,
+    2.52
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:130",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    2.52
+   ],
+   "b": [
+    17.4,
+    6.88
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:131",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    2.52
+   ],
+   "b": [
+    17.519999,
+    6.88
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:132",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    6.88
+   ],
+   "b": [
+    17.4,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:135",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    7.0
+   ],
+   "b": [
+    17.4,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:136",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    7.0
+   ],
+   "b": [
+    17.519999,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:137",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    8.4
+   ],
+   "b": [
+    17.519999,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:138",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    9.599999
+   ],
+   "b": [
+    17.4,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:139",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    9.599999
+   ],
+   "b": [
+    17.519999,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:140",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    9.599999
+   ],
+   "b": [
+    17.519999,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:141",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    9.6
+   ],
+   "b": [
+    17.4,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:142",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    9.6
+   ],
+   "b": [
+    17.519999,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:143",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    11.0
+   ],
+   "b": [
+    17.4,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:144",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    11.120001
+   ],
+   "b": [
+    17.4,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:145",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    11.120001
+   ],
+   "b": [
+    17.519999,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:146",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.4,
+    14.2
+   ],
+   "b": [
+    17.519999,
+    14.2
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:147",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    6.88
+   ],
+   "b": [
+    22.4,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:148",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    6.88
+   ],
+   "b": [
+    22.4,
+    6.88
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:149",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    7.0
+   ],
+   "b": [
+    22.4,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:150",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    11.0
+   ],
+   "b": [
+    22.4,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:151",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    11.0
+   ],
+   "b": [
+    22.4,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:152",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    17.519999,
+    11.120001
+   ],
+   "b": [
+    22.4,
+    11.120001
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:155",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    7.0
+   ],
+   "b": [
+    22.519999,
+    7.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:156",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    7.0
+   ],
+   "b": [
+    22.4,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:157",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.519999,
+    7.0
+   ],
+   "b": [
+    22.519999,
+    8.4
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:158",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    8.4
+   ],
+   "b": [
+    22.4,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:159",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.519999,
+    8.4
+   ],
+   "b": [
+    22.519999,
+    9.599999
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:160",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    9.599999
+   ],
+   "b": [
+    22.4,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:161",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.519999,
+    9.599999
+   ],
+   "b": [
+    22.519999,
+    9.6
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:162",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    9.6
+   ],
+   "b": [
+    22.4,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:163",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.519999,
+    9.6
+   ],
+   "b": [
+    22.519999,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:164",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    22.4,
+    11.0
+   ],
+   "b": [
+    22.519999,
+    11.0
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:165",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.32,
+    0.7
+   ],
+   "b": [
+    -3.2,
+    0.7
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:166",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    -3.32,
+    -0.7
+   ],
+   "b": [
+    -3.2,
+    -0.7
+   ]
+  },
+  {
+   "segment_id": "WALL_JOINED_SHELL:167",
+   "collider": "WALL_JOINED_SHELL",
+   "a": [
+    14.879999,
+    14.2
+   ],
+   "b": [
+    15.0,
+    14.2
+   ]
+  }
+ ],
+ "occluder_method": "XY intervals solid at every slice height 0.25, 1.45, 2.65, 3.05 m (one per shell topology interval up to the 3.2 m top; every camera is at z <= 3.0 m and every body point at z <= 1.85 m, so a 2D sight line crossing one is blocked in 3D). Vehicle, door lintels and the x=15 parapet are not occluders.",
+ "occluders_full_height": [
+  {
+   "occluder_id": "OBSTACLE_SCREEN_CORNER_N:x=14.5:1.6..2.4",
+   "a": [
+    14.5,
+    1.6
+   ],
+   "b": [
+    14.5,
+    2.4
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_CORNER_N:x=14.65:1.6..2.4",
+   "a": [
+    14.65,
+    1.6
+   ],
+   "b": [
+    14.65,
+    2.4
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_CORNER_N:y=1.6:14.5..14.65",
+   "a": [
+    14.5,
+    1.6
+   ],
+   "b": [
+    14.65,
+    1.6
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_CORNER_N:y=2.4:14.5..14.65",
+   "a": [
+    14.5,
+    2.4
+   ],
+   "b": [
+    14.65,
+    2.4
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_N:x=15.0:5.25..5.6",
+   "a": [
+    15.0,
+    5.25
+   ],
+   "b": [
+    15.0,
+    5.6
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_N:x=15.8:5.25..5.6",
+   "a": [
+    15.8,
+    5.25
+   ],
+   "b": [
+    15.8,
+    5.6
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_N:y=5.25:15..15.8",
+   "a": [
+    15.0,
+    5.25
+   ],
+   "b": [
+    15.799999,
+    5.25
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_N:y=5.6:15..15.8",
+   "a": [
+    15.0,
+    5.6
+   ],
+   "b": [
+    15.799999,
+    5.6
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_R102:x=18.0:7.8..10.2",
+   "a": [
+    18.0,
+    7.8
+   ],
+   "b": [
+    18.0,
+    10.2
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_R102:x=18.15:7.8..10.2",
+   "a": [
+    18.15,
+    7.8
+   ],
+   "b": [
+    18.15,
+    10.2
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_R102:y=7.8:18..18.15",
+   "a": [
+    18.0,
+    7.8
+   ],
+   "b": [
+    18.150002,
+    7.8
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_R102:y=10.2:18..18.15",
+   "a": [
+    18.0,
+    10.2
+   ],
+   "b": [
+    18.150002,
+    10.2
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W:x=10.4:0..0.8",
+   "a": [
+    10.4,
+    0.0
+   ],
+   "b": [
+    10.4,
+    0.8
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W:x=10.55:0..0.8",
+   "a": [
+    10.55,
+    0.0
+   ],
+   "b": [
+    10.55,
+    0.8
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W:y=0.0:10.4..10.55",
+   "a": [
+    10.400001,
+    0.0
+   ],
+   "b": [
+    10.55,
+    0.0
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W:y=0.8:10.4..10.55",
+   "a": [
+    10.400001,
+    0.8
+   ],
+   "b": [
+    10.55,
+    0.8
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W_HOOD:x=-1.65:-2..-1.23",
+   "a": [
+    -1.65,
+    -2.0
+   ],
+   "b": [
+    -1.65,
+    -1.23
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W_HOOD:x=-1.6:-2..-1.23",
+   "a": [
+    -1.6,
+    -2.0
+   ],
+   "b": [
+    -1.6,
+    -1.23
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W_HOOD:y=-2.0:-1.65..-1.6",
+   "a": [
+    -1.65,
+    -2.0
+   ],
+   "b": [
+    -1.6,
+    -2.0
+   ]
+  },
+  {
+   "occluder_id": "OBSTACLE_SCREEN_W_HOOD:y=-1.23:-1.65..-1.6",
+   "a": [
+    -1.65,
+    -1.23
+   ],
+   "b": [
+    -1.6,
+    -1.23
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=-3.32:-2..-0.7",
+   "a": [
+    -3.32,
+    -2.0
+   ],
+   "b": [
+    -3.32,
+    -0.7
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=-3.32:0.7..2.4",
+   "a": [
+    -3.32,
+    0.7
+   ],
+   "b": [
+    -3.32,
+    2.4
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=-3.2:-2.12..-0.7",
+   "a": [
+    -3.2,
+    -2.12
+   ],
+   "b": [
+    -3.2,
+    -0.7
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=-3.2:0.7..2.52",
+   "a": [
+    -3.2,
+    0.7
+   ],
+   "b": [
+    -3.2,
+    2.52
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=4.88:-5..-2.12",
+   "a": [
+    4.88,
+    -5.0
+   ],
+   "b": [
+    4.88,
+    -2.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=4.88:-2..0",
+   "a": [
+    4.88,
+    -2.0
+   ],
+   "b": [
+    4.88,
+    0.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=5.0:-5.12..-0.12",
+   "a": [
+    5.0,
+    -5.12
+   ],
+   "b": [
+    5.0,
+    -0.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=7.4:-0.12..0",
+   "a": [
+    7.4,
+    -0.12
+   ],
+   "b": [
+    7.4,
+    0.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=11.0:-5.12..-0.12",
+   "a": [
+    11.0,
+    -5.12
+   ],
+   "b": [
+    11.0,
+    -0.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=11.12:-5..-0.12",
+   "a": [
+    11.12,
+    -5.0
+   ],
+   "b": [
+    11.12,
+    -0.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=12.38:7..14.2",
+   "a": [
+    12.38,
+    7.0
+   ],
+   "b": [
+    12.38,
+    14.200001
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=12.5:6.88..14.32",
+   "a": [
+    12.5,
+    6.88
+   ],
+   "b": [
+    12.5,
+    14.320001
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=14.88:2.52..6.88",
+   "a": [
+    14.88,
+    2.52
+   ],
+   "b": [
+    14.88,
+    6.88
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=15.0:2.4..7",
+   "a": [
+    15.0,
+    2.4
+   ],
+   "b": [
+    15.0,
+    7.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=17.4:-0.12..8.4",
+   "a": [
+    17.4,
+    -0.12
+   ],
+   "b": [
+    17.4,
+    8.4
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=17.4:9.6..14.32",
+   "a": [
+    17.4,
+    9.599999
+   ],
+   "b": [
+    17.4,
+    14.320001
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=17.52:0..6.88",
+   "a": [
+    17.52,
+    0.0
+   ],
+   "b": [
+    17.52,
+    6.88
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=17.52:7..8.4",
+   "a": [
+    17.52,
+    7.0
+   ],
+   "b": [
+    17.52,
+    8.4
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=17.52:9.6..11",
+   "a": [
+    17.52,
+    9.599999
+   ],
+   "b": [
+    17.52,
+    11.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=17.52:11.12..14.2",
+   "a": [
+    17.52,
+    11.120001
+   ],
+   "b": [
+    17.52,
+    14.2
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=22.4:6.88..11.12",
+   "a": [
+    22.4,
+    6.88
+   ],
+   "b": [
+    22.4,
+    11.120001
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:x=22.52:7..11",
+   "a": [
+    22.52,
+    7.0
+   ],
+   "b": [
+    22.52,
+    11.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-5.12:5..11",
+   "a": [
+    5.0,
+    -5.12
+   ],
+   "b": [
+    11.0,
+    -5.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-5.0:4.88..11.12",
+   "a": [
+    4.88,
+    -5.0
+   ],
+   "b": [
+    11.120001,
+    -5.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-2.12:-3.2..4.88",
+   "a": [
+    -3.2,
+    -2.12
+   ],
+   "b": [
+    4.88,
+    -2.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-2.0:-3.32..4.88",
+   "a": [
+    -3.32,
+    -2.0
+   ],
+   "b": [
+    4.88,
+    -2.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-0.12:5..7.4",
+   "a": [
+    5.0,
+    -0.12
+   ],
+   "b": [
+    7.4,
+    -0.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-0.12:8.6..11",
+   "a": [
+    8.6,
+    -0.12
+   ],
+   "b": [
+    11.0,
+    -0.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=-0.12:11.12..17.4",
+   "a": [
+    11.120001,
+    -0.12
+   ],
+   "b": [
+    17.4,
+    -0.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=0.0:4.88..7.4",
+   "a": [
+    4.88,
+    0.0
+   ],
+   "b": [
+    7.4,
+    0.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=0.0:8.6..17.52",
+   "a": [
+    8.6,
+    0.0
+   ],
+   "b": [
+    17.519999,
+    0.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=2.4:-3.32..15",
+   "a": [
+    -3.32,
+    2.4
+   ],
+   "b": [
+    15.0,
+    2.4
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=2.52:-3.2..14.88",
+   "a": [
+    -3.2,
+    2.52
+   ],
+   "b": [
+    14.879999,
+    2.52
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=6.88:12.5..14.88",
+   "a": [
+    12.5,
+    6.88
+   ],
+   "b": [
+    14.879999,
+    6.88
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=6.88:17.52..22.4",
+   "a": [
+    17.519999,
+    6.88
+   ],
+   "b": [
+    22.4,
+    6.88
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=7.0:12.38..15",
+   "a": [
+    12.379999,
+    7.0
+   ],
+   "b": [
+    15.0,
+    7.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=7.0:17.52..22.52",
+   "a": [
+    17.519999,
+    7.0
+   ],
+   "b": [
+    22.519999,
+    7.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=11.0:17.52..22.52",
+   "a": [
+    17.519999,
+    11.0
+   ],
+   "b": [
+    22.519999,
+    11.0
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=11.12:17.52..22.4",
+   "a": [
+    17.519999,
+    11.12
+   ],
+   "b": [
+    22.4,
+    11.12
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=14.2:12.38..14.88",
+   "a": [
+    12.379999,
+    14.2
+   ],
+   "b": [
+    14.879999,
+    14.2
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=14.2:15..17.52",
+   "a": [
+    15.0,
+    14.2
+   ],
+   "b": [
+    17.519999,
+    14.2
+   ]
+  },
+  {
+   "occluder_id": "WALL_JOINED_SHELL:y=14.32:12.5..17.4",
+   "a": [
+    12.5,
+    14.32
+   ],
+   "b": [
+    17.4,
+    14.32
+   ]
+  }
+ ],
+ "door_openings": {
+  "R004_WEST_ENTRY": {
+   "center_xy": [
+    -3.2,
+    0
+   ],
+   "normal_xy": [
+    1,
+    0
+   ],
+   "width_m": 1.4,
+   "height_m": 2.4,
+   "note": "measured active shell: jamb inner faces y=±0.7, z0..2.4; v2 assumed width1.2 was incorrect",
+   "wall_x_range_m": [
+    -3.32,
+    -3.2
+   ],
+   "jamb_y_m": [
+    -0.7,
+    0.7
+   ]
+  },
+  "PORTAL_R101": {
+   "center_xy": [
+    8,
+    0
+   ],
+   "normal_xy": [
+    0,
+    1
+   ],
+   "width_m": 1.2,
+   "height_m": 2.4,
+   "note": "active shell and source PORTAL_R101 endpoints agree; v2 assumed center7.75 was incorrect",
+   "wall_y_range_m": [
+    -0.12,
+    0
+   ],
+   "jamb_x_m": [
+    7.4,
+    8.6
+   ]
+  }
+ },
+ "floors": [
+  {
+   "floor_id": "R004_EXTERIOR_FLOOR",
+   "x_m": [
+    -15.2,
+    -3.2
+   ],
+   "y_m": [
+    -6.0,
+    8.0
+   ],
+   "top_z_m": -0.06
+  },
+  {
+   "floor_id": "WALK_CORNER",
+   "x_m": [
+    15.0,
+    17.4
+   ],
+   "y_m": [
+    0.0,
+    2.4
+   ],
+   "top_z_m": 0.0
+  },
+  {
+   "floor_id": "WALK_CORR_N",
+   "x_m": [
+    15.0,
+    17.4
+   ],
+   "y_m": [
+    2.4,
+    12.0
+   ],
+   "top_z_m": 0.0
+  },
+  {
+   "floor_id": "WALK_CORR_W",
+   "x_m": [
+    0.0,
+    15.0
+   ],
+   "y_m": [
+    0.0,
+    2.4
+   ],
+   "top_z_m": 0.0
+  },
+  {
+   "floor_id": "WALK_R101",
+   "x_m": [
+    5.0,
+    11.0
+   ],
+   "y_m": [
+    -5.0,
+    0.0
+   ],
+   "top_z_m": 0.0
+  },
+  {
+   "floor_id": "WALK_R102",
+   "x_m": [
+    17.4,
+    22.4
+   ],
+   "y_m": [
+    7.0,
+    11.0
+   ],
+   "top_z_m": 0.0
+  },
+  {
+   "floor_id": "WALK_VEST_W",
+   "x_m": [
+    -3.2,
+    4.88
+   ],
+   "y_m": [
+    -2.0,
+    2.4
+   ],
+   "top_z_m": 0.0
+  }
+ ],
+ "cameras": [
+  {
+   "camera_id": "CAM_BRANCH",
+   "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     -0.9774141907691956,
+     -0.0778512954711914,
+     0.19647054374217987,
+     16.799999237060547
+    ],
+    [
+     0.21133266389369965,
+     -0.3600621223449707,
+     0.9086769223213196,
+     6.5
+    ],
+    [
+     -7.976778704232856e-08,
+     0.9296743869781494,
+     0.3683823347091675,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 625.5481974283854,
+   "fy": 625.5481974283854,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 75.0
+  },
+  {
+   "camera_id": "CAM_ENTRY",
+   "calibration_sha256": "e5cc2f5a2408c4513d3edc3e081db9f10a7ded8e73d0fd74442ec25fe1170ec3",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     -0.11354681104421616,
+     -0.38922998309135437,
+     0.9141154885292053,
+     -2.5
+    ],
+    [
+     0.993532657623291,
+     -0.04448343813419342,
+     0.10447057336568832,
+     0.4000000059604645
+    ],
+    [
+     -7.975657467795827e-08,
+     0.9200658798217773,
+     0.3917636275291443,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 625.5481974283854,
+   "fy": 625.5481974283854,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 75.0
+  },
+  {
+   "camera_id": "CAM_EXT_CAR",
+   "calibration_sha256": "63efc5c148a499108a4999b8fa1233c2ec30db21610757dd7dc2ab23e0ac6319",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     0.5144956707954407,
+     0.27820736169815063,
+     -0.8111071586608887,
+     -13.0
+    ],
+    [
+     -0.857492983341217,
+     0.16692426800727844,
+     -0.4866642653942108,
+     -6.0
+    ],
+    [
+     -1.1066669003412244e-07,
+     0.9459053874015808,
+     0.32444268465042114,
+     3.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 685.5110677083334,
+   "fy": 685.5110677083334,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 70.0
+  },
+  {
+   "camera_id": "CAM_EXT_CLEAR",
+   "calibration_sha256": "a4f32c45e5913b2a489d1c68ac280842568b56d313a976a90dac631e9558e057",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     -0.3162277638912201,
+     0.2860387861728668,
+     -0.9045340418815613,
+     -13.0
+    ],
+    [
+     -0.9486833214759827,
+     -0.09534616768360138,
+     0.30151137709617615,
+     7.0
+    ],
+    [
+     9.797838629310718e-08,
+     0.9534626007080078,
+     0.30151131749153137,
+     3.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 685.5110677083334,
+   "fy": 685.5110677083334,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 70.0
+  },
+  {
+   "camera_id": "CAM_R101_IN",
+   "calibration_sha256": "950deeeae2adb18f1d62b8a79095a4efc702b256894fca997d4068f7601e45d1",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     0.8454889059066772,
+     -0.16905127465724945,
+     0.5065276026725769,
+     10.399999618530273
+    ],
+    [
+     0.5339930057525635,
+     0.2676645517349243,
+     -0.802001953125,
+     -4.5
+    ],
+    [
+     -2.432167178767486e-08,
+     0.9485659599304199,
+     0.3165796101093292,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 685.5110677083334,
+   "fy": 685.5110677083334,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 70.0
+  },
+  {
+   "camera_id": "CAM_W1",
+   "calibration_sha256": "72a75795c183e0204ead20e6a63e54a73661ce0e1f610b924d485fa2fc89fe47",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     0.2893894612789154,
+     0.10588715970516205,
+     -0.9513367414474487,
+     -2.5999999046325684
+    ],
+    [
+     -0.957211434841156,
+     0.032012395560741425,
+     -0.2876133918762207,
+     -1.399999976158142
+    ],
+    [
+     3.9491676595559966e-09,
+     0.9938627481460571,
+     0.11062045395374298,
+     2.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 625.5481974283854,
+   "fy": 625.5481974283854,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 75.0
+  },
+  {
+   "camera_id": "CAM_W2",
+   "calibration_sha256": "3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     -0.13925476372241974,
+     -0.12164754420518875,
+     0.9827563166618347,
+     14.399999618530273
+    ],
+    [
+     0.9902566075325012,
+     -0.017106635496020317,
+     0.138200044631958,
+     2.0999999046325684
+    ],
+    [
+     -4.189187308156761e-08,
+     0.9924259185791016,
+     0.12284446507692337,
+     1.7999999523162842
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 625.5481974283854,
+   "fy": 625.5481974283854,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 75.0
+  },
+  {
+   "camera_id": "CAM_WIDE",
+   "calibration_sha256": "302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4",
+   "camera_model": "PINHOLE",
+   "convention": "BLENDER_NEG_Z_UP_Y",
+   "camera_to_world": [
+    [
+     -0.9931505918502808,
+     -0.022763429209589958,
+     0.11460235714912415,
+     17.0
+    ],
+    [
+     0.11684123426675797,
+     -0.19348935782909393,
+     0.9741201400756836,
+     13.5
+    ],
+    [
+     2.2456179138430343e-08,
+     0.9808382391929626,
+     0.19482377171516418,
+     2.700000047683716
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "fx": 480.0,
+   "fy": 480.0,
+   "cx": 480.0,
+   "cy": 270.0,
+   "width": 960,
+   "height": 540,
+   "clip_start": 0.05000000074505806,
+   "clip_end": 100.0,
+   "hfov_deg": 90.0
+  }
+ ],
+ "render_camera_sets": {
+  "A4-1": [
+   "CAM_EXT_CAR",
+   "CAM_EXT_CLEAR",
+   "CAM_ENTRY",
+   "CAM_W1"
+  ],
+  "B4-1": [
+   "CAM_W1",
+   "CAM_W2",
+   "CAM_BRANCH",
+   "CAM_R101_IN",
+   "CAM_WIDE"
+  ]
+ },
+ "render_camera_sets_basis": "scenario card v1 section 2-3 and v2 section 1 (A4 renders CAM_ENTRY for lookup only; still rendered, so it counts for spawn/exit visibility)"
+}

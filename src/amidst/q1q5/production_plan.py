@@ -4,6 +4,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from amidst.paths import artifacts_output_root
 from amidst.q1q5.detection_index import content_hash
 from amidst.q1q5.production_preflight import PreflightError, read_pinned, strict_json
 
@@ -178,7 +179,7 @@ def produce(
     require(permit_real_rgb is True, "EXPLICIT_REAL_RGB_PERMISSION_REQUIRED")
     reg, values, config = validate_binding(plan, binding)
     output = Path(output)
-    allowed = (Path.home() / "amidst-artifacts").resolve()
+    allowed = artifacts_output_root()
     require(
         output.is_absolute()
         and output.resolve() == output

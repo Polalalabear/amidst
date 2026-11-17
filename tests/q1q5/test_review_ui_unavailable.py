@@ -33,22 +33,6 @@ def error(api, action, payload, auth=authorize):
 
 
 @pytest.mark.parametrize('action', ACTIONS)
-def test_authorized_unimplemented_ui_is_unavailable_without_claiming_implementation(action):
-    api, payload = request_fixture(action)
-    before = deepcopy((api.responses, api.media_refs, api._jobs))
-    calls = []
-
-    def fresh_auth(token, scene, *, audit=False):
-        calls.append((token, scene, audit))
-        authorize(token, scene, audit=audit)
-
-    assert error(api, action, payload, fresh_auth) == (503, 'Q_RESOURCE_UNAVAILABLE')
-    assert calls == [(TOKEN, 'SYNTHETIC_SCENE', False)]
-    assert action not in POST_ROUTES  # Existing -T helpers must still report implementation missing.
-    assert (api.responses, api.media_refs, api._jobs) == before
-
-
-@pytest.mark.parametrize('action', ACTIONS)
 def test_unavailable_ui_still_requires_fresh_authorization(action):
     api, payload = request_fixture(action)
 
@@ -94,7 +78,8 @@ def test_physical_does_not_accept_foreign_unknown_or_non_q2_response():
         assert error(api, 'q_physical_prediction', invalid) == (403, 'FORBIDDEN_DATA_SCOPE')
     bundle = api.responses[(TOKEN, payload['response_ref'])]
     bundle['response']['schema_version'] = 'q-demo.q1-response.v1'
-    assert error(api, 'q_physical_prediction', payload) == (403, 'FORBIDDEN_DATA_SCOPE')
+    # The stored response is hash-bound; a mutated response is an integrity error, not a scope error.
+    assert error(api, 'q_physical_prediction', payload) == (409, 'DataIntegrityError')
 
 
 def environ(action, payload):
@@ -102,14 +87,6 @@ def environ(action, payload):
     return {'REQUEST_METHOD': 'POST', 'PATH_INFO': '/api/' + action, 'QUERY_STRING': '',
             'HTTP_HOST': '127.0.0.1:8766', 'CONTENT_TYPE': 'application/json',
             'CONTENT_LENGTH': str(len(raw)), 'wsgi.input': io.BytesIO(raw)}
-
-
-@pytest.mark.parametrize('action', ACTIONS)
-def test_wsgi_reports_only_unavailable_error(action):
-    api, payload = request_fixture(action)
-    result = api.dispatch(environ(action, payload), authorize)
-    assert result.status == 503
-    assert json.loads(result.body) == {'error_code': 'Q_RESOURCE_UNAVAILABLE'}
 
 
 @pytest.mark.parametrize('change', [
@@ -125,34 +102,18 @@ def test_wsgi_unavailable_routes_do_not_bypass_transport_denials(change):
 
 
 @pytest.mark.parametrize('action', ACTIONS)
-def test_p1_http_reports_unavailable_without_bundle_or_media(action):
-    from amidst.q1q5.p1_workbench import P1, server
-
+def test_routes_are_implemented_and_no_longer_report_unavailable(action):
+    """Both routes were stubbed as 503 Q_RESOURCE_UNAVAILABLE; D126 implemented them (fe0d333)."""
     api, payload = request_fixture(action)
-    app = object.__new__(P1)
-    app.api = api
-    app.sessions = {TOKEN: {'SYNTHETIC_SCENE'}}
-    http = server(app)
-    thread = threading.Thread(target=http.serve_forever, daemon=True)
-    thread.start()
-    try:
-        request = Request(f'http://127.0.0.1:{http.server_port}/api/{action}',
-                          data=json.dumps(payload).encode(), headers={'Content-Type': 'application/json'})
-        with pytest.raises(HTTPError) as exc:
-            urlopen(request, timeout=5)
-        assert exc.value.code == 503
-        assert json.loads(exc.value.read()) == {'error_code': 'Q_RESOURCE_UNAVAILABLE'}
-    finally:
-        http.shutdown()
-        http.server_close()
-        thread.join(timeout=5)
+    assert action in POST_ROUTES
+    result = api.dispatch(environ(action, payload), authorize)
+    assert result.status == 200
 
 
 @pytest.mark.parametrize('action', ACTIONS)
-def test_recorded_wrapper_allows_only_error_reporting_and_keeps_inference_disabled(action):
+def test_recorded_wrapper_keeps_inference_disabled(action):
     from amidst.q1q5.demo_launcher import RecordedAPI
 
-    api, payload = request_fixture(action)
+    api, _ = request_fixture(action)
     replay = RecordedAPI(api)
-    assert error(replay, action, payload) == (503, 'Q_RESOURCE_UNAVAILABLE')
     assert error(replay, 'q2_start_session', {}) == (409, 'RECORDED_READ_ONLY')

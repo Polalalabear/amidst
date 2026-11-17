@@ -13,6 +13,7 @@ import hashlib
 import json
 import math
 import sys
+import tempfile
 from pathlib import Path
 
 ANNOTATION_COLLECTIONS = (
@@ -55,7 +56,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-root", required=True, type=Path)
     parser.add_argument(
-        "--search-hints", type=Path, default=Path("/private/tmp/amidst-pilot-search.json")
+        "--search-hints", type=Path, default=Path(tempfile.gettempdir()) / "amidst-pilot-search.json"
     )
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--contact-control", action="store_true",

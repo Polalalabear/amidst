@@ -15,6 +15,8 @@ import os
 from pathlib import Path
 import shutil
 
+from amidst.paths import artifacts_output_root
+
 MIN_FREE_BYTES = 8 * 1024 ** 3
 SCHEMA = "cx8-rule-tracking.v1"
 BINDING_FIELDS = ("scene_id", "run_id", "clock_id", "rgb_index_sha256")
@@ -167,9 +169,9 @@ def main(argv=None):
         parser.add_argument("--" + name)
     args = parser.parse_args(argv)
     repo, output = Path(args.repo).resolve(), Path(args.output).absolute()
-    allowed = (Path.home() / "amidst-artifacts").resolve()
+    allowed = artifacts_output_root()
     if output.resolve() != output or not output.is_relative_to(allowed) or output.is_relative_to(repo):
-        parser.error("Output must be canonical and under ~/amidst-artifacts, outside repo")
+        parser.error("Output must be canonical and under the artifacts output root (AMIDST_ARTIFACTS, default local/evidence), outside repo")
     if output.exists():
         parser.error("Output exists; refusing to overwrite")
     try:

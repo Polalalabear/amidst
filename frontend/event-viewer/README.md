@@ -5,10 +5,20 @@ CX-7 的 A4-1（4 鏡頭）與 B4-1（5 鏡頭）safe RGB 同步播放頁。ENGI
 ## Demo 當日啟動（一行）
 
 ```bash
-node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8" --port 8765
+node frontend/event-viewer/server.mjs --root "$PWD/local/evidence/r004-cx7-d115-20261102-01a199f8" --port 8765
 ```
 
 再開 <http://127.0.0.1:8765/>。`--root` 是 LOCAL 的 CX-7 輸出根目錄；server 只讀 `<run>/safe/media/<camera>/<index>.png`，其餘路徑（含 `gt_private/`）、`..`、symlink 一律 404，且只綁 127.0.0.1。
+
+### 八鏡頭 4 人 run（#529，D214）
+
+`A4-1-8CAM`、`B4-1-8CAM`（各 8 台，250／210 格）取自 safe bundle，另用 `--root-8cam` 指向 `$AMIDST_ARTIFACTS/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe`（`$AMIDST_ARTIFACTS` 預設 `~/amidst/local`）：
+
+```bash
+node frontend/event-viewer/server.mjs --root "$PWD/local/evidence/r004-cx7-d115-20261102-01a199f8" --root-8cam "$PWD/local/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe" --port 8765
+```
+
+只給其中一個 root 時，另一組 run 顯示 UNAVAILABLE，不影響已通過的 run。舊的 `A4-1`／`B4-1`（1 人）保留。8 鏡頭 run 另外核對 `runs/<A4-1|B4-1>.json`：檔案 SHA-256 等於 `runs.mjs` 釘住的值，且每台相機的影格數、每格 `relative_path` 與 `sha256` 都等於逐格驗證算出的值；不符即 `INTEGRITY_FAIL`。
 
 ## 啟動驗證（fail-closed）
 
@@ -25,3 +35,10 @@ safe 區沒有 manifest／clock，預期結構取自 `runs.mjs`（來自 `docs/e
 ```bash
 node --test frontend/event-viewer/viewer.test.mjs
 ```
+
+## 版面（格狀／焦點）
+
+頁尾工具列的「格狀｜焦點」切換兩種版面，預設格狀，選擇記在 `localStorage`（`amidst.eventViewer.layout`；讀寫失敗就用預設）。內嵌時可用 `?layout=grid|focus` 指定（優先於 localStorage）。所有畫格維持 16:9，不拉伸、不裁切。
+
+- **格狀（A）**：`layout.mjs` 的 `adaptiveGrid` 依視窗長寬比比較各種欄數，取每格最大者（1920×1080 下 8 台為 3×3）；視窗縮放即時重算。
+- **焦點（B）**：主鏡頭約佔 65% 寬，其餘縮成小格排在右側；主鏡頭依序取「追蹤中（`?track=CAM_x`，目前沒有來源，留給 DP4）→ 使用者點選 → 第一台」，點任一格即換主畫面；切換有 200 ms 過場，不影響播放同步。不做任何預測。

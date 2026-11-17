@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "integration_base": "1fdc1a4da9824e8bd6230c1dbcd3a845ad869deb",
+  "lock_source": {
+    "pr": 491,
+    "branch": "claude/epic-c-cleanup",
+    "head": "fa9a199a680533531680ab54ad8d110db6ca0563"
+  },
+  "owned_source": "297696395f78700b59d65c9ea2f2b6babe508826",
+  "owned_lock_merge": "e62f9deb65d71de21d1f296f4dc9f3c45e7e545f",
+  "ui_gate_head": "4bc53b8214f78cea289093ef6df8c2135809b1f9",
+  "ui_previous_head": "86b72e66213f0dd1e068402a33f23806ed7618b0",
+  "python": "3.12.12",
+  "pins": {
+    "uv.lock": "112e2b3fd06b60e08b83526b321dd9f4bfde561be1e94af61865dcc046c8ed36",
+    "pyproject.toml": "c20a1692d7a2d80dd22c1a5a5810e8e5914f6e9c8cdf81a8b3e585516ee5b72d",
+    ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+    "configs/demo_dependencies_manifest_v1.json": "ddc833d701274595dd6d3102219a0d5a50b2731dda702119d36a5e2496441c50"
+  },
+  "artifacts": {
+    "relative_to_AMIDST_ARTIFACTS": "demo-owned-v1/evidence/491-lock-sync",
+    "manifest": "RESULTS_MANIFEST.json",
+    "sha256": "1e878051e2bc920c9de3d678eee25873a0ac5d5bf4b949d5c159723a1287638d",
+    "payload_files": 118,
+    "payload_bytes": 17321089,
+    "png_files": 96
+  },
+  "service": {
+    "port": 8785,
+    "pid": 99812,
+    "restart": "ONLY_WHEN_CLAUDE_NOTIFIES"
+  }
+}

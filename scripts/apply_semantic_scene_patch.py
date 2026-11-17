@@ -106,7 +106,7 @@ def main() -> None:
     required_space = 2 * source.stat().st_size + 64 * 1024 * 1024
     if shutil.disk_usage(source.parent).free < required_space:
         raise OSError("insufficient space for verified backup and atomic staged scene save")
-    backup_dir = Path(tempfile.mkdtemp(prefix="school-v3-original-", dir="/private/tmp"))
+    backup_dir = Path(tempfile.mkdtemp(prefix="school-v3-original-", dir=tempfile.gettempdir()))
     backup = backup_dir / source.name
     try:
         shutil.copy2(source, backup)

@@ -1,0 +1,72 @@
+{
+ "configs": {
+  "gate4_off": "--mode off --gate-m 4",
+  "gate4_review": "--mode review --gate-m 4 --oracle-m 1.0"
+ },
+ "table": {
+  "gate4_off": {
+   "a4 8cam": {
+    "n": 4,
+    "on_target": 0.472,
+    "wrong_person": 0.37,
+    "lost": 0.158
+   },
+   "a4 route cams": {
+    "n": 15,
+    "on_target": 0.382,
+    "wrong_person": 0.367,
+    "lost": 0.251
+   },
+   "b4 8cam": {
+    "n": 4,
+    "on_target": 0.726,
+    "wrong_person": 0.181,
+    "lost": 0.093
+   },
+   "b4 route cams": {
+    "n": 15,
+    "on_target": 0.922,
+    "wrong_person": 0.028,
+    "lost": 0.05
+   },
+   "ALL": {
+    "n": 38,
+    "on_target": 0.641,
+    "wrong_person": 0.214,
+    "lost": 0.145
+   }
+  },
+  "gate4_review": {
+   "a4 8cam": {
+    "n": 4,
+    "on_target": 0.741,
+    "wrong_person": 0.22,
+    "lost": 0.039
+   },
+   "a4 route cams": {
+    "n": 15,
+    "on_target": 0.382,
+    "wrong_person": 0.367,
+    "lost": 0.251
+   },
+   "b4 8cam": {
+    "n": 4,
+    "on_target": 0.726,
+    "wrong_person": 0.181,
+    "lost": 0.093
+   },
+   "b4 route cams": {
+    "n": 15,
+    "on_target": 0.922,
+    "wrong_person": 0.028,
+    "lost": 0.05
+   },
+   "ALL": {
+    "n": 38,
+    "on_target": 0.669,
+    "wrong_person": 0.198,
+    "lost": 0.133
+   }
+  }
+ }
+}

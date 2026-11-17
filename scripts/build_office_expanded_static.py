@@ -17,10 +17,12 @@ import time
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src'))
+from amidst.paths import artifacts_output_root  # noqa: E402
 PARAMETERS = ROOT / 'docs/engineering/d127_418_parameters.proposed.json'
 PARAMETER_SHA = '57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26'
 APPROVAL = 'https://github.com/Polalalabear/amidst/issues/418#issuecomment-6634899000'
-OUTPUT = Path('/Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005')
+OUTPUT = artifacts_output_root() / 'd127-418-office-expanded-r005'  # $AMIDST_ARTIFACTS, else local/evidence
 GIB = 1024**3
 
 

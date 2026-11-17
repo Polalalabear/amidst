@@ -2,15 +2,15 @@
 import {frameIntervalUs,durationUs} from './monitor-room-model.mjs';
 
 export function runCatalog(bootstrap){
-  return (bootstrap?.runs??[]).map(run=>{const interval=frameIntervalUs(run);
-    return {kind:'run',key:`${run.scene_id}/${run.run_id}`,scene_id:run.scene_id,run_id:run.run_id,
+  return (bootstrap?.runs??[]).map((run,index)=>{const interval=frameIntervalUs(run);
+    return {kind:'run',index,key:`${run.scene_id}/${run.run_id}`,scene_id:run.scene_id,run_id:run.run_id,
       // Human-readable title is not in the API yet (waiting for Codex interface -T): show the IDs.
       title:run.title??`${run.scene_id} · ${run.run_id}`,titleMissing:!run.title,
       camera_ids:[...(run.camera_ids??[])],duration_us:durationUs(run),fps:interval?Math.round(1e6/interval*100)/100:null,
       source_kind:run.source_kind??'UNKNOWN'};});
 }
 export function recordingCatalog(bootstrap){
-  return (bootstrap?.recordings??[]).map(r=>({kind:'recording',key:r.recording_id,recording_id:r.recording_id,
+  return (bootstrap?.recordings??[]).map((r,index)=>({kind:'recording',index,key:r.recording_id,recording_id:r.recording_id,
     title:r.title??r.recording_id,titleMissing:!r.title,recorded_at:r.recorded_at??null,source_kind:r.source_kind??'UNKNOWN',
     response_kind:r.response_kind??'UNKNOWN',switch_mode:r.switch_mode??null}));
 }

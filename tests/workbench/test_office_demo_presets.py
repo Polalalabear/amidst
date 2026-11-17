@@ -41,12 +41,18 @@ def walk(value):
             yield from walk(item)
 
 
+def evidence_repo(assets):
+    """OFFICE_EVIDENCE_REPO, else the finalization worktree inside the assets checkout."""
+    configured = os.environ.get("OFFICE_EVIDENCE_REPO")
+    return Path(configured) if configured else assets / ".local-worktrees/phase1-finalization"
+
+
 @pytest.fixture(scope="module")
 def live(tmp_path_factory):
     if not os.environ.get("OFFICE_TEST_ASSETS"):
         pytest.skip("Set OFFICE_TEST_ASSETS to the existing immutable asset checkout")
     assets = Path(os.environ["OFFICE_TEST_ASSETS"])
-    evidence = assets / ".local-worktrees/phase1-finalization"
+    evidence = evidence_repo(assets)
     catalog = backend.load_presets(backend.DEFAULT_PRESETS, evidence, assets)
     app = backend.application(
         catalog, tmp_path_factory.mktemp("presets") / "review.db", REPO, evidence
@@ -337,10 +343,10 @@ def test_missing_control_data_keeps_office_available(live, tmp_path):
     presets["presets"][1]["bundle"] = str(tmp_path / "absent-control")
     path = tmp_path / "presets.json"
     path.write_text(json.dumps(presets))
-    catalog = backend.load_presets(path, assets / ".local-worktrees/phase1-finalization", assets)
+    catalog = backend.load_presets(path, evidence_repo(assets), assets)
     assert list(catalog) == ["blender-office"]
     app = backend.application(
-        catalog, tmp_path / "reviews.db", REPO, assets / ".local-worktrees/phase1-finalization"
+        catalog, tmp_path / "reviews.db", REPO, evidence_repo(assets)
     )
     entries = app.workbench.bootstrap()["scenes"]
     assert [r["scene_id"] for r in entries] == ["blender-office", "blender-contact-control"]
@@ -381,7 +387,7 @@ def test_quality_mapping_failure_keeps_office_and_original_observations(
         degraded,
         tmp_path / "reviews.db",
         REPO,
-        Path(os.environ["OFFICE_TEST_ASSETS"]) / ".local-worktrees/phase1-finalization",
+        evidence_repo(Path(os.environ["OFFICE_TEST_ASSETS"])),
     )
     assert app.workbench.bootstrap()["scenes"][0]["scene_id"] == "blender-office"
     for response in (
@@ -444,7 +450,7 @@ def test_person_split_preset_uses_pinned_config_and_d18_defaults(live):
     assets = Path(os.environ["OFFICE_TEST_ASSETS"])
     catalog = backend.load_presets(
         REPO / "configs/office_demo_presets_person_v1.json",
-        assets / ".local-worktrees/phase1-finalization",
+        evidence_repo(assets),
         assets,
     )
     assert list(catalog) == ["blender-office", "blender-contact-control", "blender-office-person"]

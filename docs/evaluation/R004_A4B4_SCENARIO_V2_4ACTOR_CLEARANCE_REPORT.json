@@ -1,0 +1,609 @@
+{
+  "checker": "scripts/design/check_actor_clearance.py",
+  "verdict": "UNKNOWN",
+  "physical_navigation": "UNKNOWN",
+  "runs": [
+    {
+      "run_id": "A4-1-v2-4actor",
+      "verdict": "UNKNOWN",
+      "check_status": {
+        "pair_distance": "PASS",
+        "side_by_side": "PASS",
+        "doors": "PASS",
+        "walls": "UNKNOWN",
+        "seed": "PASS",
+        "speed": "PASS"
+      },
+      "physical_navigation": "UNKNOWN",
+      "rules": {
+        "sample_interval_us": 200000,
+        "subdivisions": 10,
+        "min_pair_distance_m": 0.6,
+        "min_side_by_side_lateral_m": 0.8,
+        "side_by_side_along_m": 0.6,
+        "door_zone_half_depth_m": 0.5,
+        "door_min_stagger_us": 1500000,
+        "min_wall_clearance_m": 0.35,
+        "max_speed_m_s": 1.6
+      },
+      "checks": {
+        "pair_distance": {
+          "threshold_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "A"
+              ],
+              "overlap_us": [
+                2000000,
+                50000000
+              ],
+              "min_distance_m": 0.85,
+              "min_at_us": 19214437,
+              "grid_min_distance_m": 0.8507,
+              "grid_min_at_us": 19200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "overlap_us": [
+                2000000,
+                30000000
+              ],
+              "min_distance_m": 0.85,
+              "min_at_us": 14237419,
+              "grid_min_distance_m": 0.8561,
+              "grid_min_at_us": 14200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "C"
+              ],
+              "overlap_us": [
+                4000000,
+                50000000
+              ],
+              "min_distance_m": 1.0808,
+              "min_at_us": 20247254,
+              "grid_min_distance_m": 1.0839,
+              "grid_min_at_us": 20200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "B"
+              ],
+              "overlap_us": [
+                2000000,
+                30000000
+              ],
+              "min_distance_m": 0.85,
+              "min_at_us": 15544748,
+              "grid_min_distance_m": 0.8633,
+              "grid_min_at_us": 15600000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "C"
+              ],
+              "overlap_us": [
+                4000000,
+                50000000
+              ],
+              "min_distance_m": 1.15,
+              "min_at_us": 26800000,
+              "grid_min_distance_m": 1.15,
+              "grid_min_at_us": 26800000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "B",
+                "C"
+              ],
+              "overlap_us": [
+                4000000,
+                30000000
+              ],
+              "min_distance_m": 4.95,
+              "min_at_us": 11160870,
+              "grid_min_distance_m": 4.9503,
+              "grid_min_at_us": 11200000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "side_by_side": {
+          "threshold_m": 0.8,
+          "side_by_side_along_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "A"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.85,
+              "at_us": 18980000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.85,
+              "at_us": 14020000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "C"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.98,
+              "at_us": 20040000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "B"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.85,
+              "at_us": 15340000,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "doors": {
+          "door_min_stagger_us": 1500000,
+          "zone_half_depth_m": 0.5,
+          "doors": [
+            {
+              "door_id": "R004_WEST_ENTRY",
+              "width_m": 1.2,
+              "geometry_status": "ASSUMED: x = west bound of WALK_VEST_W / exterior floor (6 cm step); y = centre of CAM_EXT_CLEAR:E_OUT_VEST patch (-0.4..0.4); real opening UNKNOWN",
+              "passages": [
+                {
+                  "actor_id": "T",
+                  "enter_us": 7580000,
+                  "exit_us": 8540000,
+                  "ref_us": 8155024,
+                  "crossing_refs_us": [
+                    8155024
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "A",
+                  "enter_us": 10080000,
+                  "exit_us": 11040000,
+                  "ref_us": 10655024,
+                  "crossing_refs_us": [
+                    10655024
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "B",
+                  "enter_us": 20180000,
+                  "exit_us": 20860000,
+                  "ref_us": 20525000,
+                  "crossing_refs_us": [
+                    20525000
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "T",
+                  "enter_us": 28460000,
+                  "exit_us": 36540000,
+                  "ref_us": 28844976,
+                  "crossing_refs_us": [
+                    28844976,
+                    36155024
+                  ],
+                  "kind": "CROSS_X2"
+                },
+                {
+                  "actor_id": "A",
+                  "enter_us": 47080000,
+                  "exit_us": 47760000,
+                  "ref_us": 47425000,
+                  "crossing_refs_us": [
+                    47425000
+                  ],
+                  "kind": "CROSS_X1"
+                }
+              ],
+              "conflicts": [],
+              "status": "PASS"
+            },
+            {
+              "door_id": "PORTAL_R101",
+              "width_m": 1.2,
+              "geometry_status": "ASSUMED: x = centre of CAM_W2:E_PORTAL_R101 patch (7.35-8.15); y = shared bound of WALK_CORR_W (y>=0) and WALK_R101 (y<=0) support boxes; 1.2 m width is the D198 rule, real opening UNKNOWN (portal-openings:r004:v2 not readable)",
+              "passages": [
+                {
+                  "actor_id": "C",
+                  "enter_us": 19580000,
+                  "exit_us": 20320000,
+                  "ref_us": 19950000,
+                  "crossing_refs_us": [
+                    19950000
+                  ],
+                  "kind": "CROSS_X1"
+                }
+              ],
+              "conflicts": [],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "walls": {
+          "threshold_m": 0.35,
+          "status": "UNKNOWN",
+          "reason": "NO_WALL_OR_FURNITURE_GEOMETRY_DECLARED",
+          "actors": [],
+          "advisory": {
+            "note": "ADVISORY_ONLY_NOT_WALL_GEOMETRY_DOES_NOT_CHANGE_VERDICT",
+            "actors": [
+              {
+                "actor_id": "T",
+                "min_clearance_m": 0.2,
+                "at_us": 8110731,
+                "segment_id": "VEST_west_x-3.2_south_of_door",
+                "advisory": "ADVISORY_FAIL"
+              },
+              {
+                "actor_id": "A",
+                "min_clearance_m": 0.4,
+                "at_us": 10610731,
+                "segment_id": "VEST_west_x-3.2_south_of_door",
+                "advisory": "ADVISORY_PASS"
+              },
+              {
+                "actor_id": "B",
+                "min_clearance_m": 0.45,
+                "at_us": 2000000,
+                "segment_id": "VEST_CORR_north_y2.4",
+                "advisory": "ADVISORY_PASS"
+              },
+              {
+                "actor_id": "C",
+                "min_clearance_m": 0.45,
+                "at_us": 22000000,
+                "segment_id": "VEST_CORR_north_y2.4",
+                "advisory": "ADVISORY_PASS"
+              }
+            ]
+          }
+        },
+        "seed": {
+          "seed_actor_id": "T",
+          "exclusive_until_us": 2000000,
+          "violations": [],
+          "status": "PASS"
+        },
+        "speed": {
+          "max_speed_m_s": 1.6,
+          "actors": [
+            {
+              "actor_id": "T",
+              "max_speed_m_s": 1.43,
+              "leg_index": 4,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "max_speed_m_s": 1.5061,
+              "leg_index": 14,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "max_speed_m_s": 1.5367,
+              "leg_index": 5,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "max_speed_m_s": 1.3814,
+              "leg_index": 3,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "run_id": "B4-1-v2-4actor",
+      "verdict": "UNKNOWN",
+      "check_status": {
+        "pair_distance": "PASS",
+        "side_by_side": "PASS",
+        "doors": "PASS",
+        "walls": "UNKNOWN",
+        "seed": "PASS",
+        "speed": "PASS"
+      },
+      "physical_navigation": "UNKNOWN",
+      "rules": {
+        "sample_interval_us": 200000,
+        "subdivisions": 10,
+        "min_pair_distance_m": 0.6,
+        "min_side_by_side_lateral_m": 0.8,
+        "side_by_side_along_m": 0.6,
+        "door_zone_half_depth_m": 0.5,
+        "door_min_stagger_us": 1500000,
+        "min_wall_clearance_m": 0.35,
+        "max_speed_m_s": 1.6
+      },
+      "checks": {
+        "pair_distance": {
+          "threshold_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "A"
+              ],
+              "overlap_us": [
+                2000000,
+                42000000
+              ],
+              "min_distance_m": 0.7433,
+              "min_at_us": 15800000,
+              "grid_min_distance_m": 0.7433,
+              "grid_min_at_us": 15800000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "overlap_us": [
+                16000000,
+                42000000
+              ],
+              "min_distance_m": 1.0725,
+              "min_at_us": 25470443,
+              "grid_min_distance_m": 1.0868,
+              "grid_min_at_us": 25400000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "T",
+                "C"
+              ],
+              "overlap_us": [
+                3000000,
+                42000000
+              ],
+              "min_distance_m": 2.5498,
+              "min_at_us": 5546558,
+              "grid_min_distance_m": 2.5522,
+              "grid_min_at_us": 5600000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "B"
+              ],
+              "overlap_us": [
+                16000000,
+                42000000
+              ],
+              "min_distance_m": 4.9157,
+              "min_at_us": 29452877,
+              "grid_min_distance_m": 4.9162,
+              "grid_min_at_us": 29400000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "C"
+              ],
+              "overlap_us": [
+                3000000,
+                42000000
+              ],
+              "min_distance_m": 0.95,
+              "min_at_us": 8419312,
+              "grid_min_distance_m": 0.9513,
+              "grid_min_at_us": 8400000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "B",
+                "C"
+              ],
+              "overlap_us": [
+                16000000,
+                42000000
+              ],
+              "min_distance_m": 1.55,
+              "min_at_us": 17377419,
+              "grid_min_distance_m": 1.5503,
+              "grid_min_at_us": 17400000,
+              "caught_only_by_interpolation": false,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "side_by_side": {
+          "threshold_m": 0.8,
+          "side_by_side_along_m": 0.6,
+          "pairs": [
+            {
+              "pair": [
+                "T",
+                "B"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 1.0347,
+              "at_us": 25280000,
+              "status": "PASS"
+            },
+            {
+              "pair": [
+                "A",
+                "C"
+              ],
+              "corridor_id": "CORR_W",
+              "min_lateral_m": 0.95,
+              "at_us": 8200000,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "doors": {
+          "door_min_stagger_us": 1500000,
+          "zone_half_depth_m": 0.5,
+          "doors": [
+            {
+              "door_id": "PORTAL_R101",
+              "width_m": 1.2,
+              "geometry_status": "ASSUMED: x = centre of CAM_W2:E_PORTAL_R101 patch (7.35-8.15); y = shared bound of WALK_CORR_W (y>=0) and WALK_R101 (y<=0) support boxes; 1.2 m width is the D198 rule, real opening UNKNOWN (portal-openings:r004:v2 not readable)",
+              "passages": [
+                {
+                  "actor_id": "C",
+                  "enter_us": 6080000,
+                  "exit_us": 6820000,
+                  "ref_us": 6450000,
+                  "crossing_refs_us": [
+                    6450000
+                  ],
+                  "kind": "CROSS_X1"
+                },
+                {
+                  "actor_id": "T",
+                  "enter_us": 30100000,
+                  "exit_us": 32420000,
+                  "ref_us": 31900000,
+                  "crossing_refs_us": [
+                    31900000
+                  ],
+                  "kind": "CROSS_X1"
+                }
+              ],
+              "conflicts": [],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "walls": {
+          "threshold_m": 0.35,
+          "status": "UNKNOWN",
+          "reason": "NO_WALL_OR_FURNITURE_GEOMETRY_DECLARED",
+          "actors": [],
+          "advisory": {
+            "note": "ADVISORY_ONLY_NOT_WALL_GEOMETRY_DOES_NOT_CHANGE_VERDICT",
+            "actors": [
+              {
+                "actor_id": "T",
+                "min_clearance_m": 0.6,
+                "at_us": 30600000,
+                "segment_id": "CORR_south_y0_west_of_R101_door",
+                "advisory": "ADVISORY_PASS"
+              },
+              {
+                "actor_id": "A",
+                "min_clearance_m": 0.3782,
+                "at_us": 15440000,
+                "segment_id": "VEST_CORR_north_y2.4",
+                "advisory": "ADVISORY_PASS"
+              },
+              {
+                "actor_id": "B",
+                "min_clearance_m": 0.45,
+                "at_us": 16000000,
+                "segment_id": "VEST_CORR_north_y2.4",
+                "advisory": "ADVISORY_PASS"
+              },
+              {
+                "actor_id": "C",
+                "min_clearance_m": 0.6001,
+                "at_us": 6440000,
+                "segment_id": "CORR_south_y0_west_of_R101_door",
+                "advisory": "ADVISORY_PASS"
+              }
+            ]
+          }
+        },
+        "seed": {
+          "seed_actor_id": "T",
+          "exclusive_until_us": 2000000,
+          "violations": [],
+          "status": "PASS"
+        },
+        "speed": {
+          "max_speed_m_s": 1.6,
+          "actors": [
+            {
+              "actor_id": "T",
+              "max_speed_m_s": 1.3692,
+              "leg_index": 3,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "A",
+              "max_speed_m_s": 1.3576,
+              "leg_index": 2,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "B",
+              "max_speed_m_s": 1.3237,
+              "leg_index": 2,
+              "status": "PASS"
+            },
+            {
+              "actor_id": "C",
+              "max_speed_m_s": 1.4167,
+              "leg_index": 0,
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        }
+      }
+    }
+  ]
+}

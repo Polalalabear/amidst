@@ -1,0 +1,41 @@
+{
+  "schema_version": "amidst.human-track-reference.v1",
+  "reference_id": "d147-human-reference-v1",
+  "use": "EVALUATION_ONLY",
+  "use_note": "Human viewing notes used only to score tracking recall. Never read by src/amidst/q1q5, the frontend, the index, ranking or reconstruction.",
+  "source": {
+    "observer": "USER",
+    "method": "Watched the A4-1 and B4-1 source frames in the workbench on 8787 (f7752ec) and wrote down when the person is visible.",
+    "recorded_at": "2026-11-09",
+    "decision_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6730595312"
+  },
+  "interval_convention": "Half-open source-time ranges [start_us, end_us). A spoken range 14:00:09~13 means from 14:00:09 to the end of 14:00:13.",
+  "runs": [
+    {
+      "label": "A4-1",
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+      "wall_origin": "2026-11-01T14:00:00+08:00",
+      "intervals": [
+        {"id": "A4-W1-early", "camera_id": "CAM_W1", "range_us": [9000000, 14000000], "said": "14:00:09~13 整段都要照到", "camera_source": "SCREENSHOT"},
+        {"id": "A4-W1-late", "camera_id": "CAM_W1", "range_us": [38000000, 50000000], "said": "14:00:38 人物完整出現，之後全部追蹤到", "camera_source": "SCREENSHOT_INFERRED"}
+      ],
+      "unknown": [
+        "The camera for A4-W1-late is read from the 14:00:37 screenshot (CAM_W1); the user did not name it. Confirm before treating it as final.",
+        "The user said W1 14:00:14-23 flickers between seen and not seen; the exact visible extent there was not written down."
+      ]
+    },
+    {
+      "label": "B4-1",
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1",
+      "wall_origin": "2026-11-01T14:10:00+08:00",
+      "intervals": [
+        {"id": "B4-WIDE", "camera_id": "CAM_WIDE", "range_us": [13000000, 21000000], "said": "WIDE 14:10:13~20", "camera_source": "USER"},
+        {"id": "B4-BRANCH", "camera_id": "CAM_BRANCH", "range_us": [13000000, 22000000], "said": "branch 14:10:13~21", "camera_source": "USER"},
+        {"id": "B4-R101", "camera_id": "CAM_R101_IN", "range_us": [32000000, 42000000], "said": "101 教室 14:10:32 之後都有照到", "camera_source": "USER"}
+      ],
+      "unknown": [
+        "The user said the later part of another screenshot is also visible (B4 CAM_W1 around 14:10:23); its range was not written down."
+      ]
+    }
+  ]
+}

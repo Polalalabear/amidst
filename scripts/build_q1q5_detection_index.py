@@ -21,6 +21,7 @@ def require_free_space(path, minimum=MIN_FREE_BYTES):
         raise SystemExit(f"Insufficient disk space (D118): {free} bytes free, need {minimum}")
     return free
 
+from amidst.paths import artifacts_output_root
 from amidst.q1q5.detection_index import (
     OfficialRTDetrR18, build_detection_index, content_hash, write_index,
 )
@@ -48,9 +49,9 @@ def main(argv=None):
     if not needed.issubset(values):
         parser.error("PARAMETERS_NOT_APPROVED: missing " + ", ".join(sorted(needed - values.keys())))
     repo, output = Path(args.repo).resolve(), Path(args.output).absolute()
-    allowed = (Path.home() / "amidst-artifacts").resolve()
+    allowed = artifacts_output_root()
     if output.resolve() != output or not output.is_relative_to(allowed) or output.is_relative_to(repo):
-        parser.error("Output must be canonical and under ~/amidst-artifacts, outside repo")
+        parser.error("Output must be canonical and under the artifacts output root (AMIDST_ARTIFACTS, default local/evidence), outside repo")
     require_free_space(output.parent if output.parent.exists() else repo)
     from amidst.workbench.controlled_scene_rgb_data import load_rgb_playback, registrations
     registrations_by_id = {r.run_id: r for r in registrations(repo)}

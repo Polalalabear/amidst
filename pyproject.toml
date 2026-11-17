@@ -5,11 +5,12 @@ description = "Phase 1 research prototype for physically feasible blind-gap traj
 authors = [
     { name = "Polalalabear", email = "polalalabear@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "matplotlib>=3.10",
     "networkx>=3.7",
     "numpy>=2.5.3",
+    "pillow>=12.3",
     "pydantic>=2.13.5",
     "psycopg[binary]==3.3.6",
     "rerun-sdk>=0.38.1",
@@ -27,6 +28,7 @@ build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", "src"]
 addopts = "-q"
 markers = [
     "external_physical_evidence: requires the local school-v3 source and explicitly materialized physical-policy evidence",

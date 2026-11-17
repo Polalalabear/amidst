@@ -1,0 +1,732 @@
+{
+  "schema": "amidst.n6-live-assets-actual.v1",
+  "date": "2026-11-15",
+  "issue": 516,
+  "branch": "codex/feat-n6-live-assets",
+  "base": "main",
+  "base_sha": "d3f032d860d97f151e58fa8864ea420b13a06af3",
+  "status": "ENGINEERING_COMPLETE_REVIEW_REQUESTED",
+  "model": "UNKNOWN (Codex; no subagents)",
+  "effort": "UNKNOWN",
+  "manifest": {
+    "relative_path": "data/live-assets-20261115/MANIFEST.json",
+    "sha256": "d92aa7453f13903252b306b42249239168561766677a5180a85afcc4dbff7b29",
+    "listed_files": 38,
+    "listed_total_bytes": 74649816
+  },
+  "delivery": {
+    "character_bytes": 658080,
+    "scene_bytes": 33941072,
+    "screenshot_files": 23
+  },
+  "bone_audit": {
+    "source_parts": 16,
+    "source_armatures": 0,
+    "prototype_bones": 17,
+    "probes": [
+      {
+        "bone": "L_upper_arm",
+        "flexion_degrees": 45,
+        "max_skin_error_m": 4.915689588548745e-07
+      },
+      {
+        "bone": "L_upper_arm",
+        "flexion_degrees": 75,
+        "max_skin_error_m": 3.588868187107545e-07
+      },
+      {
+        "bone": "L_thigh",
+        "flexion_degrees": 35,
+        "max_skin_error_m": 2.403894931808364e-07
+      },
+      {
+        "bone": "L_thigh",
+        "flexion_degrees": 55,
+        "max_skin_error_m": 2.403894931808364e-07
+      },
+      {
+        "bone": "L_shin",
+        "flexion_degrees": 60,
+        "max_skin_error_m": 2.403894931808364e-07
+      },
+      {
+        "bone": "L_shin",
+        "flexion_degrees": 110,
+        "max_skin_error_m": 2.403894931808364e-07
+      },
+      {
+        "bone": "L_forearm",
+        "flexion_degrees": 70,
+        "max_skin_error_m": 2.7355529844382013e-07
+      },
+      {
+        "bone": "L_forearm",
+        "flexion_degrees": 100,
+        "max_skin_error_m": 2.8933421073853113e-07
+      }
+    ],
+    "max_skin_error_m": 4.915689588548745e-07
+  },
+  "character_export": {
+    "schema": "amidst.n6-export.v1",
+    "stage": "character",
+    "details": {
+      "bones": 17,
+      "meshes": 30,
+      "clips": {
+        "walk": {
+          "speed_m_s": 1.2,
+          "stride_m": 1.05,
+          "duty": 0.6,
+          "lift_m": 0.065,
+          "duration_s": 0.8750000000000001,
+          "samples": 841,
+          "seam_matrix_error": 0.0,
+          "flight_samples": 0,
+          "support_slip_m_s": 1.9310997245725048e-10,
+          "min_shoe_height_m": 0.0
+        },
+        "run": {
+          "speed_m_s": 2.5,
+          "stride_m": 1.6,
+          "duty": 0.38,
+          "lift_m": 0.24,
+          "duration_s": 0.64,
+          "samples": 615,
+          "seam_matrix_error": 0.0,
+          "flight_samples": 146,
+          "support_slip_m_s": 4.1883385648588956e-10,
+          "min_shoe_height_m": 0.0
+        },
+        "idle": {
+          "speed_m_s": 0.0,
+          "stride_m": 0.0,
+          "duty": 1.0,
+          "lift_m": 0.0,
+          "duration_s": 2.0,
+          "samples": 1921,
+          "seam_matrix_error": 0.0,
+          "flight_samples": 0,
+          "support_slip_m_s": 0.0,
+          "min_shoe_height_m": 0.0
+        }
+      },
+      "skinning": "Rigid one-bone weights with #529 knee/elbow caps",
+      "appearance_source": "r004_4actor_common.py + r004_d124_v1.json; v2.3",
+      "controller": "In-place +X forward (also +X after Y-up conversion); speed = stride / duration"
+    },
+    "blender_version": "5.2.1 LTS",
+    "blender_build": "9e2066aef7ef",
+    "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "source_saved": false,
+    "source_copied": false,
+    "video_rendered": false,
+    "index_built": false,
+    "coordinate_system": "Y-up meters; same origin; Blender(x,y,z)->glTF(x,z,-y)",
+    "exporter": {
+      "format": "GLB",
+      "selection_only": true,
+      "yup": true,
+      "extras": "N6 allowlist only",
+      "cameras": false,
+      "lights": false,
+      "animations": true
+    }
+  },
+  "scene_export": {
+    "schema": "amidst.n6-export.v1",
+    "stage": "scene",
+    "details": {
+      "components": [
+        {
+          "source_component": "CEILING_STATIC",
+          "first_polygon": 0,
+          "polygon_count": 1020,
+          "vertex_count": 1360
+        },
+        {
+          "source_component": "FLOOR_GROUND",
+          "first_polygon": 1020,
+          "polygon_count": 1020,
+          "vertex_count": 1360
+        },
+        {
+          "source_component": "OBSTACLE_SCREEN_CORNER_N",
+          "first_polygon": 2040,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "OBSTACLE_SCREEN_N",
+          "first_polygon": 2046,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "OBSTACLE_SCREEN_R102",
+          "first_polygon": 2052,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "OBSTACLE_SCREEN_W",
+          "first_polygon": 2058,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "OBSTACLE_SCREEN_W_HOOD",
+          "first_polygon": 2064,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "R004_ENV_VEHICLE_BODY",
+          "first_polygon": 2070,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "R004_ENV_VEHICLE_CABIN",
+          "first_polygon": 2076,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "R004_ENV_WHEEL",
+          "first_polygon": 2082,
+          "polygon_count": 22,
+          "vertex_count": 40
+        },
+        {
+          "source_component": "R004_ENV_WHEEL.001",
+          "first_polygon": 2104,
+          "polygon_count": 22,
+          "vertex_count": 40
+        },
+        {
+          "source_component": "R004_ENV_WHEEL.002",
+          "first_polygon": 2126,
+          "polygon_count": 22,
+          "vertex_count": 40
+        },
+        {
+          "source_component": "R004_ENV_WHEEL.003",
+          "first_polygon": 2148,
+          "polygon_count": 22,
+          "vertex_count": 40
+        },
+        {
+          "source_component": "R004_EXTERIOR_FLOOR",
+          "first_polygon": 2170,
+          "polygon_count": 6,
+          "vertex_count": 8
+        },
+        {
+          "source_component": "WALL_JOINED_SHELL",
+          "first_polygon": 2176,
+          "polygon_count": 837,
+          "vertex_count": 832
+        }
+      ],
+      "textures": {
+        "irradiance": {
+          "path": "lightmap_irradiance.exr",
+          "sha256": "d6d57fe588a213fd489e29f18d29c7f652e519d95762684531ae07063bd1af1b",
+          "size_bytes": 29066874
+        },
+        "appearance": {
+          "path": "baked_appearance.png",
+          "sha256": "caf863698154976721c6c76593aaae57e6ac0da5179ab6dd317a3a347ee1572e",
+          "size_bytes": 4416589
+        }
+      },
+      "atlas_px": [
+        4096,
+        4096
+      ],
+      "evaluated_modifiers": {
+        "CEILING_STATIC": [
+          "SOLIDIFY"
+        ],
+        "FLOOR_GROUND": [
+          "SOLIDIFY"
+        ],
+        "OBSTACLE_SCREEN_CORNER_N": [],
+        "OBSTACLE_SCREEN_N": [],
+        "OBSTACLE_SCREEN_R102": [],
+        "OBSTACLE_SCREEN_W": [],
+        "OBSTACLE_SCREEN_W_HOOD": [],
+        "R004_ENV_VEHICLE_BODY": [],
+        "R004_ENV_VEHICLE_CABIN": [],
+        "R004_ENV_WHEEL": [],
+        "R004_ENV_WHEEL.001": [],
+        "R004_ENV_WHEEL.002": [],
+        "R004_ENV_WHEEL.003": [],
+        "R004_EXTERIOR_FLOOR": [],
+        "WALL_JOINED_SHELL": []
+      },
+      "samples": 32,
+      "engine": "Cycles CPU",
+      "bake_types": [
+        "DIFFUSE color disabled",
+        "COMBINED"
+      ],
+      "view_transform": "AgX / None / exposure 0 / gamma 1; applied to appearance PNG only",
+      "collider_geometry": "Exact visible source triangles; no hidden WALK proxies exported",
+      "elapsed_s": 960.6210084579943
+    },
+    "blender_version": "5.2.1 LTS",
+    "blender_build": "9e2066aef7ef",
+    "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "source_saved": false,
+    "source_copied": false,
+    "video_rendered": false,
+    "index_built": false,
+    "coordinate_system": "Y-up meters; same origin; Blender(x,y,z)->glTF(x,z,-y)",
+    "exporter": {
+      "format": "GLB",
+      "selection_only": true,
+      "yup": true,
+      "extras": "N6 allowlist only",
+      "cameras": false,
+      "lights": false,
+      "animations": false
+    }
+  },
+  "viewer": {
+    "schema": "amidst.n6-viewer-validation.v1",
+    "browser": "157.0.8103.52",
+    "three": "0.186.1",
+    "renderer": "Headless Chrome / ANGLE SwiftShader",
+    "image_size_px": [
+      960,
+      540
+    ],
+    "clips": {
+      "walk": {
+        "duration_s": 0.875,
+        "seam_matrix_error": 4.489008213065526e-08,
+        "support_slip_m_s": 0.005946668292778234,
+        "min_ankle_minus_shoe_height_m": -5.822829830720577e-06,
+        "articulated_rotation": 0.8724862721796812
+      },
+      "run": {
+        "duration_s": 0.6399999856948853,
+        "seam_matrix_error": 5.399409747363011e-08,
+        "support_slip_m_s": 0.0015590919567265438,
+        "min_ankle_minus_shoe_height_m": -1.1912194878560545e-06,
+        "articulated_rotation": 1.6410599743690581
+      },
+      "idle": {
+        "duration_s": 2,
+        "seam_matrix_error": 6.294342824730847e-11,
+        "support_slip_m_s": 0,
+        "min_ankle_minus_shoe_height_m": 2.055113995647062e-09,
+        "articulated_rotation": 0.1433007919934791
+      }
+    },
+    "cameras": [
+      "CAM_BRANCH",
+      "CAM_ENTRY",
+      "CAM_EXT_CAR",
+      "CAM_EXT_CLEAR",
+      "CAM_R101_IN",
+      "CAM_W1",
+      "CAM_W2",
+      "CAM_WIDE"
+    ],
+    "irradiance": {
+      "width": 4096,
+      "height": 4096
+    },
+    "page_errors": [],
+    "port_8785_touched": false
+  },
+  "geometry": {
+    "schema": "amidst.n6-static-roundtrip.v1",
+    "status": "PASS",
+    "components": [
+      {
+        "component": "CEILING_STATIC",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "FLOOR_GROUND",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "OBSTACLE_SCREEN_CORNER_N",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "OBSTACLE_SCREEN_N",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "OBSTACLE_SCREEN_R102",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "OBSTACLE_SCREEN_W",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "OBSTACLE_SCREEN_W_HOOD",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "R004_ENV_VEHICLE_BODY",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "R004_ENV_VEHICLE_CABIN",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "R004_ENV_WHEEL",
+        "bidirectional_vertex_error_m": 2.4575624024691933e-07,
+        "surface_area_error_m2": 5.911206213404796e-07
+      },
+      {
+        "component": "R004_ENV_WHEEL.001",
+        "bidirectional_vertex_error_m": 2.4575624024691933e-07,
+        "surface_area_error_m2": 5.911206213404796e-07
+      },
+      {
+        "component": "R004_ENV_WHEEL.002",
+        "bidirectional_vertex_error_m": 2.4575624024691933e-07,
+        "surface_area_error_m2": 6.070424267701213e-07
+      },
+      {
+        "component": "R004_ENV_WHEEL.003",
+        "bidirectional_vertex_error_m": 2.4575624024691933e-07,
+        "surface_area_error_m2": 6.070424267701213e-07
+      },
+      {
+        "component": "R004_EXTERIOR_FLOOR",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      },
+      {
+        "component": "WALL_JOINED_SHELL",
+        "bidirectional_vertex_error_m": 0.0,
+        "surface_area_error_m2": 0.0
+      }
+    ],
+    "cameras": [
+      {
+        "camera_id": "CAM_BRANCH",
+        "projected_vertices": 2519,
+        "max_error_px": 7.275957614183426e-12
+      },
+      {
+        "camera_id": "CAM_ENTRY",
+        "projected_vertices": 424,
+        "max_error_px": 3.637978807091713e-12
+      },
+      {
+        "camera_id": "CAM_EXT_CAR",
+        "projected_vertices": 3774,
+        "max_error_px": 2.2914314707516465e-13
+      },
+      {
+        "camera_id": "CAM_EXT_CLEAR",
+        "projected_vertices": 3774,
+        "max_error_px": 9.094947017729282e-13
+      },
+      {
+        "camera_id": "CAM_R101_IN",
+        "projected_vertices": 3737,
+        "max_error_px": 3.637978807091713e-12
+      },
+      {
+        "camera_id": "CAM_W1",
+        "projected_vertices": 3514,
+        "max_error_px": 1.8189894035458565e-12
+      },
+      {
+        "camera_id": "CAM_W2",
+        "projected_vertices": 2074,
+        "max_error_px": 1.4665161412810538e-11
+      },
+      {
+        "camera_id": "CAM_WIDE",
+        "projected_vertices": 3691,
+        "max_error_px": 4.067383956680332e-12
+      }
+    ],
+    "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "source_saved": false,
+    "video_rendered": false,
+    "index_built": false
+  },
+  "gltf_validator": {
+    "character": {
+      "errors": 0,
+      "warnings": 0,
+      "infos": 30
+    },
+    "scene": {
+      "errors": 0,
+      "warnings": 0,
+      "infos": 16
+    }
+  },
+  "rgb_comparison": {
+    "schema": "amidst.n6-rgb-comparison.v1",
+    "reference_pr": 529,
+    "reference_run": "A4-1",
+    "frame_index": 0,
+    "scope": "Full-frame display sRGB statistics, not radiometric error or acceptance; source actors are absent from static viewer",
+    "differences": [
+      "Cycles 32-sample bake versus #529 EEVEE 16-sample RGB",
+      "Diffuse irradiance and combined AgX appearance are fixed to static geometry; no dynamic actor shadows",
+      "4096 atlas interpolation/UV seams and reduced runtime noise; specular/view-dependent response is frozen",
+      "Character uses runtime PBR approximation; its source linear material colors are exact, camera HSV is not certified"
+    ],
+    "cameras": [
+      {
+        "camera_id": "CAM_BRANCH",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_BRANCH/000000.png",
+        "reference_sha256": "8adaaf9d4549e0ec872c787a6d4506de18827abf6e051269168a13317acae5c7",
+        "viewer_path": "verification/CAM_BRANCH.png",
+        "comparison_path": "verification/CAM_BRANCH_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          170.97637924382715,
+          170.8762326388889,
+          165.85205825617285
+        ],
+        "viewer_mean_rgb_srgb8": [
+          183.23904899691357,
+          182.10098958333333,
+          174.95852430555556
+        ],
+        "reference_mean_luma_srgb8": 170.53477841666663,
+        "viewer_mean_luma_srgb8": 181.82725502160494,
+        "mean_luma_delta_srgb8": 11.29247660493827,
+        "mae_rgb_srgb8": 11.360383230452674
+      },
+      {
+        "camera_id": "CAM_ENTRY",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_ENTRY/000000.png",
+        "reference_sha256": "09aca573a31d5b123a3deb8d0c2aa8e16735d3cdacf259e00bb7f24746d12beb",
+        "viewer_path": "verification/CAM_ENTRY.png",
+        "comparison_path": "verification/CAM_ENTRY_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          126.66479359567901,
+          128.7081327160494,
+          122.08845486111112
+        ],
+        "viewer_mean_rgb_srgb8": [
+          130.62869020061729,
+          132.60873456790122,
+          123.41271026234568
+        ],
+        "reference_mean_luma_srgb8": 127.79577807793208,
+        "viewer_mean_luma_srgb8": 131.52382418055552,
+        "mean_luma_delta_srgb8": 3.7280461026234564,
+        "mae_rgb_srgb8": 8.803546810699588
+      },
+      {
+        "camera_id": "CAM_EXT_CAR",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_EXT_CAR/000000.png",
+        "reference_sha256": "56128b4b2a9c97ded949d839dbb84d14735e15df1e74271e8a4686839fa49b34",
+        "viewer_path": "verification/CAM_EXT_CAR.png",
+        "comparison_path": "verification/CAM_EXT_CAR_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          109.33030671296297,
+          113.11474344135803,
+          110.46779513888889
+        ],
+        "viewer_mean_rgb_srgb8": [
+          113.03925154320987,
+          118.14071180555555,
+          115.56132908950617
+        ],
+        "reference_mean_luma_srgb8": 112.11906252546297,
+        "viewer_mean_luma_srgb8": 116.86990992168211,
+        "mean_luma_delta_srgb8": 4.750847396219135,
+        "mae_rgb_srgb8": 11.172778420781894
+      },
+      {
+        "camera_id": "CAM_EXT_CLEAR",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_EXT_CLEAR/000000.png",
+        "reference_sha256": "3f2c5a05d1698a67a3dbb353d7a2ddc1cf30375bf8b262e3d62bb4ad3d4b1984",
+        "viewer_path": "verification/CAM_EXT_CLEAR.png",
+        "comparison_path": "verification/CAM_EXT_CLEAR_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          113.48047839506172,
+          117.67076967592592,
+          114.50767361111112
+        ],
+        "viewer_mean_rgb_srgb8": [
+          116.1167148919753,
+          121.2794425154321,
+          118.49320601851852
+        ],
+        "reference_mean_luma_srgb8": 116.55153821373456,
+        "viewer_mean_luma_srgb8": 119.98068034760803,
+        "mean_luma_delta_srgb8": 3.4291421338734565,
+        "mae_rgb_srgb8": 6.763827803497942
+      },
+      {
+        "camera_id": "CAM_R101_IN",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_R101_IN/000000.png",
+        "reference_sha256": "d2a15f2dc5fc59a3052b80f9ebd8d172745045e2398b65bb8edf59029fe7e4b8",
+        "viewer_path": "verification/CAM_R101_IN.png",
+        "comparison_path": "verification/CAM_R101_IN_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          139.49523341049382,
+          139.10465470679011,
+          130.86423032407407
+        ],
+        "viewer_mean_rgb_srgb8": [
+          146.27812307098765,
+          144.8473148148148,
+          133.61922067901236
+        ],
+        "reference_mean_luma_srgb8": 138.59273309876545,
+        "viewer_mean_luma_srgb8": 144.34083625347222,
+        "mean_luma_delta_srgb8": 5.74810315470679,
+        "mae_rgb_srgb8": 6.747758487654321
+      },
+      {
+        "camera_id": "CAM_W1",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_W1/000000.png",
+        "reference_sha256": "dd80c59b74faef4d111f63d7f2b8e945ee10d3c9294a1fbfd9702a7661485286",
+        "viewer_path": "verification/CAM_W1.png",
+        "comparison_path": "verification/CAM_W1_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          139.8190914351852,
+          141.8562962962963,
+          140.50507908950618
+        ],
+        "viewer_mean_rgb_srgb8": [
+          126.44719328703704,
+          125.64257908950617,
+          116.9160050154321
+        ],
+        "reference_mean_luma_srgb8": 141.3256286604938,
+        "viewer_mean_luma_srgb8": 125.18358141975308,
+        "mean_luma_delta_srgb8": -16.14204724074074,
+        "mae_rgb_srgb8": 32.10165573559671
+      },
+      {
+        "camera_id": "CAM_W2",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_W2/000000.png",
+        "reference_sha256": "d4039bc1ce1077b009c14fcf0b8bd091f136b01bbee985bef3c53f5bd40f5fa1",
+        "viewer_path": "verification/CAM_W2.png",
+        "comparison_path": "verification/CAM_W2_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          171.68465663580247,
+          170.54255594135802,
+          165.4992824074074
+        ],
+        "viewer_mean_rgb_srgb8": [
+          183.5004726080247,
+          181.43974151234568,
+          173.2372588734568
+        ],
+        "reference_mean_luma_srgb8": 170.42124219984566,
+        "viewer_mean_luma_srgb8": 181.28563369675925,
+        "mean_luma_delta_srgb8": 10.864391496913582,
+        "mae_rgb_srgb8": 11.478683770576131
+      },
+      {
+        "camera_id": "CAM_WIDE",
+        "reference_relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/A4-1/CAM_WIDE/000000.png",
+        "reference_sha256": "6bdf22a4bf409232491a951f4f166de82c0d5f9c106ddf449c3e809cf5a86140",
+        "viewer_path": "verification/CAM_WIDE.png",
+        "comparison_path": "verification/CAM_WIDE_comparison.png",
+        "reference_mean_rgb_srgb8": [
+          147.45817129629629,
+          146.4648013117284,
+          140.66845679012346
+        ],
+        "viewer_mean_rgb_srgb8": [
+          164.81869212962962,
+          161.67061535493826,
+          150.62377314814816
+        ],
+        "reference_mean_luma_srgb8": 146.25749569598764,
+        "viewer_mean_luma_srgb8": 161.5423144699074,
+        "mean_luma_delta_srgb8": 15.284818773919753,
+        "mae_rgb_srgb8": 15.526797839506173
+      }
+    ]
+  },
+  "focused_checks": {
+    "python_scripts_parsed": 8,
+    "javascript_syntax_checks": 2,
+    "git_diff_check": "PASS",
+    "gltf_assets": 2,
+    "articulation_probes": 8,
+    "static_components": 15,
+    "calibrated_cameras": 8
+  },
+  "source_before_after": {
+    "blend_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "unchanged": true
+  },
+  "commands_note": "Exact argument forms below use the path aliases defined in N6_LIVE_ASSETS_20261115.md; outputs are source-bound by MANIFEST hashes.",
+  "commands": [
+    "$BLENDER --background --factory-startup --disable-autoexec \"$SOURCE\" --python scripts/audit_n6_character.py -- --catalog \"$CATALOG\" --output \"$OUT/character_audit.json\"",
+    "$BLENDER --background --factory-startup --disable-autoexec \"$SOURCE\" --python scripts/export_n6_live_assets.py -- --repo \"$PWD\" --catalog \"$CATALOG\" --output \"$OUT\" --stage character",
+    "$BLENDER --background --factory-startup --disable-autoexec \"$SOURCE\" --python scripts/export_n6_live_assets.py -- --repo \"$PWD\" --catalog \"$CATALOG\" --output \"$OUT\" --stage scene",
+    "uv run --no-project --python \"$DEMO_PY\" python -B scripts/package_n6_gltf.py \"$OUT\" --stage character",
+    "uv run --no-project --python \"$DEMO_PY\" python -B scripts/package_n6_gltf.py \"$OUT\" --stage scene",
+    "node scripts/capture_n6_viewer.mjs --assets \"$OUT\" --runtime \"$N6_RUNTIME\" --out \"$OUT/verification\"",
+    "$BLENDER --background --factory-startup --disable-autoexec \"$SOURCE\" --python scripts/verify_n6_geometry.py -- --assets \"$OUT\" --catalog \"$CATALOG\"",
+    "node scripts/verify_n6_assets.mjs --assets \"$OUT\" --runtime \"$N6_RUNTIME\"",
+    "uv run --no-project --python \"$DEMO_PY\" python -B scripts/compare_n6_rgb.py --assets \"$OUT\" --rgb-root \"$AMIDST_ARTIFACTS/data/r004-4actor-natural-walk-eightcam-20261114/A4-1\"",
+    "uv run --no-project --python \"$DEMO_PY\" python -B scripts/manifest_n6_assets.py --assets \"$OUT\" --code-root \"$PWD\"",
+    "git diff --check"
+  ],
+  "deviations_and_fixes": [
+    "Source is an articulated mannequin, not continuous photorealistic skin/clothing; no replacement model downloaded.",
+    "Earlier validator/viewer iterations caught stale accessory transforms, source preview scene metadata, unsampled Solidify thickness, and emissive-versus-unlit encoding; corrected before final packaging.",
+    "Continuous planar UVs on floor/ceiling replace independent panel UV islands; render-evaluated source geometry is preserved.",
+    "EXR irradiance uses an explicit extras bufferView contract; standard viewer appearance uses KHR_materials_unlit baked color.",
+    "Khronos informational unused UV1/bufferView notices concern the optional irradiance path; zero errors and warnings.",
+    "Initial producer intermediates and iteration outputs retained in scratch, excluded from the delivered manifest."
+  ],
+  "not_verified": [
+    "Human acceptance of gait naturalness/appearance",
+    "WASD/Shift workbench integration and system tracking (separate UI owner)",
+    "Continuous articulated clearance / physical safety",
+    "Pixel equality to EEVEE #529 RGB; per-camera differences quantified separately",
+    "Full repository suites were not run locally; focused asset checks only."
+  ],
+  "boundary": {
+    "engineering_demo": true,
+    "identity": "UNCONFIRMED",
+    "physical_navigation": "UNKNOWN",
+    "gt_trajectories_visibility_depth_exported": false,
+    "inference_or_index_run": false,
+    "source_saved_or_copied": false,
+    "video_rendered": false,
+    "port_8785_touched": false
+  },
+  "disk_samples": {
+    "initial_approx_gib": 13,
+    "observed_low_water_gib": 7.6,
+    "after_bake_approx_gib": 8.0,
+    "available_bytes_at_manifest_verification": 10510413824,
+    "new_bake_started_below_reserve": false,
+    "only_obsolete_task_created_duplicate_clone_removed": true
+  }
+}

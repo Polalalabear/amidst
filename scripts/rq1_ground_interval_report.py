@@ -19,6 +19,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
+from amidst.paths import resolve_legacy  # noqa: E402
+
 from amidst.evaluation.rq1_ground_interval import (  # noqa: E402
     evaluate_rq1,
     load_frozen_predictions,
@@ -140,8 +142,11 @@ def main() -> int:
         raise SystemExit("run_id mismatch")
     # 2. Only now read GT.
     gt_cfg = cfg["ground_truth"]
+    # The config keeps the historical locator; resolve_legacy finds it after the D171 move.
+    mapped = resolve_legacy(gt_cfg["path"])
+    config_gt = mapped if mapped is not None and mapped.exists() else Path(gt_cfg["path"])
     track = load_ground_truth(
-        args.ground_truth or Path(gt_cfg["path"]),
+        args.ground_truth or config_gt,
         gt_cfg["sha256"],
         preds,
         m_per_unit=cfg["scale"]["m_per_scene_unit"],

@@ -12,6 +12,10 @@ import json
 import shutil
 import subprocess
 from pathlib import Path
+import sys
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
+from amidst.paths import artifacts_output_root  # noqa: E402
 
 TEXT_COLUMNS = ['編號','使用者會說的話','想找什麼(人/車/相機)','顏色','開始時間','結束時間','鏡頭或區域','系統該反問嗎(是/否)','預期結果(找得到/找不到/不支援/超出時間/反問)','備註']
 REVIEW_COLUMNS = ['樣本編號','圖檔','系統說法(例：這格有紅衣人／這格有車／這格沒有人)','答案(T/F/不確定)','備註']
@@ -143,8 +147,8 @@ def main():
     parser.add_argument('--samples',type=int,default=200);parser.add_argument('--seed',required=True);parser.add_argument('--version',choices=['v0-pilot','v1'],default='v0-pilot');a=parser.parse_args()
     raw=Path(a.claims).read_bytes()
     if sha(raw)!=a.claims_sha256:raise PackError('System claims pin mismatch')
-    output=Path(a.output).absolute();allowed=(Path.home()/'amidst-artifacts').resolve()
-    if not output.is_relative_to(allowed):raise PackError('LOCAL output must be under ~/amidst-artifacts')
+    output=Path(a.output).absolute();allowed=artifacts_output_root()
+    if not output.is_relative_to(allowed):raise PackError('LOCAL output must be under the artifacts output root (AMIDST_ARTIFACTS, default local/evidence)')
     result=build_pack(output,guide=a.guide,samples=[json.loads(x) for x in raw.splitlines()],sources=json.loads(Path(a.sources).read_text()),sample_count=a.samples,seed=a.seed,version=a.version,samples_sha256=a.claims_sha256)
     print(json.dumps({'output':str(output),'manifest_sha256':sha((output/'MANIFEST.json').read_bytes()),'sampling':result['sampling']},ensure_ascii=False))
 

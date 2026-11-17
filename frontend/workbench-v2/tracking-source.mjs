@@ -9,6 +9,8 @@ export const TRACKING = Object.freeze({
   b05a: Object.freeze({status: 'AVAILABLE', via: 'Q2 live 回應'}),
   a41: Object.freeze({status: 'NOT_PRODUCED', reason: NOT_PRODUCED_TEXT}),
   b41: Object.freeze({status: 'NOT_PRODUCED', reason: NOT_PRODUCED_TEXT}),
+  a48: Object.freeze({status: 'NOT_PRODUCED', reason: NOT_PRODUCED_TEXT}),
+  b48: Object.freeze({status: 'NOT_PRODUCED', reason: NOT_PRODUCED_TEXT}),
 });
 export function trackingStatus(eventId) {
   return TRACKING[eventId] ?? Object.freeze({status: 'NONE', reason: '這個事件的追蹤從「檢索」開始'});
@@ -22,6 +24,8 @@ export const FIND = Object.freeze({
   b05b: Object.freeze({status: 'AVAILABLE', via: 'Q1 查詢（錄製伺服器）'}),
   a41: Object.freeze({status: 'NOT_PRODUCED', reason: FIND_NOT_SUPPORTED_TEXT}),
   b41: Object.freeze({status: 'NOT_PRODUCED', reason: FIND_NOT_SUPPORTED_TEXT}),
+  a48: Object.freeze({status: 'NOT_PRODUCED', reason: FIND_NOT_SUPPORTED_TEXT}),
+  b48: Object.freeze({status: 'NOT_PRODUCED', reason: FIND_NOT_SUPPORTED_TEXT}),
 });
 export function findStatus(eventId) {
   return FIND[eventId] ?? Object.freeze({status: 'NONE', reason: '這個事件的查找在「監控牆／B-05b」展示'});

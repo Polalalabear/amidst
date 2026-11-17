@@ -485,10 +485,11 @@ def blind_estimate(prediction_doc: Mapping, *, display_positions: Mapping[str, S
     return estimate
 
 
-def _search_query_id(request: Mapping, bindings: object, catalog: Mapping) -> str:
+def _search_query_id(request: Mapping, bindings: object, catalog: Mapping, annotation_set_sha256=None) -> str:
     """A source-bound query reference; session authorization is kept outside it."""
     return 'core-search-' + canonical_hash({
         'request': {key: value for key, value in request.items() if key != 'session_ref'},
+        'annotation_set_sha256': annotation_set_sha256,
         'bindings': {
             'scene_id': catalog.get('scene_id'), 'run_id': catalog.get('run_id'),
             'detection_index_sha256': bindings.index_sha256,
@@ -538,7 +539,7 @@ def execute_core_search(
             'schema_version': 'q-core.search-response.v1',
             'status': 'UNKNOWN',
             'reasons': ordered_reasons(unavailable),
-            'query_id': _search_query_id(norm_req, b, catalog),
+            'query_id': _search_query_id(norm_req, b, catalog, getattr(run, 'annotation_set_sha256', None)),
             'normalized_request': {k: v for k, v in norm_req.items() if k != 'session_ref'},
             'resolved_time': {
                 'timezone': norm_req['time']['timezone'],
@@ -642,13 +643,22 @@ def execute_core_search(
             }]
             obj_hits[cid] = {'segments': row.get('matched_segments', []), 'basis': basis}
 
+        from amidst.q1q5.scene_annotations import search_annotations
+        for cid, annotated in search_annotations(run, feat, src_range, media_token_for_frame).items():
+            if cid in obj_hits:
+                obj_hits[cid]['segments'].extend(annotated['segments'])
+                obj_hits[cid]['segments'].sort(key=lambda s: s['range_us'][0])
+                obj_hits[cid]['basis'].extend(annotated['basis'])
+            else:
+                obj_hits[cid] = annotated
+
     hits = []
     if loc_result is not None and feat is not None:
         combined = intersect_hits(loc_result['hits'], {k: v['basis'] for k, v in obj_hits.items()})
         for cid in sorted(combined):
             segments = obj_hits[cid]['segments']
             s_first = segments[0]['range_us'][0]
-            s_last = segments[-1]['range_us'][1]
+            s_last = max(s['range_us'][1] for s in segments)
             w_range = [clock_mapping.source_to_wall(s_first), clock_mapping.source_to_wall(s_last)]
             hits.append({
                 'camera_id': cid,
@@ -663,7 +673,7 @@ def execute_core_search(
         for cid, info in sorted(obj_hits.items(), key=lambda item: (item[1]['segments'][0]['range_us'][0], item[0])):
             segments = info['segments']
             s_first = segments[0]['range_us'][0]
-            s_last = segments[-1]['range_us'][1]
+            s_last = max(s['range_us'][1] for s in segments)
             w_range = [clock_mapping.source_to_wall(s_first), clock_mapping.source_to_wall(s_last)]
             hits.append({
                 'camera_id': cid,
@@ -723,7 +733,7 @@ def execute_core_search(
         'schema_version': 'q-core.search-response.v1',
         'status': status,
         'reasons': reasons,
-        'query_id': _search_query_id(norm_req, b, catalog),
+        'query_id': _search_query_id(norm_req, b, catalog, getattr(run, 'annotation_set_sha256', None)),
         'normalized_request': {k: v for k, v in norm_req.items() if k != 'session_ref'},
         'resolved_time': {
             'timezone': norm_req['time']['timezone'],

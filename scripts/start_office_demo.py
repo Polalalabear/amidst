@@ -23,9 +23,9 @@ APPLICATION_BASE = '78b99e623f72f0e9f8df24ec54ce57815c1a9cf5'
 _common = subprocess.check_output(
     ["git", "rev-parse", "--git-common-dir"], cwd=REPO, text=True
 ).strip()
-ASSETS = Path(
-    os.environ.get("OFFICE_ASSETS_REPO", str((REPO / _common).resolve().parent))
-).resolve()
+# D171: OFFICE_ASSETS_REPO, else local/archive/office-canonical, else the Git common dir.
+from amidst.paths import office_canonical_root  # noqa: E402
+ASSETS = (office_canonical_root() or (REPO / _common).resolve().parent).resolve()
 EVIDENCE = Path(
     os.environ.get("OFFICE_EVIDENCE_REPO", str(ASSETS / ".local-worktrees/phase1-finalization"))
 ).resolve()
@@ -38,7 +38,7 @@ VENDOR = EVIDENCE / 'frontend/workbench/node_modules/three'
 VENDOR_FILES = {'/vendor/three.module.js': 'build/three.module.js',
     '/vendor/three.core.js': 'build/three.core.js',
     '/vendor/OrbitControls.js': 'examples/jsm/controls/OrbitControls.js'}
-RUNTIME = Path('/private/tmp') / ('amidst-office-demo-' + str(os.getuid()) + '-' +
+RUNTIME = Path(tempfile.gettempdir()) / ('amidst-office-demo-' + str(os.getuid()) + '-' +
     hashlib.sha256(str(REPO).encode()).hexdigest()[:12])
 HTTP = build_opener(ProxyHandler({}))
 

@@ -1,0 +1,453 @@
+{
+  "schema": "amidst.r004-eight-camera-actual.v1",
+  "issue": "#516",
+  "authorization": "USER_CHAT_2026-11-14_EIGHT_CAMERAS",
+  "base_main_sha": "446cc7bf6389e39d2d21983d717dc69c43b37559",
+  "scenario_relative_path": "docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json",
+  "scenario_sha256": "9962bd595946eedb66f8197d28013f8ffac922bb9ea58136042b1f1465633619",
+  "target_actor_canonical_sha256_unchanged": {
+    "A4-1": "ea2076ff6c6a91cdf352d487470faedded516211fb0a3eccb84f0f34f390161b",
+    "B4-1": "4c8e7bbd1af511ff012d90c135ec23e8fca729dc52a6ff1a6e33a238b314b12b"
+  },
+  "render": {
+    "new_png": 2630,
+    "reused_verified_png": 1050,
+    "total_png": 3680,
+    "fps": 5,
+    "movies": 18,
+    "measured_camera_child_elapsed_s_sum": 1670.9
+  },
+  "feasibility": {
+    "checker_runs_pass": 2,
+    "checks_per_run": 7,
+    "endpoint_camera_tests_pass": 96,
+    "mesh_time_samples": 460,
+    "mesh_surface_intersections": 0,
+    "planning_ambiguity_episodes": {
+      "A4-1": 3,
+      "B4-1": 2
+    },
+    "b_min_red_margin_proxy": 0.03190106576994213
+  },
+  "verification": {
+    "status": "PASS",
+    "bundle_manifest_sha256": "33e1b3f457381cd620e94d4beac6a2d9fba2f9203babab84b14d5ba111cbe311",
+    "full_manifest_sha256": "55aec3d9dfd443a1575692652a0646fce970ab4d203ce21b97e7fbf441e43864",
+    "all_listed_bytes_verified": true,
+    "raw_safe_idat_pairs_verified": 3680,
+    "old_records_reused": false,
+    "runs": {
+      "A4-1": {
+        "run_id": "r004-4actor-natural-walk-eightcam-20261114-a4-1",
+        "clock_id": "clock:r004-4actor-natural-walk-eightcam-20261114-a4-1",
+        "frames": 2000,
+        "model_calls": 2000,
+        "index_sha256": "3766fb36b5a9c097329bfae2febc23c59ed0e3f261aae6b600236469008932a1",
+        "records_sha256": "9045e6b79a5bed165b304857d848096bcb066d8f8a9b201378726ebeff40d769"
+      },
+      "B4-1": {
+        "run_id": "r004-4actor-natural-walk-eightcam-20261114-b4-1",
+        "clock_id": "clock:r004-4actor-natural-walk-eightcam-20261114-b4-1",
+        "frames": 1680,
+        "model_calls": 1680,
+        "index_sha256": "9d5c36b68ad0f364363d6cda7800b163d39d80d67dd4f4c79ea081abcbc87d12",
+        "records_sha256": "3c32d0825c34a9d032f19c6175ce0d0f68fad04f8f6eaf589da29e1cb3c9dded"
+      }
+    },
+    "all_frozen_527_files_verified": 2166
+  },
+  "artifacts": {
+    "full": {
+      "relative_path": "evidence/codex-516-eightcam-20261114/FULL_MANIFEST.json",
+      "sha256": "55aec3d9dfd443a1575692652a0646fce970ab4d203ce21b97e7fbf441e43864",
+      "file_count": 7587,
+      "total_bytes": 3907800917
+    },
+    "safe_bundle": {
+      "relative_path": "data/r004-4actor-natural-walk-eightcam-20261114/bundle/BUNDLE_MANIFEST.json",
+      "sha256": "33e1b3f457381cd620e94d4beac6a2d9fba2f9203babab84b14d5ba111cbe311",
+      "file_count": 3701,
+      "total_bytes": 1945734640
+    }
+  },
+  "index_receipts": {
+    "A4-1": {
+      "stats": {
+        "frames": 2000,
+        "model_calls": 2000
+      },
+      "elapsed_s": 546.941823000001,
+      "minimum_free_bytes": 12613234688,
+      "code_git_sha": "25476d789417fb93304958e015d7ce788412d3c5",
+      "index_sha256": "3766fb36b5a9c097329bfae2febc23c59ed0e3f261aae6b600236469008932a1",
+      "records_sha256": "9045e6b79a5bed165b304857d848096bcb066d8f8a9b201378726ebeff40d769",
+      "weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+      "conformance": {
+        "checker_source_sha256": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+        "checks": [
+          {
+            "check_id": "DOCUMENT_LOADABLE",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.1",
+            "status": "PASS"
+          },
+          {
+            "check_id": "DOCUMENT_LOADABLE",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.1",
+            "status": "PASS"
+          },
+          {
+            "check_id": "SCHEMA_VALID",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2–§8 (per kind)",
+            "status": "PASS"
+          },
+          {
+            "check_id": "SCHEMA_VALID",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [
+              "schema is PROVISIONAL (contract does not define it); see UNKNOWN_CONTRACT items"
+            ],
+            "section": "§2–§8 (per kind)",
+            "status": "PASS"
+          },
+          {
+            "check_id": "NO_FORBIDDEN_CONTENT",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.3, §9, v1.1 §7",
+            "status": "PASS"
+          },
+          {
+            "check_id": "NO_FORBIDDEN_CONTENT",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.3, §9, v1.1 §7",
+            "status": "PASS"
+          },
+          {
+            "check_id": "CONTENT_HASH_RECOMPUTE",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.1, §2.3, §3.1, §4.2, §5.2–§5.3, §8.3, §8.7",
+            "status": "PASS"
+          },
+          {
+            "check_id": "ID_DERIVED_FROM_HASH",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.2",
+            "status": "PASS"
+          },
+          {
+            "check_id": "COMMON_GT_READ_FALSE",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.3, §9",
+            "status": "PASS"
+          },
+          {
+            "check_id": "INDEX_MANIFEST_RULES",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.2, §4.4",
+            "status": "PASS"
+          },
+          {
+            "check_id": "INDEX_RECORDS_FILE_HASH",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.2",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_FRAME_STATE",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.3, §6.3",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_OBSERVATION_IDS",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.2, §4.3",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_INDEX_GRID",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.4",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_COLOR_RULES",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.3",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_MATCH_MANIFEST",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.3, §4.4",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_SCORE_FLOOR",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.2, §11",
+            "status": "PASS"
+          }
+        ],
+        "scope": "14 named index contract checks; DEMO_DEFAULT parameters are not approved",
+        "status": "PASS"
+      }
+    },
+    "B4-1": {
+      "stats": {
+        "frames": 1680,
+        "model_calls": 1680
+      },
+      "elapsed_s": 473.9003582090081,
+      "minimum_free_bytes": 12610727936,
+      "code_git_sha": "25476d789417fb93304958e015d7ce788412d3c5",
+      "index_sha256": "9d5c36b68ad0f364363d6cda7800b163d39d80d67dd4f4c79ea081abcbc87d12",
+      "records_sha256": "3c32d0825c34a9d032f19c6175ce0d0f68fad04f8f6eaf589da29e1cb3c9dded",
+      "weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+      "conformance": {
+        "checker_source_sha256": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+        "checks": [
+          {
+            "check_id": "DOCUMENT_LOADABLE",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.1",
+            "status": "PASS"
+          },
+          {
+            "check_id": "DOCUMENT_LOADABLE",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.1",
+            "status": "PASS"
+          },
+          {
+            "check_id": "SCHEMA_VALID",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2–§8 (per kind)",
+            "status": "PASS"
+          },
+          {
+            "check_id": "SCHEMA_VALID",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [
+              "schema is PROVISIONAL (contract does not define it); see UNKNOWN_CONTRACT items"
+            ],
+            "section": "§2–§8 (per kind)",
+            "status": "PASS"
+          },
+          {
+            "check_id": "NO_FORBIDDEN_CONTENT",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.3, §9, v1.1 §7",
+            "status": "PASS"
+          },
+          {
+            "check_id": "NO_FORBIDDEN_CONTENT",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.3, §9, v1.1 §7",
+            "status": "PASS"
+          },
+          {
+            "check_id": "CONTENT_HASH_RECOMPUTE",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.1, §2.3, §3.1, §4.2, §5.2–§5.3, §8.3, §8.7",
+            "status": "PASS"
+          },
+          {
+            "check_id": "ID_DERIVED_FROM_HASH",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.2",
+            "status": "PASS"
+          },
+          {
+            "check_id": "COMMON_GT_READ_FALSE",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.3, §9",
+            "status": "PASS"
+          },
+          {
+            "check_id": "INDEX_MANIFEST_RULES",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.2, §4.4",
+            "status": "PASS"
+          },
+          {
+            "check_id": "INDEX_RECORDS_FILE_HASH",
+            "document": "detection_index.json",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.2",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_FRAME_STATE",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.3, §6.3",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_OBSERVATION_IDS",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§2.2, §4.3",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_INDEX_GRID",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.4",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_COLOR_RULES",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.3",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_MATCH_MANIFEST",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.3, §4.4",
+            "status": "PASS"
+          },
+          {
+            "check_id": "RECORDS_SCORE_FLOOR",
+            "document": "detection_index.records.jsonl",
+            "findings": [],
+            "message": "",
+            "notes": [],
+            "section": "§4.2, §11",
+            "status": "PASS"
+          }
+        ],
+        "scope": "14 named index contract checks; DEMO_DEFAULT parameters are not approved",
+        "status": "PASS"
+      }
+    }
+  },
+  "focused_tests": {
+    "passed": 93,
+    "xfailed": 0,
+    "failed": 0,
+    "command": "PYTHONPATH=src uv run --no-project --python \"$HOME/amidst/.venv/bin/python\" python -B -m pytest tests/q1q5/test_r004_v2_516_gates.py tests/evaluation/test_r004_natural_walk.py -o addopts= -q"
+  },
+  "gate_logic_preservation": {
+    "changed_function_bodies": [
+      "test_selftest_gate_markers_are_strict_and_cover_every_gate"
+    ],
+    "acceptance_bodies_unchanged": true,
+    "markers_removed": {
+      "G1": 8,
+      "G2": 4
+    }
+  },
+  "not_verified": [
+    "actual global LOST/RETURN under eight-camera inference",
+    "ranking and reconstruction execution",
+    "continuous articulated clearance and physical navigation",
+    "human review"
+  ],
+  "scope": "ENGINEERING_DEMO; identity UNCONFIRMED; original blend not saved/copied; authored T events unchanged; no 8785 switch",
+  "model_input_pin_verification": {
+    "status": "PASS",
+    "source_files_verified": 49,
+    "source_inventory_sha256": "204776771af103dde5081ea5676e71972f69915a3c47cfeb260d00d9ba8611cf",
+    "weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0"
+  },
+  "disk_budget_gib": 3.5
+}

@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "q-core.agent-decision-params.v1",
+  "title": "q-core Agent decision parameter set v1",
+  "description": "Layered call caps for the Agent decision (D165/D166, design docs/design/AGENT_DECISION_V1.md §2.3). Validator: src/amidst/q1q5/agent_decision.py validate_params. The FORMAL group and the EXPLORATORY group are separate files and must never be reported together. budget_usd is enforced only when price_table (with date and source) is present; until then the call and token caps are the hard limits. A stage with approved=false cannot make live calls.",
+  "status": "V1",
+  "$defs": {
+    "positive_int": {"type": "integer", "minimum": 1},
+    "nullable_positive_int": {"type": ["integer", "null"], "minimum": 1},
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["config_id", "api_model_id"],
+      "properties": {
+        "config_id": {"enum": ["astra6", "sol6.1", "terra6.1"]},
+        "api_model_id": {
+          "description": "Exact API model id; null in the committed file and recorded on the day of the run.",
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved", "approval_ref", "max_calls", "max_tokens", "per_model_max_calls", "per_model_max_tokens"],
+      "properties": {
+        "approved": {"type": "boolean"},
+        "approval_ref": {"type": ["string", "null"]},
+        "max_calls": {"$ref": "#/$defs/nullable_positive_int"},
+        "max_tokens": {"$ref": "#/$defs/nullable_positive_int"},
+        "per_model_max_calls": {"$ref": "#/$defs/nullable_positive_int"},
+        "per_model_max_tokens": {"$ref": "#/$defs/nullable_positive_int"},
+        "note": {"type": "string"}
+      },
+      "if": {"properties": {"approved": {"const": true}}},
+      "then": {
+        "properties": {
+          "approval_ref": {"type": "string", "minLength": 1},
+          "max_calls": {"type": "integer"},
+          "max_tokens": {"type": "integer"},
+          "per_model_max_calls": {"type": "integer"},
+          "per_model_max_tokens": {"type": "integer"}
+        }
+      }
+    },
+    "price_table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "source", "currency", "models"],
+      "properties": {
+        "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+        "source": {"type": "string", "minLength": 1},
+        "currency": {"const": "USD"},
+        "models": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["input_usd_per_mtok", "output_usd_per_mtok"],
+            "properties": {
+              "input_usd_per_mtok": {"type": "number", "minimum": 0},
+              "output_usd_per_mtok": {"type": "number", "minimum": 0}
+            }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "parameter_set_id", "report_group", "mode", "decision_points", "models", "per_call",
+    "per_step", "per_session", "rate", "budget_usd", "price_table", "prompt_tokens_per_call_estimate", "stages"
+  ],
+  "properties": {
+    "schema_version": {"const": "q-core.agent-decision-params.v1"},
+    "parameter_set_id": {"type": "string", "pattern": "^[a-z0-9_.-]{1,80}$"},
+    "report_group": {"enum": ["FORMAL", "EXPLORATORY"]},
+    "mode": {"const": "OFF", "description": "The committed default. Other modes are chosen at run time (admin toggle, D166) and never written back here."},
+    "decision_points": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["DP1_HANDOFF_ADJUDICATION", "DP3_CONTINUATION_ACCEPTANCE"]}
+    },
+    "models": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/model"}},
+    "per_call": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timeout_ms", "max_output_tokens", "max_retries_on_429_5xx"],
+      "properties": {
+        "timeout_ms": {"type": "integer", "minimum": 1, "maximum": 60000},
+        "max_output_tokens": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "max_retries_on_429_5xx": {"type": "integer", "minimum": 0, "maximum": 1}
+      }
+    },
+    "per_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["budget_ms", "max_rounds"],
+      "properties": {
+        "budget_ms": {"type": "integer", "minimum": 1, "maximum": 60000},
+        "max_rounds": {"type": "integer", "minimum": 1, "maximum": 3}
+      }
+    },
+    "per_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_rounds"],
+      "properties": {"max_rounds": {"type": "integer", "minimum": 1, "maximum": 100}}
+    },
+    "rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_concurrent", "max_requests_per_minute"],
+      "properties": {
+        "max_concurrent": {"const": 1},
+        "max_requests_per_minute": {"type": "integer", "minimum": 1, "maximum": 30}
+      }
+    },
+    "budget_usd": {"type": "number", "minimum": 0, "maximum": 100},
+    "price_table": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/price_table"}]},
+    "prompt_tokens_per_call_estimate": {"type": "integer", "minimum": 1, "maximum": 200000},
+    "stages": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^[A-Z][A-Z0-9_]{0,40}$"},
+      "additionalProperties": {"$ref": "#/$defs/stage"}
+    },
+    "note": {"type": "string"}
+  }
+}

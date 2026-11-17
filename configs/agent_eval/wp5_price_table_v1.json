@@ -1,0 +1,13 @@
+{
+  "status": "PINNED",
+  "date": "2026-11-15",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "currency": "USD",
+  "tier": "Standard, short context (input <= 272K tokens), uncached input",
+  "note": "Read from the raw page HTML on the pin date (first table = Standard; the second table, half price, is Batch and is not used). Cached-input prices (astra 1.00, sol 0.10, terra 0.05 per Mtok) are ignored: the estimate and the guard charge every input token at the uncached price, a safe upper bound. Config id -> API model id mapping confirmed by the user (D237) and stored in configs/q1q5/agent_decision_params_v1*.json.",
+  "models": {
+    "astra6": {"api_model_id": "gpt-6-astra", "input_usd_per_mtok": 10.0, "output_usd_per_mtok": 50.0},
+    "sol6.1": {"api_model_id": "gpt-6.1-sol", "input_usd_per_mtok": 2.0, "output_usd_per_mtok": 10.0},
+    "terra6.1": {"api_model_id": "gpt-6.1-terra", "input_usd_per_mtok": 1.0, "output_usd_per_mtok": 5.0}
+  }
+}

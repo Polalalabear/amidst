@@ -159,7 +159,7 @@ def test_permission_is_required_even_for_complete_binding(tmp_path):
 
 def test_model_never_loads_when_rgb_scope_disagrees(tmp_path, monkeypatch):
     plan, binding = fixture(tmp_path)
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("AMIDST_ARTIFACTS", str(tmp_path / "amidst-artifacts"))
     (tmp_path / "amidst-artifacts").mkdir()
     model = []
     with pytest.raises(ValueError, match="RGB_CAMERA_SCOPE"):
@@ -176,7 +176,7 @@ def test_model_never_loads_when_rgb_scope_disagrees(tmp_path, monkeypatch):
 
 def test_new_registration_end_to_end_synthetic_adapter(tmp_path, monkeypatch):
     plan, binding = fixture(tmp_path)
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("AMIDST_ARTIFACTS", str(tmp_path / "amidst-artifacts"))
     (tmp_path / "amidst-artifacts").mkdir()
     run = safe_run()
     cameras = binding["camera_ids"]
@@ -223,7 +223,7 @@ def test_new_registration_end_to_end_synthetic_adapter(tmp_path, monkeypatch):
 
 def test_low_disk_prevents_metadata_loading(tmp_path, monkeypatch):
     plan, binding = fixture(tmp_path)
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("AMIDST_ARTIFACTS", str(tmp_path / "amidst-artifacts"))
     (tmp_path / "amidst-artifacts").mkdir()
     monkeypatch.setattr("shutil.disk_usage", lambda _: SimpleNamespace(free=8 * 1024**3 - 1))
     with pytest.raises(ValueError, match="DISK_SPACE"):
