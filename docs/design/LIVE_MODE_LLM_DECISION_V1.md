@@ -1,6 +1,7 @@
 # 即時模式的 LLM 決策：接法和測試設計 v1（DRAFT）
 
-- 狀態：**DRAFT，設計稿 v1.9**（更新日期 2026-11-17）。v1.9 的摘要：
+- 狀態：**DRAFT，設計稿 v1.9.1**（更新日期 2026-11-17）。v1.9.1 只改 v1.9 差異複審（[留言](https://github.com/Polalalabear/amidst/pull/547#issuecomment-6924566238)）指出的三處：§6 的 A7 接回表格；寫明 #544 已合併（main `7d612aa7`，D247）；A7 的分支改成 `claude/feat-live-people`（PR #556，D247）；另把 §0C 第 13 項的狀態改成 v3.1 已解決。
+- 前一版 v1.9（2026-11-17）的摘要：
   - 照 v1.8 複審（[留言](https://github.com/Polalalabear/amidst/pull/547#issuecomment-6924324750)，P1 1、P2 3、P3 6）修改。最重要的是 §6 新增 A7：`people.py` 的 `group()` 修正，是任何開 `--advisor` 的 demo 的前提（D245，#544 Opus 判定）。
   - 新事實：D246（離線正式組一步總上限 5000 ms、逾時後不重試，取代 D243 的 12000 ms 提案）；D245（#544 審查修正已推上、複審 APPROVE）；Colab v3.1 的本機模型結果（qwen 格式錯誤 0/24，llama DP3 退回 11/24）。
   - 舊章節裡和 §0E、§0F 衝突的說法逐處改掉（§0、§0A.4、§0B、§0C、§1、§3.4、§4、§6、§8）；§0F.4 的付費測試改成「先數題數、再從兩個上限選」。
@@ -13,7 +14,7 @@
 - 前一版 v1.7（2026-11-16 加入 §0F：演算法改進的結果、目前的問題和決定總表；交接文件在 PR #544 的 `docs/operations/LIVE_MODE_HANDOFF_20261116.md`）。前一版 v1.6（§0E 加入第二輪和重播的更正）。前一版 v1.5（2026-11-16 加入影像裁決測試的結果 §0D，和接上即時模式後的實跑結果 §0E）。2026-11-15 加入使用者的新目標和 T1 結果（§0A）；2026-11-16 加入用詞說明（§0B）、問題紀錄（§0C）、影像裁決測試（§0D），並依 Opus 審查（[留言](https://github.com/Polalalabear/amidst/pull/547#issuecomment-6900140128)）更正。§0A–§0F 和其他章節有出入時以它們為準；§0F 最新。只有設計，沒有改追蹤器或決策程式。
 - 基準：`main`＠`8b023775`。
 - Model / effort：v1–v1.7 是 Fable 5.2，effort 沒有記錄（那個 session 看不到自己的 effort 設定）。v1.8、v1.9 是 Opus 5.5 / medium。
-- 相關文件：[`AGENT_DECISION_V1.md`](AGENT_DECISION_V1.md)（現有的 Agent 決策設計）、[`WP5_DRYRUN_ESTIMATE_20261115.md`](../evaluation/WP5_DRYRUN_ESTIMATE_20261115.md)、[`WP5_COLAB_L4_README.md`](../operations/WP5_COLAB_L4_README.md)、即時模式設計稿 v2（PR [#544](https://github.com/Polalalabear/amidst/pull/544) 的 `docs/design/LIVE_MODE_GAME_DESIGN_V2.md`，還沒合併）。
+- 相關文件：[`AGENT_DECISION_V1.md`](AGENT_DECISION_V1.md)（現有的 Agent 決策設計）、[`WP5_DRYRUN_ESTIMATE_20261115.md`](../evaluation/WP5_DRYRUN_ESTIMATE_20261115.md)、[`WP5_COLAB_L4_README.md`](../operations/WP5_COLAB_L4_README.md)、即時模式設計稿 v2（PR [#544](https://github.com/Polalalabear/amidst/pull/544) 的 `docs/design/LIVE_MODE_GAME_DESIGN_V2.md`，已合併到 main `7d612aa7`，D247）。
 - 規則：事實附出處；查不到的寫 UNKNOWN；數字分**量出**、**設計值**、**推估**。這是工程 demo 的設計，不是辨識、身分或實體安全的正式驗收。
 
 ## 0. 結論
@@ -186,7 +187,7 @@ Colab 上的兩個模型都是純文字模型，看不了圖。影像裁決（§
 | 10 | WP5 的延遲量測在上限被切斷、題目是合成的、每種題型筆數太少 | §2 的缺口 2、3、4 | 量不到「實際要多久」，p95 不可靠 | §5 的修改 | 還沒做 |
 | 11 | 後台推論從標明不能進入執行時推論的幾何檔讀攝影機參數 | `server.py` 讀 `R004_SCENE_GEOMETRY_2D_V1.json`，該檔 `must_not_enter: RUNTIME_INFERENCE` | 不符合來源規則 | 改讀攝影機 catalog（即時模式設計稿的 L1） | 還沒做 |
 | 12 | N6 人物是分件人偶，偵測率在烘焙場景只有 69.1%，CAM_ENTRY 只有 19% | #544 的 N6 量測 | 偵測不到時裁決再好也沒用 | D236：協調者建議先做半天的對照實驗，等使用者同意 | 待決定 |
-| 13 | Colab v2 的 `ollama ps` 輸出是空的 | Colab v2 的 `ENV.json` | 本機模型的延遲是不是在 GPU 上量的，沒有被證實 | `wp5-calib-finish` 改抓取時機 | 進行中 |
+| 13 | Colab v2 的 `ollama ps` 輸出是空的 | Colab v2 的 `ENV.json` | 本機模型的延遲是不是在 GPU 上量的，沒有被證實 | `wp5-calib-finish` 改抓取時機 | v3.1 已解決：兩個模型 100% GPU（§0F.2 第 13 項） |
 
 第 7 項的數字來自 OpenAI 校準報告（#546 的 `docs/evaluation/WP5_OPENAI_CALIBRATION_20261115.md` §3；合成題，放寬逾時的探索組；LOCAL `local/evidence/wp5-openai-calib-20261115/`）。我沒有重跑，也沒有計算這個資料夾的 SHA-256。
 
@@ -506,7 +507,7 @@ sol6.1，A4 和 B4 路線，三種設定各 3 次：
 | WP5 比較工具（Rule、本機、OpenAI × DP1／DP3／DP4／NL） | `src/amidst/agent_eval/wp5*.py`、`configs/agent_eval/wp5_v1.json`（PR #538） | 已合併 |
 | WP5 Colab L4 包和 Windows 包 | PR #543 | 已合併 |
 | WP5 Colab 第一次實跑的修正 | PR [#546](https://github.com/Polalalabear/amidst/pull/546) | **開著**。Colab v2 已在 L4 證實修正有效（D238）；彙總表的格式錯誤率在 `5aee675c` 修好（D243）；等複審和使用者的 Colab v3 結果 |
-| 即時模式（追蹤器 `tracker.py`） | `claude/feat-live-mode`（PR #544） | 用的是自己的簡化追蹤器，不是 `associate()`。看圖裁決已接進 `advisor.py`、`people.py`，預設關閉（§0E）。審查修正已推上、複審 APPROVE（D245） |
+| 即時模式（追蹤器 `tracker.py`） | `claude/feat-live-mode`（PR #544） | 用的是自己的簡化追蹤器，不是 `associate()`。看圖裁決已接進 `advisor.py`、`people.py`，預設關閉（§0E）。已合併到 main，merge commit `7d612aa7`（D247） |
 
 相關決策（#93）：
 - D165：OpenAI 比三個模型 astra6、sol6.1、terra6.1。
@@ -715,9 +716,8 @@ WP5 的正式組和放寬組照原計畫跑，那是報告裡模型比較的資�
 | A3 | 即時參數集和背景呼叫（§3.1–§3.3）。**狀態：背景呼叫已在 #544 `advisor.py` 做完；參數目前寫在程式的預設值，獨立的參數檔沒有做** | 新增 `configs/q1q5/agent_decision_params_live_v1.json`、`src/amidst/live_mode/advisor.py` | Agent 模式關閉時，追蹤器的輸出和現在逐 byte 相同；假的 provider 晚於 `T_live` 回答時記 `RULE_FALLBACK`；LLM 選的人的追蹤編號已經不在、或和別人交錯過（0.7 m）就不採用（§3.1）；同時最多一個呼叫 | A1 |
 | A4 | 離線重播（T3）。**狀態：#544 已有替身重播（`replay_advisor.py`、`replay_bench.py`）；用錄下的真模型答案重播沒有做** | 新增 `scripts/live_mode/replay_llm_benefit.py` | 固定的假紀錄算出的失聯秒數和手算的相等；讀 Ground Truth 的部分只在評分函式裡 | A1、A2 |
 | A5 | HUD 和後台紀錄對應（§3.5）。**狀態：沒做**（HUD 只有設計稿，§0F.2 第 8 項） | 即時模式的 HUD 和紀錄模組 | 三種 `decision_source` 顯示三種文字；`llm.jsonl` 每行通過現有的決策紀錄 schema | A3，以及即時模式設計稿 v2 的 L4、L6 |
-| A6 | **工作台設定切換 LLM 裁決**（D242）。三個選項：關閉（預設）、LLM 覆核、LLM 主導；可以選模型（預設 sol6.1）。屬於 Claude 的工作台 UI | 工作台的設定畫面（`frontend/workbench/`；即時模式畫面在 `frontend/live-mode/`，設定放哪一邊 UNKNOWN）；後台接收設定的介面（檔案 UNKNOWN，看 #544 合併後的結構） | 預設是關閉，重新載入後仍是關閉；關閉時後台不送任何 LLM 請求、追蹤輸出和現在逐 byte 相同；切到覆核或主導時，後台收到對應的裁決模式（`off`／`review`／`lead`）；護欄沒開時顯示「演算法暫代（沒開）」 | A3；A7；#544 合併 |
-
-| A7 | **`people.py` 的 `group()` 併人規則修正**（D245，[Opus 判定](https://github.com/Polalalabear/amidst/pull/544#issuecomment-6924091618)第 1 點）。**任何開 `--advisor review/lead` 的 demo 之前要修完**，所以是 A6 的前提。改法：同鏡頭 IoU ≥ 0.6 的框只留分數高的；`same_m` 1.5 → 1.0 m（1.0 m 也是從 A4、B4 兩條路線挑的，要註明）；跨鏡頭配對依距離排序後一對一配；一個人的 `xy` 取成員落地點的平均；加兩個計數器（同鏡頭去重掉的框數、跨鏡頭併入時兩框相距 > 1.0 m 的次數），寫進重播輸出 | 只改 `src/amidst/live_mode/people.py` 和 `tests/live_mode/test_advisor.py` | 單元測試新增 4 個：同鏡頭兩框 IoU 0.8 → 1 人；不同鏡頭相距 1.3 m → 2 人；不同鏡頭相距 0.5 m → 1 人；同鏡頭相距 0.3 m 但 IoU < 0.6 → 2 人。現有 29 個加新增的全部通過。重播（不付費，`--oracle-m 1.0`，`sol2`＋`gate` 共 n=38）：4 m 覆核比 4 m 關閉差的紀錄維持 0/38；A4 路線鏡頭跟對 ≥ 0.38、ALL ≥ 0.66；跨鏡頭相距 > 1.0 m 的併入 0 次；回報同鏡頭去重次數。用 `trace_ticks.py` 重跑第 27–34 輪，p2 和 p5 仍是兩個人 | #544 合併；寫在 `claude/feat-live-mode`（D216） |
+| A6 | **工作台設定切換 LLM 裁決**（D242）。三個選項：關閉（預設）、LLM 覆核、LLM 主導；可以選模型（預設 sol6.1）。屬於 Claude 的工作台 UI | 工作台的設定畫面（`frontend/workbench/`；即時模式畫面在 `frontend/live-mode/`，設定放哪一邊 UNKNOWN）；後台接收設定的介面（檔案 UNKNOWN，看 #544 合併後的結構） | 預設是關閉，重新載入後仍是關閉；關閉時後台不送任何 LLM 請求、追蹤輸出和現在逐 byte 相同；切到覆核或主導時，後台收到對應的裁決模式（`off`／`review`／`lead`）；護欄沒開時顯示「演算法暫代（沒開）」 | A3；A7；#544 已合併（`7d612aa7`，已滿足） |
+| A7 | **`people.py` 的 `group()` 併人規則修正**（D245，[Opus 判定](https://github.com/Polalalabear/amidst/pull/544#issuecomment-6924091618)第 1 點）。**任何開 `--advisor review/lead` 的 demo 之前要修完**，所以是 A6 的前提。改法：同鏡頭 IoU ≥ 0.6 的框只留分數高的；`same_m` 1.5 → 1.0 m（1.0 m 也是從 A4、B4 兩條路線挑的，要註明）；跨鏡頭配對依距離排序後一對一配；一個人的 `xy` 取成員落地點的平均；加兩個計數器（同鏡頭去重掉的框數、跨鏡頭併入時兩框相距 > 1.0 m 的次數），寫進重播輸出 | 只改 `src/amidst/live_mode/people.py` 和 `tests/live_mode/test_advisor.py` | 單元測試新增 4 個：同鏡頭兩框 IoU 0.8 → 1 人；不同鏡頭相距 1.3 m → 2 人；不同鏡頭相距 0.5 m → 1 人；同鏡頭相距 0.3 m 但 IoU < 0.6 → 2 人。現有 29 個加新增的全部通過。重播（不付費，`--oracle-m 1.0`，`sol2`＋`gate` 共 n=38）：4 m 覆核比 4 m 關閉差的紀錄維持 0/38；A4 路線鏡頭跟對 ≥ 0.38、ALL ≥ 0.66；跨鏡頭相距 > 1.0 m 的併入 0 次；回報同鏡頭去重次數。用 `trace_ticks.py` 重跑第 27–34 輪，p2 和 p5 仍是兩個人 | #544 已合併（`7d612aa7`，已滿足）；寫在 `claude/feat-live-people`（PR [#556](https://github.com/Polalalabear/amidst/pull/556)，D247） |
 
 A1 和 A2 的檔案不重疊。A6 只改工作台 UI 和後台的設定入口，不碰 `tracker.py`。A7 只改 `people.py` 和它的測試。A2 要等 #546 合併之後才動（見 §5）。
 
