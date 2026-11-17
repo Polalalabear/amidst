@@ -38,8 +38,7 @@ failure, initial implementation and full stress failure; c5-counterexample.json 
 before/after snapshots. Generate again by running the crowd test with
 `AMIDST_TEST_EVIDENCE=<new LOCAL output>`; test reads the unchanged scenario directly.
 Numbers depending on performance timing cannot be rebuilt byte-for-byte. The earlier
-read-only script-distance audit is `local/evidence/cx566-20261117/scripts-baseline.json`
-SHA-256 `5b2f80eeaa044ed6804277e1aeefb62508baa4aaa574eb2bea10d4047132bbf4`, 1 file / 2,455 bytes;
+read-only script-distance audit is `local/evidence/cx566-20261117/scripts-baseline.json`, SHA-256 `5b2f80eeaa044ed6804277e1aeefb62508baa4aaa574eb2bea10d4047132bbf4`, 1 file / 2,455 bytes;
 it is not a runtime collision pass. It can be rebuilt from the same scenario and
 scriptedPose at dt=.1s.
 
@@ -122,8 +121,8 @@ with a fresh LOCAL output path; fixtures are synthetic committed test data.
 If OUT is set it remains the filename prefix (including relative-path semantics).
 Otherwise the default prefix is smoke under:
 
-- `$AMIDST_ARTIFACTS/evidence/live-mode/smoke/` when AMIDST_ARTIFACTS is set;
-- repo-relative `local/evidence/live-mode/smoke/` when unset, resolved from import.meta.url,
+- `$AMIDST_ARTIFACTS/evidence/live-mode/smoke/` when AMIDST_ARTIFACTS is set (SHA: not applicable, output-directory template);
+- repo-relative `local/evidence/live-mode/smoke/` when unset (SHA: not applicable, output-directory template), resolved from import.meta.url,
   independent of cwd and without a hardcoded home path.
 
 Names remain `<prefix>_sys.png` and `<prefix>_op.png`; metrics/JSON and browser flow
@@ -138,7 +137,7 @@ JSON locator lacked a SHA; it is now source-bound above, and both logs are prese
 No browser/backend smoke was run (explicitly not a #573 gate), no screenshot generated,
 and no service operation performed.
 
-LOCAL `local/evidence/cx573-20261118/MANIFEST.json` SHA-256 `079366027f2d4df6d6a16799f2a664f2ff0a2ed9936f445210e0cd920ac3f216`;
-4 listed files / 322 bytes. Contains syntax, scoped
+LOCAL `local/evidence/cx573-20261118/MANIFEST.json` SHA-256 `aa82de742c0565ac8b997fcabc7d83136ad820c05f2a24d63fdbefc1db3d3970`;
+5 listed files / 365 bytes. Contains syntax, scoped
 search and before/after reference-check output; can regenerate with the issue's
 listed commands. Empty syntax/search logs denote successful no-output checks.
