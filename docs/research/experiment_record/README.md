@@ -49,6 +49,12 @@ v3 are unchanged except the title/date and a v4 note after the abstract listing 
 superseded statements. In the parameter table `\code` is redefined locally so long
 file names can break.
 
+v4.1 (2026-11-17, same day) updates §6 with facts that came after `31a69177`:
+PR #551 (B 畫面 HUD) merged as `21aacc8e`; the WP5 OpenAI three-model pilot
+(plan C) results from #93 D256 (Table 14: 0 invalid responses; timeout fallbacks
+terra NL 25%, sol DP3 21% / NL 38%, astra 38% / 58% / 83%; about USD 0.51; formal
+not run); source S59.
+
 - Source: `amidst_experiment_record.tex`
 - Output: `amidst_experiment_record.pdf` (committed; LOCAL copy in
   `/Users/polalabear/amidst-artifacts/experiment-record-20261108/`)
