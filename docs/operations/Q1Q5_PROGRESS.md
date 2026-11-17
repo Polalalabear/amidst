@@ -523,7 +523,7 @@
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D248（2026-11-17，下一個 D249）；D95 Codex 任務佇列為 [#279](https://github.com/Polalalabear/amidst/issues/279) |
+| [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D250（2026-11-17，下一個 D251）；D95 Codex 任務佇列為 [#279](https://github.com/Polalalabear/amidst/issues/279) |
 | [#479](https://github.com/Polalalabear/amidst/issues/479) | Issue | B｜實驗紀錄與研究報告（LaTeX 紀錄、RQ1–RQ5、延遲、評估） | — | 進行中；issue 開著；owner:argon |
 | [#557](https://github.com/Polalalabear/amidst/pull/557) | PR | docs(agents): 2026-11-16/17 流程規則寫進 AGENTS/CLAUDE；進度導覽補到最新 | — | 本 PR；協調者批次補列（D91-4）；待審，未合併 |
 
@@ -538,7 +538,7 @@
 | [#481](https://github.com/Polalalabear/amidst/issues/481) | Issue | W-X2 數位孿生：俯視圖點選教室即查找（r005） | — | 已完成關閉（2026-11-08） |
 | [#482](https://github.com/Polalalabear/amidst/issues/482) | Issue | W-X3 AI agent：放寬逾時探索組，讓 Qwen 真的參與決策 | — | 已完成關閉（2026-11-08） |
 | [#483](https://github.com/Polalalabear/amidst/issues/483) | Issue | W-C14 OpenAI API 接入決策與解析（baseline 後），使用者驗收完整操作 | — | 已完成關閉（2026-11-08）；owner:codex |
-| [#490](https://github.com/Polalalabear/amidst/pull/490) | PR | [DO NOT MERGE] feat: Epic D path (b) natural-language to options + design v1 | — | 關閉未合併（2026-11-15） |
+| [#490](https://github.com/Polalalabear/amidst/pull/490) | PR | [DO NOT MERGE] feat: Epic D path (b) natural-language to options + design v1 | — | 關閉未合併（2026-11-15）；設計稿 `docs/specs/EPIC_D_AGENTIC_V1.md` 已搬進 main（#557，D250），路徑 (b) 的實作未進 main（已被 N1 取代） |
 | [#502](https://github.com/Polalalabear/amidst/pull/502) | PR | docs(design): Agent 決策設計稿 v1（DRAFT，D152） | — | 已合併 `mainline/q1q5`（2026-11-09） |
 | [#505](https://github.com/Polalalabear/amidst/pull/505) | PR | feat(agent): WP1 agent-decision v1 contract, validators, rule decider and call caps | — | 已合併 `mainline/q1q5`（2026-11-10） |
 | [#511](https://github.com/Polalalabear/amidst/issues/511) | Issue | WP3｜OpenAI（astra6/sol6.1/terra6.1）與 Ollama 轉接器＋錄製／重播（Argon） | — | 已完成關閉（2026-11-15）；owner:argon |
