@@ -1,180 +1,178 @@
-# 協調者交接 2026-11-17
+# 協調者交接 2026-11-17（晚間快照）
 
-這份文件是新協調者對話的入口，取代 `COORDINATOR_HANDOFF_20261116.md`（舊檔保留作為紀錄）。前一位協調者是 Claude Opus 5.5（2026-11-16～17）。**新的協調者對話全程用繁體中文回覆**（D255、`CLAUDE.md`「Handoff」）。下一個決策編號是 **D257**，要同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
+**快照時間：2026-11-17 晚間（UTC 約 15:30，#93 最後一則是 D273，15:22 UTC）。** 這份文件改寫了同日早上的版本（#562 合併的 `306dc2fa` 版，保留在 git 歷史）。早上版本之後的決策是 #93 的 D257–D273；本文整理到 D273 為止。
 
-- Model / effort：Opus 5.5 / medium（交接文件 session `ops-handoff-1117`）。
-- 核對方式：下面每個 SHA 和狀態都在 2026-11-17 用 `gh pr view`、`gh pr list`、`gh pr checks`、`gh issue view`、`gh issue list`、`gh api`（#93 留言、分支列表、refs）重新查過；本機只讀了 `~/amidst` 的 HEAD、`git status` 和 `local/demo-pin.json`。查不到的寫 `UNKNOWN`。和協調者轉述不一致的地方在文中用「**核對**」標出。
+**新的協調者對話全程用繁體中文回覆**（D255、`CLAUDE.md`「Handoff」）。下一個決策編號是 **D274**，同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
+
+- Model / effort：Opus 5.5 / medium（交接文件 session `handoff-1117pm`）。
+- 核對方式：PR、issue、分支、CI 狀態都在快照時用 `gh pr view`、`gh issue view`、`gh issue list`、`gh api repos/Polalalabear/amidst/branches` 重新查過；`~/amidst` 只讀了 HEAD、`git status --porcelain` 和 `local/demo-pin.json`。查不到的寫 `UNKNOWN`。
 
 ## 1. 現況與 SHA
 
 | 項目 | 值 |
 |---|---|
-| 主線 | `main` @ `21aacc8e`（[#551](https://github.com/Polalalabear/amidst/pull/551) 的 merge，2026-11-17 09:23 +0800）。`mainline/q1q5` 凍結在 `8c741451` |
-| 本機 `~/amidst` | 8785 demo 的資料夾。分支 `main`、HEAD `b24d6a26`，工作樹乾淨（`git status --porcelain` 0 行）。**比 GitHub 的 main 舊**，這是刻意的（pin 住），不要在裡面 fetch 或 pull |
-| 8785 | `local/demo-pin.json` 鎖在 `b24d6a26`（2026-11-15，使用者核准；閘門 `local/evidence/demo-update-prep-20261115/gate-20261115-1829/RESULT.txt`；D234、D235）。11-16～17 沒動。**不要在 `~/amidst` 改檔、切分支、commit 或 fetch** |
-| 磁碟 | 約 7.5–7.9 GiB 可用（`df -h ~`，2026-11-17 下午；早上開工時約 11 GiB，一天少了約 3–4 GiB，原因未查）。**已低於 8 GiB 的程式保護線和 9 GiB 的第三寫手門檻**，派寫檔 session 前要先查原因並請使用者清空間。session 剩 5 GiB 就停，程式內建保護在 8 GiB；第三個寫檔 session 要 9 GiB 以上 |
-| 下一個決策編號 | **D257**。**核對**：派這份文件時的轉述說下一個是 D255，但 #93 上已經有 D255（[留言 6934833151](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6934833151)：交接規則、#551 複審 APPROVE、#558 開 PR、Codex 認領 #552、終端機指令只給一次）和 D256（[留言 6939983302](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6939983302)：WP5 方案 C pilot 結果），所以是 D257 |
-| 開著的 PR | [#558](https://github.com/Polalalabear/amidst/pull/558)（非 Draft，`claude/experiment-record-latex`，v4 新章已推上，§4.3）；Codex 三個 Draft：[#559](https://github.com/Polalalabear/amidst/pull/559) `codex/feat-live-detection` @ `e1bce09e`（#552、#555）、[#560](https://github.com/Polalalabear/amidst/pull/560) `codex/feat-wp5-dp4` @ `92a4b0c7`（#554）、[#561](https://github.com/Polalalabear/amidst/pull/561) `codex/feat-live-schedule` @ `341f57d4`（#553），CI 都綠、**都還沒審查**（0 review、0 留言）；本 PR [#562](https://github.com/Polalalabear/amidst/pull/562) |
+| 主線 | `main` @ `e9db4fdf`（[#561](https://github.com/Polalalabear/amidst/pull/561) 的 merge，2026-11-17 06:56 UTC）。`mainline/q1q5` 凍結在 `8c741451` |
+| 本機 `~/amidst` | 8785 demo 的資料夾，分支 `main`、HEAD `e9db4fdf`、工作樹乾淨（0 行）。**不改檔、不切分支、不 commit、不 fetch** |
+| 8785 pin | `local/demo-pin.json`：commit `e9db4fdf`、2026-11-17、gate `local/evidence/demo-update-prep-20261117/gate-20261117/RESULT.txt`（D270） |
+| 8791 | `local/runtime/live-main` @ `e9db4fdf`，由 `local/runtime/start_live_8791.sh` 啟動（D264、D269；pid 24417 是 D269 當時的值，現在 `UNKNOWN`） |
+| 磁碟 | 快照時約 12 GiB 可用（`df -h`）。早上曾掉到 7.6 GiB（D257），B3、B1 刪除後回升。第三個寫手要 9 GiB 以上，剩 5 GiB 就停 |
+| 下一個決策編號 | **D274** |
 
-**11-16～17 合併的 PR**（都由使用者執行，merge commit）：
+**今天（11-17）合併的 PR**（都由使用者執行，merge commit）：
 
 | PR | 內容 | merge |
 |---|---|---|
-| [#550](https://github.com/Polalalabear/amidst/pull/550) | 協調者交接 2026-11-16 | `ccbd9533` |
-| [#544](https://github.com/Polalalabear/amidst/pull/544) | 即時模式（程式、量測、A4 調查、審查修正） | `7d612aa7` |
-| [#546](https://github.com/Polalalabear/amidst/pull/546) | WP5 修正、OpenAI 校準、Colab 筆記本 v3.1、彙總表修正、正式組逾時 5000／5000 ms 不重試 | `febc1707` |
-| [#556](https://github.com/Polalalabear/amidst/pull/556) | 即時模式 `people.py` 併人規則修正（#544 Opus 判定的後續） | `547a9e61` |
+| [#556](https://github.com/Polalalabear/amidst/pull/556) | 即時模式 `people.py` 併人修正 | `547a9e61` |
+| [#546](https://github.com/Polalalabear/amidst/pull/546) | WP5 修正、OpenAI 校準、Colab v3.1 | `febc1707` |
 | [#547](https://github.com/Polalalabear/amidst/pull/547) | 即時模式 LLM 決策設計稿 v1.9.1 | `da0dfe60` |
-| [#557](https://github.com/Polalalabear/amidst/pull/557) | AGENTS／CLAUDE 規則（D242–D250）、進度導覽、`EPIC_D_AGENTIC_V1.md` 搬進 main | `31a69177` |
-| [#551](https://github.com/Polalalabear/amidst/pull/551) | 即時模式 B 畫面跟隨視角＋HUD（複審 APPROVE @ `85b37f2f`） | `21aacc8e` |
+| [#557](https://github.com/Polalalabear/amidst/pull/557) | AGENTS／CLAUDE 規則、進度導覽 | `31a69177` |
+| [#551](https://github.com/Polalalabear/amidst/pull/551) | 即時模式 B 畫面跟隨視角＋HUD | `21aacc8e` |
+| [#562](https://github.com/Polalalabear/amidst/pull/562) | 交接規則（D255）＋早上的交接文件 | `444d15f3` |
+| [#560](https://github.com/Polalalabear/amidst/pull/560) | WP5 DP4 實跑接線（Codex，#554） | `4142e26c` |
+| [#561](https://github.com/Polalalabear/amidst/pull/561) | 即時模式推論排程（Codex，#553） | `e9db4fdf` |
 
-**已刪的分支**（使用者執行；D249、D250、D252）：`argon/n3-dp4-api-agent`、`claude/feat-8785-update`、`claude/feat-api-budget`、`claude/feat-live-mode`、`claude/feat-ops-handoff`、`claude/feat-ops-progress`、`claude/feat-workbench-8cam`、`codex/feat-n6-live-assets`、`codex/445-independent-previews`、`codex/516-four-actor-delivery`、`codex/516-natural-walk-sample`、`claude/feat-wp5`、`claude/feat-live-people`、`claude/feat-live-bscreen`。**核對**：協調者 11-17 轉述 `claude/feat-live-bscreen`「ahead 0、等使用者刪」，但 `gh api git/refs/heads/claude/feat-live-bscreen` 已回 404，分支已經刪了。另外 `argon/427-research-report-figures`、`codex/461-tracking-evaluation` 在 GitHub 上已經不存在（`gh api git/refs/heads/...` 回 404；PR #437、#472 都是 CLOSED，commit 留在 `refs/pull/<n>/head`）。**核對**：轉述說這兩條「未核對」，實際是分支已不在，沒有東西要刪。
+**開著的 PR：**
 
-**還在的分支**（`gh api repos/Polalalabear/amidst/branches`，下午再查：`claude/feat-live-bscreen` 已刪，多了 Codex 的三條）：
-
-| 分支 | head | 狀態 |
+| PR | 分支 @ head | 狀態 |
 |---|---|---|
-| `main` | `21aacc8e` | 主線 |
-| `mainline/q1q5` | `8c741451` | 凍結的歷史 |
-| `claude/feat-ops-docs` | 本 PR | 文件功能線（沿用） |
-| `claude/experiment-record-latex` | `36748dda` | #558 |
-| `codex/feat-live-detection`、`codex/feat-wp5-dp4`、`codex/feat-live-schedule` | `e1bce09e`、`92a4b0c7`、`341f57d4` | #559、#560、#561（Codex，待審） |
-| `claude/epic-d-agentic` | `bebfa8ad` | 設計稿已進 main（#557，D250），**等使用者刪** |
-| `argon/424-colab-oneclick-notebook`、`argon/425-research-m1-m4-baseline`、`argon/426-q4-tf-eval-tool`、`argon/429-windows-demo-start-eval`、`codex/467-r005-person-clip-proposal` | `918cc5b6`、`15ac140b`、`0942ebf8`、`c79069c9`、`83b42720` | 待判斷（§4.5） |
-| `archive/*` 9 條 | — | 5 條沒有對應 tag（§4.5） |
+| [#558](https://github.com/Polalalabear/amidst/pull/558) | `claude/experiment-record-latex` @ `1efd4876` | 非 Draft，CI 綠；`rv-558` 審查 **NEEDS_CHANGES**（[留言 6952193830](https://github.com/Polalalabear/amidst/pull/558#issuecomment-6952193830)） |
+| [#559](https://github.com/Polalalabear/amidst/pull/559) | `codex/feat-live-detection` @ `2e654b26` | Draft，CI 綠；修改 C 聯合驗證 NOT_PASSED，Codex 做第三份指示中 |
+| [#563](https://github.com/Polalalabear/amidst/pull/563) | `claude/feat-workbench-llm-toggle` @ `2ed0b3e3` | Draft，CI 綠；差異重審 `rv-563-v2` **APPROVE**（附 P2，[留言 6952099722](https://github.com/Polalalabear/amidst/pull/563#issuecomment-6952099722)） |
+| [#564](https://github.com/Polalalabear/amidst/pull/564) | `claude/feat-workbench-v2-ux` @ `9ded0820` | Draft，CI 綠；`wb2-ux-opus` 進行中（五點都已各有 commit，還沒補「實際產出」） |
+| 本 PR | `claude/feat-ops-docs` | 交接文件、AGENTS.md 主要 UI、進度導覽 |
+
+**還在的分支**（`gh api .../branches`）：`main`、`mainline/q1q5`、上表五條、`claude/epic-d-agentic`（等使用者刪）、`argon/424-colab-oneclick-notebook`、`argon/425-research-m1-m4-baseline`、`argon/426-q4-tf-eval-tool`、`argon/429-windows-demo-start-eval`、`codex/467-r005-person-clip-proposal`（五條待判斷）、`archive/*` 9 條。今天合併的 `codex/feat-wp5-dp4`、`codex/feat-live-schedule` 已刪。
 
 ## 2. 先讀
 
 1. `CLAUDE.md`、`AGENTS.md`、`CLAUDE.local.md`（本機規則：協調者只派工，不在 `~/amidst` 改檔）
 2. 本文件
-3. [#93](https://github.com/Polalalabear/amidst/issues/93) 的 D242 之後（`gh issue view 93 --repo Polalalabear/amidst --comments`），含 [分支核對留言 6924590269](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6924590269)
-4. 即時模式：`docs/operations/LIVE_MODE_HANDOFF_20261116.md`（已在 main）
-5. 即時模式 LLM 決策：`docs/design/LIVE_MODE_LLM_DECISION_V1.md` §0F（結果、問題、使用者決定、待決定總表）
-6. WP5：`docs/evaluation/WP5_OPENAI_CALIBRATION_20261115.md`
-7. WP5 方案 C 開跑計畫（dry-run）：[#546 留言 6924089568](https://github.com/Polalalabear/amidst/pull/546#issuecomment-6924089568)（§5 逾時、§7 停止條件）
+3. [#93](https://github.com/Polalalabear/amidst/issues/93) 的 D257–D273（`gh issue view 93 --repo Polalalabear/amidst --comments`，從 D257 開始逐則讀）
+4. 即時模式：`docs/operations/LIVE_MODE_HANDOFF_20261116.md`、`docs/design/LIVE_MODE_LLM_DECISION_V1.md` §0F
+5. #559 的聯合驗證報告（[`docs/evaluation/LIVE_DETECTION_SCHEDULE_JOINT_20261117.md` @ `2e654b26`](https://github.com/Polalalabear/amidst/blob/2e654b268624d023ac2d16f9e90c6fdaf4778198/docs/evaluation/LIVE_DETECTION_SCHEDULE_JOINT_20261117.md)）和第三份指示（[#559 留言 6952347393](https://github.com/Polalalabear/amidst/pull/559#issuecomment-6952347393)）
+6. WP5：formal 結果（[#93 留言 6941051090](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6941051090)）、逾時分析（[#93 留言 6950053674](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6950053674)）
+7. 舊工作台下線計畫（[#486 留言 6950051568](https://github.com/Polalalabear/amidst/issues/486#issuecomment-6950051568)）
 
-## 3. 流程
+## 3. 流程（今天新增或再確認的）
 
-沿用 11-16 版 §3：
+沿用早上版本 §3 與 `CLAUDE.md`、`AGENTS.md`。今天的補充：
 
-- 每個任務都開新 session；模型照 `CLAUDE.md` 的表：雜務 Haiku low；程式、前端、審查、量測 Sonnet medium（難的用 high）；設計、文件、決策 Opus。
-- 寫檔：`git clone --shared --no-checkout ~/amidst <scratch>/clone`，origin 設 `https://github.com/Polalalabear/amidst.git`，用完刪。同時最多 3 個寫檔 session，檔案不重疊。純審查用 `gh pr diff`，不 clone。
-- PR base 一律是 `main`，CI `checks` 要綠，只用 merge commit。**合併、刪分支、刪檔、kill 都由使用者在終端執行**；給指令要帶 `--repo Polalalabear/amidst`。
-- Codex 和 Argon 的 PR：審查，有問題就直接修。Codex 的成果先給使用者看畫面再採用。
-- 付費 API 一律經過 `ApiGuard`；先 dry-run，使用者核准金額才實跑。不讀 API key。
-- 被 session 事件喚醒的回合不能開 session，改用提案卡。
-- 決策寫到 #93，報告素材寫到 #479。
-- 同一條分支同時只能有一個寫手；長任務分段 commit、分段 push（11-16 新增）。
-
-11-17 新增（原文在 #93 D245、D248、D249、D255 和 main 的 `AGENTS.md`「Git workflow」）：
-
-- **分支只給大 feature 開**（D248）。小修正、審查修正、文件更新、後續補強都 commit 到既有的功能分支。能合的盡快合，合完的分支由使用者刪。
-- **被取代的分支直接刪，不打 `archive/` tag**（D249）；關閉的 PR 仍保有 commit（`refs/pull/<n>/head`）。
-- **和 GitHub 的互動一律用 `gh`**（D245）；不在 `~/amidst` 裡 `git fetch` 來讀其他分支，要讀檔用 `gh api .../contents/<path>?ref=<branch>`。
-- **給使用者的終端機指令每條只給一次，不重貼**（D255 第 6 點）。11-17 有一條 `gh pr merge` 被重複貼出、使用者重複執行，卡在「Delete the branch locally?」提示。
-- **同一個寫手不要連續追加任務**：一個任務做完就結束，下一件事開新 session（`CLAUDE.local.md`：每個任務都開新 session，不送回舊 session）。
-- **5 小時額度會讓 session 中斷**：11-17 一天內撞到三次（01:10 前、06:10 重置前、09:27），每次好幾個 session 同時停（D242、D249）。**中斷的 session 不會自己回報**，協調者要主動用 `gh`（PR head、commit 時間、#93 留言）查產出，再對原 session 發訊息續做（用 `list_sessions {"linked": true}` 找 id），不要重開一個從頭來。
-- **付費額度不跨用途**：每筆核准只給它寫明的用途（例如方案 C 的 USD 46 只給 WP5，不給即時模式或 #547 T2；D242 第 2 點）。
+- **主要 UI 是 `frontend/workbench-v2/`**（8785 由 `scripts/serve_demo_integration.py` 提供）。舊的 `frontend/workbench/` 下線中（D268）。今天 #563 的 brief 寫成舊工作台而做錯一次（D267），寫 brief 時要寫 workbench-v2。
+- **8785 的更新流程**（D269、D270）：在 clone 跑 gate（node、focused pytest、`check_demo_dependencies.py --smoke`、real-e2e）→ 寫 `RESULT.txt` → 使用者在終端快轉 `~/amidst`、`scripts/demo_pin.py approve`、`start_445_demo.command --port 8785`。gate 24 小時內有效。
+- **8791 從 `local/runtime/live-main` 跑 main**（`local/runtime/start_live_8791.sh`），不再用舊 scratchpad clone（C1）。
+- **Sonnet 每週額度曾用完**（D272，原本 11/22 09:00 重置）；使用者已重置（D273）。額度再用完時改用 Opus medium 派同樣的工作，並在 #93 記一筆。
+- **中斷或失敗的 session 不會自己回報**：用 `gh` 查產出（PR head、留言），再對原 session 發訊息續做。
 
 ## 4. 所有工作，依類型分類
 
-### 4.1 即時模式
+### 4.1 8785 demo
 
-| 工作 | 預計產出 | 進度 | 卡住的部分／等誰 |
+| 工作 | 預計產出 | 目前進度 | 卡住的部分（卡在誰、等什麼） |
 |---|---|---|---|
-| 即時模式本體 #544 | 操作端＋8 鏡頭後台、4 m 關聯範圍、影像裁決（預設關、sol6.1）、重播工具 | **已合併** `7d612aa7`（D247）；A4 變差查明是重播替身答題者的問題（D243 第 2 點） | 無 |
-| `people.py` 併人修正 #556 | 同鏡頭 IoU 去重、`same_m` 1.0 m、一對一配對 | **已合併** `547a9e61`；Opus 判定 5 個 P3 不必合併前修 | 無（5 個 P3 留作之後的小修正） |
-| B 畫面跟隨視角＋HUD #551 | 前端 B 畫面、HUD、交接文件 §13 | 審查 NEEDS_CHANGES → 修正 → 複審 APPROVE @ `85b37f2f` → **已合併** `21aacc8e`；分支已刪 | 無。注意：給使用者看的裁決截圖用的是假模型（LOCAL `local/evidence/live-mode-bscreen-20261117/`，8 張），真模型的畫面還沒看過 |
-| 工作台設定的 LLM 切換 | 工作台設定裡可切換「LLM 覆核／LLM 主導」，預設不開 | 使用者決定要做（D242 第 3 點）；設計在 `LIVE_MODE_LLM_DECISION_V1.md` §6；**未派工** | **下一位協調者的第一個任務**（#551 已合併，前端檔案不再重疊）；派前先處理磁碟（§1） |
-| 推論排程 #553（Codex） | 只推論作用中鏡頭和鄰居 | Codex 已交 [#561](https://github.com/Polalalabear/amidst/pull/561)（Draft，+865／−20、14 檔，CI 綠） | **等審查**；和 #559 合併後要聯合驗證 |
-| A4 室外偵測率 #552（Codex） | CAM_ENTRY 19%、R101_IN 47%、EXT_CAR 67% 提高 | Codex 已交 [#559](https://github.com/Polalalabear/amidst/pull/559)（Draft，+2555／−14、27 檔，CI 綠；同時含 #555 的 demo 啟動入口）。**核對**：#552 的 `in-progress` 標籤已不在，現在是 `ready` | **等審查**（Sonnet medium；+2555 行且改偵測，屬複雜程式碼，被標出的點交 Opus）。和 #561 合併後要聯合驗證 |
-| 失聯後重新取得 | 是否硬性限制追丟時間 | 協調者建議：不設硬性上限，分段門檻（短失聯自動接回；超過門檻放寬搜尋、接回要外觀確認或標待確認；門檻秒數用重播量）（D254 第 3 點） | **等使用者決定**；採用的話寫進 #553 範圍 |
-| 真模型在「目標不在候選名單」時怎麼答 | 驗證模型會不會答「都不是」 | 未驗證（D243 第 2 點）；`LIVE_MODE_LLM_DECISION_V1.md` §0F.4 第 2 項：先免費挑題數，再選 sol6.1 上限約 USD 0.2 或三模型約 USD 1，或不測、寫成已知限制 | **等使用者決定**（要花錢；不能用 WP5 的 USD 46） |
-| 不花錢的備援方案 | 推論排程、失聯主動接回、候選名單改用速度預測，用重播驗收 | §0F.4 第 1 項建議先做 | **等使用者決定**（D242 第 3 點未回覆） |
-| 越肩鏡頭、動畫混合、小地圖 | 遊戲化畫面 | 只有設計稿（`LIVE_MODE_GAME_DESIGN_V1.md`、`V2.md` §8） | 未排 |
-
-### 4.2 WP5 與 Agent 決策
-
-| 工作 | 預計產出 | 進度 | 卡住的部分／等誰 |
-|---|---|---|---|
-| WP5 修正與 OpenAI 校準 #546 | DP1/DP3 修正、彙總表、Colab 筆記本 v3.1、正式組逾時 5000／5000 不重試 | **已合併** `febc1707`（D251） | 無 |
-| Colab L4 v3.1 pilot | 本機模型 DP1／DP3／NL | **已完成**：qwen 24/24 有效；llama DP3 13/24（選了不允許的動作），`run_status: WARN`（[#546 留言 6924323692](https://github.com/Polalalabear/amidst/pull/546#issuecomment-6924323692)；LOCAL `local/evidence/wp5/pilot/colab_l4_v3_1_20261117/`） | 無 |
-| OpenAI 方案 C：pilot 段 | terra6.1 → sol6.1 → astra6 各 72 步（DP1／DP3／NL，DP4 跳過），上限 USD 4（D253） | **已跑完**（D256；`wp5-c-pilot` 恢復後的報告 [6939993923](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6939993923) 數字一致；[D256 補充 6940005834](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6940005834)）。格式錯誤三個模型都是 0；**逾時是主要問題**（5 s 不重試）：terra NL 25%；sol DP3 21%、NL 38%；astra DP1 38%、DP3 58%、NL 83%。有回答的題目和規則 100% 一致（合成題）。花費約 USD 0.51（護欄帳本估計 1.728，逾時呼叫按估計記）。依模型合計的逾時退回率 terra 11%、sol 19%、astra 60%。D256 原寫的「偏離」已在補充更正：以模型合計，terra、sol 都沒超過 20%，跑 astra 不算偏離；開跑計畫沒寫明以題型或模型計，下次要先講清楚 | 無（這份文件引用 D256 的數字，沒有重算） |
-| OpenAI 方案 C：formal 段 | 三模型正式組 | 未開始。協調者看法（D256）：5 s 下 astra 的 formal 大半會是規則退回，不值得花（formal 預估 USD 3.4）；terra／sol 的 DP1、DP3 可用，NL 要放寬逾時或另列放寬組 | **等使用者決定**：formal 跑不跑、跑哪些模型和題型、NL 要不要放寬組（D253：formal 不在 pilot 授權內） |
-| DP4 實跑接線 #554（Codex） | 移除 `DP4_LIVE_NOT_WIRED`，runner 真的呼叫 DP4 | Codex 已交 [#560](https://github.com/Polalalabear/amidst/pull/560)（Draft，+1180／−18、13 檔，CI 綠） | **等審查**（改 Agent 決策輸入，屬複雜程式碼）；實跑 DP4 要花錢，另外核准 |
-| 即時模式 LLM 決策設計稿 #547 | v1.9.1 設計稿 | **已合併** `da0dfe60` | 無 |
-| T2 是否再花錢 | §0F.4 表的 b、c、d 項 | a 項可免費重算；舊的「約 USD 1.7」已作廢（§0F.4） | **等使用者決定**（和 4.1「目標不在名單」是同一題的 b 項） |
-
-### 4.3 研究紀錄與報告
-
-| 工作 | 預計產出 | 進度 | 卡住的部分／等誰 |
-|---|---|---|---|
-| 實驗紀錄 v4 #558 | 新增一章：預錄與 live 的差異、參數依據、LLM 介入、追丟時間討論；升 v4、重編 PDF | session `record-live-vs-offline`（Opus high，沿用 `claude/experiment-record-latex`，D254）中斷過，恢復後在 05:53–05:57（UTC）推上 3 個 commit：`06b3b226` v4 新章、`e4027f93` 流程圖與附錄、`36748dda` 重編 PDF（v4，42 頁）。**核對**：協調者 13:50 轉述「新章節還沒寫」，但 GitHub 上新章已在；PR 說明還是「進行中」、沒有「實際產出」，寫手是否收尾 `UNKNOWN` | 等寫手補「實際產出」→ 審查 → 使用者合併 |
-| 報告素材 #479 | 持續追加「報告素材」留言 | 進行中 | 無 |
-| 第 5 章 `docs/report/CH5_CONCLUSION_DRAFT.md` | 補 WP5 數字（5.3、5.4 第 5 點，標【待補】） | 未做。pilot 數字已有（D256），formal 未決 | 可先用 pilot 數字寫，formal 若跑再補 |
-| #479／#489 子項盤點 | 勾選或註明已處理的子項 | 未做。**核對**：#479 未勾的 13 項（#425、#426、#427、#433、#460、#461、#462、#466、#468、#128、#138、#89、#123）裡，前 9 項的 issue 都已 CLOSED（多數標 `deferred`）；#489 未勾的 7 項裡 #480 已 CLOSED | 等協調者派一個 Haiku 盤點 |
-| #489 第 1 項（#480 自然語言） | 勾選 | 實際已由 N1（`nl_query_parse.py`、Spotlight 輸入列）完成（D249 第 3 點），#480 已 CLOSED，但 #489 清單沒勾 | 併入上一項 |
-
-### 4.4 8785 demo
-
-| 工作 | 預計產出 | 進度 | 卡住的部分／等誰 |
-|---|---|---|---|
-| 8785 pin | — | 沒動，`b24d6a26`（2026-11-15） | 下次更新要使用者核准 |
-| 更新準備 #555（Codex） | launcher 兩項 P2（`start_all_demo.ps1` 同步 `--root-8cam`、`.command` 啟動時間註解）＋即時模式啟動入口 | Codex 併在 [#559](https://github.com/Polalalabear/amidst/pull/559) 一起交（Codex 回報，D256 補充）；標籤仍是 `ready` | **等審查**；8785 pin 更新要使用者核准 |
-| 新 UI 要不要加 8CAM run | — | 未決（D234） | **等使用者決定** |
+| 8785 更新到 main | 8785 跑 main 最新版 | **已完成**（D270）：`~/amidst` 快轉到 `e9db4fdf`，`scripts/demo_pin.py approve` 通過（gate `local/evidence/demo-update-prep-20261117/gate-20261117/RESULT.txt`），`start_445_demo.command --port 8785` 啟動；`/workbench-v2/` 回 200，四個 run（B-05、A4-1、B4-1、r005）載入 | 無 |
+| 8791 改從 main | 即時模式跑 main | **已完成**（D264、D269）：`local/runtime/live-main` @ `e9db4fdf`，`start_live_8791.sh`；改用 N6 正式資產 `local/data/live-assets-20261115` | 無 |
+| 8785／8791 下午停止原因 | 查明 | **已查**（D269 第 1 點）：兩者都收到結束訊號後正常退出（8785 14:15:17、8791 14:58:03），不是系統殺、不是崩潰或重開機；送訊號者查不到 | 無（原因 `UNKNOWN`，再發生時再查） |
+| 合併後再更新一次 | 8785、8791 含 #559、#563（和 #564） | 未開始。兩個介面目前都不含 #559、#563（D270） | 等 #559、#563 合併；之後照 §3 的流程跑 gate，pin 和啟動交使用者 |
 | N6 天花板亮度和接縫 | — | 未決（D227） | **等使用者決定** |
+| 新 UI 要不要加 8CAM run | — | 未決（D234） | **等使用者決定** |
+
+### 4.2 即時模式
+
+| 工作 | 預計產出 | 目前進度 | 卡住的部分 |
+|---|---|---|---|
+| 推論排程 #553／#561（Codex） | 只推論作用中鏡頭和鄰居 | **已合併** `e9db4fdf`；#553 已關閉 | 無 |
+| 偵測率＋demo 啟動入口 #552、#555／[#559](https://github.com/Polalalabear/amidst/pull/559)（Codex） | A4 室外鏡頭偵測率提高；即時模式啟動入口 | 修改 A 完成（`efb2f498`，ENTRY 0.05 保留，D266）；修改 C（merge main、聯合驗證）**NOT_PASSED**（[Codex 留言 6941946203](https://github.com/Polalalabear/amidst/pull/559#issuecomment-6941946203)）：固定 RGB A4 跟對 0.705→0.695（tick 56 adaptive 漏看）、新實跑 B4 跟對 0.451→0.333、失聯 0.235→0.303、ENTRY 重新鎖定兩模式皆 censored；adaptive 每秒輪數 +20–30%。**使用者決定：先修排程與重新鎖定再合併**，不改回 `--schedule all`（D273） | **卡在 Codex**：做第三份指示（[#559 留言 6952347393](https://github.com/Polalalabear/amidst/pull/559#issuecomment-6952347393)：漏看修正、B4 原因、ENTRY 可量測定義；通過條件不變）。交回後派審查（複雜程式），通過再請使用者合併 |
+| LLM 開關 [#563](https://github.com/Polalalabear/amidst/pull/563) | workbench-v2「設定 → 即時模式」切換 LLM 覆核／主導，預設關、不接付費 provider | 改接 workbench-v2（`admin.html`），head `2ed0b3e3`。和 D265 的 brief 不同：8785 後端稽核掛鉤禁止 `socket.connect`，改為瀏覽器直連 live `/config`，live 端只對 `--workbench-ports`（預設 8785）的本機來源開 CORS、其他 Origin 的 POST 回 403；舊工作台的改動全部移除（D269 第 4 點）。差異重審 `rv-563-v2` **APPROVE**；P2：`server.py:221` 沒驗證 `Host`，DNS rebinding 可繞過 Origin 比對（約 3 行修正＋1 個測試）；P3：`advisor_model` 非字串會丟 `TypeError`、IPv6 `[::1]` 不被接受 | 等協調者決定 P2 是合併前補（建議：同分支補，原 session `llm-toggle` 或新 Sonnet）還是後續；之後 Draft 轉 Ready、使用者合併 |
+| workbench-v2 五點易用性 [#564](https://github.com/Polalalabear/amidst/pull/564) | (1) 搜尋 Enter 直接進入；(2) 追蹤分頁搜尋＋`FORBIDDEN_DATA_SCOPE` 原因；(3) 概況卡片排版；(4) 易讀地點／鏡頭名稱（找不到正式名稱標 UNKNOWN）；(5) live 模式入口（D271） | `wb2-ux-opus`（Opus medium，分支 `claude/feat-workbench-v2-ux`）進行中，五點各有 commit（`1fac8ca7`、`c5542df2`、`79770ded`、`9ded0820`），CI 綠；PR 說明還是「進行中」 | 等寫手補「實際產出」和截圖 → 審查（Sonnet medium）→ 使用者看截圖、合併。第 (4) 點標 UNKNOWN 的名稱要使用者確認 |
+| 失聯後重新取得 | 分段門檻：短失聯自動接回；超過門檻放寬搜尋 | 協調者建議（D254 第 3 點） | **等使用者決定**（D254-3 分段門檻） |
+| 真模型在「目標不在名單」時怎麼答 | 驗證模型會答「都不是」 | 未驗證（`LIVE_MODE_LLM_DECISION_V1.md` §0F.4 第 2 項：sol6.1 約 USD 0.2、三模型約 USD 1，或不測） | **等使用者決定**花費（不能用 WP5 的 USD 46） |
+| 不花錢的備援方案與 T2 | 失聯主動接回、候選名單改用速度預測，用重播驗收 | §0F.4 第 1 項建議先做 | **等使用者決定** |
+
+### 4.3 WP5 與 Agent 決策
+
+| 工作 | 預計產出 | 目前進度 | 卡住的部分 |
+|---|---|---|---|
+| 方案 C pilot | terra／sol／astra 各 72 步 | **完成**（D256 與補充）：格式錯誤 0；逾時退回（模型合計）terra 11%、sol 19%、astra 60%；實測約 USD 0.51（帳本估計 1.73） | 無 |
+| 方案 C formal | terra、sol 的 5 s 正式組＋NL 10 s 放寬組（astra 不跑、DP4 跳過） | **完成**（D260 另開帳本、上限 USD 6；結果 [留言 6941051090](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6941051090)）：格式錯誤 0、無 DENIED；逾時退回 terra 10.7%、sol 20.0%（sol DP3 35.6%）；NL 放寬到 10 s 後兩模型 0／40。**實測 USD 0.854**（帳本估計 1.233）。執行時以環境變數把每日／每分鐘呼叫次數上限調高（金額上限不變） | 無 |
+| 逾時原因分析 | 為什麼逾時、怎麼改 | **完成**（[留言 6950053674](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6950053674)，0 次付費呼叫）：5 s 上限落在模型延遲分布中間；自由文字 `rationale` 讓輸出過長；pilot 樣本小且模型依序跑；astra 固定開銷約 2.2 s，5 s 不可行。建議：逾時分題型（NL／DP3 用 10 s）、縮短輸出、加大 pilot 並讓合成題有分歧 | **等使用者決定**要不要採用改善建議（要改程式和再花錢） |
+| DP4 實跑接線 #554／#560（Codex） | runner 真的呼叫 DP4 | **已合併** `4142e26c`（D266）；#554 issue 還開著（工作已完成，可關） | 真實 provider 的 DP4 smoke **等使用者核准金額**（不擋合併，D261） |
+| 預算 | — | 專案 OpenAI 累計實測約 **USD 1.36**（pilot 0.51＋formal 0.854；不含 11-16 以前的約 1.18，含的話約 2.54）；帳本估計約 2.96（兩本帳分開）。方案 C 總上限 USD 46 不變，只給 WP5 | 額度不跨用途（D242） |
+
+> 註：D266 寫「專案 OpenAI 累計實測約 1.36」，口徑是方案 C 的 pilot＋formal；早上版本的「約 1.69」含 11-16 以前的 1.18。兩個數字口徑不同，引用時寫清楚。
+
+### 4.4 研究紀錄與報告
+
+| 工作 | 預計產出 | 目前進度 | 卡住的部分 |
+|---|---|---|---|
+| 實驗紀錄 v4 [#558](https://github.com/Polalalabear/amidst/pull/558) | 新章：預錄與 live 的差異、參數依據、LLM 介入 | 新章已推上（head `1efd4876`，CI 綠）。`rv-558` 審查 **NEEDS_CHANGES**：章內三處仍寫「formal 未跑」（formal 已完成），另即時裁決在預設 `reseed` 下的 `decision_source` 描述和程式不符；程式行號、預設值、評估數字抽查都對 | 等寫手修正（`claude/experiment-record-latex` 同分支，補入 WP5 formal 與逾時分析），再複審、使用者合併 |
+| 報告素材 #479 | 持續追加「報告素材」留言 | 進行中（owner:argon epic，實際由 Claude 追加） | 今天的 WP5 formal、逾時分析、#559 聯合驗證都還沒追加到 #479（`UNKNOWN`，快照時沒逐則查） |
+| 第 5 章 WP5 數字 | `docs/report/CH5_CONCLUSION_DRAFT.md` 5.3、5.4 補數字 | 未做；pilot 與 formal 數字都有了 | 可派（Opus medium），建議等 #558 修正後一起對齊口徑 |
 
 ### 4.5 流程與整理
 
-| 工作 | 預計產出 | 進度 | 卡住的部分／等誰 |
+| 工作 | 預計產出 | 目前進度 | 卡住的部分 |
 |---|---|---|---|
-| 規則寫進 AGENTS／CLAUDE #557 | D242–D250 規則 | **已合併** `31a69177` | 無 |
-| 交接規則與本文件（本 PR） | `CLAUDE.md`「Handoff」節、本文件 | 開 PR 中 | 等使用者合併 |
-| `claude/epic-d-agentic` | 刪除 | 設計稿已進 main（#557，D250） | **等使用者刪** |
-| 舊分支 `argon/424`、`argon/425`、`argon/426`、`argon/429`、`codex/467` | 判斷刪或補進 main | 核對留言列為 D 類（需判斷）。其中 `argon/425`、`argon/426` 對應 #479 未勾子項，`argon/424`、`argon/429` 對應 #486（已關閉）未勾子項，`codex/467` 對應 #445 未勾子項；這些 issue 本身都已 CLOSED | **等使用者決定**（刪除前 Opus 看原始證據；D249 後被取代的直接刪不打 tag） |
-| `archive/*` 9 條 | — | 4 條有同 commit 的 `checkpoint/phase1/*` tag；5 條沒有 tag（`archive/local/phase1/physical-policy-approval`、`archive/amidst-claude-wip-20261109`、`archive/canonical-uncommitted-20261109`、`archive/finalization-uncommitted-20261109`、`archive/local/codex/controlled-scene-real-v2-2a`） | **等使用者決定**要不要保留或刪（D249 的「不打 tag」是針對被取代的分支，這 9 條是留存用，要先問） |
-| 進度導覽 `Q1Q5_PROGRESS.md` | 補 #558 之後的列；把 #546、#547、#551、#556、#557 的列移到正確狀態 | **核對**：#558 沒有列；#546 還寫「開著，未合併」、#547／#556 還寫 Draft 進行中、#557 還寫「本 PR；待審」 | 等協調者批次更新（D91-4） |
-| #93 三則沒編號的即時模式留言 | 編 D 號 | 未做（[6909798873](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6909798873)、[6910613701](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6910613701)、[6911702981](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6911702981)；另 [6916169854](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6916169854) 也沒編號） | 等協調者 |
+| 冗餘檔案清理（#486） | 刪重複的 LOCAL 檔 | 盤點（`inv-redundant`）→ Opus 決定（[#486 留言 6940461147](https://github.com/Polalalabear/amidst/issues/486#issuecomment-6940461147)）。**B3（143 MB）、B1（488 MB）已刪**；**C1**（舊 scratchpad clone 223 MB）原因是 8791 用它當 cwd，8791 已改從 `local/runtime/live-main` 跑，可以刪 | C1、舊 pid、`/private/tmp/claude-501/glb` 的刪除指令已交使用者（D264、D268）；使用者是否已執行 `UNKNOWN`，下次要確認 |
+| ledger 小修 | `CO-claude` 改 `deletable`；`LOC-shared-cleanroom` 更新檔數／SHA／大小、註明刪除日期（D262 第 2 點） | 未做 | 等下一個清理相關寫手順便做（進既有分支，不另開） |
+| 舊工作台 `frontend/workbench/` 下線 | 刪約 66 檔（`frontend/workbench/` 62 檔約 33,400 行、`core-legacy-e2e.mjs`、Office 舊啟動器 3 檔待確認），改約 21 檔 | 計畫完成（[#486 留言 6950051568](https://github.com/Polalalabear/amidst/issues/486#issuecomment-6950051568)，`retire-old-wb-plan`）；v2 缺的舊功能都屬暫停線或一次性工具。本 PR 把 AGENTS.md 的主要 UI 改成 `frontend/workbench-v2/` | 等 #563 合併 → Opus 決定刪除範圍（含 Office 舊啟動器要不要一起下線，**等使用者決定**）→ 寫手實作 → 使用者執行刪除 |
+| 進度導覽 | 補到 #564 | 本 PR 做 | 等合併 |
+| 舊分支 | `argon/424`、`425`、`426`、`429`、`codex/467` 去留；`claude/epic-d-agentic` 刪除 | 未動 | **等使用者決定**（刪除前 Opus 看原始證據；被取代的直接刪不打 tag，D249） |
+| `archive/*` 9 條 | — | 5 條沒有對應 tag（見早上版本 §4.5） | **等使用者決定** |
+| 磁碟 | 維持 9 GiB 以上 | 快照時約 12 GiB | 系統 swap、Chrome 更新暫存、Claude `vm_bundles` 11 GiB 等 repo 外大項（D257）由使用者決定 |
 
 ### 4.6 Codex 與 Argon
 
-| 工作 | 預計產出 | 進度 | 卡住的部分／等誰 |
+| 工作 | 預計產出 | 目前進度 | 卡住的部分 |
 |---|---|---|---|
-| Codex 佇列（D248、D251） | #552–#555 全部交付 | #559（#552、#555）、#560（#554）、#561（#553）都是 Draft、CI 綠；#552–#555 標籤都是 `ready`（沒有 `in-progress`） | **等 Claude 審查**。注意 Codex 的原始證據放在 `~/.codex/visualizations/…`，不在 `local/evidence`，審查要對照 AGENTS.md 的 LOCAL 規則（D256 補充） |
-| Argon | — | 目前沒有派工。`owner:argon` 開著的只有 epic #479 本身，沒有 `ready` 子項 | 等協調者需要時派 |
+| Codex：#559 第三份指示 | 修漏看、查 B4、定義 ENTRY 可量測；通過聯合驗證 | 進行中（D273；同分支、保持 Draft） | 等 Codex 交回。Codex 佇列沒有其他 `ready` 任務（#552、#555 都併在 #559） |
+| Codex：#554 | 關 issue | 工作已由 #560 合併 | 可由協調者或 Haiku 留言關閉 |
+| Argon | — | 沒有派工。`owner:argon` 開著的只有 epic [#479](https://github.com/Polalalabear/amidst/issues/479)；Argon／Codex 拉取佇列 [#434](https://github.com/Polalalabear/amidst/issues/434) 已在 2026-11-08 關閉（D132 改到 #93） | 需要時再派 |
 
-## 5. 預算
+## 5. 等使用者決定
 
-| 用途 | 核准上限 | 實際花費 | 出處 |
-|---|---:|---:|---|
-| 11-16 以前合計（WP5 校準 0.113＋即時模式線 1.07） | — | 約 USD 1.18 | D242 第 1 點 |
-| WP5 方案 C pilot 段 | USD 4（terra 1.5、sol 2.5、astra 4 累計） | 依實際 token 約 USD 0.51（terra 0.082、sol 0.119、astra 0.305）；護欄帳本估計約 1.73（逾時呼叫按估計記，佔用的是護欄額度） | D253、D256 |
-| WP5 方案 C 總額（含 pilot、formal） | USD 46 | — | D242 第 2 點 |
+1. **#559**：Codex 第三份指示交回後的審查結果與合併（D273）。
+2. **#563**：P2（`Host` 驗證）合併前補或後續；之後合併。
+3. **#564**：看截圖、確認第 (4) 點標 UNKNOWN 的易讀名稱、合併。
+4. **#558**：修正後合併。
+5. **失聯後重新取得的分段門檻**（D254 第 3 點）。
+6. **LLM 不花錢的備援與 T2**（§0F.4 第 1 項）。
+7. **真模型驗證花費**（「目標不在名單」，§0F.4 第 2 項：sol6.1 約 USD 0.2、三模型約 USD 1，或不測）。
+8. **WP5 改善建議**（逾時分題型、縮短輸出、加大 pilot）要不要做，以及 #560 DP4 smoke 的金額。
+9. **N6 天花板亮度和接縫**（D227）；新 UI 要不要加 8CAM run（D234）。
+10. **分支**：`argon/424`、`425`、`426`、`429`、`codex/467` 去留；`claude/epic-d-agentic` 可刪；`archive/*` 5 條沒有 tag 的處理。
+11. **舊工作台下線時 Office 舊啟動器是否一起下線**。
+12. C1 等刪除指令是否已執行（確認即可）。
 
-- 合計：約 USD 1.18 ＋ 0.51 ＝ **約 USD 1.69**（D256）。方案 C 剩約 USD 45.5。花費是 token 數乘 D237 價目算的，不是 OpenAI 帳單。
-- 方案 C 開跑計畫：DP4 未接上，扣掉後名義約 USD 8.15、預期約 5.43、最壞約 29.88（D245 第 3 點）。
-- **額度不跨用途**：USD 46 只給 WP5；即時模式「目標不在名單」測試、#547 T2 都要另外核准。
-- 預設模型 terra（D237）；即時模式的影像裁決用 sol6.1。
+## 6. 給新協調者的第一件事
 
-## 6. 等使用者決定
+1. **確認狀態**：讀 #93 D257–D273；用 `gh pr view 559 563 564 558` 看有沒有新留言或新 commit（快照後各 session 可能已推進）。
+2. **收 #563**：決定 P2 合併前補（建議，約 3 行＋1 個測試，同分支），補完後轉 Ready，請使用者合併；合併後派 Opus 決定舊工作台下線範圍（§4.5）。
+3. **收 #564、#558**：寫手交回後各派審查（#564 Sonnet medium；#558 複審）。
+4. **等 Codex #559**：交回後派 Sonnet medium 審查＋Opus 判定（複雜程式）；通過後使用者合併。
+5. **#559、#563（、#564）都合併後**：照 §3 的流程把 8785、8791 再更新一次。
+6. 把 §5 的決策清單用 AskUserQuestion 分批問使用者。
 
-1. 磁碟：剩約 7.5 GiB，低於 8 GiB 保護線，要清空間才能再派寫檔 session。
-2. WP5 方案 C formal 段：跑不跑、跑哪些模型和題型、NL 要不要放寬逾時組（D256）。
-3. 不花錢的備援方案要不要先做（§0F.4 第 1 項；D242 第 3 點）。
-4. 「目標不在名單」／T2 要不要花錢、花多少（§0F.4 第 2 項：sol6.1 約 USD 0.2、三模型約 USD 1，或不測）。
-5. 失聯後重新取得：分段門檻、不設硬性上限（D254 第 3 點）。
-6. `claude/epic-d-agentic` 刪除；`argon/424`、`425`、`426`、`429`、`codex/467` 的去留；`archive/*` 5 條沒有 tag 的處理。
-7. 8785：新 UI 要不要加 8CAM run（D234）、N6 天花板亮度和接縫（D227）；下次更新的 pin 核准。
-8. #558、本 PR、Codex 的 #559／#560／#561 審查通過後合併；#560 的 DP4 實跑花費另外核准。
-9. 真人模型對照實驗（D236，11-16 版列過，之後沒有新的決定）。
+## 7. Session 清單（快照時）
 
-## 7. 第一個任務（建議，給新協調者）
+`list_sessions {"linked": true}` 列得到時以它為準。快照時與前一位協調者連結的 session：
 
-前一位協調者（本對話）收尾後不再開新工作，之後以新的協調者對話為主（使用者 2026-11-17）。
+| 名稱 | session id | 狀態 | 內容 |
+|---|---|---|---|
+| `wb2-ux-opus` | `local_a9d969c1-ec18-433c-a79c-2bdb2771696e` | 進行中 | #564 workbench-v2 五點 |
+| `rv-563-v2` | `local_87e00904-c5b9-4d65-aede-7b0600b4513f` | 完成 | #563 差異重審 APPROVE |
+| `rv-558` | `local_ebe77247-9a07-4b56-b782-46c5c360156c` | 完成 | #558 審查 NEEDS_CHANGES |
+| `llm-toggle` | `local_0c115a14-faa9-4091-a055-70d6c0ea5f53` | 完成 | #563 寫手（P2 可送回它） |
+| `563-llm` | `local_111a94ce-cce7-4eff-9cc7-6ef6e147007a` | 完成 | #563 |
+| `wp5-c-formal` | `local_d877f162-0e11-42db-83f0-e0d43516e6f5` | 閒置 | WP5 formal 執行 |
+| `wp5-api-analysis` | `local_396faf85-524a-407c-a03f-a867132c0c76` | 閒置 | WP5 逾時分析 |
+| `live-8791-main` | `local_6f39c05e-fb5c-45df-9938-dbc0483b3681` | 閒置 | 8791 改從 main |
+| `demo-ports-main` | `local_bc7f709c-1848-4b09-816d-af72fdf25297` | 閒置 | 8785／8791 停止原因與 8785 gate |
+| `retire-old-wb-plan` | `local_c841eca7-cd71-402e-9075-bcbd424afa5c` | 閒置 | 舊工作台下線計畫 |
+| `inv-redundant` | `local_8c9d9584-3c47-47c1-a1fb-c18221a0949f` | 閒置 | 冗餘檔案盤點 |
+| `sonnet-486` | `local_ffa8eab6-d802-41f7-9ad2-da46d163a878` | 閒置 | 清理候選核對 |
+| `opus-486-b3-c1-b1` | `local_cddff288-6b2f-46a6-a865-e494bb562eca` | 閒置 | 清理刪除決定 |
+| `opus-559-560-561` | `local_266aae80-db7d-4be5-b60f-b99b306bf92a` | 完成 | Codex 三個 PR 的 Opus 判定 |
+| `rv-559`、`rv-560`、`rv-561` | `local_9e90289a-…`、`local_d6eacff2-…`、`local_f92543b6-…` | 完成 | Codex 三個 PR 的 Sonnet 審查 |
+| `handoff-1117pm` | （本 session） | — | 本文件 |
 
-1. **先查磁碟**：剩約 7.5 GiB，一天少了約 3–4 GiB。派 Haiku low 唯讀查哪裡變大（`local/evidence`、scratchpad、`~/.codex` 等），請使用者清；回到 9 GiB 以上才同時派三個寫手。
-2. **審查 Codex 的 #559／#560／#561**：各派 Sonnet medium 正式審查（`gh pr diff`、focused tests、`git diff --check`、merge-tree）；三個都屬複雜程式碼，被標出的點交 Opus。#559＋#561 合併後聯合驗證；檢查 Codex 證據放在 `~/.codex/...` 的 LOCAL 規則。
-3. **問使用者 formal 要不要跑**（D256、補充）：跑哪些模型和題型、NL 要不要另列放寬逾時組；分段停止條件要先寫明以題型或模型計。
-4. **#558**：寫手補完「實際產出」後派 Sonnet medium 審查（LaTeX 數字對照出處、PDF 重編），通過後請使用者合併。
-5. **派「工作台設定的 LLM 切換」**（Sonnet medium，新功能分支，設計照 `LIVE_MODE_LLM_DECISION_V1.md` §6，預設不開；D242 第 3 點）。等磁碟恢復再派。
-6. 之後派一個 Haiku low 批次處理：進度導覽補列（#558–#562）並更新 #546／#547／#551／#556／#557 的狀態、#479／#489 子項勾選、#93 沒編號的留言編 D 號。
+`record-live-vs-offline`（#558 寫手）不在連結清單內，id `UNKNOWN`；修正 #558 時先用 `list_sessions` 找，找不到就開新 session。
