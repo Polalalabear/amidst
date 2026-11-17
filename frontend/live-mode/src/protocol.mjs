@@ -8,7 +8,7 @@ const TRACK_KEYS = new Set(['state', 'active_cam', 'seen_cams', 'est_xy', 'event
   // image adjudication (src/amidst/live_mode/advisor.py): who decided, and the advisor's own status. Backend outputs only.
   'decision_source', 'fallback_reason', 'advisor']);
 const ADVISOR_KEYS = new Set(['state', 'pending_ms', 'last']);
-const ADVISOR_LAST_KEYS = new Set(['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'model', 'source', 'fallback_reason']);
+const ADVISOR_LAST_KEYS = new Set(['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'cleared', 'model', 'source', 'fallback_reason']);
 const EVENT_KEYS = new Set(['tick', 'type', 'cam', 'detail']);
 const TOP_KEYS = new Set(['type', 'tick', 't_capture_ms', 'frames', 'dets', 'tracking', 'timing_ms']);
 
