@@ -336,12 +336,16 @@ def execute_call(ctx: Context, cfg: Mapping, profile: Mapping, model: Mapping, q
             resp = ranker.rank(req)
             usage = getattr(ranker, 'last_usage', None) or {}
             out['prompt_tokens'], out['completion_tokens'] = usage.get('prompt_tokens'), usage.get('completion_tokens')
+            out['dp4_attempts'] = getattr(ranker,'last_trace',[])
+            if getattr(getattr(ranker,'provider',None),'last_error',None):
+                out['provider_error'] = ranker.provider.last_error
         ar.validate_response(resp, req)
         top = [r['camera_id'] for r in resp['ranking'][:3]]
         out.update(latency_ms=float(resp['latency_ms']), steps=int(resp['steps']), fallback_reason=resp['fallback_reason'],
                    decision_source=resp['method'], answer=top,
                    matches_rule=top[:1] == [rule_resp['ranking'][0]['camera_id']],
                    reported_cost_usd=resp['cost_usd'])
+        out['dp4_method'] = resp['requested_method']
         return out
     # NL
     vocab, text = q['vocab'], q['text']
@@ -507,7 +511,7 @@ def health_check(cells: list[Mapping]) -> tuple[list[str], list[str]]:
             continue
         label = f"{c['model']} {c['task_type']}"
         rate = c['provider_unavailable_rate']
-        if c['task_type'] in ('DP1', 'DP3') and rate is not None and rate >= 1.0:
+        if c['task_type'] in ('DP1', 'DP3', 'DP4') and rate is not None and rate >= 1.0:
             sample = c.get('provider_error_sample')
             failures.append(f"{label}: 100% PROVIDER_UNAVAILABLE ({c['n_ok']}/{c['n_ok']}); the model was never called. "
                             f"first error: {sample if sample else 'UNKNOWN (no provider_error recorded)'}")

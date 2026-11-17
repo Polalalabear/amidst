@@ -1,0 +1,67 @@
+{
+  "issue": 554,
+  "base": "21aacc8ea75b49fe9efd914a0d0198b789066a7a",
+  "status": "FOCUSED_PASS",
+  "verification": {
+    "passed": 140,
+    "test_first_failed": 8,
+    "mode": "fake clients/transports only",
+    "paid_calls": 0,
+    "real_key_reads": 0,
+    "real_ollama_or_openai_calls": 0
+  },
+  "live_interface_fake_provider_outputs": [
+    {
+      "model": "terra6.1",
+      "method": "API",
+      "rows": 24,
+      "fake_provider_calls": 24,
+      "status": "OK",
+      "format_error_rate": 0.0,
+      "artifacts": "final-tmp/test_live_fake_provider_writes0/out"
+    },
+    {
+      "model": "qwen2.5:7b-instruct-q4_K_M",
+      "method": "API",
+      "rows": 24,
+      "fake_provider_calls": 24,
+      "status": "OK",
+      "format_error_rate": 0.0,
+      "artifacts": "final-tmp/test_live_fake_provider_writes1/out"
+    },
+    {
+      "model": "terra6.1",
+      "method": "AGENT",
+      "rows": 24,
+      "fake_provider_calls": 48,
+      "status": "OK",
+      "format_error_rate": 0.0,
+      "artifacts": "final-tmp/test_live_fake_provider_writes2/out"
+    },
+    {
+      "model": "qwen2.5:7b-instruct-q4_K_M",
+      "method": "AGENT",
+      "rows": 24,
+      "fake_provider_calls": 48,
+      "status": "OK",
+      "format_error_rate": 0.0,
+      "artifacts": "final-tmp/test_live_fake_provider_writes3/out"
+    }
+  ],
+  "scope": "Raw --live fixture manifests contain synthetic approval flags; these are tests, NOT real authorization or paid runs",
+  "artifact_manifest": {
+    "path": "$AMIDST_ARTIFACTS/cx554-20261117/MANIFEST.json",
+    "sha256": "1c42620f54c541a1d96985f837d4c53a8e72a60dd9101278584cccd96034af9c",
+    "file_count": 37,
+    "bytes": 808417,
+    "regeneration": "WP5_DP4_HANDOFF_20261117.md focused pytest + dry/fake commands"
+  },
+  "not_verified": [
+    "real provider latency/output/usage",
+    "Colab L4 execution",
+    "native Windows execution",
+    "real question set",
+    "paid execution or approval",
+    "identity/physical acceptance"
+  ]
+}

@@ -161,9 +161,9 @@ def test_live_gates_refuse(tmp_path, capsys):
                                '--questions', 'x']) == 2
     assert 'LIVE_GUARD_REFUSED' in capsys.readouterr().err
     q = tmp_path / 'q.jsonl'
-    q.write_text(''.join(json.dumps(r) + '\n' for r in fake.synthetic_rows(4)), encoding='utf-8')
+    q.write_text('', encoding='utf-8')
     assert runner.main(base + pin + ['--arm', 'mac', '--questions', str(q)]) == 2
-    assert 'DP4_LIVE_NOT_WIRED' in capsys.readouterr().err
+    assert 'QUESTIONS_SHORT' in capsys.readouterr().err
 
 
 def test_live_with_injected_clients_obeys_the_cap(tmp_path):
