@@ -55,6 +55,17 @@ PR #551 (B 畫面 HUD) merged as `21aacc8e`; the WP5 OpenAI three-model pilot
 terra NL 25%, sol DP3 21% / NL 38%, astra 38% / 58% / 83%; about USD 0.51; formal
 not run); source S59.
 
+v4.2 (2026-11-17) fixes the #558 review (comment 6952193830): WP5 formal results
+(Table 15, #93 comment 6941051090, D260) and the timeout analysis (#93 comment
+6950053674) replace "formal not run"; the "1.00 agreement with rules" is stated as
+carrying no information (one answer per question type); live `decision_source` is
+never `AGENT` under the default `reseed` (only `lock`); the 4 m candidate list
+applies to `SILENT_PICK` only; the third `reseed` condition; `demo_local_tracks.py`
+line numbers; the Q5 linker's `link_center_dist_max_diag_ratio` (box diagonal, vs
+box height in 8785). The LOCAL `SHA256SUMS.txt` of `wp5-openai-C-20261117` was
+regenerated after formal (46 rows, `18f8b797…`); D256's `093140fd…` is kept as the
+pilot-time value. Sources S60–S62.
+
 - Source: `amidst_experiment_record.tex`
 - Output: `amidst_experiment_record.pdf` (committed; LOCAL copy in
   `/Users/polalabear/amidst-artifacts/experiment-record-20261108/`)

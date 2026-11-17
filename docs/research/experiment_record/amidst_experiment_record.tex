@@ -552,7 +552,7 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 (2) 第~\ref{sec:handoff} 節「OpenAI 介接只用在顯示」：現在 OpenAI 也用在離線 WP5 比較和即時裁決，都經過付費護欄 \code{ApiGuard}。
 (3) 第~\ref{sec:handoff} 節「自然語言轉選單在 PR \#490，尚未合併」：路徑 (b) 已被 N1（\code{nl_query_parse.py}）取代（D250）。
 (4) 摘要的「現場不跑模型」只對 8785 預錄 demo 成立；即時模式每一輪都在現場跑偵測模型。
-第~\ref{sec:handoff} 節對 \code{associate()} 切鏡規則的描述，在本版重新核對後仍然正確。
+第~\ref{sec:handoff} 節對 \code{associate()} 切鏡規則的描述，在本版重新核對後仍然正確。v4.1／v4.2 另外補上 \code{31a69177} 之後的事實：\#551 已合併、WP5 pilot（D256）與 formal（D260）的結果、逾時原因分析。
 }}\end{center}
 
 \paragraph{白話導讀。}本專案有兩套系統。第一套是 8785 的\textbf{預錄 demo}：影片先錄好，偵測模型事先跑完，結果存成索引；展示時只查索引、重播畫面。第二套是\textbf{即時模式}：操作端用鍵盤移動一個虛擬人物，後台只看 8 台虛擬鏡頭的畫面，每一輪現場跑偵測並決定追誰、看哪台鏡頭。兩套系統都可以選擇讓大型語言模型（LLM）參與判斷，但預設都不開。本章回答三個問題：兩套系統各自怎麼運作；每個參數為什麼是這個值；LLM 打開時能改變什麼、不能改變什麼。
@@ -590,7 +590,7 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 沒有候選就 RETURN、每 1 s 重搜、到上限結束 & 只有 Q5 狀態機有（重搜上限 6 次，\code{q5_controller.py:548,677}）。\code{associate()} 沒有 RETURN 狀態、沒有上限，每一格都重掃 \\
 600 ms 內同鏡頭重現不算失聯 & Q5 狀態機：\code{link_max_gap_us} 600 ms 內是暫失（TEMP\_LOST），超過才 SEARCHING。8785：畫面顯示時把同一鏡頭 $\le 0.6$ s 的缺口接起來（\code{cross_camera_demo.py:58}），局部軌跡最多容忍 2 格沒偵測到（\code{demo_local_tracks.py:12}）。但 \code{associate()} 本身在缺的那一格就可能切到別台 \\
 兩個以上候選時規則放棄不切 & 只對 \code{associate()} 成立（\code{AMBIGUOUS_HANDOFF}，\code{:204-211}）。Q5 狀態機依排名逐一取證據，\textbf{第一個}達到 \code{MATCH_STRONG} 的就切（\code{q5_controller.py:516-523}） \\
-同鏡頭用框重疊（IoU）連接 & 方向正確，但門檻不同：8785 的局部軌跡是 IoU $\ge 0.2$ \textbf{或}中心距離 $\le 0.6$ 倍框高，加上面積比 $\le 12$（\code{demo_local_tracks.py:10-12}）；Q5 狀態機的連結器是 \code{link_iou_min} 0.3、中心距離比 0.5（\code{parameter_set_v1.json}） \\
+同鏡頭用框重疊（IoU）連接 & 方向正確，但門檻不同：8785 的局部軌跡是 IoU $\ge 0.2$ \textbf{或}中心距離 $\le 0.6$ 倍框高，加上面積比 $\le 12$（\code{demo_local_tracks.py:10-12}）；Q5 狀態機的連結器是 \code{link_iou_min} 0.3、\code{link_center_dist_max_diag_ratio} 0.5（\code{parameter_set_v1.json}）。注意兩邊的分母不同：8785 的 0.6 是對\textbf{框高}的比，Q5 的 0.5 是對\textbf{框對角線}的比，兩個數字不能直接比較 \\
 live：連續 2 輪、15 輪 & 數字正確，但「輪」不是固定時間。操作端每 0.2 s 擷取一次，後台還在算時就丟掉這次；只有算完才算一輪（\code{operator.mjs:90-112}）。路線鏡頭約每秒 2 輪，8 鏡頭每秒不到 1 輪\src{S41}，所以 15 輪約 7.5 s 到 15 s 以上 \\
 live：所有紅衣偵測在 1.5 m 內才鎖定 & 實作是「每一個都離\textbf{第一個}偵測 1.5 m 內」（\code{tracker.py:98}），不是兩兩比較；鎖定分數最高的那一個 \\
 live：LOST 後回到範圍內就 REACQUIRE & 正確，但範圍的中心是\textbf{最後一次的估計位置}，失聯期間不會移動（\code{tracker.py:106-125}）。目標走遠後回不到 4 m 內就接不回來 \\
@@ -612,7 +612,7 @@ live：LOST 後回到範圍內就 REACQUIRE & 正確，但範圍的中心是\tex
 \midrule
 偵測何時跑 & 事先離線跑完，存成索引（每秒 5 格） & 同左 & 每一輪現場跑 RT-DETR R18 \\
 輸入 & 索引裡的框、分數、顏色 & 同左 & 8 台虛擬鏡頭的 JPEG；後台縮成 320$\times$180 再偵測 \\
-同一鏡頭怎麼接 & 局部軌跡：框重疊或中心夠近，最多缺 2 格 & 連結器：IoU $\ge 0.3$ 或中心距離比 $\le 0.5$；缺口 $\le 600$ ms 是暫失 & 不分鏡頭：把紅衣框的腳底投影到地面，離上次估計最近、且在 4 m 內的就是目標 \\
+同一鏡頭怎麼接 & 局部軌跡：框重疊或中心夠近，最多缺 2 格 & 連結器：IoU $\ge 0.3$ 或中心距離 $\le 0.5$ 倍框對角線；缺口 $\le 600$ ms 是暫失 & 不分鏡頭：把紅衣框的腳底投影到地面，離上次估計最近、且在 4 m 內的就是目標 \\
 原鏡頭還看得到時 & 不切（黏著） & 不切 & 不切；只有原鏡頭連續 2 輪沒看到、別台有看到才切 \\
 跟丟後找誰 & 每一格掃所有鏡頭；顏色和目標有交集的局部軌跡都是候選 & 失聯 600 ms 後，從鄰接圖取前 3 台鏡頭，在 6 s 的證據窗內找 & 每一輪看所有鏡頭的紅衣框，4 m 範圍內的才算 \\
 有多個候選時 & 全部記為歧義，這一格不切 & 依排名取第一個證據強的 & 選離估計位置最近的（規則不會發現這是歧義） \\
@@ -628,7 +628,7 @@ LLM 介入點 & DP1、DP3（注入 \code{decider}），預設關 & 有 \code{AGE
 
 \paragraph{流程一：8785 畫面的追蹤（\code{associate()}）。}
 \begin{enumerate}[nosep]
-  \item \textbf{事前}：RT-DETR 對每台鏡頭每秒 5 格離線偵測，存成索引。每台鏡頭各自把框接成「局部軌跡」：起點要是唯一一個有顏色判定、分數 $\ge 0.3$ 的人；之後找框重疊（IoU $\ge 0.2$）或中心夠近（$\le 0.6$ 倍框高）、面積比不超過 12 倍的框接下去；連續缺 3 格就結束這條軌跡（\code{demo_local_tracks.py:10-110}，D148\src{S38,S58}）。
+  \item \textbf{事前}：RT-DETR 對每台鏡頭每秒 5 格離線偵測，存成索引。每台鏡頭各自把框接成「局部軌跡」：起點要是唯一一個有顏色判定、分數 $\ge 0.3$ 的人；之後找框重疊（IoU $\ge 0.2$）或中心夠近（$\le 0.6$ 倍框高）、面積比不超過 12 倍的框接下去；連續缺 3 格就結束這條軌跡（\code{demo_local_tracks.py:10-12,40-92}，D148\src{S38,S58}）。
   \item \textbf{起點}：最早出現、有顏色判定的人。同一格有兩個以上就記 \code{AMBIGUOUS_FIRST_SEED}，先不鎖。
   \item \textbf{跟著}：現在這條軌跡在這一格還有觀測，就不換鏡頭（\code{:142-150}）。
   \item \textbf{跟丟}：這一格沒有觀測時，看所有鏡頭在這一格有觀測的局部軌跡。顏色和目標過去的顏色有交集的才算候選；時間差不能是負的（\code{:157-181}）。
@@ -708,7 +708,7 @@ LLM 介入點 & DP1、DP3（注入 \code{decider}），預設關 & 有 \code{AGE
 局部軌跡起點與接續分數＝0.3；IoU 0.2；中心 0.6 倍框高；面積比 12；最多缺 2 格 & 8785 每台鏡頭內怎麼接框 & D148：為了提高追蹤召回，起點 $\ge 0.3$、接續不分類別 & \code{demo_local_tracks.py:10-12}；\src{S58} & 接續框可能是「椅子」等其他類別（\code{BOX_CONTINUATION}） \\
 連結分數門檻＝0.4；顏色規則 \code{NOT_NONE} & 8785 跨鏡頭候選的條件 & \code{DEMO_DEFAULT} 參數 & \code{cross_camera_demo.py:32-34} & 參數集仍是 \code{PROPOSED}，未正式核定 \\
 \multicolumn{5}{l}{\textbf{離線 Agent 決策（\code{agent_decision_params_v1.json}，預設 \code{mode}＝\code{OFF}）}} \\
-單次逾時＝5000 ms（原 2000） & 一次呼叫最多等多久 & D243：使用者決定 2 s$\to$5 s。原本 2000 ms 時，本機 Qwen3 18 次全部逾時 & \src{S46,S51} & 已打包的 Colab v3 pack 仍內含 2000 ms \\
+單次逾時＝5000 ms（原 2000） & 一次呼叫最多等多久 & D243：使用者決定 2 s$\to$5 s。原本 2000 ms 時，本機 Qwen3 18 次全部逾時 & \src{S46,S51} & 已打包的 Colab v3 pack 仍內含 2000 ms；formal 的逾時退回 terra 10.7\%、sol 20.0\%，NL 約兩成。5 s 對 NL 不夠，放寬到 10 s 時 0/40 逾時\src{S60,S61} \\
 一步總上限＝5000 ms，逾時不重試 & 一個決策點最多花多久 & D246：取代 12000 ms 的提案。12 s 會讓逾時後再試，每次都計費，第二次多半也逾時 & \code{agent_decision.py:762-765}；\src{S51} & 429／5xx 仍可重試 1 次；pilot 中逾時退回 0--83\%（表~\ref{tab:v4-wp5}） \\
 session 上限＝12 輪；每分鐘 30 次；測試額度 USD 100 & 整段與速率上限 & D166：分階段核准，先給 USD 100；正式階段鎖住 & \src{S47,S50} & 正式階段的上限 \UNK \\
 NL 單次逾時＝2500 ms & 一句話轉查詢欄位 & \textbf{工程預設}（程式常數） & \code{nl_query_parse.py:33} & -- \\
@@ -717,7 +717,7 @@ DP4 Agent：最多 5 步、USD 0.02、單次 3000 ms & 主動關注排序 & 契�
 \end{longtable}
 \end{footnotesize}
 
-\paragraph{小結。}量測過、有比較的參數只有幾個：即時模式的 4 m、不放大範圍、至少兩個候選才問、交錯門檻 0.7 m、併人 1.0 m，以及預錄的 D67／D78／D79 一組（那是使用者核定的，推導有公式，但 6 s、1 s 本身沒有用資料調過）。其餘多數是工程預設，報告引用時要照實說明。
+\paragraph{小結。}量測過、有比較的參數只有幾個：即時模式的 4 m、不放大範圍、至少兩個候選才問、交錯門檻 0.7 m、併人 1.0 m，以及預錄的 D67／D78／D79 一組（那是使用者核定的，推導有公式，但 6 s、1 s 本身沒有用資料調過）。離線 Agent 的單次逾時 5 s 是使用者決定的，之後已有 formal 的量測（表~\ref{tab:v4-wp5f}）：它對 DP1 夠用，對 NL 和 sol 的 DP3 不夠\src{S60,S61}。其餘多數是工程預設，報告引用時要照實說明。
 
 %---------------------------------------------------------------------
 \subsection{LLM 怎麼介入：預錄線（離線 Agent 決策）}\label{sec:v4-llm-off}
@@ -832,7 +832,7 @@ NL：把一句話填進查詢欄位 & 填詞彙表以外的值 \\
 \paragraph{兩種觸發。}（\code{advisor.py:277-299}）
 \begin{itemize}[nosep]
   \item \textbf{規則默默選了一個（\code{SILENT_PICK}）}：目前有跟到，但上次估計位置 4 m 內有兩個以上的人。規則會直接選最近的，不會察覺這是歧義。
-  \item \textbf{失聯但畫面上有人（\code{LOST_WITH_CANDIDATES}）}：已經失聯至少 2 輪、不在 SEARCHING，而且畫面上至少有 2 個紅衣人（\code{lost_min_candidates}＝2）。
+  \item \textbf{失聯但畫面上有人（\code{LOST_WITH_CANDIDATES}）}：已經失聯至少 2 輪、不在 SEARCHING，而且同一台鏡頭裡至少有 2 個紅衣人（\code{lost_min_candidates}＝2）。這時的候選是畫面上\textbf{所有}紅衣人，沒有 4 m 的限制（\code{advisor.py:286-287,293-294}）；只有 \code{SILENT_PICK} 的候選限在上次估計位置 4 m 內（\code{:282-285}）。
 \end{itemize}
 兩種都要求：同一台鏡頭裡有足夠的候選、已經有參考圖、沒有其他問題在等、距上次提問結束至少 1 s。候選由左到右編號，最多 4 個。
 
@@ -843,7 +843,7 @@ NL：把一句話填進查詢欄位 & 填詞彙表以外的值 \\
 \paragraph{回答怎麼改變系統。}（\code{advisor.py:236-276}）
 \begin{itemize}[nosep]
   \item \textbf{答 0（都不是）}：清掉之前的鎖定，不對追蹤器做任何事。
-  \item \textbf{答 $k$}：先查第 $k$ 號人的追蹤編號 1.5 s 內還有沒有被看到，而且提問之後沒有和別人靠近到 0.7 m 內（靠太近時編號可能已經換人）。兩項都過才採用；否則改記 \code{RULE_FALLBACK}／\code{TIME_BUDGET}（答案太晚或情況已變）。
+  \item \textbf{答 $k$}：先查第 $k$ 號人的追蹤編號 1.5 s 內還有沒有被看到，而且提問之後沒有和別人靠近到 0.7 m 內（靠太近時編號可能已經換人）。兩項都過才採用；否則改記 \code{RULE_FALLBACK}／\code{TIME_BUDGET}（答案太晚或情況已變）。用預設的 \code{reseed} 時還有第三個條件：被選的人必須在\textbf{套用的那一輪}剛好被偵測到；沒有的話，答案會被直接丟掉，但 \code{ADJUDICATED} 事件裡仍記 \code{applied: true}（\code{:247,254,259-260}）。
   \item \textbf{採用的方式}（\code{--advisor-apply}，預設 \code{reseed}）：
     \begin{itemize}[nosep]
       \item \code{reseed}：把規則追蹤器的估計位置、狀態（TRACKING）、作用中鏡頭\textbf{搬到被選的人身上一次}，失聯計數歸零，之後交回規則。
@@ -856,7 +856,9 @@ NL：把一句話填進查詢欄位 & 填詞彙表以外的值 \\
 
 \paragraph{不擋追蹤迴圈。}提問在背景執行緒進行，\code{ask} 立刻返回；每一輪只用 \code{poll} 看有沒有答案（\code{:130-141,173-189}）。一次只有一個問題。
 
-\paragraph{輸出與畫面。}每一輪的輸出多三個欄位：\code{decision_source}（\code{AGENT}：正在依 LLM 的答案跟；\code{RULE_FALLBACK}：剛才問了但沒用上，顯示 3 s；\code{RULE_ONLY}：其他）、\code{fallback_reason}，以及 \code{advisor}（是否在問、等了多久、上一個答案）。事件串流會出現 \code{ADJUDICATE_ASK}、\code{ADJUDICATED}，以及 \code{by: AGENT} 的 SWITCH（\code{:304-309}）。這些欄位都在 \code{protocol.mjs} 的白名單裡（\code{:7-11}）。B 畫面的 HUD 把它們顯示成「判斷來源：演算法／LLM／LLM 沒趕上」與理由文字。這部分是 PR \#551，已於 2026-11-17 合併（\code{main}@\code{21aacc8e}，在本章依據的 \code{31a69177} 之後）\src{S55}。
+\paragraph{輸出與畫面。}每一輪的輸出多三個欄位：\code{decision_source}、\code{fallback_reason}，以及 \code{advisor}（是否在問、等了多久、上一個答案）。\code{decision_source} 的規則是（\code{:304-306}）：還鎖著 LLM 選的人時是 \code{AGENT}；剛才問了但沒用上，3 s 內是 \code{RULE_FALLBACK}；其他都是 \code{RULE_ONLY}。事件串流會出現 \code{ADJUDICATE_ASK}、\code{ADJUDICATED}，以及 \code{by: AGENT} 的 SWITCH（\code{:254,267-268,299}）。這些欄位都在 \code{protocol.mjs} 的白名單裡（\code{:7-11}）。B 畫面的 HUD 把它們顯示成「判斷來源：演算法／LLM／LLM 沒趕上」與理由文字。
+
+\textbf{注意：用預設的 \code{reseed} 時，\code{decision_source} 不會出現 \code{AGENT}。}\code{reseed} 在套用答案的同一輪就把鎖定清掉（\code{:248,270-271}），而 \code{decision_source} 是在那之後才算的（\code{:305}），所以採用答案的那一輪輸出的是 \code{RULE_ONLY}。只有 \code{--advisor-apply lock} 會輸出 \code{AGENT}。也就是說，用 demo 預設（覆核＋\code{reseed}）時，HUD 的判斷來源看不到「LLM」，只能從 \code{ADJUDICATED} 事件、\code{advisor.last.applied} 或 \code{by: AGENT} 的 SWITCH 看出 LLM 有介入。這可能是程式或 HUD 要修的地方，列為後續工作，本紀錄不改程式。這部分是 PR \#551，已於 2026-11-17 合併（\code{main}@\code{21aacc8e}，在本章依據的 \code{31a69177} 之後）\src{S55}。
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -889,11 +891,12 @@ NL：把一句話填進查詢欄位 & 填詞彙表以外的值 \\
 \end{itemize}
 所以目前裁決的價值主要是展示「LLM 如何在受限的選項中參與判斷」，不能說它提高了跟對的比例。
 
-\paragraph{離線 WP5 模型比較：pilot 已跑完，formal 未跑。}
+\paragraph{離線 WP5 模型比較：pilot 和 formal 都已跑完（合成題）。}
 \begin{itemize}[nosep]
   \item \textbf{OpenAI 校準}（2026-11-15，合成題）：實際花費 USD 0.113。terra 的 DP1 格式錯誤是 \code{ABSTAIN} 多帶 \code{candidate_id}，v3 已修\src{S54}。
   \item \textbf{Colab L4 本機模型 pilot}（v3.1，2026-11-17，合成題）：qwen2.5 7B 的 DP1、DP3、NL 各 24 題全部自己回答、0 格式錯誤；llama3.1 8B 的 DP3 只有 13/24 自己回答（11 題選了 DP3 不允許的 \code{SELECT}，屬模型能力）。注意這批用的是包內舊的 2000 ms 逾時，數字是協調者直接數的，正式彙總還沒重算\src{S53}。
-  \item \textbf{OpenAI 三模型 pilot}（方案 C，2026-11-17，合成題；正式組逾時：單次 5000 ms、一步 5000 ms、不重試；DP4 跳過；每個模型 72 步，上限 USD 4）：已跑完，結果見表~\ref{tab:v4-wp5}\src{S52,S59}。\textbf{格式錯誤三個模型都是 0}，v3 的格式修正有效。\textbf{主要問題是逾時}：在 5 s、不重試的條件下，terra 的 NL 有 25\% 逾時退回；sol 的 DP3 21\%、NL 38\%；astra 的三種題型是 38\%／58\%／83\%。有回答的題目都和規則一致，但題目是合成的，規則只是比對基準，這不代表答對。彙總的花費約 USD 0.51（護欄帳本的上界估計是 1.728），專案的 OpenAI 累計約 USD 1.69。開跑計畫的停止條件是「逾時退回率超過 20\% 就停」，terra 和 sol 都已超過，但執行時仍繼續跑完 astra，這是偏離計畫的地方。formal 段沒有跑，要由使用者另外決定。
+  \item \textbf{OpenAI 三模型 pilot}（方案 C，2026-11-17，合成題；正式組逾時：單次 5000 ms、一步 5000 ms、不重試；DP4 跳過；每個模型 72 步，上限 USD 4）：已跑完，結果見表~\ref{tab:v4-wp5}\src{S52,S59}。\textbf{格式錯誤三個模型都是 0}，v3 的格式修正有效。\textbf{主要問題是逾時}：在 5 s、不重試的條件下，terra 的 NL 有 25\% 逾時退回；sol 的 DP3 21\%、NL 38\%；astra 的三種題型是 38\%／58\%／83\%。有回答的題目都和規則一致，但這個數字\textbf{沒有資訊量}：合成題每種題型只有一個答案（DP1 全是 \code{ABSTAIN}、DP3 全是 \code{ACCEPT_SEGMENT}），沒有會讓模型和規則分歧的題目，所以「一致」只代表流程能跑通，不代表模型判斷得準\src{S61}。彙總的花費約 USD 0.51（護欄帳本的上界估計是 1.728），專案的 OpenAI 累計約 USD 1.69。開跑計畫的停止條件是「逾時退回率超過 20\% 就停」，terra 和 sol 都已超過，但執行時仍繼續跑完 astra，這是偏離計畫的地方。
+  \item \textbf{OpenAI formal}（2026-11-17，使用者以 D260 核准另開帳本、上限 USD 6\src{S62}）：terra6.1、sol6.1 各 300 步（DP1 30 題、DP3 30 題、NL 40 題，每題 3 次；單次 5000 ms、一步 5000 ms、不重試；DP4 跳過；astra6 依核准沒有跑），另加 NL 放寬到 10 s 的探索組（\code{EXPLORATORY}，各 40 題 $\times$ 1 次）。結果見表~\ref{tab:v4-wp5f}\src{S60}。格式錯誤 0，沒有被護欄拒絕或連不上的情況。逾時退回：terra 10.7\%（DP1 2.2\%、DP3 5.6\%、NL 20.8\%），sol 20.0\%（DP1 1.1\%、DP3 35.6\%、NL 22.5\%）。NL 放寬到 10 s 後，兩個模型的逾時都是 0/40（p95 分別是 6471、7424 ms）；但這兩組的樣本不同（120 步對 40 步），不是同一題的配對比較。花費：實際 token 算出來 USD 0.854，護欄帳本的估計 1.233；專案累計實際約 USD 1.36，帳本估計約 2.96（帳本對逾時的呼叫用最壞情況估價，所以是上界）。
 \end{itemize}
 
 \begin{table}[htbp]
@@ -914,14 +917,45 @@ astra6 & DP3 & 5035 & 5077 & 0.0973 & 58\% & 0\% & 10/10 \\
 astra6 & NL & 5000 & 5000 & 0.0334 & 83\% & 0\% & 4/4 \\
 \bottomrule
 \end{tabular}
-\par\smallskip\footnotesize 出處：\#93 D256\src{S59}，由協調者從 LOCAL \code{local/evidence/wp5-openai-C-20261117/} 的各模型 \code{summary.md} 整理（\code{SHA256SUMS.txt} 的 SHA-256 \hash{093140fdd6ab3df3bc868f22ca9a2658c14ead1c0c74a28ee52f3d3891fd36a0}；重跑可以重建，但數字會不同）。
+\par\smallskip\footnotesize 出處：\#93 D256\src{S59}，由協調者從 LOCAL \code{local/evidence/wp5-openai-C-20261117/} 的各模型 \code{summary.md} 整理（pilot 當時 \code{SHA256SUMS.txt} 的 SHA-256 是 \hash{093140fdd6ab3df3bc868f22ca9a2658c14ead1c0c74a28ee52f3d3891fd36a0}，這是 D256 記的值。formal 之後這個檔重新產生過，2026-11-17 讀到的是 46 列、SHA-256 \hash{18f8b7972abb29e57a6b391a1f5795965d5899df757c59d895c99c75e5edb30d}。這些是付費呼叫的結果，不能重建）。
 \end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{WP5 OpenAI formal 與 NL 10 s 放寬組（2026-11-17，合成題，每題 3 次；放寬組每題 1 次）。p95 是 5000 ms 的格子被逾時截斷。}\label{tab:v4-wp5f}
+\begin{tabular}{l l l r r r r r r}
+\toprule
+組 & 模型 & 題型 & $n$ & 自己回答 & p50 ms & p95 ms & 逾時退回 & 格式錯誤 \\
+\midrule
+FORMAL & terra6.1 & DP1 & 90 & 88 & 2939 & 4338 & 2.2\% & 0 \\
+FORMAL & terra6.1 & DP3 & 90 & 85 & 3599 & 5034 & 5.6\% & 0 \\
+FORMAL & terra6.1 & NL & 120 & 95 & 3210 & 5000 & 20.8\% & 0 \\
+FORMAL & sol6.1 & DP1 & 90 & 89 & 3363 & 4778 & 1.1\% & 0 \\
+FORMAL & sol6.1 & DP3 & 90 & 58 & 4710 & 5070 & 35.6\% & 0 \\
+FORMAL & sol6.1 & NL & 120 & 93 & 3537 & 5000 & 22.5\% & 0 \\
+EXPLORATORY（10 s） & terra6.1 & NL & 40 & 40 & 2918 & 6471 & 0\% & 0 \\
+EXPLORATORY（10 s） & sol6.1 & NL & 40 & 40 & 3297 & 7424 & 0\% & 0 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize 出處：\#93 formal 結果留言\src{S60}；LOCAL \code{local/evidence/wp5-openai-C-20261117/}（\code{formal_*}、\code{nl10s_*}、\code{guard-ledger-formal/}；\code{SHA256SUMS.txt} 46 列，SHA-256 見表~\ref{tab:v4-wp5} 註；付費呼叫，不能重建）。有回答的題目和規則一致的比例都是 1.00，但這沒有資訊量（見內文）。
+\end{table}
+
+\paragraph{為什麼會逾時（只讀分析，沒有付費呼叫）\src{S61}。}
+\begin{itemize}[nosep]
+  \item \textbf{5 s 剛好落在延遲分布的中間。}延遲大約等於「固定開銷＋輸出 token 數 $\times$ 每個 token 的時間」。在 10 s 不截斷的 NL 組，兩者的相關係數是 0.96／0.97：terra 約 1.2 s＋18 ms/token，sol 約 1.45 s＋28 ms/token；astra 的固定開銷約 2.2 s。DP 題的回答約 80--140 token，正常延遲就有 3.4--4.4 s。
+  \item \textbf{輸出長度主要來自自由文字的 \code{rationale}}，不是 token 上限擋住。10 s 組裡超過 5 s 的比例（terra 22.5\%、sol 17.5\%）和 formal NL 的逾時率（20.8\%、22.5\%）幾乎一樣，所以 formal NL 的逾時可以完全用「回答本來就超過 5 s」解釋。
+  \item \textbf{sol DP3 從 21\% 變成 36\% 是抽樣差異}（Fisher $p=0.22$；pilot 的 4 題剛好是最不容易逾時的 4 題），不是服務變差。
+  \item \textbf{排除的原因}：沒有排隊或併發，也沒有 429／5xx。不重試是設定造成的（單次上限等於一步上限，都是 5000 ms）。
+  \item \textbf{帳本花費是上界}：逾時的呼叫拿不到 usage，帳本用最壞情況估價。
+  \item \textbf{本機和 OpenAI 的差距}主要來自輸出長度（本機約為 OpenAI 的 1/3），不是網路。
+  \item \textbf{改善建議}（尚未決定，要花錢的要使用者核准）：逾時依題型分開（NL、DP3 用 10 s）；縮短 \code{rationale}；pilot 每種題型至少 15 題，並設計會讓模型和規則分歧的題目。
+\end{itemize}
 
 \paragraph{還沒驗證的風險。}
 \begin{itemize}[nosep]
-  \item \textbf{目標不在候選名單時，真的模型怎麼答。}候選名單是「上次估計位置 4 m 內」。追蹤器落後目標時（A4 實例落後約 3.5 m），真正的目標不在名單裡，正確答案是 0。替身會答 0；§0D 的 36 題裡正確答案是 0 的只有 1 題，所以真的模型這時會不會硬選一個，沒有驗證\src{S45}。
+  \item \textbf{目標不在候選名單時，真的模型怎麼答。}這是指 \code{SILENT_PICK}：它的候選名單是「上次估計位置 4 m 內」（\code{LOST_WITH_CANDIDATES} 看的是畫面上所有紅衣人，沒有這個限制）。追蹤器落後目標時（A4 實例落後約 3.5 m），真正的目標不在名單裡，正確答案是 0。替身會答 0；§0D 的 36 題裡正確答案是 0 的只有 1 題，所以真的模型這時會不會硬選一個，沒有驗證\src{S45}。
   \item 所有即時參數都只在 A4、B4 兩條劇本路線上調過，沒有人實際操作的資料。
-  \item 離線 DP1／DP3 的題目目前都是合成題，正式題庫和正式階段的預算尚未核准。在 5 s、不重試的條件下，astra 和 NL 題型多半會逾時，退回規則。
+  \item 離線 WP5 的 formal 已經跑過（terra、sol），但題目都是合成題，而且每種題型只有一個答案，所以\textbf{模型判斷得準不準還沒有量到}。正式題庫（真實事件、會和規則分歧的題目）還沒做。在 5 s、不重試的條件下，NL 約兩成會逾時，sol 的 DP3 約三成多，astra 大多會逾時。
 \end{itemize}
 
 %---------------------------------------------------------------------
@@ -1309,6 +1343,9 @@ S56 & issue \#553（CX-L2 推論排程，OPEN，2026-11-17 讀取），\url{http
 S57 & \code{docs/evaluation/LIVE_MODE_SPIKE_20261115.md}@\code{31a69177}（§4 顯示門檻 0.35、§5 解析度） \\
 S58 & \#93 D148（2026-11-09），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6730985195} \\
 S59 & \#93 D256（2026-11-17，WP5 方案 C pilot 實跑結果），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6939983302} \\
+S60 & \#93 WP5 方案 C formal 段結果（2026-11-17），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6941051090} \\
+S61 & \#93 WP5 OpenAI 逾時退回分析（2026-11-17，只讀分析，0 次付費呼叫），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6950053674} \\
+S62 & \#93 D260（2026-11-17，formal 另開帳本、上限 USD 6），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6940289116} \\
 \bottomrule
 \end{longtable}
 
