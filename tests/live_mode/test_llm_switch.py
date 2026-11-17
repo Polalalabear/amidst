@@ -126,3 +126,28 @@ def test_config_cors_only_for_the_allowed_workbench_origins_and_never_star(monke
         assert all("*" != v for v in call("GET", "http://127.0.0.1:8785")[1].values())
     finally:
         srv.shutdown()
+
+
+def test_post_config_rejects_a_foreign_host_header_but_local_curl_still_works(monkeypatch):
+    import http.client
+    for k in ("AMIDST_API_ENABLED", "AMIDST_API_MAX_USD_TOTAL", "OPENAI_API_KEY", "AMIDST_API_CONFIG_FILE"):
+        monkeypatch.delenv(k, raising=False)
+    st = make_state()
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(st))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    port = srv.server_address[1]
+
+    def post(host, origin=None):
+        c = http.client.HTTPConnection("127.0.0.1", port)
+        h = {"Host": host, "Content-Type": "application/json", **({"Origin": origin} if origin else {})}
+        c.request("POST", "/config", body=b'{"advisor":"review"}', headers=h)
+        return c.getresponse().status
+    try:
+        for bad in ("evil.example", f"evil.example:{port}", "127.0.0.1", "127.0.0.1:9", f"127.0.0.1.evil.example:{port}", f"192.168.1.5:{port}"):
+            assert post(bad) == 403, bad                                       # no Origin (rebinding same-origin) is still refused
+        assert st.llm_switch["requested"] == "off"                            # none of them changed the switch
+        for ok in (f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"):
+            assert post(ok) == 200, ok                                         # local curl: no Origin header
+        assert post(f"127.0.0.1:{port}", origin=f"http://127.0.0.1:{port}") == 200   # the live page itself
+    finally:
+        srv.shutdown()

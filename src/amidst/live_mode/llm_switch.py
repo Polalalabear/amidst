@@ -59,3 +59,8 @@ def cors_headers(origin: str | None, allowed: frozenset) -> dict:
         return {"Access-Control-Allow-Origin": origin, "Vary": "Origin", "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "600"}
     return {}
+
+
+def host_ok(host: str | None, port: int) -> bool:
+    """True when the Host header names this server on loopback (blocks DNS rebinding: an attacker's name resolving to 127.0.0.1)."""
+    return host in (f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}")

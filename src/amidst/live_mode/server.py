@@ -24,7 +24,7 @@ from PIL import Image
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
 from .detector import LiveDetector
-from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, resolve as resolve_llm
+from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, host_ok, resolve as resolve_llm
 from .people import PeopleTracker
 from .tracker import Projector, Tracker, load_cameras
 
@@ -216,6 +216,8 @@ def make_handler(state: State):
             body = self.rfile.read(n)
             p = self.path.split("?")[0]
             if p == "/config":   # workbench LLM switch: {"advisor": "off|review|lead", "advisor_model": optional}; nothing else is accepted
+                if not host_ok(self.headers.get("Host"), self.server.server_port):   # DNS rebinding: the Host must be loopback plus this port
+                    return self._send(403, b'{"error":"host not allowed"}')
                 self._config_cors()
                 origin = self.headers.get("Origin")
                 if origin and not self._cors and origin != f"http://{self.headers.get('Host')}":   # a page from any other origin may not change the switch
