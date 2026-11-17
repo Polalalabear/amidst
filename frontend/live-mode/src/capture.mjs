@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+export { chooseCaptureIds } from './capture-plan.mjs';
 
 // Offscreen renderer that turns each virtual camera into a JPEG at a chosen size.
 export function makeCapture(world, cams, w, h, quality) {

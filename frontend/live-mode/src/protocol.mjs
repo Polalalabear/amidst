@@ -11,6 +11,8 @@ const ADVISOR_KEYS = new Set(['state', 'pending_ms', 'last']);
 const ADVISOR_LAST_KEYS = new Set(['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'cleared', 'model', 'source', 'fallback_reason']);
 const EVENT_KEYS = new Set(['tick', 'type', 'cam', 'detail']);
 const TOP_KEYS = new Set(['type', 'tick', 't_capture_ms', 'frames', 'dets', 'tracking', 'timing_ms']);
+TOP_KEYS.add('schedule');
+const SCHEDULE_KEYS = new Set(['mode','camera_ids','next_camera_ids','reason','lost_rounds','radius','graph_sha256']);
 
 export function buildSystemMessage({ tick, tCaptureMs, frames, result }) {
   // Deliberately takes no operator/world state: only capture clock, pixels, backend result.
@@ -25,11 +27,13 @@ export function buildSystemMessage({ tick, tCaptureMs, frames, result }) {
     tracking.advisor = pick(tracking.advisor, ADVISOR_KEYS);
     if (tracking.advisor.last) tracking.advisor.last = pick(tracking.advisor.last, ADVISOR_LAST_KEYS);
   }
-  return {
+  const msg = {
     type: 'frame-batch', tick, t_capture_ms: tCaptureMs,
     frames: frames.map((f) => pick(f, FRAME_KEYS)),
     dets, tracking, timing_ms: result.timing_ms || {},
   };
+  if (result.schedule) msg.schedule=pick(result.schedule,SCHEDULE_KEYS);
+  return msg;
 }
 
 function pick(o, keys) {
@@ -46,6 +50,16 @@ export function validateSystemMessage(msg) {
     for (const k of Object.keys(obj)) if (!keys.has(k)) bad.push(`${path}.${k}`);
   };
   chk(msg, TOP_KEYS, 'msg');
+  if (msg.schedule) {
+    chk(msg.schedule,SCHEDULE_KEYS,'schedule');
+    if (!['adaptive','all'].includes(msg.schedule.mode)) bad.push('schedule.mode');
+    if (!['ACTIVE_NEIGHBORS','ALL_CAMERAS','INITIAL_SEARCH','GRAPH_SCOPE_UNKNOWN','LOST_ALL','LOST_EXPAND','REQUEST_PLAN_MISS'].includes(msg.schedule.reason)) bad.push('schedule.reason');
+    for (const key of ['lost_rounds','radius']) if (!Number.isInteger(msg.schedule[key]) || msg.schedule[key]<0) bad.push(`schedule.${key}`);
+    if (msg.schedule.graph_sha256!=null && !/^[a-f0-9]{64}$/.test(msg.schedule.graph_sha256)) bad.push('schedule.graph_sha256');
+    for (const key of ['camera_ids','next_camera_ids']) {
+      if (!Array.isArray(msg.schedule[key]) || msg.schedule[key].some(id=>typeof id!=='string')) bad.push(`schedule.${key}`);
+    }
+  }
   for (const [i, f] of (msg.frames || []).entries()) chk(f, FRAME_KEYS, `frames[${i}]`);
   for (const [cam, list] of Object.entries(msg.dets || {})) {
     for (const [i, d] of list.entries()) chk(d, DET_KEYS, `dets.${cam}[${i}]`);
@@ -62,6 +76,8 @@ export function validateSystemMessage(msg) {
 }
 
 // request header sent to the backend: tick/clock/camera ids only
-export function buildInferHeader({ tick, tCaptureMs, frames }) {
-  return { tick, t_capture_ms: tCaptureMs, frames: frames.map((f) => ({ cam: f.cam, bytes: f.jpeg.byteLength })) };
+export function buildInferHeader({ tick, tCaptureMs, frames, availableCameras }) {
+  const h = { tick, t_capture_ms: tCaptureMs, frames: frames.map((f) => ({ cam: f.cam, bytes: f.jpeg.byteLength })) };
+  if (availableCameras) h.available_cameras=[...availableCameras];
+  return h;
 }
