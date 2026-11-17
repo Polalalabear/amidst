@@ -21,10 +21,23 @@ export function chipsFromParse(parse, run) {
   return chips;
 }
 
-// Plan for the existing query windows. `currentScreen` decides the window when the sentence has no action cue (nothing guessed).
-export function planFromParse(parse, run, currentScreen = null) {
+// Result rows for the bar (arrow keys pick, Enter enters). The sentence's action cue goes first; without a cue the search
+// window is first, whatever tab is open: the top search box is a search entry, tracking needs an explicit 「追蹤」 or a pick.
+export function optionsFromParse(parse, chips = []) {
+  if (!parse) return [];
+  const detail = chips.filter(c => c.kind === 'location' || c.kind === 'target' || c.kind === 'time').map(c => c.text);
+  const search = {kind: 'search', title: '查找', detail: detail.length ? detail.join(' · ') : '開啟查找窗'};
+  const trackDetail = chips.filter(c => c.kind === 'target' || c.kind === 'time').map(c => c.text);
+  const track = {kind: 'track', title: '追蹤', detail: trackDetail.length ? trackDetail.join(' · ') : '開啟追蹤窗'};
+  return parse.action === '追蹤' ? [track, search] : [search, track];
+}
+
+// Plan for the existing query windows. `kind` (the row the user entered) wins; otherwise the action cue; otherwise search.
+// `currentScreen` is kept for callers but no longer picks the window (2026-11-17: typing in the 追蹤 tab must reach 查找).
+export function planFromParse(parse, run, currentScreen = null, kindOverride = null) {
   const classes = new Set(run?.supported_classes?.class_labels ?? []), colors = new Set(run?.supported_classes?.color_vocabulary?.labels ?? []);
-  const kind = parse.action === '追蹤' ? 'track' : parse.action === '查找' ? 'search' : currentScreen === 'case2' ? 'track' : 'search';
+  void currentScreen;
+  const kind = kindOverride === 'track' || kindOverride === 'search' ? kindOverride : parse.action === '追蹤' ? 'track' : 'search';
   const notes = [];
   let classLabel = (parse.target ?? []).find(t => classes.has(t)) ?? '';
   const colorLabel = (parse.target ?? []).find(t => colors.has(t)) ?? '';
@@ -45,19 +58,27 @@ export function planFromParse(parse, run, currentScreen = null) {
 
 // Controller: open/close state, debounced live preview (always RULES: no paid call per keystroke) and Enter. DOM-free.
 export function createSpotlight({parsePreview, parseFinal, apply, schedule = fn => { fn(); }, onChange = () => {}}) {
-  const state = {open: false, text: '', chips: [], status: 'idle', parser: null, latency_ms: null, cost_usd: null, error: null};
+  const state = {open: false, text: '', chips: [], options: [], selected: 0, manual: false, status: 'idle', parser: null, latency_ms: null, cost_usd: null, error: null};
   let seq = 0;
-  const emit = () => onChange({...state, chips: [...state.chips]});
-  const reset = () => { state.text = ''; state.chips = []; state.status = 'idle'; state.parser = state.latency_ms = state.cost_usd = state.error = null; };
-  const show = r => { state.chips = r.chips; state.parser = r.parser ?? null; state.latency_ms = r.latency_ms ?? null; state.cost_usd = r.cost_usd ?? null; };
+  const emit = () => onChange({...state, chips: [...state.chips], options: [...state.options]});
+  const reset = () => { state.text = ''; state.chips = []; state.options = []; state.selected = 0; state.manual = false; state.status = 'idle'; state.parser = state.latency_ms = state.cost_usd = state.error = null; };
+  const show = r => {
+    const before = state.options[state.selected]?.kind;
+    state.chips = r.chips ?? []; state.parser = r.parser ?? null; state.latency_ms = r.latency_ms ?? null; state.cost_usd = r.cost_usd ?? null;
+    state.options = r.parse ? optionsFromParse(r.parse, state.chips) : [];
+    const keep = state.options.findIndex(o => o.kind === before); state.selected = keep >= 0 && state.manual ? keep : 0;
+  };
   return {
     get state() { return state; },
     open() { if (!state.open) { state.open = true; reset(); emit(); } },
     close() { seq++; state.open = false; reset(); emit(); },
     toggle() { state.open ? this.close() : this.open(); },
+    // Arrow keys: move the highlighted row (wraps). A manual pick survives later previews of the same sentence.
+    move(delta) { const n = state.options.length; if (!n) return; state.selected = ((state.selected + delta) % n + n) % n; state.manual = true; emit(); },
+    select(index) { if (index >= 0 && index < state.options.length) { state.selected = index; state.manual = true; emit(); } },
     setText(text) {
-      state.text = String(text); const mine = ++seq;
-      if (!state.text.trim()) { state.chips = []; state.status = 'idle'; emit(); return; }
+      state.text = String(text); const mine = ++seq; state.manual = false;
+      if (!state.text.trim()) { state.chips = []; state.options = []; state.selected = 0; state.status = 'idle'; emit(); return; }
       state.status = 'previewing'; emit();
       schedule(async () => {
         try { const r = await parsePreview(state.text.trim()); if (mine !== seq) return; show(r); state.status = 'previewed'; state.error = null; }
@@ -65,13 +86,17 @@ export function createSpotlight({parsePreview, parseFinal, apply, schedule = fn 
         emit();
       });
     },
+    // Enter: enter the highlighted row (first row when none was picked) and run it. The chosen window is fixed before the
+    // final parse so a slower parser cannot change what the user picked.
     async submit() {
       const text = state.text.trim(); if (!text) return false;
+      const picked = state.options[state.selected]?.kind ?? null, manual = Boolean(state.manual);
       const mine = ++seq; state.status = 'parsing'; emit();
       try {
         const r = await parseFinal(text); if (mine !== seq) return false;
         show(r); state.status = 'done'; state.error = null; emit();
-        apply(r.parse, r); this.close(); return true;
+        const kind = manual ? picked : optionsFromParse(r.parse, state.chips)[0]?.kind ?? picked;
+        apply(r.parse, r, {kind, run: true}); this.close(); return true;
       } catch (e) { if (mine !== seq) return false; state.status = 'error'; state.error = e.message ?? String(e); emit(); return false; }
     },
   };

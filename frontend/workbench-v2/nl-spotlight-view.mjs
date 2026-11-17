@@ -1,4 +1,5 @@
-// N1 Spotlight bar (macOS-Spotlight style): ⌘K / Ctrl+K or the magnifier opens it, Esc closes, Enter fills the existing tag panel.
+// N1 Spotlight bar (macOS-Spotlight style): ⌘K / Ctrl+K or the magnifier opens it; ↑↓ pick a result row, Enter enters it and
+// runs the query in that window (2026-11-17), Esc closes.
 // DOM only; behaviour lives in nl-spotlight-model.mjs. The key never reaches the browser: parsing is a server call (api.nlParse).
 import {PARSER_MODES, chipsFromParse, createSpotlight} from './nl-spotlight-model.mjs';
 
@@ -16,9 +17,10 @@ export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply
   const input = el('input', undefined, 'nl-spot-input', {type: 'text', placeholder: PLACEHOLDER, autocomplete: 'off', spellcheck: 'false', maxlength: '200', 'aria-label': '用一句話描述要查找或追蹤的目標'}); input.id = 'nl-spot-input';
   row.append(el('span', '⌕', 'nl-spot-icon', {'aria-hidden': 'true'}), input);
   const chipsBox = el('div', undefined, 'nl-spot-chips', {'aria-live': 'polite'}); chipsBox.id = 'nl-spot-chips';
+  const list = el('div', undefined, 'nl-spot-results', {role: 'listbox', 'aria-label': '查詢方式'}); list.id = 'nl-spot-results';
   const status = el('p', undefined, 'nl-spot-status', {role: 'status'}); status.id = 'nl-spot-status';
   const foot = el('div', undefined, 'nl-spot-foot'); const hint = el('span'), meta = el('span', undefined, 'nl-spot-meta'); meta.id = 'nl-spot-meta'; foot.append(hint, meta);
-  panel.append(row, chipsBox, status, foot); overlay.append(backdrop, panel); host.append(overlay);
+  panel.append(row, chipsBox, list, status, foot); overlay.append(backdrop, panel); host.append(overlay);
 
   let timer = null;
   const run = () => store.getState().activeRun;
@@ -40,15 +42,25 @@ export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply
     if (!s.open) return;
     if (input.value !== s.text) input.value = s.text;
     chipsBox.replaceChildren(...s.chips.map(c => el('span', c.text, `nl-chip nl-chip-${c.kind}`, {'data-kind': c.kind})));
+    list.replaceChildren(...s.options.map((o, i) => {
+      const on = i === s.selected;
+      const r = el('div', undefined, 'nl-spot-result', {role: 'option', 'aria-selected': String(on), 'data-kind': o.kind, id: `nl-spot-opt-${i}`});
+      r.append(el('span', o.title, 'nl-spot-result-title'), el('span', o.detail, 'nl-spot-result-detail'), el('span', on ? 'Enter ↵' : '', 'nl-spot-result-key'));
+      r.addEventListener('mousemove', () => { if (controller.state.selected !== i) controller.select(i); });
+      r.addEventListener('click', () => { controller.select(i); controller.submit(); });
+      return r;
+    }));
+    if (s.options.length) input.setAttribute('aria-activedescendant', `nl-spot-opt-${s.selected}`); else input.removeAttribute('aria-activedescendant');
     const empty = s.text.trim() && !s.chips.length && (s.status === 'previewed' || s.status === 'done');
     status.textContent = s.status === 'previewing' ? '解析中…' : s.status === 'parsing' ? `解析中（${MODE_NAME[getMode()]}）…` : s.status === 'error' ? `解析失敗：${ERRORS[s.error] ?? s.error}` : empty ? '沒有辨識出任何條件' : '';
     status.dataset.state = s.status;
-    hint.textContent = `Enter 填入查詢條件　Esc 關閉　解析方式：${MODE_NAME[getMode()]}`;
+    hint.textContent = `↑↓ 選擇　Enter 進入並開始查詢　Esc 關閉　解析方式：${MODE_NAME[getMode()]}`;
     meta.textContent = s.parser ? `${MODE_NAME[s.parser]} · ${s.latency_ms == null ? '—' : s.latency_ms.toFixed(1) + ' ms'} · ${s.cost_usd == null ? '費用 UNKNOWN' : '$' + s.cost_usd}` : '';
   }
   input.addEventListener('input', () => controller.setText(input.value));
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); controller.submit(); }
+    else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !e.isComposing) { e.preventDefault(); controller.move(e.key === 'ArrowDown' ? 1 : -1); }
     else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); controller.close(); }
   });
   backdrop.addEventListener('click', () => controller.close());

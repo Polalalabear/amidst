@@ -838,9 +838,10 @@ export function mountUi(ctx) {
   renderCatalog();
   const initial = route.initial ?? (settings.coverAnimation ? 'cover' : nextAfterCover(settings));
   go(initial);
-  // N1 Spotlight: the parse only fills the existing query window for the user to confirm; no query is started here.
-  function applyParsedQuery(parse) {
-    const plan = planFromParse(parse, store.getState().activeRun, screen);
+  // N1 Spotlight: the parse fills the chosen query window; Enter in the bar (`run: true`) also starts that query
+  // (2026-11-17). Called without options it only fills the window, as before.
+  function applyParsedQuery(parse, _result = null, {kind = null, run = false} = {}) {
+    const plan = planFromParse(parse, store.getState().activeRun, screen, kind);
     go(plan.screen);
     const w = plan.kind === 'track' ? q2 : q1;
     w.form.regions.clear(); for (const id of plan.regionIds) w.form.regions.add(id);
@@ -848,6 +849,7 @@ export function mountUi(ctx) {
     if (plan.start && plan.end) { w.start.value = plan.start; w.end.value = plan.end; }
     renderCatalog(); setQuery(true);
     w.feedback.textContent = plan.notes.join('；'); w.feedback.dataset.state = plan.notes.length ? 'error' : '';
+    if (run) { const notes = w.feedback.textContent; submitQuery(w).then(() => { if (notes && !w.feedback.textContent) { w.feedback.textContent = notes; w.feedback.dataset.state = 'error'; } }); }
     return plan;
   }
   const spotlight = ctx.api?.nlParse ? mountSpotlight({host, store, api: ctx.api, getMode: () => settings.nlParser, apply: applyParsedQuery}) : null;
