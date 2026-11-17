@@ -11,6 +11,7 @@ from PIL import Image
 
 from amidst.live_mode.color import judge
 from amidst.live_mode.detector import DEFAULT_CAMERA_MIN_SCORES, DEFAULT_MIN_SCORE, LiveDetector
+from amidst.live_mode.server import camera_min_score
 
 
 def main():
@@ -18,7 +19,15 @@ def main():
     ap.add_argument("--recording", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--models", type=Path, required=True)
+    ap.add_argument("--min-score", type=float, default=DEFAULT_MIN_SCORE)
+    ap.add_argument(
+        "--camera-min-score",
+        type=camera_min_score,
+        action="append",
+        default=list(DEFAULT_CAMERA_MIN_SCORES.items()),
+    )
     a = ap.parse_args()
+    camera_min_scores = dict(a.camera_min_score)
     detector = LiveDetector(a.models, device="mps")
     results = {}
     for folder in sorted((a.recording / "packets").iterdir()):
@@ -37,7 +46,7 @@ def main():
             dets, _ = detector.detect(imgs)
             out = {}
             for fr, im, ds in zip(header["frames"], imgs, dets):
-                threshold = DEFAULT_CAMERA_MIN_SCORES.get(fr["cam"], DEFAULT_MIN_SCORE)
+                threshold = camera_min_scores.get(fr["cam"], a.min_score)
                 ds = [d for d in ds if d["score"] >= threshold]
                 for d in ds:
                     d.update(judge(np.asarray(im), d["bbox"]))
@@ -52,8 +61,8 @@ def main():
             response["dets"] = results[raw["label"]][response["tick"]]
         raw["redetection"] = {
             "resize": detector.resize_mode,
-            "min_score": DEFAULT_MIN_SCORE,
-            "camera_min_scores": DEFAULT_CAMERA_MIN_SCORES,
+            "min_score": a.min_score,
+            "camera_min_scores": camera_min_scores,
             "gt_in_detector": False,
         }
         (a.out / p.name).write_text(json.dumps(raw))

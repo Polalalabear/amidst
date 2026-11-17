@@ -39,4 +39,25 @@ LIVE_BASE=http://127.0.0.1:8797 OUT="$AMIDST_ARTIFACTS/cx552-20261117/latency" n
 
 原始RGB、HTTP影像封包、逐框偵測與逐tick結果全部LOCAL；不複製原始GLB、權重、影片或GT資產。固定錄製`recording/MANIFEST.json`列2,057個檔案、16,486,517 bytes及來源SHA，含1,432張320×180（8張空場景）、624張640×360和一份評分標籤；manifest本身另計。來源GLB／相機／模型的SHA都在manifest，重錄需重新計hash，不能承諾相同延遲。
 
+$AMIDST_ARTIFACTS 預設應指向共用 `local/evidence`；D259已把cx552及cx555實體歸位，核對原manifest一致。
+
 精簡驗收收據列出 `$AMIDST_ARTIFACTS/cx552-20261117/` 各子項的檔數、大小、SHA及可重建性。執行期間輸出位於獨立clone的`local/evidence`，沒有在pin住的checkout寫檔。成果尚待Claude審查；合併由使用者執行。
+
+
+## D261 歸因重現與整合關卡
+
+修改A已通過±0.02規則，保留ENTRY0.05。反事實0.15命中率126/236（53.39%）、0.05為173/236（73.31%）；單ENTRY誤檢/影格0.15為0、0.05為0.38559。精確配對及取捨見評估報告與 `entry_threshold_attribution.json`。
+
+**以下及所有啟動器命令請在自己的 clone 執行**，不要在pin住的checkout執行；`.local/demo-cache/uv` 會寫入執行clone。新輸出用獨立證據根，不覆寫原有frozen inputs。下列 `ORIGINAL` 指向已歸位的舊資料，`ATTR` 指向本次新輸出。
+
+```bash
+ORIGINAL="$SHARED_LOCAL/evidence/cx552-20261117"
+ATTR="$AMIDST_ARTIFACTS/cx552-d261-20261117"
+PYTHONPATH=src:$SHARED_LOCAL/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps uv run --offline --no-project --python "$PYTHON" python -B scripts/live_mode/redetect_route.py --recording "$ORIGINAL/routes" --out "$ATTR/entry015" --models "$SHARED_LOCAL/data/demo-owned-v1/models/rtdetr" --min-score 0.15 --camera-min-score CAM_ENTRY=0.15
+AMIDST_ROOT="$SHARED_ROOT" PYTHONPATH=src uv run --offline --no-project --python "$PYTHON" python -B scripts/live_mode/replay_bench.py --work "$ATTR/paired_replay" --src "entry005=$ORIGINAL/routes/redetected" --src "entry015=$ATTR/entry015" --config 'gate4_off=--mode off --gate-m 4'
+PYTHONPATH=src uv run --offline --no-project --python "$PYTHON" python -B scripts/live_mode/entry_threshold_receipt.py --original "$ORIGINAL" --work "$ATTR" --out docs/evaluation/live_detection_20261117/entry_threshold_attribution.json
+```
+
+GT只在推論完成後評分。`entry_threshold_receipt.py` 重算原格點指標、精確驗證門檻以外輸出不變、套用指定規則，並產生input inventory和新manifest。原格點偵測沿用已保存RGB推論，沒有新錄製。完整新LOCAL清單18檔1,039,599 bytes，manifest SHA在評估報告；時間及浮點結果不保證逐bytes重建。
+
+#560／#561已轉Ready但尚待使用者合併。**修改C是#559的合併前關卡**：僅在#561合入main後，merge main到此分支（merge commit、不得rebase/force-push），保留/config兩邊鍵及逐cam門檻，再用本偵測器新輸出跑聯合驗證。不以修改A或歷史全套gate代替聯合驗證；目前未部署8785。

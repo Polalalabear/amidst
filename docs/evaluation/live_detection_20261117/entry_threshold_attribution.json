@@ -1,0 +1,85 @@
+{
+  "decision_reference": "https://github.com/Polalalabear/amidst/issues/552#issuecomment-6940301551",
+  "fixed_rgb": true,
+  "new_capture": false,
+  "paid_calls": 0,
+  "gt_in_detector": false,
+  "quality": {
+    "entry005": {
+      "a4": {
+        "target_visible_ticks": 95,
+        "on_target": 0.7052631578947368,
+        "wrong_person": 0.25263157894736843,
+        "lost": 0.042105263157894736
+      },
+      "b4": {
+        "target_visible_ticks": 60,
+        "on_target": 0.9666666666666667,
+        "wrong_person": 0.016666666666666666,
+        "lost": 0.016666666666666666
+      }
+    },
+    "entry015": {
+      "a4": {
+        "target_visible_ticks": 95,
+        "on_target": 0.7052631578947368,
+        "wrong_person": 0.24210526315789474,
+        "lost": 0.05263157894736842
+      },
+      "b4": {
+        "target_visible_ticks": 60,
+        "on_target": 0.9666666666666667,
+        "wrong_person": 0.016666666666666666,
+        "lost": 0.016666666666666666
+      }
+    }
+  },
+  "a4_rule": {
+    "max_wrong_delta": 0.02,
+    "min_correct_delta": -0.02,
+    "wrong_delta": 0.01052631578947369,
+    "correct_delta": 0.0,
+    "retain_entry005": true
+  },
+  "counterfactual_exact_match": {
+    "a4_route_baseline.t1raw.json": {
+      "ticks": 96,
+      "mismatched_camera_batches": 0
+    },
+    "b4_route_baseline.t1raw.json": {
+      "ticks": 81,
+      "mismatched_camera_batches": 0
+    }
+  },
+  "entry_grid": {
+    "0.05": {
+      "n": 236,
+      "hits": 173,
+      "rate": 0.7330508474576272,
+      "fp_per_frame": 0.3855932203389831,
+      "red_fp_per_frame": 0.05508474576271186
+    },
+    "0.15": {
+      "n": 236,
+      "hits": 126,
+      "rate": 0.5338983050847458,
+      "fp_per_frame": 0.0,
+      "red_fp_per_frame": 0.0
+    }
+  },
+  "default_camera_min_scores": {
+    "CAM_ENTRY": 0.05
+  },
+  "source_inventory_sha256": "5969eb47dc27ab2389325c696de70f0ea3b5efdcabfce44bd08e0a592e1d9043",
+  "artifacts": {
+    "path": "$AMIDST_ARTIFACTS/cx552-d261-20261117/MANIFEST.json",
+    "sha256": "fe93b87cebfacdb55a96831b94a00ac305eb58ab44cd419439ac141ded8ad3ed",
+    "file_count": 18,
+    "bytes": 1039599
+  },
+  "limits": [
+    "one fixed recording per route, not statistical or held-out validation",
+    "ENTRY 0.05 FP/frame 0.38559 is higher than 0.15 FP/frame 0",
+    "modification C waits for PR561 merge; joint detector+scheduler not yet verified"
+  ]
+}

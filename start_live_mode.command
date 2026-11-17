@@ -1,5 +1,6 @@
 #!/bin/bash
 # 即時N6模式；獨立埠，advisor固定off，不讀API key。
+# 請在自己的 clone 執行；uv cache 預設寫入該 clone，勿在 pin 住的 checkout 執行。
 set -euo pipefail
 LIVE_REPO="$(cd "$(dirname "$0")" && pwd -P)"
 LIVE_PYTHON="${PYTHON:-$LIVE_REPO/.venv/bin/python}"

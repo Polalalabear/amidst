@@ -1,5 +1,7 @@
 # CX-L1 偵測診斷（#552，2026-11-17）
 
+**D261 更新：修改 A 已通過指定 ±0.02 規則，保留 ENTRY=0.05 預設；修改 C 等 #561 合入 main 後才進行，#559 尚不可合併。** 詳見文末歸因紀錄。
+
 先在 [issue 貼修正前診斷](https://github.com/Polalalabear/amidst/issues/552#issuecomment-6934964613)，再實作；下半部補最終驗證。基準程式為 `main@31a69177`，人物、場景、相機保持 N6 原始素材；沒有修改 Blender、場景燈光或相機擺位。模型為既有本機 RT-DETR R18；沒有外部模型呼叫或 API key 讀取。GT 只在錄製／評分／診斷圖使用，不傳入偵測器。
 
 ## 固定樣本與觀察
@@ -30,7 +32,7 @@
 
 腳本 `scripts/live_mode/record_detection_bench.mjs` 從不變的 N6 素材錄製同一格點／朝向，RGB 單獨保存，標籤寫入 `evaluation_labels.json`。`scripts/live_mode/detection_bench.py` 僅讀 RGB 做推論，全部完成後才開標籤計分。`scripts/live_mode/detection_diagnosis.py` 產生以上精簡診斷圖與亮度代理量。
 
-輸出用 `$AMIDST_ARTIFACTS/cx552-20261117/`；本次為獨立 clone 的 `local/evidence/cx552-20261117/`。原始 RGB 不提交 GitHub。完整 SHA、檔數與大小見下方收據。
+輸出用 `$AMIDST_ARTIFACTS/cx552-20261117/`；歷史執行位於獨立 clone，D259 歸位後保存在共用 `local/evidence/cx552-20261117/`，舊 manifest 不變。原始 RGB 不提交 GitHub。完整 SHA、檔數與大小見下方收據。
 
 ```bash
 # SHARED_LOCAL 指向現有唯讀的 local；使用現有 Python / Node 依賴。
@@ -112,3 +114,32 @@ PYTHONPATH=src:$SHARED_LOCAL/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps
 | latency | 4 | 42353 |
 
 固定錄製`recording/MANIFEST.json`本身SHA-256：`17429512cb75e3fa9e975220895dea77dcdbd0774590b7b17c89c6970dee06cf`；其內2,057個內容檔案16,486,517 bytes。可依交接指令與同一來源重建新錄製、偵測和重播；時鐘／延遲不能承諾重建為同值。沒有刪除或複製原始來源。
+
+
+## D261 修改 A：ENTRY 門檻歸因
+
+依 [Opus 規則](https://github.com/Polalalabear/amidst/issues/552#issuecomment-6940301551)，以同一份既有 A4/B4 RGB 封包、letterbox、全域0.15重跑 RT-DETR，只把 ENTRY 顯式改成0.15；原ENTRY0.05輸出保持唯讀。沒有重錄、付費呼叫或讀API key。新CLI可用 `--min-score`／`--camera-min-score` 控制歸因條件，輸出metadata記錄實際值。
+
+| 路線／ENTRY門檻 | 可見ticks | 跟對 | 跟錯 | 失聯 |
+| --- | ---: | ---: | ---: | ---: |
+| A4／0.05（現有預設） | 95 | 0.705263 | 0.252632 | 0.042105 |
+| A4／0.15（新推論對照） | 95 | 0.705263 | 0.242105 | 0.052632 |
+| B4／0.05 | 60 | 0.966667 | 0.016667 | 0.016667 |
+| B4／0.15 | 60 | 0.966667 | 0.016667 | 0.016667 |
+
+A4 跟錯差0.010526≤0.02，跟對差0≥−0.02，兩項都通過，所以**保留 `DEFAULT_CAMERA_MIN_SCORES={'CAM_ENTRY': 0.05}`**。新推論和原輸出逐tick精確比對：A4 96輪、B4 81輪，所有非ENTRY框完全相同，ENTRY新框精確等於原框按0.15過濾，0個不一致camera batch。這隔離了本對照的門檻差異；B4錄製沒有ENTRY，作為不變控制。
+
+A4從舊stretch/0.35到letterbox/0.15的跟錯上升，在ENTRY也用0.15時仍為0.242105，不能把大部分惡化歸因於ENTRY0.05。letterbox和全域門檻在這一步沒有分開歸因，不推測剩餘原因。兩路各只有一份固定錄製；不是統計結論或正式身分驗證。
+
+固定 `recording` 的原始letterbox偵測重新依原指標計分（未重新推論格點）：
+
+| ENTRY門檻 | 命中/n | 命中率 | 誤檢/合格影格 | 紅色誤檢/合格影格 |
+| --- | ---: | ---: | ---: | ---: |
+| 0.05（保留預設） | 173/236 | 73.3051% | 0.385593 | 0.055085 |
+| 0.15（歸因對照） | 126/236 | 53.3898% | 0 | 0 |
+
+上述ENTRY誤檢分母只含236個ENTRY合格影格，不能和原ALL的0.07154混為一談。依指定規則保留0.05後，三台預設命中率仍為73.3%／83.8%／86.0%，但誤檢及A4追蹤弱點仍存在。
+
+收據：`live_detection_20261117/entry_threshold_attribution.json`。新增LOCAL根 `$AMIDST_ARTIFACTS/cx552-d261-20261117/`，`MANIFEST.json` SHA-256 **fe93b87cebfacdb55a96831b94a00ac305eb58ab44cd419439ac141ded8ad3ed**，列18個檔案、1,039,599 bytes；包括新偵測、兩組gate4_off逐tick評分、原始輸入清單SHA及log。原 cx552/cx555 目錄及manifest均未改。命令見交接文件D261節；使用同樣來源可重跑，重建檔案／MPS浮點不承諾同bytes。
+
+Focused驗證：`tests/live_mode`加`tests/operations/test_live_launcher.py`共53 passed，Node當前分支13 passed；`git diff --check`通過。新增CLI測試test-first先2 failed（不接受門檻參數），實作後2 passed。這是#559未整合#561的分支，不能把13和#561含B畫面及排程測試的36混計。未重跑全套、延遲、API或8785更新；修改C及聯合驗證仍等待#561合入main。

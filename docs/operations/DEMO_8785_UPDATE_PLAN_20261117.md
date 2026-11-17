@@ -1,5 +1,7 @@
 # 8785 下一次更新準備（#555，2026-11-17）
 
+**執行位置：所有啟動器／uv命令請在自己的 clone 執行；uv cache 預設寫入該 clone 的 `.local/demo-cache/uv`，不要在pin住的checkout啟動。**
+
 這是更新準備，不是pin核准或部署。讀到的現行pin是`b24d6a26dc3f556f34270055cab45f5c5dd6382b`（D235）；8785資料夾不改檔、不切分支、不commit、不重啟。合併與pin更新都由使用者執行。D234的舊閘門早已過期，不能沿用。
 
 ## 版本與本次內容
@@ -79,7 +81,7 @@ Windows原生PowerShell執行依本機工具可用性如實記錄，不以Mac語
 第一次unit因把basetemp放在repo內而中止：68 failed、607 passed、52 skipped、17 deselected；其log也保留並計hash。修正暫存位置後同範圍重跑2703全過，沒有更改測試或deselect清單。兩個PowerShell原生測試因本機未安裝PowerShell而skip；不把Mac檢查冒稱Windows驗證。
 
 ## 實際產出 / Actual output
-- Model / effort: GPT-6 / UNKNOWN
+- Model / effort: GPT-6 / UNKNOWN（此工作階段未提供可驗證的 effort metadata，不能猜填）
 - PR / commits: Draft #559，base main，分支codex/feat-live-detection；#555程式f2a02d93、f6d7e8ff；診斷／#552 b74bc723、70e92239；本次收據commit見PR
 - Files changed: start_all_demo.command、start_all_demo.ps1、start_live_mode.command、start_live_mode.ps1、scripts/start_live_mode.py、scripts/qa_demo_update.py、scripts/demo_update_receipt.mjs、tests/operations/test_live_launcher.py、兩版更新計畫及demo_update_20261117/receipt.json
 - Commands run and results: 同上閘門；`bash -n start_all_demo.command start_live_mode.command`與`git diff --check`通過；相關cross-platform／launcher測試及最後unit通過，精確參數見本文件
