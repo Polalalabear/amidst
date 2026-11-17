@@ -31,10 +31,17 @@ export function mountOverview(box, {getBootstrap, storage = globalThis.localStor
     const camDots = el('div', undefined, 'ui-camdots'); for (const c of m.cameras.list) camDots.append(el('span', undefined, c.state === 'tracking' ? 'is-tracking' : c.state === 'missing' ? 'is-missing' : '', {title: c.id}));
     grid.append(
       card(el('span', '鏡頭 · CAMERAS', 'ui-stat-label'), m.cameras.total ? el('span', `${m.cameras.withData}`, 'ui-stat-value') : el('span', NOT_MEASURED, 'ui-stat-value is-unmeasured'), m.cameras.total ? camDots : el('span'), el('span', m.cameras.total ? `${m.cameras.total} 台中有資料；橘色＝目前追蹤中的鏡頭` : '尚未載入來源', 'ui-stat-note')),
-      card(el('span', '目前追蹤 · TRACKING', 'ui-stat-label'), m.tracking ? el('span', m.tracking.target, 'ui-stat-value') : el('span', '尚未追蹤', 'ui-stat-value is-unmeasured'),
-        ...(m.tracking ? [el('span', m.tracking.cameraId ?? '—', 'ui-mono ui-accent'), (() => { const r = el('div', undefined, 'row'); r.append(chipFor(m.tracking.state === 'OBSERVED' ? 'OBSERVED' : m.tracking.state === 'INFERRED' ? 'INFERRED' : 'MISSING'), el('span', '身分未確認', 'ui-chip ui-chip-neutral'), ...(m.tracking.autoSeed ? [el('span', '自動種子', 'ui-chip ui-chip-neutral')] : []), ...m.tracking.reasons.map(c => el('span', c, 'ui-chip ui-chip-neutral ui-mono'))); return r; })()] : [])),
+      // 2026-11-17 layout: target large, camera by readable name (code small), plain state chips that wrap, codes small below.
+      (() => { const t = m.tracking, c = card(el('span', '目前追蹤 · TRACKING', 'ui-stat-label')); c.classList.add('ui-track-card');
+        if (!t) { c.append(el('span', '尚未追蹤', 'ui-stat-value is-unmeasured')); return c; }
+        const camRow = el('div', undefined, 'ui-track-cam'); camRow.append(el('span', t.camera?.name ?? '—', 'ui-track-cam-name ui-accent', {title: t.camera?.title ?? ''}), ...(t.camera?.known ? [el('span', t.camera.code, 'ui-mono ui-track-code')] : []));
+        const chips = el('div', undefined, 'ui-chips ui-track-chips'); const st = chipFor(t.stateCode); st.textContent = t.stateText; st.title = t.stateCode; st.classList.add('ui-track-state');
+        chips.append(st, el('span', '身分未確認', 'ui-chip ui-chip-neutral'), ...(t.autoSeed ? [el('span', '自動種子', 'ui-chip ui-chip-neutral')] : []), ...t.reasonChips.map(r => el('span', r.text, 'ui-chip ui-chip-neutral', {title: r.code})));
+        c.append(el('span', t.target, 'ui-stat-value'), camRow, chips);
+        if (t.reasons.length) c.append(el('p', `技術代碼：${t.stateCode} · ${t.reasons.join(' · ')}`, 'ui-mono ui-track-codes'));
+        return c; })(),
       card(el('span', '最近事件 · LATEST', 'ui-stat-label'), m.latest ? el('span', m.latest.text, 'ui-stat-value is-unmeasured') : el('span', '尚無事件', 'ui-stat-value is-unmeasured'), m.latest ? el('span', taipeiTime(new Date(m.latest.at)) ?? '', 'ui-mono ui-stat-note') : el('span')),
-      (() => { const c = card(el('span', '涵蓋區域 · COVERAGE', 'ui-stat-label')); const row = el('div', undefined, 'ui-chips'); for (const r of m.regions) row.append(el('span', r.name, 'ui-chip ui-chip-observed')); c.append(m.regions.length ? row : el('span', NOT_MEASURED, 'ui-stat-value is-unmeasured')); return c; })());
+      (() => { const c = card(el('span', '涵蓋區域 · COVERAGE', 'ui-stat-label')); const row = el('div', undefined, 'ui-chips'); for (const r of m.regions) row.append(el('span', r.name, 'ui-chip ui-chip-observed', {title: r.title ?? r.id})); c.append(m.regions.length ? row : el('span', NOT_MEASURED, 'ui-stat-value is-unmeasured')); return c; })());
     top.append(grid); box.append(top);
     // detection metrics
     const met = el('section', undefined, 'ui-admin-sec'); const mh = el('div', undefined, 'row'); mh.append(el('span', '偵測數據', 'ui-h3'), el('span', '沒有實測來源的欄位顯示「尚未量測」', 'note')); met.append(mh);

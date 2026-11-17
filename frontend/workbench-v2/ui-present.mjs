@@ -2,6 +2,8 @@
 // Presentation only. The four evidence states stay distinct inside the models (OBSERVED / INFERRED / MISSING / UNKNOWN);
 // this module only chooses the words printed on the front desk. The admin pages do not use it and keep the full tags.
 
+import {cameraName as readableCamera} from './place-names.mjs';
+
 export const PLAIN_STATE = Object.freeze({
   OBSERVED: '已觀測',
   INFERRED: '推測',
@@ -26,7 +28,8 @@ export const PLAIN = Object.freeze({
   stopHint: '停止畫面上的追蹤顯示；不會影響原始錄影',
   bothEndsObserved: '兩端已觀測，中段為推測',
 });
-export const cameraName = id => String(id ?? '').replace(/^CAM_/, '');
+// Readable camera name from the shared table (place-names.mjs); cameras without a sourced name keep the short code.
+export const cameraName = id => { const n = readableCamera(id); return n && n !== id ? n : String(id ?? '').replace(/^CAM_/, ''); };
 export const gapNote = last => `此時段沒有畫面（目標在盲區${last ? `，上一個鏡頭 ${cameraName(last)}` : ''}）`;
 export const lostNote = last => last ? `目標已跟丟 · 最後出現在 ${cameraName(last)} 鏡頭` : '目標尚未出現 · 此時段沒有畫面';
 export const pendingNote = '目標尚未出現 · 此時段沒有畫面';

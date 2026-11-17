@@ -95,7 +95,7 @@ test('admin overview: figures come from bootstrap, the local snapshot and the ev
   assert.equal(by.speed.measured, false); assert.equal(by.agent.measured, false); assert.equal(by.switch.measured, false);
   assert.ok(by.lock.spark && !by.find.spark); assert.deepEqual(m.cameras.list.map(c => c.state), ['data', 'tracking', 'missing']);
   assert.equal(m.perCamera[0].total, 6); assert.equal(m.tracking.cameraId, 'B'); assert.deepEqual(m.tracking.reasons, ['GRAPH_NOT_APPROVED']);
-  assert.deepEqual(m.regions, [{id: 'r1', name: '區 1'}]); assert.ok(m.timeline.bins.length >= 2); assert.equal(m.events[0].text, '切到 B');
+  assert.deepEqual(m.regions, [{id: 'r1', name: '區 1', title: 'r1'}]); assert.ok(m.timeline.bins.length >= 2); assert.equal(m.events[0].text, '切到 B');
   assert.equal(sparkPoints([1]), null); assert.equal(bins10s([]).bins.length, 0);
   assert.deepEqual(countsFromSearch({hits: [{camera_id: 'A', segments: [{matched_frames: 3}], basis: [{kind: 'OBJECT', class_label: 'person'}]}, {camera_id: 'A', segments: [{matched_frames: 2}], basis: [{kind: 'OBJECT', class_label: 'laptop'}]}]}), [{cameraId: 'A', person: 3, object: 2}]);
 });

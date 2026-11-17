@@ -2,6 +2,7 @@
 // tag panel. Nothing here runs a query; vocabulary labels come from the run (same source as the tag panel menus).
 import {classDisplay, colorDisplay, wallClockText} from './ui-model.mjs';
 import {trackClassSupport} from './core-search-track-model.mjs';
+import {placeName} from './place-names.mjs';
 
 export const PARSER_MODES = Object.freeze([['RULES', '固定句型'], ['LOCAL', '本機模型'], ['API', 'API']]);
 export const UNRECOGNIZED_LABEL = '未辨識';
@@ -14,7 +15,7 @@ export function chipsFromParse(parse, run) {
   if (parse.action) chips.push({kind: 'action', text: parse.action});
   const regions = new Map((run?.region_catalog?.regions ?? []).map(r => [r.region_id, r.label]));
   const aliases = run?.supported_classes?.aliases ?? {}, classes = new Set(run?.supported_classes?.class_labels ?? []);
-  for (const id of parse.location ?? []) chips.push({kind: 'location', text: regions.get(id) ?? id, value: id});
+  for (const id of parse.location ?? []) chips.push({kind: 'location', text: placeName(id, regions.get(id)), value: id});
   for (const t of parse.target ?? []) chips.push({kind: 'target', text: classes.has(t) ? classDisplay(t, aliases) : colorDisplay(t), value: t});
   if (parse.time) chips.push({kind: 'time', text: `${clock(parse.time.start)} – ${clock(parse.time.end)}`});
   for (const u of parse.unrecognized ?? []) chips.push({kind: 'unrecognized', text: `${UNRECOGNIZED_LABEL}：${u}`, value: u});

@@ -22,6 +22,7 @@ import {
 } from './core-search-track-model.mjs';
 import {eventDisplayName} from './event-names.mjs';
 import {planFromParse} from './nl-spotlight-model.mjs';
+import {placeName, nameTitle} from './place-names.mjs';
 import {mountSpotlight} from './nl-spotlight-view.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
@@ -223,7 +224,7 @@ export function mountUi(ctx) {
       if (regionList !== cat.regions) form.regions.clear();
       else if (!cat.regions.length) regionsBox.append(el('span', cat.run ? (presentOn() ? PLAIN.regionsPending : 'UNKNOWN · 地點目錄未就緒') : NOT_MEASURED, 'ui-faint ui-small'));
       for (const r of regionList) {
-        const b = chipBtn(r.label, form.regions.has(r.value)); b.dataset.value = r.value;
+        const b = chipBtn(placeName(r.value, r.label), form.regions.has(r.value)); b.dataset.value = r.value; b.title = nameTitle(r.value, 'place');
         b.addEventListener('click', () => { form.regions.has(r.value) ? form.regions.delete(r.value) : form.regions.add(r.value); b.setAttribute('aria-pressed', String(form.regions.has(r.value))); b.classList.toggle('on', form.regions.has(r.value)); });
         b.classList.toggle('on', form.regions.has(r.value)); regionsBox.append(b);
       }
@@ -418,7 +419,7 @@ export function mountUi(ctx) {
       if (src) img.src = src; else img.hidden = true;
       media.append(img, ph);
       const foot = el('div', undefined, 'ui-shot-foot'), id = el('span', undefined, 'ui-shot-id');
-      id.append(el('span', card.cameraId, 'ui-mono'), el('span', card.wallRangeText, 'ui-mono ui-muted'));
+      id.append(el('span', cameraName(card.cameraId), 'ui-cam-name', {title: nameTitle(card.cameraId)}), el('span', card.wallRangeText, 'ui-mono ui-muted'));
       const chips = el('span', undefined, 'ui-shot-chips');
       for (const c of cardChips(card, aliases)) chips.append(el('span', c.text, `ui-chip ui-chip-${c.tone}`));
       if (!card.targetObserved) chips.append(el('span', presentOn() ? '依場景設定' : '場景設定', 'ui-chip ui-chip-neutral'));
@@ -428,7 +429,7 @@ export function mountUi(ctx) {
     });
     sCase1.append(wall);
     if (truncated) sCase1.append(el('p', `只顯示前 ${cards.length} 個，共 ${total} 個（可到後台設定調整上限）`, 'ui-faint ui-small ui-wall-note'));
-    if (model.notEvaluatedCameras.length) sCase1.append(el('p', `未評估：${model.notEvaluatedCameras.map(c => `${c.cameraId}（${c.reasonText}）`).join('、')}`, 'ui-faint ui-small ui-wall-note'));
+    if (model.notEvaluatedCameras.length) sCase1.append(el('p', `未評估：${model.notEvaluatedCameras.map(c => `${cameraName(c.cameraId)}（${c.reasonText}）`).join('、')}`, 'ui-faint ui-small ui-wall-note'));
   }
   function openLightbox(cards, index, currentSrc) {
     closeLightbox();
@@ -437,7 +438,7 @@ export function mountUi(ctx) {
     const prev = el('button', '◀', 'ui-btn ui-btn-ghost', {type: 'button', 'aria-label': '上一張'}), next = el('button', '▶', 'ui-btn ui-btn-ghost', {type: 'button', 'aria-label': '下一張'}), close = el('button', '回到結果牆', 'ui-btn ui-btn-light', {type: 'button'});
     const show = i => {
       lightbox.index = (i + cards.length) % cards.length; const selected = lightbox.index, c = cards[selected];
-      cap.textContent = `${c.cameraId} · ${c.wallRangeText} · ${lightbox.index + 1} / ${cards.length}`;
+      cap.textContent = `${cameraName(c.cameraId)}（${c.cameraId}） · ${c.wallRangeText} · ${lightbox.index + 1} / ${cards.length}`;
       img.hidden = true; img.removeAttribute('src'); const src = i === index && currentSrc ? currentSrc : (resolveCardImageSrc({card: c, mediaResolver, synthetic, onResolved: u => { if (lightbox?.box === box && lightbox.index === selected && MEDIA.test(u ?? '')) { img.src = u; img.hidden = false; } }}) ?? ''); if (src) { img.src = src; img.hidden = false; }
     };
     prev.addEventListener('click', () => show(lightbox.index - 1)); next.addEventListener('click', () => show(lightbox.index + 1)); close.addEventListener('click', closeLightbox);
@@ -512,7 +513,7 @@ export function mountUi(ctx) {
       const grid = el('div', undefined, 'ui-multi'); trackParts.multi = new Map();
       for (const cam of view.multiView.cameras) {
         const tile = el('article', undefined, 'ui-multi-tile'), img = el('img', undefined, 'ui-img'); img.alt = `${cam.cameraId} 畫面`;
-        const cap = el('div', undefined, 'ui-multi-cap'); cap.append(el('span', cam.cameraId, 'ui-mono'), el('span', '', 'ui-chip ui-chip-neutral'));
+        const cap = el('div', undefined, 'ui-multi-cap'); cap.append(el('span', cameraName(cam.cameraId), 'ui-cam-name', {title: nameTitle(cam.cameraId)}), el('span', '', 'ui-chip ui-chip-neutral'));
         const empty = el('span', presentOn() ? (synthetic ? PLAIN.syntheticFrame : PLAIN.noFrame) : (synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得'), 'ui-media-note');
         tile.append(img, empty, cap); grid.append(tile); const part = {tile, img, cap, empty};
         part.loader = createFrameLoader(fetchFrame, url => { if (url) { showFrameImage(img, url); img.hidden = false; empty.hidden = true; } else { img.hidden = true; img.removeAttribute('src'); delete img.dataset.want; empty.hidden = false; } });
@@ -559,7 +560,7 @@ export function mountUi(ctx) {
       ? (kind === 'GAP' ? gapLiveNote(cam) : kind === 'LOST' ? lostLiveNote(cam) : pendingLiveNote)
       : (kind === 'GAP' ? `GAP · 持續播放 ${cameraName(cam)} 鏡頭` : kind === 'LOST' ? `LOST · 持續播放 ${cameraName(cam)} 鏡頭` : 'PENDING · 目標尚未出現');
     P.liveNote.textContent = liveText; P.liveNote.hidden = !liveText;
-    P.stamp.textContent = sh ? `${sh.cam} · ${wallOf(sh.t)}` : `${cam ?? '—'} · ${clock}`;
+    P.stamp.textContent = sh ? `${cameraName(sh.cam)} · ${wallOf(sh.t)}` : `${cam ? cameraName(cam) : '—'} · ${clock}`; P.stamp.title = nameTitle(sh?.cam ?? cam);
     const fromTxt = kind === 'ON_CAMERA' && prev ? `↳ 從 ${prev.from_camera} 切換` : '';
     P.sw.textContent = fromTxt; P.sw.hidden = !fromTxt;
     P.tag.textContent = stateWord(chip.text); P.tag.dataset.tone = chip.tone; P.tag.hidden = !(observed && !!sh && sh.cam === cam);
@@ -606,7 +607,7 @@ export function mountUi(ctx) {
     if (P2.tlKey !== tlKey) {
       P2.tlKey = tlKey; for (const old of [...P2.tlRow.querySelectorAll('.ui-tl-seg')]) old.remove();
       const frag = doc.createDocumentFragment();
-      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : seg.kind === 'PENDING' ? 'pending' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? seg.cameraId.replace(/^CAM_/, '') : seg.kind === 'GAP' ? '盲區' : seg.kind === 'PENDING' ? '尚未出現' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); frag.append(b); }
+      for (const seg of tl.segments) { const k = seg.kind === 'ON_CAMERA' ? 'observed' : seg.kind === 'GAP' ? 'gap' : seg.kind === 'PENDING' ? 'pending' : 'lost'; const b = el('span', seg.kind === 'ON_CAMERA' ? cameraName(seg.cameraId) : seg.kind === 'GAP' ? '盲區' : seg.kind === 'PENDING' ? '尚未出現' : (presentOn() ? '已跟丟' : 'LOST'), `ui-tl-seg is-${k}`, {'data-kind': seg.kind}); b.style.flex = `${seg.flex} 1 0`; b.addEventListener('click', () => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs: Math.min(seg.startUs, Math.max(0, asOf - 1))}); }); frag.append(b); }
       if (tl.uncovered > 0.001) { const rest = el('span', undefined, 'ui-tl-seg is-empty'); rest.style.flex = `${tl.uncovered} 1 0`; frag.append(rest); }
       P2.tlRow.insertBefore(frag, P2.tlMarker);
     }
