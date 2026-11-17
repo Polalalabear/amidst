@@ -38,7 +38,7 @@
 | case 3 查看 | 依事件同時看所有鏡頭 |
 | 後台（`admin.html`） | 概況、鏡頭播放、紀錄、設定（例如預設入口） |
 
-前台預設是展示模式：只顯示事件名稱和白話狀態，技術標籤收進 ⓘ。後台完整顯示所有欄位。加上 `?ui=legacy` 會回到舊工作台。
+前台預設是展示模式：只顯示事件名稱和白話狀態，技術標籤收進 ⓘ。後台完整顯示所有欄位。加上 `?ui=legacy` 會切到 v2 的引擎版面（不是舊工作台，舊工作台已於 D268 下線）。
 
 ### 方法
 
@@ -157,7 +157,7 @@ The new UI lives in `frontend/workbench-v2/`. A cover page leads to three front-
 | Case 3 View | All cameras of one event side by side |
 | Admin (`admin.html`) | Overview, camera playback, logs, settings (e.g. the default entry screen) |
 
-The front end defaults to presentation mode: it shows the event name and plain-language status, with technical labels behind ⓘ. The admin page shows every field. Adding `?ui=legacy` returns to the old workbench.
+The front end defaults to presentation mode: it shows the event name and plain-language status, with technical labels behind ⓘ. The admin page shows every field. Adding `?ui=legacy` switches to the v2 engine layout (not the old workbench, which was retired in D268).
 
 ### Method
 
