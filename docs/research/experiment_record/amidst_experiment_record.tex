@@ -1,4 +1,4 @@
-% Amidst experiment record (stage: D134 integration, v3 2026-11-09)
+% Amidst experiment record (stage: D134 integration, v3 2026-11-09; v4 2026-11-17 adds Section "預錄與即時模式")
 % Build: ./build.sh  (XeLaTeX + xeCJK). Every number carries a source tag [Sx];
 % the source list is Appendix A. Do not add numbers without a GitHub/repo source.
 \documentclass[11pt,a4paper]{article}
@@ -64,9 +64,9 @@
 }
 
 \title{\sffamily\bfseries Amidst：Agentic 驅動之智慧監控數位孿生系統\\[4pt]
-\large 階段實驗紀錄——多鏡頭查找與追蹤輔助（D134 整合版，v3）}
+\large 階段實驗紀錄——多鏡頭查找與追蹤輔助（D134 整合版，v4）}
 \author{Amidst 專題小組\thanks{本紀錄由 Claude Code（Opus 5.5）依 GitHub 與 repo 內容整理；每個數字附來源標記 [S$n$]，對照附錄 A。}}
-\date{2026 年 11 月 9 日（v3）}
+\date{2026 年 11 月 9 日（v3）；2026 年 11 月 17 日（v4）}
 
 \begin{document}
 \maketitle
@@ -74,6 +74,8 @@
 \begin{abstract}
 \noindent 多鏡頭監控的視野彼此不重疊，目標走出一台鏡頭後會進入沒有任何鏡頭看得到的盲區，監控人員必須手動猜測下一台鏡頭。本紀錄整理 Amidst 在 D126 定位（「輔助、不求精確」）下的階段成果：系統只保留兩個核心功能——case1 查找（時間必填，地點或特徵至少一項）與 case2 追蹤（特徵必填，時間空白代表現在；自動換鏡頭，盲區在俯視圖以虛線畫出推測路線）。偵測以 RT-DETR R18 離線建立索引，展示時只查索引並重播，現場不跑模型。我們在 r004 與 r005 兩個場景、B-05／A4-1／B4-1 三個事件上完成功能驗收：後端 pytest 121 項、前端 Node 478 項（新 UI 分支 492 項）、合成瀏覽器 E2E 49 項、實機瀏覽器 E2E 53 項全數通過\src{S1,S2}。延遲方面，歷史量測顯示 RT-DETR 單 worker 為 3.129 fps，若要即時處理 9 台 5 fps 鏡頭約需 14.4 個 worker（\EXT）\src{S3}，支持「離線建索引、現場查詢」的設計；r004 上 2,050 張影格的離線偵測前向平均為 279.64 ms／張（3.576 fps）\src{S11}。我們也客觀檢討副標題中的「Agentic」：目前所有自主行為都是規則或演算法，語言模型 Agent 模式在歷史量測中 18 次全部逾時\src{S3}、預設關閉，因此「Agentic」尚未被實際驗證。v2 補上 A1–A6 六項可驗證條件\src{S13}，以及 RQ3 的路徑 (b)「自然語言轉選單」：已實作並有自動測試，但目前畫面上的回答來自合成 fixture（\code{SYNTHETIC_FIXTURE}），真正的 Qwen3 1.7B 錄製尚未進行\src{S14,S15}。研究問題 RQ3 與 RQ4（2D 目標存在判斷）的正式結果待補。v3 補上新 UI 的實機截圖，以及量測 B 的正式結果：在 8785（\code{89a73e6}）上三個事件、三項指標各 30 次，共 270 個樣本、0 失敗；切鏡 P90 為 13.2–16.2 ms、首次鎖定 P90 為 32.4–88.0 ms、查找 P90 為 54.2–67.9 ms\src{S29}。這些是暖快取下的 UI 與解碼延遲，不是偵測延遲。
 \end{abstract}
+
+\begin{center}\fbox{\parbox{0.94\linewidth}{\small\textbf{v4 說明（2026-11-17）。}第 1--7 章與上面的摘要是 2026-11-09（v3）的紀錄，內容保留不改。v4 只新增第~\ref{sec:v4} 章「預錄與即時模式：運作方式、參數依據與 LLM 的介入」與附錄 E（v4 來源 S37 起）。以下舊說法已被第~\ref{sec:v4} 章取代：第~\ref{sec:handoff} 節「目前所有決策都是規則」「OpenAI 只用在顯示」「自然語言轉選單在 \#490 未合併」；摘要的「現場不跑模型」只適用於 8785 預錄 demo，不適用於即時模式。}}\end{center}
 
 \noindent\textbf{關鍵詞：}多鏡頭監控、不重疊視野、盲區推測、負證據、離線索引、跨鏡頭追蹤輔助、數位孿生
 
@@ -537,6 +539,324 @@ B4-1  & 5 & 1$\times$ & 1.004 & 5 & 25.10 & 15.2／21.9 \\
 \caption{新 UI 實機畫面：另兩個事件的追蹤與後台概況（8785 @\code{eceed45}，real-e2e 1300 高度）\src{S34}。(c) 的「查找耗時 0.02 秒」是頁面自己的本機量測，不是表~\ref{tab:measB} 的數字。}
 \label{fig:newui2}
 \end{figure}
+
+%=====================================================================
+%=====================================================================
+% v4 (2026-11-17): new chapter. Earlier chapters are the 2026-11-09 record and are not rewritten.
+\section{預錄與即時模式：運作方式、參數依據與 LLM 的介入（v4，2026-11-17）}\label{sec:v4}
+
+\begin{center}\fbox{\parbox{0.94\linewidth}{\small
+\textbf{本章的日期與範圍。}本章寫於 2026-11-17，依據 \code{main}@\hash{31a69177bfe941dc845cc14252b44ab8cbe61664}（含當天合併的 \#544、\#546、\#547、\#556、\#557）。程式行號都指這個 commit。前面第 1--7 章是 2026-11-09 的紀錄，內容不改。\\[3pt]
+\textbf{本章取代的舊說法：}
+(1) 第~\ref{sec:handoff} 節「目前所有決策都是規則，還不能展示 LLM 實際做決定」：現在離線有 Agent 決策（DP1／DP3／DP4／NL），即時模式有影像裁決，兩者都已合併、預設關閉（第~\ref{sec:v4-llm-off}、\ref{sec:v4-llm-live} 節）。
+(2) 第~\ref{sec:handoff} 節「OpenAI 介接只用在顯示」：現在 OpenAI 也用在離線 WP5 比較和即時裁決，都經過付費護欄 \code{ApiGuard}。
+(3) 第~\ref{sec:handoff} 節「自然語言轉選單在 PR \#490，尚未合併」：路徑 (b) 已被 N1（\code{nl_query_parse.py}）取代（D250）。
+(4) 摘要的「現場不跑模型」只對 8785 預錄 demo 成立；即時模式每一輪都在現場跑偵測模型。
+第~\ref{sec:handoff} 節對 \code{associate()} 切鏡規則的描述，在本版重新核對後仍然正確。
+}}\end{center}
+
+\paragraph{白話導讀。}本專案有兩套系統。第一套是 8785 的\textbf{預錄 demo}：影片先錄好，偵測模型事先跑完，結果存成索引；展示時只查索引、重播畫面。第二套是\textbf{即時模式}：操作端用鍵盤移動一個虛擬人物，後台只看 8 台虛擬鏡頭的畫面，每一輪現場跑偵測並決定追誰、看哪台鏡頭。兩套系統都可以選擇讓大型語言模型（LLM）參與判斷，但預設都不開。本章回答三個問題：兩套系統各自怎麼運作；每個參數為什麼是這個值；LLM 打開時能改變什麼、不能改變什麼。
+
+\paragraph{名詞。}
+\begin{itemize}[nosep]
+  \item \textbf{規則}：寫死在程式裡的判斷方式，例如「選最近的那一個」。
+  \item \textbf{輪（tick）}：即時模式完成一次「收畫面、偵測、追蹤」叫一輪。一輪的長度不固定，看偵測跑多快（第~\ref{sec:v4-live} 節）。
+  \item \textbf{格}：預錄索引的一個時間點。索引是每秒 5 格，一格 0.2 s。
+  \item \textbf{裁決}：把一個有限選項的問題交給 LLM 回答，例如「這幾個人裡哪一個是目標」。
+  \item \textbf{GT 隔離}：Ground Truth、劇本、真實位置、可見度都不能進入推論，只能用來評分。
+\end{itemize}
+
+%---------------------------------------------------------------------
+\subsection{核對結果：預錄其實有兩套切鏡規則}\label{sec:v4-correction}
+協調者先前把預錄的追蹤整理成「失聯約 0.8 s 後到相鄰鏡頭找候選、往後看 6 s、找不到就回原鏡頭每 1 s 重搜」。逐行讀程式後發現，這段話描述的是\textbf{正式評估用的 Q5 狀態機}，不是 8785 畫面上實際在跑的程式。
+
+\begin{itemize}
+  \item \textbf{8785 畫面（case2 追蹤）用的是 \code{associate()}。}8785 的伺服器把 \code{q_core_track} 請求交給 \code{cross_camera_demo.response()}，裡面呼叫 \code{associate()}（\code{scripts/serve_demo_integration.py:254-271}）。8785 的前端 \code{frontend/workbench-v2/} 只呼叫 \code{q_core_search} 和 \code{q_core_track} 兩個動作\src{S37,S38}。
+  \item \textbf{Q5 狀態機是 \code{RuleController}（\code{q5_controller.py}）。}它有 SEARCHING、RETURN、SWITCH 等狀態，參數是 D67、D78、D79 核定的那一組。它由 API 的 Q5 session 動作（\code{api.py:477-484}）和正式評估的 \code{baseline_runner.py} 使用，8785 的工作台不呼叫它\src{S39}。
+\end{itemize}
+
+兩者的差別會直接影響「失聯多久才切」「要不要看鄰接圖」這類說法，所以本章把預錄分成兩欄寫。和協調者口頭整理不一致的地方，全部列在表~\ref{tab:v4-diff}。
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{協調者口頭整理和程式核對的差異（v4 核對，\code{main}@\code{31a69177}）。}\label{tab:v4-diff}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+口頭整理 & 核對結果 \\
+\midrule
+預錄失聯約 0.8 s 後才找候選 & 只對 Q5 狀態機成立（決策時刻 $t_X+\Delta+L$）。8785 的 \code{associate()} 沒有等待：原鏡頭下一格沒看到，就在同一格掃所有鏡頭（\code{cross_camera_demo.py:142-172}） \\
+到 camera graph 相鄰鏡頭找候選 & Q5 狀態機成立（\code{transition_candidates}，取前 3 名）。\code{associate()} 掃\textbf{所有}鏡頭；圖只決定標籤：有邊且時間差 $\le 6$ s 標「跨鏡頭接手」，否則標「跨鏡頭重新取得」，兩種都可以被選（\code{:167-169}） \\
+搜尋窗往後看 6 s（離線可以看未來） & Q5 狀態機成立：證據窗是 $[t_{fm}, t_{fm}+6\,\mathrm{s})$，比決策時刻晚的影格也會被評估。\code{associate()} 是因果的，只用 \code{as_of_us} 之前的觀測（\code{:124}），不看未來；6 s 只是上面那個標籤的門檻 \\
+沒有候選就 RETURN、每 1 s 重搜、到上限結束 & 只有 Q5 狀態機有（重搜上限 6 次，\code{q5_controller.py:548,677}）。\code{associate()} 沒有 RETURN 狀態、沒有上限，每一格都重掃 \\
+600 ms 內同鏡頭重現不算失聯 & Q5 狀態機：\code{link_max_gap_us} 600 ms 內是暫失（TEMP\_LOST），超過才 SEARCHING。8785：畫面顯示時把同一鏡頭 $\le 0.6$ s 的缺口接起來（\code{cross_camera_demo.py:58}），局部軌跡最多容忍 2 格沒偵測到（\code{demo_local_tracks.py:12}）。但 \code{associate()} 本身在缺的那一格就可能切到別台 \\
+兩個以上候選時規則放棄不切 & 只對 \code{associate()} 成立（\code{AMBIGUOUS_HANDOFF}，\code{:204-211}）。Q5 狀態機依排名逐一取證據，\textbf{第一個}達到 \code{MATCH_STRONG} 的就切（\code{q5_controller.py:516-523}） \\
+同鏡頭用框重疊（IoU）連接 & 方向正確，但門檻不同：8785 的局部軌跡是 IoU $\ge 0.2$ \textbf{或}中心距離 $\le 0.6$ 倍框高，加上面積比 $\le 12$（\code{demo_local_tracks.py:10-12}）；Q5 狀態機的連結器是 \code{link_iou_min} 0.3、中心距離比 0.5（\code{parameter_set_v1.json}） \\
+live：連續 2 輪、15 輪 & 數字正確，但「輪」不是固定時間。操作端每 0.2 s 擷取一次，後台還在算時就丟掉這次；只有算完才算一輪（\code{operator.mjs:90-112}）。路線鏡頭約每秒 2 輪，8 鏡頭每秒不到 1 輪\src{S41}，所以 15 輪約 7.5 s 到 15 s 以上 \\
+live：所有紅衣偵測在 1.5 m 內才鎖定 & 實作是「每一個都離\textbf{第一個}偵測 1.5 m 內」（\code{tracker.py:98}），不是兩兩比較；鎖定分數最高的那一個 \\
+live：LOST 後回到範圍內就 REACQUIRE & 正確，但範圍的中心是\textbf{最後一次的估計位置}，失聯期間不會移動（\code{tracker.py:106-125}）。目標走遠後回不到 4 m 內就接不回來 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%---------------------------------------------------------------------
+\subsection{兩套機制怎麼運作}\label{sec:v4-mech}
+
+表~\ref{tab:v4-compare} 是三種追蹤方式的對照。後面三段各用流程說明一次。
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{預錄（8785 畫面、Q5 狀態機）與即時模式的追蹤方式對照。}\label{tab:v4-compare}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+項目 & 預錄：8785 畫面（\code{associate()}） & 預錄：Q5 狀態機（\code{RuleController}） & 即時模式（\code{live_mode/tracker.py}） \\
+\midrule
+偵測何時跑 & 事先離線跑完，存成索引（每秒 5 格） & 同左 & 每一輪現場跑 RT-DETR R18 \\
+輸入 & 索引裡的框、分數、顏色 & 同左 & 8 台虛擬鏡頭的 JPEG；後台縮成 320$\times$180 再偵測 \\
+同一鏡頭怎麼接 & 局部軌跡：框重疊或中心夠近，最多缺 2 格 & 連結器：IoU $\ge 0.3$ 或中心距離比 $\le 0.5$；缺口 $\le 600$ ms 是暫失 & 不分鏡頭：把紅衣框的腳底投影到地面，離上次估計最近、且在 4 m 內的就是目標 \\
+原鏡頭還看得到時 & 不切（黏著） & 不切 & 不切；只有原鏡頭連續 2 輪沒看到、別台有看到才切 \\
+跟丟後找誰 & 每一格掃所有鏡頭；顏色和目標有交集的局部軌跡都是候選 & 失聯 600 ms 後，從鄰接圖取前 3 台鏡頭，在 6 s 的證據窗內找 & 每一輪看所有鏡頭的紅衣框，4 m 範圍內的才算 \\
+有多個候選時 & 全部記為歧義，這一格不切 & 依排名取第一個證據強的 & 選離估計位置最近的（規則不會發現這是歧義） \\
+切到哪台 & 唯一候選所在的鏡頭 & 第一個 \code{MATCH_STRONG} 的鏡頭 & 這一輪看到目標的鏡頭中，框最高的那台 \\
+沒有候選時 & 繼續每格重掃，畫面顯示盲區 & 回原鏡頭（RETURN），每 1 s 重搜，6 次後結束 & 計數失聯輪數；15 輪標 LOST，不放棄 \\
+能不能看未來 & 不能（只用現在以前） & 能（證據窗延伸到決策時刻之後） & 不能 \\
+用不用鄰接圖 & 只當標籤 & 用來選候選鏡頭 & 不用 \\
+LLM 介入點 & DP1、DP3（注入 \code{decider}），預設關 & 有 \code{AGENT_SEQUENTIAL} 模式，未接 v1 決策 & 影像裁決，預設關 \\
+出處 & \src{S38} & \src{S39,S40} & \src{S37,S41} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{流程一：8785 畫面的追蹤（\code{associate()}）。}
+\begin{enumerate}[nosep]
+  \item \textbf{事前}：RT-DETR 對每台鏡頭每秒 5 格離線偵測，存成索引。每台鏡頭各自把框接成「局部軌跡」：起點要是唯一一個有顏色判定、分數 $\ge 0.3$ 的人；之後找框重疊（IoU $\ge 0.2$）或中心夠近（$\le 0.6$ 倍框高）、面積比不超過 12 倍的框接下去；連續缺 3 格就結束這條軌跡（\code{demo_local_tracks.py:10-110}，D148\src{S38,S58}）。
+  \item \textbf{起點}：最早出現、有顏色判定的人。同一格有兩個以上就記 \code{AMBIGUOUS_FIRST_SEED}，先不鎖。
+  \item \textbf{跟著}：現在這條軌跡在這一格還有觀測，就不換鏡頭（\code{:142-150}）。
+  \item \textbf{跟丟}：這一格沒有觀測時，看所有鏡頭在這一格有觀測的局部軌跡。顏色和目標過去的顏色有交集的才算候選；時間差不能是負的（\code{:157-181}）。
+  \item \textbf{決定}：0 個候選就不動；1 個就切過去，記 \code{DEMO_ASSOCIATION_HYPOTHESIS}；2 個以上全部記 \code{AMBIGUOUS_HANDOFF}，這一格不切，下一格再看（\code{:204-217}）。
+  \item \textbf{顯示}：同一鏡頭 $\le 0.6$ s 的缺口在畫面上接起來；沒有任何鏡頭時顯示 GAP 或 LOST，並在俯視圖畫盲區推測線（\code{:49-94}；\code{serve_demo_integration.py:277-278}）。
+\end{enumerate}
+身分一律 \code{UNCONFIRMED}。
+
+\paragraph{流程二：Q5 狀態機（\code{RuleController}）。}
+\begin{enumerate}[nosep]
+  \item 使用者選定起點後進入 PLAYING，用連結器逐格接同一鏡頭的框。
+  \item 沒接上時進 TEMP\_LOST；缺口到 600 ms（5 fps 下第 3 個缺格）就進 SEARCHING（D65、D78）。
+  \item SEARCHING：依最後一個框碰到的出口區，從鄰接圖取前 3 台候選鏡頭；證據窗從第一個缺格 $t_{fm}$ 開始，長 6 s（\code{q5_controller.py:449-452}）。
+  \item 依排名逐台取證據（Q4）。第一台達到 \code{MATCH_STRONG}、而且有不早於決策時刻的進入觀測，就 SWITCH（\code{:516-523}）。
+  \item 都不合格就 RETURN\_TO\_ORIGIN：在原鏡頭等。原鏡頭剛好出現\textbf{唯一一個}合格的人，就當成重新取得（\code{:629-639}）；否則每 1 s 重搜一次（\code{:677}）。
+  \item 搜尋第 7 次前結束（\code{session_max_research_rounds}＝6，\code{ENDED_BY_LIMIT}，\code{:548}）。
+\end{enumerate}
+
+\paragraph{流程三：即時模式（\code{tracker.py}）。}\label{sec:v4-live}
+\begin{enumerate}[nosep]
+  \item \textbf{收畫面}：操作端每 0.2 s 擷取 8 台鏡頭（\code{common.mjs:6}）。後台還在算上一輪就丟掉這次（\code{operator.mjs:92}）。
+  \item \textbf{偵測}：後台把太大的畫面縮成 320$\times$180，RT-DETR 輸入再拉成 640$\times$640（\code{server.py:104-107}、\code{detector.py:44}）。只留分數 $\ge 0.35$ 的人（\code{server.py:112-113}），再判斷上衣顏色。
+  \item \textbf{投影}：紅衣框的底邊中點，用鏡頭校正參數投影到地面（$z=0$），得到地面座標（\code{tracker.py:46-58}）。校正參數讀 \code{safe_static/cameras.json}，不讀 GT。
+  \item \textbf{鎖定（SEARCHING）}：所有紅衣框都離第一個框 1.5 m 內，就鎖分數最高的那一個，進 TRACKING（\code{:96-104}）。
+  \item \textbf{跟著（TRACKING）}：離上次估計 4 m 內的紅衣框裡，選最近的當目標，更新估計位置（\code{:106-114}）。
+  \item \textbf{切鏡}：作用中的鏡頭已經 2 輪沒看到目標，而這一輪別台有看到，就切到框最高的那台（\code{:128-134}）。不看鄰接圖。
+  \item \textbf{失聯}：4 m 內沒有紅衣框，就累計失聯輪數；15 輪標成 LOST，但不放棄。之後只要有紅衣框回到最後估計位置 4 m 內，就 REACQUIRE（\code{:115-125}）。
+\end{enumerate}
+後台收不到操作端的人物編號或座標，只收到 JPEG、輪數和擷取時間（\code{server.py:5-6}、\code{protocol.mjs:1-3}）\src{S37}。
+
+%---------------------------------------------------------------------
+\subsection{參數是怎麼決定的}\label{sec:v4-params}
+
+表~\ref{tab:v4-params} 列出每個參數的值、作用、決定方式和證據。「工程預設」的意思是：寫程式的人先給一個合理的值，沒有量測支持，也沒有和別的值比較過。這類參數在表中以 \textbf{工程預設} 標出。
+
+\begin{footnotesize}
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{2.6cm}}
+\caption{參數、作用、決定方式、證據與已知限制。}\label{tab:v4-params}\\
+\toprule
+參數＝值 & 作用 & 怎麼定的 & 證據 & 已知限制 \\
+\midrule
+\endfirsthead
+\toprule
+參數＝值 & 作用 & 怎麼定的 & 證據 & 已知限制 \\
+\midrule
+\endhead
+\multicolumn{5}{l}{\textbf{即時模式：規則追蹤}} \\
+關聯範圍 \code{--gate-m}＝4 m（類別預設仍是 3） & 離上次估計多遠的紅衣框還算目標 & 重播 68 段：跟對 0.51$\to$0.63，失聯 0.29$\to$0.17，跟錯不變；20 次新實跑：0.47$\to$0.65。2 m 太緊（0.30），6 m 在 8 鏡頭跟錯升到 0.38--0.41。使用者決定 D244 & \code{server.py:211}；\src{S41,S51} & 只在 A4／B4 兩條劇本路線調過；有同色干擾者，範圍越大越容易接到旁人；A4 路線沒改善（0.45$\to$0.41）；實跑負載沒控制 \\
+範圍隨時間放大 \code{--gate-growth}＝0（關），上限 8 m & 失聯時把範圍放寬 & 量過：跟錯 0.18$\to$0.27--0.32，所以預設關 & \code{server.py:214-215}；\src{S41} & 放大速度、上限只試過幾組 \\
+失聯標 LOST＝15 輪 & 只改顯示狀態，不放棄 & \textbf{工程預設}（spike 原值） & \code{tracker.py:62} & 輪長不固定，15 輪約 7.5 s 到 15 s 以上 \\
+切鏡等待 \code{hold_ticks}＝2 輪 & 作用中鏡頭幾輪沒看到才切 & \textbf{工程預設}；程式註解說是 Q5 決策窗的對應 & \code{tracker.py:5-6,62} & 沒和 1、3 輪比較過 \\
+鎖定條件 1.5 m & 所有紅衣框在同一處才鎖 & \textbf{工程預設} & \code{tracker.py:98} & A4 的旁人在 1.3--1.4 m 內，可能鎖到旁人；量測方法未定\src{S45} \\
+偵測分數門檻 \code{--min-score}＝0.35 & 低於這個分數的框不用 & spike 的顯示門檻；膠囊人物多落在 0.1--0.35 & \code{server.py:206}；\src{S57} & 沒有對追蹤結果調過 \\
+偵測解析度 320$\times$180 & 送進偵測前縮小 & spike：模型輸入固定 640$\times$640，提高解析度沒有提高偵測率 & \code{server.py:216-217}；\src{S57} & 遠處的人框很小 \\
+擷取頻率 5 fps & 操作端多久送一次 & \textbf{工程預設} & \code{common.mjs:6} & 實際輪速由偵測速度決定 \\
+\multicolumn{5}{l}{\textbf{即時模式：影像裁決（\code{--advisor}，預設 \code{off}）}} \\
+失聯幾輪才問＝2 & 失聯後等幾輪再發問 & \textbf{工程預設} & \code{advisor.py:195} & -- \\
+失聯時至少幾個候選＝2 & 少於 2 個就不問 & 第一輪實跑：一個候選的 18 題只對 8 題（錯的都是把唯一的人當目標）；兩個候選 16 題全對 & \code{server.py:226}、\code{advisor.py:201-204}；\src{S42} & 代價：目標獨自重新出現時裁決幫不上忙 \\
+最多候選數＝4 & 一張圖最多標幾個框 & \textbf{工程預設} & \code{advisor.py:195} & -- \\
+兩次提問最小間隔＝1 s & 避免連續發問 & 設計值（設計稿 §3.3） & \code{advisor.py:109}；\src{S45} & -- \\
+等待上限 \code{--advisor-timeout-s}＝5 s & 超過就退回規則 & 設計值，取 §0D 量到的 p90；最長回答 astra 9.8 s、sol 8.9 s & \code{server.py:221}；\src{S45} & 第一輪 43 次發問有 9 次沒用上 \\
+重新確認間隔＝4 s & 採用答案後多久可以再問 & \textbf{工程預設} & \code{advisor.py:196} & -- \\
+鎖定保持＝1.5 s & 答案指的人多久沒出現就放棄 & \textbf{工程預設} & \code{advisor.py:195,246} & -- \\
+交錯門檻＝0.7 m & 兩人靠這麼近過，答案就不採用 & 1.2 m 幾乎擋掉所有答案；0.7、0.4 m、不檢查結果相同，取 0.7 & \code{people.py:39}；\src{S41} & 編號每 100 次觀測約對調 1.3 次 \\
+併人距離＝1.0 m；同鏡頭重複框 IoU＝0.6 & 多台鏡頭看到同一人時合併；同鏡頭重複框只留一個 & 1.0 m 落在 A4 旁人 1.28--1.42 m 和觀察距離 0.64--1.28 m 之間的縫隙；修正後 \code{far_merges}＝0（併入 1151 次），38 段重播 0 段比關閉差 & \code{people.py:22-26}；\#556；\src{S44} & 只從 A4／B4 挑，換場景要重挑；有一段比修改前差 \\
+預設模型＝sol6.1 & 即時裁決用哪個 OpenAI 模型 & 使用者 2026-11-16 決定 & \code{server.py:219}；\src{S45} & 離線 WP5 的預設是 terra6.1（D237），兩者不同 \\
+說明文字上限＝40 字 & 顯示在 B 畫面 & 設計值 & \code{advisor.py:90,160} & -- \\
+\multicolumn{5}{l}{\textbf{預錄：Q5 狀態機與 8785}} \\
+格距 $\Delta$＝0.2 s & 索引每秒 5 格 & 來源影片 5 fps & \code{cross_camera_demo.py:30}；\src{S40} & -- \\
+連結最大缺口 $L$＝0.6 s（5 fps 下 2 格） & Q5：超過才進 SEARCHING；8785：畫面接起同鏡頭缺口 & D65；D78 核定 600 ms 內用框中心等速位移重新取得 & \code{parameter_set_v1.json}；\code{cross_camera_demo.py:58}；\src{S40} & 20 fps 由同一公式導出 11 格 \\
+搜尋窗 $W$＝6 s & Q5：候選證據窗長度；8785：接手標籤的門檻 & D67 核定；固定長度，不依路徑或速度縮放 & \code{parameter_set_v1.json}；\code{run_cross_camera_demo.py:107}；\src{S40} & 空檔 $>5.2$ s 會有多次 RETURN \\
+重搜間隔 $R$＝1 s；上限 6 次 & RETURN 後多久重搜；最多幾次 & D67 核定 & \src{S40} & 上限可能讓整段無法評分（D79 K2） \\
+推導值 0.8 s、1.8 s、5.2 s & 第一次搜尋時刻；評分範圍的兩個邊界 & D79 K1 推導：第一次搜尋 $t_X+\Delta+L=t_X+0.8$ s；RETURN 暫失需 $<\Delta+L+R=1.8$ s 才只有一次 RETURN；SWITCH 空檔需 $\le W+\Delta-R=5.2$ s。D90：超出的歸「長時間 LOST」，由評估端分類 & \code{Q5_DECISION_WINDOW_D79.md} K1；\src{S40} & 原提案誤寫 $W-\Delta-R$（4.8 s），已更正 \\
+候選鏡頭數 \code{top_k}＝3 & Q5 每次搜尋看幾台 & \#88 核准 & \code{parameter_set_v1.json} & -- \\
+局部軌跡起點與接續分數＝0.3；IoU 0.2；中心 0.6 倍框高；面積比 12；最多缺 2 格 & 8785 每台鏡頭內怎麼接框 & D148：為了提高追蹤召回，起點 $\ge 0.3$、接續不分類別 & \code{demo_local_tracks.py:10-12}；\src{S58} & 接續框可能是「椅子」等其他類別（\code{BOX_CONTINUATION}） \\
+連結分數門檻＝0.4；顏色規則 \code{NOT_NONE} & 8785 跨鏡頭候選的條件 & \code{DEMO_DEFAULT} 參數 & \code{cross_camera_demo.py:32-34} & 參數集仍是 \code{PROPOSED}，未正式核定 \\
+\multicolumn{5}{l}{\textbf{離線 Agent 決策（\code{agent_decision_params_v1.json}，預設 \code{mode}＝\code{OFF}）}} \\
+單次逾時＝5000 ms（原 2000） & 一次呼叫最多等多久 & D243：使用者決定 2 s$\to$5 s。原本 2000 ms 時，本機 Qwen3 18 次全部逾時 & \src{S46,S51} & 已打包的 Colab v3 pack 仍內含 2000 ms \\
+一步總上限＝5000 ms，逾時不重試 & 一個決策點最多花多久 & D246：取代 12000 ms 的提案。12 s 會讓逾時後再試，每次都計費，第二次多半也逾時 & \code{agent_decision.py:762-765}；\src{S51} & 429／5xx 仍可重試 1 次 \\
+session 上限＝12 輪；每分鐘 30 次；測試額度 USD 100 & 整段與速率上限 & D166：分階段核准，先給 USD 100；正式階段鎖住 & \src{S47,S50} & 正式階段的上限 \UNK \\
+NL 單次逾時＝2500 ms & 一句話轉查詢欄位 & \textbf{工程預設}（程式常數） & \code{nl_query_parse.py:33} & -- \\
+DP4 Agent：最多 5 步、USD 0.02、單次 3000 ms & 主動關注排序 & 契約標 PROPOSED & \code{attention_agent.py:24-28}；\src{S48} & 實跑接線待 \#554 \\
+\bottomrule
+\end{longtable}
+\end{footnotesize}
+
+\paragraph{小結。}量測過、有比較的參數只有幾個：即時模式的 4 m、不放大範圍、至少兩個候選才問、交錯門檻 0.7 m、併人 1.0 m，以及預錄的 D67／D78／D79 一組（那是使用者核定的，推導有公式，但 6 s、1 s 本身沒有用資料調過）。其餘多數是工程預設，報告引用時要照實說明。
+
+%---------------------------------------------------------------------
+\subsection{LLM 怎麼介入：預錄線（離線 Agent 決策）}\label{sec:v4-llm-off}
+
+\paragraph{一句話。}LLM 只能在規則已經列好的幾個選項中挑一個，或說「不選」。它看不到 GT、劇本、影像，也不能新增候選。答案不合法、太慢、超出預算，系統就照規則走，並記下原因。這個模式預設關閉（\code{mode}＝\code{OFF}），8785 的展示行為不變（D166）\src{S46,S47,S50}。
+
+\paragraph{有哪些決策點。}
+\begin{itemize}[nosep]
+  \item \textbf{DP1 切鏡裁決}：跟丟後有合格候選時，選哪一個，或 \code{ABSTAIN}（不切）。規則的答案：1 個候選就切，2 個以上不切。
+  \item \textbf{DP3 延續框}：一段連續的 \code{BOX_CONTINUATION}（不是人的類別、只靠框位置接起來）要不要接受。規則一律接受。
+  \item \textbf{DP4 主動關注排序}：目標失聯時，哪幾台鏡頭最值得看。規則用出口方向和負證據排序。模組沒有接進 \code{associate()} 或 demo，只在 WP5 比較（\code{attention_ranking.py:1-9}）。
+  \item \textbf{NL}：把一句話轉成查詢欄位（動作、地點、目標、時間）。順序是 API$\to$本機模型$\to$規則，每一層的答案都要通過詞彙表檢查（\code{nl_query_parse.py:1-6}）。
+\end{itemize}
+
+\paragraph{什麼時候觸發。}DP1、DP3 只在 \code{associate()} 被注入 \code{decider} 時才會問（\code{cross_camera_demo.py:182-200}）。DP1 在「現在的鏡頭看不到、而且至少有一個合格候選」時觸發；DP3 在建立輸出時，每遇到一段連續延續框問一次。沒有注入時，輸出和純規則逐 byte 相同（\code{agent_wiring.py}、測試 \code{test_rule_does_not_touch_associate}）。
+
+\paragraph{送給模型什麼。}只送「當下以前」的文字摘要：鏡頭、時間差、有沒有鄰接邊、顏色、分數摘要、延續框比例，以及規則自己的答案。候選人重新編號成 \code{A1}、\code{B2} 這類不透明代號，原始軌跡名稱不進提示。\textbf{絕對不送}：GT、劇本、可見度、深度、渲染軌跡、演員代號、檔案路徑、影像像素（設計稿 §2.1）。請求產生器會掃禁用鍵，schema 也設 \code{additionalProperties: false}，兩層一起擋\src{S46}。
+
+\paragraph{模型能選什麼。}DP1 只能 \code{SELECT} 請求裡的候選代號或 \code{ABSTAIN}；DP3 只能 \code{ACCEPT_SEGMENT} 或 \code{REJECT_SEGMENT}。每個回答要附 1--4 個理由代碼，只能從 10 個固定值中選（例如 \code{COLOR_MATCH}、\code{GRAPH_EDGE}、\code{LONG_GAP}），另加 240 字以內的說明（\code{agent_decision.py:36-49}）。
+
+\paragraph{回答怎麼驗證。}先用 schema 檢查，再檢查代號是否在請求裡、動作是否屬於這個決策點（\code{validate_response}，\code{:309-}）。格式錯記 \code{INVALID_RESPONSE}，代號不在清單記 \code{ILLEGAL_CANDIDATE}，都退回規則。本機和 OpenAI 回應有兩種常見格式瑕疵：\code{ABSTAIN} 時多帶 \code{candidate_id}、理由代碼重複。系統只修這兩種，而且每次修都留紀錄；\textbf{修補只改格式，不替模型選答案}，\code{SELECT} 卻沒給代號仍算不合法（\code{agent_providers.py:212-231}）\src{S47}。
+
+\paragraph{退回規則的情況。}\code{decide()} 依序檢查（\code{agent_decision.py:682-776}）：模式沒開$\to$\code{RULE_ONLY}；沒有授權（沒設模型、預算或階段未核准）$\to$\code{MODE_NOT_AUTHORIZED}；一步超過 5000 ms$\to$\code{TIME_BUDGET}；額度用完$\to$\code{CALL_BUDGET_EXHAUSTED}；連不上$\to$\code{PROVIDER_UNAVAILABLE}；重播找不到錄製$\to$\code{REPLAY_MISS}；回答不合法$\to$\code{INVALID_RESPONSE}／\code{ILLEGAL_CANDIDATE}。逾時的呼叫算用掉整個逾時，所以單次逾時等於一步上限時不會再試（D246）。
+
+\paragraph{紀錄。}每一步都產生一筆決策紀錄，包含請求的 SHA-256、模式、\code{decision_source}、\code{fallback_reason}、規則答案、最後答案、每次嘗試的時間與 token。檢查規則：\code{RULE_FALLBACK} 的最後答案一定等於規則答案、一定有原因；\code{RULE_ONLY} 不能有嘗試紀錄（\code{validate_record}，\code{:779-829}）。身分欄位固定是 \code{UNCONFIRMED}；LLM 選了某個候選，只代表「選了這個關聯假設」。
+
+\paragraph{付費護欄。}所有付費呼叫都經過 \code{ApiGuard}。預設關閉、總額 USD 0；只有伺服器端設 \code{AMIDST_API_ENABLED=1} 並給總額，才會真的呼叫。另有每日金額、每日次數、單次金額、單次 token、每分鐘次數上限；帳本只記時間、模型、結果、token 和估計費用，不記金鑰或提示內容（\code{api_budget.py:1-17}）\src{S49}。
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{離線 Agent 決策中，LLM 能做和不能做的事。}\label{tab:v4-off-can}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+能做 & 不能做 \\
+\midrule
+DP1：在規則認為合格的候選中選一個，或不切；在規則會切時說「不切」 & 選規則判為不合格的候選（顏色不相容的列只當資訊，不能選） \\
+DP3：拒絕一段延續框，讓那段時間不顯示這條軌跡 & 新增候選、改變候選的時間或鏡頭 \\
+DP4：重排失聯時的鏡頭順序（只在比較工具裡） & 改變 8785 的預設行為（模式預設 \code{OFF}） \\
+NL：把一句話填進查詢欄位 & 填詞彙表以外的值 \\
+附理由代碼和 240 字說明 & 看到 GT、劇本、影像、演員代號、檔案路徑 \\
+& 宣告身分（任何身分欄位都被 schema 拒絕） \\
+& 超過時間或預算後還影響結果（一律退回規則） \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%---------------------------------------------------------------------
+\subsection{LLM 怎麼介入：即時模式（影像裁決）}\label{sec:v4-llm-live}
+
+\paragraph{一句話。}即時模式的規則追蹤每一輪照常進行，不等 LLM。遇到「可能跟錯人」的時刻，後台在背景送兩張圖給視覺模型問「哪一個是目標」；答案回來、而且還算數時，把追蹤器搬到那個人身上一次，之後交回規則。預設關閉（\code{--advisor off}）。打開時 demo 預設用「覆核」（使用者 2026-11-16 決定），每次呼叫都經過 \code{ApiGuard}（\code{server.py:64-70}）\src{S37,S45}。
+
+\paragraph{兩種觸發。}（\code{advisor.py:277-299}）
+\begin{itemize}[nosep]
+  \item \textbf{規則默默選了一個（\code{SILENT_PICK}）}：目前有跟到，但上次估計位置 4 m 內有兩個以上的人。規則會直接選最近的，不會察覺這是歧義。
+  \item \textbf{失聯但畫面上有人（\code{LOST_WITH_CANDIDATES}）}：已經失聯至少 2 輪、不在 SEARCHING，而且畫面上至少有 2 個紅衣人（\code{lost_min_candidates}＝2）。
+\end{itemize}
+兩種都要求：同一台鏡頭裡有足夠的候選、已經有參考圖、沒有其他問題在等、距上次提問結束至少 1 s。候選由左到右編號，最多 4 個。
+
+\paragraph{送什麼。}兩張 JPEG：(1) 最初鎖定時裁下的目標截圖（參考圖，\code{:228-233}）；(2) 現在這台鏡頭的畫面，候選人用黃框標上 1、2、3……（\code{:59-74}）。另加候選數。\textbf{沒有座標、沒有演員代號、沒有劇本位置}，後台本來就沒有這些資料（\code{:8-10}）。提示說明「身分永遠無法確認，只判斷外觀最像哪一個，都不像就答 0」（\code{:38-39}）。
+
+\paragraph{模型回答什麼。}一個整數（0 到候選數，用 JSON schema 的 \code{enum} 限制）加一段 40 字以內的繁體中文理由（\code{:86-95}）。後台再檢查一次是不是範圍內的整數（\code{:158-162}）。
+
+\paragraph{回答怎麼改變系統。}（\code{advisor.py:236-276}）
+\begin{itemize}[nosep]
+  \item \textbf{答 0（都不是）}：清掉之前的鎖定，不對追蹤器做任何事。
+  \item \textbf{答 $k$}：先查第 $k$ 號人的追蹤編號 1.5 s 內還有沒有被看到，而且提問之後沒有和別人靠近到 0.7 m 內（靠太近時編號可能已經換人）。兩項都過才採用；否則改記 \code{RULE_FALLBACK}／\code{TIME_BUDGET}（答案太晚或情況已變）。
+  \item \textbf{採用的方式}（\code{--advisor-apply}，預設 \code{reseed}）：
+    \begin{itemize}[nosep]
+      \item \code{reseed}：把規則追蹤器的估計位置、狀態（TRACKING）、作用中鏡頭\textbf{搬到被選的人身上一次}，失聯計數歸零，之後交回規則。
+      \item \code{lock}：之後一直跟著那個追蹤編號，直到他消失超過 1.5 s。重播中在 A4 比只用規則差，所以不是預設（\code{server.py:223-225}）。
+    \end{itemize}
+  \item \textbf{覆核 \code{review} 和主導 \code{lead}}：兩者採用答案的方式相同。差別在等答案時：覆核模式畫面照規則走；主導模式畫面停在提問當時的鏡頭和位置，狀態顯示 \code{ADJUDICATING}（\code{:300-303}）。
+\end{itemize}
+
+\paragraph{退回規則。}逾時（\code{PROVIDER_TIMEOUT}，或超過 5 s 的 \code{TIME_BUDGET}）、連不上（\code{PROVIDER_UNAVAILABLE}）、回答不合法（\code{INVALID_RESPONSE}）、護欄拒絕（\code{MODE_NOT_AUTHORIZED}、\code{CALL_BUDGET_EXHAUSTED}），一律照規則走（\code{:143-189}）。舊的問題晚到的回答用序號擋掉，不會蓋掉新問題的答案（\code{:168-171}）。
+
+\paragraph{不擋追蹤迴圈。}提問在背景執行緒進行，\code{ask} 立刻返回；每一輪只用 \code{poll} 看有沒有答案（\code{:130-141,173-189}）。一次只有一個問題。
+
+\paragraph{輸出與畫面。}每一輪的輸出多三個欄位：\code{decision_source}（\code{AGENT}：正在依 LLM 的答案跟；\code{RULE_FALLBACK}：剛才問了但沒用上，顯示 3 s；\code{RULE_ONLY}：其他）、\code{fallback_reason}，以及 \code{advisor}（是否在問、等了多久、上一個答案）。事件串流會出現 \code{ADJUDICATE_ASK}、\code{ADJUDICATED}，以及 \code{by: AGENT} 的 SWITCH（\code{:304-309}）。這些欄位都在 \code{protocol.mjs} 的白名單裡（\code{:7-11}）。B 畫面的 HUD 把它們顯示成「判斷來源：演算法／LLM／LLM 沒趕上」與理由文字；\textbf{這部分在 PR \#551，2026-11-17 尚未合併}\src{S55}。
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{即時影像裁決中，LLM 能做和不能做的事。}\label{tab:v4-live-can}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+能做 & 不能做 \\
+\midrule
+在一台鏡頭的 2--4 個紅衣候選中指出一個，或答「都不是」 & 看到座標、演員代號、劇本、GT \\
+答 $k$ 且仍有效時：把規則追蹤器的估計位置、狀態、作用中鏡頭搬到那個人身上一次（\code{reseed}） & 讓追蹤迴圈停下來等它（覆核模式；主導模式只凍結畫面輸出，不凍結偵測） \\
+答 0 時：清掉之前的鎖定 & 在答案太晚、人已消失或和別人靠近過時仍被採用 \\
+透過 \code{lead} 讓畫面在等答案時停住 & 選畫面以外的人、或只有一個候選時被問 \\
+附 40 字理由，顯示在 B 畫面 & 確認身分；改變偵測、顏色判斷或 4 m 範圍等參數 \\
+& 在 \code{ApiGuard} 未開或額度用完時呼叫 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%---------------------------------------------------------------------
+\subsection{目前的證據：LLM 介入有沒有讓追蹤變好}\label{sec:v4-evidence}
+
+\paragraph{即時模式：還沒有證明變好。}
+\begin{itemize}
+  \item \textbf{模型看圖本身是準的。}兩輪實跑裡，兩個候選人的題目 38 題全對；錯誤集中在「只有一個候選、而且目標不在裡面」（18 題對 8 題），已改成至少兩個候選才問\src{S42}。
+  \item \textbf{但追蹤沒有因此變好。}第二輪 22 題全對，跟對比例卻沒有提高（B4：關閉 0.55、覆核 0.48、主導 0.31；A4：0.49、0.34、0.31）。原因之一是等答案的 3.5 s 裡兩人交錯、編號對調，正確答案被套到錯的人；更根本的是目標離開再出現時規則接不回來，這時畫面通常只有他一個人，不會發問\src{S42,S45}。第一輪 B4 覆核的 0.81 是湊巧，已更正。
+  \item \textbf{放寬到 4 m 就有同樣效果。}用「一定答對」的替身重播：3 m＋覆核 0.63，和只放寬到 4 m 的 0.63 一樣；4 m 再加覆核是 0.61，沒有更好\src{S41}。
+  \item \textbf{A4 變差是評估口徑問題。}4 m＋覆核在 A4 路線一度從 0.41 降到 0.32。原因是重播替身把 1.5 m 內並行的旁人當成正確答案。替身改成 1.0 m 後，38 段重播裡 0 段比 4 m 關閉差，A4 路線 0.38 對 0.38，不變差也沒變好。後台程式沒改\src{S43}。
+  \item \textbf{併人修正後}（\#556）：4 m＋覆核全部 0.67、4 m 關閉 0.64；A4 八鏡頭 0.61$\to$0.74，其餘不變\src{S44}。這是替身的上限值，不是真實模型的表現。
+  \item \textbf{「主導」一直最差}（重播 0.38），畫面會停 28--32\% 的時間\src{S41,S45}。
+\end{itemize}
+所以目前裁決的價值主要是展示「LLM 如何在受限的選項中參與判斷」，不能說它提高了跟對的比例。
+
+\paragraph{離線 WP5 模型比較：進行中。}
+\begin{itemize}[nosep]
+  \item \textbf{OpenAI 校準}（2026-11-15，合成題）：實際花費 USD 0.113。terra 的 DP1 格式錯誤是 \code{ABSTAIN} 多帶 \code{candidate_id}，v3 已修\src{S54}。
+  \item \textbf{Colab L4 本機模型 pilot}（v3.1，2026-11-17，合成題）：qwen2.5 7B 的 DP1、DP3、NL 各 24 題全部自己回答、0 格式錯誤；llama3.1 8B 的 DP3 只有 13/24 自己回答（11 題選了 DP3 不允許的 \code{SELECT}，屬模型能力）。注意這批用的是包內舊的 2000 ms 逾時，數字是協調者直接數的，正式彙總還沒重算\src{S53}。
+  \item \textbf{OpenAI 三模型 pilot}（方案 C，terra$\to$sol$\to$astra，各 72 步，上限 USD 4）：2026-11-17 開跑，\textbf{結果未出，進行中}\src{S52}。
+\end{itemize}
+
+\paragraph{還沒驗證的風險。}
+\begin{itemize}[nosep]
+  \item \textbf{目標不在候選名單時，真的模型怎麼答。}候選名單是「上次估計位置 4 m 內」。追蹤器落後目標時（A4 實例落後約 3.5 m），真正的目標不在名單裡，正確答案是 0。替身會答 0；§0D 的 36 題裡正確答案是 0 的只有 1 題，所以真的模型這時會不會硬選一個，沒有驗證\src{S45}。
+  \item 所有即時參數都只在 A4、B4 兩條劇本路線上調過，沒有人實際操作的資料。
+  \item 離線 DP1／DP3 的題目目前都是合成題，正式題庫和正式階段的預算尚未核准。
+\end{itemize}
+
+%---------------------------------------------------------------------
+\subsection{要不要硬性限制追丟時間}\label{sec:v4-lost}
+
+\paragraph{現況。}
+\begin{itemize}[nosep]
+  \item \textbf{預錄}：產品端不加失聯期限。Q5 狀態機只有「重搜 6 次」的上限，沒有秒數上限；\code{associate()} 連次數上限都沒有。暫失 $\ge 1.8$ s 或空檔 $>5.2$ s 的事件，由評估端歸成「長時間 LOST」另外評分，controller 不加 \code{lost_after_us}（D90-1）\src{S40}。
+  \item \textbf{即時模式}：15 輪只是把狀態標成 LOST，追蹤器不放棄；但範圍中心停在最後估計位置，目標走遠就接不回來（第~\ref{sec:v4-live} 節）。
+\end{itemize}
+
+\paragraph{協調者的建議（尚未經使用者決定）。}不設硬性上限，改成分段處理：
+\begin{enumerate}[nosep]
+  \item \textbf{短失聯}：自動接回，和現在一樣。
+  \item \textbf{超過門檻後}：搜尋範圍依鄰接鏡頭和經過的時間放寬；但接回的人要經過外觀確認（影像裁決），或標成「待確認」，不直接當成目標。
+  \item \textbf{門檻秒數}：用重播量測決定，不先拍定。
+\end{enumerate}
+理由：硬性上限會讓「目標其實還在、只是走遠」的情況直接結束；而單純放寬範圍已量過會讓跟錯大增（0.18$\to$0.27--0.32\src{S41}），所以放寬必須搭配確認。相關工作：issue \#553（CX-L2 推論排程：每輪只推論作用中鏡頭和鄰居，失聯時逐步擴大；2026-11-17 為 OPEN）\src{S56}。這是建議，使用者尚未決定。
 
 %=====================================================================
 \section{討論與限制}\label{sec:discussion}
