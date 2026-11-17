@@ -320,6 +320,22 @@
       "sha256": "d0bbdc34cf1816a6bdd737efee41b3df6a7a0035866e6e044fce307b277ff9bc",
       "status": "現行；進度導覽補到 #557（D91-4）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D249-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@7c19707264ef009090311e8427d4f53ddd12a777",
+      "sha256": "49a2c67eb8a1ad3600e1ea51b3cc459fc0cb989c7be72fb4b76c3c559605630a",
+      "status": "現行（D242 付費 API、D245 gh、D248/D249 分支規則、交接 11-16）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D250-A13",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@c5d447fd1b02a353e8ec64cc71c1db1227f2d04a（#557）",
+      "sha256": "970590665cc96939ae9fc6f6acb2c3550cd7371f18a286abb45df1c49306426f",
+      "status": "現行；進度導覽補到 #557＋#490 設計稿搬移註記（D91-4、D250）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
     }
   ],
   "authorized_changes": [
@@ -455,6 +471,20 @@
       "requires_commit": "6134567ce3a5eb5b4056dfdb78bcb3d1e589f1c0",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
       "reason": "進度導覽批次補列到 #557（D91-4），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "49a2c67eb8a1ad3600e1ea51b3cc459fc0cb989c7be72fb4b76c3c559605630a",
+      "requires_commit": "7c19707264ef009090311e8427d4f53ddd12a777",
+      "issue_ref": "#93",
+      "reason": "D249-2：已被取代的分支不打 tag 直接刪（使用者 2026-11-17）。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "970590665cc96939ae9fc6f6acb2c3550cd7371f18a286abb45df1c49306426f",
+      "requires_commit": "c5d447fd1b02a353e8ec64cc71c1db1227f2d04a",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "reason": "#490 列註明設計稿已搬進 main、#93 列更新到 D250（D250、D91-4），只改導覽內容"
     }
   ]
 }
