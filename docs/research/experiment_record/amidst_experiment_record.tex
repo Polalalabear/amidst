@@ -665,6 +665,8 @@ LLM 介入點 & DP1、DP3（注入 \code{decider}），預設關 & 有 \code{AGE
 表~\ref{tab:v4-params} 列出每個參數的值、作用、決定方式和證據。「工程預設」的意思是：寫程式的人先給一個合理的值，沒有量測支持，也沒有和別的值比較過。這類參數在表中以 \textbf{工程預設} 標出。
 
 \begin{footnotesize}
+% file names in this table may break at . _ : - /
+\renewcommand{\code}[1]{{\def\UrlBreaks{\do\.\do\_\do\:\do\-\do\/}\urlstyle{tt}\nolinkurl{#1}}}
 \begin{longtable}{>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{2.6cm}}
 \caption{參數、作用、決定方式、證據與已知限制。}\label{tab:v4-params}\\
 \toprule
@@ -722,6 +724,37 @@ DP4 Agent：最多 5 步、USD 0.02、單次 3000 ms & 主動關注排序 & 契�
 
 \paragraph{一句話。}LLM 只能在規則已經列好的幾個選項中挑一個，或說「不選」。它看不到 GT、劇本、影像，也不能新增候選。答案不合法、太慢、超出預算，系統就照規則走，並記下原因。這個模式預設關閉（\code{mode}＝\code{OFF}），8785 的展示行為不變（D166）\src{S46,S47,S50}。
 
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=5mm and 6mm, every node/.style={font=\footnotesize}]
+\node[off] (idx) {離線索引\\局部軌跡};
+\node[box, right=of idx] (assoc) {\code{associate()}\\逐格掃描};
+\node[box, right=of assoc] (rule) {規則答案\\0／1／$\ge$2 個候選};
+\node[box, below=of rule] (gate) {有注入 \code{decider}\\而且模式是 AGENT？};
+\node[box, below=of gate] (req) {請求產生器\\文字摘要、重編代號\\禁用鍵掃描};
+\node[ui, left=14mm of req] (llm) {LLM\\（OpenAI／本機）};
+\node[box, left=10mm of llm] (val) {schema 與代號檢查\\只修兩種格式瑕疵};
+\node[box, below=of val] (agent) {採用：\code{AGENT}};
+\node[box, below=10mm of llm] (fb) {規則答案：\code{RULE_FALLBACK}\\（逾時、不合法、額度）};
+\node[box, right=of gate, xshift=4mm] (only) {規則答案：\\\code{RULE_ONLY}};
+\node[box, below=of agent] (rec) {決策紀錄（每一步）};
+\draw[flow] (idx) -- (assoc);
+\draw[flow] (assoc) -- (rule);
+\draw[flow] (rule) -- (gate);
+\draw[flow] (gate) -- node[note, right]{是} (req);
+\draw[flow] (gate) -- node[note, above]{否} (only);
+\draw[flow] (req) -- node[note, above]{\code{ApiGuard}} (llm);
+\draw[flow] (llm) -- (val);
+\draw[flow] (val) -- node[note, left]{合法} (agent);
+\draw[fb] (val.south east) -- node[note, right, pos=0.35]{不合法／逾時} (fb.west);
+\draw[flow] (agent) -- (rec);
+\draw[flow] (fb) |- (rec);
+\end{tikzpicture}
+\caption{離線 Agent 決策的流程（DP1／DP3）。虛線是退回規則的路徑。沒有注入或模式為 \code{OFF} 時，輸出與純規則逐 byte 相同。}\label{fig:v4-off}
+\end{figure}
+
+圖~\ref{fig:v4-off} 是整體流程。
+
 \paragraph{有哪些決策點。}
 \begin{itemize}[nosep]
   \item \textbf{DP1 切鏡裁決}：跟丟後有合格候選時，選哪一個，或 \code{ABSTAIN}（不切）。規則的答案：1 個候選就切，2 個以上不切。
@@ -766,6 +799,35 @@ NL：把一句話填進查詢欄位 & 填詞彙表以外的值 \\
 \subsection{LLM 怎麼介入：即時模式（影像裁決）}\label{sec:v4-llm-live}
 
 \paragraph{一句話。}即時模式的規則追蹤每一輪照常進行，不等 LLM。遇到「可能跟錯人」的時刻，後台在背景送兩張圖給視覺模型問「哪一個是目標」；答案回來、而且還算數時，把追蹤器搬到那個人身上一次，之後交回規則。預設關閉（\code{--advisor off}）。打開時 demo 預設用「覆核」（使用者 2026-11-16 決定），每次呼叫都經過 \code{ApiGuard}（\code{server.py:64-70}）\src{S37,S45}。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=5mm and 5mm, every node/.style={font=\footnotesize}]
+\node[box] (cam) {8 台鏡頭 JPEG};
+\node[box, right=of cam] (det) {偵測＋顏色\\腳底投影};
+\node[box, right=of det] (trk) {規則追蹤\\4 m、最近者};
+\node[box, right=of trk] (out) {本輪輸出\\（B 畫面）};
+\node[box, below=of trk] (trig) {觸發？\\\code{SILENT_PICK}／\\\code{LOST_WITH_CANDIDATES}};
+\node[box, left=of trig] (ask) {背景提問\\參考圖＋編號框};
+\node[ui, below=of ask] (llm) {視覺模型\\答 $k$ 或 0};
+\node[box, right=of llm, xshift=4mm] (chk) {答案還算數？\\1.5 s 內仍可見\\未與人靠近 0.7 m};
+\node[box, right=of chk] (app) {\code{reseed}：搬追蹤器一次\\答 0：清鎖定};
+\node[box, below=of chk] (fb) {丟棄：\code{RULE_FALLBACK}};
+\draw[flow] (cam) -- (det);
+\draw[flow] (det) -- (trk);
+\draw[flow] (trk) -- (out);
+\draw[flow] (trk) -- (trig);
+\draw[flow] (trig) -- node[note, above]{是} (ask);
+\draw[flow] (ask) -- node[note, left]{\code{ApiGuard}} (llm);
+\draw[flow] (llm) -- node[note, above]{\code{poll}} (chk);
+\draw[flow] (chk) -- node[note, above]{是} (app);
+\draw[fb] (chk) -- node[note, right]{否／逾時／不合法} (fb);
+\draw[flow] (app) |- (out);
+\end{tikzpicture}
+\caption{即時影像裁決的流程。規則追蹤每一輪照常輸出，不等模型；答案回來且仍有效時，才把規則追蹤器搬到被選的人身上一次。虛線是丟棄答案、照規則走的路徑。}\label{fig:v4-live}
+\end{figure}
+
+圖~\ref{fig:v4-live} 是整體流程。
 
 \paragraph{兩種觸發。}（\code{advisor.py:277-299}）
 \begin{itemize}[nosep]
@@ -1194,5 +1256,38 @@ RQ3 路徑 (b)（第~\ref{sec:rq3} 節；S13、S15） & \#490 \hash{ebc6d3f31eea
 \end{itemize}
 
 \paragraph{SHA 的用途。}依 \code{AGENTS.md} 的 Git 流程，分支一律以 merge commit 合併、不 squash、不 rebase、不 force-push，因為文件引用 commit SHA；改寫歷史會讓引用失效。本紀錄的每個結果因此可以用 commit SHA 找回當時的程式，以資料 SHA-256 確認輸入沒有被換掉，以模型 digest 確認模型版本（附錄~\ref{app:repro}）。
+
+
+\section{v4 來源對照（S37 起）}\label{app:v4sources}
+第~\ref{sec:v4} 章的來源。程式行號都以 \code{main}@\hash{31a69177bfe941dc845cc14252b44ab8cbe61664} 為準；GitHub 留言於 2026-11-17 以 \code{gh} 讀取。
+\begin{longtable}{l >{\raggedright\arraybackslash}p{12.6cm}}
+\toprule
+標記 & 來源 \\
+\midrule
+\endhead
+S37 & \code{src/amidst/live_mode/tracker.py}、\code{server.py}、\code{detector.py}、\code{people.py}、\code{advisor.py}；\code{frontend/live-mode/src/common.mjs}、\code{operator.mjs}、\code{protocol.mjs}；\code{scripts/serve_demo_integration.py}@\code{31a69177}（\code{main}，含 \#544、\#556） \\
+S38 & \code{src/amidst/q1q5/cross_camera_demo.py}（\code{Parameters}、\code{associate()}、\code{single_view_sequence}）、\code{demo_local_tracks.py}、\code{scripts/run_cross_camera_demo.py}、\code{frontend/workbench-v2/}@\code{31a69177} \\
+S39 & \code{src/amidst/q1q5/q5_controller.py}（\code{RuleController}）、\code{api.py}（\code{_controller}）、\code{baseline_runner.py}、\code{candidates.py}、\code{configs/q1q5/parameter_set_v1.json}@\code{31a69177} \\
+S40 & \code{docs/evaluation/Q5_DECISION_WINDOW_D79.md}@\code{31a69177}（§1.1、K1 推導、後續決定）；\#93 D67 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6292484288}、D78 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6398428243}、D79 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6398981572}、D90 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6423575212} \\
+S41 & \code{docs/evaluation/LIVE_MODE_TRACKER_20261116.md}@\code{31a69177}（§1、§3、§4；PR \#544） \\
+S42 & \code{docs/evaluation/LIVE_MODE_ADVISOR_20261116.md}@\code{31a69177}；設計稿 §0E 的摘要 \\
+S43 & \code{docs/evaluation/LIVE_MODE_A4_REGRESSION_20261116.md}@\code{31a69177}（報告 commit \code{557d85df}、程式 \code{44fa19e1}） \\
+S44 & \code{docs/evaluation/LIVE_MODE_PEOPLE_GROUPING_20261117.md}@\code{31a69177}（PR \#556） \\
+S45 & \code{docs/design/LIVE_MODE_LLM_DECISION_V1.md}@\code{31a69177}（§0D、§0E、§0F、§3） \\
+S46 & \code{docs/design/AGENT_DECISION_V1.md}@\code{31a69177}（§1、§2，含 D243／D246 更新註） \\
+S47 & \code{src/amidst/q1q5/agent_decision.py}、\code{agent_providers.py}、\code{agent_wiring.py}、\code{configs/q1q5/agent_decision_params_v1.json}@\code{31a69177} \\
+S48 & \code{src/amidst/q1q5/nl_query_parse.py}、\code{attention_ranking.py}、\code{attention_agent.py}、\code{docs/contracts/DP4_ATTENTION_RANKING_V1.md}@\code{31a69177} \\
+S49 & \code{src/amidst/q1q5/api_budget.py}@\code{31a69177}（模組說明：\code{ApiGuard} 預設關閉、USD 0） \\
+S50 & \#93 D166（2026-11-09），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6739780369} \\
+S51 & \#93 D243 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6923751599}、D244 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6923881198}、D246 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6924277022} \\
+S52 & \#93 D242 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6923661865}、D251 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6934520989}、D253 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6934604825} \\
+S53 & PR \#546 留言（Colab L4 v3.1 pilot），\url{https://github.com/Polalalabear/amidst/pull/546\#issuecomment-6924323692}；LOCAL \code{local/evidence/wp5/pilot/colab_l4_v3_1_20261117/SHA256SUMS.txt}，SHA-256 \hash{bec3c4fa17ec34a49c832f1d580a7a87d351c0c72d6590855153faa3a236c553} \\
+S54 & \code{docs/evaluation/WP5_OPENAI_CALIBRATION_20261115.md}@\code{31a69177}；\#93 D240 \url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6900261424} \\
+S55 & PR \#551（OPEN，head \code{85b37f2f}，2026-11-17 以 \code{gh pr view} 讀取），\url{https://github.com/Polalalabear/amidst/pull/551} \\
+S56 & issue \#553（CX-L2 推論排程，OPEN，2026-11-17 讀取），\url{https://github.com/Polalalabear/amidst/issues/553} \\
+S57 & \code{docs/evaluation/LIVE_MODE_SPIKE_20261115.md}@\code{31a69177}（§4 顯示門檻 0.35、§5 解析度） \\
+S58 & \#93 D148（2026-11-09），\url{https://github.com/Polalalabear/amidst/issues/93\#issuecomment-6730985195} \\
+\bottomrule
+\end{longtable}
 
 \end{document}
