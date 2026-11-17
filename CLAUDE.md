@@ -4,7 +4,7 @@
 
 Read in this order:
 
-1. The task's brief, or, for a coordinating session, the handoff: `docs/agents/COORDINATOR_HANDOFF_20261027.md`, a snapshot of 2026-10-27 (current decisions and state live on the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93)).
+1. The task's brief, or, for a coordinating session, the handoff: `docs/agents/COORDINATOR_HANDOFF_20261116.md`, a snapshot of 2026-11-16 (current decisions and state live on the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93)).
 2. `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md` (acceptance criteria AC1–AC8 and the Codex/Claude split) and the two-line plan (`docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`).
 3. `docs/evaluation/Q5_DECISION_WINDOW_D79.md` (the D79 decision-window document).
 4. `docs/specs/Q1Q5_PRODUCT_SPEC.md` (the Q1–Q5 product specification).
@@ -16,7 +16,7 @@ For Office demo tasks, Claude Code owns all workbench visualization and usabilit
 
 Q1–Q5 work is self-selected from the task board: take only `ready` issues with your own `owner:*` label, one task at a time, and stop at `needs-auth` or checkpoints. Each session gets one concrete task. Do not create worktrees, recursively explore unrelated modules, run large Blender renders or research experiments, or inspect large media without a specific need. Mark missing paths/assets `UNKNOWN`; do not invent them. Stop after the assigned task and its focused verification.
 
-Writing sessions: at most three at a time (D87), with non-overlapping file sets, at least 9 GiB of free disk before the third one starts, and no rendering on the Claude side. Each writes in its own scratchpad `git clone --shared --no-checkout ~/amidst` with `origin` set to the GitHub remote, on its own `claude/feat-<line>` branch (D216), and deletes that clone when done. `~/amidst` is the pinned 8785 demo folder shared with Codex (D218): never edit, switch branches or commit there. Stop when free disk space drops below 5 GiB (the program guard blocks at 8 GiB).
+Writing sessions: at most three at a time (D87), with non-overlapping file sets, at least 9 GiB of free disk before the third one starts, and no rendering on the Claude side. Each writes in its own scratchpad `git clone --shared --no-checkout ~/amidst` with `origin` set to the GitHub remote, on its feature line's `claude/feat-<line>` branch (D216; a new branch only for a large feature, while small fixes, review fixes and document updates go to the existing feature branch, D248; one writer per branch at a time), and deletes that clone when done. `~/amidst` is the pinned 8785 demo folder shared with Codex (D218): never edit, switch branches or commit there. Stop when free disk space drops below 5 GiB (the program guard blocks at 8 GiB).
 
 The coordinator updates [`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q5_PROGRESS.md) in batches for the PRs and issues opened (D91-4; see "Progress guide" in AGENTS.md); a PR does not need to add its own row.
 
