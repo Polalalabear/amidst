@@ -35,10 +35,25 @@ export const ERROR_TEXT = Object.freeze({
   NOW_REQUIRED: '需提供非負整數的目前回放時間',
   Q_RESPONSE_EXPIRED: '這筆結果已過期，請重新查詢',
   // 2026-11-17: server refusals that reached the user as raw codes.
-  FORBIDDEN_DATA_SCOPE: '連線已失效（伺服器重新啟動過），請重新整理頁面後再試',
+  FORBIDDEN_DATA_SCOPE: '伺服器拒絕這個請求（連線可能已失效）；請重新整理頁面後再試',
   AUTOMATIC_SEED_PRESET_ONLY: '這段示範錄影只能追蹤「人物」、不指定顏色、從錄影開頭開始；請取消顏色或時間後再試',
   TIME_SCOPE: '時間超出這段錄影的範圍',
 });
+
+// 2026-11-17: the demo server's HTTP layer answers every ValueError with 403 FORBIDDEN_DATA_SCOPE, which also hides
+// AUTOMATIC_SEED_PRESET_ONLY (the recorded replay tracks only person, no colour, from the recording start). q-api has
+// already renewed the session once, so for a track request we name the likely cause from the form itself.
+// `recordingStart` is the recording's first wall-clock time (HH:MM:SS) or null.
+export function trackRefusalText(code, form, recordingStart = null, colorName = c => c) {
+  if (code !== 'FORBIDDEN_DATA_SCOPE' && code !== 'AUTOMATIC_SEED_PRESET_ONLY') return null;
+  const causes = [];
+  if (form?.classLabel && form.classLabel !== 'person') causes.push('特徵不是人物');
+  if (form?.colorLabel) causes.push(`指定了顏色「${colorName(form.colorLabel)}」`);
+  if (recordingStart && form?.start && form.start !== recordingStart) causes.push(`開始時間不是錄影開頭（${recordingStart}）`);
+  if (form?.regionIds?.length) causes.push('指定了地點');
+  if (!causes.length) return code === 'AUTOMATIC_SEED_PRESET_ONLY' ? ERROR_TEXT.AUTOMATIC_SEED_PRESET_ONLY : null;
+  return `伺服器拒絕：這段示範錄影的追蹤只接受「人物、不指定顏色、從錄影開頭開始」，你的條件${causes.join('、')}；請改掉後再試`;
+}
 
 // Server-side failures: a known code gets its plain-language text; anything else stays an explicit UNKNOWN.
 export function failureText(code, fallback = 'REQUEST_FAILED') {

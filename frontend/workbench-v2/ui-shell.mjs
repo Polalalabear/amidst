@@ -18,7 +18,7 @@ import {sourcePresentation} from './q-tokens.mjs';
 import {resolveCardImageSrc, resolveFrameImageSrc} from './core-media.mjs';
 import {canPlay} from './q-playback.mjs';
 import {
-  AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT,
+  AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT, trackRefusalText,
 } from './core-search-track-model.mjs';
 import {eventDisplayName} from './event-names.mjs';
 import {planFromParse} from './nl-spotlight-model.mjs';
@@ -295,7 +295,7 @@ export function mountUi(ctx) {
     const result = await ctx.submitCore(w.kind, form);
     if (destroyed) return;
     if (!result?.ok) {
-      const text = ERROR_TEXT[result?.code] ?? result?.text ?? 'UNKNOWN';
+      const text = (w.kind === 'track' ? trackRefusalText(result?.code, form, wallClockText(run?.clock_mapping, 0), colorDisplay) : null) ?? ERROR_TEXT[result?.code] ?? result?.text ?? 'UNKNOWN';
       w.feedback.textContent = text; w.feedback.dataset.state = 'error';
       phase.dispatch({type: 'SEARCH_END'}); setQuery(true); render();
     }

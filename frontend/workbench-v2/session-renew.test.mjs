@@ -37,3 +37,12 @@ test('a refusal that survives renewal is reported, with plain-language text', as
   assert.doesNotMatch(failureText('FORBIDDEN_DATA_SCOPE'), /UNKNOWN/);
   assert.match(failureText('AUTOMATIC_SEED_PRESET_ONLY'), /人物/);
 });
+
+test('track refusal: the masked FORBIDDEN_DATA_SCOPE names the form condition the replay preset does not accept', async () => {
+  const {trackRefusalText} = await import('./core-search-track-model.mjs');
+  const red = trackRefusalText('FORBIDDEN_DATA_SCOPE', {classLabel: 'person', colorLabel: 'red', start: '14:10:00', regionIds: []}, '14:10:00', c => (c === 'red' ? '紅色' : c));
+  assert.match(red, /人物、不指定顏色、從錄影開頭開始/); assert.match(red, /紅色/); assert.doesNotMatch(red, /開始時間/);
+  assert.match(trackRefusalText('FORBIDDEN_DATA_SCOPE', {classLabel: 'person', start: '14:10:05'}, '14:10:00'), /不是錄影開頭（14:10:00）/);
+  assert.equal(trackRefusalText('FORBIDDEN_DATA_SCOPE', {classLabel: 'person', start: '14:10:00'}, '14:10:00'), null);   // nothing in the form explains it: generic text
+  assert.equal(trackRefusalText('TIME_SCOPE', {colorLabel: 'red'}, null), null);
+});
