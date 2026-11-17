@@ -34,6 +34,21 @@ replacing the placeholder); §6.2 status: #498 merged (`42fc0a8`), I1/I4/I5
 now "merged and verified", new I8 (Table 11, `Q_RESPONSE_LIMIT`, D153, fixed
 by #500); §7.1 order of work after acceptance A (D151, D152); sources S29–S36.
 
+v4 (2026-11-17) adds §6 「預錄與即時模式：運作方式、參數依據與 LLM 的介入」
+(before 討論與限制, which becomes §7) and Appendix E (sources S37–S58). Basis:
+`main` @ `31a69177` (after #544, #546, #547, #556, #557). Contents: a check of the
+coordinator's oral summary against the code (Table 9: 8785 case2 runs
+`associate()`, not the Q5 `RuleController`; the 0.8 s / 6 s look-ahead / RETURN /
+1 s retry describe `RuleController` only), a three-way comparison (8785,
+`RuleController`, live), a parameter table with how each value was decided and
+which are engineering defaults, the offline Agent decision (DP1/DP3/DP4/NL) and the
+live image adjudication (two TikZ flowcharts, can/cannot tables), current evidence
+(adjudication has not been shown to improve tracking; WP5 OpenAI pilot in progress)
+and the lost-time discussion (coordinator's suggestion, not decided). Chapters 1–7 of
+v3 are unchanged except the title/date and a v4 note after the abstract listing the
+superseded statements. In the parameter table `\code` is redefined locally so long
+file names can break.
+
 - Source: `amidst_experiment_record.tex`
 - Output: `amidst_experiment_record.pdf` (committed; LOCAL copy in
   `/Users/polalabear/amidst-artifacts/experiment-record-20261108/`)
@@ -65,6 +80,8 @@ from memory or estimated; missing items are written `NOT_RUN`, `UNKNOWN` or
 | 圖 1 系統架構 | TikZ in `.tex` | `docs/contracts/Q_CORE_SEARCH_TRACK_V1.md`, `src/amidst/q1q5/q5_agent.py`, `configs/q1q5/r004_production_v1.json` @ `1fdc1a4` |
 | 圖 2 功能架構 | TikZ in `.tex` | PR #487 description |
 | 圖 3 使用流程 | TikZ in `.tex` | contract §3.5–3.6; PR #487 |
+| 圖 7 離線 Agent 決策流程 (v4) | TikZ in `.tex` | `src/amidst/q1q5/agent_decision.py`, `agent_wiring.py`, `cross_camera_demo.py` @ `31a69177` |
+| 圖 8 即時影像裁決流程 (v4) | TikZ in `.tex` | `src/amidst/live_mode/advisor.py`, `tracker.py` @ `31a69177` |
 | 圖 4(a) A4-1 追蹤 | `figures/screen_a4_track_single.png` | LOCAL `/Users/polalabear/amidst-artifacts/d134-445-integration/screenshots/A4-1-track-single.png` (#445 comment 6717335520) |
 | 圖 4(b) A4-1 盲區 | `figures/screen_a4_blind.png` | LOCAL `.../screenshots/A4-1-blind.png` |
 | 圖 4(c) r005 查找結果牆 | `figures/screen_r005_search.png` | LOCAL `.../screenshots/r005-laptop.png` |
