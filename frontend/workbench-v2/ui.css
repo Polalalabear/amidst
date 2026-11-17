@@ -260,3 +260,12 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .ui-chip.ui-track-state{font-size:14px;padding:3px 11px}
 .ui-track-codes{margin:4px 0 0;font-size:10.5px;line-height:1.5;color:var(--dim,var(--faint));overflow-wrap:anywhere}
 .ui-cam-name{font-weight:600}
+/* 2026-11-17 live-mode entry in the admin header (live-entry.mjs). */
+.live-entry{display:flex;align-items:center;gap:8px;margin-left:12px;padding-left:14px;border-left:1px solid var(--line)}
+.live-entry-btn{font:500 13px var(--sans);padding:6px 14px;border-radius:999px;border:1px solid var(--line-strong);background:transparent;color:var(--text);cursor:pointer}
+.live-entry-btn.primary{background:var(--accent);border-color:var(--accent);color:#1b1a19}
+.live-entry-btn:disabled{opacity:.4;cursor:not-allowed}
+.live-entry-status{font-size:12px;color:var(--faint)}
+.live-entry-status[data-tone="ok"]{color:var(--observed,#4cc38a)}
+.live-entry-status[data-tone="off"]{color:#e0bb6a}
+.live-entry-retry{font-size:12px;background:none;border:none;color:var(--faint);text-decoration:underline;cursor:pointer}

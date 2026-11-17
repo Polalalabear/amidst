@@ -4,6 +4,7 @@ import {createSettingsStore,resolveRun,wallCameras,SETTINGS_KEY} from './monitor
 import {mountMonitorRoom} from './monitor-room-view.mjs';
 import {mountTabs,mountOverview,mountSettings} from './admin-ui.mjs';
 import {loadSettings} from './ui-model.mjs';
+import {mountLiveEntry} from './live-entry.mjs';
 import {eventDisplayName} from './event-names.mjs';
 import {runCatalog,recordingCatalog,filterRuns,filterRecordings,parseTimecode,formatDuration,selectionFor,isSelected} from './admin.model.mjs';
 
@@ -12,7 +13,10 @@ export async function bootstrap(root=document,{api:provided=null,storage=globalT
   const $=s=>root.querySelector(s),source=new URL(root.baseURI??'http://localhost/').searchParams.get('source')==='fixture'?FIXTURE_ORIGIN:'SERVER';
   const api=provided??createQApi({source}),settings=createSettingsStore(storage,{key:SETTINGS_KEY});
   const preview=createSettingsStore(null),wall=mountMonitorRoom($('#admin-preview'),{api,settings:preview});
-  let boot=null;const tabs=mountTabs(root);const overview=mountOverview($('#admin-overview'),{getBootstrap:()=>boot,storage});const settingsPane=mountSettings($('#admin-settings'),{getBootstrap:()=>boot,storage});
+  let boot=null;const tabs=mountTabs(root);
+  // 2026-11-17: explicit live-mode entry; the origin badge is this page's data source, not live mode.
+  const head=root.querySelector('.ui-admin-head .row');if(head&&!provided)mountLiveEntry(head,{storage});
+  const originBadge=$('#admin-origin');if(originBadge)originBadge.title='這頁的資料來源狀態（data_origin · status），不是即時模式；即時模式請按旁邊的「開啟即時模式」';const overview=mountOverview($('#admin-overview'),{getBootstrap:()=>boot,storage});const settingsPane=mountSettings($('#admin-settings'),{getBootstrap:()=>boot,storage});
   const loaded=await api.bootstrap();await api.createSession();
   if(loaded.ok){boot=loaded.data;settingsPane.draw();overview.draw();}
   if(!loaded.ok){$('#admin-origin').textContent=`UNKNOWN · ${loaded.error?.code??'BOOTSTRAP'}`;return {settings,wall,destroy(){tabs.destroy();wall.destroy();settings.destroy();}};}
