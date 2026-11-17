@@ -1,4 +1,5 @@
-// Operator-side simulation: WASD movement with wall clearance, scripted distractors (scenario v2.3).
+// Operator-side simulation: view-relative WASD, wall clearance and scenario v2.3 scripts.
+import {moveVector} from './view.mjs';
 export const WALK = 1.2, RUN = 2.5; // m/s, matching the N6 clip speeds
 
 export function segDist(px, py, s) {
@@ -12,21 +13,17 @@ export function blocked(x, y, segments, r = 0.25) {
   return false;
 }
 
-// keys: {w,a,s,d,shift}. Camera-relative-free: W=+Y(north) A=-X S=-Y D=+X in the world frame (a
-// third-person view is fixed behind the person looking +Y; documented simplification).
+// keys: {w,a,s,d,shift,view_yaw?}. Missing yaw preserves legacy W=+Y, D=+X.
 export const DEFAULT_CROWD_CONFIG = Object.freeze({r_person: 0.30, r_wall: 0.25, wait_max_mutual_s: 3, eps_m: 0.02});
 
 // All candidates use the same step-start position; no entity is pushed by another.
 export function playerCandidates(p, keys, dt, segments, cfg = DEFAULT_CROWD_CONFIG) {
-  let vx = Number(!!keys.d) - Number(!!keys.a), vy = Number(!!keys.w) - Number(!!keys.s);
-  const n = Math.hypot(vx, vy), speed = keys.shift ? RUN : WALK;
-  const heading = n ? Math.atan2(vy, vx) : (p.heading || 0);
-  if (n) { vx = vx / n * speed * dt; vy = vy / n * speed * dt; }
+  const {vx, vy} = moveVector(keys, keys.view_yaw ?? 0, (keys.shift ? RUN : WALK) * dt);
   const result = [], seen = new Set();
   for (const [dx, dy] of [[vx, vy], [vx, 0], [0, vy], [0, 0]]) {
     const x = p.x + dx, y = p.y + dy, key = `${x},${y}`;
     if (seen.has(key) || ((dx || dy) && blocked(x, y, segments, cfg.r_wall))) continue;
-    seen.add(key); result.push({x, y, heading, moving: !!(dx || dy), running: !!keys.shift && !!(dx || dy)});
+    seen.add(key); result.push({x, y, heading: dx || dy ? Math.atan2(dy, dx) : (p.heading || 0), moving: !!(dx || dy), running: !!keys.shift && !!(dx || dy)});
   }
   return result;
 }

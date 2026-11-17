@@ -1,119 +1,265 @@
-// Screen 1 (operator): sentence + person, WASD third-person control, distractors on the v2.3 routes,
-// 8 virtual cameras captured offscreen, frames sent to the backend, results relayed to the system window.
+// A owns the renderer and its private evaluation log. Only camera pixels cross to B/backend.
 import * as THREE from 'three';
-import { groundTruthVisible } from './world.mjs';
-import { setupWorld } from './setup.mjs';
-import { stepPlayer, scriptedPose, WALK, RUN } from './sim.mjs';
-import { makePerson, projectBox } from './person.mjs';
-import { makeCapture, packInfer, chooseCaptureIds } from './capture.mjs';
-import { buildSystemMessage, buildInferHeader } from './protocol.mjs';
-import { CHANNEL, params, now } from './common.mjs';
+import {groundTruthVisible} from './world.mjs';
+import {setupWorld} from './setup.mjs';
+import {createCrowd} from './crowd.mjs';
+import {makePerson} from './person.mjs';
+import {makeLoader, makeCharacter, VARIANTS} from './n6.mjs';
+import {applyMouseDelta, DEFAULT_VIEW_CONFIG} from './view.mjs';
+import {makeCapture, packInfer, chooseCaptureIds} from './capture.mjs';
+import {buildSystemMessage, buildInferHeader} from './protocol.mjs';
+import {CHANNEL, params, now} from './common.mjs';
 
-export async function start(body) {
-  const P = params();
-  body.insertAdjacentHTML('beforeend', `<div id="op"><canvas id="view"></canvas><div id="panel">
-    <b>Operator</b> <span class="kv">(live mode spike)</span><br><br>
-    <label>Sentence<br><input id="sentence" value="${P.sentence}"></label>
-    <label>Person <select id="who"><option>red top</option><option>blue top</option></select></label>
-    <p class="kv">WASD move · Shift run · The system window (<code>?role=system</code>) sees only camera pixels.</p>
-    <div id="stats" class="kv"></div></div></div>`);
-  const { scenario, world, cams, n6, config } = await setupWorld(P, { scenario: true });
-  const ceiling = world.scene.getObjectByName('CEILING_STATIC_LIVE'); // hidden in the operator's own view only
-  const camIds = P.cams || Object.keys(cams);
-  const run = scenario.runs.find((r) => r.run_id === P.run);
-  const durSec = run.duration_us / 1e6;
-  const player = await makePerson(P.model, world, 'red');
-  const distract = [];
-  for (const a of run.actors.filter((x) => x.actor_id !== 'T')) {
-    const col = a.actor_id === 'A' ? 'red' : a.actor_id === 'B' ? 'orange' : 'blue';
-    const kind = P.model === 'glb' ? 'glb' : 'capsule'; // N6 variants A/B/C for the distractors
-    distract.push({ a, prev: null, h: await makePerson(kind, world, col, { A: 'A', B: 'B', C: 'C' }[a.actor_id] || 'A') });
+const RUNS = ['A4-1-v2-4actor', 'B4-1-v2-4actor'];
+function runId(value) {
+  const id = RUNS.find(id => id === value || id.replace('-v2-4actor', '') === value);
+  if (!id) throw new Error('RUN_UNKNOWN');
+  return id;
+}
+export function menuOptions(q) {
+  const skip = q.has('run') || q.has('actor') || q.has('auto');
+  const actor_id = q.get('actor') || (skip ? 'T' : null);
+  if (actor_id && !VARIANTS.includes(actor_id)) throw new Error('ACTOR_UNKNOWN');
+  const run_id = runId(q.get('run') || (q.get('auto')?.startsWith('B4') ? 'B4-1' : 'A4-1'));
+  return {run_id, actor_id, skip, mouse: q.has('auto') || q.get('mouse') === 'off' ? 'off' : q.get('mouse') === 'drag' ? 'drag' : 'lock'};
+}
+// Only the menu holds this gate. It is never exposed in window.__op or sent over the channel.
+export function createSessionGate(scenario, options, fetcher) {
+  let run_id = options.run_id, actor_id = options.actor_id, locked = false;
+  const editable = () => { if (locked) throw new Error('SESSION_LOCKED'); };
+  return Object.freeze({
+    chooseRun(value) { editable(); run_id = runId(value); },
+    chooseActor(value) { editable(); if (!VARIANTS.includes(value)) throw new Error('ACTOR_UNKNOWN'); actor_id = value; },
+    snapshot: () => ({run_id, actor_id, locked}),
+    async begin() {
+      editable();
+      if (!actor_id) throw new Error('ACTOR_REQUIRED');
+      if (!scenario.runs.find(r => r.run_id === run_id)?.actors.find(a => a.actor_id === actor_id)) throw new Error('ACTOR_NOT_IN_RUN');
+      locked = true;
+      const response = await fetcher('/reset', {method: 'POST'});
+      if (!response.ok) throw new Error('RESET_FAILED');
+      const result = await response.json();
+      if (!/^[a-f0-9]{16}$/.test(result.session_id || '')) throw new Error('RESET_SESSION_ID_MISSING');
+      return Object.freeze({run_id, actor_id, session_id: result.session_id});
+    },
+  });
+}
+
+// Read base colors even when WebGL/preview rendering fails. glTF factors are linear RGB.
+export function variantSwatches(buffer) {
+  const data = new DataView(buffer);
+  if (buffer.byteLength < 20 || data.getUint32(0, true) !== 0x46546c67 || data.getUint32(16, true) !== 0x4e4f534a) throw new Error('GLB_METADATA_INVALID');
+  const json = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 20, data.getUint32(12, true))));
+  const names = json.extensions?.KHR_materials_variants?.variants?.map(v => v.name) || [];
+  const primitives = (json.meshes || []).flatMap(m => m.primitives);
+  const primitive = primitives.find(p => /SHIRT/i.test(json.materials?.[p.material]?.name || ''));
+  if (!primitive) throw new Error('GLB_SHIRT_MATERIAL_MISSING');
+  return Object.fromEntries(VARIANTS.map(name => {
+    const mapping = primitive.extensions?.KHR_materials_variants?.mappings?.find(m => m.variants.includes(names.indexOf(name)));
+    const factor = json.materials?.[mapping?.material ?? primitive.material]?.pbrMetallicRoughness?.baseColorFactor;
+    if (!factor) throw new Error(`GLB_VARIANT_COLOR_MISSING:${name}`);
+    const color = new THREE.Color().setRGB(...factor.slice(0, 3), THREE.LinearSRGBColorSpace);
+    return [name, `#${color.getHexString()}`];
+  }));
+}
+
+export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
+  if (mode === 'off') return () => {};
+  let dragMode = mode === 'drag' || !canvas.requestPointerLock, dragging = false, previous = null;
+  const listeners = [];
+  const on = (target, type, fn) => { target.addEventListener(type, fn); listeners.push(() => target.removeEventListener(type, fn)); };
+  on(canvas, 'click', () => {
+    if (dragMode) return;
+    try { Promise.resolve(canvas.requestPointerLock()).catch(() => { dragMode = true; }); }
+    catch { dragMode = true; }
+  });
+  on(doc, 'pointerlockerror', () => { dragMode = true; });
+  on(doc, 'pointerlockchange', () => { dragging = false; previous = null; });
+  on(canvas, 'mousedown', e => { if (dragMode && e.button === 0) { dragging = true; previous = [e.clientX, e.clientY]; e.preventDefault(); } });
+  on(doc, 'mouseup', () => { dragging = false; previous = null; });
+  on(doc, 'mousemove', e => {
+    if (doc.pointerLockElement === canvas) update(e.movementX, e.movementY);
+    else if (dragging && previous) { update(e.clientX - previous[0], e.clientY - previous[1]); previous = [e.clientX, e.clientY]; }
+  });
+  on(doc.defaultView || doc, 'blur', () => { dragging = false; previous = null; });
+  return () => listeners.forEach(remove => remove());
+}
+
+export function privateTick(snapshot, tick, t_capture, visible) {
+  return {tick, t_capture, t_sim: snapshot.t_sim,
+    actors: snapshot.actors.map(a => ({id: a.actor_id, present: a.present, xy: a.present ? [a.x, a.y] : null, gt_visible: a.present ? visible(a) : []})),
+    pause_total_i: Object.fromEntries(snapshot.actors.filter(a => !a.is_player).map(a => [a.actor_id, a.pause_total_i])),
+    block_wait: snapshot.actors.filter(a => a.block_wait > 0).map(a => ({i: a.actor_id, j: 'player', waited_s: a.block_wait})),
+    forced_pairs: snapshot.forced_pairs,
+  };
+}
+
+function previews(body, gltf) {
+  const disposers = [];
+  for (const id of VARIANTS) {
+    let renderer;
+    try {
+      const canvas = body.querySelector(`[data-preview="${id}"]`);
+      renderer = new THREE.WebGLRenderer({canvas, alpha: true, antialias: true});
+      renderer.setSize(160, 170, false);
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(32, 160 / 170, .1, 20);
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 3));
+      const character = makeCharacter(gltf, id); scene.add(character.object); character.update(0);
+      camera.position.set(3.4, 1.8, 2.5); camera.lookAt(0, .9, 0);
+      renderer.render(scene, camera); canvas.hidden = false;
+      disposers.push(() => renderer.dispose());
+    } catch { renderer?.dispose(); /* Swatch remains visible; no guessed color. */ }
   }
-  const T = run.actors.find((a) => a.actor_id === 'T');
-  const P0 = { x: T.waypoints[0].xy[0], y: T.waypoints[0].xy[1], heading: 0, moving: false, running: false };
+  return () => disposers.forEach(dispose => dispose());
+}
 
-  // main view
-  const view = document.getElementById('view');
-  const renderer = new THREE.WebGLRenderer({ canvas: view, antialias: true });
-  const vcam = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
-  scene_resize();
-  addEventListener('resize', scene_resize);
-  function scene_resize() { renderer.setSize(view.clientWidth, view.clientHeight, false); vcam.aspect = view.clientWidth / view.clientHeight; vcam.updateProjectionMatrix(); }
-
-  const keys = {};
-  addEventListener('keydown', (e) => { const k = e.key.toLowerCase(); if (k === 'shift') keys.shift = true; else keys[k] = true; });
-  addEventListener('keyup', (e) => { const k = e.key.toLowerCase(); if (k === 'shift') keys.shift = false; else keys[k] = false; });
-
-  const log = { ticks: [], dropped: 0, sent: 0, fpsStart: now(), config: { ...P, cams: camIds, tris: player.tris, n6,
-    schedule_mode:config.schedule_mode } };
-  window.__log = log;
-  window.__setKeys = (k) => Object.assign(keys, k);
-  window.__op = { P0, player, world, cams, setHeading: (h) => { P0.heading = h; } };
-  const cap = makeCapture(world, cams, P.w, P.h, P.quality);
-  const chan = new BroadcastChannel(CHANNEL);
-  await fetch('/reset', { method: 'POST' });
-
-  const t0 = performance.now();
-  let last = t0;
-  function frame(tn) {
-    const dt = Math.min(0.1, (tn - last) / 1000); last = tn;
-    const tSec = (tn - t0) / 1000;
-    const prevX = P0.x, prevY = P0.y;
-    if (P.auto) {
-      const pose = scriptedPose(T, tSec, durSec);
-      if (pose) { P0.x = pose.x; P0.y = pose.y; P0.heading = pose.heading; P0.speed = dt > 0 ? Math.hypot(P0.x - prevX, P0.y - prevY) / dt : 0; }
-      player.setVisible(!!pose);
-      log.autoPresent = !!pose;
-    } else { stepPlayer(P0, keys, dt, world.segments); P0.speed = P0.moving ? (P0.running ? RUN : WALK) : 0; }
-    player.setPose(P0.x, P0.y, P0.heading);
-    // clips are in place: play at timeScale = actualSpeed / nominalSpeed (N6 contract P2-2)
-    player.setSpeed(P0.speed < 0.05 ? 0 : P0.speed, P.auto ? undefined : P0.running); player.update(dt);
-    for (const d of distract) {
-      const pose = scriptedPose(d.a, tSec, durSec);
-      d.h.setVisible(!!pose);
-      if (pose) {
-        const sp = d.prev && dt > 0 ? Math.hypot(pose.x - d.prev[0], pose.y - d.prev[1]) / dt : 0;
-        d.h.setPose(pose.x, pose.y, pose.heading); d.h.setSpeed(sp < 0.05 || sp > 4 ? 0 : sp); d.prev = [pose.x, pose.y];
-      } else d.prev = null;
-      d.h.update(dt);
+export async function start(body, {fetcher = globalThis.fetch, query = location.search, enter = runOperator, preview = previews} = {}) {
+  const q = new URLSearchParams(query), options = menuOptions(q);
+  const P = {...params(), model: q.get('model') || 'glb'};
+  const response = await fetcher('/data/scenario.json');
+  if (!response.ok) throw new Error('SCENARIO_LOAD_FAILED');
+  const scenario = await response.json(), gate = createSessionGate(scenario, options, fetcher);
+  let gltf = null, cleanup = () => {};
+  async function begin() {
+    const session = await gate.begin();
+    cleanup(); body.querySelector('#ab-menu')?.remove();
+    return enter(body, P, session, {fetcher, mouse: options.mouse, gltf});
+  }
+  if (options.skip) return begin();
+  body.insertAdjacentHTML('beforeend', `<main id="ab-menu" style="box-sizing:border-box;min-height:100%;padding:4vh 5vw;max-width:1200px;margin:auto">
+    <h1>A · 選擇場景與角色</h1><h2>1 · 場景</h2><div id="ab-runs" style="display:flex;gap:16px"></div>
+    <h2>2 · 角色</h2><div id="ab-actors" style="display:flex;gap:16px;flex-wrap:wrap"></div>
+    <p>WASD 移動 · Shift 跑 · 滑鼠轉視角。開始後只能重新載入來換場景或角色。</p>
+    <button id="ab-begin" disabled style="padding:12px 36px">開始</button> <span id="ab-status" role="status">載入外觀…</span></main>`);
+  const doc = body.ownerDocument, runButtons = [], cards = [];
+  let menuReady = false;
+  const beginButton = body.querySelector('#ab-begin'), status = body.querySelector('#ab-status');
+  function update() {
+    const selected = gate.snapshot(), run = scenario.runs.find(r => r.run_id === selected.run_id);
+    for (const b of runButtons) { const active = b.dataset.run === selected.run_id; b.setAttribute('aria-pressed', active); b.style.outline = active ? '3px solid #f5a623' : ''; }
+    for (const card of cards) {
+      const id = card.dataset.actor, a = run.actors.find(a => a.actor_id === id);
+      card.querySelector('small').textContent = `${(a.waypoints[0].t_us / 1e6).toFixed(1)}–${(a.waypoints.at(-1).t_us / 1e6).toFixed(1)} s`;
+      const active = id === selected.actor_id; card.setAttribute('aria-pressed', active); card.style.outline = active ? '3px solid #f5a623' : '';
     }
-    vcam.position.set(P0.x, n6 ? 9 : 3.5, -(P0.y - (n6 ? 2.2 : 4.5))); vcam.lookAt(P0.x, 1, -P0.y);
-    if (ceiling) ceiling.visible = false;
-    // walls are see-through only in the operator's own view; the virtual cameras render them opaque
-    for (const m of world.wallMats) { m.transparent = true; m.opacity = 0.18; m.depthWrite = false; }
-    renderer.render(world.scene, vcam);
-    if (ceiling) ceiling.visible = true;
-    for (const m of world.wallMats) { m.transparent = false; m.opacity = 1; m.depthWrite = true; }
+    beginButton.disabled = !menuReady || !selected.actor_id;
+  }
+  for (const id of RUNS) {
+    const b = doc.createElement('button'); b.dataset.run = id; b.textContent = `${id.replace('-v2-4actor', '')} · ${scenario.runs.find(r => r.run_id === id).duration_us / 1e6} s`;
+    b.style.cssText = 'padding:18px 36px'; b.onclick = () => { gate.chooseRun(id); update(); }; body.querySelector('#ab-runs').append(b); runButtons.push(b);
+  }
+  try {
+    const asset = await fetcher('/data/character.glb'); if (!asset.ok) throw new Error('CHARACTER_LOAD_FAILED');
+    const buffer = await asset.arrayBuffer(), colors = variantSwatches(buffer);
+    for (const id of VARIANTS) {
+      const card = doc.createElement('button'); card.dataset.actor = id; card.style.cssText = 'width:180px;padding:10px;background:#242b35;color:inherit;border:1px solid #687380;border-radius:8px';
+      card.innerHTML = `<canvas data-preview="${id}" width="160" height="170" hidden></canvas><p><span style="display:inline-block;width:18px;height:18px;background:${colors[id]}"></span> <b>角色 ${id}</b></p><small></small>`;
+      card.onclick = () => { gate.chooseActor(id); update(); }; body.querySelector('#ab-actors').append(card); cards.push(card);
+    }
+    update(); status.textContent = '請選角色';
+    // GLB parse/render failure keeps the metadata-derived swatches and usable selection.
+    try { gltf = await makeLoader().parseAsync(buffer, '/data/'); cleanup = preview(body, gltf); } catch { status.textContent = '預覽無法顯示；可依色塊選角色'; }
+    menuReady = true; update();
+    beginButton.onclick = async () => {
+      beginButton.disabled = true; runButtons.forEach(b => { b.disabled = true; }); cards.forEach(b => { b.disabled = true; }); status.textContent = '開始…';
+      try { await begin(); } catch (error) { status.textContent = `開始失敗：${error.message}。請重新載入。`; }
+    };
+  } catch (error) { status.textContent = `載入失敗：${error.message}。請重新載入。`; }
+}
+
+// N6 shares one baked material across floor/walls. Clone only the wall assignment in memory,
+// then restore all view-only properties synchronously before any virtual camera capture.
+export function makeOperatorView(world) {
+  const materials = [...world.wallMats], ceiling = world.scene.getObjectByName('CEILING_STATIC_LIVE');
+  world.scene.getObjectByName('WALL_JOINED_SHELL_LIVE')?.traverse(object => {
+    if (!object.isMesh) return;
+    const cloned = (Array.isArray(object.material) ? object.material : [object.material]).map(material => material.clone());
+    object.material = Array.isArray(object.material) ? cloned : cloned[0]; materials.push(...cloned);
+  });
+  return render => {
+    const previous = materials.map(m => ({transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite}));
+    const visible = ceiling?.visible;
+    try {
+      if (ceiling) ceiling.visible = false;
+      for (const m of materials) { m.transparent = true; m.opacity = .18; m.depthWrite = false; }
+      render();
+    } finally {
+      if (ceiling) ceiling.visible = visible;
+      materials.forEach((m, i) => Object.assign(m, previous[i]));
+    }
+  };
+}
+
+async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
+  body.insertAdjacentHTML('beforeend', `<div id="op"><canvas id="view"></canvas><div id="panel"><h2>A · 操作端</h2>
+    <p>WASD 移動 · Shift 跑 · 點畫布鎖定滑鼠（Esc 釋放）；不支援鎖定時按住左鍵拖曳。</p>
+    <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p></div></div>`);
+  const {scenario, world, cams, n6, config} = await setupWorld(P, {scenario: true});
+  if (gltf) world.characterGltf = gltf;
+  const run = scenario.runs.find(r => r.run_id === session.run_id), camIds = P.cams || Object.keys(cams);
+  const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto});
+  let snapshot = crowd.snapshot(), viewState = {view_yaw: 0, view_pitch: 0};
+  const people = new Map();
+  for (const actor of run.actors) people.set(actor.actor_id, await makePerson(P.model, world, actor.actor_id === 'C' ? 'blue' : actor.actor_id === 'B' ? 'orange' : 'red', actor.actor_id));
+  const view = body.querySelector('#view'), stats = body.querySelector('#stats');
+  const renderer = new THREE.WebGLRenderer({canvas: view, antialias: true}), vcam = new THREE.PerspectiveCamera(55, 1, .1, 200);
+  function resize() { renderer.setSize(view.clientWidth, view.clientHeight, false); vcam.aspect = view.clientWidth / view.clientHeight; vcam.updateProjectionMatrix(); }
+  resize(); addEventListener('resize', resize);
+  bindMouseView(view, body.ownerDocument, {mode: mouse, update: (dx, dy) => { viewState = applyMouseDelta(viewState, dx, dy); }});
+  const keys = {};
+  addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+  addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+  addEventListener('blur', () => { for (const k of Object.keys(keys)) delete keys[k]; });
+  const log = {schema_version: 'live-ab.a-log.v1', ...session, ticks: [], forced_overlap: [], block_wait: [], spawn_adjusted: snapshot.spawn_adjusted,
+    config: {...P, run: session.run_id, cams: camIds, n6, crowd: snapshot.config, ...snapshot.config, view: {...DEFAULT_VIEW_CONFIG, mouse}, schedule_mode: config.schedule_mode},
+    sent: 0, dropped: 0, fpsStart: now()};
+  window.__log = log;
+  window.__setKeys = k => Object.assign(keys, k);
+  // Read-only coordinates preserve the legacy measurement hook; no object/variant/session setter.
+  Object.defineProperty(window, '__op', {configurable: false, value: Object.freeze({get P0() { const a = snapshot.actors.find(a => a.is_player); return Object.freeze({x: a.x, y: a.y, heading: a.heading}); }})});
+  body.querySelector('#ab-download').onclick = () => {
+    const blob = new Blob([JSON.stringify(log, null, 2)], {type: 'application/json'}), url = URL.createObjectURL(blob), link = body.ownerDocument.createElement('a');
+    link.href = url; link.download = `live-ab-a-${session.session_id}.json`; link.click(); URL.revokeObjectURL(url);
+  };
+  const cap = makeCapture(world, cams, P.w, P.h, P.quality), chan = new BroadcastChannel(CHANNEL);
+  const drawOperator = makeOperatorView(world); let last = performance.now();
+  function frame(tn) {
+    const dt = Math.min(.1, Math.max(0, (tn - last) / 1000)); last = tn;
+    if (dt > 0) snapshot = crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
+    for (const a of snapshot.actors) {
+      const h = people.get(a.actor_id); h.setVisible(a.present);
+      if (a.present) { h.setPose(a.x, a.y, a.heading); h.setSpeed(a.speed < .05 ? 0 : a.speed, a.is_player && !P.auto ? a.running : undefined); } h.update(dt);
+    }
+    const p = snapshot.actors.find(a => a.is_player), yaw = viewState.view_yaw * Math.PI / 180, pitch = viewState.view_pitch * Math.PI / 180;
+    // Independent orbit follows the player at 4.5 m, eye height 2.1 m; body heading stays movement-derived.
+    vcam.position.set(p.x - 4.5 * Math.sin(yaw), 2.1, -p.y + 4.5 * Math.cos(yaw));
+    vcam.lookAt(vcam.position.x + Math.sin(yaw) * Math.cos(pitch), vcam.position.y + Math.sin(pitch), vcam.position.z - Math.cos(yaw) * Math.cos(pitch));
+    drawOperator(() => renderer.render(world.scene, vcam));
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-
   let tick = 0, inflight = false, schedule = null;
   async function captureTick() {
     if (inflight) { log.dropped++; return; }
     inflight = true;
     try {
-      const tCap = now();
-      const present = player.object.visible !== false;
-      const gt = present ? groundTruthVisible(cams, world.blockers, world.root, P0.x, P0.y) : [];
-      const frames = [];
-      for (const id of chooseCaptureIds(camIds,schedule)) frames.push({ cam: id, jpeg: await cap.shoot(id) });
-      const header = buildInferHeader({ tick, tCaptureMs: tCap, frames, availableCameras:camIds });
-      const tSend = now();
-      const res = await fetch('/infer', { method: 'POST', body: packInfer(header, frames.map((f) => f.jpeg)) }).then((r) => r.json());
-      const tResp = now();
-      schedule = res.schedule || null;
-      const msg = buildSystemMessage({ tick, tCaptureMs: tCap, frames, result: res });
-      chan.postMessage(msg);
-      log.sent++;
-      // evaluation-only log (stays in this window; never part of the channel message)
-      log.ticks.push({ tick, t_capture: tCap, t_send: tSend, t_resp: tResp, t_post: now(), gt_visible: gt, timing: res.timing_ms,
-        active: res.tracking && res.tracking.active_cam, state: res.tracking && res.tracking.state,
-        schedule:res.schedule });
-      document.getElementById('stats').textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`;
-      tick++;
-    } finally { inflight = false; }
+      const tCap = now(), snap = snapshot;
+      const row = privateTick(snap, tick, tCap, a => groundTruthVisible(cams, world.blockers, world.root, a.x, a.y));
+      // Start every shoot synchronously in this task, before the next animation frame changes poses.
+      const frames = await Promise.all(chooseCaptureIds(camIds, schedule).map(async id => ({cam: id, jpeg: await cap.shoot(id)})));
+      const header = buildInferHeader({tick, tCaptureMs: tCap, frames, availableCameras: camIds});
+      const tSend = now(), response = await fetcher('/infer', {method: 'POST', body: packInfer(header, frames.map(f => f.jpeg))});
+      if (!response.ok) throw new Error(`INFER_HTTP_${response.status}`);
+      const res = await response.json(), tResp = now(); schedule = res.schedule || null;
+      chan.postMessage(buildSystemMessage({tick, tCaptureMs: tCap, frames, result: res}));
+      const p = row.actors.find(a => a.id === session.actor_id);
+      log.forced_overlap = snap.events.filter(e => e.type === 'forced_overlap');
+      log.block_wait = snap.events.filter(e => e.type === 'block_wait');
+      log.ticks.push({...row, t_send: tSend, t_resp: tResp, t_post: now(), gt_visible: p.gt_visible, timing: res.timing_ms,
+        active: res.tracking?.active_cam, state: res.tracking?.state, schedule: res.schedule});
+      log.sent++; stats.textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`; tick++;
+    } catch (error) { stats.textContent = `擷取失敗：${error.message}`; log.errors ||= []; log.errors.push({tick, error: error.message}); }
+    finally { inflight = false; }
   }
-  setInterval(captureTick, 1000 / P.fps);
-  window.__ready = true;
+  setInterval(captureTick, 1000 / P.fps); window.__ready = true;
 }

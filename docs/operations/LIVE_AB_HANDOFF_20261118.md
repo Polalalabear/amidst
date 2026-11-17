@@ -141,3 +141,64 @@ LOCAL `local/evidence/cx573-20261118/MANIFEST.json` SHA-256 `aa82de742c0565ac8b9
 5 listed files / 365 bytes. Contains syntax, scoped
 search and before/after reference-check output; can regenerate with the issue's
 listed commands. Empty syntax/search logs denote successful no-output checks.
+
+## #569: A menu, view and private-log producer
+
+A now defaults to A4-1, then selects one of the four N6 variants. Each card renders
+an idle preview; fallback swatches are decoded from the GLB variant shirt's linear
+baseColorFactor and converted to sRGB. Run changes update source waypoint appearance
+times. No simulation, capture, reset or infer occurs before Begin. URL short/full run
+ids and actor ids bypass the menu; legacy auto=B4/A4 remains available and forces
+mouse off. After Begin, the internal selection is frozen. `window.__op` contains only
+a read-only P0 snapshot for the old measurement hook, with no character, variant,
+run, actor or heading setter. There is no A target control or tracking endpoint.
+
+Begin first requires a successful /reset with a 16-hex session_id. Missing-token old
+backends fail closed and require reload; real integration awaits #571. Only after
+this response does A set up the scene, one selected player and three distinct
+script variants via the #568 crowd interface, render and capture camera pixels.
+The already reported #568 C-5 failure is unchanged, so this stage does not establish
+full crowd acceptance or a completed epic.
+
+Camera decision resolving spec §1.2 UNKNOWN: old A used a fixed world +Y view (N6
+height9m/back2.2m), independent of player heading. The new orbit follows player xy
+at back4.5m/eye2.1m, oriented by private view_yaw/view_pitch; yaw0 faces +Y. Body heading
+uses the actual accepted movement, including wall sliding. Mouse defaults to click
+pointer lock; rejection/unavailability uses left drag; Esc unlocks without changing
+selection. Pitch, sensitivity and event clamps are in DEFAULT_VIEW_CONFIG. WASD uses
+moveVector, preserving yaw0 speeds/diagonal/wall behavior. N6's baked wall shares its
+material with the floor, so A clones only the wall material assignment in memory;
+transparency/ceiling visibility are restored in finally before virtual camera capture.
+No asset file changes occur.
+
+A's downloadable JSON is live-ab.a-log.v1 with backend session_id, run/actor, config,
+per-capture all-actor present/xy/GT visibility, pause totals, active private forced_pairs
+and active block waits. Ended wait and forced events are snapshotted at the same capture
+boundary so scoring does not combine later ended waits with an earlier active wait.
+These data stay in A; header/channel use only existing protocol builders. All camera
+shoot calls start synchronously before the next animation frame so a capture's actor
+snapshot and virtual camera renders refer to the same poses.
+
+Verification:
+
+- `LIVE_AB_BROWSER=1 AMIDST_LIVE_ASSETS=<existing N6 folder> LIVE_AB_TEST_OUTPUT=<new LOCAL folder> node --test frontend/live-mode/test/ab_menu.test.mjs frontend/live-mode/test/mouse_view.test.mjs frontend/live-mode/test/crowd.test.mjs`:
+  **18 passed / 1 failed / 0 skipped**. The only failure is the unchanged #568 C-5.
+  Menu/view-specific tests including real headless Chrome + fake backend: 11 passed.
+- Browser before Begin: zero reset/infer. After selection: reset, token, render, infer.
+  Four previews and explicit WebGL-disabled swatch fallback verified; JSON download
+  parsed; actor/run fixed after Escape; short URL+auto selected C and forced mouse off.
+  Drag90deg leaves xy/heading unchanged; W then moves +X (~0.42m), unchanged Y.
+  Request headers contain no actor/run/GT/view fields; no tracking endpoint requests;
+  zero page errors. Synthetic backend has no model, parser or API calls.
+- Requested hud/llm_switch/n6/protocol/schedule regression: 41 passed / 0 skipped.
+  `git diff --check`: pass.
+
+LOCAL `local/evidence/cx569-20261118/MANIFEST.json`: SHA-256 `6ce697e7731141460b2a60d5d82b96b30aa1ccb376a78f1fc37c547ee4b68685`,
+34 listed files / 1,896,544 bytes. Includes test-first missing exports, intermediate and
+final logs, screenshots (menu, before/after drag and WebGL-off fallback), private A
+logs, downloaded JSON and fake-backend request receipts. Final screenshots/receipt are
+under the manifest's verified-browser entries. Rebuild using the command above and
+the same source N6 assets/scenario; timing, screenshots and logs are not byte-identical.
+No real pointer-lock feel, full B/backend, detector latency, session reset across B,
+identity or physical safety verified. Real acceptance remains gated on #568 decision
+and #559/#571/#572/#574, not this fake backend.
