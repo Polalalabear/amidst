@@ -69,9 +69,7 @@ const technical = (label, value, log = false) => `<details class="technical"><su
 const badge = (text, tone = '') => `<span class="badge ${tone}">${h(text)}</span>`;
 const empty = (title, description = '', glyph = 'layers') => `<div class="empty-state">${icon(glyph)}<div>${h(title)}</div>${description ? `<small>${h(description)}</small>` : ''}</div>`;
 const sourceVersion = (s) => s.review?.current_version ?? 0;
-let liveLlmModule=null;
 const state = {
-  liveLlm: null,
   geometryOverlay:true,selectedObservationRef:null,
   bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
   resourceTab:'objects',events:[],observations:[],groundObservations:[],retrieval:null,frames:[],frameLoad:'idle',frameLoadEpoch:0,cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
@@ -281,13 +279,6 @@ function sidebar() {
 function topbar() {
   const title = ({dashboard:'主控板',workspace:'共用工作區',review:'人工審查',test:'測試與評估',presentations:'實驗展示',investigation:'人物調查','run-study':'執行與評測','phase2-suite':'調查與品質'})[state.page];
   return `<header class="topbar"><div class="breadcrumb">工作台 ${icon('chevron')} <strong>${title}</strong></div><div class="topbar-tools"><label class="select-shell">${icon('layers')}<select id="scene-select" aria-label="切換場景">${safeList(state.bootstrap?.scenes).map((scene) => `<option value="${h(scene.scene_id)}" ${scene.scene_id === state.sceneId ? 'selected' : ''} ${sceneUsable(scene) ? '' : 'disabled'}>${h(sceneOptionLabel(scene))}</option>`).join('')}</select></label>${badge('本機資料','cyan')}</div></header>`;
-}
-// Live LLM switch (D265): a fixed dock outside #app, so it is on every page and survives render().
-function liveLlmRefresh(){let dock=document.getElementById('live-llm-dock');if(!dock){dock=document.createElement('div');dock.id='live-llm-dock';document.body.appendChild(dock);}
-  dock.innerHTML=liveLlmModule.liveLlmHTML(liveLlmModule.liveLlmView(state.liveLlm));}
-async function liveLlmChange(){
-  const q=(k)=>document.querySelector(`[data-live-llm="${k}"]`);
-  state.liveLlm=await liveLlmModule.saveLiveLlm(liveLlmModule.liveLlmRequest(q('on').checked,q('mode').value,q('model').value));liveLlmRefresh();
 }
 function pageHead(eyebrow,title,description,actions = '') {
   return `<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${description}</p></div>${actions ? `<div class="head-actions">${actions}</div>` : ''}</div>`;
@@ -1403,7 +1394,6 @@ async function handleClick(event) {
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
   document.addEventListener('change',async(event)=>{
-    if(event.target.closest?.('[data-live-llm-root]')){if(liveLlmModule)await liveLlmChange();return;}
     if(state.panel?.manualBlocked?.()&&!event.target.closest?.('[data-run-study-panel]')){
       if(event.target.id==='scene-select')event.target.value=state.sceneId;
       toast('人工搜尋任務進行中；請先提交或停止本次任務，再切換場景。');return;
@@ -1429,8 +1419,6 @@ async function bootstrap() {
     state.bootstrap=await response.json();render();
   }catch(error){state.error=error.message;render();}
   mountDemoMode();
-  // optional module: if it cannot be loaded the workbench is unchanged
-  import('./live-llm.mjs').then(async(m)=>{liveLlmModule=m;liveLlmRefresh();state.liveLlm=await m.loadLiveLlm();liveLlmRefresh();}).catch(()=>{});
 }
 // A5: display-only outline of known observations on their own tile, the details panel, and an optional 3D ground-interval layer.
 function syncObservationOverlays(root=document) {

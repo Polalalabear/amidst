@@ -46,3 +46,16 @@ def resolve(requested: str, provider: str, env: Mapping | None = None, guard_cfg
         code, text = REASONS[reason]
         return {"requested": requested, "effective": "off", "available": False, "reason": reason, "reason_code": code, "reason_text": text}
     return {"requested": requested, "effective": requested, "available": True, "reason": None, "reason_code": None, "reason_text": None}
+
+
+def allowed_origins(ports) -> frozenset:
+    """Browser origins allowed to read and set /config from another page (the workbench): loopback on the given ports only."""
+    return frozenset(f"http://{h}:{int(p)}" for p in ports for h in ("127.0.0.1", "localhost"))
+
+
+def cors_headers(origin: str | None, allowed: frozenset) -> dict:
+    """CORS headers for /config. Never ``*``: only an origin on the allow-list is echoed back."""
+    if origin and origin in allowed:
+        return {"Access-Control-Allow-Origin": origin, "Vary": "Origin", "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "600"}
+    return {}

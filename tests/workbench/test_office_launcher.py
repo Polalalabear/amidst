@@ -293,7 +293,7 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, miss
         "data/engineering/office_display_v1.json.gz",
         *(
             "frontend/workbench/" + n
-            for n in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css", "live-llm.mjs")
+            for n in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css")
         ),
     ]
     for name in names:

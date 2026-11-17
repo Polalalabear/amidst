@@ -24,7 +24,7 @@ from PIL import Image
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
 from .detector import LiveDetector
-from .llm_switch import MODES as LLM_MODES, resolve as resolve_llm
+from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, resolve as resolve_llm
 from .people import PeopleTracker
 from .tracker import Projector, Tracker, load_cameras
 
@@ -162,8 +162,19 @@ def make_handler(state: State):
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
+            for k, v in getattr(self, "_cors", {}).items():   # only /config, only for an allow-listed workbench origin
+                self.send_header(k, v)
             self.end_headers()
             self.wfile.write(body)
+
+        def _config_cors(self):
+            self._cors = cors_headers(self.headers.get("Origin"), allowed_origins(getattr(state.args, "workbench_ports", (8785,))))
+
+        def do_OPTIONS(self):
+            if self.path.split("?")[0] != "/config":
+                return self._send(404, b"not found", "text/plain")
+            self._config_cors()
+            self._send(204 if self._cors else 403, b"")
 
         def _file(self, path: Path, root: Path | None = None):
             if root is not None and not inside(path, root):
@@ -191,6 +202,7 @@ def make_handler(state: State):
             if p in N6_FILES and state.n6:
                 return self._file(state.assets / N6_FILES[p])
             if p == "/config":
+                self._config_cors()
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
@@ -204,6 +216,10 @@ def make_handler(state: State):
             body = self.rfile.read(n)
             p = self.path.split("?")[0]
             if p == "/config":   # workbench LLM switch: {"advisor": "off|review|lead", "advisor_model": optional}; nothing else is accepted
+                self._config_cors()
+                origin = self.headers.get("Origin")
+                if origin and not self._cors and origin != f"http://{self.headers.get('Host')}":   # a page from any other origin may not change the switch
+                    return self._send(403, b'{"error":"origin not allowed"}')
                 try:
                     req = json.loads(body or b"{}")
                     mode = req["advisor"]
@@ -246,6 +262,8 @@ def main():
     ap.add_argument("--max-gate", type=float, default=8.0)
     ap.add_argument("--det-width", type=int, default=320, help="frames wider than this are shrunk to det-width x det-height for detection")
     ap.add_argument("--det-height", type=int, default=180)
+    ap.add_argument("--workbench-ports", type=lambda v: [int(x) for x in v.split(",")], default=[8785],
+                    help="ports of the workbench page(s) allowed to read and set /config from the browser (loopback origins only; default 8785)")
     ap.add_argument("--advisor", default="off", choices=["off", "review", "lead"], help="image adjudication (advisor.py); off = rule tracker only")
     ap.add_argument("--advisor-model", default="sol6.1", choices=sorted(ADVISOR_MODELS))
     ap.add_argument("--advisor-provider", default="openai", choices=["openai", "fake"], help="fake = no network, no cost, always answers 1")

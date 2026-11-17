@@ -356,8 +356,3 @@ body:has(.research-shell){background:var(--wb-bg)}
 .blind-hypothesis-legend .swatch[data-style="translucent"]{height:6px;border:0;background:var(--swatch);opacity:.45}
 .blind-hypothesis-legend .swatch[data-style="band"]{height:8px;border:1px dotted var(--swatch);background:color-mix(in srgb,var(--swatch) 25%,transparent)}
 .blind-hypothesis-legend .swatch[data-style="restricted"]{border-top-style:dashed;border-top-width:3px}
-
-.live-llm{display:inline-flex;align-items:center;gap:8px;margin-right:12px;font-size:12px}
-.live-llm select{font:inherit}
-.live-llm .tone-llm{color:#4cc38a}.live-llm .tone-fallback{color:#e5484d}.live-llm .tone-wait{color:#f5a623}
-#live-llm-dock{position:fixed;left:12px;bottom:48px;z-index:50;background:#101321;border:1px solid #2a2f45;border-radius:6px;padding:6px 10px;color:#d8dde5}

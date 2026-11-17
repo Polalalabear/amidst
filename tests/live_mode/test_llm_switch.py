@@ -87,3 +87,42 @@ def test_config_endpoint_default_off_and_only_the_advisor_fields_are_accepted(mo
         assert "gt_xy" not in c and "api_key" not in json.dumps(c) and not hasattr(st.args, "gt_xy")
     finally:
         srv.shutdown()
+
+
+def test_config_cors_only_for_the_allowed_workbench_origins_and_never_star(monkeypatch):
+    for k in ("AMIDST_API_ENABLED", "AMIDST_API_MAX_USD_TOTAL", "OPENAI_API_KEY", "AMIDST_API_CONFIG_FILE"):
+        monkeypatch.delenv(k, raising=False)
+    st = make_state()
+    st.args.workbench_ports = [8785, 8797]
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(st))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    port = srv.server_address[1]
+    base = f"http://127.0.0.1:{port}"
+
+    def call(method, origin=None, body=None):
+        headers = {"Content-Type": "application/json"}
+        if origin:
+            headers["Origin"] = origin
+        req = urllib.request.Request(base + "/config", data=body, method=method, headers=headers)
+        try:
+            with urllib.request.urlopen(req) as r:
+                return r.status, dict(r.headers)
+        except urllib.error.HTTPError as e:
+            return e.code, dict(e.headers)
+    try:
+        for ok in ("http://127.0.0.1:8785", "http://localhost:8797"):
+            code, h = call("GET", ok)
+            assert code == 200 and h["Access-Control-Allow-Origin"] == ok
+            code, h = call("OPTIONS", ok)
+            assert code == 204 and h["Access-Control-Allow-Origin"] == ok and "POST" in h["Access-Control-Allow-Methods"]
+        for bad in ("http://127.0.0.1:9999", "http://evil.example", "http://127.0.0.1.evil.example:8785", "null", "https://127.0.0.1:8785"):
+            assert "Access-Control-Allow-Origin" not in call("GET", bad)[1]          # no header, so the browser blocks the read
+            assert call("OPTIONS", bad)[0] == 403
+            assert call("POST", bad, b'{"advisor":"review"}')[0] == 403              # and may not change the switch
+        assert st.llm_switch["requested"] == "off"                                    # none of the rejected posts got through
+        assert call("POST", "http://127.0.0.1:8785", b'{"advisor":"review"}')[0] == 200
+        assert call("POST", base, b'{"advisor":"off"}')[0] == 200                     # the live page's own origin (B screen)
+        assert call("POST", None, b'{"advisor":"off"}')[0] == 200                     # no Origin header: scripts and curl
+        assert all("*" != v for v in call("GET", "http://127.0.0.1:8785")[1].values())
+    finally:
+        srv.shutdown()

@@ -2,16 +2,20 @@
 
 分支 `claude/feat-workbench-llm-toggle`。設計依據：`docs/design/LIVE_MODE_LLM_DECISION_V1.md` §3.3、§6 A6。
 
-## 放在哪裡（D265）
+## 放在哪裡（D265、D267）
 
 兩處，讀寫同一份後端狀態（live 伺服器的 `State`）：
 
-1. 即時模式 B 畫面（`/?role=system`）右側「設定」區，直接打 live 伺服器 `/config`。
-2. 工作台（`frontend/workbench/`）左下角的固定小面板「即時 LLM」，在所有頁面都看得到，不受 `render()` 影響。工作台只和自己的後端說話：`GET／POST /api/live_llm`（`src/amidst/workbench/live_llm_proxy.py`，在 `service.py` 的 `_dispatch` 接一個路由），後端再轉到 live 伺服器的 `/config`。
+1. 即時模式 B 畫面（`/?role=system`）右側「設定」區，同源打 live 伺服器 `/config`。
+2. **新工作台 `frontend/workbench-v2/`**（8785 demo 實際使用的，由 `scripts/serve_demo_integration.py` 提供）：後台頁 `admin.html` →「設定」→「即時模式 · LIVE」群組的「即時 LLM 決策」開關（`admin-ui.mjs`，邏輯在 `live-llm-model.mjs`）。狀態不存瀏覽器、不屬於「儲存」，每次操作立即送出，畫面一律用 live 伺服器回報的狀態。舊的 `frontend/workbench/`、`src/amidst/workbench/service.py` 這一輪沒有任何改動（D265 的版本已移除）。
 
-**連線方式選同源代理，不用 CORS**：工作台有自己的 WSGI 後端，代理不需要放寬任何跨來源設定，live 伺服器（`server.py`）這一輪完全沒動。代理規則：live 位址用環境變數 `AMIDST_LIVE_URL`（預設 `http://127.0.0.1:8791`），只接受 `localhost`／`127.0.0.1`、1024–65535 的埠，拒絕 8785 和工作台自己的埠；POST 要同源 Origin、`application/json`，body 重建成只剩 `advisor`（off／review／lead）和選填 `advisor_model`；回應縮成固定的狀態欄位（沒有 key、裝置、GT）。
+**連線方式：瀏覽器直連 live 伺服器，live 伺服器對指定本機來源開 CORS，不用代理。** 原因：`serve_demo_integration.py` 啟動時安裝的稽核掛鉤（`scripts/demo_dependency_config.py` 的 `install_owned_io_guard`）禁止這個行程做任何 `socket.connect`（含本機），所以後端代理在 8785 的行程裡永遠連不上 live 伺服器；要改掛鉤是安全決定，我沒有動。
 
-live 伺服器沒啟動、連不上或版本不支援開關時，面板顯示「LLM 決策：不可用」加原因（例如 `live 伺服器沒有啟動或連不上（127.0.0.1:8791）`），勾選框停用且不勾，不會看起來是開的。
+- live 位址預設 `http://127.0.0.1:8791`；工作台頁網址加 `?live_port=<埠>` 可改（只接受 1024–65535，不含 8785 和本頁自己的埠）。
+- live 伺服器新參數 `--workbench-ports`（預設 `8785`，逗號分隔）：只有 `http://127.0.0.1:<埠>`、`http://localhost:<埠>` 這些來源會得到 CORS 標頭（只在 `/config`，絕不用 `*`）；`OPTIONS /config` 對其他來源回 403；`POST /config` 帶了不在名單、也不是 live 頁自己的 Origin 就回 403（沒有 Origin 的 curl／腳本不受影響）。
+- 瀏覽器端只送 `advisor`（off／review／lead）和選填 `advisor_model`，回應縮成固定狀態欄位。
+
+live 伺服器連不上、被擋或版本不支援開關時，面板顯示「LLM 決策：不可用」加原因，開關停用且不開。
 
 ## 行為
 
@@ -37,17 +41,16 @@ live 伺服器沒啟動、連不上或版本不支援開關時，面板顯示「
 
 不接任何付費 provider、沒有發出任何 API 呼叫、沒有讀 API key；provider 由後台啟動參數決定（`--advisor-provider`），UI 不提供選擇；8785 demo 沒有重啟或修改。
 
-## 啟動工作台時
+## 啟動時
 
-用 live 伺服器預設埠 8791 就不用設定；其他埠：`AMIDST_LIVE_URL=http://127.0.0.1:<埠>` 後再啟動工作台。`live-llm.mjs` 已加進 `scripts/start_office_demo.py` 的證據複本清單，並用動態 `import()` 載入：缺這個檔時工作台照常，只是沒有面板。
+live 伺服器用預設埠 8791、工作台是 8785：什麼都不用設。其他埠：live 伺服器加 `--workbench-ports <工作台埠>`，工作台頁網址加 `?live_port=<live 埠>`。
 
 ## 本機驗證
 
 ```bash
 cd frontend/live-mode && node --test test/llm_switch.test.mjs test/hud.test.mjs test/protocol.test.mjs
-cd frontend/workbench && node --test live-llm.test.mjs app.test.mjs static-assets.test.mjs
-PYTHONPATH=src:<runtime-deps> python -m pytest tests/workbench/test_live_llm_proxy.py tests/workbench/test_office_launcher.py -q
+cd frontend/workbench-v2 && node --test *.test.mjs
 PYTHONPATH=src:<runtime-deps> python -m pytest tests/live_mode -q
 ```
 
-截圖（LOCAL，`local/evidence/workbench-llm-toggle-20261117/`，埠 8797／8798，不是 8785／8791）：見 PR 描述的 SHA-256。
+截圖（LOCAL，`local/evidence/workbench-llm-toggle-20261117/`，埠 8797／8798，不是 8785／8791）：B 畫面的 `1-`～`3-`，工作台 v2（真的 `serve_demo_integration.py` 後端在 8797、live 在 8798）的 `v2-1-`～`v2-3-`；SHA-256 見 PR 描述。
