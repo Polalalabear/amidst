@@ -30,6 +30,8 @@ SCHEMA = json.loads((ROOT / 'docs/contracts/schemas/q-core.agent-decision.v1.sch
 FORMAL = json.loads((ROOT / 'configs/q1q5/agent_decision_params_v1.json').read_text(encoding='utf-8'))
 EXPLORATORY = json.loads((ROOT / 'configs/q1q5/agent_decision_params_v1_exploratory.json').read_text(encoding='utf-8'))
 STAGE = 'PILOT_AND_CONSISTENCY'
+WIDE = copy.deepcopy(FORMAL)
+WIDE['per_step']['budget_ms'] = 20000   # reach ROUND_LIMIT after timeouts; committed formal budget (D246) is 5000
 FAKE_KEY = 'sk-test-FAKE-WP3-SECRET-987654321'
 
 
@@ -176,7 +178,11 @@ def test_openai_valid_json_returns_agent_decision_and_tokens():
     assert provider.last_api_model_id == 'astra6-2026-11-10'
     sent = transport.calls[0]['body']
     assert sent['response_format']['type'] == 'json_schema'
-    assert sent['response_format']['json_schema']['schema'] == SCHEMA['$defs']['response']
+    sent_schema = sent['response_format']['json_schema']['schema']
+    assert sent_schema == ap.ollama_format_schema(SCHEMA['$defs']['response'], SCHEMA['$defs'])  # D237: OpenAI rejects 'if' and dangling $ref
+    blob = json.dumps(sent_schema)
+    assert not any(k in blob for k in ('"if"', '"then"', '"else"', '"$ref"', 'uniqueItems', '$defs'))
+    assert sent['response_format']['json_schema']['strict'] is False
     assert sent['max_completion_tokens'] == 300
     assert 'max_output_tokens' not in sent
 
@@ -224,13 +230,13 @@ def test_timeout_three_times_hits_round_limit():
     transport = ScriptedTransport(
         (TimeoutError('timed out 1'), 1200.0),
         (socket.timeout('timed out 2'), 1200.0),
-        (200, _openai_envelope(_select('C2')), 2100.0),  # late response > 2000 ms timeout
+        (200, _openai_envelope(_select('C2')), 5100.0),  # late response > 5000 ms timeout
         clock=clock,
     )
-    budget = CallBudget(FORMAL, STAGE)
+    budget = CallBudget(WIDE, STAGE)
     provider = OpenAIProvider(
         model='astra6',
-        params=FORMAL,
+        params=WIDE,
         transport=transport,
         env={'OPENAI_API_KEY': FAKE_KEY},
         budget=budget,
@@ -240,7 +246,7 @@ def test_timeout_three_times_hits_round_limit():
     record = ad.decide(
         _dp1(),
         mode='AGENT_LIVE',
-        params=FORMAL,
+        params=WIDE,
         budget=budget,
         model='astra6',
         call=provider,
@@ -257,8 +263,7 @@ def test_timeout_three_times_hits_round_limit():
 def test_cumulative_wall_ms_over_5000_hits_time_budget():
     clock = FakeClock()
     transport = ScriptedTransport(
-        (200, _openai_envelope(_select('C2')), 2500.0),
-        (200, _openai_envelope(_select('C2')), 2600.0),
+        (200, _openai_envelope(_select('C2')), 5100.0),
         clock=clock,
     )
     budget = CallBudget(FORMAL, STAGE)
@@ -283,8 +288,8 @@ def test_cumulative_wall_ms_over_5000_hits_time_budget():
     ad.validate_record(record)
     assert record['decision_source'] == 'RULE_FALLBACK'
     assert record['fallback_reason'] == 'TIME_BUDGET'
-    assert len(record['attempts']) == 2
-    assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT', 'PROVIDER_TIMEOUT']
+    assert len(record['attempts']) == 1
+    assert [a['outcome'] for a in record['attempts']] == ['PROVIDER_TIMEOUT']
 
 
 # ------------------------------------------------------------------ 3. Malformed response & illegal candidate
@@ -672,7 +677,8 @@ def test_ollama_loopback_sends_response_schema_and_records_model_digest(tmp_path
 
     chat_call = transport.calls[1]
     assert chat_call['url'] == 'http://127.0.0.1:11434/api/chat'
-    assert chat_call['body']['format'] == SCHEMA['$defs']['response']
+    assert chat_call['body']['format'] == ap.ollama_format_schema(SCHEMA['$defs']['response'], SCHEMA['$defs'])
+    assert '$ref' not in json.dumps(chat_call['body']['format'])
     entries = recorder.entries()
     assert len(entries) == 1 and entries[0]['model_digest'] == fake_digest
 
@@ -686,6 +692,7 @@ def test_static_only_wp3_files_import_new_modules_and_default_off_unchanged():
         ROOT / 'scripts/agent_decision/run_provider.py',
         ROOT / 'src/amidst/q1q5/nl_query_parse.py',   # N1 Spotlight reuses the #526 transport/extraction helpers (docs/contracts/NL_QUERY_PARSE_V1.md)
         ROOT / 'src/amidst/agent_eval/wp5_runner.py',   # WP5 live adapters (built only after the approval gates pass)
+        ROOT / 'src/amidst/agent_eval/wp5_colab_checks.py',   # WP5 Colab notebook DP1 probe (one request through OllamaProvider)
     }
     pattern = re.compile(r'\b(?:agent_providers|agent_recording)\b')
     offenders = []

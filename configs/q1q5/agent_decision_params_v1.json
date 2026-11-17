@@ -10,19 +10,19 @@
   "models": [
     {
       "config_id": "astra6",
-      "api_model_id": null
+      "api_model_id": "gpt-6-astra"
     },
     {
       "config_id": "sol6.1",
-      "api_model_id": null
+      "api_model_id": "gpt-6.1-sol"
     },
     {
       "config_id": "terra6.1",
-      "api_model_id": null
+      "api_model_id": "gpt-6.1-terra"
     }
   ],
   "per_call": {
-    "timeout_ms": 2000,
+    "timeout_ms": 5000,
     "max_output_tokens": 300,
     "max_retries_on_429_5xx": 1
   },

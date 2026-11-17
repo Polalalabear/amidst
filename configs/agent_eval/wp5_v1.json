@@ -4,7 +4,7 @@
   "decision_refs": ["D165", "D166", "D175", "D210", "D218"],
   "note": "WP5 compares Rule, local models (Colab L4) and OpenAI models on Agent decisions. Main results are latency (median, p95) and cost; accuracy is recorded only and ranked last in every summary. Nothing here approves spending: a set only runs LIVE with an explicit --approved-usd given by the user in chat.",
   "timeout_profiles": {
-    "formal": {"params_path": "configs/q1q5/agent_decision_params_v1.json", "per_call_ms": 2000, "per_step_ms": 5000, "max_rounds": 3, "report_group": "FORMAL"},
+    "formal": {"params_path": "configs/q1q5/agent_decision_params_v1.json", "per_call_ms": 5000, "per_step_ms": 5000, "max_rounds": 3, "report_group": "FORMAL"},
     "relaxed": {"params_path": "configs/q1q5/agent_decision_params_v1_exploratory.json", "per_call_ms": 10000, "per_step_ms": 30000, "max_rounds": 3, "report_group": "EXPLORATORY"}
   },
   "task_types": {
@@ -21,6 +21,7 @@
     {"id": "sol6.1", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "sol6.1"},
     {"id": "terra6.1", "kind": "OPENAI", "runs_on": "mac", "budget_slot": "terra6.1"}
   ],
+  "default_openai_model": "terra6.1",
   "price_table_path": "configs/agent_eval/wp5_price_table_v1.json",
   "sets": {
     "pilot": {

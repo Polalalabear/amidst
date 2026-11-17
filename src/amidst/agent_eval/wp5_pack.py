@@ -23,7 +23,7 @@ CODE_FILES = (
     'src/amidst/__init__.py', 'src/amidst/paths.py',
     'src/amidst/agent_eval/__init__.py', 'src/amidst/agent_eval/latency.py', 'src/amidst/agent_eval/runner.py',
     'src/amidst/agent_eval/windows_pack.py', 'src/amidst/agent_eval/wp5.py', 'src/amidst/agent_eval/wp5_fake.py',
-    'src/amidst/agent_eval/wp5_runner.py',
+    'src/amidst/agent_eval/wp5_runner.py', 'src/amidst/agent_eval/wp5_colab_checks.py',
     'src/amidst/q1q5/agent_decision.py', 'src/amidst/q1q5/agent_providers.py', 'src/amidst/q1q5/agent_wiring.py',
     'src/amidst/q1q5/api_budget.py', 'src/amidst/q1q5/attention_ranking.py', 'src/amidst/q1q5/nl_query_parse.py',
     'src/amidst/q1q5/physical_prediction.py', 'src/amidst/q1q5/q3_rules.py',
@@ -82,17 +82,22 @@ def main():
     from amidst.agent_eval.runner import verify_ollama_models
     check = verify_ollama_models((ROOT / "models.txt").read_text(), tags)
     print(json.dumps(check, ensure_ascii=False, indent=2)); assert check["valid"], check
+    failed = False
     for m in MODELS:
         sub = out / a.set / m.replace(":", "_").replace("/", "_")
         r = runner(["--set", a.set, "--arm", "windows", "--models", m, "--skip-types", a.skip_types,
                     "--questions", "data/wp5_questions.jsonl", "--live", "--out", str(sub)])
-        print(m, "rc=", r.returncode, r.stderr[-400:]); assert r.returncode == 0
+        print(m, "rc=", r.returncode, r.stderr[-800:]); assert r.returncode in (0, 3), r.stderr
+        failed = failed or r.returncode == 3   # 3 = a task type never reached the model (see summary.json 'failures')
         subprocess.run([ollama, "stop", m], check=False)
     env = {"set": a.set, "arm": "windows", "ollama_version": version, "models_txt": (ROOT / "models.txt").read_text(),
            "digests": {m: digests[m] for m in MODELS}, "measure_latency": False, "latency_reportable": False}
     (out / "ENV.json").write_text(json.dumps(env, ensure_ascii=False, indent=2), encoding="utf-8")
     z = shutil.make_archive(str(ROOT / "RETURN" / f"wp5_{a.set}_windows"), "zip", out)
     print(z, hashlib.sha256(Path(z).read_bytes()).hexdigest())
+    if failed:
+        print("!! RUN FAILED: at least one task type never reached the model. Do NOT report these results.")
+        return 3
     return 0
 
 

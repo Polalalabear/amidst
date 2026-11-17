@@ -762,6 +762,7 @@ def decide(request: Mapping, *, mode: str = DEFAULT_MODE, params: Mapping, budge
             return fallback('PROVIDER_UNAVAILABLE', attempts)
         if result.outcome == CALL_TIMEOUT or result.wall_ms > timeout:
             row['outcome'] = 'PROVIDER_TIMEOUT'  # late responses are discarded
+            elapsed += max(0.0, timeout - result.wall_ms)  # a timed-out call used its whole timeout (D246: no retry when timeout == step budget)
             continue
         try:
             answer = validate_response(result.response, request)

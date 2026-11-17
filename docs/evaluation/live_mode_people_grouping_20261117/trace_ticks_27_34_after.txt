@@ -1,0 +1,8 @@
+27 gt [5.4, 1.1] est [1.8, 1.1] tracks {2: [4.3, 1.9], 3: [1.8, 1.1], 5: [5.3, 1.1]} pend ([3, 2], {'choice': 2}) ev [('ADJUDICATE_ASK', {'kind': 'SILENT_PICK', 'candidates': 2})] locked None
+28 gt [6.2, 1.1] est [2.4, 1.0] tracks {2: [3.6, 1.9], 3: [2.4, 1.0], 5: [5.7, 1.0]} pend ([3, 2], {'choice': 2}) ev [] locked None
+29 gt [6.9, 1.1] est [2.9, 1.0] tracks {2: [3.0, 1.9], 3: [2.9, 1.0], 5: [6.9, 1.1]} pend ([3, 2], {'choice': 2}) ev [] locked None
+30 gt [7.6, 1.1] est [3.9, 1.1] tracks {2: [2.6, 2.0], 3: [3.9, 1.1], 5: [7.4, 1.0]} pend ([3, 2], {'choice': 2}) ev [] locked None
+31 gt [8.1, 1.1] est [4.6, 1.0] tracks {2: [1.8, 1.9], 3: [4.6, 1.0], 5: [7.8, 1.0]} pend ([3, 2], {'choice': 2}) ev [] locked None
+32 gt [8.6, 1.1] est [5.1, 1.0] tracks {2: [1.2, 1.8], 3: [5.1, 1.0], 5: [8.4, 1.0]} pend ([3, 2], {'choice': 2}) ev [] locked None
+33 gt [9.1, 1.1] est [6.0, 1.6] tracks {2: [0.5, 1.5], 3: [6.0, 1.6], 5: [9.2, 1.1]} pend ([3, 2], {'choice': 2}) ev [] locked None
+34 gt [9.4, 1.1] est [0.2, 1.4] tracks {2: [0.2, 1.4], 3: [6.4, 1.9], 5: [9.3, 1.1]} pend None ev [('ADJUDICATED', {'choice': 2, 'applied': True, 'cleared': False, 'source': 'AGENT', 'latency_ms': 3500})] locked None

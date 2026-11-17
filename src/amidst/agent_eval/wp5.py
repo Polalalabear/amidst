@@ -32,6 +32,8 @@ MODEL_KINDS = ('RULE', 'LOCAL', 'OPENAI')
 _ROOT = Path(__file__).resolve().parents[3]
 _DP_NAMES = {ad.DP1: 'DP1', ad.DP3: 'DP3'}
 TIMEOUT_FALLBACKS = ('PROVIDER_TIMEOUT', 'TIME_BUDGET', 'TIMEOUT')
+# reply came back but was unusable (DP: agent_decision fallback reasons; NL: nl_query_parse SCHEMA_REJECTED)
+FORMAT_FALLBACKS = ('INVALID_RESPONSE', 'ILLEGAL_CANDIDATE', 'EXPLANATION_INVALID', 'SCHEMA_REJECTED')
 
 
 class Wp5Error(ValueError):
@@ -304,8 +306,17 @@ def execute_call(ctx: Context, cfg: Mapping, profile: Mapping, model: Mapping, q
             return out
         provider_kind = 'OPENAI' if kind == 'OPENAI' else 'OLLAMA_LOOPBACK'
         budget.begin_session()
+        call = ctx.decision_provider(model)
         rec = ad.decide(req, mode='AGENT_LIVE', params=params, budget=budget, model=model['budget_slot'],
-                        call=ctx.decision_provider(model), provider_kind=provider_kind)
+                        call=call, provider_kind=provider_kind)
+        owner = getattr(call, 'provider', None) or getattr(call, '__self__', None)   # guarded OpenAI calls carry .provider
+        err = getattr(owner, 'last_error', None)   # why the provider said UNAVAILABLE (HTTP status + body head)
+        if err:
+            out['provider_error'] = err
+        diag = getattr(owner, 'last_diag', None)   # raw reply head (model output only), repairs made, why it was invalid
+        if diag:
+            out['raw_head'], out['normalized'] = diag.get('raw_head'), diag.get('normalized') or []
+            out['invalid_before_repair'], out['invalid_after_repair'] = diag.get('invalid_before_repair'), diag.get('invalid_after_repair')
         attempts = [a for a in rec.get('attempts') or [] if isinstance(a, Mapping)]
         out.update(latency_ms=sum(float(a.get('wall_ms', 0.0)) for a in attempts), steps=len(attempts),
                    prompt_tokens=_sum_opt(a.get('prompt_tokens') for a in attempts),
@@ -355,8 +366,23 @@ def execute_call(ctx: Context, cfg: Mapping, profile: Mapping, model: Mapping, q
         wall = ctx.clock_ms() - t0
         out.update(latency_ms=min(wall, float(profile['per_call_ms'])) if code == 'TIMEOUT' else wall, steps=1,
                    fallback_reason='TIMEOUT' if code == 'TIMEOUT' else code, decision_source='RULES', answer=rule_parse)
-    out['matches_rule'] = out['answer'] == rule_parse
+    out['matches_rule'], out['nl_field_agree'] = nl_agreement(out['answer'], rule_parse)
     return out
+
+
+NL_COMPARED_FIELDS = ('action', 'location', 'target', 'time')
+
+
+def nl_agreement(answer: Mapping, rule_parse: Mapping) -> tuple[bool, dict[str, bool]]:
+    """Does a model's NL parse agree with the rule parse on the STRUCTURED fields (action, location set, target set, time)?
+
+    WP5 (2026-11-16): the old check was ``answer == rule_parse`` over the whole dict, including ``unrecognized`` - free text
+    the rules fill with leftover pieces and a model never reproduces - so agreement was 0/24 for both local models even where
+    the structured fields matched. ``unrecognized`` is no longer compared; per-field results are returned too."""
+    def norm(v):
+        return sorted(v) if isinstance(v, list) else v
+    per = {k: norm(answer.get(k)) == norm(rule_parse.get(k)) for k in NL_COMPARED_FIELDS}
+    return all(per.values()), per
 
 
 def _sum_opt(values) -> int | None:
@@ -430,6 +456,9 @@ def summarize_rows(rows: list[Mapping]) -> dict:
         lat = [r['latency_ms'] for r in run if r['latency_ms'] is not None]
         costs = [r['cost_usd'] for r in run if r['cost_usd'] is not None]
         n_timeout = sum(1 for r in run if r['timed_out_fallback'])
+        n_unavail = sum(1 for r in run if r['fallback_reason'] == 'PROVIDER_UNAVAILABLE')
+        n_format = sum(1 for r in run if r['fallback_reason'] in FORMAT_FALLBACKS)
+        kept = [r for r in run if not r['fallback_reason']]      # answered by the model itself (not the fallback rule)
         scored = [r for r in run if r.get('accuracy_correct') is not None]
         cells.append({
             'report_group': group, 'model': model, 'task_type': t,
@@ -442,16 +471,49 @@ def summarize_rows(rows: list[Mapping]) -> dict:
                        'completion': sum(r['completion_tokens'] or 0 for r in run),
                        'n_missing': sum(1 for r in run if r['prompt_tokens'] is None and r['model_kind'] != 'RULE')},
             'timeout_fallback': {'n': n_timeout, 'rate': (n_timeout / len(run)) if run else None},
+            'format_error_fallback': {'n': n_format, 'rate': (n_format / len(run)) if run else None,
+                                      'reasons': list(FORMAT_FALLBACKS)},
             'fallback_reasons': _count(r['fallback_reason'] for r in run if r['fallback_reason']),
+            'fallback_rate': (sum(1 for r in run if r['fallback_reason']) / len(run)) if run else None,
+            'provider_unavailable_rate': (n_unavail / len(run)) if run else None,
+            'sources': _count(r['decision_source'] for r in run if r['decision_source']),
+            'provider_error_sample': next((r['provider_error'] for r in run if r.get('provider_error')), None),
             'accuracy_recorded_only': {
                 'n_answers': sum(1 for r in run if r['answer'] is not None),
-                'agreement_with_rule': (sum(1 for r in run if r['matches_rule']) / len(run)) if run else None,
+                'agreement_with_rule': (sum(1 for r in kept if r['matches_rule']) / len(kept)) if kept else None,
+                'agreement_denominator': len(kept),
+                'n_excluded_fallback': len(run) - len(kept),
+                'agreement_note': 'denominator = rows answered by the model itself; rows that fell back to the rule are excluded (they would agree with the rule by construction)',
                 'n_scored': len(scored),
                 'correct': sum(1 for r in scored if r['accuracy_correct']) if scored else None,
                 'note': 'accuracy_correct stays null here; the Mac scoring package fills it from GT. Not a pass condition.'},
         })
-    return {'schema_version': 'amidst.wp5-summary.v1', 'cells': cells,
+    failures, warnings = health_check(cells)
+    return {'schema_version': 'amidst.wp5-summary.v1', 'status': 'FAILED' if failures else 'OK',
+            'failures': failures, 'warnings': warnings, 'cells': cells,
             'order_note': 'latency and cost first; accuracy_recorded_only is last and is not a result'}
+
+
+MAX_FALLBACK_RATE = 0.2
+
+
+def health_check(cells: list[Mapping]) -> tuple[list[str], list[str]]:
+    """A model cell that never reached its provider is a FAILED run, not a result (WP5 v1 Colab: DP1/DP3 were 100%
+    PROVIDER_UNAVAILABLE and only the NL cell called the model). A high-but-partial fallback rate is a warning."""
+    failures: list[str] = []
+    warnings: list[str] = []
+    for c in cells:
+        if c['n_ok'] == 0 or c['task_type'] == 'NL':
+            continue
+        label = f"{c['model']} {c['task_type']}"
+        rate = c['provider_unavailable_rate']
+        if c['task_type'] in ('DP1', 'DP3') and rate is not None and rate >= 1.0:
+            sample = c.get('provider_error_sample')
+            failures.append(f"{label}: 100% PROVIDER_UNAVAILABLE ({c['n_ok']}/{c['n_ok']}); the model was never called. "
+                            f"first error: {sample if sample else 'UNKNOWN (no provider_error recorded)'}")
+        elif (c['fallback_rate'] or 0.0) > MAX_FALLBACK_RATE:
+            warnings.append(f"{label}: fallback rate {c['fallback_rate']:.0%} > {MAX_FALLBACK_RATE:.0%} {c['fallback_reasons']}")
+    return failures, warnings
 
 
 def _count(items) -> dict:
@@ -464,13 +526,21 @@ def _count(items) -> dict:
 def render_summary_md(summary: Mapping) -> str:
     def f(v, nd=1):
         return '—' if v is None else (f'{v:.{nd}f}' if isinstance(v, float) else str(v))
-    lines = ['| group | model | type | n | p50 ms | p95 ms | cost total USD | cost p95 USD | timeout-fallback | accuracy (record only: agree w/ Rule) |',
-             '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+    lines = []
+    if summary.get('status') == 'FAILED':
+        lines += ['**RUN FAILED — not a result:**', ''] + [f'- {m}' for m in summary['failures']] + ['']
+    if summary.get('warnings'):
+        lines += ['**Warnings:**', ''] + [f'- {m}' for m in summary['warnings']] + ['']
+    lines += ['Agree w/ Rule = agreeing rows / rows the model answered itself (fallback rows excluded; excluded count in the last column). Accuracy is record only.', '',
+              '| group | model | type | n | p50 ms | p95 ms | cost total USD | cost p95 USD | timeout-fallback | format-error-fallback | agree w/ Rule (answered rows) | excluded fallback rows |',
+              '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
     for c in summary['cells']:
-        a = c['accuracy_recorded_only']['agreement_with_rule']
+        acc = c['accuracy_recorded_only']
+        a = acc['agreement_with_rule']
+        agree = '—' if a is None else f"{a:.2f} ({acc['agreement_denominator']})"
         lines.append(f"| {c['report_group']} | {c['model']} | {c['task_type']} | {c['n_ok']} | {f(c['latency_ms']['p50'])} | "
                      f"{f(c['latency_ms']['p95'])} | {f(c['cost_usd']['total'], 4)} | {f(c['cost_usd']['p95'], 4)} | "
-                     f"{f(c['timeout_fallback']['rate'], 3)} | {f(a, 2)} |")
+                     f"{f(c['timeout_fallback']['rate'], 3)} | {f(c['format_error_fallback']['rate'], 3)} | {agree} | {acc['n_excluded_fallback']} |")
     return '\n'.join(lines) + '\n'
 
 

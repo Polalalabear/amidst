@@ -225,9 +225,10 @@ class OpenAINlClient:
 
     def __init__(self, *, model='astra6', transport: Callable | None = None, env: Mapping | None = None, prices: Mapping | None = None,
                  recorder: Callable | None = None, endpoint: str = ap.OPENAI_CHAT_URL, clock: Callable[[], float] = time.monotonic,
-                 max_output_tokens: int | None = None):
+                 max_output_tokens: int | None = None, api_model_id: str | None = None):
         if model not in ad.MODELS:
             raise ValueError(f'model must be one of {ad.MODELS}')
+        self.api_model_id = api_model_id  # id sent to the API; None = send the config id (legacy)
         self.model, self._transport, self._env, self._prices = model, transport or ap.default_http_transport, env, dict(prices or {})
         self._recorder, self.endpoint, self._clock, self._max_out = recorder, endpoint, clock, max_output_tokens
 
@@ -242,7 +243,7 @@ class OpenAINlClient:
         key = self._key()
         if key is None:
             raise NlClientError('NOT_CONFIGURED')
-        payload = {'model': self.model, 'messages': [{'role': 'system', 'content': SYSTEM_PROMPT},
+        payload = {'model': self.api_model_id or self.model, 'messages': [{'role': 'system', 'content': SYSTEM_PROMPT},
                    {'role': 'user', 'content': ad.canonical(_request_doc(text, vocab)).decode('ascii')}],
                    'response_format': {'type': 'json_schema', 'json_schema': {'name': 'nl_query_parse_v1', 'strict': True, 'schema': response_schema(vocab)}}}
         if self._max_out:   # makes the spend guard's output-token estimate a real limit, not just an assumption
