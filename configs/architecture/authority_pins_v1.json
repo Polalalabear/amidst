@@ -296,6 +296,30 @@
       "sha256": "82e1c2820302a6fe7281b24e230494f94075366ef6d6a1e509d55fa23f8be0df",
       "status": "現行（D200 main、D214 預設分支、D216 分支規則、D218 單一資料夾）",
       "issue_ref": "#486"
+    },
+    {
+      "id": "D248-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@12d0a0d80137ff5037770edd44e092714b115248",
+      "sha256": "52c688048671624e35ac1d3785fc23155e0ac17693cc80b216b992003bb3f57a",
+      "status": "現行（D242 付費 API、D245 gh、D248 分支規則、交接 11-16）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D248-A3",
+      "path": "CLAUDE.md",
+      "ref": "claude/feat-ops-docs@12d0a0d80137ff5037770edd44e092714b115248",
+      "sha256": "efe06f6b7d560e9aa1cc9de5d674ed9299ccad97d3a020c9c27a8843ae01756b",
+      "status": "現行（D242 付費 API、D245 gh、D248 分支規則、交接 11-16）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D248-A13",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@6134567ce3a5eb5b4056dfdb78bcb3d1e589f1c0（#557）",
+      "sha256": "d0bbdc34cf1816a6bdd737efee41b3df6a7a0035866e6e044fce307b277ff9bc",
+      "status": "現行；進度導覽補到 #557（D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
     }
   ],
   "authorized_changes": [
@@ -410,6 +434,27 @@
       "requires_commit": "43d55046183a498df3df48b34f81f9d1f81da394",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306#issuecomment-6900168102",
       "reason": "進度導覽批次補列 #306–#548（D91-4），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "52c688048671624e35ac1d3785fc23155e0ac17693cc80b216b992003bb3f57a",
+      "requires_commit": "12d0a0d80137ff5037770edd44e092714b115248",
+      "issue_ref": "#93",
+      "reason": "D242/D245/D248 流程規則（2026-11-16/17）：分支只給大 feature、gh 存取 GitHub、使用者執行合併與刪除、分段 commit/push、ApiGuard 先 dry-run 且額度不跨用途、交接改 11-16 版。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "efe06f6b7d560e9aa1cc9de5d674ed9299ccad97d3a020c9c27a8843ae01756b",
+      "requires_commit": "12d0a0d80137ff5037770edd44e092714b115248",
+      "issue_ref": "#93",
+      "reason": "交接改 COORDINATOR_HANDOFF_20261116、Writing sessions 分支說明對齊 D248。只改文字，沒有放寬任何規則；模型表未動"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "d0bbdc34cf1816a6bdd737efee41b3df6a7a0035866e6e044fce307b277ff9bc",
+      "requires_commit": "6134567ce3a5eb5b4056dfdb78bcb3d1e589f1c0",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "reason": "進度導覽批次補列到 #557（D91-4），只改導覽內容，沒有放寬任何規則"
     }
   ]
 }
