@@ -14,14 +14,14 @@
 param(
     [string]$P1Bundle = "",
     [string]$CX7Root = "",
-    [string]$CX8Root = "",
     [string]$StateParent = "",
     [string]$Python = "python",
     [int]$PortRec = 8766,
     [int]$PortLive = 8765,
     [int]$PortCx = 8780,
     [switch]$NoOpen,
-    [switch]$CheckOnly
+    [switch]$CheckOnly,
+    [string]$CX8Root = ""
 )
 
 $ErrorActionPreference = "Stop"

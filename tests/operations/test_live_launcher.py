@@ -38,7 +38,9 @@ def test_valid_entry_always_disables_advisor_and_rejects_occupied_port(tmp_path,
     import json
 
     a.cameras.write_text(
-        json.dumps({"schema_version": "controlled-scene.cameras.v1", "cameras": []})
+        json.dumps(
+            {"schema_version": "controlled-scene.cameras.v1", "cameras": [{"camera_id": "fixture"}]}
+        )
     )
     for f in ["character.glb", "scene.glb", "cameras.three.json"]:
         (a.assets).mkdir(exist_ok=True)
@@ -54,3 +56,12 @@ def test_valid_entry_always_disables_advisor_and_rejects_occupied_port(tmp_path,
     cmd = launcher.command(a)
     assert cmd[-2:] == ["--advisor", "off"]
     assert "--cameras" in cmd and "--assets" in cmd
+
+
+def test_geometry_document_cannot_be_passed_as_safe_camera_catalog(tmp_path):
+    import json
+
+    a = args(tmp_path)
+    a.cameras.write_text(json.dumps({"schema_version": "r004.scene-geometry.v1", "cameras": [{}]}))
+    with pytest.raises(ValueError, match="CAMERA_CATALOG_INVALID"):
+        launcher.command(a)

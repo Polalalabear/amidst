@@ -22,6 +22,11 @@ def command(args):
         raise ValueError(
             f"CAMERA_CATALOG_MISSING: {args.cameras}; set --cameras to safe_static/cameras.json"
         )
+    catalog = json.loads(args.cameras.read_text())
+    if catalog.get("schema_version") != "controlled-scene.cameras.v1" or not catalog.get("cameras"):
+        raise ValueError(
+            "CAMERA_CATALOG_INVALID: expected nonempty safe_static controlled-scene.cameras.v1"
+        )
     from amidst.live_mode.tracker import load_cameras
 
     load_cameras(str(args.cameras))
