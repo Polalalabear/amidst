@@ -39,7 +39,9 @@ before/after snapshots. Generate again by running the crowd test with
 `AMIDST_TEST_EVIDENCE=<new LOCAL output>`; test reads the unchanged scenario directly.
 Numbers depending on performance timing cannot be rebuilt byte-for-byte. The earlier
 read-only script-distance audit is `local/evidence/cx566-20261117/scripts-baseline.json`
-and is not a runtime collision pass.
+SHA-256 `5b2f80eeaa044ed6804277e1aeefb62508baa4aaa574eb2bea10d4047132bbf4`, 1 file / 2,455 bytes;
+it is not a runtime collision pass. It can be rebuilt from the same scenario and
+scriptedPose at dt=.1s.
 
 ## Remaining scope and gates
 
@@ -112,3 +114,31 @@ LOCAL `local/evidence/cx570-20261118/MANIFEST.json` SHA-256 `70502c38edff6be63cf
 5 listed files / 4,518 bytes. Contains test-first and
 focused logs plus fixture-score.json. Rebuild by the above CLI and focused command
 with a fresh LOCAL output path; fixtures are synthetic committed test data.
+
+
+## #573: smoke output path complete
+
+`frontend/live-mode/measure/smoke.mjs` now creates its output parent before launching.
+If OUT is set it remains the filename prefix (including relative-path semantics).
+Otherwise the default prefix is smoke under:
+
+- `$AMIDST_ARTIFACTS/evidence/live-mode/smoke/` when AMIDST_ARTIFACTS is set;
+- repo-relative `local/evidence/live-mode/smoke/` when unset, resolved from import.meta.url,
+  independent of cwd and without a hardcoded home path.
+
+Names remain `<prefix>_sys.png` and `<prefix>_op.png`; metrics/JSON and browser flow
+are unchanged. Scoped search found no other private-tmp references in measure/ after
+this fix, so no other measurement scripts or lib were edited.
+
+`node --check frontend/live-mode/measure/smoke.mjs` passed;
+`git grep -n '/private/tmp' -- frontend/live-mode/measure/` returned1 with no matches;
+`python scripts/check_local_artifact_refs.py` final result0 findings (warn mode);
+`git diff --check` passed. The first ref-check found this handoff's older baseline
+JSON locator lacked a SHA; it is now source-bound above, and both logs are preserved.
+No browser/backend smoke was run (explicitly not a #573 gate), no screenshot generated,
+and no service operation performed.
+
+LOCAL `local/evidence/cx573-20261118/MANIFEST.json` SHA-256 `079366027f2d4df6d6a16799f2a664f2ff0a2ed9936f445210e0cd920ac3f216`;
+4 listed files / 322 bytes. Contains syntax, scoped
+search and before/after reference-check output; can regenerate with the issue's
+listed commands. Empty syntax/search logs denote successful no-output checks.
