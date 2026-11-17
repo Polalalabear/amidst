@@ -35,6 +35,11 @@ def test_pinned_or_invalid_port_is_rejected_before_assets(tmp_path, port):
 
 def test_valid_entry_always_disables_advisor_and_rejects_occupied_port(tmp_path, monkeypatch):
     a = args(tmp_path, 0)
+    fake_repo = tmp_path / 'checkout'
+    three = fake_repo / 'frontend/live-mode/node_modules/three/package.json'
+    three.parent.mkdir(parents=True)
+    three.write_text('{}')
+    monkeypatch.setattr(launcher, 'REPO', fake_repo)
     import json
 
     a.cameras.write_text(

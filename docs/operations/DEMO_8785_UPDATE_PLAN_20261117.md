@@ -59,7 +59,7 @@ Windows原生PowerShell執行依本機工具可用性如實記錄，不以Mac語
 
 ## 本次實際閘門
 
-被測程式HEAD **f6d7e8ff5fabab317026e9c33aa26facc2ed7194**，tree **ef2fe1a343e262dd94d9abaaa0faf895e39cb2a8**。core與兩組real E2E均在這個乾淨HEAD上跑；後續提交僅補收據／文件／收據產生工具，不宣稱後續整棵tree和被測tree完全相同。合併後仍由使用者確認最終候選，不自動換pin。
+被測程式HEAD **f6d7e8ff5fabab317026e9c33aa26facc2ed7194**，tree **ef2fe1a343e262dd94d9abaaa0faf895e39cb2a8**。core與兩組real E2E均在這個乾淨HEAD上跑；後續提交補收據／文件／收據產生工具及CI測試fixture隔離，demo執行程式不變，不宣稱後續整棵tree和被測tree完全相同。合併後仍由使用者確認最終候選，不自動換pin。
 
 | Gate | 實際結果 | LOCAL（相對`$AMIDST_ARTIFACTS/cx555-20261117/`） | SHA-256 |
 | --- | --- | --- | --- |
