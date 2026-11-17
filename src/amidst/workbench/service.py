@@ -30,10 +30,10 @@ from amidst.workbench.blender_association_media import AssociationScene
 from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.controlled_scene_api import ACTIONS as CONTROLLED_ACTIONS
 from amidst.workbench.controlled_scene_api import ControlledSceneAPI
-from amidst.workbench.controlled_scene_data import RequiredInputUnavailable, read_regular
+from amidst.workbench.controlled_scene_data import RequiredInputUnavailable
 from amidst.workbench.controlled_scene_rgb_api import MEDIA_PATH, ControlledRGBAPI, RGBMediaError
 from amidst.workbench.controlled_scene_rgb_data import registrations as controlled_rgb_registrations
-from amidst.workbench.controlled_scene_static import LINE_FILES, STATIC_FILES, read_static
+from amidst.workbench.controlled_scene_static import STATIC_FILES, read_static
 from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
 from amidst.workbench.operator_study import OperatorStudyStore
 from amidst.workbench.physical_review_store import PhysicalReviewStore
@@ -1151,13 +1151,9 @@ def _json(data: object) -> bytes:
 
 class Application:
     def __init__(self, workbench: Workbench, repo: Path, *,
-                 vendor_root: Path | None = None, q_api: Any = None) -> None:
+                 q_api: Any = None) -> None:
         self.q_api = q_api  # Q-line route registration; legacy surfaces keep their adapters.
         self.workbench, self.repo = workbench, repo.resolve()
-        self.frontend = self.repo / "frontend/workbench"
-        self.vendor_root = (
-            vendor_root or self.repo / "frontend/workbench/node_modules/three"
-        ).resolve()
 
     def __call__(
         self, environ: dict[str, Any], start_response: Callable[..., Any]
@@ -1181,7 +1177,8 @@ class Application:
                     raise ValueError("INVALID_RESPONSE_STATUS")
                 status = f"{code.value} {code.phrase}"
                 content_type, body = response.mime_type, response.body
-                if any(name.lower() not in {"accept-ranges", "content-range", "content-disposition"}
+                if any(name.lower() not in {"accept-ranges", "content-range", "content-disposition",
+                                               "location"}
                        or "\r" in value or "\n" in value for name, value in response.headers):
                     raise ValueError("INVALID_RESPONSE_HEADERS")
                 additional_headers = response.headers
@@ -1264,7 +1261,8 @@ class Application:
             return self.q_api.dispatch(environ, authorize_q)
         # Q frontend assets are explicit program/fixture filenames only.
         if method == "GET" and path.startswith("/workbench-v2/"):
-            from amidst.q1q5.api import Q_STATIC_PATHS, static_response as q_static
+            from amidst.q1q5.api import Q_STATIC_PATHS
+            from amidst.q1q5.api import static_response as q_static
             if path in Q_STATIC_PATHS:
                 return q_static(self.repo, path)
         if method == "GET":
@@ -1290,12 +1288,13 @@ class Application:
                     return "application/json; charset=utf-8", _json(
                         self.workbench.controlled_scene.bootstrap())
                 return "application/json; charset=utf-8", _json(self.workbench.bootstrap())
-            if path in STATIC_FILES or path in LINE_FILES:
+            if path in ("/", "/index.html"):
+                # The old UI was retired (D268); keep the old entry URL useful.
+                return BinaryResponse(302, "text/plain; charset=utf-8",
+                                      (("Location", "/workbench-v2/"),), b"")
+            if path in STATIC_FILES:
                 try:
-                    if path in STATIC_FILES:
-                        raw = read_static(self.repo, path)
-                    else:
-                        raw = read_regular(self.vendor_root, LINE_FILES[path])
+                    raw = read_static(self.repo, path)
                 except FileNotFoundError:
                     return BinaryResponse(404, "application/json", (), _json({
                         "error": {"code": "ASSET_NOT_MATERIALIZED"}}))
@@ -1355,43 +1354,6 @@ class Application:
                     raise ValueError("invalid query")
                 return self.workbench.media(query["session_ref"][0], query["scene_id"][0],
                                             query["ref"][0])
-            assets = {"/": "index.html", "/index.html": "index.html", "/style.css": "style.css",
-                      "/app.mjs": "app.mjs", "/scene.mjs": "scene.mjs",
-                      "/geometry.mjs": "geometry.mjs", "/motion.mjs": "motion.mjs",
-                      "/presentation.mjs": "presentation.mjs",
-                      "/presentation-data.mjs": "presentation-data.mjs",
-                      "/investigation.mjs": "investigation.mjs", "/workflow.mjs": "workflow.mjs",
-                      "/gallery.mjs": "gallery.mjs", "/blender-motion.mjs": "blender-motion.mjs",
-                      "/cross-camera.mjs": "cross-camera.mjs"}
-            assets["/physical-review.mjs"] = "physical-review.mjs"
-            assets["/physical-review-flow.mjs"] = "physical-review-flow.mjs"
-            assets["/investigation-scope.mjs"] = "investigation-scope.mjs"
-            assets["/accuracy-evaluation.mjs"] = "accuracy-evaluation.mjs"
-            assets["/run-study.mjs"] = "run-study.mjs"
-            assets["/phase2-suite.mjs"] = "phase2-suite.mjs"
-            assets["/ground-estimate.mjs"] = "ground-estimate.mjs"
-            assets["/demo-mode.mjs"] = "demo-mode.mjs"
-            assets["/observation-selection.mjs"] = "observation-selection.mjs"
-            assets["/demo-steps.office.json"] = "demo-steps.office.json"
-            assets["/blind-hypothesis.mjs"] = "blind-hypothesis.mjs"
-            if path == "/product/timeline.mjs":
-                return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
-            if path in assets:
-                name = assets[path]
-                mime = "text/javascript" if name.endswith(".mjs") else (
-                    mimetypes.guess_type(name)[0] or "application/octet-stream")
-                return mime, (self.frontend / name).read_bytes()
-            vendor = {"/vendor/three.module.js": "build/three.module.js",
-                      "/vendor/three.core.js": "build/three.core.js",
-                      "/vendor/OrbitControls.js": "examples/jsm/controls/OrbitControls.js"}
-            if path in vendor:
-                try:
-                    return "text/javascript", read_regular(self.vendor_root, vendor[path])
-                except FileNotFoundError:
-                    return BinaryResponse(404, "application/json", (), _json({
-                        "error": {"code": "ASSET_NOT_MATERIALIZED"}}))
-                except DataIntegrityError as error:
-                    raise Denied("STATIC_PATH_REJECTED") from error
             raise Denied("ROUTE_DENIED")
         if method != "POST" or not path.startswith("/api/"):
             raise Denied("ROUTE_DENIED")
@@ -1557,7 +1519,7 @@ def main() -> None:
         else office_canonical_root() or repo)
     configure_extensions(workbench, repo, canonical_root=canonical_root)
     app = Application(workbench, repo)
-    print(f"Amidst workbench: http://127.0.0.1:{args.port} "
+    print(f"Amidst workbench: http://127.0.0.1:{args.port}/workbench-v2/ "
           f"({len(catalog)} verified scenes)", flush=True)
     try:
         with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:

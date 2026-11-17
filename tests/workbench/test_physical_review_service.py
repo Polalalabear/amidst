@@ -5,9 +5,6 @@ These checks never make an actual Blender human confirmation or rerun media.
 
 import copy
 import threading
-from pathlib import Path
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 import pytest
@@ -96,7 +93,6 @@ def review_http(bundle, monkeypatch):
             pass
 
     application = Application(bench, repo)
-    application.frontend = Path(__file__).resolve().parents[2] / "frontend/workbench"
     with make_server("127.0.0.1", 0, application, handler_class=Quiet) as server:
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -193,13 +189,3 @@ def test_wall_role_time_camera_count_and_input_budget_guards(review_http):
                    {"camera_ids": ["UNKNOWN"]}, {"camera_ids": ["CAM_A", "CAM_A"]},
                    {"start": 3, "end": 2}, {"end": 10}, {"gt": []}, {"timestamps": []}):
         assert post(base, "camera_frame_wall", query | fields)[0] == 400
-
-
-def test_physical_review_module_is_served_as_same_origin_asset(review_http):
-    base, _, _, _, _ = review_http
-    request = Request(base + "/physical-review.mjs")
-    try:
-        with urlopen(request, timeout=10) as response:
-            assert response.status == 200 and "javascript" in response.headers["Content-Type"]
-    except HTTPError as error:
-        pytest.fail(f"Physical review asset unavailable: {error.code}")
