@@ -1,7 +1,7 @@
 # LIVE 難題集 v1：事件與答案表、生成片段規格（#597）
 
 - 日期：2026-11-18。起草：Claude（Opus 5.5 / high）。決策依據：D304（同劇本重播比較規則與 LLM 覆核）、D306（付費額度）、D320（混合：H1／H4／H5 由 Claude 生成玩家軌跡，H2／H3 由使用者親自玩）。
-- 狀態：**計畫 v1，尚未錄製**。真正執行要等 #596（錄製與重播）和 #608（重新取得 R1）。本文件不含程式；生成器程式另開任務（§6）。
+- 狀態：**計畫 v1，尚未正式錄製**。正式比較要等 #596（錄製與重播）和 #608（重新取得 R1）。H1、H4、H5 由 A 端的**腳本操作者**實際操作玩家（D321、D322，§6），本 PR 一併實作並做了瀏覽器 smoke。
 - 機器可讀版：[`configs/evaluation/live_hardset_v1.json`](../../configs/evaluation/live_hardset_v1.json)（`schema_version: live-hardset.answer-table.v1`，已登錄於 `configs/architecture/schema_registry_v1.json`，狀態 `LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY`）。兩者不一致時以 JSON 為準，並回頭修本文件。
 - 依據（都在 `main` `1f6ecacd`）：
   - #597 錄製指引與評分定義 v1（[留言](https://github.com/Polalalabear/amidst/issues/597#issuecomment-6967247222)，下稱「指引」）；
@@ -16,7 +16,7 @@
 答案表裡的每個「正確答案」都來自 Ground Truth：劇本航點、A 端私有 log 的 `actors[].xy`／`gt_visible`。所以：
 
 1. **答案表只用於事後評分**，以及判定「這段有沒有錄成功」。它**不進** B 視窗、後台（`src/amidst/live_mode`）、前端（`frontend/live-mode`）、推論、排序、重新取得或 LLM 提示詞（AB §7.2、RELOCK §1、`docs/DEVELOPMENT_RULES.md`）。
-2. 可以讀 `live_hardset_v1.json` 的只有：離線評分程式，以及 A 端的片段生成器（生成器本來就在 A 端，負責產生玩家軌跡）。
+2. 可以讀 `live_hardset_v1.json` 的只有離線評分程式。A 端的腳本操作者只拿到路線副本 `frontend/live-mode/src/hardset_routes.mjs`（只有起點和步驟，沒有事件和答案；測試保證和 JSON 一致）。
 3. 規則模式、terra、sol 三次重播看到的輸入完全相同（同一個錄製劇本），答案表不會因為模式不同而改變。
 4. 身分仍是**未確認**；`target_gt` 只是離線標註。
 
@@ -31,9 +31,9 @@
 | H5 目標不在候選 | H5-1、H5-2、H5-3（備選，對照） | 生成 | A4-1、A4-1、B4-1 | 目標躲起來，旁邊有 2 個紅衣人時，正確答案是「都不是」 |
 | 基準組 | BA4、BB4、BR5 | 劇本重播 | A4-1、B4-1、r005 | 簡單情況，確認 LLM 不比規則差 |
 
-共 **18 段**（15 段難題，含 5 段備選；3 段基準組），88 個事件。生成 9 段、使用者玩 6 段、基準 3 段。
+共 **18 段**（15 段難題，含 5 段備選；3 段基準組），88 個事件。腳本操作者 9 段、使用者玩 6 段、基準 3 段。下文「生成」都指 A 端腳本操作者照路線實際操作（不是離線合成軌跡）。
 
-**時間軸**：「t」都是**模擬秒**，從 A 按「開始」算起（`t_sim`）。生成片段的時刻是用 v2.3 航點線性內插、腳本人物照 `s_i % duration` 循環、玩家走 1.2 m/s、跑 2.5 m/s（`frontend/live-mode/src/sim.mjs` 的 `WALK`／`RUN`）算出來的，前提是**玩家沒有擋到任何腳本人物**（`pause_player_i = 0`）。表中的「事件窗」是評分時的搜尋範圍；**事件真正的 tick 一律由 A log 算出**，不採用計畫秒數。
+**時間軸**：「t」都是**模擬秒**，從 A 按「開始」算起（`t_sim`）。生成片段的計畫時刻是用 v2.3 航點線性內插、腳本人物照 `s_i % duration` 循環、玩家走 1.2 m/s、跑 2.5 m/s（`frontend/live-mode/src/sim.mjs` 的 `WALK`／`RUN`）算出來的，前提是**玩家沒有擋到任何腳本人物**（`pause_player_i = 0`）。表中的「事件窗」是評分時的搜尋範圍；**事件真正的 tick 一律由 A log 算出**，不採用計畫秒數。
 
 **共通規則**（沿用指引 §1）：每段開始前 3 s 玩家不動，B 在開始後 2 s 內按紅衣「開始追蹤」，必須是 `AUTO_SINGLE` 鎖到 T；「難題點」前 3 s 內系統必須是跟對；拿不到這兩條的段重錄，不進結果表。
 
@@ -60,7 +60,7 @@
 | `ROUTE_FOLDBACK` | 折返 | 離開某鏡頭後空檔 ≥ 2 s，重新可見的鏡頭組含同一台 |
 | `ROUTE_DETOUR` | 繞遠 | 空檔 ≥ 6 s 才重新可見 |
 | `CAMERA_SKIP` | 跳過鏡頭 | 去掉 `CAM_ENTRY` 後，前後兩組可見鏡頭之間沒有任何一對在 graph v3 轉移表內，空檔 ≥ 1 s |
-| `OVERLAP_NO_TRANSITION` | 重疊無轉移 | `active_cam` 是轉角（或轉角廣角）時，目標離開它但另一台仍看得到 ≥ 3 s |
+| `OVERLAP_NO_TRANSITION` | 重疊無轉移 | 目標先被轉角（或轉角廣角）看到，之後只剩另一台看得到 ≥ 3 s（只用 GT） |
 | `TARGET_NOT_IN_POOL` | 目標不在候選 | 目標看不到 ≥ 3 s，且前 3 s 內有 ≥ 2 個紅衣人可見、距目標最後可見位置 ≤ 4 m（`gate_m`） |
 | `CAMERA_SWITCH` | 一般切鏡 | 沿 graph v3 轉移換鏡頭（指引 §3.4 的切鏡點） |
 | `NO_SWITCH_PASS` | 經過不進 | 經過門口但不進去（基準組 A4-n1、B4-n1） |
@@ -105,9 +105,9 @@
 
 ### 4.1 H1 長時間失聯後再出現（生成）
 
-成功條件（指引 §1 H1）：(a) 目標看不到 ≥ 15 s；(b) 最後可見位置到重新可見位置 ≥ 8 m；(c) 重新出現後可見 ≥ 5 s；(d) 難題點前 3 s 跟對。
+成功條件（指引 §1 H1）：(a) 目標看不到 ≥ 15 s；(b) 最後可見位置到重新可見位置 ≥ 8 m；(c) 重新出現後 10 s 內累計可見 ≥ 5 s（鏡頭之間不到 1 s 的盲區不歸零）；(d) 難題點前 3 s 跟對。
 
-> **(b) 做不做得到是 UNKNOWN**：P1–P4 都是死路，走出藏身處時，第一台看到你的鏡頭很可能就在原地附近。生成器先試跑一次（0 USD），(b) 不成立的段改標 `H1n`（長失聯、近處再出現），結果另列，不算進 H1，也不放寬門檻。
+> **(b) 做不做得到是 UNKNOWN**：P1–P4 都是死路，走出藏身處時，第一台看到你的鏡頭很可能就在原地附近。腳本操作者跑一次（0 USD）用 A log 檢查，(b) 不成立的段改標 `H1n`（長失聯、近處再出現），結果另列，不算進 H1，也不放寬門檻。
 
 **H1-1（A4-1，60.6 s，主要）**
 
@@ -177,19 +177,19 @@ H3-2 走廊東端和轉角之間到底有沒有兩邊都看不到的空檔，是
 
 ### 4.4 H4 跳過相鄰鏡頭（生成）
 
-成功條件（任一）：(a) 跳過：去掉 `CAM_ENTRY` 後，前後兩組可見鏡頭沒有任何一對在 graph v3 轉移表內，空檔 ≥ 1 s；(b) 重疊無轉移：`active_cam` 是轉角（或轉角廣角）時，目標離開它、另一台仍看得到 ≥ 3 s。加上難題點前 3 s 跟對。
+成功條件（任一）：(a) 跳過：去掉 `CAM_ENTRY` 後，前後兩組可見鏡頭沒有任何一對在 graph v3 轉移表內，空檔 ≥ 1 s；(b) 重疊無轉移：目標先被轉角（或轉角廣角）看到，之後只剩另一台看得到 ≥ 3 s（**只用 GT 判定**；指引 v1 用系統的 `active_cam` 判定，會讓「錄成功與否」取決於系統表現，三種模式就不再共用同一組片段，所以改掉）。加上難題點前 3 s 跟對。
 
 | 段 | 事件 | 窗 (s) | 類型 | 地點／鏡頭 | 計畫 | 期望 | 上限 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | H4-1（A4-1，20.4 s，主要） | E1 | 5.0–11.5 | 跳過鏡頭 | 室外 → 101 教室，沿 y 0.6 跑（目標是 W1／W2 都沒拍到） | 10.2 s 到教室門口，教室內 (8, −1.6) 等到 14 s | `HANDOFF_T_UNLISTED_CAM`（室外的 graph 目的鏡頭只有 W1／W2） | 5 s |
 | | E2 | 14.0–17.5 | 一般切鏡 | 101 教室 → 走廊 | 18.4 s 到 (11, 1.1) | `HANDOFF_T` | 5 s |
 | H4-2（B4-1，24.4 s，主要） | E1 | 6.0–9.0 | 一般切鏡 | 走廊 → 101 教室 | 在 (8, −2) 等到 14 s | `HANDOFF_T` | 5 s |
-| | E2 | 14.0–18.5 | 跳過鏡頭 | 101 教室 → 轉角，沿 y 1.0 跑 | 18.4 s 到 (16.4, 0.8)；A 此時在北段 ≥ 1.7 m | `HANDOFF_T_UNLISTED_CAM`（101 教室 → 轉角沒有轉移） | 5 s |
-| H4-3（B4-1，56.6 s，備選） | E1／E2 | 6–9、27–30 | 一般切鏡 | 進出 101 教室（等 A 和 B 都過去） | — | `HANDOFF_T` | 5 s |
+| | E2 | 14.0–18.5 | 跳過鏡頭 | 101 教室 → 轉角，沿 y 1.3／1.1 跑（T 路線） | 18.4 s 到 (16.4, 0.8)；A 此時在北段 ≥ 1.7 m | `HANDOFF_T_UNLISTED_CAM`（101 教室 → 轉角沒有轉移） | 5 s |
+| H4-3（B4-1，57.2 s，備選） | E1／E2 | 6–9、27–30 | 一般切鏡 | 進出 101 教室（等 A 和 B 都過去） | — | `HANDOFF_T` | 5 s |
 | | E3 | 33–37 | 一般切鏡 | 走廊 → 轉角 (15.5, 1.1) | — | `HANDOFF_T` | 5 s |
-| | E4 | 40–47 | 重疊無轉移 | 轉角 → 北段走廊 (16, 3) → (16, 9) | 40 s 後才往北（A 28 s 前站在 (16.4, 6)、B 34.2–42 s 走北段走廊） | `KEEP_TRACKING_ACROSS_OVERLAP`（D77：兩台不建轉移） | 5 s |
+| | E4 | 40–47 | 重疊無轉移 | 轉角 → 北段走廊 (16.7, 1.8) → (16.7, 9) | 40 s 後才往北（A 28 s 前站在 (16.4, 6)、B 34.2–42 s 走北段走廊） | `KEEP_TRACKING_ACROSS_OVERLAP`（D77：兩台不建轉移） | 5 s |
 
-H4 能不能做出來是 **UNKNOWN**（走廊兩台幾乎看得到整條走廊，情境卡 §1.5）。生成器每段試跑一次；W1／W2 看到了，該事件就記 `NOT_PRODUCED`，不硬湊。
+H4 能不能做出來是 **UNKNOWN**（走廊兩台幾乎看得到整條走廊，情境卡 §1.5）。腳本操作者每段跑一次；W1／W2 看到了，該事件就記 `NOT_PRODUCED`，不硬湊。
 
 ### 4.5 H5 目標不在候選（生成）
 
@@ -210,7 +210,7 @@ H4 能不能做出來是 **UNKNOWN**（走廊兩台幾乎看得到整條走廊�
 | | E4 | 38.5–40.0 | 重新出現 | T | P2 → 走廊；B 已在北段遠處 | — | `REACQUIRE_T` | 5 s |
 
 - **H5-3 是對照組**：附近只有 1 個紅衣人，`LiveDecider` 名單至少要 2 人才發問（RELOCK §3.4），所以**預期規則和 LLM 結果相同**（都不問；規則可能用 `short_gate` 自動接到 B，那是錯人）。報告把它列成「LLM 設計上幫不上的情況」，不當 LLM 的證據。
-- H5-3 的 B 從躲著的 T 旁 0.70 m 走過，只比碰撞距離（0.60 m）多 0.10 m；A log 若有 `pause_player_B > 0`，生成器要重排。
+- H5-3 的 B 從躲著的 T 旁 0.70 m 走過，只比碰撞距離（0.60 m）多 0.10 m；A log 若有 `pause_player_B > 0`，要重排路線。
 
 ### 4.6 基準組（劇本重播，不分弱點）
 
@@ -242,62 +242,86 @@ BR5 另列一張表，不和即時模式的 tick 數合併（指引 §2）。
 5. 對照組 H5-3、以及事件記 `NOT_PRODUCED`、`H1n` 的段，照樣列在表中，不刪。
 6. 措辭沿用指引 §4：寫「k 段中 LLM 較好、m 段相同、n 段較差」，不寫顯著性或母體比例；同一張地圖、同 4 個人、同一位操作者。
 
-## 6. 生成器規格（H1、H4、H5；本 PR 不寫程式）
+## 6. 腳本操作者（H1、H4、H5；D321、D322，本 PR 一併實作）
 
-### 6.1 輸入
+D321 把原先的「離線合成軌跡檔」改成：**在真正的 LIVE A 端跑一個自動操作者**，照路線依序送出移動輸入（轉向＋W，跑步加 Shift，停留時不按鍵）。玩家人物仍由同一個 `crowd.step` 移動，所以牆面碰撞、人物避讓、腳本人物各自時鐘、A log 和（之後的）錄製都和真人玩一樣。錄出來的片段和使用者玩的 H2、H3 同源，差別只在「誰按鍵」。
 
-- `live_hardset_v1.json` 每個 `source = GENERATED` 案例的 `route_plan`：
-  - `start_xy`：玩家出生點，等於 T 劇本第一個航點（A4-1 (−10, −0.4)、B4-1 (4, 1)）；
-  - `steps`：依序執行，四種動作——`walk`（1.2 m/s 走直線到 `to_xy`）、`run`（2.5 m/s）、`hold`（原地停 `seconds`）、`hold_until`（原地停到模擬時間 `t_s`）；
-  - `timeline`：由 `steps` 算出的各轉折點時刻，供對照；生成器要能從 `steps` 重算出同一組值（誤差 ≤ 0.01 s）。
-- 只走「劇本人物走過的線段」上的點（例如門口 x = 8.0、走廊南側 y 1.0–1.1、北側 y 1.95），這些點在 v2.3 已知可走。H4 的 y 0.6 沿牆跑、P1 附近的室外斜線是否可走是 **UNKNOWN**，要用 sim 的碰撞（`sim.mjs` 的 `stepPlayer`／`blocked`）驗。
+### 6.1 控制介面
 
-### 6.2 產生方式
+- 既有入口：`?auto=A4|B4`（AB §1.1）讓玩家**照該角色自己的腳本**瞬間定位（`crowd.mjs` 的 `auto` 分支直接取 `scriptedPose`，不經 `playerCandidates`，也不套用玩家阻擋）。它重播的是劇本 T，不能走難題路線，也不是真人的移動方式，所以**不沿用**，只保留給基準組。
+- 新入口：**`?script=<case_id>`**（例如 `?script=H5-1&model=glb&w=320&h=180&fps=5`）。
+  - `menuOptions` 看到 `script` 就跳過選單，場景取路線的 `run_id`，角色固定 **T**（帶了別的 `actor` 會報 `SCRIPT_ACTOR_MUST_BE_T`），滑鼠視角關閉；不認得的 id 報 `SCRIPT_UNKNOWN`；同時帶 `?auto` 報 `SCRIPT_SESSION_MISMATCH`。
+  - 每個 frame 用 `createFixedStepper(crowd, operator).advance(dt_frame)` 取代 `crowd.step(keys, dt)`；鍵盤輸入在這個模式不起作用。
+  - A log 多三個欄位：`config.script = {case_id, dt, steps}`、`script_events`（每步完成時刻、`script_stall`）、每 tick 的 `script_step`。這些只在 A log，不進 frame-batch、`/infer` 或 B。
+- **分工**
 
-1. **時鐘**：玩家用 A 的模擬時間 `t_sim`。腳本人物照 AB §2.2 各自的 `s_i`；生成的路線都排開了，預期每個腳本人物的 `pause_player_i = 0`，所以 `s_i = t_sim`。
-2. **速度與朝向**：只用走（1.2）或跑（2.5），和鍵盤能做到的一樣；朝向取移動方向，停住時保留上一個朝向；`running = (speed > 1.2)`。滑鼠視角關閉（`?auto` 已是 `mouse=off`）。
-3. **隨機種子**：v1 **不加隨機**，`seed = 0`，輸出完全決定。之後若要加變化（停留秒數 ±0.5 s），用 `seed` 產生，並把實際值寫進劇本。
-4. **B 的操作**：每段都在 `tick 5`（1.0 s，5 fps 時）送 `start`（顏色紅、句子空），段尾送 `stop`；不送 `pick`（只靠 `AUTO_SINGLE`）。
-5. **段長**：`route_plan.length_s`；超過一圈的段，照 `s_i % duration` 讓腳本人物重新出生（AB §2.2）。
+| 部分 | 檔案 | 誰 | 狀態 |
+| --- | --- | --- | --- |
+| 腳本操作者（路線 → 按鍵、固定步長） | `frontend/live-mode/src/script_operator.mjs`（新） | Claude | 本 PR |
+| 路線副本（只有路線，沒有答案） | `frontend/live-mode/src/hardset_routes.mjs`（新，由 JSON 產生，測試保證一致） | Claude | 本 PR |
+| `?script` 入口、A log 欄位 | `frontend/live-mode/src/operator.mjs`（+15 行）、`common.mjs`（+1 行） | Claude | 本 PR |
+| 單元測試 | `frontend/live-mode/test/script_operator.test.mjs`（新） | Claude | 本 PR |
+| 瀏覽器 smoke、離線條件檢查 | `frontend/live-mode/measure/hardset_smoke.mjs`、`hardset_check.mjs`（新） | Claude | 本 PR |
+| 錄製劇本、重播、B 操作重送、決策模式切換 | 後台與錄製（#596） | Codex | **UNKNOWN**，問題見 §6.6 |
+| `/reset` 的 `session_id` | `src/amidst/live_mode/server.py`（#610） | Codex | `main` 還沒有；smoke 暫時補（§6.5） |
 
-### 6.3 試跑驗證（0 USD，規則模式）
+### 6.2 事件表 → 控制指令
 
-生成器輸出劇本後，先用規則模式重播一次，從 A log 檢查：
+輸入是 `live_hardset_v1.json` 每個 `source = GENERATED` 案例的 `route_plan.steps`（前端用 `hardset_routes.mjs` 的副本）：
 
-- 每個腳本人物 `pause_player_i = 0`，沒有 `spawn_adjusted`、`forced_overlap`；
-- 玩家實際位置和計畫的差距每 tick ≤ 0.05 m（被牆擋住就是路線不可走 → 報錯，不自動繞路）；
-- 該段的成功條件（§4）是否成立，事件的實際 tick；
-- 不成立 → 記 `NOT_PRODUCED`（原因、哪一條），改試同類備選段；不放寬門檻。
-
-試跑結果（每段一列：成功條件逐條、事件實際 tick、和計畫的差距）貼在 #597，之後才進付費重播。
-
-### 6.4 輸出格式（對齊 #596；未定案欄位標 UNKNOWN）
-
-| 欄位 | 內容 | 狀態 |
+| 路線步驟 | 每個固定步（`dt = 0.05 s`）送出的輸入 | 何時算完成 |
 | --- | --- | --- |
-| `schema_version` | 錄製劇本的版本名 | **UNKNOWN**（#596 定） |
-| `case_id` | 例如 `H5-1` | 本表定義 |
-| `source` | `GENERATED`／`PLAYER` | 本表定義（報告分來源需要） |
-| `run_id`、`actor_id` | `A4-1`／`B4-1`、`T` | 沿用 A log |
-| `seed` | v1 = 0 | 本表定義 |
-| `generator` | 生成器版本、`live_hardset_v1.json` 的 SHA-256 | 本表定義 |
-| `dt` | 固定模擬步長 | **UNKNOWN**（見 Q3） |
-| `player` | 每步 `{t_us, xy, heading, speed, running}`，或鍵盤輸入序列 | **UNKNOWN**（見 Q2） |
-| `script_clocks` | 每個腳本人物的 `s_i` 起點與暫停紀錄 | **UNKNOWN**（見 Q7） |
-| `b_ops` | `[{tick, op: start/pick/reselect/stop, ...}]` | **UNKNOWN**（見 Q5） |
-| 存放位置 | `local/evidence/live-hard-cases-<日期>/<case_id>.case.json`（LOCAL，不進 git；尚未建立，SHA-256 不適用，錄好後以 `SHA256SUMS.txt` 記錄） | 建議，#596 定 |
+| `walk {to_xy}` | `view_yaw` 轉向目標點（`yawToward`，順時針自 +Y），按 `w`；1.2 m/s | 玩家距目標 ≤ 半步（0.03 m） |
+| `run {to_xy}` | 同上，加 `shift`；2.5 m/s | 距目標 ≤ 半步（0.0625 m） |
+| `hold {seconds}` | 不按任何移動鍵 | 進入時的 `t_sim` + 秒數 |
+| `hold_until {t_s}` | 不按任何移動鍵 | `t_sim ≥ t_s` |
 
-### 6.5 給 Codex 的介面問題（同步貼在 #596）
+- **碰到人或牆**：照 sim 的規則（`playerCandidates` 沿牆滑動、`resolveMoves` 不讓玩家往 0.60 m 內靠近），**不硬穿**。操作者持續朝目標按鍵，原地超過 2 s 記一筆 `script_stall`（只記一次），不改路線、不放棄。
+- **只讀三樣東西**：路線、玩家自己的 `{x, y}`、模擬時間 `t_sim`。不讀 B 視窗、後台回應（`state`、`active_cam`）、追蹤器、`gt_visible`、答案表；測試用靜態檢查和 Proxy 確認。
+- **事件判定仍由 A log 離線確認**（§2、`measure/hardset_check.mjs`），操作者本身不知道事件是否發生。
 
-1. **Q1 劇本格式名稱與存放**：錄製劇本的 `schema_version`、檔名規則、存在哪裡？生成器要產生同一格式。
-2. **Q2 玩家軌跡的表示**：重播吃「每步位置」還是「鍵盤輸入」？建議：每步位置，但重播時仍經過 `stepPlayer` 的碰撞檢查，擋住時報錯（不靜默修正）。
-3. **Q3 固定步長**：現在 `operator.mjs` 用牆鐘的 `dt`（`Math.min(.1, …)`），每次不同，重播無法逐 tick 相同。重播要用多少的固定 `dt`？擷取 tick（`fps` 預設 5）和模擬時間怎麼對（建議 tick k 在 `t_sim = k / fps`）？
-4. **Q4 生成的劇本**：重播模式能不能直接載入一份沒人玩過、由生成器產生的劇本（格式相同）？有沒有欄位只有真人錄製才有？
-5. **Q5 B 的操作重播**：`start`／`pick`／`reselect`／`stop` 是否錄進劇本、在同一 tick 重送？`pick` 的候選如何在重播時對到同一個人？
-6. **Q6 裁決點紀錄**：#610 的 B 事件白名單有 `ADJUDICATE_ASK {kind, candidates}`、`ADJUDICATED {choice, applied, cleared, source, latency_ms}`。評分還需要每個候選的 `est_xy`（對 GT）、規則的選擇、LLM 回「都不是」的表示、花費 USD；規則模式也要在同一時刻記下規則的動作。這些在哪裡記？
-7. **Q7 腳本人物時鐘**：重播時 `pause_*`、`spawn_adjusted`、`forced_overlap` 是否逐 tick 重現？生成器預期都是 0，若重播出現非 0 要不要直接報錯？
-8. **Q8 基準組循環**：`?auto` 重播 T 劇本時，跑到第二圈 T 會從終點瞬移回起點。是否照現況（本表把這 3 s 排除），或提供不循環的選項？
-9. **Q9 決策模式**：同一份劇本指定規則／LLM（terra、sol）的參數名稱與預設？CI 用假模型的開關？
+### 6.3 可重現
+
+- 固定起點（T 劇本第一個航點；測試確認路線 `start_xy` 等於它）、固定步長 `dt = 0.05 s`、**沒有隨機**（`seed = 0`）。模擬軌跡只是 `t_sim` 的函數，和瀏覽器 frame 時間無關：每個 frame 把經過的時間累積起來，夠一步才走一步，一個 frame 最多 8 步（卡頓時整段變慢，不跳格）。
+- **差異上限**：同一段跑兩次（frame 時間不同），對同一 `t_sim` 的玩家位置差 **≤ 0.01 m**（單元測試：1/60 s 固定 frame 和亂數 frame 比，H1-1、H4-2、H5-1 實測差 0 m）。A log 的擷取 tick 是牆鐘觸發（`setInterval(1000/fps)`），兩次的 tick 會落在不同的 `t_sim`；比較時以 `t_sim` 對齊（內插），不是用 tick 編號。
+- 逐 tick 完全相同（D304 的重播前提）要靠 #596 把擷取改成模擬時間觸發；這屬錄製重播，見 §6.6 Q3。
+
+### 6.4 驗證（本 PR 已做）
+
+- **單元測試**（`node --test test/script_operator.test.mjs`）：路線副本和 JSON 一致且不含答案；格式錯誤會報錯；按鍵方向正確；走／跑／停留時間誤差 ≤ 1–2 步；有人擋路時等待並記 `script_stall`；**九段路線在真實牆面（`R004_SCENE_GEOMETRY_2D_V1.json`）都走得完，沒有 stall，腳本人物 `pause_player_i = 0`、沒有 `forced_overlap`，終點和計畫差 ≤ 0.1 m**；兩次跑差 ≤ 0.01 m；操作者不引用 B／後台／追蹤器／GT。
+- 單元測試發現並已修正：H4-2 原路線 y 1.0 撞到走廊屏風（改走 T 路線的 y 1.3／1.1）；H4-3 原路線 x 16.0 撞到北段告示屏（改走 x 16.7，C／B 的北段路線）。
+- **瀏覽器 smoke**（2026-11-18，`main` `1f6ecacd` ＋本分支，後台在埠 8798、`--advisor off`、`--schedule adaptive`、`--device mps`；`HEADLESS=0`；0 USD）。A log 在 LOCAL `local/evidence/hardset-597-20261118/`（7 檔、約 300 KB；`SHA256SUMS.txt` 的 SHA-256 `aaf43985525fed795ce82af0f30766f045b0efff7153ffca431026f046206f59`；可用相同指令重跑重建，但牆鐘擷取 tick 不會逐 tick 相同）。條件由 `node measure/hardset_check.mjs <A log>` 離線算出（`check-report.json`）：
+
+| 段 | 判定 | 結果（A log） | 腳本人物被擋 | stall |
+| --- | --- | --- | --- | --- |
+| H1-1 | **`H1n`**（長失聯、近處再出現） | P3 躲 26.3–47.6 s，**看不到 21.4 s**（≥ 15 ✓）；最後可見 `CAM_R101_IN` (8.37, −1.49) → 再出現 `CAM_R101_IN` (9.02, −3.03)，**只差 1.7 m**（≥ 8 ✗，和 §4.1 的預期一樣：藏身處是死路）；再出現後 10 s 內可見 9.2 s ✓。另外發現走廊（`CAM_W2`）和轉角（`CAM_BRANCH`）之間有 0.8 s 盲區（51.2–52.0 s） | 0 | 0 |
+| H4-1 | `NOT_PRODUCED` | 室外 → 101 教室沿 y 0.6 跑，W1／W2 一直看得到，沒有空檔 | 0 | 0 |
+| H4-2 | `NOT_PRODUCED` | 101 教室 → 轉角途中 `CAM_W2` 看到（W2 → 轉角有轉移），空檔 17.4–18.4 s 只是一般切鏡 | 0 | 0 |
+| H4-3 | **`H4`（重疊無轉移）** | 44.3 s 起離開 `CAM_BRANCH`，只剩 `CAM_WIDE` 看得到 **10.0 s**（≥ 3 ✓）。規則模式的 `active_cam` 約 0.8 s 內就從 BRANCH 換到 WIDE（A log 抄錄的 `/infer` 回應，僅評估用） | 0 | 0 |
+| H5-1 | **`H5`** | P4 躲 16.0–32.5 s，**看不到 16.5 s**（≥ 3 ✓）；失聯後 3 s 內 **A、B 兩人都可見且距最後位置 ≤ 4 m** ✓ | 0 | 0 |
+
+  - H4「跳過相鄰鏡頭」照指引最多試 3 次：H4-1、H4-2 都做不出來，第 3 次用 H4-3 做出了「重疊無轉移」。走廊兩台幾乎看得到整條走廊，「跳過」在這張地圖上很可能做不出來。
+  - 擷取 tick 約 1 Hz（設定 5 fps，`/infer` 約 1 s，其餘記為 `dropped`），所以空檔秒數的解析度約 ±1 s。
+  - 只開 A 視窗，沒有 B 的鎖定與評分（§6.5）。
+
+### 6.5 smoke 的已知限制
+
+- `main` 的 A 端要求 `/reset` 回 `session_id`（`createSessionGate`），但 `main` 的後台還沒有（AB §5.3 隨 #610 進來）。所以在 `main` 上 A 端目前**任何人都無法開始一局**。smoke 腳本在後台沒給時補一個測試用 id，並在 A log 記 `smoke.reset_session_shim = true`；#610 合併後自動不再補。
+- smoke 只開 A 視窗、規則模式（`--advisor off`），沒有 B 視窗，所以「難題點前 3 s 跟對」和所有系統表現都**沒有**評分；它只確認路線在真正的 LIVE A 端走得出來、事件條件在 A log 上成立。
+- headless Chrome 會壓低動畫 frame，固定步長的模擬跟著變慢；smoke 用 `HEADLESS=0` 開一般視窗跑。
+
+### 6.6 給 Codex 的介面問題（貼在 #596）
+
+1. **Q1 劇本格式名稱與存放**：錄製劇本的 `schema_version`、檔名規則、存放位置？
+2. **Q2 錄什麼**：腳本操作者和真人一樣送按鍵，錄製時建議存「每步的輸入（`w/a/s/d/shift/view_yaw`）＋ `dt`」，重播時餵回同一個 `crowd.step`，玩家位置自然相同。#596 打算存輸入還是位置？
+3. **Q3 擷取時鐘**：`setInterval(captureTick, 1000/fps)` 用牆鐘，兩次重播的 tick 會落在不同 `t_sim`。重播時能否改成以模擬時間觸發（tick k 在 `t_sim = k/fps`），並把模擬改成固定步長（腳本操作者已用 0.05 s）？
+4. **Q4 腳本操作者錄製**：`?script=<id>` 跑的局能不能直接錄成劇本，和真人局同格式？有沒有欄位只有真人才有？
+5. **Q5 B 的操作**：`start`／`pick`／`reselect`／`stop` 是否錄進劇本、在同一 tick 重送？腳本操作者的段只需要開始時的 `start`（紅衣）和段尾 `stop`。
+6. **Q6 裁決點紀錄**：#610 有 `ADJUDICATE_ASK {kind, candidates}`、`ADJUDICATED {choice, applied, cleared, source, latency_ms}`；評分還要每個候選的 `est_xy`、規則在同一時刻的選擇、LLM 回「都不是」的表示、花費 USD。記在哪裡？
+7. **Q7 腳本人物時鐘**：重播時 `pause_*`、`spawn_adjusted`、`forced_overlap` 是否逐 tick 重現？腳本操作者的九段預期都是 0，非 0 要不要直接報錯？
+8. **Q8 基準組循環**：`?auto` 第二圈 T 會瞬移回起點；照現況（答案表排除 3 s）或提供不循環選項？
+9. **Q9 決策模式**：同一份劇本指定規則／terra／sol 的參數與預設？CI 的假模型開關？
+10. **Q10 `session_id`**：`main` 的 A 端已要求 `/reset` 回 `session_id`，後台要等 #610；在那之前 `main` 的 A 端無法開始一局。#610 能否先合併這部分？
 
 ## 7. 使用者操作卡（H2、H3）
 
@@ -320,7 +344,7 @@ BR5 另列一張表，不和即時模式的 tick 數合併（指引 §2）。
 
 1. **`live_ab_score.py` 不認得 `NEEDS_CONFIRM`**：`classify()` 只接受 `TRACKING`／`LOST`／`TARGET_OUT_OF_VIEW`，`NEEDS_CONFIRM` 會變成 `UNKNOWN`（`TRACK_STATE_UNSUPPORTED`），不進分母；RELOCK §2.1 要求算失聯。R1（#608）上線前要改。
 2. **評分器要新增**：`wrong_person_while_unseen`、`reacquire_s`、`handoff_verdict[W]`、`decision_table`、`excluded_window`，以及讀本 JSON 依事件窗切片（§3）。屬 Claude 的評估工具，另開任務。
-3. **藏身處是否真的看不到**（P1–P4）和 H1 (b)、H4 能不能做出來，都要等試跑（§6.3）。
+3. **藏身處是否真的看不到**（P1–P4）和 H1 (b)、H4 能不能做出來：smoke 的結果見 PR；其餘段等正式錄製。
 4. 劇本 v2.3 B4-1 C 的 `route_note` 和航點不一致（§1.1 第 1 項）；不改劇本（權威檔），只在這裡記錄。
 
 ## 9. 實際產出 / Actual output
