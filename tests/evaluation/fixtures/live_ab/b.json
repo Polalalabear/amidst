@@ -1,0 +1,147 @@
+{
+  "schema_version": "live-ab.b-log.v1",
+  "session_id": "0123456789abcdef",
+  "ticks": [
+    {
+      "tick": 0,
+      "t_capture": 0,
+      "t_resp": 100,
+      "t_display": 110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_1",
+        "est_xy": [
+          0,
+          0
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    },
+    {
+      "tick": 1,
+      "t_capture": 1000,
+      "t_resp": 1100,
+      "t_display": 1110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_1",
+        "est_xy": [
+          0,
+          0
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    },
+    {
+      "tick": 2,
+      "t_capture": 2000,
+      "t_resp": 2100,
+      "t_display": 2110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_1",
+        "est_xy": [
+          5,
+          0
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    },
+    {
+      "tick": 3,
+      "t_capture": 3000,
+      "t_resp": 3100,
+      "t_display": 3110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_2",
+        "est_xy": [
+          5,
+          0
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    },
+    {
+      "tick": 4,
+      "t_capture": 4000,
+      "t_resp": 4100,
+      "t_display": 4110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_2",
+        "est_xy": [
+          20,
+          20
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    },
+    {
+      "tick": 5,
+      "t_capture": 5000,
+      "t_resp": 5100,
+      "t_display": 5110,
+      "tracking": {
+        "state": "LOST",
+        "active_cam": "CAM_2",
+        "est_xy": null,
+        "lost_ticks": 1,
+        "events": []
+      }
+    },
+    {
+      "tick": 6,
+      "t_capture": 6000,
+      "t_resp": 6100,
+      "t_display": 6110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_2",
+        "est_xy": [
+          0,
+          0
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    },
+    {
+      "tick": 7,
+      "t_capture": 7000,
+      "t_resp": 7100,
+      "t_display": 7110,
+      "tracking": {
+        "state": "TRACKING",
+        "active_cam": "CAM_2",
+        "est_xy": [
+          0,
+          0
+        ],
+        "lost_ticks": 0,
+        "events": []
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "pick",
+      "t_op": 1000,
+      "tick": 0,
+      "cand_id": "opaque",
+      "est_xy": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "stop",
+      "t_op": 8000
+    }
+  ]
+}
