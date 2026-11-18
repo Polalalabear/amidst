@@ -1,7 +1,34 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Amidst live mode (spike)</title>
 <style>
- html,body{margin:0;height:100%;background:#14171c;color:#d8dde5;font:13px/1.4 -apple-system,Helvetica,Arial,sans-serif}
+ /* A 端選單：沿用 workbench-v2 的 token（style.css :root）與元件語言；只用 #ab-* 選擇器，不動 operator.mjs。 */
+ :root{color-scheme:dark;--bg:#0A0D10;--panel:#11151A;--panel-2:#161B21;--panel-3:#1D232A;--ink:#DCE3E9;--ink-2:#9BA6B0;--ink-3:#66717B;--rule:#262D35;--sel:#F4F7F9;--err:#F08C8C;
+  --f-ui:"IBM Plex Sans","Noto Sans TC",-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;--f-label:"IBM Plex Sans Condensed","Noto Sans TC","PingFang TC",sans-serif;--f-mono:"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace}
+ #ab-menu{background:var(--bg);color:var(--ink);font:13px/1.45 var(--f-ui);margin:0 auto!important;padding:48px 32px!important}
+ #ab-menu h1{margin:0 0 24px;font:600 20px/1.3 var(--f-ui);letter-spacing:.02em}
+ #ab-menu h2{margin:24px 0 10px;font:600 11px/1 var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+ #ab-menu button{font:inherit;color:var(--ink);cursor:pointer;background:var(--panel-2)!important;border:1px solid var(--rule)!important;border-radius:2px!important;outline:0!important}
+ #ab-menu button:hover:not(:disabled){background:var(--panel-3)!important;border-color:var(--ink-3)!important}
+ #ab-menu button:focus-visible{outline:1px solid var(--ink)!important;outline-offset:2px}
+ #ab-menu button:disabled{cursor:default}
+ #ab-runs{gap:8px!important}
+ #ab-runs button{padding:10px 20px!important;font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+ #ab-actors{gap:12px!important}
+ #ab-actors button{width:180px!important;padding:12px!important;text-align:center;border-radius:4px!important;background:var(--panel)!important}
+ #ab-actors canvas{display:block;margin:0 auto;background:var(--bg);border-radius:2px}
+ #ab-actors p{margin:8px 0 2px}
+ #ab-actors small{font:11px var(--f-mono);color:var(--ink-2)}
+ #ab-menu button[aria-pressed=true]{background:var(--ink)!important;border-color:var(--ink)!important;color:var(--bg)}
+ #ab-actors button[aria-pressed=true]{background:var(--panel-3)!important;border-color:var(--sel)!important;box-shadow:inset 0 0 0 1px var(--sel);color:var(--ink)}
+ #ab-actors button[aria-pressed=true] small{color:var(--ink)}
+ #ab-menu>p{margin:20px 0 14px;color:var(--ink-2)}
+ #ab-begin{padding:10px 32px!important;font-weight:600;background:var(--ink)!important;border-color:var(--ink)!important;color:var(--bg)!important}
+ #ab-begin:hover:not(:disabled){background:var(--sel)!important}
+ #ab-begin:disabled{background:var(--panel-2)!important;border-color:var(--rule)!important;color:var(--ink-3)!important}
+ #ab-status{margin-left:12px;font:12px var(--f-mono);color:var(--ink-2)}
+</style>
+<style>
+ html,body{margin:0;height:100%;background:var(--bg);color:#d8dde5;font:13px/1.4 -apple-system,Helvetica,Arial,sans-serif}
  #op{display:grid;grid-template-columns:1fr 360px;height:100%}
  #op canvas#view{width:100%;height:100%;display:block}
  #panel{padding:12px;overflow:auto;border-left:1px solid #2a2f38}
