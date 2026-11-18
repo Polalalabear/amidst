@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from PIL import Image
 
 from amidst.live_mode.advisor import LiveDecider
@@ -15,7 +16,7 @@ SCRIPTS = str(Path(__file__).resolve().parents[2] / "scripts/live_mode")
 sys.path.insert(0, SCRIPTS)
 try:
     from replay_advisor import PoolRecorder, replay_pools, score_questions
-    from replay_relock import episodes, observation_records, replay_safe
+    from replay_relock import episodes, observation_records, recovery_comparison, replay_safe
 finally:
     sys.path.remove(SCRIPTS)
 
@@ -81,6 +82,60 @@ def test_visible_failed_episode_starts_only_after_a_correct_track():
         "ON_TARGET",
     ]
     assert episodes([{"status": label} for label in labels]) == [[2, 3], [5]]
+
+
+def test_r5a_distinguishes_existing_and_new_wrong_recoveries_and_rejects_clock_mismatch():
+    entries = [
+        (
+            "one",
+            Path("one.t1raw.json"),
+            {"ticks": [{"tick": i, "t_capture": i * 500} for i in range(3)]},
+        )
+    ]
+    rows = [
+        {
+            "i": i,
+            "t_capture": i * 500,
+            "state": state,
+            "matched": state == "TRACKING",
+            "following": who,
+            "status": "WRONG_PERSON" if who else "LOST",
+            "events": ["REACQUIRE"] if i == 2 else [],
+        }
+        for i, (state, who) in enumerate(
+            [("TRACKING", "A"), ("NEEDS_CONFIRM", None), ("TRACKING", "A")]
+        )
+    ]
+    trace = [
+        {
+            "tracking": {
+                "state": row["state"],
+                "events": [
+                    {
+                        "type": "REACQUIRE",
+                        "detail": {"mode": "short_gate", "unseen_s": 1, "dist_m": 0.5},
+                    }
+                ]
+                if i == 2
+                else [],
+            }
+        }
+        for i, row in enumerate(rows)
+    ]
+    result = recovery_comparison(entries, [trace], {"one": rows}, {"one": rows})
+    assert result["new_wrong"] == 0 and result["wrong_before_loss"] == 1
+    assert (
+        result["relock_counts"] == result["main_counts"] == {"correct": 0, "wrong": 1, "unknown": 0}
+    )
+    event = result["events"][0]
+    assert event["previous_state"] == "NEEDS_CONFIRM"
+    assert event["last_match_before_loss"]["i"] == 0
+    main = [dict(row) for row in rows]
+    main[2]["following"] = "T"
+    assert recovery_comparison(entries, [trace], {"one": rows}, {"one": main})["new_wrong"] == 1
+    main[2]["t_capture"] += 1
+    with pytest.raises(ValueError, match="MAIN_COMPARISON_CLOCK"):
+        recovery_comparison(entries, [trace], {"one": rows}, {"one": main})
 
 
 def test_pool_report_scores_only_after_asks_and_uses_one_metre_oracle():

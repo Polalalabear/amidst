@@ -97,6 +97,7 @@ with `PYTHONPATH=src`.
 python -B scripts/live_mode/replay_relock.py \
   --src "C=$EVIDENCE/cx552-c-20261117/redetected" \
   --entry-src "D273=$EVIDENCE/cx552-d-20261118/fresh/latency" \
+  --entry-main-rows "$EVIDENCE/cx552-d-20261118/fresh/latency/t1_rows.json" \
   --cameras "$CAMERAS" --out "$OUT/relock" --sweep-t-short 1,2,3,4,6,8,10
 python -B scripts/live_mode/replay_advisor.py \
   --in "$EVIDENCE/live-mode-advisor-20261116/sol2" \
@@ -147,3 +148,42 @@ replay were left pending. The live wire was not exercised. No runtime default
 or threshold was changed.
 
 LOCAL `local/evidence/cx588-d322-20261118/MANIFEST.json` SHA-256 `de9f17069dc2dcfa89ac8c9d25eab5f1b691d8045387baebbc2f9a3ab97f1e50`, 45 files / 4,775,119 bytes. The replay command above regenerates the trace and scores; `gate-audit.json` records the six-run event join and waiting durations.
+
+## D326 R-5a acceptance
+
+The user approved the revised R-5a in D326. The runtime policy remains
+`bc86630f`. This checkpoint supersedes the earlier Draft acceptance status.
+The replay now joins every automatic recovery to main's score at the same
+source capture index and capture clock. Fixed C uses the baseline replay.
+D273 uses the original main capture's scored rows, whose SHA-256 is recorded
+in `relock.json`. Both the scored action and the last matched capture before
+loss are retained. Main can match through SWITCH or ordinary continuation,
+so its action need not have a REACQUIRE event.
+
+R-6 passes with A4 67/95 correct and 4/95 lost, B4 58/60 correct and 1/60 lost.
+The eleven automatic recoveries have six correct and five wrong matches.
+Main matches the same actor at all eleven captures. R-5a adds zero wrong
+matches, appearance adds zero wrong matches, and fixed C has zero wrong
+recoveries. All five wrong recoveries were already following the wrong
+person before the loss. The detailed capture rows and original main event
+names are in `relock.json.r5a.events`.
+
+ENTRY presentation remains 0 ms at all-A4 capture 52 and adaptive-A4 capture
+62. Correct automatic recovery delay is null in each.
+
+The 40-input prediction sweep reports 3/114 pool misses and 30 wrong
+recoveries with horizon zero. Each horizon of 1, 2 and 3 s reports 1/128
+pool misses and 26 wrong recoveries. The earlier D308 values were 2/147
+and 5 wrong recoveries, or 2/144 and 4 wrong recoveries with prediction.
+The sweep uses the same inputs and commands, with the D326 relock receipt.
+The new short-gate exit also operates from NEEDS_CONFIRM, changing subsequent
+tracking, references and question times. Wrong recoveries remain above zero,
+so R-13 leaves prediction disabled. The fixture applies no paid model answer
+and records zero provider calls.
+
+Two runs produced identical bytes for `relock.json`, `prediction.json`
+and `pool-misses.json`. The full branch LIVE suite passes 96 tests.
+Ruff on both changed Python files, architecture guard and diff check pass.
+R2 session and HTTP integration remains the scope of #589.
+
+LOCAL `local/evidence/cx588-d326-20261118/MANIFEST.json` SHA-256 `e938d246a8839291d97a9fc9b18bf2691b8e5d7dc6a290719384c8556fe4a924`, 471 files / 59,799,138 bytes. The reproduction commands above regenerate the reports. The matching runs are run2 and run3, and their file hashes are in determinism.json.

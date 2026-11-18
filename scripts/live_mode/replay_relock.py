@@ -136,8 +136,7 @@ def percentiles(values, *quantiles):
         return [None for _ in quantiles]
     n = len(values) - 1
     return [
-        values[int(n * q)]
-        + (values[min(int(n * q) + 1, n)] - values[int(n * q)]) * (n * q % 1)
+        values[int(n * q)] + (values[min(int(n * q) + 1, n)] - values[int(n * q)]) * (n * q % 1)
         for q in quantiles
     ]
 
@@ -197,9 +196,7 @@ def appearance_report(entries, traces, intervals):
                 eligible = [
                     g
                     for g in row["groups"]
-                    if g["features"] is not None
-                    and g["dist_m"] is not None
-                    and g["dist_m"] <= 8
+                    if g["features"] is not None and g["dist_m"] is not None and g["dist_m"] <= 8
                 ]
                 if truth is None or not eligible or row["reference"] is None:
                     continue
@@ -212,9 +209,7 @@ def appearance_report(entries, traces, intervals):
     report = []
     for indices in ((0,), (1,), (0, 1)):
         fields = tuple(RelockConfig().appearance_fields[i] for i in indices)
-        bounds = [
-            percentiles([sample[1][i] for sample in samples], 0.05, 0.95) for i in indices
-        ]
+        bounds = [percentiles([sample[1][i] for sample in samples], 0.05, 0.95) for i in indices]
         scale = tuple((hi - lo or 1.0) if hi is not None else 1.0 for lo, hi in bounds)
         good, bad = [], []
         for correct, obs, ref in samples:
@@ -274,9 +269,7 @@ def entry_audit(entries, traces, scored_rows):
         runs = [i for i, flag in enumerate(visible) if flag and (i == 0 or not visible[i - 1])]
         camera_rows = []
         for start in runs[1:]:
-            end = next(
-                (i for i in range(start + 1, len(visible)) if not visible[i]), len(visible)
-            )
+            end = next((i for i in range(start + 1, len(visible)) if not visible[i]), len(visible))
             target_first = auto_first = None
             for i in range(start, end):
                 row = trace[i]
@@ -337,6 +330,77 @@ def entry_audit(entries, traces, scored_rows):
     return result
 
 
+def recovery_comparison(entries, traces, rows, main_rows):
+    """Join scores after replay. Every join must preserve the source capture clock."""
+    events = []
+    main_counts = {"correct": 0, "wrong": 0, "unknown": 0}
+    main_event_counts = dict(main_counts)
+
+    def outcome(row):
+        who = row["following"]
+        return "correct" if who == "T" else "wrong" if who else "unknown"
+
+    def receipt(row):
+        return {
+            key: row[key]
+            for key in ("i", "t_capture", "state", "matched", "following", "status", "events")
+        }
+
+    for (label, _, raw), trace in zip(entries, traces, strict=True):
+        scored, baseline = rows[label], main_rows[label]
+        if len(scored) != len(baseline) or len(scored) != len(trace):
+            raise ValueError(f"MAIN_COMPARISON_LENGTH:{label}")
+        for i, (row, prior) in enumerate(zip(scored, baseline, strict=True)):
+            capture = raw["ticks"][i]["t_capture"]
+            if (
+                row["i"] != i
+                or prior["i"] != i
+                or row["t_capture"] != capture
+                or prior["t_capture"] != capture
+            ):
+                raise ValueError(f"MAIN_COMPARISON_CLOCK:{label}:{i}")
+            if "REACQUIRE" in prior["events"]:
+                main_event_counts[outcome(prior)] += 1
+            for event in trace[i]["tracking"]["events"]:
+                if event["type"] != "REACQUIRE" or not (event.get("detail") or {}).get("mode"):
+                    continue
+                last = next((r for r in reversed(scored[:i]) if r["matched"]), None)
+                main_counts[outcome(prior)] += 1
+                same = prior["matched"] and prior["following"] == row["following"]
+                events.append(
+                    {
+                        "source": label,
+                        "tick": i,
+                        "source_tick": raw["ticks"][i].get("tick", i),
+                        "previous_state": trace[i - 1]["tracking"]["state"] if i else None,
+                        **event["detail"],
+                        "score": outcome(row),
+                        "relock": receipt(row),
+                        "main": receipt(prior),
+                        "same_main_match": same,
+                        "new_wrong": outcome(row) == "wrong" and not same,
+                        "last_match_before_loss": receipt(last) if last else None,
+                    }
+                )
+    counts = {name: sum(e["score"] == name for e in events) for name in main_counts}
+    return {
+        "events": events,
+        "relock_counts": counts,
+        "main_counts": main_counts,
+        "main_reacquire_event_counts": main_event_counts,
+        "new_wrong": sum(e["new_wrong"] for e in events),
+        "appearance_wrong": sum(
+            e["mode"] == "appearance" and e["score"] == "wrong" for e in events
+        ),
+        "wrong_before_loss": sum(
+            e["score"] == "wrong"
+            and e["last_match_before_loss"] is not None
+            and e["last_match_before_loss"]["following"] not in (None, "T")
+            for e in events
+        ),
+    }
+
+
 def read_sources(definitions):
     entries = []
     for source in definitions:
@@ -367,6 +431,11 @@ def main():
     )
     parser.add_argument("--cameras", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--entry-main-rows",
+        type=Path,
+        help="original main t1_rows.json for the supplementary recordings",
+    )
     parser.add_argument(
         "--sweep-t-short",
         type=lambda s: tuple(float(v) for v in s.split(",")),
@@ -465,6 +534,8 @@ def main():
             {e[0]: t for e, t in zip(fixed, final, strict=True)}, rows, intervals
         ),
     }
+    comparison_entries, comparison_traces = list(fixed), list(final)
+    comparison_rows, main_rows = dict(rows), dict(brows)
     if entry:
         supplementary, supp_rows, rates = run(entry, "entry-supplement", config)
         result["entry_supplement"] = entry_audit(entry, supplementary, supp_rows)
@@ -474,6 +545,18 @@ def main():
             supp_rows,
             {label: episodes(rows) for label, rows in supp_rows.items()},
         )
+        if args.entry_main_rows is None:
+            parser.error("--entry-main-rows is required with --entry-src")
+        original = {r["label"]: r["rows"] for r in json.loads(args.entry_main_rows.read_bytes())}
+        for label, path, raw in entry:
+            main_rows[label] = original[raw.get("label", path.name.removesuffix(".t1raw.json"))]
+        result["main_comparison_input"] = inventory_file(args.entry_main_rows)
+        comparison_entries.extend(entry)
+        comparison_traces.extend(supplementary)
+        comparison_rows.update(supp_rows)
+    result["r5a"] = recovery_comparison(
+        comparison_entries, comparison_traces, comparison_rows, main_rows
+    )
     (args.out / "relock.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"n_episodes": result["n_episodes"], "config": result["config"]}))
     return 0
