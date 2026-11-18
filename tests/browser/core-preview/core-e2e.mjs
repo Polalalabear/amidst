@@ -140,12 +140,9 @@ const feature=async value=>{const b=page.locator('#ui-q-search [data-role=classe
  result={status:'PASS',checks,viewport:{width:1440,height:viewportHeight},bar_rect:bar,source_head:preview.head,url:preview.url,screenshots:shots,page_errors:errors,source_kind:'SYNTHETIC API FIXTURE',physical_display_fps:null};
 }finally{
  try {
-  await page?.unrouteAll({behavior:'ignoreErrors'});
-  await page?.context().close();
+  await browser?.close();
  } finally {
-  try { await browser?.close(); } finally {
   await new Promise((done,reject)=>{preview.server.close(e=>e?reject(e):done());preview.server.closeAllConnections?.();});
-  }
  }
 }
 // PASS is emitted only after context, browser and owned HTTP server have closed.
