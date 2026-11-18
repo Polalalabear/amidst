@@ -177,7 +177,7 @@ def test_frozen_office_responses_equal_except_quality(live):
                 strip_quality(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
             ).encode()
         ).hexdigest()
-        assert digest == expected[name], name
+        assert digest == expected["snapshot_before_display" if name == "snapshot" else name], name
     observations = [r for q in results["query"] for r in q["observations"]]
     assert len(observations) == 31
     assert all("contact_quality" in r for r in observations)
