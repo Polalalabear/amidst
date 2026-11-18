@@ -328,7 +328,9 @@ def main():
     args = p.parse_args(); config, root = configuration(args.config)
     eightcam_required = args.root_8cam is not None
     eightcam, reason = prepare_eightcam(args.root_8cam or args.auto_root_8cam, required=eightcam_required)
-    install_owned_io_guard(root, approved_read_files=eightcam.read_files if eightcam else ())
+    app = None
+    install_owned_io_guard(root, approved_read_files=eightcam.read_files if eightcam else (),
+                           approved_reads_active=lambda: app is None or app.eightcam_status['status'] == 'READY')
     state_root = owned_path(root, config['state_root']); state_root.mkdir(exist_ok=True)
     state = Path(tempfile.mkdtemp(prefix='run-', dir=state_root))/'state'
     app = Demo(owned_path(root, config['artifacts_root']), owned_path(root, config['p1_bundle']), state,

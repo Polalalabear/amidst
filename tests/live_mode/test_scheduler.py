@@ -83,7 +83,7 @@ def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations
         tracker.active = "D"
         return {"state": "TRACKING", "active_cam": "D", "lost_ticks": 0}
 
-    tracker.update = update
+    state._infer_tracking = update
     state.tracker = tracker
     sizes = []
 

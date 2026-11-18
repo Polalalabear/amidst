@@ -45,7 +45,11 @@ test('C-6 player waits beyond 60s, never forced; other clocks advance; leave res
  assert.ok(a.block_wait>50);close(a.s_i+s.actors.find(x=>x.actor_id==='A').pause_total_i,60,1e-7);close(b.s_i,60,1e-7);
  assert.equal(s.events.filter(e=>e.type==='forced_overlap'&&e.kind==='player').length,0);
  c.step({w:true,shift:true},.1);c.step({w:true,shift:true},.1);c.step({w:true,shift:true},.1);
- const prev=c.snapshot().actors.find(x=>x.actor_id==='A').s_i;c.step({w:true,shift:true},.1);assert.ok(c.snapshot().actors.find(x=>x.actor_id==='A').s_i>prev);
+ const prev=c.snapshot().actors.find(x=>x.actor_id==='A').s_i;
+ c.step({w:true,shift:true},.1);
+ const released=c.snapshot().actors.find(x=>x.actor_id==='A');
+ assert.ok(released.s_i>prev);
+ assert.equal(released.tainted,true);
 });
 test('C-6 real A4/B4 60s stationary player; unaffected actors match baseline; one-step release',()=>{
  for(const [runId,playerId,blockedId] of [['A4-1-v2-4actor','A','B'],['B4-1-v2-4actor','T','A']]){
@@ -170,4 +174,39 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
   assert.equal(metrics.forced_player, 0, receipt);
   assert.equal(metrics.forced_script_other, 0, receipt);
  }
+});
+
+test('an absent actor advances its script clock while entry is obstructed', () => {
+ const fixture = run([
+  actor('T', [[0, 0, 0], [100, 0, 0]]),
+  actor('A', [[0.2, 0.1, 0], [0.6, 1.2, 0], [100, 1.2, 0]]),
+ ]);
+ const crowd = createCrowd(fixture, { actorId: 'T' });
+ const get = snap => snap.actors.find(a => a.actor_id === 'A');
+ assert.equal(get(crowd.step({}, .1)).present, false);
+ const obstructed = get(crowd.step({}, .1));
+ assert.equal(obstructed.present, false);
+ close(obstructed.s_i, .2);
+ assert.equal(obstructed.pause_total_i, 0);
+ assert.equal(obstructed.tainted, false);
+ let latest;
+ for (let i = 0; i < 5; i++) latest = get(crowd.step({}, .1));
+ assert.equal(latest.present, true);
+ assert.ok(latest.x >= .6);
+ assert.equal(latest.pause_player_i, 0);
+ assert.equal(latest.pause_script_i, 0);
+ close(latest.s_i, .7);
+});
+
+test('an exempt script pair still checks collisions with a third actor', () => {
+ const proposal = (id, x, next) => ({
+  id, is_player: false, from: { x, y: 0 }, candidates: [{ x: next, y: 0 }, { x, y: 0 }],
+ });
+ const pair = new Set(['A|C']);
+ const a = proposal('A', 0, 0), c = proposal('C', -.7, .15), b = proposal('B', .8, .65);
+ assert.equal(resolveMoves([a, c], {}, pair).indices.C, 0);
+ const result = resolveMoves([a, b, c], {}, pair);
+ assert.equal(result.indices.C, 1);
+ assert.equal(result.blocked.C, 'B');
+ close(result.poses.C.x, -.7);
 });

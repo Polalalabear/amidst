@@ -70,7 +70,7 @@ def test_entry_threshold_does_not_lower_other_camera_thresholds():
     state.det = SimpleNamespace(
         detect=lambda ims: ([[{"bbox": [0, 0, 20, 40], "score": 0.08}] for im in ims], {})
     )
-    state.tracker = SimpleNamespace(update=lambda *args: None)
+    state._infer_tracking = lambda *args: None
     state.decider = None
     data = io.BytesIO()
     Image.new("RGB", (320, 180), "red").save(data, format="JPEG")

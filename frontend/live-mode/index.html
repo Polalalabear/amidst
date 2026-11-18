@@ -13,7 +13,23 @@
  #map{background:#1c2027;width:400px;height:360px;display:block;margin-bottom:8px}
  /* B 畫面（跟隨視角） */
  #bs{display:grid;grid-template-columns:1fr 340px;height:100%}
- #bmain{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
+ #bmain{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-width:0;min-height:0}
+ #target-controls{padding:7px 10px;background:#20252d;border-bottom:1px solid #333943}
+ #target-controls summary{cursor:pointer;font-weight:600}
+ #target-form{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+ #target-form button,#target-form input,#target-candidates button,#system-download{color:inherit;background:#292f39;border:1px solid #586273;border-radius:4px;padding:5px 8px}
+ #target-form input{flex:1;min-width:11em}
+ #target-form button[aria-pressed=true]{background:#ffd370;color:#171a20;border-color:#ffd370}
+ #target-form button:disabled,#target-candidates button:disabled,#system-download:disabled{opacity:.5}
+ #target-feedback{flex-basis:100%;color:#ffd370}
+ #target-feedback:empty{display:none}
+ #target-candidates{list-style:none;margin:4px 0 8px;padding:0}
+ #target-candidates button{text-align:left;width:100%;margin-bottom:4px}
+ #candidate-frames{position:absolute;inset:auto 8px 8px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-height:62%;overflow:auto}
+ #candidate-frames[hidden]{display:none}
+ #candidate-frames figure{margin:0;max-width:min(280px,45%);background:#20252d;text-align:center}
+ #candidate-frames canvas{display:block;width:100%;cursor:pointer}
+ #candidate-frames figcaption{font-size:12px;padding:3px}
  #hud{display:grid;grid-template-columns:1.1fr 1.1fr 1.6fr 1fr;gap:1px;background:#2a2f38;border-bottom:1px solid #2a2f38}
  .cell{background:#1a1e25;padding:6px 10px;min-width:0}
  .cell h4{margin:0 0 2px;font-size:11px;font-weight:600;color:#8b93a0;letter-spacing:.04em}
