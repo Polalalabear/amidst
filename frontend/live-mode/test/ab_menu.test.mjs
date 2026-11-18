@@ -107,7 +107,8 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   await page.evaluate(()=>__setKeys({w:true}));await new Promise(r=>setTimeout(r,350));await page.evaluate(()=>__setKeys({w:false}));
   const afterMove=await page.evaluate(()=>__op.P0);assert.ok(afterMove.x>initial.p.x+.02,JSON.stringify({initial,afterMove}));assert.ok(Math.abs(afterMove.y-initial.p.y)<.01);
   await page.keyboard.press('Escape');assert.equal(await page.$('#ab-menu'),null);
-  const log=await page.evaluate(()=>__log);assert.equal(log.schema_version,'live-ab.a-log.v1');assert.equal(log.session_id,initial.session);assert.ok(log.ticks.every(t=>t.actors.length===4));
+  const log=await page.evaluate(()=>__log);assert.equal(log.schema_version,'live-ab.a-log.v1');assert.equal(log.session_id,initial.session);assert.ok(log.ticks.every(t => !('gt_visible' in t) && t.actors.length === 4
+    && t.actors.every(actor => Array.isArray(actor.gt_visible))));
   fs.writeFileSync(path.join(out,'a-browser.json'),JSON.stringify(log,null,2));
   const downloads=path.join(out,'downloads');fs.mkdirSync(downloads,{recursive:true});
   const cdp=await page.createCDPSession();await cdp.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:downloads});

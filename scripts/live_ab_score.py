@@ -116,20 +116,23 @@ def classify(row, aa, target):
     visible = gt.get("gt_visible")
     if not isinstance(visible, list) or any(not isinstance(c, str) for c in visible):
         return "UNKNOWN", "GT_VISIBILITY_MISSING"
-    if not gt["present"] or not visible:
+    if not visible:
         return "TARGET_OUT_OF_VIEW", None
     tr = row.get("tracking")
     if not isinstance(tr, dict):
         return "UNKNOWN", "TRACKING_MISSING"
+    state = tr.get("state")
+    if state in ("IDLE", "ACQUIRING", "SEARCHING", "NEEDS_PICK"):
+        return "UNKNOWN", "NOT_TRACKING"
+    if state not in ("TRACKING", "LOST", "TARGET_OUT_OF_VIEW"):
+        return "UNKNOWN", "TRACK_STATE_UNSUPPORTED"
     lost = tr.get("lost_ticks")
     if not isinstance(lost, int) or isinstance(lost, bool) or lost < 0:
         return "UNKNOWN", "LOST_TICKS_INVALID"
-    if tr.get("state") in ("LOST", "TARGET_OUT_OF_VIEW") or lost > 0 or tr.get("est_xy") is None:
+    if state in ("LOST", "TARGET_OUT_OF_VIEW") or lost > 0 or tr.get("est_xy") is None:
         return "LOST", None
     if not point(tr.get("est_xy")):
         return "UNKNOWN", "ESTIMATE_INVALID"
-    if tr.get("state") != "TRACKING":
-        return "UNKNOWN", "TRACK_STATE_UNSUPPORTED"
     if math.dist(tr["est_xy"], gt["xy"]) <= 1.5:
         return "ON_TARGET", None
     if any(

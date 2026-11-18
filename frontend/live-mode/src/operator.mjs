@@ -252,10 +252,9 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
       if (!response.ok) throw new Error(`INFER_HTTP_${response.status}`);
       const res = await response.json(), tResp = now(); schedule = res.schedule || null;
       chan.postMessage(buildSystemMessage({tick, tCaptureMs: tCap, frames, result: res}));
-      const p = row.actors.find(a => a.id === session.actor_id);
       log.forced_overlap = snap.events.filter(e => e.type === 'forced_overlap');
       log.block_wait = snap.events.filter(e => e.type === 'block_wait');
-      log.ticks.push({...row, t_send: tSend, t_resp: tResp, t_post: now(), gt_visible: p.gt_visible, timing: res.timing_ms,
+      log.ticks.push({...row, t_send: tSend, t_resp: tResp, t_post: now(), timing: res.timing_ms,
         active: res.tracking?.active_cam, state: res.tracking?.state, schedule: res.schedule});
       log.sent++; stats.textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`; tick++;
     } catch (error) { stats.textContent = `擷取失敗：${error.message}`; log.errors ||= []; log.errors.push({tick, error: error.message}); }

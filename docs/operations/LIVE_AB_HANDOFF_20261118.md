@@ -239,3 +239,16 @@ CI-failing pytest nodes pass. LOCAL `local/evidence/cx569-ci-20261118/MANIFEST.j
 pre-fix CI log, post-fix guard and focused pytest output. Rebuild the guard with
 scripts/check_architecture_guard.py and the two test_verify_clean_clone nodes in
 tests/q1q5/test_cross_platform_scripts.py; the historical CI log is a retained receipt.
+
+## D308 review corrections for #569 and #570
+
+A download records visibility only in each tick's `actors[].gt_visible`. The offline
+latency measurement derives its selected actor's view list from that array and can
+still read earlier flat measurement logs. The A download keeps actor visibility
+private and the wire protocol is unchanged.
+
+Scoring checks tracking state before lost ticks or estimate presence. IDLE,
+ACQUIRING, SEARCHING and NEEDS_PICK contribute UNKNOWN with NOT_TRACKING. They
+stay out of the visible-scored denominator, even if a delayed sample falls
+inside a scoring segment. A reselect frame whose old tracker is still TRACKING
+continues to score that old target until pick.

@@ -125,6 +125,18 @@ def test_lost_ticks_precede_tracking_point_and_no_gt_is_unknown():
     assert r["segments"][0]["rows"][0]["status"] == "LOST"
 
 
+@pytest.mark.parametrize("state", ["IDLE", "ACQUIRING", "SEARCHING", "NEEDS_PICK"])
+def test_unlocked_state_is_unknown_even_inside_a_scoring_segment(state):
+    a, b = logs()
+    b["ticks"][1]["tracking"].update(state=state, est_xy=None, lost_ticks=4)
+    result = score_logs(a, b)
+    segment = result["segments"][0]
+    assert segment["rows"][0]["status"] == "UNKNOWN"
+    assert segment["counts"]["LOST"] == 1
+    assert segment["visible_scored_ticks"] == 4
+    assert "NOT_TRACKING" in result["unknown_reasons"]
+
+
 def test_raw_and_one_second_hud_median_latency_are_distinct():
     a, b = logs()
     a["ticks"] = a["ticks"][:3]
