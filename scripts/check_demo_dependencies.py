@@ -1,4 +1,4 @@
-"""Verify the committed owned manifest, locked environment and all four real RGB sources."""
+"""Verify the committed owned manifest, locked environment and the configured real RGB sources."""
 from __future__ import annotations
 
 import argparse
@@ -14,6 +14,7 @@ import tomllib
 from urllib.parse import parse_qs, urlsplit
 
 from demo_dependency_config import REPO, MIN_FREE, configuration, owned_path, install_owned_io_guard
+from demo_eightcam import RUN_ID as EIGHTCAM_RUN, prepare_eightcam
 
 
 def require(value, code):
@@ -29,7 +30,7 @@ def sha(path):
     return h.hexdigest()
 
 
-def verify(config_path=None, *, smoke=False):
+def verify(config_path=None, *, smoke=False, root_8cam=None):
     config, root = configuration(config_path)
     require(shutil.disk_usage(root).free >= MIN_FREE, 'DISK_BELOW_8_GIB')
     manifest = json.loads((REPO/config['dependency_manifest']).read_bytes())
@@ -73,7 +74,8 @@ def verify(config_path=None, *, smoke=False):
     require(all(p in locked for p in installed), 'INSTALLED_DISTRIBUTION_NOT_IN_UV_LOCK')
     require(any(p[0] == 'pytest' for p in installed), 'DEV_DEPENDENCIES_REQUIRED')
     require(sys.version.split()[0] == config['python_version'], 'PYTHON_VERSION')
-    seen = install_owned_io_guard(root)
+    eightcam, reason = prepare_eightcam(root_8cam)
+    seen = install_owned_io_guard(root, approved_read_files=eightcam.read_files if eightcam else ())
     try:
         (Path.home()/'__amidst_external_input_probe__').open('rb')
     except ValueError as exc:
@@ -87,22 +89,35 @@ def verify(config_path=None, *, smoke=False):
             require(Path(file).resolve().is_relative_to(REPO) or Path(file).resolve().is_relative_to(root), 'FOREIGN_IMPORTED_MODULE')
             modules.append(str(Path(file).resolve()))
     sources = []
+    eightcam_status = {'run_id': EIGHTCAM_RUN, 'status': 'UNKNOWN', 'reason': reason or 'SMOKE_NOT_RUN'}
     if smoke:
         from serve_demo_integration import Demo
         state_root = owned_path(root, config['state_root']); state_root.mkdir(exist_ok=True)
         state = Path(tempfile.mkdtemp(prefix='dependency-check-', dir=state_root))/'state'
         app = Demo(owned_path(root, config['artifacts_root']), owned_path(root, config['p1_bundle']), state,
-                   job_path=owned_path(root, config['cross_camera_job']), job_pin=config['cross_camera_job_sha256'], owned_root=root)
-        boot = app.bootstrap(); require(boot.get('demo_integration') is True and len(boot['runs']) == 4, 'FOUR_SOURCE_BOOTSTRAP')
+                   job_path=owned_path(root, config['cross_camera_job']), job_pin=config['cross_camera_job_sha256'], owned_root=root,
+                   eightcam=eightcam, eightcam_reason=reason)
+        boot = app.bootstrap()
+        eightcam_status = boot['eightcam']
+        require(boot.get('demo_integration') is True and len(boot['runs']) == 4 + bool(eightcam),
+                'SOURCE_BOOTSTRAP')
+        if root_8cam is not None:
+            require(eightcam_status['status'] == 'READY', 'EIGHTCAM_UNKNOWN:'+str(reason))
         token = app.call('session', {'role': 'demo'})['session_ref']
         for run in boot['runs']:
-            payload = {'session_ref': token, 'scene_id': run['scene_id'], 'run_id': run['run_id'], 't_s': 0, 'camera_ids': run['camera_ids'][:1]}
-            frame = app.rgb.call('synced_frames', payload); tile = frame['tiles'][0]
-            require(tile['status'] == 'READY', 'REAL_RGB_UNAVAILABLE')
-            grant = parse_qs(urlsplit(tile['media_url']).query)['token'][0]
-            raw = app.rgb.media(grant)
-            require(raw.startswith(b'\x89PNG\r\n\x1a\n') and hashlib.sha256(raw).hexdigest() == tile['served_sha256'], 'SERVED_RGB_HASH')
-            sources.append({'run_id': run['run_id'], 'source_kind': run['source_kind'], 'served_sha256': tile['served_sha256']})
+            is_eightcam = run['run_id'] == EIGHTCAM_RUN
+            camera_ids = run['camera_ids'] if is_eightcam else run['camera_ids'][:1]
+            payload = {'session_ref': token, 'scene_id': run['scene_id'], 'run_id': run['run_id'], 't_s': 0, 'camera_ids': camera_ids}
+            frame = app.rgb.call('synced_frames', payload)
+            require(len(frame['tiles']) == len(camera_ids), 'REAL_RGB_TILE_COUNT')
+            for tile in frame['tiles']:
+                require(tile['status'] == 'READY', 'REAL_RGB_UNAVAILABLE')
+                grant = parse_qs(urlsplit(tile['media_url']).query)['token'][0]
+                raw = app.rgb.media(grant)
+                require(raw.startswith(b'\x89PNG\r\n\x1a\n') and
+                        hashlib.sha256(raw).hexdigest() == tile['served_sha256'], 'SERVED_RGB_HASH')
+                sources.append({'run_id': run['run_id'], 'source_kind': run['source_kind'],
+                                'camera_id': tile['camera_id'], 'served_sha256': tile['served_sha256']})
     require(shutil.disk_usage(root).free >= MIN_FREE, 'DISK_BELOW_8_GIB')
     return {'status': 'PASS', 'source_head': manifest['source_head'], 'manifest_sha256': config['dependency_manifest_sha256'],
             'entries': len(paths), 'bytes': total, 'node_package_files': node_files,
@@ -110,14 +125,15 @@ def verify(config_path=None, *, smoke=False):
             'negative_io_probe_denied': True, 'uv_lock_sha256': hashlib.sha256(lock_bytes).hexdigest(),
             'python': sys.version.split()[0], 'python_prefix': str(Path(sys.prefix)), 'base_prefix': str(Path(sys.base_prefix)),
             'distributions': [{'name': n, 'version': v} for n, v in installed], 'imported_owned_modules': len(modules),
-            'guarded_file_opens': len(seen), 'sources': sources, 'free_bytes': shutil.disk_usage(root).free,
+            'guarded_file_opens': len(seen), 'eightcam': eightcam_status, 'sources': sources, 'free_bytes': shutil.disk_usage(root).free,
             'models_executed': False, 'renders': False, 'source_mutations': False}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', type=Path); parser.add_argument('--output', type=Path); parser.add_argument('--smoke', action='store_true')
-    args = parser.parse_args(); result = verify(args.config, smoke=args.smoke)
+    parser.add_argument('--root-8cam', type=Path)
+    args = parser.parse_args(); result = verify(args.config, smoke=args.smoke, root_8cam=args.root_8cam)
     data = json.dumps(result, indent=2)+'\n'
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True); args.output.write_text(data)

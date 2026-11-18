@@ -12,6 +12,8 @@ test('names are keyed by run_id and use the repo/GitHub numbering', () => {
   assert.equal(EVENT_NAMES[A4].short, 'A4-1');
   assert.equal(EVENT_NAMES[B4].short, 'B4-1');
   assert.equal(EVENT_NAMES['r005-static-reviewed-v2'].short, 'r005');
+  assert.equal(shortEventName('r004-4actor-natural-walk-eightcam-20261114-a4-1'),
+    'A4-1-8CAM · 4 人／8 鏡頭');
   assert.equal(EVENT_NAMES['SYNTHETIC_A4_1'].short, 'A4-1');
 });
 test('presentation mode shows only the short name, whatever the title says', () => {
