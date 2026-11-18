@@ -139,7 +139,7 @@ DP1 是主要假設（對應 #397 的 M1／H1-Q2）。DP3 是次要，只報點�
 | **Q-0.6／Q-1.7／Q-4／Q-8** | 本機 Ollama 的 Qwen3：0.6B、1.7B（`qwen3:1.7b-q4_K_M`，現行模型，`llm_provider.py:125`）、4B、8B | M4 的範圍（D121-E，#397 §6.5） |
 | **L-3B／P-3.8B** | Llama 3.2 3B、Phi-4-mini 3.8B | 同上，M4 範圍，標 `EXPLORATORY` |
 
-**M1–M4 的定義**（出處：PR #397 `docs/research/MODEL_EXPERIMENT_PLAN_20261102.md`＠`e6c6ad02` §3–§6.5；#425 本文只寫「依 #397 跑」；PR #397 狀態是 CLOSED、沒有合併；`argon/425-research-m1-m4-baseline`＠`15ac140` 的報告開頭已更正為合成治具，數字是 UNVERIFIED／NOT_RUN）：
+**M1–M4 的定義**（出處：PR #397 `docs/research/MODEL_EXPERIMENT_PLAN_20261102.md`＠`e6c6ad02` §3–§6.5；#425 本文只寫「依 #397 跑」；PR #397 狀態是 CLOSED、沒有合併；`argon/425-research-m1-m4-baseline`＠`15ac140`（PR #454 head，`refs/pull/454/head`；分支刪除後 commit 仍可取得） 的報告開頭已更正為合成治具，數字是 UNVERIFIED／NOT_RUN）：
 
 | 代號 | #397 的定義 | 在本設計的對應 |
 | --- | --- | --- |

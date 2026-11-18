@@ -10,3 +10,4 @@ body.admin{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui
 .admin .badge{font-size:11px;border:1px solid var(--rule);padding:0 5px;color:var(--ink-2)}
 .admin .preview{height:360px;border:1px solid var(--rule)}
 .admin .wide{grid-column:1/-1}
+.live-llm-status.tone-llm{color:#4cc38a}.live-llm-status.tone-fallback{color:#e5484d}.live-llm-status.tone-wait{color:#f5a623}

@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # FEAT-6 v2／rc5 整合與唯讀重跑
 
 此分支依 [#373 歸併](https://github.com/Polalalabear/amidst/issues/373#issuecomment-6556605282) 依序以 merge commit 合入 #260 → #278 → #305 → #127 → #277。完整 heads 與 merge commits 在 `FEAT6_RESPONSE_V2_COMPOSITION_20261102.json`；base 是 staging@`434e57922a24d2422226871c0bb672dc7bc3584b`。

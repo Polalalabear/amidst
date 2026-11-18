@@ -4,6 +4,7 @@
 // 看不到也收不到操作者的座標、角色代號或 GT。8 鏡頭除錯格狀版：?role=system&view=grid。
 import { CHANNEL, now } from './common.mjs';
 import { validateSystemMessage } from './protocol.mjs';
+import { switchView, buildRequest, hudModeNote } from './llm_switch.mjs';
 import { createHudState, reduce, view as hudView, pickTarget } from './hud.mjs';
 
 const TYPE_ZH = { ACQUIRE: '鎖定目標', SWITCH: '切鏡', TARGET_OUT_OF_VIEW: '目標離開視野', LOST: '失聯', REACQUIRE: '重新找到',
@@ -24,6 +25,11 @@ export async function start(body) {
       <div id="center"><b id="cb"></b><span id="cs"></span></div></div>
     <div id="bar"></div></div>
     <div id="bside"><b>系統</b> <span class="kv">（只看鏡頭像素）</span><canvas id="map" width="320" height="288" style="width:320px;height:288px"></canvas>
+      <div id="llmset"><b>設定</b> <span class="kv">（預設關閉）</span>
+        <label><input type="checkbox" id="llmon"> LLM 決策</label>
+        <select id="llmmode"><option value="review">LLM 覆核</option><option value="lead">LLM 主導</option></select>
+        <select id="llmmodel"></select>
+        <div id="llmstat" class="v"></div><div id="llmdet" class="s"></div></div>
       <div id="events"></div></div></div>`);
   const $ = (id) => document.getElementById(id);
   const stage = $('stage'), cv = $('fcv'), ctx = cv.getContext('2d');
@@ -76,7 +82,7 @@ export async function start(body) {
       setCell('h3', `${d.candidates == null ? '?' : d.candidates} 人 → ${d.pick}`, `${d.reason ? `「${d.reason}」` : ''}${d.latencyMs} ms・${d.outcome}`,
         d.applied ? 'llm' : d.fallback ? 'fallback' : 'rule');
     } else setCell('h3', '尚無裁決', '', 'searching');
-    setCell('h4', v.mode.text, v.mode.model || (v.mode.mode === 'off' ? '後台沒有開 advisor' : ''), v.mode.mode === 'off' ? 'rule' : 'llm');
+    setCell('h4', v.mode.text, v.mode.model || hudModeNote(cfg) || (v.mode.mode === 'off' ? '後台沒有開 advisor' : ''), v.mode.mode === 'off' ? 'rule' : 'llm');
     stage.className = v.track.kind === 'tracking' ? '' : v.track.kind;
     $('camname').textContent = v.cam || '';
     $('camname').style.display = v.cam ? '' : 'none';
@@ -92,6 +98,25 @@ export async function start(body) {
     } else c.style.display = 'none';
     const bar = $('bar'); bar.textContent = v.status.text; bar.className = `tone-${v.status.tone}`;
   }
+  // LLM 決策開關：只傳到後台的 /config；畫面一律以後台回報的實際狀態為準。
+  const sync = (c) => {
+    if (c !== cfg) { Object.keys(cfg).forEach((k) => delete cfg[k]); Object.assign(cfg, c); }
+    const sv = switchView(cfg), models = (cfg.llm_switch && cfg.llm_switch.models) || [];
+    $('llmon').checked = sv.checked; $('llmmode').value = sv.mode;
+    const ms = $('llmmodel'); if (!ms.options.length) ms.innerHTML = models.map((m) => `<option>${m}</option>`).join('');
+    if (cfg.llm_switch && cfg.llm_switch.model) ms.value = cfg.llm_switch.model;
+    $('llmmodel').disabled = $('llmmode').disabled = sv.fake;
+    const stat = $('llmstat'); stat.textContent = sv.text; stat.className = `v tone-${sv.tone}`; $('llmdet').textContent = sv.detail;
+  };
+  const push = async () => {
+    const body = buildRequest($('llmon').checked, $('llmmode').value, $('llmmodel').value);
+    try {
+      await fetch('/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      sync(await fetch('/config').then((r) => r.json()));
+    } catch (e) { $('llmstat').textContent = 'LLM 決策：後台沒有回應'; $('llmstat').className = 'v tone-fallback'; }
+  };
+  ['llmon', 'llmmode', 'llmmodel'].forEach((id) => $(id).addEventListener('change', push));
+  sync(cfg);
   setInterval(render, 100);
   render();
 

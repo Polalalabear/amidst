@@ -30,7 +30,7 @@ if [ "$GOT" != "$WANT" ]; then
 fi
 
 # Node dependencies pinned by each package-lock.json (playwright-core downloads no browser).
-for dir in frontend/workbench frontend/product tests/browser/core-preview; do
+for dir in frontend/product tests/browser/core-preview; do
   (cd "$dir" && npm ci --no-audit --no-fund)
 done
 

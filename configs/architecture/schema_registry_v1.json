@@ -383,7 +383,6 @@
     {
       "value": "local.agent.answer.v2",
       "source_paths": [
-        "frontend/workbench/phase2-suite.test.mjs",
         "src/amidst/local_agent/evidence.py"
       ],
       "issue_ref": "#307",
@@ -392,7 +391,6 @@
     {
       "value": "local.agent.case.v1",
       "source_paths": [
-        "frontend/workbench/phase2-suite.test.mjs",
         "src/amidst/local_agent/manager.py"
       ],
       "issue_ref": "#307",
@@ -615,10 +613,6 @@
       "value": "office-demo.interval-observation.v1",
       "source_paths": [
         "docs/contracts/OFFICE_INTERVAL_OBSERVATION_V1.md",
-        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
-        "frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py",
-        "frontend/workbench/fixtures/ground-estimate-person.fixture.json",
-        "frontend/workbench/fixtures/ground-estimate.fixture.json",
         "src/amidst/engineering/hybrid_contact.py"
       ],
       "issue_ref": "#307",
@@ -691,17 +685,8 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
-      "value": "old",
-      "source_paths": [
-        "frontend/workbench/cross-camera.test.mjs"
-      ],
-      "issue_ref": "#307",
-      "status": "EXISTING_LITERAL_ONLY"
-    },
-    {
       "value": "operator.study.context.v1",
       "source_paths": [
-        "frontend/workbench/run-study.test.mjs",
         "src/amidst/workbench/operator_study.py"
       ],
       "issue_ref": "#307",
@@ -718,7 +703,6 @@
     {
       "value": "operator.study.report.v1",
       "source_paths": [
-        "frontend/workbench/run-study.test.mjs",
         "src/amidst/workbench/operator_study.py"
       ],
       "issue_ref": "#307",
@@ -727,17 +711,7 @@
     {
       "value": "operator.study.view.v1",
       "source_paths": [
-        "frontend/workbench/run-study.test.mjs",
         "src/amidst/workbench/operator_study.py"
-      ],
-      "issue_ref": "#307",
-      "status": "EXISTING_LITERAL_ONLY"
-    },
-    {
-      "value": "other",
-      "source_paths": [
-        "frontend/workbench/blind-hypothesis.test.mjs",
-        "frontend/workbench/ground-estimate.test.mjs"
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
@@ -2213,19 +2187,8 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
-      "value": "workbench.accuracy-evaluation.v1",
-      "source_paths": [
-        "frontend/workbench/accuracy-evaluation.test.mjs"
-      ],
-      "issue_ref": "#307",
-      "status": "EXISTING_LITERAL_ONLY"
-    },
-    {
       "value": "workbench.blender-association.v1",
       "source_paths": [
-        "frontend/workbench/blind-hypothesis.test.mjs",
-        "frontend/workbench/cross-camera.mjs",
-        "frontend/workbench/cross-camera.test.mjs",
         "src/amidst/workbench/blender_association.py"
       ],
       "issue_ref": "#307",
@@ -2250,7 +2213,6 @@
     {
       "value": "workbench.blender-motion.v1",
       "source_paths": [
-        "frontend/workbench/blender-motion.test.mjs",
         "src/amidst/workbench/blender_motion.py"
       ],
       "issue_ref": "#307",
@@ -2275,9 +2237,6 @@
     {
       "value": "workbench.blender-physical-review.v1",
       "source_paths": [
-        "frontend/workbench/physical-review-flow.test.mjs",
-        "frontend/workbench/physical-review-office.fixture.mjs",
-        "frontend/workbench/physical-review.test.mjs",
         "src/amidst/workbench/blender_physical_review.py"
       ],
       "issue_ref": "#307",
@@ -2294,7 +2253,6 @@
     {
       "value": "workbench.blender-physical-source.v1",
       "source_paths": [
-        "frontend/workbench/physical-review.test.mjs",
         "src/amidst/workbench/blender_physical_source.py"
       ],
       "issue_ref": "#307",
@@ -2303,7 +2261,6 @@
     {
       "value": "workbench.blender-physical.v1",
       "source_paths": [
-        "frontend/workbench/cross-camera.test.mjs",
         "src/amidst/workbench/blender_physical.py"
       ],
       "issue_ref": "#307",
@@ -2328,7 +2285,6 @@
     {
       "value": "workbench.blind-hypothesis-review-evidence.v1",
       "source_paths": [
-        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
         "src/amidst/workbench/blind_hypothesis_integration.py"
       ],
       "issue_ref": "#307",
@@ -2338,9 +2294,6 @@
       "value": "workbench.blind-hypothesis.v1",
       "source_paths": [
         "docs/contracts/OFFICE_BLIND_HYPOTHESIS_V1.md",
-        "frontend/workbench/demo-mode.test.mjs",
-        "frontend/workbench/fixtures/blind-hypothesis.fixture.json",
-        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
         "src/amidst/workbench/blind_hypothesis_integration.py"
       ],
       "issue_ref": "#307",
@@ -2349,7 +2302,6 @@
     {
       "value": "workbench.camera-frame-wall.v1",
       "source_paths": [
-        "frontend/workbench/workbench-layout.test.mjs",
         "src/amidst/workbench/blender_scene.py"
       ],
       "issue_ref": "#307",
@@ -2360,14 +2312,6 @@
       "source_paths": [
         "configs/engineering/workbench_v1.json",
         "src/amidst/workbench/scenes.py"
-      ],
-      "issue_ref": "#307",
-      "status": "EXISTING_LITERAL_ONLY"
-    },
-    {
-      "value": "workbench.demo-steps.v1",
-      "source_paths": [
-        "frontend/workbench/demo-steps.office.json"
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
@@ -2408,7 +2352,6 @@
     {
       "value": "workbench.phase2-suite.v1",
       "source_paths": [
-        "frontend/workbench/phase2-suite.test.mjs",
         "src/amidst/workbench/phase2_suite.py",
         "src/amidst/workbench/service.py"
       ],
@@ -2450,7 +2393,6 @@
     {
       "value": "workbench.synthetic-jobs.v1",
       "source_paths": [
-        "frontend/workbench/run-study.test.mjs",
         "src/amidst/workbench/run_jobs.py"
       ],
       "issue_ref": "#307",
@@ -2467,7 +2409,6 @@
     {
       "value": "workbench.synthetic-run-result.v1",
       "source_paths": [
-        "frontend/workbench/run-study.test.mjs",
         "src/amidst/workbench/run_worker.py"
       ],
       "issue_ref": "#307",
@@ -2484,8 +2425,6 @@
     {
       "value": "workbench.target-reconstruction.v1",
       "source_paths": [
-        "frontend/workbench/blind-hypothesis.test.mjs",
-        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
         "src/amidst/workbench/target_reconstruction.py"
       ],
       "issue_ref": "#307",

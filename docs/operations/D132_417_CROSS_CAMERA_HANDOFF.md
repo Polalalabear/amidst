@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # #417 cross-camera DEMO_DEFAULT replay before Claude review
 
 Refs #417, #475, #410 and #445. The user explicitly requested a **new** follow-up Draft PR; the original #475 is preserved, and this PR does not close its formal acceptance gate. Base is `mainline/q1q5@796cc176cd40bedbfe701b95192d3c8679755aa9`. No PR histories, integration branch or merge commits are combined.

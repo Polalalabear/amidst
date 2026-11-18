@@ -1,6 +1,7 @@
 // Admin overview + settings panes. DOM only; figures come from admin-overview-model.mjs (bootstrap + this browser's
 // own snapshot and event log). Anything without a measured source prints 尚未量測. Settings live only in this browser.
 import {buildOverview} from './admin-overview-model.mjs';
+import {liveLlmView, liveLlmRequest, loadLiveLlm, saveLiveLlm} from './live-llm-model.mjs';
 import {NOT_MEASURED, SETTINGS_KEY, SNAPSHOT_KEY, EVENTLOG_KEY, DEFAULT_SETTINGS, EVENT_CHOICES, SPEEDS, CASES, loadSettings, saveSettings, readJson, taipeiTime} from './ui-model.mjs';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -82,8 +83,12 @@ export function mountOverview(box, {getBootstrap, storage = globalThis.localStor
   return {draw, destroy() { globalThis.removeEventListener('storage', on); }};
 }
 
-export function mountSettings(box, {getBootstrap, storage = globalThis.localStorage}) {
+export function mountSettings(box, {getBootstrap, storage = globalThis.localStorage, liveLlm = {load: loadLiveLlm, save: saveLiveLlm}}) {
   let draft = loadSettings(storage);
+  // 即時 LLM 決策：狀態在 live 伺服器，不進瀏覽器設定、不屬於「儲存」；每次操作立即送出，畫面一律用後端回報的狀態。
+  let live = null, liveBusy = false;
+  const liveReload = async () => { live = await liveLlm.load(); draw(); };
+  const liveSend = async body => { liveBusy = true; draw(); live = await liveLlm.save(body); liveBusy = false; draw(); };
   function seg(options, value, set) { const s = el('span', undefined, 'ui-seg'); for (const [v, label] of options) { const b = el('button', label, v === value ? 'on' : '', {type: 'button'}); b.addEventListener('click', () => { set(v); draw(); }); s.append(b); } return s; }
   function toggle(on, set) { const b = el('button', undefined, 'ui-toggle', {type: 'button', role: 'switch', 'aria-checked': String(on)}); b.addEventListener('click', () => { set(!on); draw(); }); return b; }
   function num(value, min, max, set, unit) { const i = el('input', undefined, 'ui-num', {type: 'number', min: String(min), max: String(max)}); i.value = String(value); i.addEventListener('change', () => { set(Number(i.value)); draw(); }); const w = el('span', undefined, 'row'); w.append(i, ...(unit ? [el('span', unit, 'note')] : [])); return w; }
@@ -115,6 +120,13 @@ export function mountSettings(box, {getBootstrap, storage = globalThis.localStor
         row('結果上限', '結果牆最多顯示幾張', num(draft.resultLimit, 1, 200, set('resultLimit'))),
         row('查詢窗預設', '進入 case1 時查詢窗展開或收起（尚無結果時一律展開）', seg([[true, '展開'], [false, '收起']], draft.searchPanelOpen, set('searchPanelOpen'))),
         row('結果逐張淡入', '關掉則一次顯示', toggle(draft.staggerResults, set('staggerResults')))),
+      group('即時模式 · LIVE', (() => {
+        const v = liveLlmView(live), c = el('span', undefined, 'row');
+        const sw = toggle(v.checked, () => liveSend(liveLlmRequest(!v.checked, v.mode, v.model))); sw.disabled = v.disabled || liveBusy; sw.id = 'live-llm-switch';
+        const mode = seg([['review', 'LLM 覆核'], ['lead', 'LLM 主導']], v.mode, m => { if (v.checked) liveSend(liveLlmRequest(true, m, v.model)); });
+        mode.querySelectorAll('button').forEach(b => { b.disabled = v.disabled || liveBusy; });
+        c.append(sw, mode); return row('即時 LLM 決策', '預設關閉；只影響即時模式的 live 伺服器，不影響這頁的「追蹤方式」。連不上 live 伺服器時顯示不可用', c);
+      })(), (() => { const s = el('div', undefined, 'ui-set-row'); const d = el('div', undefined, 'd'), v = liveLlmView(live); const st = el('span', `${v.text}${v.detail ? ` · ${v.detail}` : ''}`, `live-llm-status tone-${v.tone}`); st.id = 'live-llm-status'; st.setAttribute('role', 'status'); d.append(el('b', '狀態'), st); s.append(d); return s; })()),
       group('系統 · SYSTEM',
         row('物件偵測', '來源未宣告偵測器名稱', el('span', 'UNKNOWN', 'badge')),
         row('一句話查詢解析方式', '搜尋框（⌘K）怎麼解析句子；API／本機模型失敗或逾時會自動退到下一種，固定句型不需要金鑰', seg([['RULES', '固定句型'], ['LOCAL', '本機模型'], ['API', 'API']], draft.nlParser, set('nlParser'))),
@@ -122,6 +134,6 @@ export function mountSettings(box, {getBootstrap, storage = globalThis.localStor
         row('場景圖', run ? `${run.scene_id} · 區域圖 ${String(run.region_graph_sha256 ?? '').slice(0, 8) || 'UNKNOWN'} · 鏡頭圖 ${String(run.camera_graph_sha256 ?? '').slice(0, 8) || 'UNKNOWN'}` : '尚未載入來源', el('span', run ? '檢視' : NOT_MEASURED, 'badge'))));
     box.append(grid);
   }
-  draw();
+  draw(); liveReload();
   return {draw, get draft() { return draft; }};
 }

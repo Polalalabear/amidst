@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # D139 counts 與 #493 獨立真實資料審查（2026-11-08）
 
 父版固定為 `claude/ui-d139@46835218c600d99b8c973e52f62e8dd95e79ff15`。獨立一般 checkout：`~/amidst-d139-20261108`（不是 worktree）；preview 是 **8787 / PID 27641 / 啟動 head 4683521**，資料根 `~/amidst-artifacts/demo-owned-v1`。8785 / PID 18763 與 `claude/ui-redesign-v1@4ea0ebb` 全程未變，不重啟、不推送、不切換其 checkout。開子分支 `codex/d139-class-counts`，只合進 `claude/ui-d139`，不合併 #493。
