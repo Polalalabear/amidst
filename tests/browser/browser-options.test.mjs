@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {headlessMode} from '../../scripts/browser_options.mjs';
 
 test('only --headful or AMIDST_HEADFUL=1 enables a visible browser', () => {
-  for (const env of [{}, {AMIDST_HEADFUL: '0'}, {AMIDST_HEADFUL: 'true'}]) {
+  for (const env of [{}, {AMIDST_HEADFUL: '0'}, {AMIDST_HEADFUL: 'true'}, {HEADLESS: '0'}]) {
     assert.equal(headlessMode({argv: [], env}), true);
   }
   assert.equal(headlessMode({argv: ['--visible=true'], env: {}}), true);

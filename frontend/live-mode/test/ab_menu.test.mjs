@@ -156,7 +156,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
    throw error;
   }
   await recorder.evaluate(()=>__setKeys({w:true}));
-  await recorder.waitForFunction(()=>window.__log?.ticks.length>=9,{timeout:60000});
+  await recorder.waitForFunction(()=>window.__log?.ticks.length>=19,{timeout:60000});
   await recorder.click('#record-stop');
   await recorder.waitForFunction(()=>window.__recordingDone===true);
   const caseData=await recorder.evaluate(()=>__case());

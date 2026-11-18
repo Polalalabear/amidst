@@ -4,8 +4,7 @@
 // The A log holds GT for offline evaluation only; nothing here is sent to the backend beyond what A and B
 // already send. B's LLM switch is checked to be off (the server also runs with --advisor off).
 import fs from 'node:fs';
-import puppeteer from 'puppeteer-core';
-import {launch, BASE, CHROME, sleep} from './lib.mjs';
+import {launch, BASE, sleep} from './lib.mjs';
 import {HARDSET_ROUTES} from '../src/hardset_routes.mjs';
 
 const [caseId, extra = 'model=glb&w=320&h=180&fps=5'] = process.argv.slice(2);
@@ -13,36 +12,19 @@ if (!HARDSET_ROUTES[caseId]) throw new Error(`unknown case ${caseId}`);
 const out = process.env.OUT || 'out';
 fs.mkdirSync(out, {recursive: true});
 const steps = HARDSET_ROUTES[caseId].steps.length;
-// HEADLESS=0 opens visible windows: headless Chrome throttles animation frames, which slows the fixed-step sim.
-const browser = process.env.HEADLESS === '0'
-  ? await puppeteer.launch({executablePath: CHROME, headless: false, protocolTimeout: 3_600_000, defaultViewport: null,
-    args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--no-first-run']})
-  : await launch();
-// Side by side so that neither window covers the other (a covered A window gets throttled animation frames).
-async function place(page, left) {
-  const cdp = await page.target().createCDPSession();
-  const {windowId} = await cdp.send('Browser.getWindowForTarget');
-  await cdp.send('Browser.setWindowBounds', {windowId, bounds: {left, top: 0, width: 680, height: 520, windowState: 'normal'}});
-}
-async function openWindow() {
-  const cdp = await browser.target().createCDPSession();
-  const {targetId} = await cdp.send('Target.createTarget', {url: 'about:blank', newWindow: true});
-  const target = await browser.waitForTarget(t => t._targetId === targetId || t._getTargetInfo?.().targetId === targetId);
-  return target.page();
-}
+// Shared launcher is headless by default. A and B are pages in the same browser context.
+const browser = await launch();
 try {
   const errors = {a: [], b: []};
   // B in its own window of the same context: A sends frames to B over a BroadcastChannel (same storage
   // partition), and a page in a background tab would get throttled frames.
   const b = await openWindow();
   b.on('pageerror', e => errors.b.push(e.message));
-  if (process.env.HEADLESS === '0') await place(b, 690);
   await b.goto(`${BASE}/?role=system`);
   await b.waitForFunction('window.__ready === true', {timeout: 120000});
   console.error('B ready');
-  const a = process.env.HEADLESS === '0' ? await openWindow() : await browser.newPage();
+  const a = await browser.newPage();
   a.on('pageerror', e => errors.a.push(e.message));
-  if (process.env.HEADLESS === '0') await place(a, 0);
   await a.goto(`${BASE}/?script=${encodeURIComponent(caseId)}&${extra}`);
   await a.waitForFunction('window.__ready === true', {timeout: 120000});
   const session = await a.evaluate(() => window.__log.session_id);
