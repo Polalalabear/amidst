@@ -1,6 +1,6 @@
-# 即時模式 A/B 雙畫面規格與介面契約 v2
+# 即時模式 A/B 雙畫面規格與介面契約 v2.1
 
-- 日期：v1 2026-11-17；**v2 2026-11-18**。狀態：**v2：§11 已由使用者決定（D279），吸收 Codex 契約審閱（[#566 留言](https://github.com/Polalalabear/amidst/issues/566#issuecomment-6953407249)）**。工作拆成板上的子 issue（見 §9.3）。
+- 日期：v1 2026-11-17；v2 2026-11-18；**v2.1 2026-11-18**（D282：C-5 補定義，見變更紀錄）。狀態：**v2：§11 已由使用者決定（D279），吸收 Codex 契約審閱（[#566 留言](https://github.com/Polalalabear/amidst/issues/566#issuecomment-6953407249)）**。工作拆成板上的子 issue（見 §9.3）。
 - 依據：[#93](https://github.com/Polalalabear/amidst/issues/93) 的 D275、D276（使用者定義完整驗收的 LIVE 操作）、D279（§11 的決定）。
 - 實作：Codex，分支 `codex/feat-live-ab`（一個 Draft PR 分階段交，D248）。規格：Claude，分支 `claude/feat-live-ab`。
 - 相關文件：[LIVE_MODE_GAME_DESIGN_V1](../design/LIVE_MODE_GAME_DESIGN_V1.md)、[V2](../design/LIVE_MODE_GAME_DESIGN_V2.md)、[LIVE_MODE_LLM_DECISION_V1](../design/LIVE_MODE_LLM_DECISION_V1.md)、[NL_QUERY_PARSE_V1](../contracts/NL_QUERY_PARSE_V1.md)、[交接 20261116](../operations/LIVE_MODE_HANDOFF_20261116.md)（§13 是 #551 的 HUD）。
@@ -14,6 +14,7 @@
 | v2 | **使用者決定（D279）**：§11-3 玩家擋路改「一直等」（改寫 §3.4、C-6）；§11-4 加滑鼠轉視角（§1.3、A-5）；§11-5 B 的句子接 Q3 解析器（§4.2、§5.4）；§11-1、2、6、7 照預設。另：A 開始前先選場景（A4-1／B4-1）再選角色（§1.1）。 |
 | v2 | **吸收 Codex 契約審閱**：§5.2 nested 白名單與禁止鍵；§5.3／§5.4 `session_id`、`reselect`、error schema `{error,detail?,fields?}`、無偵測時 200 `ACQUIRING`、409 `TRACK_MODE_CONFLICT`／`SESSION_MISMATCH`、stale 保留 7 個 generation、`cand_id` 綁 session 與 epoch；§5.5 `ACQUIRING`／`NEEDS_PICK` 語意；§3.3 成對相對移動的碰撞檢查（C-8）；C-1 排除 `forced_overlap` 配對並另報原始數；C-6 以 `s_i`／`pause_total_i` 驗證進展；§5.6 A 私有 log 記每個 actor 的 `present／xy／gt_visible`、`schema_version`、session 對齊；§7 `AMBIGUOUS_PICK`／`UNMATCHED`、延遲分開列、CLI；§8 測試檔對應表。 |
 | v2 | **不同意或調整的地方（理由見 §10-1）**：(1) Codex 建議 `/track/start` 無 infer 時二選一，v2 定案 200 `ACQUIRING`；(2) 玩家擋路改一直等後，腳本人物 j 追上被玩家擋住的 i 時會出現「連鎖」的 script–script `forced_overlap`，C-5 改成排除連鎖並另列（Codex 未提，是 D279 的後果）；(3) 事件 `detail`／`timing_ms` 的現有合法形狀由 Codex 在實作時列舉，v2 只定原則。 |
+| v2.1 | **C-5 補定義（D282，#585）**：(1) 新增 §3.4「相位差與 `cause`」：玩家造成的暫停讓腳本人物相位永久延後，玩家離開後腳本人物互擋仍可能發生（#568 反例：A4 玩家 T @78.7 s，B 先前被擋 21.9 s）；(2) 以「污染（taint）集合」判定一方是否曾被玩家影響（含傳遞），`forced_overlap` 事件加 `cause`（`script`／`player_phase_shift`）與 `tainted`；(3) C-5 改為：**無玩家基線必須 0**、有玩家時 `cause:'script'` 必須 0，`player_phase_shift` 另外計數、不設閘門；(4) `chain` 改為 `player_phase_shift` 的子集（欄位保留）；(5) §5.6、§7.1 報表同步，C-5 加反例回歸測試。未改其他驗收、seed、scenario。 |
 
 ## 0. 目的與範圍
 
@@ -139,9 +140,15 @@
 - **被玩家擋住：一直等，無上限。** 玩家站著不動時，被擋住的腳本人物持續等待（位置不變、`s_i` 不前進、播 idle），**不穿過、不記 `forced_overlap(kind:'player')`**；其他人物與模擬照常前進（每個人物只被「正在靠近的對象」擋住，沒有全域暫停，所以不會死結）。玩家走開（或不再擋住）後，下一步即恢復。展示時被擋的人會站著不動，這是已接受的後果（§11-3）。
   - 腳本人物會一直等到玩家離開；**沒有任何逾時機制能讓玩家被「穿過」**。
   - 記錄（不是違規）：每個腳本人物被玩家擋住的連續秒數 `block_wait`：`{i, j:'player', waited_s}`，事件結束時寫一筆；供 §7 報表「腳本人物被擋住的總秒數」。
-- **被另一個腳本人物擋住（含互相擋住）：規則不變，`wait_max_mutual_s = 3 s`。** 超過上限就穿過並記錄，只有**優先序較後**（T < A < B < C，C 最後）的那一個穿過，另一個照常。「穿過」＝這一個人物暫時不做 §3.3 的步驟 2，直到它和對方的距離重新 `≥ 2r`（或對方不再顯示）。每次穿過記一筆 `forced_overlap` 事件：`{tick, t_sim, i, j, kind:'script', waited_s, dist_m, chain}`；`chain: true` 表示對方 `j` 當時正被玩家擋住（見下）。
-- **連鎖（v2 新增，D279 的後果）**：玩家擋住 `i` 之後，`i` 的位置不動；另一個腳本人物 `j` 若沿路線走到 `i` 後面，會被 `i` 擋住，3 s 後穿過並記 `forced_overlap(kind:'script', chain:true)`。這是玩家長時間擋路才會出現的結果，**不算違規**，但必須記錄並另列計數（C-5 只計 `chain:false`）。
-- 預期：v2.3 兩個 run 的腳本人物彼此間因為最近 0.68 m ≥ 0.60 m 而不會被擋；沒有玩家長時間擋路時，**腳本人物之間 `forced_overlap(chain:false)` 的預期次數是 0**（驗收 C-5）。
+- **被另一個腳本人物擋住（含互相擋住）：規則不變，`wait_max_mutual_s = 3 s`。** 超過上限就穿過並記錄，只有**優先序較後**（T < A < B < C，C 最後）的那一個穿過，另一個照常。「穿過」＝這一個人物暫時不做 §3.3 的步驟 2，直到它和對方的距離重新 `≥ 2r`（或對方不再顯示）。每次穿過記一筆 `forced_overlap` 事件：`{tick, t_sim, i, j, kind:'script', cause, waited_s, dist_m, chain, tainted}`（`cause`、`tainted` 見下「相位差與 `cause`」）。
+- **連鎖（v2，D279 的後果）**：玩家擋住 `i` 之後，`i` 的位置不動；另一個腳本人物 `j` 若沿路線走到 `i` 後面，會被 `i` 擋住，3 s 後穿過。`chain: true` 表示對方 `j` **當下**正被玩家擋住。連鎖是「相位差」的特例（v2.1：`chain:true` 的事件一定同時是 `cause:'player_phase_shift'`）。
+- **相位差與 `cause`（v2.1，D282）**：玩家擋路讓人物 `i` 的 `s_i` 停住 `pause_player_i` 秒，之後 `i` 整條腳本永久晚這麼多。原 scenario 的「兩人錯開 ≥ 0.68 m」只在原時間線成立；相位分開後，兩個腳本人物可能在玩家早已離開後才在同一處相遇。這不是不碰撞邏輯的錯，不算 C-5 失敗，但必須分開計數。判定方法（只看 A 端狀態，可重播、可測）：
+  1. 每個腳本人物 `i` 有 `pause_player_i`（只累計被**玩家**擋住的秒數）與 `pause_script_i`（只累計被腳本人物擋住的秒數）；`pause_total_i = pause_player_i + pause_script_i`（C-4、C-6 的 `pause_total_i` 不變）。
+  2. **污染集合 `tainted`**（單調，只增不減，一個 run 內不重置）：`i` 在 `pause_player_i > 0` 的那一步加入；`i` 因為等一個**已污染**的腳本人物 `k`（`k ∈ tainted`）而等待的那一步也加入（傳遞：被被擋住的人擋住，也算相位被改過）。
+  3. 每筆 script–script `forced_overlap` 在穿過發生的那一步判定：`i ∈ tainted` 或 `j ∈ tainted` → `cause:'player_phase_shift'`；否則 `cause:'script'`。事件的 `tainted` 欄記該步兩人各自是否在集合內：`{i:bool, j:bool}`。
+  4. 無玩家基線（沒有玩家實體，或玩家從未擋住任何人）時 `tainted` 恆為空，所有事件都是 `cause:'script'`。
+  5. 交叉檢查（測試用，不進產品）：同 seed、同 scenario、**移除玩家**重跑，`cause:'player_phase_shift'` 的事件不應出現（它們只是相位差的後果）；`cause:'script'` 的事件兩次都會出現。
+- 預期：v2.3 兩個 run 的腳本人物彼此間因為最近 0.68 m ≥ 0.60 m 而不會被擋；沒有玩家擋路（`tainted` 為空）時，**腳本人物之間 `forced_overlap(cause:'script')` 的預期次數是 0**（驗收 C-5）。
 
 ### 3.5 離線驗證（先做，作為測試）
 
@@ -158,7 +165,7 @@
 | C-2 | **分離比例 ≥ 0.99**：所有取樣步（每步每一對顯示中的人物）中，距離 `≥ 2r − eps` 的比例；`forced_overlap` 期間的步數排除並另列 |
 | C-3 | 腳本人物**不偏離路線**：每個腳本人物每一步的位置都落在其 waypoint 折線上（誤差 ≤ 1 mm） |
 | C-4 | 暫停只延後自己：人物 `i` 的 `s_i`（腳本時鐘）= 模擬時間 − `pause_total_i`；其他人物的 `s_j` 不受 `i` 影響（以兩次模擬，一次有機器人、一次沒有，比較沒被擋住且未受連鎖影響的人物，位置序列完全相同） |
-| C-5 | 腳本人物彼此之間 `forced_overlap(chain:false)` 次數 = 0（A4-1、B4-1 各四種選角，玩家機器人隨機走動）；`chain:true` 的次數另列、不設閘門 |
+| C-5 | 腳本人物彼此之間的 `forced_overlap`，依 §3.4「相位差與 `cause`」分兩類：(a) **無玩家基線**（A4-1、B4-1，移除玩家實體、固定 seed）：全部事件數 = 0；(b) **有玩家**（A4-1、B4-1 各四種選角，玩家機器人隨機走動，含 seed 0x568 壓力案例）：`cause:'script'` 次數 = 0；`cause:'player_phase_shift'`（含 `chain:true`）另外計數並逐筆列出（`i`、`j`、`tainted`、`pause_player_i/j`、`t_sim`），**不設閘門、不算 C-5 失敗**。報表同時列出兩個數字，不得把 `player_phase_shift` 併入或隱藏。**反例回歸測試**：#568 的 A4 玩家 T @78.7 s 案例（C 3 s 後穿過 B，B 先前被玩家擋 21.9 s）必須分到 `player_phase_shift`；另需負向對照：兩個都未被玩家影響的腳本人物被迫互擋穿過（測試覆寫 `wait_max_mutual_s` 製造）必須是 `cause:'script'` |
 | C-6 | **一直等且沒有死結**：玩家站在某腳本人物 `i` 的路線上不動 60 秒（A4-1、B4-1 各挑一個會被擋住的位置）：(a) `i` 被擋住期間位置不變、`s_i` 不前進，`forced_overlap(kind:'player')` 次數 = 0（不論等多久，包含超過 8 s）；(b) 模擬照常以固定 `dt` 前進、不卡住；(c) 沒被擋住且未受連鎖影響的腳本人物，位置序列與沒有玩家的基準模擬相同；(d) 玩家走開後，`i` 在 1 步內恢復前進；(e) 進展以 `s_i` 和 `pause_total_i` 驗證（`s_i = 模擬時間 − pause_total_i`，且 `pause_total_i` ≥ 被擋住的總秒數），**不要求** 60 s 內走完一圈（暫停後總時間不保證 ≤ 60 s）；(f) 連鎖的 script–script `forced_overlap(chain:true)` 允許出現但必須有記錄 |
 | C-7 | 每步計算 ≤ 1 ms（4 個實體；用 `performance.now` 平均，只作回報不作閘門，列在 result record） |
 | C-8 | **成對相對移動不穿模**：兩人中心距離 0.8 m，同一步各向內走 0.12 m（dt = 0.1）；步後距離 ≥ 2r − eps，被拒絕者是優先序較低且有移動的一方，腳本人物不偏離折線、玩家不被推動。另含：玩家朝正在走近的腳本人物衝（雙方都有移動）、玩家朝已暫停的人物衝（對方原地不動）、三人同時進入同一點。實作須通過「提案＋成對檢查＋依序拒絕」，不得只做「自己提案 vs 對方舊位置」的端點檢查 |
@@ -343,7 +350,7 @@ A 只負責「把像素送出去、把後台結果經白名單轉給 B」；B �
 
 | 記錄 | 在哪 | 內容 | 能不能進 B |
 | --- | --- | --- | --- |
-| A 的私有 log（`window.__log`，下載成 JSON） | A 的視窗 | `schema_version: 'live-ab.a-log.v1'`、`session_id`（`/reset` 回傳）、`run_id`、被選 `actor_id`、設定物件快照；每 tick：`tick`、`t_capture`、`actors: [{id, present, xy, gt_visible}]`（**每個 actor** 都記，含玩家與所有腳本人物；`present` 是否顯示中；`xy` 真實位置，不顯示時 `null`；`gt_visible` 是該 actor 在哪些鏡頭可見，`groundTruthVisible`）、`pause_total_i`、`spawn_adjusted`、`forced_overlap`、`block_wait` | **不行**（§5.2 禁止清單；B 與後台完全不接收） |
+| A 的私有 log（`window.__log`，下載成 JSON） | A 的視窗 | `schema_version: 'live-ab.a-log.v1'`、`session_id`（`/reset` 回傳）、`run_id`、被選 `actor_id`、設定物件快照；每 tick：`tick`、`t_capture`、`actors: [{id, present, xy, gt_visible}]`（**每個 actor** 都記，含玩家與所有腳本人物；`present` 是否顯示中；`xy` 真實位置，不顯示時 `null`；`gt_visible` 是該 actor 在哪些鏡頭可見，`groundTruthVisible`）、`pause_total_i`、`pause_player_i`、`pause_script_i`、`spawn_adjusted`、`forced_overlap`（含 `cause`、`tainted`）、`block_wait` | **不行**（§5.2 禁止清單；B 與後台完全不接收） |
 | B 的追蹤記錄（`window.__log`，沿用並擴充，下載成 JSON） | B 的視窗 | `schema_version: 'live-ab.b-log.v1'`、`session_id`（`GET /track/state` 得知）；每則 `frame-batch`：`tick`、`t_capture`、`t_resp`、`t_display`、`tracking.state`、`target`、`active_cam`、`est_xy`、`lost_ticks`、`events`；B 的操作：`start`／`pick`（含 `cand_id`、候選 `est_xy`、候選 `tick`、操作時刻 `t_op`）／`reselect`／`stop`；HUD 延遲序列（最近 1 秒中位數） | — |
 | 評分 | 事後離線（§7），輸入是 A 和 B 各自下載的兩個 JSON | — | 評分程式在視窗之外 |
 
@@ -372,7 +379,7 @@ A 的 log 需要**每個 actor** 的 `gt_visible`，因為 B 可以選任何腳�
      - **UNMATCHED**：`TRACKING` 但 `est_xy` 離**所有**實體都超過 1.5 m（補足 v1 沒有覆蓋的分類）；
      - **失聯**：`state = LOST`、或 `lost_ticks > 0`、或沒有 `est_xy`。
    - 目標任何鏡頭都看不到時：**不計入跟對率**，另外回報此時系統是否正確宣告離開視野／失聯（`TARGET_OUT_OF_VIEW`、`LOST`）。
-3. 報表（JSON，另可輸出一張表）：每段追蹤的 `target_gt`／`MISPICK`／`AMBIGUOUS_PICK`、跟對／跟錯／`UNMATCHED`／失聯 tick 數與比例、跟錯的連續區段數（連續 ≥ 2 tick 算一次身分交換）、失聯次數與每次秒數、切鏡次數、**延遲分開列兩組**：(a) 原始 `t_resp − t_capture` 的 p50／p95，(b) #551 HUD 的「最近 1 秒中位數」序列的 p50／p95（兩者不混）、玩家穿模次數（與原始數）、`forced_overlap` 次數（`chain` 與非 `chain` 分列）、`spawn_adjusted`、`block_wait` 腳本人物被擋住的總秒數，以及 `unknown_reasons`。
+3. 報表（JSON，另可輸出一張表）：每段追蹤的 `target_gt`／`MISPICK`／`AMBIGUOUS_PICK`、跟對／跟錯／`UNMATCHED`／失聯 tick 數與比例、跟錯的連續區段數（連續 ≥ 2 tick 算一次身分交換）、失聯次數與每次秒數、切鏡次數、**延遲分開列兩組**：(a) 原始 `t_resp − t_capture` 的 p50／p95，(b) #551 HUD 的「最近 1 秒中位數」序列的 p50／p95（兩者不混）、玩家穿模次數（與原始數）、`forced_overlap` 次數（依 `cause` 分列：`script`、`player_phase_shift`；`chain:true` 為 `player_phase_shift` 的子集，另列一欄）、`spawn_adjusted`、`block_wait` 腳本人物被擋住的總秒數，以及 `unknown_reasons`。
 4. 閾值：**不設跟對率硬閾值**（§11-6 已決定：不訂目標，只出報表；既有的 0.45–0.62 是另一個定義的「作用中鏡頭看得到目標」比例，見交接 §8）。這份報表是展示紀錄。
 
 ### 7.2 GT 隔離（不可變弱）
@@ -505,7 +512,7 @@ A 的 log 需要**每個 actor** 的 `gt_visible`，因為 B 可以選任何腳�
 - **選角與外觀**：variant T/A/B/C 的實際衣色（紅／藍／橘）沒有在這份規格查證（`UNKNOWN`）；選單的色塊取材質 base color，B 的顏色 chip 只有後台判得出的 `red`／`blue`。若某個 variant 後台判為 `none`，B 就**追不到它**——是否保證至少兩個 variant 判為 red 已決定：不改資產（§11-7），多個符合者的情境依現有 scenario 的衣色自然出現與否；測試用合成偵測序列覆蓋。
 - **B 只能看到後台回的 `est_xy`**：分群門檻 1.5 m 沿用 tracker；兩人貼近（< 1.5 m）時會被分成同一個候選。腳本最近 0.68 m，因此貼近時 B 看到的是一個候選（這是真實的辨識限制，不是 bug；評分時會記成跟錯或 MISPICK）。
 - **原場景時間線不保留**（§2.2）。
-- **一直等的後果（D279）**：玩家站在路上不動，被擋的腳本人物會一直站著；連鎖時另一個腳本人物追上他會記 `forced_overlap(chain:true)`。這讓展示畫面可能出現多個人站著不動，已被使用者接受；報表會列出被擋總秒數與連鎖次數。
+- **一直等的後果（D279）**：玩家站在路上不動，被擋的腳本人物會一直站著；連鎖時另一個腳本人物追上他會記 `forced_overlap(cause:'player_phase_shift', chain:true)`；玩家離開後因相位差造成的互擋也歸 `player_phase_shift`（v2.1）。這讓展示畫面可能出現多個人站著不動，已被使用者接受；報表會列出被擋總秒數與連鎖次數。
 - **v2 與 Codex 審閱的差異（§10-1）**：(1) `/track/start` 無 infer 時定案 200 `ACQUIRING`（Codex 建議的選項之一；409 容易讓 B 把正常等待當錯誤）；(2) C-5 改為排除連鎖（Codex 未提，D279 後才有）；(3) nested 白名單原則由規格定、現有 `detail`／`timing_ms` 形狀由 Codex 列舉；(4) 規格不接受「取消改選」端點（限制見 §4.4），保持五端點。
 - **pointer lock 手感未驗證**：滑鼠靈敏度 0.15°／px、pitch 範圍都是預設值，headless 測試只能驗純函式與拖曳（§1.3）。
 - **Q3 解析器接線有兩處 `UNKNOWN`**：即時詞彙的別名表來源；ApiGuard 在 live server 的接線（§4.2）。Codex 在 #571 開工時確認並在 issue 回報；不一致時提出，不自行擴大範圍。
