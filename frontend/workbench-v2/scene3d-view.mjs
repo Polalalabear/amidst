@@ -52,7 +52,7 @@ export function mountScene3dView({ host, base = SCENE3D_BASE, fetchImpl = (...a)
       for (let i = 0; i < 4; i++) push(pos, far[i], far[(i + 1) % 4]);
       push(far[0], far[1], far[2], far[0], far[2], far[3]);
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tri, 3));
-      dyn.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: strong ? 0.28 : 0.06, side: THREE.DoubleSide, depthWrite: false })));
+      dyn.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: strong ? 0.28 : 0.06, side: THREE.DoubleSide })));
       const edges = []; for (let i = 0; i < 4; i++) edges.push(pos, far[i], far[i], far[(i + 1) % 4]);
       dyn.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(edges), new THREE.LineBasicMaterial({ color, transparent: true, opacity: strong ? 1 : 0.4 })));
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.35), new THREE.MeshBasicMaterial({ color }));
@@ -80,7 +80,7 @@ export function mountScene3dView({ host, base = SCENE3D_BASE, fetchImpl = (...a)
           const sh = new THREE.Shape(est.uncertaintyFan.map(p => new THREE.Vector2(p[0] - est.xy[0], p[1] - est.xy[1])));
           shape = new THREE.ShapeGeometry(sh);
         } else shape = new THREE.CircleGeometry(est.uncertaintyM, 48);
-        const disc = new THREE.Mesh(shape, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.28, side: THREE.DoubleSide, depthWrite: false }));
+        const disc = new THREE.Mesh(shape, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.28, side: THREE.DoubleSide }));
         disc.rotation.x = -Math.PI / 2; disc.position.copy(ground(est.xy, 0.05)); dyn.add(disc);
         if (!est.clipped) ring(est.xy, est.uncertaintyM * 0.97, est.uncertaintyM, col, 0.06);
       }

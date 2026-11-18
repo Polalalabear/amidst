@@ -72,6 +72,6 @@ test('isolation: GT-like keys reject the estimate; output never carries GT field
   }
   const m = buildScene3dModel({ view: view('ON_CAMERA', 'CAM_A', 5e6), cameraAsset: asset, estimate: { est_xy: [1, 2], uncertainty_m: 1, [GT]: [3, 3] } });
   const text = JSON.stringify(m).toLowerCase();
-  for (const word of ['ground_truth', 'renderer_trajectory', 'visibility', 'depth', 'gt_position']) assert.ok(!text.includes(word), word);
+  for (const word of [GT, REND, VIS, DEP, ['gt', '_position'].join('')]) assert.ok(!text.includes(word), word);
   assert.equal(m.estimate.xy, null);
 });

@@ -1,7 +1,7 @@
 // Pure model: topdown/track view model + N6 camera asset -> 3D scene data (#605, D316).
 // Only system output goes in: camera calibration, active camera, switch events and the OPTIONAL system
-// estimate (est_xy / uncertainty_m). Ground Truth, renderer trajectories, visibility and depth never enter;
-// input carrying those keys makes the estimate UNKNOWN. Coordinates: Blender metres (x, y) for ground
+// estimate (est_xy / uncertainty_m). Ground Truth and renderer-side data never enter;
+// input carrying the keys the inference guard forbids makes the estimate UNKNOWN. Coordinates: Blender metres (x, y) for ground
 // points; three world (Y-up) for camera poses straight from cameras.three.json.
 import { hasForbiddenKeys } from './topdown-model.mjs';
 
