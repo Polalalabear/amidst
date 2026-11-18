@@ -746,7 +746,7 @@ export function buildCoreTrackingViewModel(trackResponse, {
 // Projects camera display positions and the blind-interval curve (INFERRED, LOW) into the 0..100 SVG box the
 // tracking view draws. Display-only: positions are static-plan sketch coordinates, never measured paths.
 // `estimate` (optional, system output only; Codex supplies the source): { est_xy:[x,y] Blender m, uncertainty_m, track?, wall_segments_xy? }.
-// Missing or malformed -> est_xy / uncertainty_m = 'UNKNOWN'; never filled from GT, renderer paths, visibility or depth (#605).
+// Missing or malformed -> est_xy / uncertainty_m = 'UNKNOWN'; never filled from Ground Truth or any renderer-side source (#605).
 export function projectTopdown(topdown, cameraPositions, activeCameraId = null, estimate = null) {
   const ok = estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && Array.isArray(estimate.est_xy) && estimate.est_xy.length === 2 && estimate.est_xy.every(Number.isFinite);
   const est = {
