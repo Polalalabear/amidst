@@ -49,7 +49,7 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
   async function raw(path,payload) {
     try{return await rawOnce(path,payload);}
     catch(error){
-      if(error.message!=='FORBIDDEN_DATA_SCOPE'||source===FIXTURE_ORIGIN||!payload||payload.session_ref==null||payload.session_ref!==session)throw error;
+      if(error.message!=='FORBIDDEN_DATA_SCOPE'||source===FIXTURE_ORIGIN||!payload||payload.session_ref==null||payload.session_ref!==session||activeJob!=null)throw error;   // a live job is bound to the old session: do not swap it underneath (#578 P3-3)
       const renewed=await createSession();if(!renewed.ok)throw error;
       return rawOnce(path,{...payload,session_ref:session});
     }

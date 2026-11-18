@@ -84,7 +84,7 @@ class State:
         """Workbench switch (llm_switch.py). Off or an unusable provider leaves the decider None: the rule-only path."""
         res = resolve_llm(requested, self.args.advisor_provider)
         with self.lock:
-            if model in ADVISOR_MODELS:
+            if isinstance(model, str) and model in ADVISOR_MODELS:
                 self.args.advisor_model = model
             self.args.advisor = res["effective"]
             if res["effective"] != "off" and self.args.advisor_provider == "openai" and self.guard is None:
@@ -134,7 +134,9 @@ class State:
             available = [c for c in dict.fromkeys(available) if c in registered]
             scheduler = getattr(self,'scheduler',None) if track else None
             t_s = float(header.get('t_capture_ms') or 0) / 1000.0
-            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_s) if scheduler else None
+            # No capture clock in the header: the red-candidate memory is skipped (t_mem None), never stamped with a made-up 0 (#559 P2-1).
+            t_mem = t_s if header.get('t_capture_ms') is not None else None
+            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_mem) if scheduler else None
             wanted = set(plan['camera_ids']) if plan else set(jpegs)
             cams = [c for c in jpegs if c in wanted and (not track or c in registered)]
             if not cams and track:
@@ -172,8 +174,9 @@ class State:
             t4 = time.perf_counter()
             schedule = None
             if scheduler:
-                scheduler.observe(out, t_s)
-                following = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_s)
+                if t_mem is not None:
+                    scheduler.observe(out, t_mem)
+                following = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_mem)
                 schedule = dict(plan,camera_ids=cams,next_camera_ids=following['camera_ids'])
         timing.update({"decode": (t1 - t0) * 1e3, "detect_total": (t2 - t1) * 1e3,
                        "color": (t3 - t2) * 1e3, "track": (t4 - t3) * 1e3,
@@ -267,7 +270,10 @@ def make_handler(state: State):
                     return self._send(400, b'{"error":"advisor required"}')
                 if not isinstance(mode, str) or mode not in LLM_MODES:
                     return self._send(400, b'{"error":"bad advisor"}')
-                return self._send(200, json.dumps(state.set_llm_mode(mode, req.get("advisor_model"))).encode())
+                model = req.get("advisor_model") if isinstance(req, dict) else None
+                if model is not None and (not isinstance(model, str) or model not in ADVISOR_MODELS):   # unhashable / non-string / unknown: reject, never ignore
+                    return self._send(400, b'{"error":"bad advisor_model"}')
+                return self._send(200, json.dumps(state.set_llm_mode(mode, model)).encode())
             if p == "/reset":
                 with state.lock:
                     state.reset()
