@@ -669,22 +669,6 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
-      "value": "office-display-config.v1",
-      "source_paths": [
-        "configs/office_demo_display_v1.json"
-      ],
-      "issue_ref": "#307",
-      "status": "EXISTING_LITERAL_ONLY"
-    },
-    {
-      "value": "office-supplemental-display.v1",
-      "source_paths": [
-        "src/amidst/workbench/office_display.py"
-      ],
-      "issue_ref": "#307",
-      "status": "EXISTING_LITERAL_ONLY"
-    },
-    {
       "value": "operator.study.context.v1",
       "source_paths": [
         "src/amidst/workbench/operator_study.py"
