@@ -129,7 +129,8 @@ test('timeout without an answer reads as no answer, not as a late discard', () =
 
 test('every advisor.last field the HUD reads survives buildSystemMessage', () => {
   const read = ['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'cleared', 'model', 'source', 'fallback_reason'];
-  const last = Object.fromEntries(read.map((k) => [k, k === 'cleared' ? true : k]));
+  const last = { kind: 'LOST_WITH_CANDIDATES', cam: 'CAM_W1', choice: 0, reason: '都不是',
+    latency_ms: 1200, applied: false, cleared: true, model: 'fake', source: 'AGENT', fallback_reason: null };
   const msg = mk(1, { ...base, advisor: { state: 'IDLE', pending_ms: null, last } });
   for (const k of read) assert.ok(k in msg.tracking.advisor.last, `${k} was stripped`);
 });
@@ -173,4 +174,29 @@ test('every field the HUD reads is on the protocol whitelist (a backend echo of 
   assert.equal(view(st, now, { advisor: 'review' }).source.label, 'LLM 覆核');
   msg.tracking.gt_visible = ['CAM_W1'];
   assert.deepEqual(validateSystemMessage(msg), ['tracking.gt_visible']);
+});
+
+test('A/B HUD displays IDLE, candidate count, and backend-selected color', () => {
+  const idle = run([mk(1, { ...base, active_cam: null, state: 'IDLE', target: { color: null, mode: 'IDLE' } })]);
+  assert.deepEqual(view(idle.st, idle.now).track, { kind: 'searching', text: '尚未開始追蹤' });
+  const pick = run([mk(1, { ...base, active_cam: null, state: 'NEEDS_PICK', target: { color: 'blue', mode: 'NEEDS_PICK' } })]);
+  const v = view(pick.st, pick.now, {}, 2);
+  assert.equal(v.track.text, '請選擇要追蹤的人（2 位）');
+  assert.equal(v.target, '目標：藍衣');
+  const reselect = run([mk(1, { ...base, target: { color: 'blue', mode: 'NEEDS_PICK' } })]);
+  assert.equal(view(reselect.st, reselect.now).track.kind, 'tracking');
+});
+
+test('blue follows the nearest blue observation and the HUD rolling median is inclusive', async () => {
+  assert.equal(pickTarget([
+    { color: 'red', est_xy: [0, 0] },
+    { color: 'blue', est_xy: [1, 0] },
+  ], { ...base, est_xy: [0, 0], target: { color: 'blue', mode: 'TRACKING' } }), 1);
+  const { recordLatency } = await import('../src/hud.mjs');
+  const st = createHudState();
+  assert.equal(recordLatency(st, 1000, 400), 600);
+  assert.equal(recordLatency(st, 1500, 1400), 350);
+  assert.equal(recordLatency(st, 2000, 1500), 500);
+  assert.equal(recordLatency(st, 2001, 1901), 100);
+  assert.equal(recordLatency(st, 2010, 2040), null);
 });
