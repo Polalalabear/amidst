@@ -7,11 +7,16 @@
 export const LIVE_DEFAULT_BASE = 'http://127.0.0.1:8791';
 export const LIVE_BASE_KEY = 'amidst.liveBase';
 
-export function normalizeLiveBase(value) {
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
+
+// Default: loopback hosts only, so a pasted `admin.html?live=http://evil` link cannot aim the probe or the buttons elsewhere.
+// A non-loopback host needs {allowRemote: true}, which only the explicit localStorage setting uses (#578 P3-1).
+export function normalizeLiveBase(value, {allowRemote = false} = {}) {
   if (typeof value !== 'string' || !value.trim()) return null;
   try {
     const u = new URL(value.trim());
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    if (!allowRemote && !LOOPBACK_HOSTS.has(u.hostname)) return null;
     return u.origin;
   } catch { return null; }
 }
@@ -19,11 +24,11 @@ export function normalizeLiveBase(value) {
 export function resolveLiveBase({pageUrl = null, storage = null} = {}) {
   let fromQuery = null; try { fromQuery = pageUrl ? new URL(pageUrl).searchParams.get('live') : null; } catch {}
   let fromStore = null; try { fromStore = storage?.getItem?.(LIVE_BASE_KEY) ?? null; } catch {}
-  return normalizeLiveBase(fromQuery) ?? normalizeLiveBase(fromStore) ?? LIVE_DEFAULT_BASE;
+  return normalizeLiveBase(fromQuery) ?? normalizeLiveBase(fromStore, {allowRemote: true}) ?? LIVE_DEFAULT_BASE;
 }
 
 export function liveUrls(base) {
-  const b = normalizeLiveBase(base) ?? LIVE_DEFAULT_BASE;
+  const b = normalizeLiveBase(base, {allowRemote: true}) ?? LIVE_DEFAULT_BASE;   // base was already resolved by resolveLiveBase
   return {base: b, operator: `${b}/?role=operator`, system: `${b}/?role=system`};
 }
 

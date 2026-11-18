@@ -18,7 +18,7 @@ import {sourcePresentation} from './q-tokens.mjs';
 import {resolveCardImageSrc, resolveFrameImageSrc} from './core-media.mjs';
 import {canPlay} from './q-playback.mjs';
 import {
-  AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT, trackRefusalText,
+  AUTO_SEED_LABEL, trackClassSupport, reasonChips, buildCoreTrackingViewModel, SUPPORTED_SPEEDS, ERROR_TEXT, trackRefusalText, setRefusalFeedback,
 } from './core-search-track-model.mjs';
 import {eventDisplayName} from './event-names.mjs';
 import {planFromParse} from './nl-spotlight-model.mjs';
@@ -296,7 +296,7 @@ export function mountUi(ctx) {
     if (destroyed) return;
     if (!result?.ok) {
       const text = (w.kind === 'track' ? trackRefusalText(result?.code, form, wallClockText(run?.clock_mapping, 0), colorDisplay) : null) ?? ERROR_TEXT[result?.code] ?? result?.text ?? 'UNKNOWN';
-      w.feedback.textContent = text; w.feedback.dataset.state = 'error';
+      setRefusalFeedback(w.feedback, text, result?.code); w.feedback.dataset.state = 'error';
       phase.dispatch({type: 'SEARCH_END'}); setQuery(true); render();
     }
   }

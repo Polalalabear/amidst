@@ -35,7 +35,7 @@ export const ERROR_TEXT = Object.freeze({
   NOW_REQUIRED: '需提供非負整數的目前回放時間',
   Q_RESPONSE_EXPIRED: '這筆結果已過期，請重新查詢',
   // 2026-11-17: server refusals that reached the user as raw codes.
-  FORBIDDEN_DATA_SCOPE: '伺服器拒絕這個請求（連線可能已失效）；請重新整理頁面後再試',
+  FORBIDDEN_DATA_SCOPE: '重試後仍被拒：伺服器拒絕這個請求；請重新整理頁面後再試',
   AUTOMATIC_SEED_PRESET_ONLY: '這段示範錄影只能追蹤「人物」、不指定顏色、從錄影開頭開始；請取消顏色或時間後再試',
   TIME_SCOPE: '時間超出這段錄影的範圍',
 });
@@ -53,6 +53,16 @@ export function trackRefusalText(code, form, recordingStart = null, colorName = 
   if (form?.regionIds?.length) causes.push('指定了地點');
   if (!causes.length) return code === 'AUTOMATIC_SEED_PRESET_ONLY' ? ERROR_TEXT.AUTOMATIC_SEED_PRESET_ONLY : null;
   return `伺服器拒絕：這段示範錄影的追蹤只接受「人物、不指定顏色、從錄影開頭開始」，你的條件${causes.join('、')}；請改掉後再試`;
+}
+
+// #578 P3-2: the plain-language text hides the server's raw code; these three get it back as small print after the text.
+const RAW_CODE_NOTE = new Set(['FORBIDDEN_DATA_SCOPE', 'AUTOMATIC_SEED_PRESET_ONLY', 'TIME_SCOPE']);
+export function rawCodeNote(code) { return RAW_CODE_NOTE.has(code) ? code : null; }
+// Sets `el` to the text and, for the three codes above, appends <small>code</small> (textContent only, no HTML).
+export function setRefusalFeedback(el, text, code) {
+  el.textContent = text;
+  const note = rawCodeNote(code);
+  if (note) { const small = el.ownerDocument.createElement('small'); small.className = 'ui-faint ui-mono'; small.textContent = ` · ${note}`; el.append(small); }
 }
 
 // Server-side failures: a known code gets its plain-language text; anything else stays an explicit UNKNOWN.
