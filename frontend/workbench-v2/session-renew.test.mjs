@@ -35,6 +35,7 @@ test('a refusal that survives renewal is reported, with plain-language text', as
   assert.equal(r.ok, false); assert.equal(r.error.code, 'FORBIDDEN_DATA_SCOPE');
   assert.deepEqual(s.sent, ['S1', 'S2']);   // exactly one retry
   assert.doesNotMatch(failureText('FORBIDDEN_DATA_SCOPE'), /UNKNOWN/);
+  assert.match(failureText('FORBIDDEN_DATA_SCOPE'), /重試後仍被拒/);   // #578 P3-2: it is shown only after the one retry
   assert.match(failureText('AUTOMATIC_SEED_PRESET_ONLY'), /人物/);
 });
 
@@ -45,4 +46,17 @@ test('track refusal: the masked FORBIDDEN_DATA_SCOPE names the form condition th
   assert.match(trackRefusalText('FORBIDDEN_DATA_SCOPE', {classLabel: 'person', start: '14:10:05'}, '14:10:00'), /不是錄影開頭（14:10:00）/);
   assert.equal(trackRefusalText('FORBIDDEN_DATA_SCOPE', {classLabel: 'person', start: '14:10:00'}, '14:10:00'), null);   // nothing in the form explains it: generic text
   assert.equal(trackRefusalText('TIME_SCOPE', {colorLabel: 'red'}, null), null);
+});
+
+test('raw code note: the three masked codes get their code back as small print (#578 P3-2)', async () => {
+  const {rawCodeNote, setRefusalFeedback} = await import('./core-search-track-model.mjs');
+  for (const c of ['FORBIDDEN_DATA_SCOPE', 'AUTOMATIC_SEED_PRESET_ONLY', 'TIME_SCOPE']) assert.equal(rawCodeNote(c), c);
+  assert.equal(rawCodeNote('Q_RESPONSE_EXPIRED'), null); assert.equal(rawCodeNote(undefined), null);
+  const made = [];
+  const doc = {createElement: () => { const n = {className: '', textContent: ''}; made.push(n); return n; }};
+  const el = {ownerDocument: doc, textContent: '', appended: [], append(n) { this.appended.push(n); }};
+  setRefusalFeedback(el, '文字', 'TIME_SCOPE');
+  assert.equal(el.textContent, '文字'); assert.equal(el.appended[0].textContent, ' · TIME_SCOPE');
+  const el2 = {ownerDocument: doc, textContent: '', appended: [], append(n) { this.appended.push(n); }};
+  setRefusalFeedback(el2, '文字', 'Q_RESPONSE_EXPIRED'); assert.equal(el2.appended.length, 0);
 });

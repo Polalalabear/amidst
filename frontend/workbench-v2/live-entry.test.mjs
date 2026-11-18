@@ -10,6 +10,11 @@ test('base: ?live= wins, then localStorage, then 127.0.0.1:8791; only http(s) or
   assert.equal(resolveLiveBase({storage: store('http://10.0.0.5:9000/x')}), 'http://10.0.0.5:9000');
   assert.equal(resolveLiveBase({pageUrl: 'http://127.0.0.1:8785/workbench-v2/admin.html?live=http://localhost:8800', storage: store('http://10.0.0.5:9000')}), 'http://localhost:8800');
   assert.equal(resolveLiveBase({pageUrl: 'http://x/admin.html?live=javascript:alert(1)'}), LIVE_DEFAULT_BASE);
+  // #578 P3-1: ?live= takes loopback hosts only; a remote host needs the explicit localStorage setting
+  assert.equal(resolveLiveBase({pageUrl: 'http://x/admin.html?live=http://evil.example:9000', storage: null}), LIVE_DEFAULT_BASE);
+  assert.equal(resolveLiveBase({pageUrl: 'http://x/admin.html?live=http://[::1]:8800'}), 'http://[::1]:8800');
+  assert.equal(normalizeLiveBase('http://10.0.0.5:9000'), null); assert.equal(normalizeLiveBase('http://10.0.0.5:9000', {allowRemote: true}), 'http://10.0.0.5:9000');
+  assert.equal(liveUrls('http://10.0.0.5:9000').base, 'http://10.0.0.5:9000');   // a base the user set in storage stays usable
   assert.equal(normalizeLiveBase('ftp://a'), null); assert.equal(normalizeLiveBase(''), null);
   assert.equal(resolveLiveBase({storage: {getItem() { throw new Error('blocked'); }}}), LIVE_DEFAULT_BASE);
 });

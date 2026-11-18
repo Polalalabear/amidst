@@ -90,6 +90,10 @@ def test_config_endpoint_default_off_and_only_the_advisor_fields_are_accepted(mo
         assert code == 200 and res["effective"] == "off" and res["reason_text"]
         c = get()
         assert c["advisor"] == "off" and c["llm_switch"]["requested"] == "review" and c["llm_switch"]["available"] is False
+        for bad_model in (["sol6.1"], {"a": 1}, 5, True, "nope"):                       # #577: non-string / unknown model is rejected, not ignored
+            assert post({"advisor": "review", "advisor_model": bad_model})[0] == 400, bad_model
+        assert st.args.advisor_model == "sol6.1"
+        assert post({"advisor": "review", "advisor_model": None})[0] == 200
         assert "gt_xy" not in c and "api_key" not in json.dumps(c) and not hasattr(st.args, "gt_xy")
     finally:
         srv.shutdown()
@@ -116,7 +120,7 @@ def test_config_cors_only_for_the_allowed_workbench_origins_and_never_star(monke
         except urllib.error.HTTPError as e:
             return e.code, dict(e.headers)
     try:
-        for ok in ("http://127.0.0.1:8785", "http://localhost:8797"):
+        for ok in ("http://127.0.0.1:8785", "http://localhost:8797", "http://[::1]:8785"):   # #577: IPv6 loopback workbench origin
             code, h = call("GET", ok)
             assert code == 200 and h["Access-Control-Allow-Origin"] == ok
             code, h = call("OPTIONS", ok)
