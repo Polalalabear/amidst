@@ -1,8 +1,8 @@
 # 協調者交接 2026-11-18
 
-**快照時間：2026-11-18（UTC 約 02:40，#93 最後一則是 D308，02:34 UTC）。** 前一份是 `docs/agents/COORDINATOR_HANDOFF_20261117.md`（11-17 晚間快照，整理到 D277）。本文整理 D278–D308（D283 是無編號留言索引，補編 D284–D301）。
+**快照時間：2026-11-18（UTC 約 02:45，#93 最後一則是 D310，02:39 UTC）。** 前一份是 `docs/agents/COORDINATOR_HANDOFF_20261117.md`（11-17 晚間快照，整理到 D277）。本文整理 D278–D310（D283 是無編號留言索引，補編 D284–D301）。
 
-**新的協調者對話全程用繁體中文回覆**（D255、`CLAUDE.md`「Handoff」）。下一個決策編號是 **D309**，同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
+**新的協調者對話全程用繁體中文回覆**（D255、`CLAUDE.md`「Handoff」）。下一個決策編號是 **D311**，同步到 [#93](https://github.com/Polalalabear/amidst/issues/93)。
 
 **工作清單的唯一來源是 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文**（D281）。本文 §4 是快照，和 #93 本文不一致時以 #93 本文為準。
 
@@ -20,7 +20,7 @@
 | 8791 | 從 `local/runtime/live-main` @ `e9db4fdf` 跑（`local/runtime/start_live_8791.sh`，D264、D269）；pid `UNKNOWN` |
 | 磁碟 | 快照時約 12 GiB 可用（`df -h ~`）。第三個寫手要 9 GiB 以上，剩 5 GiB 就停 |
 | OpenAI | 專案實測至今不到 USD 3；**可用額度約 USD 50**（D306） |
-| 下一個決策編號 | **D309** |
+| 下一個決策編號 | **D311** |
 
 **11-17 晚間到 11-18 合併的 PR**（merge commit；11-18 起依 D305 由協調者直接合併）：
 
@@ -41,10 +41,10 @@
 | PR | 分支 @ head | CI | 狀態 |
 |---|---|---|---|
 | [#564](https://github.com/Polalalabear/amidst/pull/564) | `claude/feat-workbench-v2-ux` @ `a2c80351` | 綠 | Draft；審查 APPROVE（D280）；D302 鏡頭改名已推；**等使用者看五點截圖**（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`）），OK 就合併 |
-| [#584](https://github.com/Polalalabear/amidst/pull/584) | `codex/feat-live-ab` @ `ec7da6b6` | 綠 | Draft；Codex 交 #569、#570、#573（#568 改分類中）；預審 P2 兩點交 Codex（D308 第 5 點） |
-| [#599](https://github.com/Polalalabear/amidst/pull/599) | `codex/feat-n6-ceiling` @ `3c545fe5` | 綠 | Draft；N6 天花板（#593），前後截圖已交，等審查 |
-| [#603](https://github.com/Polalalabear/amidst/pull/603) | `codex/feat-workbench-8cam` @ `7b170f52` | 綠 | Draft；8785 加 8CAM run（#594），獨立埠 smoke 通過；完整 gate 隨 #576 |
-| [#604](https://github.com/Polalalabear/amidst/pull/604) | `claude/feat-recorded-openai-agent` @ `3261dcc6` | **紅**（快照時） | Draft；#601 預錄 OpenAI Agent，`agent-openai-601` 還在做 |
+| [#584](https://github.com/Polalalabear/amidst/pull/584) | `codex/feat-live-ab` @ `96c73e0e` | 跑中（快照時） | Draft；Codex 交 #568–#570、#573，#568 C-5 已通過（D309）；預審 P2 兩點交 Codex（D308 第 5 點）；**`rv-584` 正式審查中** |
+| [#599](https://github.com/Polalalabear/amidst/pull/599) | `codex/feat-n6-ceiling` @ `3c545fe5` | 綠 | Draft；N6 天花板（#593，CAM_WIDE 天花板平均亮度 137.72→121.25），**`rv-599-603` 正式審查中** |
+| [#603](https://github.com/Polalalabear/amidst/pull/603) | `codex/feat-workbench-8cam` @ `7b170f52` | 綠 | Draft；8785 加 8CAM run（#594），獨立埠 smoke 通過；完整 gate 隨 #576；**`rv-599-603` 正式審查中** |
+| [#604](https://github.com/Polalalabear/amidst/pull/604) | `claude/feat-recorded-openai-agent` @ `9d23883d` | **紅**（快照時） | Draft；#601 預錄 OpenAI Agent，`agent-openai-601` 還在做 |
 
 **還在的分支**（`gh api .../branches`）：`main`、`mainline/q1q5`、上表五條、`archive/*` 5 條（`archive/amidst-claude-wip-20261109`、`archive/canonical-uncommitted-20261109`、`archive/finalization-uncommitted-20261109`、`archive/local/codex/controlled-scene-real-v2-2a`、`archive/local/phase1/physical-policy-approval`，被 main 引用或沒有其他副本，保留）。
 
@@ -54,7 +54,7 @@
 
 1. `CLAUDE.md`、`AGENTS.md`、`CLAUDE.local.md`（本機規則：協調者只派工，不在 `~/amidst` 改檔）
 2. 本文件
-3. [#93](https://github.com/Polalalabear/amidst/issues/93) 本文（工作清單）和 D278–D308 的留言（D283 是無編號留言的索引）
+3. [#93](https://github.com/Polalalabear/amidst/issues/93) 本文（工作清單）和 D278–D310 的留言（D283 是無編號留言的索引）
 4. LIVE A/B：`docs/specs/LIVE_MODE_AB_V1.md`（v2.1）、重新取得契約（#587 合併的檔，見 [#585](https://github.com/Polalalabear/amidst/issues/585)）、Codex 總項 [#566](https://github.com/Polalalabear/amidst/issues/566)
 5. 評估方向 D304 與 [#597](https://github.com/Polalalabear/amidst/issues/597) 的錄製指引 v1（[留言 6967247222](https://github.com/Polalalabear/amidst/issues/597#issuecomment-6967247222)）
 6. 即時模式背景：`docs/operations/LIVE_MODE_HANDOFF_20261116.md`、`docs/design/LIVE_MODE_LLM_DECISION_V1.md` §0F
@@ -68,7 +68,7 @@
 - **合併不問使用者**（D305）：審查通過、CI 綠、可合併的 PR 由協調者直接合併（merge commit）並刪掉已合併分支。例外仍要問：使用者要先看截圖的 UI（#564）、8785 pin、付費、刪除原始資產。
 - **OpenAI 額度**（D306）：可用約 USD 50，用於專案測試（#597、#601 smoke 等）。每次先 ApiGuard dry-run，在 issue 貼預估與實際花費；**單次預估超過 USD 10 先問使用者**。
 - **研究文件分兩份**（D308）：研究紀錄（`docs/research/experiment_record/`，LaTeX）記使用者在專案中提出要記錄和分析的東西，隨進度追加；研究計畫（較嚴謹）最後才動，main 上目前沒有對應檔案（`UNKNOWN`），要做時另開 issue。
-- **目前以專案實際運行為主**（D308）：優先 #576、#566、#588、#601、#602；研究計畫和跨平台（#598，D304）延後。
+- **目前以專案實際運行為主**（D308）：優先 #576、#566、#588、#601、#602（D309 起只做 LIVE 外圍）；研究計畫和跨平台（#598，D304）延後。
 - **評估方向**（D304）：LIVE 玩一次錄下玩家軌跡，同一劇本重播（只用規則／LLM 覆核），用 GT 逐 tick 評分（GT 只用於評分）。預錄三事件不再拿來證明 LLM。
 - **`gh api -X DELETE` 前加 `PAGER=cat`**，不然 gh 會開分頁器卡住。
 - **被 session 事件喚醒的回合不能開 session**，改用提案卡。
@@ -83,19 +83,20 @@
 |---|---|---|---|---|
 | 現在能做 | 8785／8791 更新到 main [#576](https://github.com/Polalalabear/amidst/issues/576)（claude） | 兩介面含 #559、#563、#564、#594 | ready（#559 已合併，D308）。8785、8791 都還在 `e9db4fdf` | 建議等 #564 合併（和 #603 視審查結果）再一起跑 gate；**pin 要使用者核准**；8785 前景重啟 |
 | 收尾中 | 預錄模式可切 OpenAI Agent [#601](https://github.com/Polalalabear/amidst/issues/601)／[#604](https://github.com/Polalalabear/amidst/pull/604)（claude） | 四個 run 可選 Agent，預設關、經 ApiGuard | in-progress；Draft #604，**CI 紅**（快照時） | `agent-openai-601` 還在做；交件後派審查；真 provider smoke 先 dry-run，>USD 10 才問 |
-| 收尾中 | 8CAM run [#594](https://github.com/Polalalabear/amidst/issues/594)／[#603](https://github.com/Polalalabear/amidst/pull/603)（codex） | 8785 多一個 8 鏡頭 run | review；Draft，CI 綠，獨立埠 8CAM／dependency smoke 通過 | 等 Claude 審查；完整 gate 隨 #576 |
+| 收尾中 | 8CAM run [#594](https://github.com/Polalalabear/amidst/issues/594)／[#603](https://github.com/Polalalabear/amidst/pull/603)（codex） | 8785 多一個 8 鏡頭 run | review；Draft，CI 綠，獨立埠 8CAM／dependency smoke 通過 | `rv-599-603` 正式審查中（D309）；完整 gate 隨 #576 |
+| 還沒做 | 預錄俯視圖改成 LIVE 式 3D 場景視圖 [#605](https://github.com/Polalalabear/amidst/issues/605)（claude） | 只畫系統估計、不畫 GT；先出示意圖 | ready（D310） | 等寫檔名額（快照時三個寫手：#601、交接文件、#602） |
 
 ### 4.2 即時模式（LIVE）
 
 | 組 | 工作 | 預計產出 | 目前進度 | 卡住的部分 |
 |---|---|---|---|---|
-| 現在能做 | 場景外圍實作 [#602](https://github.com/Polalalabear/amidst/issues/602)（claude） | 預錄 3D 與 LIVE 都加外圍背景，可走範圍不變；前後截圖 | ready；示意通過（D307，LOCAL `local/evidence/live-exterior-mock-20261118/`（SHA256SUMS.txt `32b42386683a3372a6048ca4cb65f4edfe584e955293370c955e533fdb3b8727`）） | 等寫手名額；和 #593（`codex/feat-n6-ceiling`）協調檔案 |
+| 收尾中 | 場景外圍實作 [#602](https://github.com/Polalalabear/amidst/issues/602)（claude） | **只做 LIVE**（操作端與系統端鏡頭畫面）的外圍背景，可走範圍不變；預錄畫面是原始渲染影片，不重新渲染（D309）；前後截圖 | in-progress；示意通過（D307，LOCAL `local/evidence/live-exterior-mock-20261118/`（SHA256SUMS.txt `32b42386683a3372a6048ca4cb65f4edfe584e955293370c955e533fdb3b8727`）） | session `exterior-602` 執行中；和 #593（`codex/feat-n6-ceiling`）協調檔案 |
 | 現在能做 | #563 的 P3＋#559 審查 P2-1 [#577](https://github.com/Polalalabear/amidst/issues/577)（claude） | `advisor_model` 非字串、IPv6、缺 `t_capture_ms` 時略過記憶 | ready | 無 |
 | 現在能做 | 後台 `/track/*` 端點 [#571](https://github.com/Polalalabear/amidst/issues/571)（codex） | session、Q3 句子接線 | ready（#559 已合併） | 等 Codex 取工 |
 | 現在能做 | 重新取得 R1 [#588](https://github.com/Polalalabear/amidst/issues/588)（codex） | tracker 分段門檻、速度預測、門檻量測，重播驗收 | ready | 等 Codex 取工 |
-| 收尾中 | 人物不碰撞 [#568](https://github.com/Polalalabear/amidst/issues/568)（codex） | crowd＋sim，C-1～C-8 | review；C-5 依 D282 改分類，交 Draft #584 | 等其餘子項後整體審查 |
+| 收尾中 | 人物不碰撞 [#568](https://github.com/Polalalabear/amidst/issues/568)（codex） | crowd＋sim，C-1～C-8 | review；C-5 通過（D309：無玩家基線 0、`player_phase_shift` 11 次另計、78.7 s 反例保留），在 Draft #584 | `rv-584` 正式審查中 |
 | 收尾中 | A 場景＋角色選單＋滑鼠 [#569](https://github.com/Polalalabear/amidst/issues/569)、離線評分 [#570](https://github.com/Polalalabear/amidst/issues/570)、`smoke.mjs` 不寫 `/private/tmp` [#573](https://github.com/Polalalabear/amidst/issues/573)（codex） | — | review；都在 Draft #584 | #584 預審 P2 兩點（評分器在 ACQUIRING／NEEDS_PICK 誤判失聯；tick 層 `gt_visible` 被覆寫，[留言 6967155738](https://github.com/Polalalabear/amidst/pull/584#issuecomment-6967155738)）等 Codex 修 |
-| 收尾中 | N6 天花板亮度與接縫 [#593](https://github.com/Polalalabear/amidst/issues/593)／[#599](https://github.com/Polalalabear/amidst/pull/599)（codex） | 材質調整＋截圖 | review；Draft，CI 綠，A4-1 同秒前後截圖已交 | 等 Claude 審查 |
+| 收尾中 | N6 天花板亮度與接縫 [#593](https://github.com/Polalalabear/amidst/issues/593)／[#599](https://github.com/Polalalabear/amidst/pull/599)（codex） | 材質調整＋截圖 | review；Draft，CI 綠，A4-1 同秒前後截圖已交 | `rv-599-603` 正式審查中（D309） |
 | 收尾中 | workbench-v2 五點易用性 [#564](https://github.com/Polalalabear/amidst/pull/564)（claude） | 搜尋 Enter、追蹤分頁搜尋、概況排版、易讀名稱、live 入口 | waiting；審查 APPROVE；D302 改名（室外西側／轉角／轉角廣角）已推 `a2c80351` | **等使用者看截圖**（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`）） |
 | 還沒做 | #564 的 3 個 P3 [#578](https://github.com/Polalalabear/amidst/issues/578)（claude） | — | blocked | 等 #564 合併 |
 | 還沒做 | B 選目標流程 [#572](https://github.com/Polalalabear/amidst/issues/572)、整合驗收 [#574](https://github.com/Polalalabear/amidst/issues/574)（codex） | — | blocked | #572 等 #571；#574 等全部子項 |
@@ -137,8 +138,8 @@
 
 | 組 | 工作 | 目前進度 | 卡住的部分 |
 |---|---|---|---|
-| 現在能做（Codex） | #571、#588（ready）；#584 預審 P2 兩點；#568 收尾 | — | 等 Codex 取工 |
-| 收尾中（Codex） | #584（#568–#570、#573）、#599（#593）、#603（#594） | Draft、CI 綠 | 等 Claude 審查（#584 等子項齊） |
+| 現在能做（Codex） | #571、#588（ready）；#584 預審 P2 兩點與正式審查的修正 | — | 等 Codex 取工 |
+| 收尾中（Codex） | #584（#568–#570、#573）、#599（#593）、#603（#594） | Draft | 正式審查中：`rv-584`、`rv-599-603`（D309） |
 | 還沒做（Codex） | #572、#574、#589、#596 | blocked | 見 4.2 |
 | Argon | 沒有派工；`owner:argon` 只有 epic #479 | — | 需要時再派 |
 
@@ -153,14 +154,14 @@
 
 ## 6. 給新協調者的第一件事（依優先順序）
 
-開始前先用 `gh issue view 93 --repo Polalalabear/amidst --comments` 看 D308 之後有沒有新留言，`gh pr list --repo Polalalabear/amidst` 看 PR 有沒有新進度。
+開始前先用 `gh issue view 93 --repo Polalalabear/amidst --comments` 看 D310 之後有沒有新留言，`gh pr list --repo Polalalabear/amidst` 看 PR 有沒有新進度。
 
 1. **#564**：問使用者看截圖（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`）），OK 就合併並刪分支，解除 #578。
 2. **#576**：把 8785／8791 更新到 main。照 D269／D270 的 gate 流程（clone 跑 node、focused pytest、`check_demo_dependencies.py --smoke`、real-e2e → `RESULT.txt`），8785 用前景方式重啟（終端分頁「8785 demo」），**pin 要使用者核准**。
 3. **#577**：派寫手（#563 的 P3＋#559 審查 P2-1）。
-4. **#602**：派場景外圍實作（寫手名額空出後；和 #593 協調檔案）。
+4. **#602**：追 `exterior-602`（只做 LIVE 外圍，D309）的進度，交件後派審查；寫手名額空出後派 #605 示意圖（D310）。
 5. **#601**：追 `agent-openai-601` 的進度（#604 快照時 CI 紅），交件後派審查。
-6. **Codex**：#568、#571、#588、#593（#599 審查）、#594（#603 審查），以及 #584 預審的 P2 兩點；給 Codex 的指派寫成可直接貼上的文字。
+6. **Codex**：收 `rv-584`、`rv-599-603` 的審查結果（#568–#570、#573、#593、#594），通過就合併（D305）；#571、#588 和 #584 預審的 P2 兩點交 Codex；給 Codex 的指派寫成可直接貼上的文字。
 7. **#597** 在 LIVE A/B（#566）和 #596 完成後才開始。
 
 ## 7. Session 清單（快照時）
@@ -169,7 +170,10 @@
 
 | 名稱 | session id | 狀態 | 內容 |
 |---|---|---|---|
-| `agent-openai-601` | `local_2e85950a-dd9b-4df3-8f98-596cff16e6dd` | **執行中** | #601／#604 預錄 OpenAI Agent |
+| `exterior-602` | `local_ae2d568d-49a9-4cd0-8085-71af26586bf2` | **執行中** | #602 LIVE 場景外圍實作（D309） |
+| `rv-584` | `local_5e481ed7-f22f-4762-a0f5-622decdfee18` | **執行中** | #584 LIVE A/B 正式審查 |
+| `rv-599-603` | `local_f44c4a73-f4e0-4b26-b09b-5f697b031154` | **執行中** | #599 天花板＋#603 8CAM 正式審查 |
+| `agent-openai-601` | `local_2e85950a-dd9b-4df3-8f98-596cff16e6dd` | 閒置（快照時，#604 CI 紅） | #601／#604 預錄 OpenAI Agent |
 | `guide-597` | `local_89972c0e-905f-4fab-bc5b-630066ca20ad` | 閒置（完成） | #597 錄製指引與評分定義 v1 |
 | `wb2-rename-564` | `local_6fd2a7b7-bed7-4886-9af1-c3692a8a9ae0` | 閒置（完成） | #564 鏡頭改名＋五點截圖 |
 | `rv-584-pre` | `local_26295735-4c30-4034-8241-103f47572cf6` | 閒置（完成） | #584 預審（P2 兩點） |
