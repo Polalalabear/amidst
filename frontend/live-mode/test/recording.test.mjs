@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createCrowd} from '../src/crowd.mjs';
+import {createScriptOperator} from '../src/script_operator.mjs';
+import {HARDSET_ROUTES} from '../src/hardset_routes.mjs';
 import {RECORD_DT, createInputRecording, createPlayback, validateCase, replayActions,
   captureStride, importActions} from '../src/recording.mjs';
 import {buildInferHeader, buildSystemMessage, validateSystemMessage} from '../src/protocol.mjs';
@@ -48,6 +50,25 @@ test('generated cases need only inputs and bindings, and reject invalid clocks/a
   assert.throws(() => captureStride(3), /FPS_MUST_DIVIDE_20/);
   data.inputs[0].dt = .1;
   assert.throws(() => validateCase(data), /INPUT_INVALID/);
+});
+
+test('hardset script inputs record and replay twice through the same crowd step', () => {
+  for (const [case_id, route] of Object.entries(HARDSET_ROUTES)) {
+    const run = runs.find(r => r.run_id === route.run_id || r.run_id.replace('-v2-4actor', '') === route.run_id);
+    const crowd = createCrowd(run, {actorId: 'T'}), script = createScriptOperator(route);
+    const recorder = createInputRecording({case_id, run_id: run.run_id, actor_id: 'T',
+      seed: 0, config: {fps: 5, crowd: crowd.snapshot().config}, bindings}, crowd.snapshot());
+    for (let step = 0; step < 400; step++) {
+      const snapshot = crowd.snapshot(), player = snapshot.actors.find(a => a.is_player);
+      const keys = script.keys({x: player.x, y: player.y}, snapshot.t_sim);
+      recorder.append(keys, crowd.step(keys, RECORD_DT));
+    }
+    const data = recorder.export();
+    for (let repeat = 0; repeat < 2; repeat++) {
+      const replay = createPlayback(data, createCrowd(run, {actorId: 'T'}), bindings);
+      while (!replay.done) replay.step();
+    }
+  }
 });
 
 test('replayed track actions resolve a fresh candidate and send only public fields', async () => {

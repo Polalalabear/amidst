@@ -12,6 +12,9 @@ import {CHANNEL, params, now} from './common.mjs';
 import {RECORD_DT, captureStride, hashBinding, validateCase, createInputRecording,
   createPlayback, importActions, replayActions} from './recording.mjs';
 
+import {createScriptOperator, createFixedStepper, SCRIPT_DT} from './script_operator.mjs';
+import {HARDSET_ROUTES} from './hardset_routes.mjs';
+
 const RUNS = ['A4-1-v2-4actor', 'B4-1-v2-4actor'];
 function runId(value) {
   const id = RUNS.find(id => id === value || id.replace('-v2-4actor', '') === value);
@@ -19,11 +22,14 @@ function runId(value) {
   return id;
 }
 export function menuOptions(q) {
-  const skip = q.has('run') || q.has('actor') || q.has('auto');
+  const script = q.has('script') ? HARDSET_ROUTES[q.get('script')] : null;
+  if (q.has('script') && !script) throw new Error('SCRIPT_UNKNOWN');
+  if (script && q.has('actor') && q.get('actor') !== 'T') throw new Error('SCRIPT_ACTOR_MUST_BE_T');
+  const skip = q.has('run') || q.has('actor') || q.has('auto') || !!script;
   const actor_id = q.get('actor') || (skip ? 'T' : null);
   if (actor_id && !VARIANTS.includes(actor_id)) throw new Error('ACTOR_UNKNOWN');
-  const run_id = runId(q.get('run') || (q.get('auto')?.startsWith('B4') ? 'B4-1' : 'A4-1'));
-  return {run_id, actor_id, skip, mouse: q.has('auto') || q.get('mouse') === 'off' ? 'off' : q.get('mouse') === 'drag' ? 'drag' : 'lock'};
+  const run_id = runId(script?.run_id || q.get('run') || (q.get('auto')?.startsWith('B4') ? 'B4-1' : 'A4-1'));
+  return {run_id, actor_id, skip, mouse: q.has('auto') || script || q.get('mouse') === 'off' ? 'off' : q.get('mouse') === 'drag' ? 'drag' : 'lock'};
 }
 // Only the menu holds this gate. It is never exposed in window.__op or sent over the channel.
 export function createSessionGate(scenario, options, fetcher) {
@@ -251,12 +257,17 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
   const run = scenario.runs.find(r => r.run_id === session.run_id), camIds = P.cams || Object.keys(cams);
   const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto,
     cfg: recordedCase?.config.crowd || {}, strict: false});
+  const route = P.script ? HARDSET_ROUTES[P.script] : null;
+  if (P.script && (!route || runId(route.run_id) !== session.run_id || P.auto)) throw new Error('SCRIPT_SESSION_MISMATCH');
+  const scripted = route ? createScriptOperator(route) : null;
+  const stepper = scripted && !P.record ? createFixedStepper(crowd, scripted) : null;
   let snapshot = crowd.snapshot(), viewState = {view_yaw: 0, view_pitch: 0};
   const stride = P.record ? captureStride(P.fps) : null;
   const bindings = P.record ? {scene_sha256: await hashBinding({run, segments: world.segments}),
     cameras_sha256: await hashBinding(Object.fromEntries(Object.entries(cams).map(([id, c]) =>
       [id, {world: c.camera.matrixWorld.toArray(), projection: c.camera.projectionMatrix.toArray()}])))} : null;
-  const recording = P.record ? createInputRecording({case_id: recordedCase?.case_id || 'case-' + Date.now(),
+  const recording = P.record ? createInputRecording({case_id: recordedCase?.case_id || P.script || 'case-' + Date.now(),
+    script_id: recordedCase?.script_id || P.script || null,
     run_id: session.run_id, actor_id: session.actor_id, seed: recordedCase?.seed ?? 0, bindings,
     config: {w:P.w,h:P.h,fps:P.fps,cams:camIds,model:P.model,scene:P.scene,quality:P.quality,
       auto:P.auto,crowd:snapshot.config}}, snapshot) : null;
@@ -277,6 +288,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
     pass_end: [], crowd_error: [], spawn_adjusted: snapshot.spawn_adjusted,
     config: {...P, run: session.run_id, cams: camIds, n6, crowd: snapshot.config, ...snapshot.config, view: {...DEFAULT_VIEW_CONFIG, mouse}, schedule_mode: config.schedule_mode},
     sent: 0, dropped: 0, fpsStart: now()};
+  if (scripted) { log.config.script = {case_id: P.script, dt: SCRIPT_DT, steps: route.steps.length}; log.script_events = scripted.events; }
   window.__log = log;
   let caseActions = recordedCase?.actions || [], finished = false, stopped = false, carry = 0;
   const replayLog = {schema_version: 'live-ab.b-log.v1', session_id: session.session_id,
@@ -316,7 +328,10 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
       carry = Math.min(.2, carry + dt);
       while (!inflight && !finished && !stopped && carry >= RECORD_DT
           && snapshot.tick < tick * stride && !playback?.done) {
-        const input = playback ? recordedCase.inputs[recording.length].keys : {...keys, view_yaw: viewState.view_yaw};
+        const player = snapshot.actors.find(a => a.is_player);
+        const input = playback ? recordedCase.inputs[recording.length].keys
+          : scripted ? scripted.keys({x: player.x, y: player.y}, snapshot.t_sim)
+          : {...keys, view_yaw: viewState.view_yaw};
         try { snapshot = playback ? playback.step() : crowd.step(input, RECORD_DT); }
         catch (error) { finished = true; window.__recordingError = error.message; stats.textContent = error.message; break; }
         recording.append(input, snapshot);
@@ -324,7 +339,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
         carry -= RECORD_DT;
         advanced += RECORD_DT;
       }
-    } else if (dt > 0) snapshot = crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
+    } else if (dt > 0) snapshot = stepper ? stepper.advance(dt) : crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
     if (advanced > 0) {
       for (const event of snapshot.events.slice(recordedEvents)) {
         if (eventTypes.includes(event.type) && event.type !== 'crowd_error') log[event.type].push(event);
@@ -361,6 +376,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
       const tCap = now(), snap = snapshot;
       if (recordedCase) replayLog.actions.push(...await replayActions(caseActions, tick, session.session_id, fetcher, now));
       const row = privateTick(snap, tick, tCap, a => groundTruthVisible(cams, world.blockers, world.root, a.x, a.y));
+      if (scripted) row.script_step = scripted.step;
       // Start every shoot synchronously in this task, before the next animation frame changes poses.
       const frames = await Promise.all((P.record ? camIds : chooseCaptureIds(camIds, schedule)).map(async id => ({cam: id, jpeg: await cap.shoot(id)})));
       const header = buildInferHeader({tick, tCaptureMs: P.record ? tick * 1000 / P.fps : tCap, frames, availableCameras: camIds});

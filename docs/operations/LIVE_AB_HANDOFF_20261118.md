@@ -411,31 +411,32 @@ effective #563 switch and its own approved sentence guard. The advisor guard
 does not enable it. The integration test uses a fake budget to check this
 boundary without creating a client.
 
-### Fixed trials
+### Current fixed trials after D327
 
-| Run | Player | C-2 excluding passes | C-2 including passes | Excluded pair samples before → after | Exempt solver steps | Pass ends |
-|---|---|---:|---:|---:|---:|---|
-| A4-1 | T | 100% | 99.863% | 7 → 7 | 9 | 2 separated |
-| A4-1 | A | 100% | 99.825% | 10 → 10 | 12 | 2 separated |
-| A4-1 | B | 100% | 99.612% | 23 → 23 | 25 | 2 separated |
-| A4-1 | C | 100% | 99.532% | 27 → 27 | 29 | 2 separated |
-| B4-1 | T | 85.933% | 85.454% | 783 → 30 | 31 | 1 timeout |
-| B4-1 | A | 100% | 100% | 0 → 0 | 0 | 0 |
-| B4-1 | B | 100% | 99.910% | 5 → 5 | 6 | 1 separated |
-| B4-1 | C | 100% | 99.874% | 6 → 6 | 7 | 1 separated |
+| Run | Player | C-2 excluding passes | C-2 including passes | Excluded samples | Lingering passes | Lingering steps | Longest pass |
+|---|---|---:|---:|---:|---:|---:|---|
+| A4-1 | T | 100% | 99.863% | 7 | 0 | 0 | completed below 3 s |
+| A4-1 | A | 100% | 99.825% | 10 | 0 | 0 | completed below 3 s |
+| A4-1 | B | 100% | 99.612% | 23 | 0 | 0 | completed below 3 s |
+| A4-1 | C | 100% | 99.532% | 27 | 0 | 0 | completed below 3 s |
+| B4-1 | T | 100% | 85.454% | 783 | 1 | 753 | 78.2 s, still active |
+| B4-1 | A | 100% | 100% | 0 | 0 | 0 | none |
+| B4-1 | B | 100% | 99.910% | 5 | 0 | 0 | completed below 3 s |
+| B4-1 | C | 100% | 99.874% | 6 | 0 | 0 | completed below 3 s |
 
 Both no-player baselines produced zero crossings. The pressure trials
 produced zero player penetrations and zero pure-script crossings. There were
 11 player phase-shift crossings, including two chain crossings. The fixed
 A4-1 player T C→B crossing still occurs at 78.7 s.
 
-B4-1 player T fails C-2's 99% threshold. B→A starts at tick 218
-(21.8 s) and ends at tick 248 (24.8 s). Of 5,383 pair samples, 30 are
-excluded and 753 of the remaining 5,353 are below 0.58 m. In the separate
-stationary-player test, C→A times out at 13.1 s. At 60.1 s player T is
-0.895 m from A, but C still blocks A. A's script clock stays at 4.1 s
-through 62.0 s. On base `118c2035`, A advances to 4.2 s at 60.1 s.
-The two B4-1 T failures remain visible in the original C-2 and C-6 tests.
+The superseded D323 cap ended B4-1 T's B→A pass at 24.8 s, leaving
+753 nonseparated pair samples and C-2 at 85.933%. In the separate stationary
+fixture, it ended C→A at 13.1 s and left A blocked by C after T moved away.
+D327 keeps entered passes active. A advances from s_i=4.1 s to 4.2 s at
+60.1 s, in the first release step. B→A in the pressure trial stays active
+from 21.8 s through 100 s. Its 78.2 s overlap is explicitly reported.
+Lingering counts include a separation step if that step is at or beyond
+the 3 s mark.
 
 Set `AMIDST_LIVE_ASSETS` using the existing N6 base and `$OUT` to an
 evidence directory. Run the following from the checkout with the existing
@@ -448,8 +449,8 @@ git diff --check
 python -B scripts/check_local_artifact_refs.py --strict --files docs/operations/LIVE_AB_HANDOFF_20261118.md
 ```
 
-Python passed 182 tests. Node passed 112 tests including the A and B browser
-flows, with two failures and zero skips. The stationary comparison runs the
+At the superseded D323 checkpoint, Python passed 182 tests and Node passed
+112 with two failures. D327 restored both failures, with 116 passes and zero skips. The stationary comparison runs the
 C-6 fixture's B4-1 player T sequence on base and head with 600 stationary
 steps followed by 20 steps away at 0.1 s each. The evidence contains this
 comparison as `b4-stationary-release.json` and the pressure counts as

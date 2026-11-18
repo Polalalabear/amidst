@@ -1,6 +1,7 @@
 import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Real server acceptance: only visible UI controls, source-bound API, and decoded RGB.
 import assert from 'node:assert/strict';
+import {cameraName as __camName} from '../../../frontend/workbench-v2/place-names.mjs';
 import {checkEightCamWall} from './eightcam-check.mjs';
 import {ownedRuntime} from '../core-preview/owned-runtime.mjs';
 const owned=ownedRuntime();
@@ -37,7 +38,7 @@ const checkZoom=async(p,event,screen)=>{
 };
 const sourcePixel=async(p,event,t,kind,cam,frames)=>{
  await seek(p,t);
- await p.waitForFunction(({kind,cam})=>{const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp');return stage?.dataset.kind===kind&&stamp?.textContent.startsWith(cam+' ·')&&img&&!img.hidden&&img.complete&&img.naturalWidth>0;},{kind,cam});
+ await p.waitForFunction(({kind,cam,camN})=>{const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp');return stage?.dataset.kind===kind&&stamp?.textContent.startsWith(camN+' ·')&&img&&!img.hidden&&img.complete&&img.naturalWidth>0;},{kind,cam,camN:__camName(cam)});
  // A paused seek must finish the request for this exact source timestamp, not leave a stale picture.
  await p.waitForFunction(({t})=>Number(document.querySelector('#ui-scrub')?.value)===t,{t});
  let row;const FRAME_STEP_US=200000;   // recorded runs are 5 fps
@@ -52,7 +53,7 @@ const sourcePixel=async(p,event,t,kind,cam,frames)=>{
   check(await p.locator('.ui-tag-obs').isHidden(),`${event} ${kind} is not labelled observed`);
   check((await p.locator('.ui-live-note').innerText()).includes('持續播放'),`${event} ${kind} explains continued camera playback`);
  }
- if(kind==='LOST')check((await p.locator('.ui-track-title').innerText()).includes(`已跟丟 · 最後出現在 ${cam.replace(/^CAM_/,'')} 鏡頭`),`${event} LOST title names the last camera`);
+ if(kind==='LOST')check((await p.locator('.ui-track-title').innerText()).includes(`已跟丟 · 最後出現在 ${__camName(cam)} 鏡頭`),`${event} LOST title names the last camera`);
  return {event,kind,tUs:t,cam,frameIndex:row.frameIndex,sourceTimeS:row.sourceTimeS,servedSha256:row.servedSha256};
 };
 const continuous=async(p,event,track,frames)=>{
@@ -129,7 +130,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  check(ni>0,'cross-camera event');const previous=track.single_view.slice(0,ni).filter(s=>s.kind==='ON_CAMERA').at(-1),next=track.single_view[ni];
  await seek(p,Math.max(previous.range_us[0],previous.range_us[1]-200000));await decoded(p,'#ui-case2 .ui-stage-img',1);
  for(const speed of ['0.5','1','1.5','2']){await p.locator('#ui-speed').selectOption(speed);check(await p.locator('#ui-speed').inputValue()===speed,'source speed '+speed);}
- await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),next.camera_id,{timeout:15000});
+ await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),__camName(next.camera_id),{timeout:15000});
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
  await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);
  const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);check(true,event+' multi-view playback advances with decoded source RGB');

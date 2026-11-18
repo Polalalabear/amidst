@@ -147,7 +147,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   await Promise.all([page.close(),fallback.close(),automatic.close()]);
   const recorder=await browser.newPage();
   recorder.on('pageerror',e=>{errors.push(e.message);fs.writeFileSync(path.join(out,'record-errors.json'),JSON.stringify(errors));});
-  await recorder.goto(base+'/?run=A4-1&actor=T&record=1&fps=5&mouse=off');
+  await recorder.goto(base+'/?script=H1-1&record=1&fps=5&mouse=off');
   try { await recorder.waitForFunction(()=>window.__log?.ticks.length>=6,{timeout:20000}); }
   catch (error) {
    fs.writeFileSync(path.join(out,'record-debug.json'),JSON.stringify(await recorder.evaluate(()=>({
@@ -160,6 +160,8 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   await recorder.click('#record-stop');
   await recorder.waitForFunction(()=>window.__recordingDone===true);
   const caseData=await recorder.evaluate(()=>__case());
+  assert.equal(caseData.script_id,'H1-1');
+  assert.ok(caseData.inputs.some(row=>row.keys.w));
   caseData.actions=[{tick:0,action:'start',color:'red'},
    {tick:Math.floor(caseData.inputs.length/4),action:'stop'}];
   const caseFile=path.join(out,'browser.case.json');

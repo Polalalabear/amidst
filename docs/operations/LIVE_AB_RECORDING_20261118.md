@@ -63,13 +63,19 @@ approved amount for that run.
 
 ## Script operator integration
 
-The #615 route operator supplies the same keys through its
-`keys(playerPose,t_sim)` function. Its owner should feed these keys at the
-fixed-step input selection in operator.mjs and call recorder.append after
-crowd.step. The capture barrier owns advancement while infer is pending.
-The script route, player pose, clocks and expected snapshots stay in A.
-The #615 branch's renderer integration has not been combined in this
-checkpoint. Its generated case format can already use this playback module.
+The merged #615 route operator supplies keys through
+`keys(playerPose,t_sim)`. With ?script=<case_id>&record=1, the recorder's
+capture barrier calls this function at each 0.05 s step and appends the
+resulting crowd snapshot. Only one stepper advances the recording. Without
+recording, the existing route stepper remains available. Nine hardset
+routes each have a 400-step fixture replayed twice, and the browser smoke
+records and replays H1-1 through this entry point.
+
+The existing ?auto=A4/B4 loop semantics remain part of the case. If a second
+loop resets the scripted player to its start, recording retains that input
+and state transition. A case ends when its finite input sequence ends.
+Any answer-table exclusion around that reset is applied offline to both
+decision modes using the same window.
 
 The existing public advisor receipts retain their original fields.
 Missing pool coordinates, rule choice and cost remain UNKNOWN. Full

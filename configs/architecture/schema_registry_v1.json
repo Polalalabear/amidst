@@ -2638,6 +2638,14 @@
       ],
       "issue_ref": "#596",
       "status": "PROPOSED"
+    },
+    {
+      "value": "live-hardset.answer-table.v1",
+      "source_paths": [
+        "configs/evaluation/live_hardset_v1.json"
+      ],
+      "issue_ref": "#597",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
     }
   ]
 }

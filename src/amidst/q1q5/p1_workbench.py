@@ -235,6 +235,10 @@ class P1:
                         q=parse_qs(u.query);require(set(q)=={'token'} and len(q['token'])==1,'MEDIA_TOKEN_INVALID')
                         return self.reply(200,app.rgb.media(q['token'][0]),'image/png')
                     if u.path.startswith('/scene3d/'):return self.scene3d(u.path.removeprefix('/scene3d/'))
+                    if u.path in {'/','/workbench-v2'}:
+                        # Relative CSS/JS only resolve under /workbench-v2/; serving index.html here left the page unstyled.
+                        self.send_response(308);self.send_header('Location','/workbench-v2/'+('?'+u.query if u.query else ''));self.send_header('Content-Length','0')
+                        self.send_header('Cache-Control','no-store');self.end_headers();return
                     relative='index.html' if u.path in {'/','/workbench-v2/','/workbench-v2'} else u.path.removeprefix('/workbench-v2/')
                     require(u.path in {'/','/workbench-v2/','/workbench-v2'} or u.path.startswith('/workbench-v2/'),'STATIC_SCOPE')
                     p=local(app.ui_root,relative)
