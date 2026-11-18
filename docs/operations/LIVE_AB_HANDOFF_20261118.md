@@ -352,3 +352,30 @@ Set `AMIDST_LIVE_ASSETS` to the existing N6 base and run
 for the 27 regression cases. The production-detector dual-window and
 performance checks belong to #574.
 LOCAL `local/evidence/cx572-d315-20261118/MANIFEST.json` SHA-256 `73ac3374e34428920886d3d4ee090bfe2f376204bb0ceddb731c80ce1bd26b12`, 7 files / 173,623 bytes. The commands above reproduce the behavior; browser clocks and image captures may vary.
+
+## D315 P3 follow-up
+
+A failed pointer-lock request enables drag immediately. A later click without
+a drag can retry lock. Explicit drag mode has no pointer-lock request. The
+test exercises both transitions with synthetic pointer events. Physical
+pointer-lock feel is unverified.
+
+A script that is still hidden advances its own clock when another person
+obstructs its entrance. It becomes visible at a later pose with clearance.
+Those hidden steps add neither direct nor indirect waiting time. An already
+visible script that is blocked still follows §3.4. The fixed trials retain
+11 player phase-shift events, two of them chain events, and zero script or
+player-penetration violations.
+
+The added fixtures confirm that taint survives release under v2.1 and a pass
+exemption never skips a third actor's pair. The B4 player T trial still records
+783 exempt pair samples. The review's pending Opus questions about taint
+duration, pass lifetime and the resolver's error behavior are still open.
+
+The final behavioral preview against main `b98fac2a` includes #609's
+missing-capture-clock check. The scheduling-only fixture now uses the
+real inference path with an injected synthetic tracking step, so both
+scheduling tests exercise clock behavior independently of target selection.
+The preview passed 102 LIVE Node cases, including both browser fixtures,
+and 177 Python cases covering LIVE, Q3 parsing and offline scoring.
+LOCAL `local/evidence/cx610-d315-final-20261118/MANIFEST.json` SHA-256 `ac1d2b2dda7b3fb4c55258dfa141c5db7b74db55da971758c2ecd032a4a28aff`, 16 files / 838,750 bytes. Regenerate by running the above tests on the merged content, with the existing N6 and owned fixtures.
