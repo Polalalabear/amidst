@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .relock import RelockConfig, RelockPolicy, distance
 
 CATALOG_REL = "r004-build-v2-20261021/safe_static/cameras.json"
 
@@ -60,7 +61,7 @@ class Projector:
 
 class Tracker:
     def __init__(self, projector: Projector, hold_ticks: int = 2, gate_m: float = 3.0, lost_after: int = 15,
-                 gate_growth_m_s: float = 0.0, max_gate_m: float = 8.0):
+                 gate_growth_m_s: float = 0.0, max_gate_m: float = 8.0, *, relock: RelockConfig | None = None):
         # The gate is how far from the last estimate a red detection may be and still count as the target. With
         # gate_growth_m_s > 0 it widens while the target is unseen (gate_m + growth * seconds, up to max_gate_m), so
         # a target that walked on while undetected can be picked up again. 0 keeps the fixed gate of the spike.
@@ -73,6 +74,8 @@ class Tracker:
         self.last_seen = {}      # cam -> tick last seen target
         self.lost = 0
         self.events: list[dict] = []
+        self.relock = RelockPolicy(relock) if relock is not None else None
+        self.confirm_options = {}
 
     def _emit(self, tick, typ, cam=None, detail=None):
         self.events.append({"tick": tick, "type": typ, "cam": cam, "detail": detail})
@@ -93,6 +96,8 @@ class Tracker:
                 if xy is not None:
                     cands.append((cam, d, xy))
         seen = {}
+        if self.relock is not None:
+            self.relock.observe(t, cands)
         if self.state == "SEARCHING":
             # seed only when every red person sits at one place (several cameras may see the same one)
             same = bool(cands) and all(math.dist(c[2], cands[0][2]) < 1.5 for c in cands)
@@ -102,6 +107,10 @@ class Tracker:
                 self.t_seen = t
                 seen[best[0]] = best
                 self._emit(tick, "ACQUIRE", best[0])
+                if self.relock is not None:
+                    self.relock.record_match(best, cands)
+        elif self.relock is not None:
+            seen = self._update_relock(tick, t, cands)
         else:
             near = [c for c in cands if math.dist(c[2], self.est) <= gate]
             if near:
@@ -132,5 +141,86 @@ class Tracker:
                 if new != self.active:
                     self._emit(tick, "SWITCH", new, {"from": self.active, "gap_ticks": gap})
                     self.active = new
-        return {"state": self.state, "active_cam": self.active, "seen_cams": sorted(seen),
-                "est_xy": self.est, "events": list(self.events), "lost_ticks": self.lost}
+        return self._result(t, seen)
+
+    def _result(self, t, seen):
+        result = {"state": self.state, "active_cam": self.active, "seen_cams": sorted(seen),
+                  "est_xy": self.est, "events": list(self.events), "lost_ticks": self.lost}
+        if self.relock is not None:
+            unseen = max(0.0, t - self.t_seen) if self.t_seen is not None else 0.0
+            result["unseen_s"] = unseen
+            result["lost_phase"] = (
+                "long" if self.state == "NEEDS_CONFIRM" else
+                ("short" if self.relock.is_short(unseen) else "long") if self.lost else None
+            )
+            if self.state == "NEEDS_CONFIRM":
+                result["confirm_candidates"] = [public for _, public in self.confirm_options.values()]
+        return result
+
+    def _update_relock(self, tick, t, cands):
+        policy = self.relock
+        unseen = max(0.0, t - self.t_seen)
+        confirming = self.state == "NEEDS_CONFIRM"
+        points = policy.points(self.est, unseen)
+        near = [c for c in cands if distance(c[2], points) <= self.gate]
+        contiguous = policy.config.t_short_s == 0 or policy.is_short(unseen)
+        if near and not self.lost and not confirming and contiguous:
+            selected = min(near, key=lambda c: distance(c[2], points))
+            self.est, self.t_seen = selected[2], t
+            policy.record_match(selected, cands)
+            return {c[0]: c for c in near if math.dist(c[2], self.est) < policy.config.same_m}
+
+        decision = policy.find(cands, points, unseen, self.gate, self.max_gate, confirming)
+        if decision.candidate is not None:
+            candidate = decision.candidate
+            self._reacquire(tick, t, candidate, decision.mode)
+            policy.record_match(candidate.members[0], cands)
+            return {member[0]: member for member in candidate.members}
+
+        self.lost += 1
+        if self.lost == 1:
+            self._emit(tick, "TARGET_OUT_OF_VIEW", self.active)
+        if decision.reason:
+            self.state = "NEEDS_CONFIRM"
+            self.confirm_options = {}
+            for rank, candidate in enumerate(decision.options[:5], start=1):
+                public = candidate.public(tick, rank)
+                self.confirm_options[public["cand_id"]] = candidate, public
+            if not confirming:
+                self._emit(tick, "NEEDS_CONFIRM", self.active,
+                           {"unseen_s": unseen, "n_candidates": len(decision.options), "reason": decision.reason})
+        elif confirming:
+            # A vanished pool does not cancel confirmation.
+            self.confirm_options = {}
+        if decision.rejected:
+            self.state = "LOST"
+        if self.lost == self.lost_after:
+            self._emit(tick, "LOST", self.active)
+            if self.state != "NEEDS_CONFIRM":
+                self.state = "LOST"
+        return {}
+
+    def _reacquire(self, tick, t, candidate, mode, by=None):
+        detail = {"mode": mode, "unseen_s": max(0.0, t - self.t_seen), "dist_m": candidate.dist_m}
+        if mode != "short_gate" and candidate.d_app is not None:
+            detail["d_app"] = candidate.d_app
+        if by is not None:
+            detail["by"] = by
+        self.est, self.active, self.t_seen = list(candidate.xy), candidate.cam, t
+        self.last_seen[candidate.cam] = tick
+        self.state, self.lost = "TRACKING", 0
+        self.confirm_options = {}
+        self._emit(tick, "REACQUIRE", self.active, detail)
+
+    def confirm(self, cand_id: str, tick: int, t_s: float, *, by: str):
+        """Resolve the current policy generation. R2 binds its references to the HTTP session."""
+        if by not in ("user", "llm_hypothesis"):
+            raise ValueError("CONFIRM_SOURCE")
+        if self.state != "NEEDS_CONFIRM" or cand_id not in self.confirm_options:
+            raise ValueError("CONFIRM_CANDIDATE_UNKNOWN")
+        candidate, _ = self.confirm_options[cand_id]
+        self.events = []
+        self._reacquire(tick, t_s, candidate, "confirmed", by=by)
+        self.relock.reference_samples.clear()
+        self.relock.target_pid = None
+        return self._result(t_s, [candidate.cam])
