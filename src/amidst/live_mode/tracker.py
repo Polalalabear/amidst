@@ -14,6 +14,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .candidates import COLORS, finite_point
+
 
 CATALOG_REL = "r004-build-v2-20261021/safe_static/cameras.json"
 
@@ -60,8 +62,11 @@ class Projector:
 
 class Tracker:
     def __init__(self, projector: Projector, hold_ticks: int = 2, gate_m: float = 3.0, lost_after: int = 15,
-                 gate_growth_m_s: float = 0.0, max_gate_m: float = 8.0):
-        # The gate is how far from the last estimate a red detection may be and still count as the target. With
+                 gate_growth_m_s: float = 0.0, max_gate_m: float = 8.0, target_color: str = "red"):
+        if target_color not in COLORS:
+            raise ValueError("COLOR_UNSUPPORTED")
+        self.target_color = target_color
+        # The gate is how far from the last estimate a detection may be and still count as the target. With
         # gate_growth_m_s > 0 it widens while the target is unseen (gate_m + growth * seconds, up to max_gate_m), so
         # a target that walked on while undetected can be picked up again. 0 keeps the fixed gate of the spike.
         self.proj, self.hold, self.gate, self.lost_after = projector, hold_ticks, gate_m, lost_after
@@ -77,24 +82,45 @@ class Tracker:
     def _emit(self, tick, typ, cam=None, detail=None):
         self.events.append({"tick": tick, "type": typ, "cam": cam, "detail": detail})
 
-    def update(self, tick: int, dets: dict, img_size: tuple[int, int], t_s: float | None = None) -> dict:
+    def project_detections(self, dets: dict, img_size: tuple[int, int]):
+        W, H = img_size
+        for cam, lst in dets.items():
+            for d in lst:
+                if d.get("color") not in COLORS:
+                    continue
+                bbox = d.get("bbox")
+                xy = None
+                if finite_point(bbox, 4):
+                    x0, _, x1, y1 = bbox
+                    xy = self.proj.ground(cam, x0 / 2 + x1 / 2, y1, W, H)
+                d["est_xy"] = xy if finite_point(xy, 2) else None
+
+    def seed(self, candidate: dict, capture_s: float, by: str) -> dict:
+        tick = candidate["tick"]
+        self.est = list(candidate["est_xy"])
+        self.active = candidate["cam"]
+        self.t_seen = capture_s
+        self.state = "TRACKING"
+        self.lost = 0
+        self.last_seen = {self.active: tick}
+        self.events = []
+        self._emit(tick, "ACQUIRE", self.active, {"by": by})
+        return self._result([self.active])
+
+    def update(self, tick: int, dets: dict, img_size: tuple[int, int], t_s: float | None = None,
+               *, projected: bool = False) -> dict:
         self.events = []
         t = tick * 0.5 if t_s is None else t_s
         gate = self.gate if not self.growth or self.t_seen is None else min(self.max_gate, self.gate + self.growth * max(0.0, t - self.t_seen))
-        W, H = img_size
-        cands = []  # (cam, det, xy)
-        for cam, lst in dets.items():
-            for d in lst:
-                if d["color"] != "red":
-                    continue
-                x0, y0, x1, y1 = d["bbox"]
-                xy = self.proj.ground(cam, (x0 + x1) / 2, y1, W, H)
-                d["est_xy"] = xy
-                if xy is not None:
-                    cands.append((cam, d, xy))
+        if not projected:
+            self.project_detections(dets, img_size)
+        cands = [
+            (cam, det, det["est_xy"]) for cam, detections in dets.items() for det in detections
+            if det.get("color") == self.target_color and det.get("est_xy") is not None
+        ]
         seen = {}
         if self.state == "SEARCHING":
-            # seed only when every red person sits at one place (several cameras may see the same one)
+            # Standalone replays retain automatic acquisition for a single projected person.
             same = bool(cands) and all(math.dist(c[2], cands[0][2]) < 1.5 for c in cands)
             if same:
                 best = max(cands, key=lambda c: c[1]["score"])
@@ -132,5 +158,8 @@ class Tracker:
                 if new != self.active:
                     self._emit(tick, "SWITCH", new, {"from": self.active, "gap_ticks": gap})
                     self.active = new
+        return self._result(seen)
+
+    def _result(self, seen) -> dict:
         return {"state": self.state, "active_cam": self.active, "seen_cams": sorted(seen),
                 "est_xy": self.est, "events": list(self.events), "lost_ticks": self.lost}

@@ -65,21 +65,47 @@ export function variantSwatches(buffer) {
 
 export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
   if (mode === 'off') return () => {};
-  let dragMode = mode === 'drag' || !canvas.requestPointerLock, dragging = false, previous = null;
+  const canLock = mode !== 'drag' && typeof canvas.requestPointerLock === 'function';
+  let dragMode = !canLock, dragging = false, previous = null, travel = 0, pending = null;
   const listeners = [];
   const on = (target, type, fn) => { target.addEventListener(type, fn); listeners.push(() => target.removeEventListener(type, fn)); };
+  const fallback = ticket => {
+    if (ticket !== pending) return;
+    pending = null;
+    dragMode = true;
+  };
   on(canvas, 'click', () => {
-    if (dragMode) return;
-    try { Promise.resolve(canvas.requestPointerLock()).catch(() => { dragMode = true; }); }
-    catch { dragMode = true; }
+    if (!canLock || pending || doc.pointerLockElement === canvas || travel > 3) return;
+    const ticket = pending = Symbol();
+    try { Promise.resolve(canvas.requestPointerLock()).catch(() => fallback(ticket)); }
+    catch { fallback(ticket); }
   });
-  on(doc, 'pointerlockerror', () => { dragMode = true; });
-  on(doc, 'pointerlockchange', () => { dragging = false; previous = null; });
-  on(canvas, 'mousedown', e => { if (dragMode && e.button === 0) { dragging = true; previous = [e.clientX, e.clientY]; e.preventDefault(); } });
+  on(doc, 'pointerlockerror', () => { if (pending) fallback(pending); });
+  on(doc, 'pointerlockchange', () => {
+    if (doc.pointerLockElement === canvas && canLock) {
+      dragMode = false;
+      pending = null;
+    }
+    dragging = false;
+    previous = null;
+  });
+  on(canvas, 'mousedown', e => {
+    travel = 0;
+    if (dragMode && e.button === 0) {
+      dragging = true;
+      previous = [e.clientX, e.clientY];
+      e.preventDefault();
+    }
+  });
   on(doc, 'mouseup', () => { dragging = false; previous = null; });
   on(doc, 'mousemove', e => {
     if (doc.pointerLockElement === canvas) update(e.movementX, e.movementY);
-    else if (dragging && previous) { update(e.clientX - previous[0], e.clientY - previous[1]); previous = [e.clientX, e.clientY]; }
+    else if (dragging && previous) {
+      const dx = e.clientX - previous[0], dy = e.clientY - previous[1];
+      travel += Math.abs(dx) + Math.abs(dy);
+      update(dx, dy);
+      previous = [e.clientX, e.clientY];
+    }
   });
   on(doc.defaultView || doc, 'blur', () => { dragging = false; previous = null; });
   return () => listeners.forEach(remove => remove());

@@ -52,3 +52,12 @@ UI_QA_BASE_URL=http://127.0.0.1:8799 UI_QA_REQUIRE_8CAM=1 UI_QA_HEIGHT=900 UI_QA
 測試用臨時目錄中的 descriptor 觸發 `BYTE_PIN_MISMATCH`。自動載入以 UNKNOWN
 回報並保有原 4 個 run，顯式載入會拒絕同一輸入。
 LOCAL `local/evidence/cx594-d308-p2-20261118/MANIFEST.json`，SHA-256 `034dc5d3a3ebe5c0997edb849df27ed1bef49013e1416eddcaf1ef5c2dbe625a`，3 檔／1,693 bytes。
+
+## D315 複審 P3
+
+只有 bootstrap 驗證期間或 8CAM 狀態為 READY 時，I/O guard 才接受 receipt
+列出的檔案。自動來源降級到 UNKNOWN 後，該批讀取權立即停用，原有 run 的讀取仍可用。
+顯式 smoke 保留原嚴格驗證。#604 已含 #603 的 8CAM bootstrap 並合併；
+本修正和最新 main `b98fac2a` 的 Git 合併預覽無衝突。
+預覽的 8CAM／launcher／D147 共 22 個 Python 測試全部通過。
+LOCAL `local/evidence/cx610-d315-final-20261118/MANIFEST.json` SHA-256 `ac1d2b2dda7b3fb4c55258dfa141c5db7b74db55da971758c2ecd032a4a28aff`，16 檔／838,750 bytes。可用本文件的 focused 測試指令重跑。

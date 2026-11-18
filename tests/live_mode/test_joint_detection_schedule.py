@@ -10,7 +10,15 @@ from types import SimpleNamespace
 from PIL import Image
 
 from amidst.live_mode.scheduler import CameraScheduler
-from amidst.live_mode.server import State, make_handler
+from amidst.live_mode.server import State as InferenceState
+from amidst.live_mode.server import make_handler
+
+
+class State(InferenceState):
+    """Exercise production inference and scheduling with this module's synthetic tracker."""
+
+    def _infer_tracking(self, tick, t_s, out, frames, img_size):
+        return self.tracker.update(tick, out, img_size, t_s)
 
 
 def test_scheduled_batches_keep_entry_override_and_do_not_fabricate_skipped_observations():

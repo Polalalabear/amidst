@@ -1,83 +1,141 @@
-// What may cross from the operator window to the system window (BroadcastChannel) and to the
-// inference backend. D210: the system side must never receive the operator's person id or
-// coordinates; it only gets camera pixels plus results the backend derived from those pixels.
+// The same schema strips backend extras on send and rejects malformed messages on receive.
+// These messages carry pixel observations and their downstream results.
+export const TRACK_MODES = ['IDLE', 'ACQUIRING', 'NEEDS_PICK', 'TRACKING'];
 
-const FRAME_KEYS = new Set(['cam', 'jpeg']);
-const DET_KEYS = new Set(['bbox', 'score', 'color', 'red_ratio', 'blue_ratio', 'est_xy']);
-const TRACK_KEYS = new Set(['state', 'active_cam', 'seen_cams', 'est_xy', 'events', 'lost_ticks',
-  // image adjudication (src/amidst/live_mode/advisor.py): who decided, and the advisor's own status. Backend outputs only.
-  'decision_source', 'fallback_reason', 'advisor']);
-const ADVISOR_KEYS = new Set(['state', 'pending_ms', 'last']);
-const ADVISOR_LAST_KEYS = new Set(['kind', 'cam', 'choice', 'reason', 'latency_ms', 'applied', 'cleared', 'model', 'source', 'fallback_reason']);
-const EVENT_KEYS = new Set(['tick', 'type', 'cam', 'detail']);
-const TOP_KEYS = new Set(['type', 'tick', 't_capture_ms', 'frames', 'dets', 'tracking', 'timing_ms']);
-TOP_KEYS.add('schedule');
-const SCHEDULE_KEYS = new Set(['mode','camera_ids','next_camera_ids','reason','lost_rounds','radius','graph_sha256']);
+const enumOf = (...values) => value => values.includes(value);
+const text = value => typeof value === 'string' && Array.from(value).length <= 64;
+const number = Number.isFinite;
+const integer = value => Number.isSafeInteger(value) && value >= 0;
+const boolean = value => typeof value === 'boolean';
+const jpeg = value => value instanceof ArrayBuffer && !Object.keys(value).length;
+const nullable = rule => ({ nullable: rule });
+const list = (rule, size) => ({ list: rule, size });
+const shape = (fields, required = []) => ({ fields, required });
+const record = value => value !== null && typeof value === 'object' && !Array.isArray(value)
+  && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+
+const FORBIDDEN = new Set([
+  'actor_id', 'role', 'variant', 'person_id', 'operator_xy', 'player_xy', 'gt', 'gt_visible',
+  'waypoints', 's_i', 'forced_overlap', 'spawn_adjusted', 'run_id', 'view_yaw', 'view_pitch',
+  'session', 'session_id', '__proto__', 'prototype', 'constructor',
+]);
+const forbidden = key => FORBIDDEN.has(key) || /^(?:gt_|script_|pause_|session\.)/.test(key);
+const source = enumOf('RULE_ONLY', 'RULE_FALLBACK', 'AGENT');
+const questionKind = enumOf('SILENT_PICK', 'LOST_WITH_CANDIDATES');
+const point = nullable(list(number, 2));
+const color = enumOf('red', 'blue', 'none');
+const TARGET_RULE = shape({
+  color: nullable(enumOf('red', 'blue')),
+  mode: enumOf(...TRACK_MODES),
+}, ['color', 'mode']);
+
+const EVENT_DETAILS = {
+  ACQUIRE: shape({ by: enumOf('USER_PICK', 'AUTO_SINGLE') }, ['by']),
+  SWITCH: shape({ from: text, gap_ticks: integer, by: enumOf('AGENT') }, ['from']),
+  TARGET_OUT_OF_VIEW: enumOf(null),
+  LOST: enumOf(null),
+  REACQUIRE: enumOf(null),
+  ADJUDICATE_ASK: shape({ kind: questionKind, candidates: integer }),
+  ADJUDICATED: shape({
+    choice: nullable(integer), applied: boolean, cleared: boolean, source, latency_ms: number,
+  }),
+};
+const EVENT_RULE = (event) => shape({
+  tick: integer, type: enumOf(...Object.keys(EVENT_DETAILS)), cam: nullable(text),
+  detail: nullable(Object.hasOwn(EVENT_DETAILS, event?.type) ? EVENT_DETAILS[event.type] : enumOf(null)),
+}, ['tick', 'type']);
+
+const DETECTION = shape({
+  bbox: list(number, 4), score: number, color, red_ratio: number, blue_ratio: number, est_xy: point,
+}, ['bbox']);
+const SCHEDULE = shape({
+  mode: enumOf('adaptive', 'all'),
+  camera_ids: list(text), next_camera_ids: list(text),
+  reason: enumOf('ACTIVE_NEIGHBORS', 'ALL_CAMERAS', 'INITIAL_SEARCH', 'GRAPH_SCOPE_UNKNOWN',
+    'LOST_ALL', 'LOST_EXPAND', 'REQUEST_PLAN_MISS'),
+  lost_rounds: integer, radius: integer,
+  graph_sha256: nullable(value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)),
+}, ['mode', 'camera_ids', 'next_camera_ids', 'reason', 'lost_rounds', 'radius']);
+const TIMINGS = ['decode', 'preprocess', 'forward', 'post', 'detect_total', 'color', 'track', 'server_total'];
+const TRACKING = shape({
+  state: enumOf('IDLE', 'SEARCHING', 'NEEDS_PICK', 'TRACKING', 'LOST', 'ADJUDICATING',
+    'TARGET_OUT_OF_VIEW'),
+  active_cam: nullable(text), seen_cams: list(text), est_xy: point,
+  events: list({ event: true }), lost_ticks: integer, target: TARGET_RULE,
+  decision_source: source, fallback_reason: nullable(text),
+  advisor: nullable(shape({
+    state: enumOf('IDLE', 'ASKING'), pending_ms: nullable(number),
+    last: nullable(shape({
+      kind: questionKind, cam: text, choice: nullable(integer), reason: nullable(text),
+      latency_ms: number, applied: boolean, cleared: boolean, model: nullable(text), source,
+      fallback_reason: nullable(text),
+    })),
+  })),
+});
+const MESSAGE = shape({
+  type: enumOf('frame-batch'), tick: integer, t_capture_ms: number,
+  frames: list(shape({ cam: text, jpeg }, ['cam', 'jpeg'])),
+  dets: { map: list(DETECTION) }, tracking: TRACKING,
+  timing_ms: shape(Object.fromEntries(TIMINGS.map(key => [key, number]))),
+  schedule: SCHEDULE,
+}, ['type', 'tick', 't_capture_ms', 'frames', 'dets', 'tracking', 'timing_ms']);
+
+function checked(value, rule, path, bad) {
+  const reject = () => { bad.push(path); return undefined; };
+  if (typeof rule === 'function') return rule(value) ? value : reject();
+  if (rule.event) return checked(value, EVENT_RULE(value), path, bad);
+  if (rule.nullable) return value === null ? null : (checked(value, rule.nullable, path, bad) ?? null);
+  if (rule.list) {
+    if (!Array.isArray(value) || (rule.size !== undefined && value.length !== rule.size)) return reject();
+    for (const key of Object.keys(value)) {
+      if (!/^(?:0|[1-9]\d*)$/.test(key) || Number(key) >= value.length) bad.push(`${path}.${key}`);
+    }
+    const result = Array.from(value, (item, i) => checked(item, rule.list, `${path}[${i}]`, bad));
+    if (rule.size !== undefined && result.includes(undefined)) return undefined;
+    return result.filter(item => item !== undefined);
+  }
+  if (!record(value)) return reject();
+  const fields = [];
+  for (const [key, item] of Object.entries(value)) {
+    const type = rule.map ?? (Object.hasOwn(rule.fields, key) ? rule.fields[key] : null);
+    const at = `${path}.${key}`;
+    if (forbidden(key) || !type || (rule.map && !text(key))) {
+      bad.push(at);
+      continue;
+    }
+    const converted = checked(item, type, at, bad);
+    if (converted !== undefined) fields.push([key, converted]);
+  }
+  const result = Object.fromEntries(fields);
+  let missing = false;
+  for (const key of rule.required ?? []) {
+    if (!Object.hasOwn(result, key)) { bad.push(`${path}.${key}`); missing = true; }
+  }
+  return missing ? undefined : result;
+}
 
 export function buildSystemMessage({ tick, tCaptureMs, frames, result }) {
-  // Deliberately takes no operator/world state: only capture clock, pixels, backend result.
-  const dets = {};
-  for (const [cam, list] of Object.entries(result.dets || {})) {
-    dets[cam] = list.map((d) => pick(d, DET_KEYS));
-  }
-  const tr = result.tracking || {};
-  const tracking = pick(tr, TRACK_KEYS);
-  if (tracking.events) tracking.events = tracking.events.map((e) => pick(e, EVENT_KEYS));
-  if (tracking.advisor) {
-    tracking.advisor = pick(tracking.advisor, ADVISOR_KEYS);
-    if (tracking.advisor.last) tracking.advisor.last = pick(tracking.advisor.last, ADVISOR_LAST_KEYS);
-  }
   const msg = {
-    type: 'frame-batch', tick, t_capture_ms: tCaptureMs,
-    frames: frames.map((f) => pick(f, FRAME_KEYS)),
-    dets, tracking, timing_ms: result.timing_ms || {},
+    type: 'frame-batch', tick, t_capture_ms: tCaptureMs, frames,
+    dets: result.dets || {}, tracking: result.tracking || {}, timing_ms: result.timing_ms || {},
   };
-  if (result.schedule) msg.schedule=pick(result.schedule,SCHEDULE_KEYS);
-  return msg;
+  if (result.schedule) msg.schedule = result.schedule;
+  const clean = checked(msg, MESSAGE, 'msg', []);
+  if (!clean) throw new TypeError('INVALID_FRAME_ENVELOPE');
+  return clean;
 }
 
-function pick(o, keys) {
-  const r = {};
-  for (const k of Object.keys(o)) if (keys.has(k)) r[k] = o[k];
-  return r;
-}
-
-// Strict validator used by the system window on receive and by tests: any key outside the whitelist
-// (e.g. operator_xy, person_id, gt) is a violation.
 export function validateSystemMessage(msg) {
   const bad = [];
-  const chk = (obj, keys, path) => {
-    for (const k of Object.keys(obj)) if (!keys.has(k)) bad.push(`${path}.${k}`);
-  };
-  chk(msg, TOP_KEYS, 'msg');
-  if (msg.schedule) {
-    chk(msg.schedule,SCHEDULE_KEYS,'schedule');
-    if (!['adaptive','all'].includes(msg.schedule.mode)) bad.push('schedule.mode');
-    if (!['ACTIVE_NEIGHBORS','ALL_CAMERAS','INITIAL_SEARCH','GRAPH_SCOPE_UNKNOWN','LOST_ALL','LOST_EXPAND','REQUEST_PLAN_MISS'].includes(msg.schedule.reason)) bad.push('schedule.reason');
-    for (const key of ['lost_rounds','radius']) if (!Number.isInteger(msg.schedule[key]) || msg.schedule[key]<0) bad.push(`schedule.${key}`);
-    if (msg.schedule.graph_sha256!=null && !/^[a-f0-9]{64}$/.test(msg.schedule.graph_sha256)) bad.push('schedule.graph_sha256');
-    for (const key of ['camera_ids','next_camera_ids']) {
-      if (!Array.isArray(msg.schedule[key]) || msg.schedule[key].some(id=>typeof id!=='string')) bad.push(`schedule.${key}`);
-    }
-  }
-  for (const [i, f] of (msg.frames || []).entries()) chk(f, FRAME_KEYS, `frames[${i}]`);
-  for (const [cam, list] of Object.entries(msg.dets || {})) {
-    for (const [i, d] of list.entries()) chk(d, DET_KEYS, `dets.${cam}[${i}]`);
-  }
-  if (msg.tracking) {
-    chk(msg.tracking, TRACK_KEYS, 'tracking');
-    for (const [i, e] of (msg.tracking.events || []).entries()) chk(e, EVENT_KEYS, `events[${i}]`);
-    if (msg.tracking.advisor) {
-      chk(msg.tracking.advisor, ADVISOR_KEYS, 'tracking.advisor');
-      if (msg.tracking.advisor.last) chk(msg.tracking.advisor.last, ADVISOR_LAST_KEYS, 'tracking.advisor.last');
-    }
-  }
-  return bad;
+  checked(msg, MESSAGE, 'msg', bad);
+  return [...new Set(bad.map(path => path === 'msg' ? path : path.slice(4)))].map(
+    path => path.includes('.') || path === 'msg' ? path : `msg.${path}`,
+  );
 }
 
-// request header sent to the backend: tick/clock/camera ids only
+// The inference header accepts only the capture clock and registered camera IDs.
 export function buildInferHeader({ tick, tCaptureMs, frames, availableCameras }) {
-  const h = { tick, t_capture_ms: tCaptureMs, frames: frames.map((f) => ({ cam: f.cam, bytes: f.jpeg.byteLength })) };
-  if (availableCameras) h.available_cameras=[...availableCameras];
+  const h = { tick, t_capture_ms: tCaptureMs, frames: frames.map(f => ({ cam: f.cam, bytes: f.jpeg.byteLength })) };
+  if (availableCameras) h.available_cameras = [...availableCameras];
   return h;
 }
