@@ -292,3 +292,25 @@ coverage and 108 Python tests across the scorer and live-mode suites. The eight
 fixed-seed trials preserve the 11 player phase shifts (2 chain) and zero pure
 script violations. The A4 player T counterexample remains fixed at 78.7 s.
 LOCAL `local/evidence/cx584-d311-20261118/MANIFEST.json`, SHA-256 `bc91325a0f4e474f5d58ad06ae87df5e6c0bd72f567768f1485aff890cb9458a`, 20 files / 1,350,129 bytes.
+
+## D315 tracking endpoints (#571)
+
+The A reset response supplies a new 16-hex session ID. B reads that session
+through `GET /track/state` and uses it on each mutation. Candidate IDs are
+scoped to a session, selection epoch and tick. The backend keeps seven
+generations, so age six is selectable and age seven is stale. IDLE continues
+to expose pixel-derived candidates. A selection that reaches NEEDS_PICK
+requires a click even if the next capture has one candidate.
+
+Q3 uses the fixed LIVE person, red and blue vocabulary. The aliases are based
+on `configs/q1q5/class_alias_v1.json` and the LIVE chip labels. Parsing defaults
+to RULES and the client only receives a receipt. The existing effective LLM
+switch and a separate injected sentence ApiGuard are both needed for paid
+parsing. Tests use fake clients. The current image advisor shortlists red
+observations. Blue targets use the color-symmetric rule tracker.
+
+Run `python -B -m pytest tests/live_mode -q` and
+`python -B -m pytest tests/q1q5/test_nl_query_parse.py -q` with `PYTHONPATH=src`.
+The D315 branch from `3b5a987a` passed 107 live-mode tests and 35 Q3 tests.
+The endpoint tests serve synthetic camera frames on a temporary loopback port.
+LOCAL `local/evidence/cx571-d315-20261118/MANIFEST.json` SHA-256 `2fadd8c8d6e91029e365d902293bde85adea40835fac5f416cdebf30719a931d`, 5 files / 19,875 bytes. The commands above regenerate the test results.

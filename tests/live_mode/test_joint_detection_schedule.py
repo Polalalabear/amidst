@@ -34,7 +34,7 @@ def test_scheduled_batches_keep_entry_override_and_do_not_fabricate_skipped_obse
         state.tracker.active = "CAM_WIDE"
         return {"state": "TRACKING", "active_cam": "CAM_WIDE"}
 
-    state.tracker.update = update
+    state._infer_tracking = update
     batches = []
 
     def detect(images):
