@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # 組員離線評測包：FEAT-3／#293
 
 依 [D112-1 定案](https://github.com/Polalalabear/amidst/issues/293#issuecomment-6569026437)。目前 native builder、standalone verifier／replay、RETURN 及 TEST-ONLY driver 已實作；真實 P1 包仍等下方 scan gate 與 FEAT-2 的共用 production profile。此文件不表示 U12 發包核准。

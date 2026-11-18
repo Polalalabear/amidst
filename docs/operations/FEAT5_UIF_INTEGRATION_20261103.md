@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # FEAT-5：11-03 凍結前 UI-F 整合
 
 依[協調者乾跑分工](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278)，#388 必須隨 FEAT-5 批次第4步進入。以 no-ff `a1482f57cdb2b167af292481ccacadca268a4651` 接 #388@`0051d237f9a96b34a0c2b91742f0bd2621f67a63`，第一parent為原#392@`1ffabe603c5197515c9825f7e40e9ba5a08b1b35`。
