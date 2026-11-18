@@ -100,6 +100,8 @@ export function renderLegend(el) {
   el.append(id);
 }
 
+const AGENT_REASON={GATEWAY_OFFLINE:'OpenAI gateway 沒有在執行',GUARD_NOT_APPROVED:'後台沒有核准付費呼叫',NO_API_KEY:'gateway 沒有 API key',MODEL_NOT_ENABLED:'gateway 沒有啟用此模型'};
+
 export function mountShell(root, store) {
   const $ = (sel) => root.querySelector(sel);
   const $$ = (sel) => [...root.querySelectorAll(sel)];
@@ -286,7 +288,7 @@ export function mountQShell(root,store,handlers={}) {
     for(const b of root.querySelectorAll('[data-task]'))pressed(b,b.dataset.task===s.task);
     for(const b of root.querySelectorAll('[data-playback]'))pressed(b,b.dataset.playback===s.playbackMode);
     for(const b of root.querySelectorAll('[data-size]'))pressed(b,Number(b.dataset.size)===s.size);
-    $('#q-switch').value=s.switchMode;$('#q-switch option[value="AGENT_SEQUENTIAL"]').disabled=!s.activeRun?.agent_available;
+    $('#q-switch').value=s.switchMode;{const agent=$('#q-switch option[value="AGENT_SEQUENTIAL"]');agent.disabled=!s.activeRun?.agent_available;const why=s.activeRun?.agent_unavailable_reason;agent.textContent=!s.activeRun?.agent_available&&why?`Agent（不可用：${AGENT_REASON[why]??why}）`:'Agent';}
     if(s.bootstrap!==lastBootstrap){lastBootstrap=s.bootstrap;
       const select=$('#q-run');select.replaceChildren();
       for(const [index,run] of (s.bootstrap?.runs??[]).entries()){const option=document.createElement('option');option.value=String(index);option.textContent=run.title??`${run.scene_id} · ${run.run_id}`;select.append(option);}

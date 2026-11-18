@@ -146,7 +146,7 @@ class Media:
 
 class Demo(P1):
     def __init__(self, artifacts, p1_bundle, state, *, job_path, job_pin, owned_root,
-                 eightcam=None, eightcam_reason='ROOT_NOT_CONFIGURED', eightcam_required=True):
+                 eightcam=None, eightcam_reason='ROOT_NOT_CONFIGURED', eightcam_required=True, agent_queue=None):
         super().__init__(p1_bundle, P1_PIN, state, ui_root=REPO / 'frontend/workbench-v2')
         base = list(self.api.runs.values())[0]
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
@@ -202,6 +202,9 @@ class Demo(P1):
                 self.positions[key] = camera_positions
                 self.eightcam_status.update(status='READY', reason=None)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
+        if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
+            from amidst.q1q5.openai_gateway import configure_environment
+            runs = list(configure_environment(runs, agent_queue))
         self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
         self.scenes = {r.catalog['scene_id'] for r in runs}
 
@@ -330,7 +333,8 @@ def main():
     state = Path(tempfile.mkdtemp(prefix='run-', dir=state_root))/'state'
     app = Demo(owned_path(root, config['artifacts_root']), owned_path(root, config['p1_bundle']), state,
         job_path=owned_path(root, config['cross_camera_job']), job_pin=config['cross_camera_job_sha256'], owned_root=root,
-        eightcam=eightcam, eightcam_reason=reason, eightcam_required=eightcam_required)
+        eightcam=eightcam, eightcam_reason=reason, eightcam_required=eightcam_required,
+        agent_queue=state_root/'agent-gateway')
     with server(app, args.port) as http:
         print(json.dumps({'url': f'http://127.0.0.1:{http.server_port}/workbench-v2/',
                           'state_root': str(state), 'runs': [r['title'] for r in app.bootstrap()['runs']],

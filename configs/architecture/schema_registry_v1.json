@@ -2591,6 +2591,22 @@
       "status": "WP5_EVAL_SUMMARY"
     },
     {
+      "value": "q-demo.agent-gateway-request.v1",
+      "source_paths": [
+        "src/amidst/q1q5/openai_gateway.py"
+      ],
+      "issue_ref": "#601",
+      "status": "RECORDED_AGENT_GATEWAY_QUEUE"
+    },
+    {
+      "value": "q-demo.agent-gateway-status.v1",
+      "source_paths": [
+        "src/amidst/q1q5/openai_gateway.py"
+      ],
+      "issue_ref": "#601",
+      "status": "RECORDED_AGENT_GATEWAY_QUEUE"
+    },
+    {
       "value": "live-ab.a-log.v1",
       "source_paths": [
         "frontend/live-mode/src/operator.mjs",
