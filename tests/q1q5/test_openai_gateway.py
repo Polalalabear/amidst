@@ -172,7 +172,7 @@ def test_reply_after_the_deadline_is_a_timeout_and_leaves_no_orphan(tmp_path):
     clock = Clock()
 
     def slow(system, user, api_model, max_out, timeout_s, env, schema=None):
-        clock.t += 5   # the model answers 5 s later; the per-call budget is 2 s
+        clock.t += 9   # the model answers 9 s later; the per-call budget is 8 s (D313)
         return json.dumps(auto(json.loads(user), 1)), 10, 10, api_model
     queue, worker, provider = wire(tmp_path, call=slow, clock=clock)
     _, result = select(agent_run(provider))
@@ -282,12 +282,20 @@ def test_openai_chat_sends_json_schema_with_bearer_key_and_unwraps_output(monkey
 
 def test_operator_budget_override_is_explicit_visible_and_validated(tmp_path):
     runs = [run_binding(agent=True)]
-    assert og.configure_environment(runs, tmp_path, env={og.ENV_SWITCH: 'openai'})[0].bindings.parameter_sha256 == runs[0].bindings.parameter_sha256   # unset = approved values
+    base = {p['name']: p for p in runs[0].bindings.parameter_set['parameters']}
+    assert base['agent_call_timeout_ms']['value'] == 2000 and base['agent_total_budget_ms']['value'] == 5000   # LOCAL baseline file values
+    on = og.configure_environment(runs, tmp_path, env={og.ENV_SWITCH: 'openai'})[0]   # switch on, no env: D313 replaces the baseline values
+    d = {p['name']: p for p in on.bindings.parameter_set['parameters']}
+    assert d['agent_call_timeout_ms']['value'] == 8000 and d['agent_total_budget_ms']['value'] == 24000
+    assert d['agent_call_timeout_ms']['proposal_ref'] == d['agent_total_budget_ms']['proposal_ref'] == og._REF313 and d['agent_call_timeout_ms']['proposed_by'] == 'D313'
+    assert on.bindings.parameter_sha256 != runs[0].bindings.parameter_sha256
+    assert on.bindings.parameter_sha256 == on.bindings.parameter_set['content_sha256'] == on.parse_settings.parameter_set_sha256
+    assert og.ensure_agent_parameters(on) == on   # idempotent
     env = {og.ENV_SWITCH: 'openai', 'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': '6000', 'AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS': '20000'}
     bound = og.configure_environment(runs, tmp_path, env=env)[0]
     rows = {p['name']: p for p in bound.bindings.parameter_set['parameters']}
     assert rows['agent_call_timeout_ms']['value'] == 6000 and rows['agent_total_budget_ms']['value'] == 20000
-    assert rows['agent_call_timeout_ms']['proposal_ref'] == og.OVERRIDE_REF and bound.bindings.parameter_sha256 != runs[0].bindings.parameter_sha256
+    assert rows['agent_call_timeout_ms']['proposal_ref'] == og.OVERRIDE_REF and bound.bindings.parameter_sha256 != on.bindings.parameter_sha256 != runs[0].bindings.parameter_sha256
     assert bound.parse_settings.parameter_set_sha256 == bound.bindings.parameter_sha256
     for bad in ('0', '-5', 'abc', '120001', '999999'):
         with pytest.raises(ValueError):

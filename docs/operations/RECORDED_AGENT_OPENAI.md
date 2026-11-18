@@ -12,7 +12,7 @@
 
 ## 預算與逾時
 - 預設（D313，[#93 決策留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6967942787)）：每輪 8000 ms、總共 24000 ms、最多 3 輪。gpt-6.1-terra 每輪約 2.3–3.5 s，預設即可完成；預錄回放不是即時，等較久只影響操作體感。原預設 2000／5000 ms 必逾時（`PROVIDER_TIMEOUT`），已取代。
-- 選用覆寫（操作者明示，寫進參數集並讓 hash 改變）：`AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS`、`AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS`（1..120000，超過即拒絕）。不設就用上面的預設。
+- 選用覆寫（操作者明示，寫進參數集並讓 hash 改變）：`AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS`、`AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS`（1..120000，超過即拒絕）。不設就用上面的預設。開關為 `openai` 時，D313 值會**取代** run 的 LOCAL 參數檔裡已有的 2000／5000（`proposal_ref` 指 D313、hash 重新封存）；環境覆寫疊在 D313 之上（`proposal_ref` 為 operator-env）。
 
 ## 顯示與退回
 - 不可用原因（bootstrap `agent_unavailable_reason`）：`GATEWAY_OFFLINE`、`GUARD_NOT_APPROVED`、`NO_API_KEY`、`MODEL_NOT_ENABLED`。

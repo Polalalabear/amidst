@@ -274,22 +274,30 @@ def load_settings(repo_root=None, api_model: str = API_MODEL) -> AgentSettings:
 
 def ensure_agent_parameters(run, overrides=None):
     """Add the approved agent parameters a run lacks (same values/refs as the A4-1 config) and re-seal its parameter set.
-    A run that already has them is returned unchanged."""
+    The two timeouts are D313 values: a run whose LOCAL parameter file carries other values (the 2000/5000 baseline) gets them replaced
+    (proposal_ref = D313); operator env overrides sit on top of D313 (OVERRIDE_REF). Other present rows are left alone."""
     b = run.bindings
     ps = deepcopy(b.parameter_set)
     have = {p['name']: p for p in ps['parameters']}
     missing = [x for x in AGENT_PARAMETERS if x[0] not in have]
-    changed = {n: v for n, v in (overrides or {}).items() if have.get(n, {}).get('value') != v}
+    d313 = {n: v for n, v, _, ref in AGENT_PARAMETERS if ref == _REF313}
+    wanted = {**d313, **(overrides or {})}
+    changed = {n: v for n, v in wanted.items() if n in have and have[n].get('value') != v}
+    changed.update({n: v for n, v in (overrides or {}).items() if n not in have})
     if not missing and not changed:
         return run
     for name, value in changed.items():   # operator override (env at launch): visible in the parameter set and its hash
         row = have.get(name)
         if row is not None:
-            row.update(value=value, proposed_by='operator', proposal_ref=OVERRIDE_REF)
+            if name in (overrides or {}):
+                row.update(value=value, proposed_by='operator', proposal_ref=OVERRIDE_REF)
+            else:
+                row.update(value=value, proposed_by='D313', proposal_ref=_REF313)
     for name, value, unit, ref in missing:
-        if name in changed:
-            value, ref = changed[name], OVERRIDE_REF
-        ps['parameters'].append({'name': name, 'value': value, 'unit': unit, 'status': 'APPROVED', 'proposed_by': 'operator' if name in changed else 'codex', 'proposal_ref': ref})
+        over = name in (overrides or {})
+        if over:
+            value, ref = overrides[name], OVERRIDE_REF
+        ps['parameters'].append({'name': name, 'value': value, 'unit': unit, 'status': 'APPROVED', 'proposed_by': 'operator' if over else 'D313' if ref == _REF313 else 'codex', 'proposal_ref': ref})
     ps['content_sha256'] = canonical_hash(ps, exclude=('content_sha256', 'stats', 'graph_id', 'parameter_set_id', 'index_id'))
     ps['parameter_set_id'] = ps['parameter_set_id'].rsplit(':', 1)[0] + ':' + ps['content_sha256'][:16]
     settings = replace(run.parse_settings, parameter_set_id=ps['parameter_set_id'], parameter_set_sha256=ps['content_sha256'])
@@ -426,11 +434,11 @@ class GatewayWorker:
             out = self.guard.run(CALLER, api_model, est_prompt, max_out, fn)
         except (socket.timeout, TimeoutError):
             return self._late(rid, deadline, 'TIMEOUT', 'TIMEOUT')
+        except urllib.error.HTTPError as exc:   # never echo bodies or messages: they can carry request details
+            return self._late(rid, deadline, 'ERROR', f'HTTP_{exc.code}')
         except urllib.error.URLError as exc:
             timed_out = isinstance(exc.reason, (socket.timeout, TimeoutError))
             return self._late(rid, deadline, 'TIMEOUT' if timed_out else 'ERROR', 'TIMEOUT' if timed_out else 'URL_ERROR')
-        except urllib.error.HTTPError as exc:   # never echo bodies or messages: they can carry request details
-            return self._late(rid, deadline, 'ERROR', f'HTTP_{exc.code}')
         except PermissionError:
             return self._late(rid, deadline, 'DENIED', 'NO_API_KEY')
         except Exception as exc:  # noqa: BLE001 - operational fault; only the class name leaves this process
