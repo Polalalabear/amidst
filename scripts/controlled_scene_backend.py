@@ -16,13 +16,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", action="store_true", required=True)
     parser.add_argument("--port", type=int, default=0)
-    parser.add_argument("--vendor-root", type=Path)
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[1]
     with tempfile.TemporaryDirectory(prefix="amidst-controlled-fixture-") as state:
         workbench = Workbench({}, ReviewStore(Path(state) / "review.sqlite3", {}),
                               controlled_scene=ControlledSceneAPI(fixture_mode=True))
-        app = Application(workbench, repo, vendor_root=args.vendor_root)
+        app = Application(workbench, repo)
         with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
             print(f"SYNTHETIC_FIXTURE_URL=http://127.0.0.1:{server.server_port}/workbench-v2/",
                   flush=True)

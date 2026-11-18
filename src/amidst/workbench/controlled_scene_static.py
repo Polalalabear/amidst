@@ -1,4 +1,4 @@
-"""Exact URL-to-file maps for v2 and six reusable pure legacy modules."""
+"""Exact URL-to-file map for the workbench-v2 static files (old UI retired, D268)."""
 
 from pathlib import Path
 
@@ -17,14 +17,8 @@ V2_FILES = (
     "fonts/IBMPlexMono-Regular.woff2", "fonts/NotoSansTC-Regular.woff2",
     "fonts/OFL-IBMPlex.txt", "fonts/OFL-NotoSansTC.txt",
 )
-PURE_MODULES = ("presentation-data.mjs", "ground-estimate.mjs", "geometry.mjs",
-                "blind-hypothesis.mjs", "demo-mode.mjs", "observation-selection.mjs")
-VENDOR_LINES = ("Line2.js", "LineMaterial.js", "LineGeometry.js", "LineSegments2.js",
-                "LineSegmentsGeometry.js")
 STATIC_FILES = {"/workbench-v2/": "frontend/workbench-v2/index.html"}
 STATIC_FILES.update({"/workbench-v2/" + f: "frontend/workbench-v2/" + f for f in V2_FILES})
-STATIC_FILES.update({"/workbench/" + f: "frontend/workbench/" + f for f in PURE_MODULES})
-LINE_FILES = {"/vendor/examples/jsm/lines/" + f: "examples/jsm/lines/" + f for f in VENDOR_LINES}
 
 
 def read_static(repo: Path, path: str) -> bytes:

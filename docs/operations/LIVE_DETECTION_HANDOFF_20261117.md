@@ -1,6 +1,10 @@
 # CX-L1 啟動與評估交接（#552）
 
-**最新狀態（D273，2026-11-18）：近期紅衣候選鏡頭修正已實跑；固定RGB／新實跑品質與protocol條件PASS，ENTRY因baseline tracker無正確重鎖仍UNKNOWN，整體NOT_PASSED。#559保持Draft，與新main另有待整合衝突。詳見 `docs/evaluation/LIVE_DETECTION_SCHEDULE_D273_20261118.md`。**
+**D282（2026-11-18）** 接受 D273 的排程品質與 protocol 結果作為 #559 的交付依據。
+ENTRY 再入鏡時，baseline tracker 的 4 m gate 之外已有目標樣投影，但兩種模式均無正確重鎖延遲。
+這是已知限制，由 [#585](https://github.com/Polalalabear/amidst/issues/585) 定義分段門檻。
+#559 已整合 main，/config 保留偵測、排程、LLM 欄位與 #563 的 CORS、POST Host 檢查。
+D273 的量測對應原 runtime，詳見 `docs/evaluation/LIVE_DETECTION_SCHEDULE_D273_20261118.md`。
 
 **修改C歷史狀態：已merge main並實跑，當時驗收NOT_PASSED。** 組成、逐條條件、新證據與重現命令見 `docs/evaluation/LIVE_DETECTION_SCHEDULE_JOINT_20261117.md`。以下修改A時的等待記錄屬歷史狀態。
 

@@ -48,6 +48,8 @@ def main():
         gate_growth=0.0,
         max_gate=8.0,
         advisor="off",
+        advisor_provider="fake",
+        advisor_model="sol6.1",
         det_width=320,
         det_height=180,
     )

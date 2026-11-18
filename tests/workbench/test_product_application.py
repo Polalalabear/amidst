@@ -60,11 +60,6 @@ def composition(frozen: tuple[Path, Path], tmp_path: Path) -> Iterator[Compositi
     gallery_png = repo / "data/engineering/local_run/simulation_v2/presentation/inference.png"
     gallery_png.parent.mkdir(parents=True, exist_ok=True)
     Image.new("RGB", (2, 2), (20, 70, 110)).save(gallery_png)
-    frontend = repo / "frontend/workbench"
-    frontend.mkdir(parents=True)
-    for name in ("investigation", "workflow", "gallery", "investigation-scope",
-                 "accuracy-evaluation", "run-study"):
-        (frontend / (name + ".mjs")).write_text("export const localOnly=true;")
     workbench = Workbench({scene.scene_id: scene}, reviews, gallery=Gallery(repo))
     research = workbench.session({"role": "research"})["session_ref"]
     manager = workbench.session({"role": "management"})["session_ref"]
@@ -338,8 +333,9 @@ def test_gallery_routes_are_research_only_fixed_family_and_hash_bound_pngs(
 @pytest.mark.parametrize("path", ["/investigation.mjs", "/workflow.mjs", "/gallery.mjs",
                                  "/investigation-scope.mjs", "/accuracy-evaluation.mjs",
                                  "/run-study.mjs"])
-def test_fixed_local_static_modules_and_host_limit(composition: Composition, path: str) -> None:
-    status, headers, body = http(composition, path, method="GET")
-    assert status == "200 OK" and headers["Content-Type"] == "text/javascript"
-    assert body == b"export const localOnly=true;"
-    assert http(composition, path, method="GET", host="outside.invalid:8016")[0] == "403 Forbidden"
+def test_retired_old_ui_modules_are_denied(composition: Composition, path: str) -> None:
+    assert http(composition, path, method="GET")[0] == "403 Forbidden"
+
+
+def test_old_entry_redirects_to_v2(composition: Composition) -> None:
+    assert http(composition, "/", method="GET")[0].startswith("302")

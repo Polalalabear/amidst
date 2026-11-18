@@ -256,8 +256,7 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path, *,
     # explicit NOT_READY; it never activates fixture data or a model implicitly.
     from amidst.q1q5.api import from_environment as q_api_from_environment
     return Application(workbench, ui_repo,
-                       q_api=q_api_from_environment(workbench.controlled_scene, ui_repo),
-                       vendor_root=evidence_repo / "frontend/workbench/node_modules/three")
+                       q_api=q_api_from_environment(workbench.controlled_scene, ui_repo))
 
 
 def post(base: str, action: str, value: dict[str, Any]) -> tuple[int, Any]:

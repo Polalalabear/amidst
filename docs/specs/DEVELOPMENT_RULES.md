@@ -46,7 +46,7 @@ git diff --check
 
 ### 共用網頁工作台
 
-- Amidst 網頁以 `frontend/workbench/` 的[共用工作台](../engineering/SHARED_WORKBENCH.md)為主入口；既有及後續需要頁面展示的功能均接入它的導覽、元件及流程。
+- Amidst 網頁以 `frontend/workbench-v2/`（8785，由 `scripts/serve_demo_integration.py` 提供；舊 `frontend/workbench/` 已於 D268 下線）為主入口，歷史設計見[共用工作台](../engineering/SHARED_WORKBENCH.md)；既有及後續需要頁面展示的功能均接入它的導覽、元件及流程。
 - 新場景使用 catalog／adapter，新增展示、調查、測試或人審功能擴充共用工作台。研究／管理權限由後端限制，工作模式及產品的輸入模式／凍結階段不改變權限。
 - 遷移既有頁面時重用資料與後端服務，保留原介面、來源綁定及歷史驗證；以局部查詢與獨立 milestone 驗證遷移。未遷入的功能在 handoff 明列，不把主入口決策或舊頁面的 PASS 當作遷移完成。
 
@@ -81,7 +81,7 @@ Verify workspace, Git status and branch before work; preserve unrelated changes.
 
 Prefer reusing one checkout/environment and shared immutable assets rather than accumulating worktrees, clones or raw copies per milestone. Branches can share the same checkout. Necessary isolation remains available; existing assets/checkouts are not deleted or archived without authorization.
 
-Use `frontend/workbench/` as the primary Amidst web entry for existing and future presentation,
+Use `frontend/workbench-v2/` (port 8785, served by `scripts/serve_demo_integration.py`; the old `frontend/workbench/` was retired in D268) as the primary Amidst web entry for existing and future presentation,
 investigation, testing and human review. Extend its shared navigation, components and scene
 catalog/adapters. Enforce Research/Management access on the server; work modes and product
 input/frozen stages do not grant permissions. Reuse existing backend/data contracts during

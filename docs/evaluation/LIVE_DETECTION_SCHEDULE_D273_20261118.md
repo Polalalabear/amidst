@@ -2,7 +2,8 @@
 
 本文件接續[第三份指示](https://github.com/Polalalabear/amidst/pull/559#issuecomment-6952347393)。
 此階段只修排程，不改預設為all、不改偵測門檻、graph、tracker gate或原t1評分。
-**結果：NOT_PASSED；排程品質與protocol條件通過，ENTRY為baseline追蹤問題、尚無可比較的正確重鎖延遲。** 保持Draft。被測runtime為4fbc4af1。
+**D273 量測結果為 NOT_PASSED**，被測 runtime 為 4fbc4af1。排程品質與 protocol 條件通過，兩種模式的 ENTRY 正確重鎖延遲均為 null。
+[D282](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6966400705) 接受排程結果，將 ENTRY 記為 baseline tracker 已知限制，由 [#585](https://github.com/Polalalabear/amidst/issues/585) 接續。
 
 ## 為何選近期候選鏡頭
 
@@ -134,13 +135,10 @@ git diff --check
 它引用LOCAL完整composition的SHA，提交的副本移除絕對輸入路徑。raw composition保留精確args、
 runtime檔案SHA與4個exit code；未宣稱最終文件commit也重新實跑了runtime。
 
-## 待決定與整合限制
+## D282 交付決定
 
-依使用者原限制，此次不碰tracker.py。可比較的ENTRY正確重鎖延遲仍缺；需要Claude／使用者
-另定4m gate外、已有多個像素候選時如何重新取得目標的契約／owner，或指定可用的既有RETURN
-錄製來驗證。目前baseline問題不能靠新增ENTRY graph邊修掉，也不能拿兩個null放行。
-
-此外GitHub目前回報本分支與新main（#563的server LLM開關）有衝突。原修改C的兩親merge
-4ac1738a仍保留；本次沒有重新merge、rebase、force-push或合併PR。按目前AGENTS，merge由
-使用者在自己終端執行；需要先安排main整合，再依保留雙邊/config與逐cam門檻原則處理衝突、
-跑相同focused與聯合檢查。當前結果不代表已包含#563或可直接合併。#559保持Draft。
+ENTRY 正確重鎖延遲維持 UNKNOWN。分段門檻契約與後續驗證由
+[#585](https://github.com/Polalalabear/amidst/issues/585) 追蹤。
+D282 授權將 main 整合進 #559 的 feature 分支。合併保留 #563 的 /config CORS、POST Host
+檢查及 LLM 欄位，並保留偵測／排程欄位與逐鏡頭門檻。整合後的驗證為 Python 與 Node 回歸。
+新實跑數字仍對應上文的 D273 runtime。正式審查與合併流程見 #559。

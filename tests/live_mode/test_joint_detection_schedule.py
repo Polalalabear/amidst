@@ -70,8 +70,16 @@ def test_config_exposes_both_detection_and_scheduling_contracts():
         schedule="adaptive",
         expand_every=1,
         advisor="off",
+        advisor_provider="fake",
+        advisor_model="sol6.1",
     )
-    state = SimpleNamespace(args=args, graph_meta={"graph_sha256": "a" * 64}, n6=True)
+    state = SimpleNamespace(
+        args=args,
+        graph_meta={"graph_sha256": "a" * 64},
+        scheduler=SimpleNamespace(recent_red_s=2.0),
+        llm_switch={"requested": "off", "effective": "off"},
+        n6=True,
+    )
     server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(state))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -81,7 +89,9 @@ def test_config_exposes_both_detection_and_scheduling_contracts():
         assert cfg["det_resize_mode"] == "letterbox" and cfg["min_score"] == 0.15
         assert cfg["camera_min_scores"] == {"CAM_ENTRY": 0.05} and cfg["det_size"] == [320, 180]
         assert cfg["schedule_mode"] == "adaptive" and cfg["schedule_policy"]["expand_every"] == 1
-        assert cfg["schedule_policy"]["graph_sha256"] == "a" * 64 and cfg["advisor"] == "off"
+        assert cfg["schedule_policy"]["graph_sha256"] == "a" * 64
+        assert cfg["schedule_policy"]["recent_red_s"] == 2.0
+        assert cfg["advisor"] == "off" and cfg["llm_switch"]["effective"] == "off"
     finally:
         server.shutdown()
         server.server_close()
