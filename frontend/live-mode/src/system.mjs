@@ -140,15 +140,16 @@ export function createBController({ fetcher = fetch, clock = now, onChange = () 
     if (operation || state.mode !== 'NEEDS_PICK' || !state.session) return Promise.resolve();
     if (candidateRequest) return candidateRequest;
     const session = state.session, ticket = revision;
-    candidateRequest = request(`candidates?color=${state.color}`)
+    const inflight = request(`candidates?color=${state.color}`)
       .then(data => {
         if (ticket === revision) dispatch({ type: 'CANDIDATES', data, session });
       })
       .catch(() => {
         if (ticket === revision) dispatch({ type: 'MESSAGE', message: '候選讀取失敗，正在重試。' });
       })
-      .finally(() => { candidateRequest = null; });
-    return candidateRequest;
+      .finally(() => { if (candidateRequest === inflight) candidateRequest = null; });
+    candidateRequest = inflight;
+    return inflight;
   }
   function sync() {
     if (poll) return poll;
@@ -160,6 +161,7 @@ export function createBController({ fetcher = fetch, clock = now, onChange = () 
         if (dispatch({ type: 'SESSION', data, at: clock() }) && state.session !== session) {
           revision++;
           operation = null;
+          candidateRequest = null;
           outdatedSession = null;
         }
       }
@@ -192,6 +194,7 @@ export function createBController({ fetcher = fetch, clock = now, onChange = () 
     const at = clock();
     const ticket = ++revision;
     operation = ticket;
+    candidateRequest = null;
     dispatch({ type: 'MESSAGE', message: '' });
     let refresh = false, syncState = false;
     try {

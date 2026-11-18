@@ -128,6 +128,34 @@ test('a session mismatch invalidates old intent and polls the server again', asy
   assert.equal(controller.state.mode, 'IDLE');
 });
 
+test('an old candidate request cannot delay fetching candidates for the new session', async () => {
+  let session = firstSession, finishOld, lookups = 0;
+  let clock = 1000;
+  const controller = createBController({ clock: () => clock, fetcher: async path => {
+    if (path === '/track/state') return response(state(session));
+    if (path === '/track/start') return response(snapshot('NEEDS_PICK', []));
+    if (++lookups === 1) return new Promise(resolve => { finishOld = resolve; });
+    return response(snapshot('NEEDS_PICK', [candidate('new', 1, 3)]));
+  } });
+  await controller.sync();
+  controller.intent('red', '');
+  await controller.act('start');
+  controller.frame(frame(1, 'NEEDS_PICK'));
+  assert.equal(lookups, 1);
+  session = secondSession;
+  clock = 2000;
+  await controller.sync();
+  controller.intent('red', '');
+  await controller.act('start');
+  controller.frame(frame(1, 'NEEDS_PICK', 'red', 'NEEDS_PICK', 2001));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(lookups, 2);
+  assert.equal(controller.state.candidates[0].cand_id, 'new');
+  finishOld(response(snapshot('NEEDS_PICK', [candidate('old', 5, 6)])));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(controller.state.candidates[0].cand_id, 'new');
+});
+
 test('cache keeps only the newest five frames and matches a candidate by tick and camera', () => {
   let st = reduceB(createBState(), { type: 'SESSION', data: state(firstSession) });
   for (let tick = 0; tick < 7; tick++) {
