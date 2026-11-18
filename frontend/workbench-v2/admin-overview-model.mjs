@@ -2,8 +2,30 @@
 // event log that the front desk writes into this browser's localStorage, nothing else. A figure with no measured
 // source stays null; the view prints 尚未量測 for it. No example values.
 import { NOT_MEASURED, classDisplay, normalizeLog } from './ui-model.mjs';
+import { placeLabel, cameraLabel, nameTitle } from './place-names.mjs';
 
 export const HISTORY_LIMIT = 12;
+// Plain wording for the tracking card (2026-11-17 layout fix). The codes themselves are still printed, small, under it.
+export const TRACK_STATE_TEXT = Object.freeze({ OBSERVED: '鏡頭中看到', INFERRED: '推測位置', MISSING: '沒有畫面' });
+export const TRACK_REASON_TEXT = Object.freeze({
+  DEMO_DEFAULT: '示範預設參數',
+  GRAPH_NOT_APPROVED: '場景圖未核准',
+  ASSOCIATION_IDENTITY_UNCONFIRMED: '跨鏡頭身分未確認',
+  ASSOCIATION_AMBIGUOUS: '跨鏡頭有多個候選',
+});
+export function trackingCard(track, run) {
+  if (!track) return null;
+  const state = track.state === 'OBSERVED' ? 'OBSERVED' : track.state === 'INFERRED' ? 'INFERRED' : 'MISSING';
+  const reasons = Array.isArray(track.reasons) ? track.reasons.filter(r => typeof r === 'string' && r) : [];
+  const cam = track.cameraId ? cameraLabel(track.cameraId) : null;
+  return {
+    target: classDisplay(track.classLabel ?? '目標', run?.supported_classes?.aliases), cameraId: track.cameraId ?? null,
+    camera: cam ? { ...cam, title: nameTitle(track.cameraId) } : null,
+    state: track.state ?? 'UNKNOWN', stateCode: state, stateText: TRACK_STATE_TEXT[state],
+    autoSeed: Boolean(track.autoSeed), reasons,
+    reasonChips: reasons.filter(r => Object.hasOwn(TRACK_REASON_TEXT, r)).map(r => ({ code: r, text: TRACK_REASON_TEXT[r] })),
+  };
+}
 const sum = list => list.reduce((n, x) => n + x, 0);
 const rangeLen = r => (Array.isArray(r) ? r[1] - r[0] : Array.isArray(r?.range_us) ? r.range_us[1] - r.range_us[0] : 0);
 
@@ -81,12 +103,12 @@ export function buildOverview({ bootstrap = null, snapshot = null, log = [], now
   const lock = track?.lockMs ?? null, find = search?.ms ?? null;
   const metric = (key, label, value, unit, note, history = null, target = null) => ({ key, label, value, unit, note, history, spark: sparkPoints(history), target, measured: value !== null && value !== undefined });
   const latest = entries.at(-1) ?? null;
-  const regions = (run?.region_graph?.regions ?? []).map(r => ({ id: r.region_id, name: r.display_name ?? r.region_id }));
+  const regions = (run?.region_graph?.regions ?? []).map(r => ({ id: r.region_id, name: placeLabel(r.region_id, r.display_name).name, title: nameTitle(r.region_id, 'place') }));
   return {
     originText: bootstrap ? `${bootstrap.data_origin} · ${bootstrap.status}` : 'UNKNOWN',
     sceneText: run ? `${run.scene_id} · ${run.run_id}` : null,
     cameras: { total: cams.length, withData, list: cams },
-    tracking: track ? { target: classDisplay(track.classLabel ?? '目標', run?.supported_classes?.aliases), cameraId: track.cameraId ?? null, state: track.state ?? 'UNKNOWN', autoSeed: Boolean(track.autoSeed), reasons: track.reasons ?? [] } : null,
+    tracking: trackingCard(track, run),
     latest,
     regions,
     metrics: [

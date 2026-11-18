@@ -44,7 +44,17 @@ export function buildQ3(run,session,text,parserMode='RULE_ONLY') {
 export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBase='/workbench-v2/fixtures/',role='research'}={}) {
   need(['SERVER',FIXTURE_ORIGIN].includes(source),'SOURCE_INVALID');
   const epoch=createEpoch(),packs=new Map(),requests=[];let origin=source,session=null,bootstrapData=null,activeJob=null;
+  // FORBIDDEN_DATA_SCOPE on a call that carries this page's session means the server forgot the session (it restarted while
+  // the page stayed open; sessions live in server memory). Not a GT-isolation refusal: renew once and resend (2026-11-17).
   async function raw(path,payload) {
+    try{return await rawOnce(path,payload);}
+    catch(error){
+      if(error.message!=='FORBIDDEN_DATA_SCOPE'||source===FIXTURE_ORIGIN||!payload||payload.session_ref==null||payload.session_ref!==session)throw error;
+      const renewed=await createSession();if(!renewed.ok)throw error;
+      return rawOnce(path,{...payload,session_ref:session});
+    }
+  }
+  async function rawOnce(path,payload) {
     const options=payload===undefined?{method:'GET',credentials:'same-origin',cache:'no-store'}:{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)};
     const response=await fetchImpl(path,options);const text=await response.text();
     if(!response.ok){let body;try{body=parseRaw(text);}catch{throw new Error('HTTP_'+response.status);}
