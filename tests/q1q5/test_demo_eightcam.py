@@ -84,7 +84,10 @@ def test_guard_limits_eightcam_to_explicit_read_only_files(monkeypatch, tmp_path
     monkeypatch.setattr(sys, "base_prefix", str(demo / "runtime" / "python"))
     monkeypatch.setattr(sys, "addaudithook", hooks.append)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    dependency.install_owned_io_guard(demo, approved_read_files=(allowed,))
+    reads_active = True
+    dependency.install_owned_io_guard(
+        demo, approved_read_files=(allowed,), approved_reads_active=lambda: reads_active,
+    )
     (audit,) = hooks
 
     audit("open", (allowed, "r", os.O_RDONLY))
@@ -92,3 +95,7 @@ def test_guard_limits_eightcam_to_explicit_read_only_files(monkeypatch, tmp_path
         audit("open", (allowed, "w", os.O_WRONLY))
     with pytest.raises(ValueError, match="EXTERNAL_LOCAL_INPUT_DENIED"):
         audit("open", (unrelated, "r", os.O_RDONLY))
+    reads_active = False
+    with pytest.raises(ValueError, match="EXTERNAL_LOCAL_INPUT_DENIED"):
+        audit("open", (allowed, "r", os.O_RDONLY))
+    audit("open", (demo / "existing-run.png", "r", os.O_RDONLY))

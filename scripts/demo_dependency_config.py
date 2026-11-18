@@ -44,11 +44,12 @@ def resolve_job(job, root):
     return job
 
 
-def install_owned_io_guard(root, *, approved_read_files=()):
+def install_owned_io_guard(root, *, approved_read_files=(), approved_reads_active=None):
     """Fail if runtime opens home/TMP inputs outside this checkout and owned package.
 
     A caller can grant read access to exact files from a source receipt. Unrelated
-    files at the same root remain forbidden. Old asset paths in provenance cannot
+    files at the same root remain forbidden. The optional caller predicate can
+    revoke the approved reads after startup validation. Old asset paths in provenance cannot
     become filesystem inputs. OS resources remain available; no model process
     or outbound connection is part of the recorded-data demo.
     """
@@ -70,6 +71,8 @@ def install_owned_io_guard(root, *, approved_read_files=()):
             return
         path = Path(os.fsdecode(value)).resolve()
         if path in approved:
+            if approved_reads_active is not None and not approved_reads_active():
+                raise ValueError('EXTERNAL_LOCAL_INPUT_DENIED')
             write_flags = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND
             if event != 'open' or args[2] & write_flags:
                 raise ValueError('EXTERNAL_PINNED_INPUT_READ_ONLY')
