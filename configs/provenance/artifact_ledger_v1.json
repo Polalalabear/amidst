@@ -2824,7 +2824,7 @@
    "id": "CO-claude",
    "path": "~/Developer/amidst-claude",
    "type": "code_checkout",
-   "disposition": "deletable",
+   "disposition": "archivable",
    "purpose": "協調者 worktree（主庫 amidst）：分支 claude/k1-hypothesis",
    "referenced_by": [
     "UNKNOWN"
@@ -2843,23 +2843,18 @@
     "completeness": "not_applicable"
    },
    "safety": {
-    "status": "SAFE",
+    "status": "KEEP",
     "checks": {
-     "refs_mainline": "pass",
+     "refs_mainline": "unknown",
      "running_services": "pass",
      "unmerged_work": "pass",
      "evidence_preservation": "pass",
      "raw_assets": "pass"
     },
-    "reason": "已刪除（D262，2026-11-17）；內容已保留於 archive/amidst-claude-wip-20261109 分支與 local/archive/checkouts/amidst-claude-ignored-20261117/",
-    "checked_at": "2026-11-17",
-    "verify_commands": [
-     "gh api repos/Polalalabear/amidst/branches/archive/amidst-claude-wip-20261109 --jq .commit.sha  # 8467dafa…（WIP 7 檔的副本）",
-     "ls local/archive/checkouts/amidst-claude-ignored-20261117/  # ignored 產物 5 檔",
-     "test ! -e local/archive/checkouts/amidst-claude  # 已刪除"
-    ],
-    "restore": "checkout 本身已刪（D262，使用者 2026-11-17 執行）：程式可由 commit 7c01522 與分支 archive/amidst-claude-wip-20261109 取回；ignored 產物在 local/archive/checkouts/amidst-claude-ignored-20261117/"
-   }
+    "reason": "已刪除（D262，2026-11-17）；內容保留於 archive/amidst-claude-wip-20261109 分支與 local/archive/checkouts/amidst-claude-ignored-20261117/。code_checkout 不得為 SAFE（測試規則）",
+    "checked_at": "2026-11-17"
+   },
+   "notes": "2026-11-17 D262（B1）：此 checkout 已由使用者刪除（git worktree remove --force＋prune）。依 tests/operations/test_artifact_ledger.py，code_checkout 不得標 SAFE，deletable 又須 SAFE，故處置記為 archivable 而非 deletable。保留位置：WIP 在分支 archive/amidst-claude-wip-20261109（8467dafa）；ignored 產物 5 檔在 local/archive/checkouts/amidst-claude-ignored-20261117/。"
   },
   {
    "id": "CO-d139",
