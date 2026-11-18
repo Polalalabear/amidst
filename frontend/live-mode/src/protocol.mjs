@@ -16,7 +16,7 @@ const record = value => value !== null && typeof value === 'object' && !Array.is
 
 const FORBIDDEN = new Set([
   'actor_id', 'role', 'variant', 'person_id', 'operator_xy', 'player_xy', 'gt', 'gt_visible',
-  'waypoints', 's_i', 'forced_overlap', 'phase_offset_s', 'pass_end', 'crowd_error',
+  'waypoints', 's_i', 'forced_overlap', 'phase_offset_s', 'pass_end', 'crowd_error', 'active_passes',
   'spawn_adjusted', 'run_id', 'view_yaw', 'view_pitch',
   'session', 'session_id', '__proto__', 'prototype', 'constructor',
 ]);

@@ -457,3 +457,42 @@ comparison as `b4-stationary-release.json` and the pressure counts as
 wall-clock timings and browser captures.
 
 LOCAL `local/evidence/cx-live-d323-20261118/MANIFEST.json` SHA-256 `f1f8666bcbadfdd8444b6bb4d365f7aab63d3ae8dbfa275c5bd19c19b86face4`, 11 files / 807,624 bytes.
+
+## D327 pass correction
+
+The [revised Opus decision](https://github.com/Polalalabear/amidst/pull/617#issuecomment-6979242886)
+keeps an entered pass exempt until separation or hiding. An unentered pass
+still times out after 3 s. Entered passes gain `lingering` and
+`lingering_steps` at the 3 s mark. Ended passes carry these fields in
+`pass_end`. Active passes are recorded in A's private `active_passes`
+snapshot so unfinished crossings are included in the duration and lingering
+totals. The scorer exposes these active records as well.
+
+The D323 trace showed C→A losing its exemption at 13.1 s while the two were
+still overlapping. Once the player left, A waited for C. With the correction,
+the pass remains active at 13.1 s. At 60.1 s A advances from script time
+4.1 s to 4.2 s in one step, with no blocker. Its distance from T is 0.7604 m.
+This restores C-6 with the original scenario and original 20-step test.
+
+In the eight fixed pressure trials C-2 excluding passes is 100% for every
+trial. B4 player T has 5,383 pair samples and 783 exempt samples, 783 solver
+exemptions, one lingering pass and 753 lingering steps. Separation including
+passes is 85.4542%. The B→A pass starts at 21.8 s and remains active at
+100 s, with duration 78.2 s. The other seven trials have zero lingering
+steps and retain the D323 pair counts. All trials still have zero player
+penetrations, zero pure-script violations and eleven player phase-shift
+crossings, including two chain crossings. Both no-player baselines have zero
+crossings. The 78.7 s A4 player T regression remains covered.
+
+Repeated resolver errors at the same `(code, tick)` update the existing
+`crowd_error.count`. A's cumulative log refreshes the count even without
+a new event entry. The scorer reports distinct error entries and their total
+occurrences. The strict-mode behavior and whole-step rollback remain covered.
+
+Using the D323 commands, with `LIVE_AB_B_OUTPUT="$OUT/b"` also set to save
+B's receipt, Node passes 116 tests including both browser flows with zero
+skips. Python passes 182 tests. Architecture guard and diff check pass.
+Physical pointer-lock feel, production inference and the 8785 gate remain
+unverified in this checkpoint.
+
+LOCAL `local/evidence/cx617-d327-20261118/MANIFEST.json` SHA-256 `a3efe8a6217592b7c7ef66731a423d58c532bf7d781978c76b4847a1ffc64321`, 15 files / 846,548 bytes. Regenerate with the focused commands above. Browser timestamps and screenshots can vary.

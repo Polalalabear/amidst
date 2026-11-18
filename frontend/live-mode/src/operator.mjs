@@ -123,6 +123,7 @@ export function privateTick(snapshot, tick, t_capture, visible) {
     pause_script_i: pauses('pause_script_i'),
     block_wait: snapshot.actors.filter(a => a.block_wait > 0).map(a => ({i: a.actor_id, j: 'player', waited_s: a.block_wait})),
     forced_pairs: snapshot.forced_pairs,
+    active_passes: snapshot.active_passes,
   };
 }
 
@@ -265,10 +266,11 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
     if (dt > 0) {
       snapshot = crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
       for (const event of snapshot.events.slice(recordedEvents)) {
-        if (eventTypes.includes(event.type)) log[event.type].push(event);
-        if (event.type === 'crowd_error') crowdWarning.hidden = false;
+        if (eventTypes.includes(event.type) && event.type !== 'crowd_error') log[event.type].push(event);
       }
       recordedEvents = snapshot.events.length;
+      log.crowd_error = snapshot.events.filter(event => event.type === 'crowd_error');
+      if (log.crowd_error.length) crowdWarning.hidden = false;
     }
     for (const a of snapshot.actors) {
       const h = people.get(a.actor_id); h.setVisible(a.present);

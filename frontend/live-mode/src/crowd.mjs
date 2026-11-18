@@ -81,7 +81,8 @@ export function createCrowd(run, {
  function snapshot(){
   const actors=scripts.map(s=>({actor_id:s.actor.actor_id,variant:s.actor.actor_id,is_player:false,present:!!s.pose,x:s.pose?.x??null,y:s.pose?.y??null,heading:s.pose?.heading??0,speed:s.speed||0,s_i:s.s_i,pause_total_i:s.pause_total_i,pause_player_i:s.pause_player_i,pause_script_i:s.pause_script_i,tainted:s.tainted,block_wait:s.block_wait,blocked_by:s.blocker}));
   if(player)actors.unshift({actor_id:actorId,variant:actorId,is_player:true,present:playerPresent,...player,speed:player.speed||0});
-  return copy({tick,t_sim,actors,events,spawn_adjusted,forced_pairs:[...passes.values()].map(p=>[p.i,p.j]),config:cfg});
+  const active_passes = [...passes.values()].map(p => ({...p, duration_s: t_sim - p.started}));
+  return copy({tick,t_sim,actors,events,spawn_adjusted,active_passes,forced_pairs:[...passes.values()].map(p=>[p.i,p.j]),config:cfg});
  }
  function step(keys={},dt=.1){
   if(!Number.isFinite(dt)||dt<=0||dt>.1+1e-9)throw new Error('CROWD_DT_MUST_BE_0_TO_0_1');
@@ -116,14 +117,16 @@ export function createCrowd(run, {
    }
   } catch (error) {
    if (strict || !RESOLVER_ERRORS.has(error?.message)) throw error;
-   events.push({type: 'crowd_error', code: error.message, tick, t_sim});
+   const prior = events.find(e => e.type === 'crowd_error' && e.code === error.message && e.tick === tick);
+   if (prior) prior.count++;
+   else events.push({type: 'crowd_error', code: error.message, tick, t_sim, count: 1});
    return snapshot();
   }
   // Commit passes only after every resolver invocation succeeds.
   for (const {pair, event} of newForces) {
    events.push(event);
    passes.set(pair, {i: event.i, j: event.j, dist_m: event.dist_m, started: event.t_sim,
-    entered: false, exempt_steps: 0});
+    entered: false, exempt_steps: 0, lingering: false, lingering_steps: 0});
   }
   if(player){
    const p=resolved.poses[actorId],old={...player};playerPresent=!!p;
@@ -178,18 +181,23 @@ export function createCrowd(run, {
    const a = resolved.poses[pass.i], b = resolved.poses[pass.j];
    const d = distance(a, b), inside = d < 2 * cfg.r_person;
    const duration_s = t_sim + dt - pass.started;
+   pass.entered ||= inside;
    pass.exempt_steps++;
    let reason;
    if (!a || !b) reason = 'hidden';
    else if (!inside && pass.entered) reason = 'separated';
    else if (!inside && d > pass.dist_m + 1e-9) reason = 'receded';
-   else if (duration_s >= cfg.pass_max_s - 1e-9) reason = 'timeout';
+   else if (!pass.entered && duration_s >= cfg.pass_max_s - 1e-9) reason = 'timeout';
+   if (pass.entered && duration_s >= cfg.pass_max_s - 1e-9) {
+    pass.lingering = true;
+    pass.lingering_steps++;
+   }
    if (reason) {
     events.push({type: 'pass_end', tick: tick + 1, t_sim: t_sim + dt, i: pass.i, j: pass.j,
-     reason, duration_s, exempt_steps: pass.exempt_steps});
+     reason, duration_s, exempt_steps: pass.exempt_steps,
+     lingering: pass.lingering, lingering_steps: pass.lingering_steps});
     passes.delete(pair);
    }
-   pass.entered ||= inside;
   }
   tick++;t_sim+=dt;return snapshot();
  }

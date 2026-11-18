@@ -98,6 +98,28 @@ test('script mutual timeout only allows the later-priority script through; logs 
   assert.equal(e.pause_player_i, 0); // C was delayed by A, not directly by the player.
   assert.deepEqual(e.tainted, {i: true, j: true});}
 });
+test('B4 T keeps the entered C→A pass at 13.1s and releases A in one step', () => {
+ const r = runs.find(r => r.run_id === 'B4-1-v2-4actor');
+ const crowd = createCrowd(r, {actorId: 'T'});
+ for (let i = 0; i < 600; i++) {
+  const snap = crowd.step({}, .1);
+  if (snap.tick === 131) {
+   const pass = snap.active_passes.find(p => p.i === 'C' && p.j === 'A');
+   assert.ok(pass?.entered && pass.lingering);
+   assert.equal(snap.events.some(e => e.type === 'pass_end' && e.i === 'C' && e.j === 'A'), false);
+  }
+ }
+ const before = crowd.snapshot().actors.find(a => a.actor_id === 'A');
+ const after = crowd.step({w: true, d: true, shift: true}, .1);
+ const a = after.actors.find(a => a.actor_id === 'A');
+ close(a.s_i, before.s_i + .1);
+ assert.equal(a.blocked_by, null);
+ const t = after.actors.find(a => a.is_player);
+ const receipt = {tick: after.tick, t_sim: after.t_sim, A_script_s: a.s_i,
+  T_A_m: Math.hypot(t.x-a.x, t.y-a.y), A_blocked_by: a.blocked_by, active_passes: after.active_passes};
+ if (process.env.AMIDST_TEST_EVIDENCE) fs.writeFileSync(
+  `${process.env.AMIDST_TEST_EVIDENCE}/b4-release.json`, JSON.stringify(receipt, null, 2));
+});
 test('C-5 a script conflict without direct player delay remains a failure event', () => {
  const routes = run([
   actor('T', [[0, 0, 10], [100, 0, 10]]),
@@ -156,17 +178,18 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
   }
   const s=c.snapshot(),forced=s.events.filter(e=>e.type==='forced_overlap');
   const ended = s.events.filter(e => e.type === 'pass_end');
-  assert.equal(ended.length, forced.length, JSON.stringify(s.events));
+  assert.equal(ended.length + s.active_passes.length, forced.length, JSON.stringify(s.events));
   const active = new Set();
   for (const event of s.events) {
    const pair = [event.i, event.j].sort().join('|');
    if (event.type === 'forced_overlap') active.add(pair);
    if (event.type === 'pass_end') {
     assert.ok(active.delete(pair), JSON.stringify(event));
-    assert.ok(event.duration_s <= s.config.pass_max_s + .1, JSON.stringify(event));
+    if (event.reason === 'timeout') assert.ok(event.duration_s <= s.config.pass_max_s + .1, JSON.stringify(event));
    }
   }
-  assert.equal(active.size, 0);
+  assert.equal(active.size, s.active_passes.length);
+  const allPasses = [...ended, ...s.active_passes];
   const metrics = {
    run: r.run_id,
    actor: id,
@@ -177,7 +200,10 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
    pair_samples: rawTotal,
    nonseparated_excluding_passes: total - separated,
    excluded_pairs: excluded,
-   exempt_steps: ended.reduce((sum, e) => sum + e.exempt_steps, 0),
+   exempt_steps: allPasses.reduce((sum, e) => sum + e.exempt_steps, 0),
+   lingering_passes: allPasses.filter(e => e.lingering).length,
+   lingering_steps: allPasses.reduce((sum, e) => sum + e.lingering_steps, 0),
+   active_passes: s.active_passes,
    pass_ends: ended,
    baseline_forced_overlap: baseline.snapshot().events.filter(e => e.type === 'forced_overlap').length,
    forced_player_phase_shift: forced.filter(e => e.kind === 'script' && e.cause === 'player_phase_shift').length,
@@ -271,31 +297,35 @@ test('a pass ends as receded when the second resolution moves apart before entry
  assert.equal(end.exempt_steps, 1);
 });
 
-test('a same-direction overlap times out, rechecks the pair and can start a second pass', () => {
+test('an entered pass lingers through the cap and ends on separation', () => {
  const path = [[0, 0, 0], [4.5, 0, 0], [8.3, 3.8, 0], [100, 3.8, 0]];
  const crowd = createCrowd(passFixture(path), {actorId: null});
- let timeout;
+ let lingering;
  for (let i = 0; i < 125; i++) {
   const snap = crowd.step({}, .1);
   const last = snap.events.at(-1);
-  if (last?.type === 'pass_end' && last.reason === 'timeout' && !timeout) {
-   timeout = last;
-   assert.equal(snap.forced_pairs.length, 0);
+  if (snap.t_sim >= 8 && snap.t_sim <= 8.2) {
+   assert.equal(snap.forced_pairs.length, 1);
    const a = snap.actors.find(a => a.actor_id === 'A'), c = snap.actors.find(a => a.actor_id === 'C');
    assert.ok(Math.hypot(a.x-c.x, a.y-c.y) < .6);
+   assert.equal(a.blocked_by, null);
+   assert.equal(c.blocked_by, null);
   }
+  if (last?.type === 'pass_end') lingering = last;
  }
- assert.ok(timeout);
- close(timeout.duration_s, 3);
+ assert.ok(lingering);
+ assert.equal(lingering.reason, 'separated');
+ assert.equal(lingering.lingering, true);
+ assert.ok(lingering.duration_s > 3 && lingering.lingering_steps > 0);
  const forces = crowd.snapshot().events.filter(e => e.type === 'forced_overlap');
- assert.equal(forces.length, 2);
- assert.ok(forces[1].t_sim >= timeout.t_sim + 3);
- assert.equal(forces[1].cause, 'script');
- assert.ok(forces[1].phase_offset_s > forces[0].phase_offset_s);
+ assert.equal(forces.length, 1);
 });
 
 test('a pass that never enters while the player blocks the passer still times out', () => {
- const crowd = createCrowd(passFixture(undefined, true), {actorId: 'T', resolve(entities, cfg, ignored) {
+ const fixture = passFixture(undefined, true);
+ // Keep the injected stop strictly outside 2r, away from floating-point boundary noise.
+ for (const point of fixture.actors.find(a => a.actor_id === 'C').waypoints) point.xy[0] -= .05;
+ const crowd = createCrowd(fixture, {actorId: 'T', resolve(entities, cfg, ignored) {
   const result = resolveMoves(entities, cfg, ignored);
   if (ignored.has('A|C')) {
    const mover = entities.find(e => e.id === 'C');
@@ -315,6 +345,7 @@ test('a pass that never enters while the player blocks the passer still times ou
  }
  const end = crowd.snapshot().events.find(e => e.type === 'pass_end');
  assert.equal(end.reason, 'timeout');
+ assert.equal(end.lingering, false);
  close(end.duration_s, 3);
 });
 
@@ -344,7 +375,10 @@ for (const strict of [undefined, false]) {
    const after = crowd.step({}, .1);
    if (after.tick !== before.tick) continue;
    assert.deepEqual(after, {...before, events: [...before.events,
-    {type: 'crowd_error', code: 'CROWD_REJECTION_LIMIT', tick: before.tick, t_sim: before.t_sim}]});
+    {type: 'crowd_error', code: 'CROWD_REJECTION_LIMIT', tick: before.tick, t_sim: before.t_sim, count: 1}]});
+   const repeated = crowd.step({}, .1);
+   assert.deepEqual(repeated, {...after, events: [...before.events,
+    {...after.events.at(-1), count: 2}]});
    fail = false;
    const resumed = crowd.step({}, .1);
    assert.equal(resumed.tick, before.tick + 1);

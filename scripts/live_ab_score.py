@@ -344,6 +344,9 @@ def crowd_statistics(a):
         else {}
     )
     pass_ends = unique_events(a, "pass_end")
+    active_passes = final.get("active_passes", [])
+    active_passes = [p for p in active_passes if isinstance(p, dict)] if isinstance(active_passes, list) else []
+    all_passes = pass_ends + active_passes
     reasons = Counter(e.get("reason") for e in pass_ends if isinstance(e.get("reason"), str))
     crowd_errors = a.get("crowd_error")
     if not isinstance(crowd_errors, list):
@@ -369,12 +372,23 @@ def crowd_statistics(a):
                 e["exempt_steps"] for e in pass_ends
                 if type(e.get("exempt_steps")) is int and e["exempt_steps"] >= 0
             ),
+            "lingering": sum(e.get("lingering") is True for e in all_passes),
+            "lingering_steps": sum(
+                e["lingering_steps"] for e in all_passes
+                if type(e.get("lingering_steps")) is int and e["lingering_steps"] >= 0
+            ),
             "max_duration_s": max(
-                (e["duration_s"] for e in pass_ends if finite(e.get("duration_s")) and e["duration_s"] >= 0),
+                (e["duration_s"] for e in all_passes if finite(e.get("duration_s")) and e["duration_s"] >= 0),
                 default=None,
             ),
         },
+        "active_passes": active_passes,
         "crowd_error_count": sum(isinstance(e, dict) and e.get("type") == "crowd_error" for e in crowd_errors),
+        "crowd_error_occurrences": sum(
+            e.get("count", 1) for e in crowd_errors
+            if isinstance(e, dict) and e.get("type") == "crowd_error"
+            and type(e.get("count", 1)) is int and e.get("count", 1) > 0
+        ),
         "spawn_adjusted": spawn,
         "block_wait_total_s": ended_wait + active_wait,
         "pause_total_i": pauses,
