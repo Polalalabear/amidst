@@ -25,6 +25,7 @@ from amidst.q1q5.store import DetectionSnapshot, DocumentPin, JsonRunStore, cano
 from run_cross_camera_demo import read_pin, loads, load_run
 from demo_dependency_config import configuration, owned_path, resolve_job, install_owned_io_guard
 from demo_eightcam import RUN_ID as EIGHTCAM_RUN, TITLE as EIGHTCAM_TITLE, prepare_eightcam, source_error_code
+from demo_estimate import estimate_track
 
 REPO = Path(__file__).resolve().parents[1]
 P1_PIN = '6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7'
@@ -152,6 +153,7 @@ class Demo(P1):
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
         self.rgb = Media(self.rgb, self.authorize)
         self.cross = {}; self.transitions = {}; self.positions = {}
+        self.calibrations = {}
         job = resolve_job(loads(pinned(job_path, job_pin)), owned_root)
         graph = loads(read_pin(job['graph']))
         graphs = load_scene_graphs('r004')
@@ -176,6 +178,7 @@ class Demo(P1):
             g = scene_projection(graphs, m['scene_id'], job['graph_binding'])
             run = qrun(index, clock, g, params, spec['label'] + ' · D124 · ACTUAL_BLENDER · 自動種子', 'ACTUAL_BLENDER')
             runs.append(run); key = m['scene_id'], m['run_id']; self.cross[key] = tracks; self.positions[key] = positions
+            self.calibrations[key] = (catalog, job['graph_binding']['catalog_sha256'])
             rel = 'runs/' + spec['label'] + '.json'; data = loads(pinned(media_root/rel, manifest['files'][rel]))
             require(data['run_id'] == m['run_id'] and data['catalog_sha256'] == job['graph_binding']['catalog_sha256'], 'RGB_INDEX_BINDING')
             by_camera = {c: {} for c in data['camera_ids']}
@@ -200,12 +203,15 @@ class Demo(P1):
                 runs.append(added)
                 self.rgb.frames[key] = frames
                 self.positions[key] = camera_positions
+                self.calibrations[key] = (eightcam.document('provenance/camera_catalog.json'),
+                                          eightcam.pins['provenance/camera_catalog.json'])
                 self.eightcam_status.update(status='READY', reason=None)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
         if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
             from amidst.q1q5.openai_gateway import configure_environment
             runs = list(configure_environment(runs, agent_queue))
-        self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
+        self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb,
+                        camera_display_positions=self.positions, track_estimator=self.estimate)
         self.scenes = {r.catalog['scene_id'] for r in runs}
 
     @staticmethod
@@ -315,8 +321,20 @@ class Demo(P1):
             'max_area_ratio': 12, 'same_camera_merge_gap_us': 600_000}
         if doc['single_view'] and doc['single_view'][-1]['kind'] in {'GAP', 'LOST'}:
             doc['blind'] = _blind_for_track(run, doc['sightings'], stamp, self.positions[key])
+        return self.with_estimate(key, doc)
+
+    def with_estimate(self, key, doc):
+        run = self.api.runs[key]
+        doc['estimate'] = self.estimate(run, doc)
         doc['output_sha256'] = canonical_hash(doc, exclude=('output_sha256', 'stats'))
         return doc
+
+    def estimate(self, run, doc):
+        key = run.catalog['scene_id'], run.catalog['run_id']
+        catalog, pin = self.calibrations.get(key, (None, None))
+        return estimate_track(
+            run.bindings.index.records, doc, catalog, catalog_sha256=pin,
+            index_sha256=run.bindings.index_sha256, clock_id=run.bindings.clock.clock_id)
 
 
 def main():
