@@ -15,7 +15,7 @@
 |---|---|
 | 主線 | `main` @ `894bdd9e`（[#559](https://github.com/Polalalabear/amidst/pull/559) 的 merge，2026-11-18 02:34 UTC）。`mainline/q1q5` 凍結在 `8c741451` |
 | 本機 `~/amidst` | 8785 demo 的資料夾，分支 `main`、HEAD `e9db4fdf`、工作樹乾淨（`git status --porcelain` 0 行）。**不改檔、不切分支、不 commit、不 fetch** |
-| 8785 pin | `local/demo-pin.json`：commit `e9db4fdf`、2026-11-17、gate `local/evidence/demo-update-prep-20261117/gate-20261117/RESULT.txt`、approved_by 使用者（D270）。**比 main 舊**（缺 #563、#558、#567、#575、#586、#587、#590、#595、#559），等 [#576](https://github.com/Polalalabear/amidst/issues/576) 一起更新 |
+| 8785 pin | `local/demo-pin.json`：commit `e9db4fdf`、2026-11-17、gate `local/evidence/demo-update-prep-20261117/gate-20261117/RESULT.txt`（SHA-256 `4d9d6930febf123daa9c19b8205ad0a311c4be08ae64b2ed87e3f85afa267887`）、approved_by 使用者（D270）。**比 main 舊**（缺 #563、#558、#567、#575、#586、#587、#590、#595、#559），等 [#576](https://github.com/Polalalabear/amidst/issues/576) 一起更新 |
 | 8785 執行方式 | 在終端面板分頁「8785 demo」**前景執行**（D277 第 4 點）。背景啟動兩次都收到結束訊號停止。**關掉這個分頁 8785 就會停** |
 | 8791 | 從 `local/runtime/live-main` @ `e9db4fdf` 跑（`local/runtime/start_live_8791.sh`，D264、D269）；pid `UNKNOWN` |
 | 磁碟 | 快照時約 12 GiB 可用（`df -h ~`）。第三個寫手要 9 GiB 以上，剩 5 GiB 就停 |
@@ -40,7 +40,7 @@
 
 | PR | 分支 @ head | CI | 狀態 |
 |---|---|---|---|
-| [#564](https://github.com/Polalalabear/amidst/pull/564) | `claude/feat-workbench-v2-ux` @ `a2c80351` | 綠 | Draft；審查 APPROVE（D280）；D302 鏡頭改名已推；**等使用者看五點截圖**（`local/evidence/wb2-ux-564-20261118/`），OK 就合併 |
+| [#564](https://github.com/Polalalabear/amidst/pull/564) | `claude/feat-workbench-v2-ux` @ `a2c80351` | 綠 | Draft；審查 APPROVE（D280）；D302 鏡頭改名已推；**等使用者看五點截圖**（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`）），OK 就合併 |
 | [#584](https://github.com/Polalalabear/amidst/pull/584) | `codex/feat-live-ab` @ `ec7da6b6` | 綠 | Draft；Codex 交 #569、#570、#573（#568 改分類中）；預審 P2 兩點交 Codex（D308 第 5 點） |
 | [#599](https://github.com/Polalalabear/amidst/pull/599) | `codex/feat-n6-ceiling` @ `3c545fe5` | 綠 | Draft；N6 天花板（#593），前後截圖已交，等審查 |
 | [#603](https://github.com/Polalalabear/amidst/pull/603) | `codex/feat-workbench-8cam` @ `7b170f52` | 綠 | Draft；8785 加 8CAM run（#594），獨立埠 smoke 通過；完整 gate 隨 #576 |
@@ -89,14 +89,14 @@
 
 | 組 | 工作 | 預計產出 | 目前進度 | 卡住的部分 |
 |---|---|---|---|---|
-| 現在能做 | 場景外圍實作 [#602](https://github.com/Polalalabear/amidst/issues/602)（claude） | 預錄 3D 與 LIVE 都加外圍背景，可走範圍不變；前後截圖 | ready；示意通過（D307，LOCAL `local/evidence/live-exterior-mock-20261118/`） | 等寫手名額；和 #593（`codex/feat-n6-ceiling`）協調檔案 |
+| 現在能做 | 場景外圍實作 [#602](https://github.com/Polalalabear/amidst/issues/602)（claude） | 預錄 3D 與 LIVE 都加外圍背景，可走範圍不變；前後截圖 | ready；示意通過（D307，LOCAL `local/evidence/live-exterior-mock-20261118/`（SHA256SUMS.txt `32b42386683a3372a6048ca4cb65f4edfe584e955293370c955e533fdb3b8727`）） | 等寫手名額；和 #593（`codex/feat-n6-ceiling`）協調檔案 |
 | 現在能做 | #563 的 P3＋#559 審查 P2-1 [#577](https://github.com/Polalalabear/amidst/issues/577)（claude） | `advisor_model` 非字串、IPv6、缺 `t_capture_ms` 時略過記憶 | ready | 無 |
 | 現在能做 | 後台 `/track/*` 端點 [#571](https://github.com/Polalalabear/amidst/issues/571)（codex） | session、Q3 句子接線 | ready（#559 已合併） | 等 Codex 取工 |
 | 現在能做 | 重新取得 R1 [#588](https://github.com/Polalalabear/amidst/issues/588)（codex） | tracker 分段門檻、速度預測、門檻量測，重播驗收 | ready | 等 Codex 取工 |
 | 收尾中 | 人物不碰撞 [#568](https://github.com/Polalalabear/amidst/issues/568)（codex） | crowd＋sim，C-1～C-8 | review；C-5 依 D282 改分類，交 Draft #584 | 等其餘子項後整體審查 |
 | 收尾中 | A 場景＋角色選單＋滑鼠 [#569](https://github.com/Polalalabear/amidst/issues/569)、離線評分 [#570](https://github.com/Polalalabear/amidst/issues/570)、`smoke.mjs` 不寫 `/private/tmp` [#573](https://github.com/Polalalabear/amidst/issues/573)（codex） | — | review；都在 Draft #584 | #584 預審 P2 兩點（評分器在 ACQUIRING／NEEDS_PICK 誤判失聯；tick 層 `gt_visible` 被覆寫，[留言 6967155738](https://github.com/Polalalabear/amidst/pull/584#issuecomment-6967155738)）等 Codex 修 |
 | 收尾中 | N6 天花板亮度與接縫 [#593](https://github.com/Polalalabear/amidst/issues/593)／[#599](https://github.com/Polalalabear/amidst/pull/599)（codex） | 材質調整＋截圖 | review；Draft，CI 綠，A4-1 同秒前後截圖已交 | 等 Claude 審查 |
-| 收尾中 | workbench-v2 五點易用性 [#564](https://github.com/Polalalabear/amidst/pull/564)（claude） | 搜尋 Enter、追蹤分頁搜尋、概況排版、易讀名稱、live 入口 | waiting；審查 APPROVE；D302 改名（室外西側／轉角／轉角廣角）已推 `a2c80351` | **等使用者看截圖**（`local/evidence/wb2-ux-564-20261118/`） |
+| 收尾中 | workbench-v2 五點易用性 [#564](https://github.com/Polalalabear/amidst/pull/564)（claude） | 搜尋 Enter、追蹤分頁搜尋、概況排版、易讀名稱、live 入口 | waiting；審查 APPROVE；D302 改名（室外西側／轉角／轉角廣角）已推 `a2c80351` | **等使用者看截圖**（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`）） |
 | 還沒做 | #564 的 3 個 P3 [#578](https://github.com/Polalalabear/amidst/issues/578)（claude） | — | blocked | 等 #564 合併 |
 | 還沒做 | B 選目標流程 [#572](https://github.com/Polalalabear/amidst/issues/572)、整合驗收 [#574](https://github.com/Polalalabear/amidst/issues/574)（codex） | — | blocked | #572 等 #571；#574 等全部子項 |
 | 還沒做 | 重新取得 R2 [#589](https://github.com/Polalalabear/amidst/issues/589)（codex） | 後台接線＋ENTRY 驗收；交件補 `accepted_by: D282` | blocked | 等 #588 |
@@ -144,7 +144,7 @@
 
 ## 5. 等使用者決定
 
-1. **#564 五點截圖**（`local/evidence/wb2-ux-564-20261118/`）：OK 就合併。
+1. **#564 五點截圖**（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`））：OK 就合併。
 2. **#576 的 8785 pin**：gate 通過後由使用者在終端核准（`scripts/demo_pin.py approve`）並前景重啟 8785。
 3. **#601 真 provider smoke 金額**：先 dry-run；預估 ≤ USD 10 可直接跑（D306），超過才問。
 4. **#597 難題集**：使用者要親自錄 LIVE 難題集（LIVE A/B 和 #596 完成後）；付費同上。
@@ -155,7 +155,7 @@
 
 開始前先用 `gh issue view 93 --repo Polalalabear/amidst --comments` 看 D308 之後有沒有新留言，`gh pr list --repo Polalalabear/amidst` 看 PR 有沒有新進度。
 
-1. **#564**：問使用者看截圖（`local/evidence/wb2-ux-564-20261118/`），OK 就合併並刪分支，解除 #578。
+1. **#564**：問使用者看截圖（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`）），OK 就合併並刪分支，解除 #578。
 2. **#576**：把 8785／8791 更新到 main。照 D269／D270 的 gate 流程（clone 跑 node、focused pytest、`check_demo_dependencies.py --smoke`、real-e2e → `RESULT.txt`），8785 用前景方式重啟（終端分頁「8785 demo」），**pin 要使用者核准**。
 3. **#577**：派寫手（#563 的 P3＋#559 審查 P2-1）。
 4. **#602**：派場景外圍實作（寫手名額空出後；和 #593 協調檔案）。
