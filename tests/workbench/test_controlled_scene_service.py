@@ -14,7 +14,7 @@ from amidst.workbench.controlled_scene_api import (
     ControlledSceneAPI,
     fixture_layers,
 )
-from amidst.workbench.controlled_scene_static import LINE_FILES, STATIC_FILES
+from amidst.workbench.controlled_scene_static import STATIC_FILES
 from amidst.workbench.reviews import ReviewStore
 from amidst.workbench.scene_errors import DataIntegrityError
 from amidst.workbench.service import Application, Workbench
@@ -25,7 +25,7 @@ def server(tmp_path):
     root = tmp_path.resolve()
     api = ControlledSceneAPI(fixture_mode=True)
     wb = Workbench({}, ReviewStore(root / "reviews.sqlite3", {}), controlled_scene=api)
-    app = Application(wb, root, vendor_root=root / "vendor")
+    app = Application(wb, root)
     token = wb.session({"role": "research"})["session_ref"]
     return app, api, token, root
 
@@ -182,13 +182,11 @@ def test_exact_static_files_only(server, url):
         assert headers["Content-Type"] == "font/woff2"
 
 
-@pytest.mark.parametrize("url", sorted(LINE_FILES))
-def test_exact_three_line_modules(server, url):
-    app, _, _, root = server
-    path = root / "vendor" / LINE_FILES[url]
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("// SYNTHETIC TEST MODULE")
-    assert http(app, url, method="GET")[0] == 200
+def test_old_entry_redirects_to_v2(server):
+    app, _, _, _ = server
+    for url in ("/", "/index.html"):
+        code, _, headers = http(app, url, method="GET")
+        assert code == 302 and headers["Location"] == "/workbench-v2/"
 
 
 @pytest.mark.parametrize("url", [
@@ -411,22 +409,6 @@ def test_huge_integer_polygon_coordinate_returns_json_400(server):
     assert code == 400 and "error" in json.loads(raw)
 
 
-@pytest.mark.parametrize("link_vendor", [False, True])
-def test_server_configured_symlink_roots_preserve_legacy_vendor(server, tmp_path, link_vendor):
-    original, _, _, root = server
-    vendor = root / "vendor"
-    target = vendor / "build/three.module.js"
-    target.parent.mkdir(parents=True)
-    target.write_bytes(b"SYNTHETIC VENDOR MODULE")
-    alias = root.parent / (root.name + "-alias")
-    alias.symlink_to(root, target_is_directory=True)
-    app = Application(original.workbench, alias,
-                      vendor_root=alias / "vendor" if link_vendor else vendor)
-    code, raw, _ = http(app, "/vendor/three.module.js", method="GET")
-    assert code == 200 and raw == b"SYNTHETIC VENDOR MODULE"
-    assert app.repo == root.resolve() and app.vendor_root == vendor.resolve()
-
-
 @pytest.mark.parametrize("name", ["layout.mjs", "shell-view.mjs", "uncertainty.mjs"])
 def test_v2_shell_imports_are_explicitly_allowlisted(server, name):
     app, _, _, root = server
@@ -473,7 +455,7 @@ def test_public_integrity_reason_codes_and_sanitization(server, monkeypatch, act
                               "DATA_INTEGRITY_REJECTED" if "/" in reason else reason}
 
 
-def test_office_factory_reuses_evidence_vendor_without_launcher_change(tmp_path):
+def test_office_factory_has_no_vendor_route(tmp_path):
     import importlib.util
     from pathlib import Path
 
@@ -483,14 +465,8 @@ def test_office_factory_reuses_evidence_vendor_without_launcher_change(tmp_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     root = tmp_path.resolve()
-    evidence = root / "evidence"
-    ui = root / "ui"
-    app = module.application({}, root / "factory.sqlite3", ui, evidence)
-    url, relative = next(iter(LINE_FILES.items()))
-    path = evidence / "frontend/workbench/node_modules/three" / relative
-    path.parent.mkdir(parents=True)
-    path.write_text("// synthetic factory test module")
-    assert http(app, url, method="GET")[0] == 200
+    app = module.application({}, root / "factory.sqlite3", root / "ui", root / "evidence")
+    assert http(app, "/vendor/three.module.js", method="GET")[0] == 403
     assert app.workbench.controlled_scene.fixture_mode is False
 
 

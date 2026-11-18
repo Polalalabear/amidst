@@ -282,7 +282,7 @@ N6 `character.glb` 有三段原地動作（量出，來源 `docs/operations/N6_L
 | N6 文件 | `docs/operations/N6_LIVE_ASSETS_20261115.md`、`N6_LIVE_ASSETS_MANIFEST_20261115.json` | 在 main。**`claude/feat-live-mode` 還沒有這些檔**，實作前要先把 main 合併進來 |
 | 小地圖底圖 | `docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json` | 在 main 和本分支。7 塊地板、260 條淨空線段、8 個攝影機。只能用於顯示和操作端碰撞 |
 | v2.3 路線 | `docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json` | 在本分支。A4-1（50 s）和 B4-1（42 s），T／A／B／C 四個角色的路線點。`server.py` 已經在讀 |
-| 工作台元件 | `frontend/workbench/geometry.mjs`、`ground-estimate.mjs`、`scene.mjs`、`style.css` | 在 main。這一輪沒有逐一讀內容，能不能直接重用：**UNKNOWN**。L4 和 L6 開工時先看這四個檔，能用就用，不能用就在 `frontend/live-mode/` 另寫 |
+| 工作台元件 | `frontend/workbench/geometry.mjs`、`ground-estimate.mjs`、`scene.mjs`、`style.css` | 已下線（D268）。需要重用時從 commit `0606b164` 取檔；能不能直接重用：**UNKNOWN**，不能用就在 `frontend/live-mode/` 另寫 |
 | spike 量測 | `docs/evaluation/LIVE_MODE_SPIKE_20261115.md`、`docs/evaluation/live_mode_spike_20261115/`、`docs/engineering/live_mode_spike_data/`；LOCAL `local/evidence/live-mode-spike-20261115/lat/*.latency.json` | 在本分支。量測腳本 `frontend/live-mode/measure/run_latency.sh`、`run_sweeps.sh` 可以重跑 |
 | mockup | `docs/design/img/live-mode-game-v1/`（兩張 PNG、兩個 HTML、`mockup-common.js`、`scene-data.js`、`make_scene_data.py`） | 這個 PR 新增。`mockup-common.js` 的小地圖畫法可以當 L4 的起點 |
 
