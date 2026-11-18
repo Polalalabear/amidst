@@ -256,8 +256,13 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
       if (!response.ok) throw new Error(`INFER_HTTP_${response.status}`);
       const res = await response.json(), tResp = now(); schedule = res.schedule || null;
       chan.postMessage(buildSystemMessage({tick, tCaptureMs: tCap, frames, result: res}));
-      log.forced_overlap = snap.events.filter(e => e.type === 'forced_overlap');
-      log.block_wait = snap.events.filter(e => e.type === 'block_wait');
+      const forces = snap.events.filter(e => e.type === 'forced_overlap');
+      const waits = snap.events.filter(e => e.type === 'block_wait');
+      row.forced_overlap = forces.slice(log.forced_overlap.length);
+      row.block_wait.push(...waits.slice(log.block_wait.length));
+      row.spawn_adjusted = log.ticks.length ? [] : snap.spawn_adjusted;
+      log.forced_overlap = forces;
+      log.block_wait = waits;
       log.ticks.push({...row, t_send: tSend, t_resp: tResp, t_post: now(), timing: res.timing_ms,
         active: res.tracking?.active_cam, state: res.tracking?.state, schedule: res.schedule});
       log.sent++; stats.textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`; tick++;

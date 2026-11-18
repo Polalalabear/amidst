@@ -143,6 +143,20 @@ def classify(row, aa, target):
     return "UNMATCHED", None
 
 
+def out_of_view_declaration(tracking):
+    if not isinstance(tracking, dict):
+        return None
+    events = tracking.get("events")
+    signals = [
+        event.get("type") for event in events if isinstance(event, dict)
+    ] if isinstance(events, list) else []
+    signals.append(tracking.get("state"))
+    for signal in ("LOST", "TARGET_OUT_OF_VIEW"):
+        if signal in signals:
+            return signal
+    return None
+
+
 def percentile(values, p):
     if not values:
         return None
@@ -216,29 +230,42 @@ def unique_events(log, field):
     return list(unique.values())
 
 
+def forced_overlap_report(events):
+    counts = {"script": 0, "player_phase_shift": 0, "chain": 0, "player": 0, "unknown_cause": 0}
+    details = []
+    for event in events:
+        row = dict.fromkeys(("t_sim", "i", "j", "cause", "tainted", "pause_player_i", "pause_player_j"))
+        row.update(event)
+        cause, tainted, chain = event.get("cause"), row["tainted"], event.get("chain")
+        has_taint = isinstance(tainted, dict) and set(tainted) == {"i", "j"} and all(
+            type(value) is bool for value in tainted.values()
+        )
+        if has_taint:
+            expected = "player_phase_shift" if any(tainted.values()) else "script"
+            consistent = cause == expected and (chain is not True or tainted["j"])
+        else:
+            consistent = False
+        if event.get("kind") == "player":
+            counts["player"] += 1
+        elif event.get("kind") == "script" and consistent:
+            counts[cause] += 1
+            counts["chain"] += chain is True
+        else:
+            counts["unknown_cause"] += 1
+            row["cause"] = None
+            if cause is not None:
+                row["recorded_cause"] = cause
+        details.append(row)
+    return counts, details
+
+
 def crowd_statistics(a):
     cfg = a.get("config", {})
     radius, eps = cfg.get("r_person", 0.3), cfg.get("eps_m", 0.02)
     if not finite(radius) or not finite(eps) or radius <= 0 or eps < 0:
         raise ValueError("INVALID_CROWD_CONFIG")
     forced = unique_events(a, "forced_overlap")
-    counts = {
-        "chain": 0, "nonchain": 0, "player": 0, "unknown_chain": 0,
-        "script": 0, "player_phase_shift": 0,
-    }
-    for e in forced:
-        if e.get("kind") == "player":
-            counts["player"] += 1
-        elif e.get("kind") == "script" and e.get("cause") in ("script", "player_phase_shift"):
-            counts[e["cause"]] += 1
-            if e["cause"] == "player_phase_shift" and e.get("chain") is True:
-                counts["chain"] += 1
-        elif e.get("chain") is True:
-            counts["chain"] += 1
-        elif e.get("chain") is False:
-            counts["nonchain"] += 1
-        else:
-            counts["unknown_chain"] += 1
+    counts, details = forced_overlap_report(forced)
     raw = adjusted = total = separate = excluded = missing = invalid_forced = 0
     valid_forced = {
         frozenset([e.get("i"), e.get("j")])
@@ -323,7 +350,7 @@ def crowd_statistics(a):
         "invalid_forced_pair_samples": invalid_forced,
         "unknown_samples": missing,
         "forced_overlap": counts,
-        "forced_overlap_events": forced,
+        "forced_overlap_events": details,
         "spawn_adjusted": spawn,
         "block_wait_total_s": ended_wait + active_wait,
         "pause_total_i": pauses,
@@ -446,13 +473,17 @@ def score_logs(a, b):
                 status, reason = classify(row, aa, segment["target_gt"])
             if reason:
                 result["unknown_reasons"].append(reason)
+            tracking = row.get("tracking")
             rows.append(
                 {
                     "tick": row["tick"],
                     "t_capture": capture,
                     "status": status,
                     "unknown_reason": reason,
-                    "active_cam": (row.get("tracking") or {}).get("active_cam"),
+                    "active_cam": tracking.get("active_cam") if isinstance(tracking, dict) else None,
+                    "out_of_view_declaration": (
+                        out_of_view_declaration(tracking) if status == "TARGET_OUT_OF_VIEW" else None
+                    ),
                 }
             )
         counts = Counter(r["status"] for r in rows)
@@ -467,6 +498,10 @@ def score_logs(a, b):
                 switches += bool(previous and previous != cam)
                 previous = cam
         wrong = episodes(rows, "WRONG_PERSON", segment["end_t_op"], 2)
+        lost = episodes(rows, "LOST", segment["end_t_op"])
+        declared = Counter(
+            row["out_of_view_declaration"] for row in rows if row["status"] == "TARGET_OUT_OF_VIEW"
+        )
         segment.update(
             rows=rows,
             counts={k: counts[k] for k in STATUSES},
@@ -475,7 +510,14 @@ def score_logs(a, b):
             camera_switches=switches,
             wrong_person_episodes=wrong,
             identity_switch_proxy_count=len(wrong),
-            lost_episodes=episodes(rows, "LOST", segment["end_t_op"]),
+            lost_episodes=lost,
+            lost_episode_count=len(lost),
+            out_of_view={
+                "ticks": counts["TARGET_OUT_OF_VIEW"],
+                "declared_lost": declared["LOST"],
+                "declared_out_of_view": declared["TARGET_OUT_OF_VIEW"],
+                "undeclared": declared[None],
+            },
         )
     result["unknown_reasons"] = sorted(set(result["unknown_reasons"]))
     if result["unknown_reasons"]:

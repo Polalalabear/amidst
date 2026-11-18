@@ -43,11 +43,16 @@ test('selected actor is sole player; all actors and visibility stay in private l
   const crowd=createCrowd(run,{actorId});const snap=crowd.step({},.1);const row=privateTick(snap,0,100,(a)=>a.present?['CAM_TEST']:[]);
   assert.equal(row.actors.length,4);assert.equal(snap.actors.filter(a=>a.is_player).length,1);assert.equal(snap.actors.find(a=>a.is_player).variant,actorId);
   assert.ok(row.actors.every(a=>a.id&&typeof a.present==='boolean'&&'xy'in a&&'gt_visible'in a));
-  assert.equal(snap.actors.filter(a=>!a.is_player).length,3);assert.ok(row.pause_total_i);
+  const scripts = snap.actors.filter(a => !a.is_player);
+  assert.equal(scripts.length, 3);
+  for (const actor of scripts) {
+   const id = actor.actor_id;
+   assert.equal(row.pause_player_i[id] + row.pause_script_i[id], row.pause_total_i[id]);
+  }
   const frame={cam:'CAM_TEST',jpeg:'opaque'};
   const header=buildInferHeader({tick:0,tCaptureMs:100,frames:[frame],...row});
   const message=buildSystemMessage({tick:0,tCaptureMs:100,frames:[frame],result:{...row}});
-  for(const value of [header,message]){const raw=JSON.stringify(value);for(const banned of ['actor_id','actors','gt_visible','pause_total_i','spawn_adjusted','view_yaw'])assert.ok(!raw.includes(banned),banned);}
+  for(const value of [header,message]){const raw=JSON.stringify(value);for(const banned of ['actor_id','actors','gt_visible','pause_total_i','pause_player_i','pause_script_i','spawn_adjusted','view_yaw'])assert.ok(!raw.includes(banned),banned);}
  }
 });
 
@@ -108,7 +113,9 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const afterMove=await page.evaluate(()=>__op.P0);assert.ok(afterMove.x>initial.p.x+.02,JSON.stringify({initial,afterMove}));assert.ok(Math.abs(afterMove.y-initial.p.y)<.01);
   await page.keyboard.press('Escape');assert.equal(await page.$('#ab-menu'),null);
   const log=await page.evaluate(()=>__log);assert.equal(log.schema_version,'live-ab.a-log.v1');assert.equal(log.session_id,initial.session);assert.ok(log.ticks.every(t => !('gt_visible' in t) && t.actors.length === 4
-    && t.actors.every(actor => Array.isArray(actor.gt_visible))));
+    && t.actors.every(actor => Array.isArray(actor.gt_visible))
+    && Object.keys(t.pause_player_i).length === 3 && Object.keys(t.pause_script_i).length === 3
+    && Array.isArray(t.forced_overlap) && Array.isArray(t.spawn_adjusted) && Array.isArray(t.block_wait)));
   fs.writeFileSync(path.join(out,'a-browser.json'),JSON.stringify(log,null,2));
   const downloads=path.join(out,'downloads');fs.mkdirSync(downloads,{recursive:true});
   const cdp=await page.createCDPSession();await cdp.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:downloads});

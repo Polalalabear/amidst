@@ -37,8 +37,11 @@ def test_counts_pick_source_tick_effective_time_unknown_and_out_of_view():
         "UNKNOWN": 1,
     }
     assert s["visible_scored_ticks"] == 5 and s["rates"]["ON_TARGET"] == 0.2
-    assert s["identity_switch_proxy_count"] == 1 and len(s["lost_episodes"]) == 1
+    assert s["identity_switch_proxy_count"] == 1 and s["lost_episode_count"] == 1
     assert s["lost_episodes"][0]["seconds"] == 1 and s["camera_switches"] == 1
+    assert s["out_of_view"] == {
+        "ticks": 1, "declared_lost": 0, "declared_out_of_view": 0, "undeclared": 1,
+    }
     assert "GT_MISSING" in r["unknown_reasons"]
     assert "pass" not in r
 
@@ -156,12 +159,15 @@ def test_collision_event_dedup_chain_counts_and_wait_totals():
         {"tick": 20, "i": "A", "j": "T", "kind": "script", "chain": False},
         {
             "tick": 30, "i": "B", "j": "C", "kind": "script", "chain": False,
-            "cause": "player_phase_shift",
+            "cause": "player_phase_shift", "tainted": {"i": True, "j": False},
+            "t_sim": 3, "pause_player_i": 0, "pause_player_j": 0,
         },
         {"tick": 31, "i": "B", "j": "C", "kind": "script", "chain": True,
-         "cause": "player_phase_shift"},
+         "cause": "player_phase_shift", "tainted": {"i": True, "j": True},
+         "t_sim": 3.1, "pause_player_i": 0, "pause_player_j": 3},
         {"tick": 32, "i": "C", "j": "B", "kind": "script", "chain": False,
-         "cause": "script"},
+         "cause": "script", "tainted": {"i": False, "j": False},
+         "t_sim": 3.2, "pause_player_i": 0, "pause_player_j": 0},
     ]
     a["ticks"][3]["forced_overlap"] = copy.deepcopy(a["forced_overlap"])
     a["block_wait"] = [{"tick": 15, "i": "T", "j": "player", "waited_s": 10}]
@@ -169,10 +175,37 @@ def test_collision_event_dedup_chain_counts_and_wait_totals():
     a["ticks"][-1]["pause_total_i"] = {"T": 15}
     stats = score_logs(a, b)["crowd"]
     assert stats["forced_overlap"] == {
-        "chain": 2, "nonchain": 1, "player": 0, "unknown_chain": 0, "script": 1, "player_phase_shift": 2,
+        "chain": 1, "player": 0, "unknown_cause": 2, "script": 1, "player_phase_shift": 2,
     }
-    assert len(stats["forced_overlap_events"]) == 5
+    details = stats["forced_overlap_events"]
+    assert len(details) == 5
+    assert details[0]["cause"] is None and details[0]["tainted"] is None
+    assert details[3] == a["forced_overlap"][3]
     assert stats["block_wait_total_s"] == 13 and stats["pause_total_s"] == 15
+
+
+def test_conflicting_taint_and_cause_are_retained_for_audit_without_counting_as_chain():
+    a, b = logs()
+    a["forced_overlap"] = [{
+        "tick": 9, "i": "T", "j": "A", "kind": "script", "chain": True,
+        "cause": "script", "tainted": {"i": False, "j": True},
+    }]
+    stats = score_logs(a, b)["crowd"]
+    assert stats["forced_overlap"]["unknown_cause"] == 1
+    assert stats["forced_overlap"]["chain"] == stats["forced_overlap"]["script"] == 0
+    assert stats["forced_overlap_events"][0]["recorded_cause"] == "script"
+
+
+@pytest.mark.parametrize("signal, field", [
+    ("LOST", "declared_lost"), ("TARGET_OUT_OF_VIEW", "declared_out_of_view"),
+])
+def test_out_of_view_report_counts_explicit_declarations(signal, field):
+    a, b = logs()
+    b["ticks"][6]["tracking"]["events"] = [{"type": signal}]
+    segment = score_logs(a, b)["segments"][0]
+    assert segment["out_of_view"][field] == 1
+    assert segment["out_of_view"]["undeclared"] == 0
+    assert segment["visible_scored_ticks"] == 5
 
 
 @pytest.mark.parametrize("bad", ["json", "schema"])

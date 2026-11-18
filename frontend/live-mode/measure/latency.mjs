@@ -30,7 +30,8 @@ const tStart = Date.now();
 while (Date.now() - tStart < Number(secs) * 1000) { await sleep(1000); samples.push(usage()); }
 const o = await op.evaluate(() => {
   const {config: cfg, sent, dropped, fpsStart: t0, actor_id, ticks} = __log;
-  // The latency measurement scores the scripted actor. The A download itself stores one
+  // This measurement uses the selected operator actor as a visibility proxy, separate from B's target.
+  // The A download stores one
   // visibility list per actor. Older operators supplied a flat list to this tool.
   return {cfg, sent, dropped, t0, ticks: ticks.map(tick => ({
     ...tick, gt_visible: tick.actors?.find(actor => actor.id === actor_id)?.gt_visible ?? tick.gt_visible ?? [],

@@ -270,3 +270,25 @@ The original seed, scenario and collision movement rules were kept for this run.
 LOCAL `local/evidence/cx568-d308-20261118/MANIFEST.json`, SHA-256 `6432c321bd66b39655cfb91712ef3a3a2d70f04dd5205c355673b0f19ea9b021`, 3 files / 19,485 bytes.
 Run the crowd test with `AMIDST_TEST_EVIDENCE` pointing to a new output directory
 and the offline scorer's focused pytest to regenerate the results.
+
+## D311 formal review
+
+Each capture in the A download includes the forced overlaps and completed waits
+since the previous capture, plus the current waits and both pause counters.
+The first capture includes any spawn adjustment. Run totals remain available at
+the top level, and the offline scorer deduplicates the copies.
+
+The JSON counts `script` and `player_phase_shift` from the recorded cause and
+taint. The reported `chain` count includes only events in `player_phase_shift`.
+An event with a missing or conflicting cause is counted under `unknown_cause`.
+The event rows retain actor pair, taint, direct pause seconds and simulation
+time. Segment reports count loss episodes and record whether each out-of-view
+sample has a `LOST` or `TARGET_OUT_OF_VIEW` declaration. The spike latency tool
+uses the selected operator's visibility as a proxy. A/B target tracking metrics
+come from the offline scorer.
+
+The merge preview against main `7f8e8443` passed 67 Node tests with browser
+coverage and 108 Python tests across the scorer and live-mode suites. The eight
+fixed-seed trials preserve the 11 player phase shifts (2 chain) and zero pure
+script violations. The A4 player T counterexample remains fixed at 78.7 s.
+LOCAL `local/evidence/cx584-d311-20261118/MANIFEST.json`, SHA-256 `bc91325a0f4e474f5d58ad06ae87df5e6c0bd72f567768f1485aff890cb9458a`, 20 files / 1,350,129 bytes.
