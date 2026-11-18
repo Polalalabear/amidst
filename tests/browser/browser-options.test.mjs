@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdir, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {headlessMode} from '../../scripts/browser_options.mjs';
 
@@ -11,6 +11,14 @@ test('only --headful or AMIDST_HEADFUL=1 enables a visible browser', () => {
   assert.equal(headlessMode({argv: ['--visible=true'], env: {}}), true);
   assert.equal(headlessMode({argv: ['--headful'], env: {}}), false);
   assert.equal(headlessMode({argv: [], env: {AMIDST_HEADFUL: '1'}}), false);
+});
+
+test('hardset smoke uses the shared launcher and two pages with failure cleanup', async () => {
+  const source = await readFile(new URL('../../frontend/live-mode/measure/hardset_smoke.mjs', import.meta.url), 'utf8');
+  assert.match(source, /const browser = await launch\(\)/);
+  assert.equal(source.match(/await browser\.newPage\(\)/g)?.length, 2);
+  assert.doesNotMatch(source, /newWindow|openWindow|HEADLESS|headless:\s*false|bringToFront/);
+  assert.match(source, /finally\s*\{\s*await browser\.close\(\)/);
 });
 
 test('one headless browser owns A/B pages and closes on failure', {

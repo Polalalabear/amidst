@@ -497,3 +497,24 @@ Physical pointer-lock feel, production inference and the 8785 gate remain
 unverified in this checkpoint.
 
 LOCAL `local/evidence/cx617-d327-20261118/MANIFEST.json` SHA-256 `a3efe8a6217592b7c7ef66731a423d58c532bf7d781978c76b4847a1ffc64321`, 15 files / 846,548 bytes. Regenerate with the focused commands above. Browser timestamps and screenshots can vary.
+
+## D331 main integration
+
+Merge commit a3998b71 joins main 7393bf62 with the LIVE A/B branch.
+Both schema registrations are retained. Main's script menu and route
+operator remain available. Script recording selects keys from the route
+operator and advances with the recording capture barrier. Nonrecorded
+script mode retains its original fixed stepper.
+
+The combined suite passed 128 Node tests including A/B browser flows and
+the script-to-record-to-two-replays fixture, with zero skips. Python passed
+182 LIVE, Q3 and scoring tests. B4 T still reports 100% separation excluding
+passes, 85.454% including passes, one lingering pass and 753 lingering steps.
+The current fixed-trial table above reflects these results.
+
+Q6's full advisor decision receipts remain a follow-up for #597. The
+78.2 s pressure-fixture overlap is reported separately from the nine route
+fixtures, which use their own input sequences. The answer table's exclusions
+remain an offline decision for the hardset owner.
+
+LOCAL `local/evidence/cx617-d331-20261118/MANIFEST.json` SHA-256 `bd659770cb1cf2b9267a7e55470666a599e9a726e18b5008a1bd1242e9e997eb`, 32 files / 2,065,107 bytes. Regenerate with the documented focused commands.

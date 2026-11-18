@@ -16,9 +16,8 @@ const steps = HARDSET_ROUTES[caseId].steps.length;
 const browser = await launch();
 try {
   const errors = {a: [], b: []};
-  // B in its own window of the same context: A sends frames to B over a BroadcastChannel (same storage
-  // partition), and a page in a background tab would get throttled frames.
-  const b = await openWindow();
+  // Both pages share the storage partition needed by BroadcastChannel.
+  const b = await browser.newPage();
   b.on('pageerror', e => errors.b.push(e.message));
   await b.goto(`${BASE}/?role=system`);
   await b.waitForFunction('window.__ready === true', {timeout: 120000});
@@ -34,7 +33,6 @@ try {
   if (llmOn) throw new Error('B_LLM_SWITCH_ON');
   await b.click('[data-target-color="red"]');
   await b.click('#target-start');
-  await a.bringToFront(); // B's clicks focus its window; give A the focus back so its frames keep running
   console.error('B started');
   const tStart = await a.evaluate(() => window.__log.ticks.at(-1)?.t_sim ?? 0);
   const t0 = Date.now();
