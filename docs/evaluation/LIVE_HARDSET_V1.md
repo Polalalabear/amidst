@@ -285,7 +285,7 @@ BR5 另列一張表，不和即時模式的 tick 數合併（指引 §2）。
 | `player` | 每步 `{t_us, xy, heading, speed, running}`，或鍵盤輸入序列 | **UNKNOWN**（見 Q2） |
 | `script_clocks` | 每個腳本人物的 `s_i` 起點與暫停紀錄 | **UNKNOWN**（見 Q7） |
 | `b_ops` | `[{tick, op: start/pick/reselect/stop, ...}]` | **UNKNOWN**（見 Q5） |
-| 存放位置 | `local/evidence/live-hard-cases-<日期>/<case_id>.case.json`（LOCAL，不進 git） | 建議，#596 定 |
+| 存放位置 | `local/evidence/live-hard-cases-<日期>/<case_id>.case.json`（LOCAL，不進 git；尚未建立，SHA-256 不適用，錄好後以 `SHA256SUMS.txt` 記錄） | 建議，#596 定 |
 
 ### 6.5 給 Codex 的介面問題（同步貼在 #596）
 
@@ -301,7 +301,7 @@ BR5 另列一張表，不和即時模式的 tick 數合併（指引 §2）。
 
 ## 7. 使用者操作卡（H2、H3）
 
-**開始前**：照指引 §6「開始前」做（`df -h ~` ≥ 9 GiB、建 `local/evidence/live-hard-cases-<日期>/`）。每段都是：重新載入 A、選場景、選角色 **T**、按開始 → B 在 2 s 內選紅衣按「開始追蹤」，HUD 顯示追蹤中 → **原地不動 3 s** → 照下表走 → B 按「停止追蹤」→ 下載 A log、B log、錄製劇本，檔名 `<段>-<序號>-<場景>-{a,b,case}.json`，在 `notes.md` 記一行。計時用手機碼錶，從按 A 的「開始」算。
+**開始前**：照指引 §6「開始前」做（`df -h ~` ≥ 9 GiB、建 `local/evidence/live-hard-cases-<日期>/`；尚未建立，SHA-256 不適用）。每段都是：重新載入 A、選場景、選角色 **T**、按開始 → B 在 2 s 內選紅衣按「開始追蹤」，HUD 顯示追蹤中 → **原地不動 3 s** → 照下表走 → B 按「停止追蹤」→ 下載 A log、B log、錄製劇本，檔名 `<段>-<序號>-<場景>-{a,b,case}.json`，在 `notes.md` 記一行。計時用手機碼錶，從按 A 的「開始」算。
 
 人物外觀：**A** 紅上衣、淺灰褲、沒背包（和你同一件紅上衣）；**B** 橘紅上衣、深藍褲、側背包；**C** 藍上衣（不用管）。
 
