@@ -83,6 +83,9 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};
   if(url==='/config')return json({n6:true,schedule_mode:'all'});
   if(url==='/reset')return json({ok:true,session_id:'0123456789abcdef'});
+  if(url==='/track/start')return json({mode:'TRACKING',color:'red',candidates:[
+   {tick:0,cand_id:'fresh',est_xy:[4,1]}]});
+  if(url==='/track/stop')return json({mode:'IDLE'});
   if(url==='/infer'){
    const chunks=[];for await(const c of req)chunks.push(c);const b=Buffer.concat(chunks);headers.push(JSON.parse(b.subarray(4,4+b.readUInt32LE(0)).toString()));
    if(headers.length===1){res.statusCode=409;return json({error:'NON_MONOTONIC_TICK',next_tick:1});}
@@ -139,6 +142,51 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const automatic=await browser.newPage();automatic.on('pageerror',e=>errors.push(e.message));await automatic.goto(`${base}/?run=A4-1&actor=C&auto=A4&mouse=drag&fps=1`);
   await automatic.waitForFunction(()=>window.__ready===true,{timeout:60000});assert.equal(await automatic.$('#ab-menu'),null);
   const selected=await automatic.evaluate(()=>({actor:__log.actor_id,run:__log.run_id,mouse:__log.config.view.mouse}));assert.deepEqual(selected,{actor:'C',run:'A4-1-v2-4actor',mouse:'off'});
+  await Promise.all([page.close(),fallback.close(),automatic.close()]);
+  const recorder=await browser.newPage();
+  recorder.on('pageerror',e=>{errors.push(e.message);fs.writeFileSync(path.join(out,'record-errors.json'),JSON.stringify(errors));});
+  await recorder.goto(base+'/?run=A4-1&actor=T&record=1&fps=5&mouse=off');
+  try { await recorder.waitForFunction(()=>window.__log?.ticks.length>=6,{timeout:20000}); }
+  catch (error) {
+   fs.writeFileSync(path.join(out,'record-debug.json'),JSON.stringify(await recorder.evaluate(()=>({
+    ready:window.__ready,error:window.__recordingError,log:window.__log,
+    case:window.__case?.(),text:document.body.innerText})),null,2));
+   throw error;
+  }
+  await recorder.evaluate(()=>__setKeys({w:true}));
+  await recorder.waitForFunction(()=>window.__log?.ticks.length>=9,{timeout:60000});
+  await recorder.click('#record-stop');
+  await recorder.waitForFunction(()=>window.__recordingDone===true);
+  const caseData=await recorder.evaluate(()=>__case());
+  caseData.actions=[{tick:0,action:'start',color:'red'},
+   {tick:Math.floor(caseData.inputs.length/4),action:'stop'}];
+  const caseFile=path.join(out,'browser.case.json');
+  fs.writeFileSync(caseFile,JSON.stringify(caseData,null,2));
+  await recorder.close();
+  const sequences=[];
+  for(let repeat=0;repeat<2;repeat++){
+   const replay=await browser.newPage();
+   await replay.goto(base+'/?auto=recorded');
+   await replay.waitForSelector('#case-file');
+   await (await replay.$('#case-file')).uploadFile(caseFile);
+   await replay.waitForFunction(()=>window.__recordingDone===true||window.__recordingError,{timeout:60000});
+   const result=await replay.evaluate(()=>({error:window.__recordingError,a:__log,b:__replayLog,recorded:__case()}));
+   assert.equal(result.error,undefined);
+   assert.deepEqual(result.recorded.expected,caseData.expected);
+   assert.ok(result.a.ticks.every(row=>Math.abs(row.t_sim-row.tick/5)<1e-9));
+   assert.equal(result.b.actions.length,2);
+   assert.doesNotMatch(JSON.stringify(result.b),/gt_visible|actor_id|pause_total|expected|bindings/);
+   sequences.push(result.a.ticks.map(row=>({tick:row.tick,t_sim:row.t_sim,actors:row.actors,
+    pause_total_i:row.pause_total_i,t_infer_capture_ms:row.t_infer_capture_ms})));
+   const aFile=path.join(out,'replay-'+repeat+'-a.json'),bFile=path.join(out,'replay-'+repeat+'-b.json');
+   fs.writeFileSync(aFile,JSON.stringify(result.a,null,2));fs.writeFileSync(bFile,JSON.stringify(result.b,null,2));
+   const {spawnSync}=await import('node:child_process');
+   const scored=spawnSync(path.join(repo,'.venv/bin/python'),['-B','scripts/live_ab_score.py',
+    '--operator-json',aFile,'--system-json',bFile,'--out',path.join(out,'replay-'+repeat+'-score.json')],{cwd:repo,encoding:'utf8'});
+   assert.equal(scored.status,0,scored.stderr);
+   await replay.close();
+  }
+  assert.deepEqual(sequences[0],sequences[1]);
   assert.equal(errors.length,0,errors.join('\n'));fs.writeFileSync(path.join(out,'browser-receipt.json'),JSON.stringify({initial,afterLook,afterMove,selected,headers,requests,errors},null,2));
  }finally{await browser?.close();await new Promise(r=>server.close(r));}
 });
