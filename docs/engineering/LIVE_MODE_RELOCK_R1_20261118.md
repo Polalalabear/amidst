@@ -116,3 +116,34 @@ pure-policy candidate. Session-scoped candidate IDs and the wire protocol are R2
 
 LOCAL `local/evidence/cx588-d308-20261118/MANIFEST.json` SHA-256 `814ebe0448a6f54e39934ee92959ec722ed7b23e5962ffce3f01406a117e0447`, 220 files / 29,843,802 bytes.
 LOCAL `local/evidence/cx588-d308-20261118/prediction/pool-misses.json` SHA-256 `e0f8ad2d7769b60eb0504622dc961a8f4fed49d315d43405811023b379965b7b`, two question receipts.
+
+## D322 conditional short-gate exit
+
+This candidate implements the #611 contract and the Opus decision on #588.
+A unique in-gate group can leave NEEDS_CONFIRM through short_gate when the
+existing short-limit policy permits it. A same-tick confirmation wins. The
+group outside the gate stays eligible for appearance or explicit confirmation.
+The previous checkpoint above records behavior before this change.
+
+R-6 fixed observations pass. A4 has 67/95 on target and 4/95 lost; B4 has
+58/60 on target and 1/60 lost. At fixed B4 capture 46, short_gate selects T
+at 1.7430 m with 9.5005 s unseen. R-5 fails. The six replays have 6 correct,
+5 wrong and 0 unknown automatic recoveries, all short_gate. Nine are exits
+from NEEDS_CONFIRM, with 4 correct and 5 wrong. The other two are the
+existing fixed A4 recoveries.
+
+| D273 source | Wrong capture | Unseen (s) | Gate distance (m) | Offline match |
+| --- | ---: | ---: | ---: | --- |
+| all A4 | 12 | 1.9999 | 3.0944 | A |
+| all A4 | 56 | 24.7996 | 0.4940 | A |
+| adaptive A4 | 13 | 2.4003 | 2.9656 | A |
+| adaptive A4 | 66 | 25.0005 | 0.2781 | A |
+| all B4 | 31 | 1.7995 | 2.3292 | B |
+
+The correct ENTRY candidate is still presented after 0 ms in both A4 recordings
+at captures 52 and 62. Correct automatic relock delay is null for both.
+At D322's stop condition, the prediction sweep and the second deterministic
+replay were left pending. The live wire was not exercised. No runtime default
+or threshold was changed.
+
+LOCAL `local/evidence/cx588-d322-20261118/MANIFEST.json` SHA-256 `de9f17069dc2dcfa89ac8c9d25eab5f1b691d8045387baebbc2f9a3ab97f1e50`, 45 files / 4,775,119 bytes. The replay command above regenerates the trace and scores; `gate-audit.json` records the six-run event join and waiting durations.

@@ -75,6 +75,56 @@ def test_r2_short_gate_only_when_unique_after_loss():
     assert [item["type"] for item in again["events"]] == ["LOST"]
 
 
+def waits_for_distant_candidate(**cfg):
+    tracker = make(v_walk_m_s=4, **cfg)
+    step(tracker, 0, 0, det(0))
+    result = step(tracker, 1, 2, det(10))
+    assert result["state"] == "NEEDS_CONFIRM"
+    assert result["est_xy"] == [0, 0]
+    assert [c["est_xy"] for c in result["confirm_candidates"]] == [[10, 0]]
+    return tracker, result["confirm_candidates"][0]["cand_id"]
+
+
+def test_r2_needs_confirm_short_gate_selects_the_only_in_gate_group():
+    tracker, _ = waits_for_distant_candidate()
+    result = step(tracker, 2, 5, det(10), det(1.7, red=0.6), det(2.1))
+    assert result["state"] == "TRACKING"
+    assert result["est_xy"] == [1.7, 0]
+    assert result["lost_ticks"] == 0
+    assert "confirm_candidates" not in result and not tracker.confirm_options
+    assert tracker.relock.reference == (0.6, 0.05)
+    assert result["events"] == [
+        {"tick": 2, "type": "REACQUIRE", "cam": "left",
+         "detail": {"mode": "short_gate", "unseen_s": 5.0, "dist_m": 1.7}}
+    ]
+
+
+@pytest.mark.parametrize(
+    ("cutoff", "inside"),
+    [(None, [1.7, 3.8]), (1, [1.7]), (0, [1.7]), (None, [])],
+    ids=["two-in-gate-groups", "past-measured-cutoff", "short-gate-off", "only-outside"],
+)
+def test_r2_needs_confirm_waits_if_short_gate_conditions_fail(cutoff, inside):
+    tracker, _ = waits_for_distant_candidate(t_short_s=cutoff)
+    result = step(tracker, 2, 5, det(10), *(det(x) for x in inside))
+    assert result["state"] == "NEEDS_CONFIRM"
+    assert result["est_xy"] == [0, 0] and result["lost_ticks"] == 2
+    assert all(e["type"] != "REACQUIRE" for e in result["events"])
+
+
+@pytest.mark.parametrize("by", ["user", "llm_hypothesis"])
+def test_explicit_confirmation_takes_priority_over_same_tick_short_gate(by):
+    tracker, distant = waits_for_distant_candidate()
+    confirmed = tracker.confirm(distant, 2, 5, by=by)
+    result = step(tracker, 2, 5, det(1.7))
+    assert result == confirmed
+    assert result["est_xy"] == [10, 0]
+    assert event(result, "REACQUIRE")["mode"] == "confirmed"
+    assert event(result, "REACQUIRE")["by"] == by
+    next_result = step(tracker, 3, 6, det(10.3))
+    assert next_result["est_xy"] == [10.3, 0]
+
+
 def test_r3_outside_gate_can_reacquire_with_unique_appearance():
     tr = make(t_short_s=2, v_walk_m_s=1, tau_app=0.1, margin_app=0.1)
     step(tr, 0, 0, det(0))

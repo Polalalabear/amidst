@@ -178,16 +178,17 @@ class RelockPolicy:
             )
             yield Candidate(cam, det["bbox"], xy, distance(xy, points), d_app, group)
 
-    def find(self, observations, points, unseen_s, gate, max_gate, confirming):
+    def find(self, observations, points, unseen_s, gate, max_gate):
         cfg = self.config
+        groups = list(self.candidates(observations, points))
+        inside = [c for c in groups if c.dist_m <= gate]
+        if len(inside) == 1 and self.is_short(unseen_s):
+            return Decision(candidate=inside[0], mode="short_gate")
+
         radius = max_gate if cfg.v_walk_m_s is None else gate + cfg.v_walk_m_s * unseen_s
-        options = [c for c in self.candidates(observations, points) if c.dist_m <= radius]
+        options = [c for c in groups if c.dist_m <= radius]
         if not options:
             return Decision()
-
-        inside = [c for c in options if c.dist_m <= gate]
-        if not confirming and len(inside) == 1 and self.is_short(unseen_s):
-            return Decision(candidate=inside[0], mode="short_gate")
 
         ranked = tuple(
             sorted(options, key=lambda c: (c.d_app is None, c.d_app or 0, c.dist_m))

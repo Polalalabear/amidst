@@ -76,12 +76,12 @@ class Tracker:
         self.events: list[dict] = []
         self.relock = RelockPolicy(relock) if relock is not None else None
         self.confirm_options = {}
+        self._confirmed_tick = None
 
     def _emit(self, tick, typ, cam=None, detail=None):
         self.events.append({"tick": tick, "type": typ, "cam": cam, "detail": detail})
 
     def update(self, tick: int, dets: dict, img_size: tuple[int, int], t_s: float | None = None) -> dict:
-        self.events = []
         t = tick * 0.5 if t_s is None else t_s
         gate = self.gate if not self.growth or self.t_seen is None else min(self.max_gate, self.gate + self.growth * max(0.0, t - self.t_seen))
         W, H = img_size
@@ -95,6 +95,10 @@ class Tracker:
                 d["est_xy"] = xy
                 if xy is not None:
                     cands.append((cam, d, xy))
+        if self._confirmed_tick == tick:
+            return self._result(t, [self.active])
+        self._confirmed_tick = None
+        self.events = []
         seen = {}
         if self.relock is not None:
             self.relock.observe(t, cands)
@@ -170,7 +174,7 @@ class Tracker:
             policy.record_match(selected, cands)
             return {c[0]: c for c in near if math.dist(c[2], self.est) < policy.config.same_m}
 
-        decision = policy.find(cands, points, unseen, self.gate, self.max_gate, confirming)
+        decision = policy.find(cands, points, unseen, self.gate, self.max_gate)
         if decision.candidate is not None:
             candidate = decision.candidate
             self._reacquire(tick, t, candidate, decision.mode)
@@ -221,6 +225,7 @@ class Tracker:
         candidate, _ = self.confirm_options[cand_id]
         self.events = []
         self._reacquire(tick, t_s, candidate, "confirmed", by=by)
+        self._confirmed_tick = tick
         self.relock.reference_samples.clear()
         self.relock.target_pid = None
         return self._result(t_s, [candidate.cam])
