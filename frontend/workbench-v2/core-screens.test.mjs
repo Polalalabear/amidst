@@ -18,6 +18,7 @@ import {
 } from './core-search-track-model.mjs';
 import { mountCoreSearchWallView } from './core-search-wall-view.mjs';
 import { mountCoreTrackingView } from './core-tracking-view.mjs';
+import { projectTopdown } from './core-search-track-model.mjs';
 import { mountCoreScreens } from './core-screens-view.mjs';
 import { createStore, initialState } from './store.mjs';
 import {
@@ -794,6 +795,59 @@ test('DOM: search result wall view renders empty / NO_MATCH state', () => {
   } finally {
     tearDownDoc();
   }
+});
+
+test('DOM: topdown 2D is default; 3D with missing assets shows note and returns to 2D (#605)', async () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    let failReady;
+    const view = mountCoreTrackingView({ container: host, scene3dFactory: () => ({ ready: new Promise((_, rej) => { failReady = rej; }), destroy() {}, update() {}, cameraAsset: () => null }) });
+    view.update(buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 5000000 }));
+    const pressed = () => findByClass(host, 'q-topdown-mode-btn').filter(b => b.attributes['aria-pressed'] === 'true').map(b => b.dataset.mode);
+    assert.deepEqual(pressed(), ['2d']);
+    assert.equal(findByTag(host, 'svg').length, 1);
+    findByClass(host, 'q-topdown-mode-btn').find(b => b.dataset.mode === '3d').click();
+    assert.deepEqual(pressed(), ['3d']);
+    assert.equal(findByTag(host, 'svg').length, 0);
+    assert.equal(findByClass(host, 'q-scene3d-note')[0].textContent, '載入 3D 場景…');
+    failReady(new Error('SCENE3D_ASSETS_MISSING'));
+    await new Promise(r => setTimeout(r, 0));
+    assert.deepEqual(pressed(), ['2d']);
+    assert.equal(findByClass(host, 'q-scene3d-note')[0].textContent, '3D 資產不存在');
+    assert.equal(findByTag(host, 'svg').length, 1);
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: topdown 3D ready draws HUD with 估計位置 UNKNOWN and feeds the view model without GT (#605)', async () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div'), updates = [];
+    const asset = { source_catalog_sha256: 'x', cameras: [{ camera_id: 'CAM_W1', width: 960, height: 540, fy: 600, cx: 480, cy: 270, camera_to_world: [[1, 0, 0, 0], [0, 1, 0, 2], [0, 0, 1, 0], [0, 0, 0, 1]] }] };
+    const view = mountCoreTrackingView({ container: host, scene3dFactory: () => ({ ready: Promise.resolve(), destroy() {}, update: m => updates.push(m), cameraAsset: () => asset }) });
+    view.update(buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 5000000 }));
+    findByClass(host, 'q-topdown-mode-btn').find(b => b.dataset.mode === '3d').click();
+    await new Promise(r => setTimeout(r, 0));
+    const hud = findByClass(host, 'q-scene3d-hud')[0];
+    assert.ok(hud);
+    assert.ok(hud.children.some(c => c.textContent === '估計位置：UNKNOWN'));
+    assert.ok(updates.length >= 1);
+    assert.equal(updates.at(-1).estimate.status, 'UNKNOWN');
+    assert.equal(updates.at(-1).activeCameraId, 'CAM_W1');
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('projectTopdown: est_xy / uncertainty_m are UNKNOWN without a system estimate and never taken from GT keys (#605)', () => {
+  const none = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A');
+  assert.equal(none.est_xy, 'UNKNOWN'); assert.equal(none.uncertainty_m, 'UNKNOWN');
+  const ok = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A', { est_xy: [1, 2], uncertainty_m: 0.8 });
+  assert.deepEqual(ok.est_xy, [1, 2]); assert.equal(ok.uncertainty_m, 0.8);
+  const tainted = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A', { est_xy: [1, 2], uncertainty_m: 0.8, [['ground', '_truth'].join('')]: [5, 5] });
+  assert.equal(tainted.est_xy, 'UNKNOWN');
 });
 
 test('DOM: tracking single-view renders active camera, ON_CAMERA / GAP / LOST states, and transitions', () => {

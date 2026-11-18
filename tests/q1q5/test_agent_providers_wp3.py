@@ -693,6 +693,7 @@ def test_static_only_wp3_files_import_new_modules_and_default_off_unchanged():
         ROOT / 'src/amidst/q1q5/nl_query_parse.py',   # N1 Spotlight reuses the #526 transport/extraction helpers (docs/contracts/NL_QUERY_PARSE_V1.md)
         ROOT / 'src/amidst/agent_eval/wp5_runner.py',   # WP5 live adapters (built only after the approval gates pass)
         ROOT / 'src/amidst/agent_eval/wp5_colab_checks.py',   # WP5 Colab notebook DP1 probe (one request through OllamaProvider)
+        ROOT / 'src/amidst/q1q5/openai_gateway.py',   # recorded-mode OpenAI Agent gateway (#601/#604), off by default
     }
     pattern = re.compile(r'\b(?:agent_providers|agent_recording)\b')
     offenders = []

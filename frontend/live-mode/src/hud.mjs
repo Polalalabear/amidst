@@ -20,7 +20,18 @@ const clip = (s) => (s ? Array.from(String(s)).slice(0, REASON_MAX).join('') : '
 
 export function createHudState() {
   return { cam: null, switchInfo: null, lostSince: null, prevCapture: null, tr: null, tick: null, tCapture: null, recvAt: null,
-    pending: null, ask: null, decision: null };
+    pending: null, ask: null, decision: null, delays: [], medianMs: null };
+}
+
+export function recordLatency(st, received, capture) {
+  const ms = received - capture;
+  if (!Number.isFinite(ms) || ms < 0) return null;
+  st.delays = st.delays.filter(sample => sample.at >= received - 1000);
+  st.delays.push({ at: received, ms });
+  const sorted = st.delays.map(sample => sample.ms).sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  st.medianMs = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  return st.medianMs;
 }
 
 // 每收到一則訊息呼叫一次。nowMs 用同一個 epoch 毫秒時鐘（common.mjs 的 now）。
@@ -55,7 +66,7 @@ export function reduce(st, msg, nowMs) {
 const sec = (ms) => (ms / 1000).toFixed(1);
 
 // 畫面要顯示的字。cfg 是 /config：{advisor: off|review|lead, advisor_model, advisor_provider}。
-export function view(st, nowMs, cfg = {}) {
+export function view(st, nowMs, cfg = {}, candidateCount = 0) {
   const mode = cfg.advisor || 'off';
   const tr = st.tr;
   if (!tr) return { track: { kind: 'waiting', text: '等待後台資料' }, cam: null, source: { label: '規則', reason: null, tone: 'rule' },
@@ -65,7 +76,9 @@ export function view(st, nowMs, cfg = {}) {
   const count = st.decision && st.decision.candidates;
 
   let track;
-  if (tr.state === 'ADJUDICATING') track = { kind: 'adjudicating', text: `LLM 判斷中 ${sec(pendingMs || 0)} 秒`, seconds: (pendingMs || 0) / 1000 };
+  if (tr.state === 'IDLE') track = { kind: 'searching', text: '尚未開始追蹤' };
+  else if (tr.state === 'NEEDS_PICK') track = { kind: 'searching', text: `請選擇要追蹤的人（${candidateCount} 位）` };
+  else if (tr.state === 'ADJUDICATING') track = { kind: 'adjudicating', text: `LLM 判斷中 ${sec(pendingMs || 0)} 秒`, seconds: (pendingMs || 0) / 1000 };
   else if (tr.state === 'SEARCHING' || !tr.active_cam) track = { kind: 'searching', text: '尚未鎖定目標' };
   else if (lostMs != null) track = { kind: tr.state === 'LOST' || lostMs >= LOST_RED_MS ? 'lost' : 'brief', text: `失聯 ${sec(lostMs)} 秒`, seconds: lostMs / 1000 };
   else track = { kind: 'tracking', text: '跟蹤中' };
@@ -99,7 +112,8 @@ export function view(st, nowMs, cfg = {}) {
   }
 
   let status;
-  if (pendingMs != null) status = { text: `LLM 判斷中 ${sec(pendingMs)} 秒${st.ask && st.ask.candidates ? `（${st.ask.candidates} 位候選人）` : ''}`, tone: 'wait' };
+  if (tr.state === 'IDLE' || tr.state === 'NEEDS_PICK') status = { text: track.text, tone: 'searching' };
+  else if (pendingMs != null) status = { text: `LLM 判斷中 ${sec(pendingMs)} 秒${st.ask && st.ask.candidates ? `（${st.ask.candidates} 位候選人）` : ''}`, tone: 'wait' };
   else if (decision && st.decision && nowMs - st.decision.at < 8000) {
     if (decision.fallback) status = { text: `演算法暫代：${decision.late ? '答案太晚，已丟棄' : reasonText(last.fallback_reason) || '原因未知'}`, tone: 'fallback' };
     else status = { text: `LLM 選了${decision.pick}${decision.reason ? `：${decision.reason}` : ''}`, tone: 'llm' };
@@ -107,7 +121,11 @@ export function view(st, nowMs, cfg = {}) {
   else status = { text: tr.decision_source === 'RULE_FALLBACK' ? `演算法暫代：${fb || '原因未知'}` : '規則追蹤中，LLM 待命', tone: tr.decision_source === 'RULE_FALLBACK' ? 'fallback' : 'rule' };
 
   const sw = st.switchInfo && nowMs - st.switchInfo.at < 2500 ? st.switchInfo : null;
-  return { track, cam: tr.active_cam || null, source, decision, mode: modeView(mode, cfg, last), status, switch: sw };
+  const target = tr.target?.color === 'red' ? '目標：紅衣' : tr.target?.color === 'blue' ? '目標：藍衣' : null;
+  const latency = st.medianMs === null ? null : {
+    ms: st.medianMs, tone: st.medianMs >= 1000 ? 'lost' : st.medianMs >= 500 ? 'wait' : 'tracking',
+  };
+  return { track, target, latency, cam: tr.active_cam || null, source, decision, mode: modeView(mode, cfg, last), status, switch: sw };
 }
 
 function modeView(mode, cfg, last) {
@@ -117,12 +135,13 @@ function modeView(mode, cfg, last) {
   return { mode, text: MODE_TEXT[mode] || mode, model, line: model ? `${MODE_TEXT[mode] || mode} · ${model}${cfgName}` : MODE_TEXT[mode] || mode };
 }
 
-// 主畫面上哪個框是目標：紅色、離後台估計位置 1.5 m 內最近的那個；失聯時不標。
+// 顯示離估計位置 1.5 m 內最近、且與目標同色的框。
 export function pickTarget(dets, tr) {
   if (!tr || !tr.est_xy || (tr.lost_ticks || 0) > 0 || tr.state === 'ADJUDICATING') return -1;
+  const color = tr.target?.color ?? 'red';
   let best = -1, bd = 1.5;
   (dets || []).forEach((d, i) => {
-    if (d.color !== 'red' || !d.est_xy) return;
+    if (d.color !== color || !d.est_xy) return;
     const dist = Math.hypot(d.est_xy[0] - tr.est_xy[0], d.est_xy[1] - tr.est_xy[1]);
     if (dist <= bd) { bd = dist; best = i; }
   });

@@ -50,7 +50,7 @@ def resolve(requested: str, provider: str, env: Mapping | None = None, guard_cfg
 
 def allowed_origins(ports) -> frozenset:
     """Browser origins allowed to read and set /config from another page (the workbench): loopback on the given ports only."""
-    return frozenset(f"http://{h}:{int(p)}" for p in ports for h in ("127.0.0.1", "localhost"))
+    return frozenset(f"http://{h}:{int(p)}" for p in ports for h in ("127.0.0.1", "localhost", "[::1]"))
 
 
 def cors_headers(origin: str | None, allowed: frozenset) -> dict:

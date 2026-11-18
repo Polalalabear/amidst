@@ -23,8 +23,8 @@ test('plan: search fills regions, class, colour and wall-clock times; track drop
   assert.deepEqual([t.kind, t.screen, t.regionIds, t.notes.length], ['track', 'case2', [], 1]);
 });
 
-test('plan: no action cue keeps the current window; colour alone means person; unsupported track class is not filled', () => {
-  assert.equal(planFromParse(parse({action: null}), run, 'case2').kind, 'track');
+test('plan: no action cue means search, in every tab; colour alone means person; unsupported track class is not filled', () => {
+  assert.equal(planFromParse(parse({action: null}), run, 'case2').kind, 'search');   // 2026-11-17: the 追蹤 tab no longer swallows searches
   assert.equal(planFromParse(parse({action: null}), run, 'case1').kind, 'search');
   assert.equal(planFromParse(parse({action: null}), run, null).kind, 'search');
   assert.equal(planFromParse(parse({action: '查找', target: ['blue']}), run).classLabel, 'person');
@@ -47,11 +47,11 @@ test('controller: preview chips follow typing, stale answers are dropped, Enter 
   const applied = []; const calls = []; let release;
   const c = createSpotlight({
     parsePreview: text => { calls.push(text); return text === 'slow' ? new Promise(r => { release = () => r({chips: [{kind: 'action', text: 'OLD'}], parser: 'RULES'}); }) : Promise.resolve({chips: [{kind: 'action', text: text}], parser: 'RULES', latency_ms: 1, cost_usd: 0}); },
-    parseFinal: async text => ({chips: [{kind: 'action', text}], parse: {text}, parser: 'RULES'}), apply: (p, r) => applied.push([p, r.parser]),
+    parseFinal: async text => ({chips: [{kind: 'action', text}], parse: {text}, parser: 'RULES'}), apply: (p, r, o) => applied.push([p, r.parser, o]),
   });
   c.open(); c.setText('slow'); c.setText('fast'); await new Promise(r => setTimeout(r, 0)); release(); await new Promise(r => setTimeout(r, 0));
   assert.deepEqual(c.state.chips, [{kind: 'action', text: 'fast'}]);
-  assert.equal(await c.submit(), true); assert.deepEqual(applied, [[{text: 'fast'}, 'RULES']]); assert.equal(c.state.open, false);
+  assert.equal(await c.submit(), true); assert.deepEqual(applied, [[{text: 'fast'}, 'RULES', {kind: 'search', run: true}]]); assert.equal(c.state.open, false);
 });
 
 test('controller: empty text does nothing; a failed parse keeps the bar open and shows the error', async () => {

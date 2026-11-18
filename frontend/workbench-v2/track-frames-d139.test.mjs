@@ -35,7 +35,7 @@ test('before the first sighting the state is PENDING, never LOST; the camera nam
   assert.equal(view(7.4e6).singleView.segmentKind, 'ON_CAMERA'); assert.equal(view(7.4e6).singleView.activeCameraId, 'CAM_EXT_CLEAR');
   const gap = view(9.5e6).singleView; assert.equal(gap.segmentKind, 'GAP'); assert.equal(gap.lastObservedCameraId, 'CAM_EXT_CLEAR');
   const lost = view(20e6).singleView; assert.equal(lost.segmentKind, 'LOST'); assert.equal(lost.lastObservedCameraId, 'CAM_W1');
-  assert.equal(lostNote(lost.lastObservedCameraId), '目標已跟丟 · 最後出現在 W1 鏡頭');
+  assert.equal(lostNote(lost.lastObservedCameraId), '目標已跟丟 · 最後出現在 走廊（門廳端） 鏡頭');
   assert.ok(!/無/.test(lostNote(null))); assert.equal(lostNote(null), pendingNote); assert.ok(!/無/.test(gapNote(null)));
 });
 test('feature search: English label, Chinese name and alias all match, case-insensitive; empty query keeps everything', () => {

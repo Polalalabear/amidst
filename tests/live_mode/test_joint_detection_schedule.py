@@ -10,7 +10,15 @@ from types import SimpleNamespace
 from PIL import Image
 
 from amidst.live_mode.scheduler import CameraScheduler
-from amidst.live_mode.server import State, make_handler
+from amidst.live_mode.server import State as InferenceState
+from amidst.live_mode.server import make_handler
+
+
+class State(InferenceState):
+    """Exercise production inference and scheduling with this module's synthetic tracker."""
+
+    def _infer_tracking(self, tick, t_s, out, frames, img_size):
+        return self.tracker.update(tick, out, img_size, t_s)
 
 
 def test_scheduled_batches_keep_entry_override_and_do_not_fabricate_skipped_observations():
@@ -96,3 +104,23 @@ def test_config_exposes_both_detection_and_scheduling_contracts():
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_missing_t_capture_ms_skips_red_memory_instead_of_stamping_zero():
+    """#559 P2-1: a header without t_capture_ms must not write t=0 into the scheduler's red-candidate memory."""
+    state = object.__new__(State)
+    state.registered_cameras = ["CAM_ENTRY", "CAM_WIDE"]
+    graph = {"cameras": [{"camera_id": "CAM_WIDE"}], "transitions": []}
+    state.scheduler = CameraScheduler(graph, recent_red_s=5.0)
+    state.args = SimpleNamespace(det_width=320, det_height=180, min_score=0.15, camera_min_scores={})
+    state.lock = threading.Lock()
+    state.decider = None
+    state.tracker = SimpleNamespace(active=None, lost=0, update=lambda *a: {"state": "LOST"})
+    state.det = SimpleNamespace(detect=lambda images: ([[{"bbox": [0, 0, 20, 40], "score": 0.9}] for _ in images], {}))
+    data = io.BytesIO()
+    Image.new("RGB", (320, 180), "red").save(data, format="JPEG")
+    frames = {c: data.getvalue() for c in state.registered_cameras}
+    state.infer({"tick": 0, "available_cameras": state.registered_cameras}, frames, True)
+    assert state.scheduler._recent_red == {} and state.scheduler._clock is None
+    state.infer({"tick": 1, "t_capture_ms": 2000, "available_cameras": state.registered_cameras}, frames, True)
+    assert state.scheduler._clock == 2.0

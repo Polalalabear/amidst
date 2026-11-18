@@ -2589,6 +2589,55 @@
       ],
       "issue_ref": "#93",
       "status": "WP5_EVAL_SUMMARY"
+    },
+    {
+      "value": "q-demo.agent-gateway-request.v1",
+      "source_paths": [
+        "src/amidst/q1q5/openai_gateway.py"
+      ],
+      "issue_ref": "#601",
+      "status": "RECORDED_AGENT_GATEWAY_QUEUE"
+    },
+    {
+      "value": "q-demo.agent-gateway-status.v1",
+      "source_paths": [
+        "src/amidst/q1q5/openai_gateway.py"
+      ],
+      "issue_ref": "#601",
+      "status": "RECORDED_AGENT_GATEWAY_QUEUE"
+    },
+    {
+      "value": "live-ab.a-log.v1",
+      "source_paths": [
+        "frontend/live-mode/src/operator.mjs",
+        "scripts/live_ab_score.py"
+      ],
+      "issue_ref": "#569",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "live-ab.b-log.v1",
+      "source_paths": [
+        "scripts/live_ab_score.py"
+      ],
+      "issue_ref": "#570",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "live-ab.score.v1",
+      "source_paths": [
+        "scripts/live_ab_score.py"
+      ],
+      "issue_ref": "#570",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "live-hardset.answer-table.v1",
+      "source_paths": [
+        "configs/evaluation/live_hardset_v1.json"
+      ],
+      "issue_ref": "#597",
+      "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
     }
   ]
 }

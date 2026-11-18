@@ -1,5 +1,7 @@
 // Real server acceptance: only visible UI controls, source-bound API, and decoded RGB.
 import assert from 'node:assert/strict';
+import {cameraName as __camName} from '../../../frontend/workbench-v2/place-names.mjs';
+import {checkEightCamWall} from './eightcam-check.mjs';
 import {ownedRuntime} from '../core-preview/owned-runtime.mjs';
 const owned=ownedRuntime();
 import {pathToFileURL} from 'node:url';
@@ -34,7 +36,7 @@ const checkZoom=async(p,event,screen)=>{
 };
 const sourcePixel=async(p,event,t,kind,cam,frames)=>{
  await seek(p,t);
- await p.waitForFunction(({kind,cam})=>{const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp');return stage?.dataset.kind===kind&&stamp?.textContent.startsWith(cam+' ·')&&img&&!img.hidden&&img.complete&&img.naturalWidth>0;},{kind,cam});
+ await p.waitForFunction(({kind,cam,camN})=>{const stage=document.querySelector('.ui-stagebox'),img=stage?.querySelector('img'),stamp=stage?.querySelector('.ui-stamp');return stage?.dataset.kind===kind&&stamp?.textContent.startsWith(camN+' ·')&&img&&!img.hidden&&img.complete&&img.naturalWidth>0;},{kind,cam,camN:__camName(cam)});
  // A paused seek must finish the request for this exact source timestamp, not leave a stale picture.
  await p.waitForFunction(({t})=>Number(document.querySelector('#ui-scrub')?.value)===t,{t});
  let row;const FRAME_STEP_US=200000;   // recorded runs are 5 fps
@@ -49,7 +51,7 @@ const sourcePixel=async(p,event,t,kind,cam,frames)=>{
   check(await p.locator('.ui-tag-obs').isHidden(),`${event} ${kind} is not labelled observed`);
   check((await p.locator('.ui-live-note').innerText()).includes('持續播放'),`${event} ${kind} explains continued camera playback`);
  }
- if(kind==='LOST')check((await p.locator('.ui-track-title').innerText()).includes(`已跟丟 · 最後出現在 ${cam.replace(/^CAM_/,'')} 鏡頭`),`${event} LOST title names the last camera`);
+ if(kind==='LOST')check((await p.locator('.ui-track-title').innerText()).includes(`已跟丟 · 最後出現在 ${__camName(cam)} 鏡頭`),`${event} LOST title names the last camera`);
  return {event,kind,tUs:t,cam,frameIndex:row.frameIndex,sourceTimeS:row.sourceTimeS,servedSha256:row.servedSha256};
 };
 const continuous=async(p,event,track,frames)=>{
@@ -126,7 +128,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  check(ni>0,'cross-camera event');const previous=track.single_view.slice(0,ni).filter(s=>s.kind==='ON_CAMERA').at(-1),next=track.single_view[ni];
  await seek(p,Math.max(previous.range_us[0],previous.range_us[1]-200000));await decoded(p,'#ui-case2 .ui-stage-img',1);
  for(const speed of ['0.5','1','1.5','2']){await p.locator('#ui-speed').selectOption(speed);check(await p.locator('#ui-speed').inputValue()===speed,'source speed '+speed);}
- await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),next.camera_id,{timeout:15000});
+ await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),__camName(next.camera_id),{timeout:15000});
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
  await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);
  const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);check(true,event+' multi-view playback advances with decoded source RGB');
@@ -159,7 +161,9 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  const transport=await p.locator('#ui-case3 .transport').boundingBox();check(Math.abs(transport.y+transport.height-viewportHeight)<2,'case3 transport at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const scrolled=await p.locator('#ui-case3 .transport').boundingBox();check(Math.abs(scrolled.y+scrolled.height-viewportHeight)<2,'case3 transport remains fixed while content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
  await capture(p,event+'-case3',{readyCameras:cameras,bar:transport,barAfterScroll:scrolled});await checkZoom(p,event,'wall');await Promise.all(frameJobs);
- const dest=event==='A4-1'?'B4-1':'A4-1', destButton=p.locator('#ui-events button').filter({hasText:dest}), destRun=await destButton.getAttribute('data-event');await destButton.click();await p.waitForURL(u=>u.searchParams.get('run')===destRun);await p.waitForFunction(()=>document.querySelectorAll('.mr-tile[data-status=READY]').length>0);check(true,'event selection loads source');
+ const dest=event==='A4-1'?'B4-1':'A4-1';
+ const destRun=boot.runs.find(r=>r.title?.startsWith(dest+' ·')).run_id;
+ await p.locator(`#ui-events button[data-event="${destRun}"]`).click();await p.waitForURL(u=>u.searchParams.get('run')===destRun);await p.waitForFunction(()=>document.querySelectorAll('.mr-tile[data-status=READY]').length>0);check(true,'event selection loads source');
  await p.goto(base+'admin.html',{waitUntil:'domcontentloaded'});await p.locator('#admin-title').waitFor();await p.waitForTimeout(300);await capture(p,event+'-admin-overview');
  await p.locator('[data-tab=settings]').click();await capture(p,event+'-admin-settings');
  await p.locator('.ui-set-row').filter({hasText:'預設進入'}).getByRole('button',{name:'case2',exact:true}).click();await p.getByRole('button',{name:'儲存',exact:true}).click();check((await p.locator('#settings-saved').innerText()).includes('已儲存'),'settings saved');
@@ -175,5 +179,7 @@ for(const [name,query,n]of[['r005-location','region=R101',1],['r005-laptop','cla
  await p.goto(base+'?run=r005&screen=search&'+query);await decoded(p,'#ui-case1 .ui-shot img',n);check(await p.locator('#ui-v1').getAttribute('data-screen')==='case1','r005 deep link opens result wall');await capture(p,name,{cards:n});
 }
 await p.goto(base+'?run=A4-1&screen=search&class=car');await decoded(p,'#ui-case1 .ui-shot img',1);check((await p.locator('#ui-case1').innerText()).includes('場景標註：車輛（非偵測）'),'D149 car card explicitly marked as scene annotation');await capture(p,'a4-car-annotation');
+const eightcam = await checkEightCamWall(p, base, check, {required: process.env.UI_QA_REQUIRE_8CAM === '1'});
+if (eightcam) await capture(p, 'a4-8cam-wall', eightcam);
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
 }finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}

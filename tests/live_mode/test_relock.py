@@ -22,9 +22,7 @@ def det(x, red=0.8, blue=0.05, **other):
 
 def make(**cfg):
     projector = SimpleNamespace(ground=lambda _cam, u, _v, *_size: [u / 10, 0])
-    return Tracker(
-        projector, gate_m=4.0, lost_after=3, relock=RelockConfig(ref_ticks=1, **cfg)
-    )
+    return Tracker(projector, gate_m=4.0, lost_after=3, relock=RelockConfig(ref_ticks=1, **cfg))
 
 
 def step(tracker, tick, t_s, *observations, cam="left"):
@@ -33,6 +31,44 @@ def step(tracker, tick, t_s, *observations, cam="left"):
 
 def event(out, kind):
     return next(item["detail"] for item in out["events"] if item["type"] == kind)
+
+
+def test_projected_blue_relock_uses_the_target_color_without_projecting_again():
+    def forbidden_projection(*_args):
+        raise AssertionError("projected observations must be used directly")
+
+    tracker = Tracker(
+        SimpleNamespace(ground=forbidden_projection),
+        gate_m=4,
+        lost_after=2,
+        target_color="blue",
+        relock=RelockConfig(ref_ticks=1),
+    )
+    blue = det(1, color="blue", est_xy=[1, 0])
+    red = det(0, est_xy=[0, 0])
+    first = tracker.update(0, {"left": [red, blue]}, (100, 60), 0, projected=True)
+    assert first["state"] == "TRACKING" and first["est_xy"] == [1, 0]
+    tracker.update(1, {"left": []}, (100, 60), 0.5, projected=True)
+    tracker.update(2, {"left": []}, (100, 60), 1, projected=True)
+    recovered = tracker.update(3, {"left": [red, blue]}, (100, 60), 1.5, projected=True)
+    assert recovered["est_xy"] == [1, 0]
+    assert event(recovered, "REACQUIRE")["mode"] == "short_gate"
+
+
+def test_seed_resets_policy_reference_people_and_confirmation_generation():
+    tracker = make(predict=True, pred_horizon_s=2)
+    step(tracker, 0, 0, det(0))
+    previous = tracker.relock
+    previous.target_pid = 123
+    tracker.confirm_options = {"old": "candidate"}
+    tracker._confirmed_tick = 7
+    result = tracker.seed({"tick": 7, "cam": "right", "est_xy": [8, 0]}, 3.5, "USER_PICK")
+    assert tracker.relock is not previous
+    assert tracker.relock.reference is None and tracker.relock.target_pid is None
+    assert tracker.relock.people_now == [] and tracker.relock.people.tracks == {}
+    assert tracker.confirm_options == {} and tracker._confirmed_tick is None
+    assert result["est_xy"] == [8, 0] and result["unseen_s"] == 0
+    assert result["events"][0]["detail"] == {"by": "USER_PICK"}
 
 
 def test_r1_extra_private_fields_have_identical_outputs():
@@ -94,8 +130,12 @@ def test_r2_needs_confirm_short_gate_selects_the_only_in_gate_group():
     assert "confirm_candidates" not in result and not tracker.confirm_options
     assert tracker.relock.reference == (0.6, 0.05)
     assert result["events"] == [
-        {"tick": 2, "type": "REACQUIRE", "cam": "left",
-         "detail": {"mode": "short_gate", "unseen_s": 5.0, "dist_m": 1.7}}
+        {
+            "tick": 2,
+            "type": "REACQUIRE",
+            "cam": "left",
+            "detail": {"mode": "short_gate", "unseen_s": 5.0, "dist_m": 1.7},
+        }
     ]
 
 
@@ -207,9 +247,7 @@ def test_r11_r12_prediction_only_expands_eligibility_and_caps_time():
     assert reference_points(est, None, 2, 2) == (est,)
     assert reference_points(est, (1.2, 0), 40, 2) == points
     xs = [(x / 10, 0) for x in range(-60, 110)]
-    assert {p for p in xs if distance(p, (est,)) <= 4} < {
-        p for p in xs if distance(p, points) <= 4
-    }
+    assert {p for p in xs if distance(p, (est,)) <= 4} < {p for p in xs if distance(p, points) <= 4}
     assert distance((4.7, 0), points) <= 4 < distance((4.7, 0), (est,))
 
 

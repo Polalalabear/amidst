@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as THREE from 'three';
+import { softenBakedCeiling } from '../src/n6-ceiling.mjs';
 import { makeLoader, makeCharacter, buildN6Cameras, rowMajor, blenderToGltf, BLENDER_TO_GLTF, NOMINAL } from '../src/n6.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -198,4 +199,22 @@ test('scene.glb: baked scene carries unlit material, n6Collider nodes and the li
   assert.equal(j.nodes.length, 15);
   assert.ok(j.nodes.some((n) => n.extras?.n6Collider === true && n.name === 'CEILING_STATIC_LIVE'));
   assert.ok(j.asset.extras.n6Lighting.linearIrradiance);
+});
+
+test('ceiling treatment isolates the shared baked material from walls and floor', () => {
+  const map = new THREE.Texture();
+  const shared = new THREE.MeshBasicMaterial({map, side: THREE.DoubleSide});
+  const scene = new THREE.Group();
+  const ceiling = new THREE.Mesh(undefined, shared);
+  ceiling.name = 'CEILING_STATIC_LIVE';
+  const wall = new THREE.Mesh(undefined, shared);
+  scene.add(ceiling, wall);
+
+  softenBakedCeiling(scene);
+
+  assert.notEqual(ceiling.material, shared);
+  assert.equal(ceiling.material.map, map);
+  assert.equal(ceiling.material.side, THREE.DoubleSide);
+  assert.equal(wall.material, shared);
+  assert.equal(ceiling.visible, true);
 });

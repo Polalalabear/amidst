@@ -2,10 +2,11 @@
 import hashlib
 import json
 import zlib
+from pathlib import Path
 
 import pytest
 
-from amidst.q1q5.p1_workbench import local, public_png, verify_bundle
+from amidst.q1q5.p1_workbench import P1, local, public_png, verify_bundle
 
 
 def manifest(root):
@@ -57,3 +58,42 @@ def test_png_binary_pin_is_verified_separately_from_json(tmp_path):
     p=tmp_path/'frame.png';p.write_bytes(b'bounded RGB bytes')
     assert binary(p,hashlib.sha256(p.read_bytes()).hexdigest())==b'bounded RGB bytes'
     with pytest.raises(ValueError):binary(p,'0'*64)
+
+
+def test_scene3d_assets_are_local_env_scoped_and_absent_means_none(tmp_path, monkeypatch):
+    from amidst.q1q5.p1_workbench import SCENE3D_ASSET_FILES, scene3d_assets_root, scene3d_three_root
+    assert SCENE3D_ASSET_FILES==('scene.glb','cameras.three.json')
+    monkeypatch.setenv('AMIDST_SCENE3D_ASSETS',str(tmp_path/'missing'));assert scene3d_assets_root() is None
+    (tmp_path/'assets').mkdir();monkeypatch.setenv('AMIDST_SCENE3D_ASSETS',str(tmp_path/'assets'))
+    assert scene3d_assets_root()==(tmp_path/'assets').resolve()
+    monkeypatch.setenv('AMIDST_THREE_ROOT',str(tmp_path/'no-three'));assert scene3d_three_root() is None
+    (tmp_path/'three/build').mkdir(parents=True);(tmp_path/'three/build/three.module.js').write_text('x')
+    monkeypatch.setenv('AMIDST_THREE_ROOT',str(tmp_path/'three'));assert scene3d_three_root()==(tmp_path/'three').resolve()
+
+
+def test_bare_root_and_slashless_workbench_redirect_so_relative_css_resolves():
+    # Regression: '/' and '/workbench-v2' served index.html, whose relative style.css then
+    # resolved to /style.css (403) and the page rendered with no CSS at all.
+    import http.client
+    import threading
+    from http.server import ThreadingHTTPServer
+    from types import SimpleNamespace
+    root = Path(__file__).resolve().parents[2]
+    app = SimpleNamespace(ui_root=root / 'frontend/workbench-v2', root=root)
+    srv = ThreadingHTTPServer(('127.0.0.1', 0), P1.handler(app))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        def get(path):
+            c = http.client.HTTPConnection('127.0.0.1', srv.server_port)
+            c.request('GET', path)
+            r = c.getresponse()
+            r.read()
+            return r.status, r.getheader('Location')
+        assert get('/') == (308, '/workbench-v2/')
+        assert get('/workbench-v2') == (308, '/workbench-v2/')
+        assert get('/?scene=a') == (308, '/workbench-v2/?scene=a')
+        assert get('/workbench-v2/') == (200, None)
+        assert get('/workbench-v2/style.css') == (200, None)
+    finally:
+        srv.shutdown()
+        srv.server_close()

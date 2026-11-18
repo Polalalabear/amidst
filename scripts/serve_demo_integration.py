@@ -24,6 +24,7 @@ from amidst.q1q5.scene_annotations import bind_annotations
 from amidst.q1q5.store import DetectionSnapshot, DocumentPin, JsonRunStore, canonical_hash
 from run_cross_camera_demo import read_pin, loads, load_run
 from demo_dependency_config import configuration, owned_path, resolve_job, install_owned_io_guard
+from demo_eightcam import RUN_ID as EIGHTCAM_RUN, TITLE as EIGHTCAM_TITLE, prepare_eightcam, source_error_code
 
 REPO = Path(__file__).resolve().parents[1]
 P1_PIN = '6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7'
@@ -144,7 +145,8 @@ class Media:
 
 
 class Demo(P1):
-    def __init__(self, artifacts, p1_bundle, state, *, job_path, job_pin, owned_root):
+    def __init__(self, artifacts, p1_bundle, state, *, job_path, job_pin, owned_root,
+                 eightcam=None, eightcam_reason='ROOT_NOT_CONFIGURED', eightcam_required=True, agent_queue=None):
         super().__init__(p1_bundle, P1_PIN, state, ui_root=REPO / 'frontend/workbench-v2')
         base = list(self.api.runs.values())[0]
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
@@ -185,9 +187,45 @@ class Demo(P1):
                 by_camera[f['camera_id']][f['frame_index']] = (media_root/name, pin)
             self.rgb.frames[key] = 200_000, by_camera, m['clock_id']
         self.add_static(artifacts, runs)
+        self.eightcam_status = {'run_id': EIGHTCAM_RUN, 'status': 'UNKNOWN', 'reason': eightcam_reason}
+        if eightcam is not None:
+            try:
+                added, frames, camera_positions = self.load_eightcam(eightcam, graphs)
+            except (ValueError, OSError, TypeError, KeyError) as exc:
+                if eightcam_required:
+                    raise
+                self.eightcam_status['reason'] = source_error_code(exc)
+            else:
+                key = (added.catalog['scene_id'], EIGHTCAM_RUN)
+                runs.append(added)
+                self.rgb.frames[key] = frames
+                self.positions[key] = camera_positions
+                self.eightcam_status.update(status='READY', reason=None)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
+        if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
+            from amidst.q1q5.openai_gateway import configure_environment
+            runs = list(configure_environment(runs, agent_queue))
         self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
         self.scenes = {r.catalog['scene_id'] for r in runs}
+
+    @staticmethod
+    def load_eightcam(eightcam, graphs):
+        index, clock, settings, catalog, camera_graph, frames = eightcam.load()
+        require(camera_graph == graphs.camera, 'EIGHTCAM_GRAPH_BINDING')
+        bound = scene_projection(graphs, index.manifest['scene_id'], {
+            'camera_catalog_sha256': settings['catalog_sha256'],
+            'clock_sha256': settings['clock_sha256'],
+            'run_id': EIGHTCAM_RUN,
+        })
+        params = parameters(index, settings['parameters'])
+        run = qrun(index, clock, bound, params, EIGHTCAM_TITLE, 'ACTUAL_BLENDER')
+        positions = {
+            c['camera_id']: {'xy_m': [c['camera_to_world'][0][3], c['camera_to_world'][1][3]],
+                             'basis_ref': 'calibration:'+c['camera_id'],
+                             'basis_sha256': c['calibration_sha256']}
+            for c in catalog['cameras']
+        }
+        return run, frames, positions
 
     def add_static(self, artifacts, runs):
         report = loads(pinned(artifacts/'d129-464-r005-probe-20261105-a/report.json', REPORT_PIN))
@@ -236,6 +274,7 @@ class Demo(P1):
     def bootstrap(self):
         value = super().bootstrap()
         value['demo_integration'] = True
+        value['eightcam'] = self.eightcam_status.copy()
         for row in value['runs']:
             run = self.api.runs[(row['scene_id'], row['run_id'])]
             row['region_graph'] = run.bindings.graphs.region
@@ -284,15 +323,24 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config', type=Path)
     p.add_argument('--port', type=int, default=8785)
+    p.add_argument('--root-8cam', type=Path, help='Existing #529 safe bundle for A4-1-8CAM')
+    p.add_argument('--auto-root-8cam', type=Path, help='Optional launcher-discovered A4-1-8CAM bundle')
     args = p.parse_args(); config, root = configuration(args.config)
-    install_owned_io_guard(root)
+    eightcam_required = args.root_8cam is not None
+    eightcam, reason = prepare_eightcam(args.root_8cam or args.auto_root_8cam, required=eightcam_required)
+    app = None
+    install_owned_io_guard(root, approved_read_files=eightcam.read_files if eightcam else (),
+                           approved_reads_active=lambda: app is None or app.eightcam_status['status'] == 'READY')
     state_root = owned_path(root, config['state_root']); state_root.mkdir(exist_ok=True)
     state = Path(tempfile.mkdtemp(prefix='run-', dir=state_root))/'state'
     app = Demo(owned_path(root, config['artifacts_root']), owned_path(root, config['p1_bundle']), state,
-        job_path=owned_path(root, config['cross_camera_job']), job_pin=config['cross_camera_job_sha256'], owned_root=root)
+        job_path=owned_path(root, config['cross_camera_job']), job_pin=config['cross_camera_job_sha256'], owned_root=root,
+        eightcam=eightcam, eightcam_reason=reason, eightcam_required=eightcam_required,
+        agent_queue=state_root/'agent-gateway')
     with server(app, args.port) as http:
         print(json.dumps({'url': f'http://127.0.0.1:{http.server_port}/workbench-v2/',
-                          'state_root': str(state), 'runs': [r['title'] for r in app.bootstrap()['runs']]}, ensure_ascii=False), flush=True)
+                          'state_root': str(state), 'runs': [r['title'] for r in app.bootstrap()['runs']],
+                          'eightcam': app.eightcam_status}, ensure_ascii=False), flush=True)
         http.serve_forever(poll_interval=.2)
 
 

@@ -392,6 +392,30 @@
       "sha256": "15aecdbf669cc9541a659292db2b588258b5fe878c5cd418289e49e6745e3d05",
       "status": "現行；進度導覽補到 #585（D91-4、#580）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D308-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@15df7496fd7e50ace3ac90726e111b822c2cd80b",
+      "sha256": "b2cb0579a28c9cac7704b970bb1c497209341c0be36a3aaf9f584343871af7b1",
+      "status": "現行（交接 11-18，D308）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D308-A3",
+      "path": "CLAUDE.md",
+      "ref": "claude/feat-ops-docs@15df7496fd7e50ace3ac90726e111b822c2cd80b",
+      "sha256": "66804514c01b4424ade23045cbe0866e2a0305ff7deebbfdc069271084d35563",
+      "status": "現行（交接 11-18，D308）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D311-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@bab9bd85a6b0df0e9efeb5f56c4e55f0109bfbac（#614）",
+      "sha256": "c41a6f0bedf9d5af2264b5a68cea4350dc2a09ded57af08386181e6d05199852",
+      "status": "現行；進度導覽補到 #613（D311–D318，D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
     }
   ],
   "authorized_changes": [
@@ -590,6 +614,27 @@
       "requires_commit": "a3e526ad01d297c48eda1310da690a5c5c2efa2a",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
       "reason": "協調者批次補列到 #585、已合併列移到已完成、更新數量與快照日期（D91-4、#580），只改導覽內容"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "b2cb0579a28c9cac7704b970bb1c497209341c0be36a3aaf9f584343871af7b1",
+      "requires_commit": "15df7496fd7e50ace3ac90726e111b822c2cd80b",
+      "issue_ref": "#93",
+      "reason": "交接文件連結從 11-17 改成 11-18（D308 交接），只改一個連結，沒有放寬任何規則"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "66804514c01b4424ade23045cbe0866e2a0305ff7deebbfdc069271084d35563",
+      "requires_commit": "15df7496fd7e50ace3ac90726e111b822c2cd80b",
+      "issue_ref": "#93",
+      "reason": "交接文件連結從 11-17 改成 11-18（D308 交接），只改一個連結，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "c41a6f0bedf9d5af2264b5a68cea4350dc2a09ded57af08386181e6d05199852",
+      "requires_commit": "bab9bd85a6b0df0e9efeb5f56c4e55f0109bfbac",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "reason": "進度導覽批次補列到 #613（D311–D318，D91-4），只改導覽內容，沒有放寬任何規則"
     }
   ]
 }

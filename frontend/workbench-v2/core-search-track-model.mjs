@@ -34,7 +34,36 @@ export const ERROR_TEXT = Object.freeze({
   FEATURE_REQUIRED: '請指定特徵',
   NOW_REQUIRED: '需提供非負整數的目前回放時間',
   Q_RESPONSE_EXPIRED: '這筆結果已過期，請重新查詢',
+  // 2026-11-17: server refusals that reached the user as raw codes.
+  FORBIDDEN_DATA_SCOPE: '重試後仍被拒：伺服器拒絕這個請求；請重新整理頁面後再試',
+  AUTOMATIC_SEED_PRESET_ONLY: '這段示範錄影只能追蹤「人物」、不指定顏色、從錄影開頭開始；請取消顏色或時間後再試',
+  TIME_SCOPE: '時間超出這段錄影的範圍',
 });
+
+// 2026-11-17: the demo server's HTTP layer answers every ValueError with 403 FORBIDDEN_DATA_SCOPE, which also hides
+// AUTOMATIC_SEED_PRESET_ONLY (the recorded replay tracks only person, no colour, from the recording start). q-api has
+// already renewed the session once, so for a track request we name the likely cause from the form itself.
+// `recordingStart` is the recording's first wall-clock time (HH:MM:SS) or null.
+export function trackRefusalText(code, form, recordingStart = null, colorName = c => c) {
+  if (code !== 'FORBIDDEN_DATA_SCOPE' && code !== 'AUTOMATIC_SEED_PRESET_ONLY') return null;
+  const causes = [];
+  if (form?.classLabel && form.classLabel !== 'person') causes.push('特徵不是人物');
+  if (form?.colorLabel) causes.push(`指定了顏色「${colorName(form.colorLabel)}」`);
+  if (recordingStart && form?.start && form.start !== recordingStart) causes.push(`開始時間不是錄影開頭（${recordingStart}）`);
+  if (form?.regionIds?.length) causes.push('指定了地點');
+  if (!causes.length) return code === 'AUTOMATIC_SEED_PRESET_ONLY' ? ERROR_TEXT.AUTOMATIC_SEED_PRESET_ONLY : null;
+  return `伺服器拒絕：這段示範錄影的追蹤只接受「人物、不指定顏色、從錄影開頭開始」，你的條件${causes.join('、')}；請改掉後再試`;
+}
+
+// #578 P3-2: the plain-language text hides the server's raw code; these three get it back as small print after the text.
+const RAW_CODE_NOTE = new Set(['FORBIDDEN_DATA_SCOPE', 'AUTOMATIC_SEED_PRESET_ONLY', 'TIME_SCOPE']);
+export function rawCodeNote(code) { return RAW_CODE_NOTE.has(code) ? code : null; }
+// Sets `el` to the text and, for the three codes above, appends <small>code</small> (textContent only, no HTML).
+export function setRefusalFeedback(el, text, code) {
+  el.textContent = text;
+  const note = rawCodeNote(code);
+  if (note) { const small = el.ownerDocument.createElement('small'); small.className = 'ui-faint ui-mono'; small.textContent = ` · ${note}`; el.append(small); }
+}
 
 // Server-side failures: a known code gets its plain-language text; anything else stays an explicit UNKNOWN.
 export function failureText(code, fallback = 'REQUEST_FAILED') {
@@ -719,14 +748,27 @@ export function buildCoreTrackingViewModel(trackResponse, {
     multiView: {
       cameras: multiCameras,
     },
-    topdown: projectTopdown(topdown, cameraPositions, activeCameraId),
+    topdown: projectTopdown(topdown, cameraPositions, activeCameraId, trackResponse.estimate ?? null),
     reasons: Array.isArray(trackResponse.reasons) ? trackResponse.reasons : [],
   };
 }
 
 // Projects camera display positions and the blind-interval curve (INFERRED, LOW) into the 0..100 SVG box the
 // tracking view draws. Display-only: positions are static-plan sketch coordinates, never measured paths.
-export function projectTopdown(topdown, cameraPositions, activeCameraId = null) {
+// `estimate` (optional, system output only; Codex supplies the source): { est_xy:[x,y] Blender m, uncertainty_m, track?, wall_segments_xy? }.
+// Missing or malformed -> est_xy / uncertainty_m = 'UNKNOWN'; never filled from Ground Truth or any renderer-side source (#605).
+export function projectTopdown(topdown, cameraPositions, activeCameraId = null, estimate = null) {
+  const ok = estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && Array.isArray(estimate.est_xy) && estimate.est_xy.length === 2 && estimate.est_xy.every(Number.isFinite);
+  const est = {
+    est_xy: ok ? estimate.est_xy : 'UNKNOWN',
+    uncertainty_m: ok && Number.isFinite(estimate.uncertainty_m) && estimate.uncertainty_m >= 0 ? estimate.uncertainty_m : 'UNKNOWN',
+    estimate: ok ? estimate : null,
+  };
+  const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId);
+  return { ...base, ...est };
+}
+
+function projectTopdownNodes(topdown, cameraPositions, activeCameraId) {
   const positions = Object.entries(cameraPositions ?? {}).filter(([, p]) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite));
   const segment = topdown?.blind?.usable ? (topdown.blind.curve_segments ?? [])[0] : null;
   const curvePoints = segment && Array.isArray(segment.points) && segment.points.length > 1 ? segment.points : [];

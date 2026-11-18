@@ -17,6 +17,13 @@
 .nl-chip-time{font-family:var(--mono);font-size:13px}
 .nl-chip-unrecognized{background:transparent;border:1px dashed #c9a24f;color:#e0bb6a}
 @keyframes nlChip{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.nl-spot-results{display:flex;flex-direction:column;gap:2px;padding:0 6px}
+.nl-spot-results:not(:empty){padding-top:6px;padding-bottom:4px;border-top:1px solid var(--line)}
+.nl-spot-result{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:10px 14px;border-radius:10px;cursor:pointer;color:var(--muted,var(--text))}
+.nl-spot-result[aria-selected="true"]{background:rgba(250,249,245,.12);color:var(--text)}
+.nl-spot-result-title{font:600 16px var(--sans)}
+.nl-spot-result-detail{font-size:14px;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.nl-spot-result-key{font:500 12px var(--mono);color:var(--dim)}
 .nl-spot-status{margin:0;padding:4px 22px;font-size:13px;color:var(--faint);min-height:0}
 .nl-spot-status:empty{display:none}
 .nl-spot-status[data-state="error"]{color:#e08a7a}

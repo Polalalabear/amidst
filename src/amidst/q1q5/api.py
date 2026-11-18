@@ -216,9 +216,11 @@ class QAPI:
 
     def bootstrap(self):
         from amidst.q1q5.scene_annotations import bootstrap_annotations
+        from amidst.q1q5.openai_gateway import agent_status
         rows=[]
         for (scene,run_id),run in sorted(self.runs.items()):
             m=run.bindings.index.manifest
+            agent_ok,agent_reason=agent_status(run)
             rows.append({'scene_id':scene,'scene_revision':m['scene_revision'],'run_id':run_id,'clock_id':m['clock_id'],'camera_ids':sorted(x['camera_id'] for x in m['sampling']['per_camera']),
                 'title':run.title,'title_source':'RUN_REGISTRY' if run.title is not None else 'UNTITLED',
                 'regions':[{'region_id':r['region_id'],'display_name':r.get('display_name',r['region_id']),'kind':r.get('kind')}
@@ -235,7 +237,8 @@ class QAPI:
                 'camera_graph_sha256':run.bindings.camera_graph_sha256,'media_scope_sha256':run.bindings.media_scope_sha256,
                 'tracking_scope_sha256':run.bindings.graphs.tracking_scope_sha256 if run.bindings.graphs else None,
                 'query_defaults':{name:getattr(run.parse_settings,name) for name in ['query_min_score','min_count_per_frame','min_verdict','page_size']},
-                'agent_available':callable(run.agent_factory),'q3_llm_available':run.q3_options.get('provider') is not None})
+                'agent_available':agent_ok,'q3_llm_available':run.q3_options.get('provider') is not None,
+                **({'agent_unavailable_reason':agent_reason} if agent_reason else {})})
         recorded=[{'recording_id':key,'title':pin.get('title'),'title_source':'RECORDING_INDEX' if pin.get('title') is not None else 'UNTITLED',
             'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
             'scene_id':data['scene_id'],'run_id':data['run_id'],'response_kind':data['response']['schema_version'],'output_sha256':data['response']['output_sha256']}

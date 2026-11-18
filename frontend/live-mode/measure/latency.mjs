@@ -46,7 +46,15 @@ await op.waitForFunction('window.__ready === true', { timeout: 60000 });
 const samples = [];
 const tStart = Date.now();
 while (Date.now() - tStart < Number(secs) * 1000) { await sleep(1000); samples.push(usage()); }
-const o = await op.evaluate(() => ({ cfg: __log.config, sent: __log.sent, dropped: __log.dropped, t0: __log.fpsStart, ticks: __log.ticks }));
+const o = await op.evaluate(() => {
+  const {config: cfg, sent, dropped, fpsStart: t0, actor_id, ticks} = __log;
+  // This measurement uses the selected operator actor as a visibility proxy, separate from B's target.
+  // The A download stores one
+  // visibility list per actor. Older operators supplied a flat list to this tool.
+  return {cfg, sent, dropped, t0, ticks: ticks.map(tick => ({
+    ...tick, gt_visible: tick.actors?.find(actor => actor.id === actor_id)?.gt_visible ?? tick.gt_visible ?? [],
+  }))};
+});
 const s = await sys.evaluate(() => ({ displays: __log.displays, viol: __log.violations }));
 if (process.env.RAW) {
   const infer = await op.evaluate(() => window.__jointInfer);
