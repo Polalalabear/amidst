@@ -236,7 +236,9 @@ def test_missing_agent_parameters_are_added_with_the_approved_values_and_reseale
     stripped = replace(run, bindings=replace(run.bindings, parameter_set=stripped_ps, parameter_sha256=stripped_ps['content_sha256']))
     fixed = og.ensure_agent_parameters(stripped)
     rows = {p['name']: p for p in fixed.bindings.parameter_set['parameters']}
-    assert all(rows[n]['status'] == 'APPROVED' for n, *_ in og.AGENT_PARAMETERS) and rows['agent_call_timeout_ms']['value'] == 2000
+    assert all(rows[n]['status'] == 'APPROVED' for n, *_ in og.AGENT_PARAMETERS) and rows['agent_call_timeout_ms']['value'] == 8000
+    assert rows['agent_total_budget_ms']['value'] == 24000 and rows['agent_max_rounds']['value'] == 3
+    assert rows['agent_call_timeout_ms']['proposal_ref'] == rows['agent_total_budget_ms']['proposal_ref'] == og._REF313 and og._REF313.endswith('issues/93#issuecomment-6967942787')
     assert fixed.bindings.parameter_sha256 == fixed.bindings.parameter_set['content_sha256'] == fixed.parse_settings.parameter_set_sha256
     assert fixed.parse_settings.parameter_set_id == fixed.bindings.parameter_set['parameter_set_id'] != stripped.parse_settings.parameter_set_id
     assert og.ensure_agent_parameters(fixed) == fixed   # idempotent
@@ -281,13 +283,13 @@ def test_openai_chat_sends_json_schema_with_bearer_key_and_unwraps_output(monkey
 def test_operator_budget_override_is_explicit_visible_and_validated(tmp_path):
     runs = [run_binding(agent=True)]
     assert og.configure_environment(runs, tmp_path, env={og.ENV_SWITCH: 'openai'})[0].bindings.parameter_sha256 == runs[0].bindings.parameter_sha256   # unset = approved values
-    env = {og.ENV_SWITCH: 'openai', 'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': '8000', 'AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS': '20000'}
+    env = {og.ENV_SWITCH: 'openai', 'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': '6000', 'AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS': '20000'}
     bound = og.configure_environment(runs, tmp_path, env=env)[0]
     rows = {p['name']: p for p in bound.bindings.parameter_set['parameters']}
-    assert rows['agent_call_timeout_ms']['value'] == 8000 and rows['agent_total_budget_ms']['value'] == 20000
+    assert rows['agent_call_timeout_ms']['value'] == 6000 and rows['agent_total_budget_ms']['value'] == 20000
     assert rows['agent_call_timeout_ms']['proposal_ref'] == og.OVERRIDE_REF and bound.bindings.parameter_sha256 != runs[0].bindings.parameter_sha256
     assert bound.parse_settings.parameter_set_sha256 == bound.bindings.parameter_sha256
-    for bad in ('0', '-5', 'abc', '999999'):
+    for bad in ('0', '-5', 'abc', '120001', '999999'):
         with pytest.raises(ValueError):
             og.configure_environment(runs, tmp_path, env={og.ENV_SWITCH: 'openai', 'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': bad})
 

@@ -11,8 +11,8 @@
 2. **demo（8785）**，照平常方式啟動，另外設 `AMIDST_RECORDED_AGENT=openai`。稽核掛鉤（D269）不變：8785 程序不開 socket，只在 owned 的 `state/agent-gateway/` 讀寫檔案。
 
 ## 預算與逾時
-- 預設用已核准參數：每輪 2000 ms、總 5000 ms、最多 3 輪。**實測 gpt-6.1-terra 每輪約 2.3–3.5 s，所以預設值下一定逾時、退回規則（`PROVIDER_TIMEOUT`）。**
-- 要讓 Agent 實際可用，demo 程序另設（操作者明示，寫進參數集並讓 hash 改變）：`AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS=8000`、`AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS=24000`（上限 120000）。預錄回放不是即時，等較久只影響操作體感。是否改成預設值，等協調者決定（#601）。
+- 預設（D313，[#93 決策留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6967942787)）：每輪 8000 ms、總共 24000 ms、最多 3 輪。gpt-6.1-terra 每輪約 2.3–3.5 s，預設即可完成；預錄回放不是即時，等較久只影響操作體感。原預設 2000／5000 ms 必逾時（`PROVIDER_TIMEOUT`），已取代。
+- 選用覆寫（操作者明示，寫進參數集並讓 hash 改變）：`AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS`、`AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS`（1..120000，超過即拒絕）。不設就用上面的預設。
 
 ## 顯示與退回
 - 不可用原因（bootstrap `agent_unavailable_reason`）：`GATEWAY_OFFLINE`、`GUARD_NOT_APPROVED`、`NO_API_KEY`、`MODEL_NOT_ENABLED`。

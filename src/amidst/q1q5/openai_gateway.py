@@ -56,8 +56,9 @@ _FALLBACK = {'GATEWAY_OFFLINE': 'PROVIDER_UNAVAILABLE', 'GUARD_NOT_APPROVED': 'M
 # (configs/q1q5/parameter_set_v1.json). Added only to a run that lacks them, and only when the switch is on.
 _REF88 = 'https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432'
 _REF93 = 'https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288'
-AGENT_PARAMETERS = (('agent_max_rounds', 3, 'count', _REF88), ('agent_total_budget_ms', 5000, 'ms', _REF88),
-                    ('agent_call_timeout_ms', 2000, 'ms', _REF88), ('agent_max_illegal_submissions', 2, 'count', _REF93),
+_REF313 = 'https://github.com/Polalalabear/amidst/issues/93#issuecomment-6967942787'   # D313: recorded-mode timeouts 8000/24000 ms
+AGENT_PARAMETERS = (('agent_max_rounds', 3, 'count', _REF88), ('agent_total_budget_ms', 24000, 'ms', _REF313),
+                    ('agent_call_timeout_ms', 8000, 'ms', _REF313), ('agent_max_illegal_submissions', 2, 'count', _REF93),
                     ('session_max_agent_rounds', 12, 'count', _REF93))
 
 
