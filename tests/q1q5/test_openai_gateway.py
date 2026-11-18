@@ -40,12 +40,12 @@ def guard(tmp_path, **kw):
 def fake_call(log=None, text=None):
     n = [0]
 
-    def call(system, user, api_model, max_out, timeout_s, env):
+    def call(system, user, api_model, max_out, timeout_s, env, schema=None):
         n[0] += 1
         if not env.get('OPENAI_API_KEY'):
             raise PermissionError('NO_API_KEY')   # what openai_chat does without a key
         if log is not None:
-            log.append((system, user, api_model, max_out, timeout_s))
+            log.append((system, user, api_model, max_out, timeout_s, schema))
         out = text if text is not None else json.dumps(auto(json.loads(user), n[0]))
         return out, 300, 60, api_model
     return call
@@ -171,7 +171,7 @@ def test_timeout_falls_back_and_removes_the_request(tmp_path):
 def test_reply_after_the_deadline_is_a_timeout_and_leaves_no_orphan(tmp_path):
     clock = Clock()
 
-    def slow(system, user, api_model, max_out, timeout_s, env):
+    def slow(system, user, api_model, max_out, timeout_s, env, schema=None):
         clock.t += 5   # the model answers 5 s later; the per-call budget is 2 s
         return json.dumps(auto(json.loads(user), 1)), 10, 10, api_model
     queue, worker, provider = wire(tmp_path, call=slow, clock=clock)
@@ -249,3 +249,52 @@ def test_provider_error_type_is_what_agent_controller_catches(tmp_path):
     with pytest.raises(ProviderError) as exc:
         provider.generate(model=og.API_MODEL, prompt='T\n{}', template='T', template_version='q5-agent-v2', options={}, timeout_ms=1000)
     assert exc.value.code == 'PROVIDER_UNAVAILABLE' and exc.value.record['validation_errors'] == ['GATEWAY_OFFLINE']
+
+
+# ---- guided schema, unwrap, operator budgets --------------------------------------------------------------------------
+def test_q5_requests_carry_the_wrapped_guided_schema_and_the_worker_passes_it_on(tmp_path):
+    log = []
+    _, _, provider = wire(tmp_path, call=fake_call(log))
+    select(agent_run(provider))
+    schema = log[0][5]
+    assert schema['type'] == 'object' and schema['required'] == ['output'] and schema['additionalProperties'] is False and 'output' in schema['properties']
+
+
+def test_openai_chat_sends_json_schema_with_bearer_key_and_unwraps_output(monkeypatch):
+    seen = {}
+
+    def transport(*, url, headers, body, timeout_s, method='POST'):
+        seen.update(url=url, headers=headers, body=json.loads(body), timeout_s=timeout_s)
+        reply = {'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps({'output': {'b': 1, 'a': [2]}})}}],
+                 'usage': {'prompt_tokens': 11, 'completion_tokens': 7}, 'model': 'gpt-6.1-terra-2026'}
+        return 200, json.dumps(reply).encode()
+    monkeypatch.setattr('amidst.q1q5.agent_providers.default_http_transport', transport)
+    schema = og.wrap_schema({'type': 'object'})
+    text, pt, ct, served = og.openai_chat('SYS JSON', 'USER', og.API_MODEL, 64, 5.0, {'OPENAI_API_KEY': SECRET}, schema)
+    assert json.loads(text) == {'a': [2], 'b': 1} and (pt, ct, served) == (11, 7, 'gpt-6.1-terra-2026')
+    assert seen['body']['response_format'] == {'type': 'json_schema', 'json_schema': {'name': 'q5_decision', 'strict': True, 'schema': schema}}
+    assert seen['body']['max_completion_tokens'] == 64 and seen['headers']['Authorization'] == 'Bearer ' + SECRET
+    with pytest.raises(PermissionError):
+        og.openai_chat('s', 'u', og.API_MODEL, 64, 5.0, {}, None)
+
+
+def test_operator_budget_override_is_explicit_visible_and_validated(tmp_path):
+    runs = [run_binding(agent=True)]
+    assert og.configure_environment(runs, tmp_path, env={og.ENV_SWITCH: 'openai'})[0].bindings.parameter_sha256 == runs[0].bindings.parameter_sha256   # unset = approved values
+    env = {og.ENV_SWITCH: 'openai', 'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': '8000', 'AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS': '20000'}
+    bound = og.configure_environment(runs, tmp_path, env=env)[0]
+    rows = {p['name']: p for p in bound.bindings.parameter_set['parameters']}
+    assert rows['agent_call_timeout_ms']['value'] == 8000 and rows['agent_total_budget_ms']['value'] == 20000
+    assert rows['agent_call_timeout_ms']['proposal_ref'] == og.OVERRIDE_REF and bound.bindings.parameter_sha256 != runs[0].bindings.parameter_sha256
+    assert bound.parse_settings.parameter_set_sha256 == bound.bindings.parameter_sha256
+    for bad in ('0', '-5', 'abc', '999999'):
+        with pytest.raises(ValueError):
+            og.configure_environment(runs, tmp_path, env={og.ENV_SWITCH: 'openai', 'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': bad})
+
+
+def test_strictify_gives_const_and_enum_an_explicit_type():
+    out = og.strictify({'anyOf': [{'properties': {'a': {'const': 'X'}, 'b': {'const': None}, 'c': {'enum': ['p', 'q']}, 'd': {'enum': [None, 'p']},
+                                                  'e': {'type': 'array', 'items': {'enum': ['r']}, 'maxItems': 1}, 'f': {'type': 'array', 'maxItems': 0}}}]})
+    p = out['anyOf'][0]['properties']
+    assert p['a'] == {'type': 'string', 'enum': ['X']} and p['b'] == {'type': 'null', 'enum': [None]} and p['c'] == {'type': 'string', 'enum': ['p', 'q']}
+    assert p['d']['type'] == ['null', 'string'] and p['e']['items'] == {'type': 'string', 'enum': ['r']} and p['f']['items'] == {'type': 'string'}

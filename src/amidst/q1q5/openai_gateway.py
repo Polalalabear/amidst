@@ -61,6 +61,10 @@ AGENT_PARAMETERS = (('agent_max_rounds', 3, 'count', _REF88), ('agent_total_budg
                     ('session_max_agent_rounds', 12, 'count', _REF93))
 
 
+OVERRIDE_REF = 'operator-env:AMIDST_RECORDED_AGENT_*'
+OVERRIDE_ENV = {'AMIDST_RECORDED_AGENT_CALL_TIMEOUT_MS': 'agent_call_timeout_ms', 'AMIDST_RECORDED_AGENT_TOTAL_BUDGET_MS': 'agent_total_budget_ms'}
+
+
 class GatewayError(ValueError):
     pass
 
@@ -92,6 +96,35 @@ def _read_json(path: Path, limit: int = MAX_REQUEST_BYTES) -> dict:
     doc = json.loads(raw)
     _require(isinstance(doc, dict), 'object required')
     return doc
+
+
+def _json_type(value):
+    return 'null' if value is None else 'boolean' if isinstance(value, bool) else 'integer' if isinstance(value, int) else 'number' if isinstance(value, float) else 'string'
+
+
+def strictify(node):
+    """Strict structured outputs want an explicit ``type`` beside ``const``/``enum``. Same constraint set, spelled for OpenAI."""
+    if isinstance(node, dict):
+        out = {k: strictify(v) for k, v in node.items()}
+        if 'const' in out:
+            value = out.pop('const')
+            out.update(type=_json_type(value), enum=[value])
+        elif 'enum' in out and 'type' not in out:
+            kinds = sorted({_json_type(v) for v in out['enum']})
+            out['type'] = kinds[0] if len(kinds) == 1 else kinds
+        if out.get('type') == 'array' and 'items' not in out:   # e.g. {"type":"array","maxItems":0}: strict wants items spelled out
+            out['items'] = {'type': 'string'}
+        return out
+    if isinstance(node, list):
+        return [strictify(v) for v in node]
+    return node
+
+
+def wrap_schema(schema: dict) -> dict:
+    """OpenAI structured outputs need an object at the root, but the Q5 guidance schema is a union (``anyOf``) of allowed outputs.
+    The union goes under one required ``output`` property; the gateway unwraps it, so the controller still validates the exact
+    original output itself."""
+    return {'type': 'object', 'properties': {'output': strictify(schema)}, 'required': ['output'], 'additionalProperties': False}
 
 
 def queue_paths(queue_dir) -> tuple[Path, Path, Path]:
@@ -142,6 +175,12 @@ class GatewayProvider:
         start = self.clock()
         wire = {'model': self.api_model, 'system': template, 'user': prompt[len(template) + 1:],
                 'max_output_tokens': MAX_OUTPUT_TOKENS}
+        from amidst.q1q5.llm_guidance import Q5_MARKER, q5_schema
+        if template.startswith(Q5_MARKER):   # same guided output the Ollama path uses; built from the controller's own payload only
+            try:
+                wire['schema'] = wrap_schema(q5_schema(json.loads(wire['user'])))
+            except (ValueError, KeyError, TypeError):
+                raise GatewayError('Q5 guided schema could not be built') from None
         record = {'model': model, 'model_digest': None, 'prompt': prompt, 'prompt_sha256': _sha(prompt),
                   'prompt_template_version': template_version, 'prompt_template_sha256': _sha(template),
                   'sampling': dict(options), 'input_sha256': canonical_hash(wire), 'raw_output': None, 'raw_output_sha256': None,
@@ -232,28 +271,35 @@ def load_settings(repo_root=None, api_model: str = API_MODEL) -> AgentSettings:
                          'q5-agent-v2', AUTH_REF)
 
 
-def ensure_agent_parameters(run):
+def ensure_agent_parameters(run, overrides=None):
     """Add the approved agent parameters a run lacks (same values/refs as the A4-1 config) and re-seal its parameter set.
     A run that already has them is returned unchanged."""
     b = run.bindings
     ps = deepcopy(b.parameter_set)
     have = {p['name']: p for p in ps['parameters']}
     missing = [x for x in AGENT_PARAMETERS if x[0] not in have]
-    if not missing:
+    changed = {n: v for n, v in (overrides or {}).items() if have.get(n, {}).get('value') != v}
+    if not missing and not changed:
         return run
+    for name, value in changed.items():   # operator override (env at launch): visible in the parameter set and its hash
+        row = have.get(name)
+        if row is not None:
+            row.update(value=value, proposed_by='operator', proposal_ref=OVERRIDE_REF)
     for name, value, unit, ref in missing:
-        ps['parameters'].append({'name': name, 'value': value, 'unit': unit, 'status': 'APPROVED', 'proposed_by': 'codex', 'proposal_ref': ref})
+        if name in changed:
+            value, ref = changed[name], OVERRIDE_REF
+        ps['parameters'].append({'name': name, 'value': value, 'unit': unit, 'status': 'APPROVED', 'proposed_by': 'operator' if name in changed else 'codex', 'proposal_ref': ref})
     ps['content_sha256'] = canonical_hash(ps, exclude=('content_sha256', 'stats', 'graph_id', 'parameter_set_id', 'index_id'))
     ps['parameter_set_id'] = ps['parameter_set_id'].rsplit(':', 1)[0] + ':' + ps['content_sha256'][:16]
     settings = replace(run.parse_settings, parameter_set_id=ps['parameter_set_id'], parameter_set_sha256=ps['content_sha256'])
     return replace(run, bindings=replace(b, parameter_set=ps, parameter_sha256=ps['content_sha256']), parse_settings=settings)
 
 
-def bind_openai_agent(runs, queue_dir, *, provider: GatewayProvider | None = None, settings: AgentSettings | None = None):
+def bind_openai_agent(runs, queue_dir, *, provider: GatewayProvider | None = None, settings: AgentSettings | None = None, overrides=None):
     """Give every run an OpenAI-gateway ``agent_factory`` (previous factories are replaced). Makes no network or file call."""
     provider = provider or GatewayProvider(queue_dir)
     factory = GatewayAgentFactory(provider, settings or load_settings())
-    return tuple(replace(ensure_agent_parameters(run), agent_factory=factory) for run in runs)
+    return tuple(replace(ensure_agent_parameters(run, overrides), agent_factory=factory) for run in runs)
 
 
 def configure_environment(runs, queue_dir, env=None):
@@ -263,7 +309,12 @@ def configure_environment(runs, queue_dir, env=None):
     if value in ('', 'off'):
         return tuple(runs)
     _require(value == 'openai', f'{ENV_SWITCH} must be unset, off or openai')
-    return bind_openai_agent(runs, queue_dir)
+    overrides = {}
+    for name, param in OVERRIDE_ENV.items():   # optional operator budgets; unset = the approved parameter values
+        if env.get(name):
+            _require(env[name].isdigit() and 0 < int(env[name]) <= 120_000, f'{name} must be 1..120000 ms')
+            overrides[param] = int(env[name])
+    return bind_openai_agent(runs, queue_dir, overrides=overrides)
 
 
 def agent_status(run) -> tuple[bool, str | None]:
@@ -281,7 +332,7 @@ def agent_status(run) -> tuple[bool, str | None]:
 # ---------------------------------------------------------------------------------------------------------------------
 # gateway side (separate process; the only code that holds the key and touches the network)
 # ---------------------------------------------------------------------------------------------------------------------
-def openai_chat(system: str, user: str, api_model: str, max_output_tokens: int, timeout_s: float, env) -> tuple[str, int | None, int | None, str]:
+def openai_chat(system: str, user: str, api_model: str, max_output_tokens: int, timeout_s: float, env, schema: dict | None = None) -> tuple[str, int | None, int | None, str]:
     """One chat completion. Reads the key only here, inside ``ApiGuard.run``. Returns (text, prompt_tokens, completion_tokens, api_model)."""
     from amidst.q1q5.agent_providers import OPENAI_CHAT_URL, default_http_transport
     key = env.get('OPENAI_API_KEY')
@@ -289,16 +340,26 @@ def openai_chat(system: str, user: str, api_model: str, max_output_tokens: int, 
         raise PermissionError('NO_API_KEY')
     if 'json' not in system.lower():   # json_object mode requires the word JSON in the messages
         system += '\nRespond with a single JSON object.'
+    fmt = ({'type': 'json_schema', 'json_schema': {'name': 'q5_decision', 'strict': True, 'schema': schema}} if schema is not None
+           else {'type': 'json_object'})
     body = json.dumps({'model': api_model, 'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': user}],
-                       'max_completion_tokens': int(max_output_tokens), 'response_format': {'type': 'json_object'}}).encode()
+                       'max_completion_tokens': int(max_output_tokens), 'response_format': fmt}).encode()
     status, raw = default_http_transport(url=OPENAI_CHAT_URL, headers={'Authorization': 'Bearer ' + key.strip(), 'Content-Type': 'application/json'},
                                          body=body, timeout_s=timeout_s)
     data = json.loads(raw)
     choice = data['choices'][0]
     _require(choice.get('finish_reason') == 'stop' and isinstance(choice['message'].get('content'), str), 'incomplete reply')
+    text = choice['message']['content']
+    if schema is not None:   # unwrap {"output": ...}; anything else is passed through and rejected by the controller
+        try:
+            inner = json.loads(text)
+            if isinstance(inner, dict) and set(inner) == {'output'}:
+                text = json.dumps(inner['output'], sort_keys=True, separators=(',', ':'), ensure_ascii=True)
+        except ValueError:
+            pass
     usage = data.get('usage') or {}
     pt, ct = usage.get('prompt_tokens'), usage.get('completion_tokens')
-    return choice['message']['content'], pt if type(pt) is int else None, ct if type(ct) is int else None, str(data.get('model') or api_model)
+    return text, pt if type(pt) is int else None, ct if type(ct) is int else None, str(data.get('model') or api_model)
 
 
 class GatewayWorker:
@@ -339,6 +400,8 @@ class GatewayWorker:
             _require(type(max_out) is int and 1 <= max_out <= MAX_OUTPUT_TOKENS, 'bad token cap')
             deadline = req.get('deadline_unix')
             _require(isinstance(deadline, (int, float)), 'bad deadline')
+            schema = req.get('schema')
+            _require(schema is None or isinstance(schema, dict) and len(json.dumps(schema)) <= 65536 and not _LOCAL_PATH.search(json.dumps(schema)), 'bad schema')
         except GatewayError:
             if isinstance(rid, str) and _ID.fullmatch(rid):
                 self._respond(rid, status='ERROR', reason='BAD_REQUEST')
@@ -354,7 +417,7 @@ class GatewayWorker:
         usage = {}
 
         def fn():
-            text, pt, ct, served = self.call(system, user, api_model, max_out, max(0.5, remaining), self.env)
+            text, pt, ct, served = self.call(system, user, api_model, max_out, max(0.5, remaining), self.env, schema)
             usage.update(prompt_tokens=pt, completion_tokens=ct)
             return {'text': text, 'api_model_id': served}, pt, ct
 
