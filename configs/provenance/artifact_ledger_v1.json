@@ -2824,12 +2824,12 @@
    "id": "CO-claude",
    "path": "~/Developer/amidst-claude",
    "type": "code_checkout",
-   "disposition": "keep_original",
+   "disposition": "archivable",
    "purpose": "協調者 worktree（主庫 amidst）：分支 claude/k1-hypothesis",
    "referenced_by": [
     "UNKNOWN"
    ],
-   "retain_reason": "checkout；程式可由 commit 取回，未提交與 ignored 產物不可",
+   "retain_reason": "已於 2026-11-17 刪除（D262，使用者在終端執行；B1）：WIP 全部在 GitHub 分支 archive/amidst-claude-wip-20261109（8467dafa）；ignored 產物 5 檔複製到 local/archive/checkouts/amidst-claude-ignored-20261117/（rq1_report.json sha256 744670db…0a62；frames/000.png sha256 372df425…179c）。經 git worktree remove --force 與 prune 移除。",
    "rebuildable": "partial",
    "size_bytes": null,
    "file_count": null,
@@ -2846,14 +2846,15 @@
     "status": "KEEP",
     "checks": {
      "refs_mainline": "unknown",
-     "running_services": "unknown",
-     "unmerged_work": "unknown",
-     "evidence_preservation": "unknown",
+     "running_services": "pass",
+     "unmerged_work": "pass",
+     "evidence_preservation": "pass",
      "raw_assets": "pass"
     },
-    "reason": "使用中的 checkout／環境／模型，保留",
-    "checked_at": "2026-11-09"
-   }
+    "reason": "已刪除（D262，2026-11-17）；內容保留於 archive/amidst-claude-wip-20261109 分支與 local/archive/checkouts/amidst-claude-ignored-20261117/。code_checkout 不得為 SAFE（測試規則）",
+    "checked_at": "2026-11-17"
+   },
+   "notes": "2026-11-17 D262（B1）：此 checkout 已由使用者刪除（git worktree remove --force＋prune）。依 tests/operations/test_artifact_ledger.py，code_checkout 不得標 SAFE，deletable 又須 SAFE，故處置記為 archivable 而非 deletable。保留位置：WIP 在分支 archive/amidst-claude-wip-20261109（8467dafa）；ignored 產物 5 檔在 local/archive/checkouts/amidst-claude-ignored-20261117/。"
   },
   {
    "id": "CO-d139",
@@ -3953,15 +3954,15 @@
    ],
    "retain_reason": "10-26 後無修改；是否為交付物 UNKNOWN，建議壓縮留存後再刪",
    "rebuildable": "partial",
-   "size_bytes": 299010499,
-   "file_count": 806,
+   "size_bytes": 149568621,
+   "file_count": 408,
    "hash": {
     "policy": "full",
-    "manifest_sha256": "14cf018896d443795e6f54ad4113f9d7321e9c327fe5053babe985cabcabbc71",
+    "manifest_sha256": "835478c8b755a99b46ca514e35a7e257a2a41eca0a21f61dd7128a5e46569550",
     "completeness": "complete",
-    "hashed_files": 806
+    "hashed_files": 408
    },
-   "notes": "已複製範圍：Amidst P1 最終測試 398 檔／149,497,111 bytes",
+   "notes": "2026-11-17 D262（B3）：已刪『Amidst P1 工程測試』（401 檔，其中 398 檔與最終測試內容相同）；獨有 3 檔（MANIFEST.json、MANIFEST.sha256、start.command）保留在 工程測試-獨有檔/。現存範圍＝最終測試 405 檔＋獨有 3 檔＝408 檔（local/archive/p1-clean-room-20261026/，size_bytes、manifest_sha256 依 scripts/artifact_ledger.py 方法於 2026-11-17 重算）。原已複製範圍：Amidst P1 最終測試 398 檔／149,497,111 bytes",
    "safety": {
     "status": "KEEP",
     "checks": {

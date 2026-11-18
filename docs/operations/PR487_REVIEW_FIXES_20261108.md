@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # #445 / #487 審查修正與 D137（2026-11-08）
 
 對照 [審查留言](https://github.com/Polalalabear/amidst/pull/487#issuecomment-6717576841)。所有「已修」以 Node、真實資料、合成 API、DOM／lifecycle、no-allow 架構守門及 diff check 的實跑證據為準。原始 UI `53953a81`、Codex 首輪 `a8c7066c`、Claude 腳本 `5862bb62`，以及 C 自有依賴 `29769639` 都保留；composition 在同目錄 JSON。沒有合併 PR，也沒有動 integration/mainline/main。

@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # #445 / #487 Mac real-data UI acceptance (2026-11-08)
 
 D131/D132: fix acceptance failures in `claude/ui-redesign-v1`, report on #445.
