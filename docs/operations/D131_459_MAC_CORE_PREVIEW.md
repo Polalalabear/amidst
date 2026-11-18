@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # Mac synthetic core preview and browser E2E
 
 This is an independent preview of PR #452, not #445 integration. It uses the exact clean source head `088252833665a4bca9fcfbf31597b4bb296fb549`. The HTTP adapter provides explicit SYNTHETIC responses and SVG cards; no actual RGB, model, key, renderer, original dataset or GT is used. Unavailable routes remain errors. The source checkout is read-only and no merge commit is created.

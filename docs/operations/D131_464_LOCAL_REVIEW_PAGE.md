@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # Local r005 coverage confirmation page
 
 This is a human review tool, not automatic coverage approval. Source imagery remains PR #447 `39b9c4323288cae8c52532277cdd6dc75b63a965`; the detector report remains PR #473's original `978bf6ce9e955700022af235b284aa5ff4c8a73f` output. The added UI does not rerun detection or change those pins.

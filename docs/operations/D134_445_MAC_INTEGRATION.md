@@ -1,3 +1,5 @@
+> **已封存（2026-11-17，#580）**：不再是現行規範，保留供追溯。取代者／狀態見[封存索引 §6](../archive/ARCHIVE_20261027.md#6-2026-11-17-增補)。
+
 # #445 Mac integration — 2026-11-08
 
 The local branch is `claude/445-demo-integration`, based on the handed-off

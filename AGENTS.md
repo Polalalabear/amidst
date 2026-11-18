@@ -47,6 +47,8 @@ The integration branch is `main` (D200; the GitHub default since D214). `mainlin
 
 **LOCAL artifacts:** non-git items live under the git-ignored `~/amidst/local/{data,evidence,archive}` (code finds them through `amidst.paths`; `AMIDST_ARTIFACTS` overrides the evidence root). Never use `/tmp`, absolute home paths or the old `~/amidst-artifacts` <!-- local-ref-ignore -->. Documents cite a LOCAL artifact by its path relative to `local/…` or `$AMIDST_ARTIFACTS`, with its SHA-256 (or "cannot be rebuilt" / "not applicable"); `scripts/check_local_artifact_refs.py` reports violations in CI (warning only for now).
 
+**Work list (D281):** the work list is in the body of [#93](https://github.com/Polalalabear/amidst/issues/93), the only source. Assigning, taking and updating work all happen on the issues; the taking rules are in #93.
+
 Q1–Q5 work is self-selected from the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93): take only `ready` issues with your own `owner:*` label, claim by comment and `in-progress`, one task at a time, open a Draft PR (base `main`) with the actual-output record, and stop at `needs-auth` or checkpoints. Claude maintains the `ready`/`blocked`/`needs-auth` labels.
 
 ### Progress guide
