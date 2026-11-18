@@ -8,6 +8,7 @@ export function params() {
     model: q.get('model') || 'capsule', // capsule | glb (N6 character.glb)
     scene: q.get('scene') || 'n6',      // n6 (baked scene.glb) | spike (extruded walls)
     auto: q.get('auto'),                // B4 | A4 : scripted target walk (measurement only)
+    script: q.get('script'),            // #597 hard-case id: scripted operator plays the player (script_operator.mjs)
     duration: num('duration', 60), run: q.get('run') || 'B4-1-v2-4actor',
     sentence: q.get('sentence') || 'a person in a red top', quality: num('q', 0.85),
   };

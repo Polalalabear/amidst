@@ -9,6 +9,8 @@ import {applyMouseDelta, DEFAULT_VIEW_CONFIG} from './view.mjs';
 import {makeCapture, packInfer, chooseCaptureIds} from './capture.mjs';
 import {buildSystemMessage, buildInferHeader} from './protocol.mjs';
 import {CHANNEL, params, now} from './common.mjs';
+import {createScriptOperator, createFixedStepper, SCRIPT_DT} from './script_operator.mjs';
+import {HARDSET_ROUTES} from './hardset_routes.mjs';
 
 const RUNS = ['A4-1-v2-4actor', 'B4-1-v2-4actor'];
 function runId(value) {
@@ -17,11 +19,14 @@ function runId(value) {
   return id;
 }
 export function menuOptions(q) {
-  const skip = q.has('run') || q.has('actor') || q.has('auto');
+  const script = q.has('script') ? HARDSET_ROUTES[q.get('script')] : null;
+  if (q.has('script') && !script) throw new Error('SCRIPT_UNKNOWN');
+  if (script && q.has('actor') && q.get('actor') !== 'T') throw new Error('SCRIPT_ACTOR_MUST_BE_T');
+  const skip = q.has('run') || q.has('actor') || q.has('auto') || !!script;
   const actor_id = q.get('actor') || (skip ? 'T' : null);
   if (actor_id && !VARIANTS.includes(actor_id)) throw new Error('ACTOR_UNKNOWN');
-  const run_id = runId(q.get('run') || (q.get('auto')?.startsWith('B4') ? 'B4-1' : 'A4-1'));
-  return {run_id, actor_id, skip, mouse: q.has('auto') || q.get('mouse') === 'off' ? 'off' : q.get('mouse') === 'drag' ? 'drag' : 'lock'};
+  const run_id = runId(script?.run_id || q.get('run') || (q.get('auto')?.startsWith('B4') ? 'B4-1' : 'A4-1'));
+  return {run_id, actor_id, skip, mouse: q.has('auto') || script || q.get('mouse') === 'off' ? 'off' : q.get('mouse') === 'drag' ? 'drag' : 'lock'};
 }
 // Only the menu holds this gate. It is never exposed in window.__op or sent over the channel.
 export function createSessionGate(scenario, options, fetcher) {
@@ -228,6 +233,10 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   if (gltf) world.characterGltf = gltf;
   const run = scenario.runs.find(r => r.run_id === session.run_id), camIds = P.cams || Object.keys(cams);
   const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto});
+  // #597 scripted operator: same crowd step (walls, avoidance) as the keyboard; reads only the player pose and t_sim.
+  const route = P.script ? HARDSET_ROUTES[P.script] : null;
+  if (P.script && (!route || runId(route.run_id) !== session.run_id || P.auto)) throw new Error('SCRIPT_SESSION_MISMATCH');
+  const scripted = route ? createScriptOperator(route) : null, stepper = scripted ? createFixedStepper(crowd, scripted) : null;
   let snapshot = crowd.snapshot(), viewState = {view_yaw: 0, view_pitch: 0};
   const people = new Map();
   for (const actor of run.actors) people.set(actor.actor_id, await makePerson(P.model, world, actor.actor_id === 'C' ? 'blue' : actor.actor_id === 'B' ? 'orange' : 'red', actor.actor_id));
@@ -243,6 +252,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   const log = {schema_version: 'live-ab.a-log.v1', ...session, ticks: [], forced_overlap: [], block_wait: [], spawn_adjusted: snapshot.spawn_adjusted,
     config: {...P, run: session.run_id, cams: camIds, n6, crowd: snapshot.config, ...snapshot.config, view: {...DEFAULT_VIEW_CONFIG, mouse}, schedule_mode: config.schedule_mode},
     sent: 0, dropped: 0, fpsStart: now()};
+  if (scripted) { log.config.script = {case_id: P.script, dt: SCRIPT_DT, steps: route.steps.length}; log.script_events = scripted.events; }
   window.__log = log;
   window.__setKeys = k => Object.assign(keys, k);
   // Read-only coordinates preserve the legacy measurement hook; no object/variant/session setter.
@@ -255,7 +265,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   const drawOperator = makeOperatorView(world); let last = performance.now();
   function frame(tn) {
     const dt = Math.min(.1, Math.max(0, (tn - last) / 1000)); last = tn;
-    if (dt > 0) snapshot = crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
+    if (dt > 0) snapshot = stepper ? stepper.advance(dt) : crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
     for (const a of snapshot.actors) {
       const h = people.get(a.actor_id); h.setVisible(a.present);
       if (a.present) { h.setPose(a.x, a.y, a.heading); h.setSpeed(a.speed < .05 ? 0 : a.speed, a.is_player && !P.auto ? a.running : undefined); } h.update(dt);
@@ -275,6 +285,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
     try {
       const tCap = now(), snap = snapshot;
       const row = privateTick(snap, tick, tCap, a => groundTruthVisible(cams, world.blockers, world.root, a.x, a.y));
+      if (scripted) row.script_step = scripted.step;
       // Start every shoot synchronously in this task, before the next animation frame changes poses.
       const frames = await Promise.all(chooseCaptureIds(camIds, schedule).map(async id => ({cam: id, jpeg: await cap.shoot(id)})));
       const header = buildInferHeader({tick, tCaptureMs: tCap, frames, availableCameras: camIds});
