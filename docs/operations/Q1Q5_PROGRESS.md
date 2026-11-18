@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-11-18（`gh pr view`／`gh issue view` 逐項重查 #558–#585；`main` `59782b1d`，為撰寫時 `origin/main` 的 head）。資料來源：GitHub 上全部 PR 與 issue。
-本文涵蓋 **339 個 PR 與 246 個 issue，共 585 項**（編號 #1–#585 連續，無缺號；本 PR 依 CLAUDE.md 不列自己的列，下次批次補列），每項只列在一個主分類下。
+快照時間：2026-11-18（D311–D318 批次補列，`gh pr list`／`gh issue list` 逐項重查 #586–#613；`main` `b98fac2a`，為撰寫時 `origin/main` 的 head）。資料來源：GitHub 上全部 PR 與 issue。
+本文涵蓋 **353 個 PR 與 260 個 issue，共 613 項**（編號 #1–#613 連續，無缺號；本 PR 依 CLAUDE.md 不列自己的列，下次批次補列），每項只列在一個主分類下。
 維護方式（D91-4）：本文的列由協調者批次補列，一般 PR／issue 不必各自更新，2026-11-10 起主線改為 `main`（D200），PR 的 base 一律是 `main`；`mainline/q1q5` 凍結，staging 已不再使用。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
@@ -27,19 +27,20 @@
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 51 | 0 | 0 | 0 | 51 |
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 62 | 0 | 0 | 0 | 62 |
 | [Line 2 複雜場景](#line-2-複雜場景) | 50 | 0 | 0 | 0 | 50 |
-| [流程：任務板、交接與文件](#流程任務板交接與文件) | 76 | 7 | 3 | 1 | 87 |
-| [Agent：WP／DP4 與評估](#agentwpdp4-與評估) | 22 | 1 | 0 | 0 | 23 |
-| [即時模式（Live mode）](#即時模式live-mode) | 8 | 8 | 3 | 0 | 19 |
-| [4 人場景、8 鏡頭與 N6 素材（#516）](#4-人場景8-鏡頭與-n6-素材516) | 13 | 0 | 0 | 0 | 13 |
-| [Demo 整合、前台 UI 與 8785 更新（#445）](#demo-整合前台-ui-與-8785-更新445) | 19 | 2 | 0 | 0 | 21 |
+| [流程：任務板、交接與文件](#流程任務板交接與文件) | 87 | 2 | 1 | 0 | 90 |
+| [Agent：WP／DP4 與評估](#agentwpdp4-與評估) | 25 | 1 | 0 | 0 | 26 |
+| [即時模式（Live mode）](#即時模式live-mode) | 21 | 4 | 6 | 0 | 31 |
+| [4 人場景、8 鏡頭與 N6 素材（#516）](#4-人場景8-鏡頭與-n6-素材516) | 16 | 0 | 0 | 0 | 16 |
+| [Demo 整合、前台 UI 與 8785 更新（#445）](#demo-整合前台-ui-與-8785-更新445) | 24 | 0 | 1 | 1 | 26 |
 | [W 系列：D126 查找與追蹤核心](#w-系列d126-查找與追蹤核心) | 61 | 0 | 0 | 0 | 61 |
-| [大掃除、CI 與可攜性（#486）](#大掃除ci-與可攜性486) | 18 | 0 | 0 | 0 | 18 |
+| [大掃除、CI 與可攜性（#486）](#大掃除ci-與可攜性486) | 19 | 0 | 1 | 0 | 20 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 38 | 0 | 0 | 0 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **560** | **18** | **6** | **1** | **585** |
+| **合計** | **596** | **7** | **9** | **1** | **613** |
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-11-18（協調者批次補列，D91-4，D311–D318）：快照擴大到 #1–#613。新增 #586–#613；已合併（merge commit）移到「已完成」：#559、#564、#584、#587、#590、#595、#599、#603、#604、#606、#607、#609、#611、#613，已關閉的 issue 亦移到「已完成」：#552、#555、#568–#570、#573、#577–#583、#585、#591、#593、#600–#602、#605；#571、#572、#576、#588、#589、#596、#597、#598、#612 列「未完成」，#608、#610 列「進行中」（Draft），#594 列「待確認」。#599、#603 等已合併的 PR 的 merge commit 見各列。
 - 2026-11-18（#580 批次補列，D91-4、D281）：快照擴大到 #1–#585。新增 #565、#567、#575、#584（PR）與 #566、#568–#574（CX-L5 A/B 子項）、#576–#583、#585（CL-B 系列、待使用者決定）；#558（`edb96a31`）、#563（`0606b164`）、#565（`3137a1ca`）、#567（`2f013cb8`）、#575（`59782b1d`）已合併，#554 已關閉，移到「已完成」；#559、#564 仍開著。`main` 頭為 `59782b1d`。工作清單改在 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文（D281）。
 - 2026-11-17 晚間（協調者批次補列，D91-4，隨晚間交接 PR）：快照擴大到 #1–#564。新增 #558（實驗紀錄 v4）、#559（Codex 偵測＋啟動入口，Draft）、#560、#561（Codex，已合併）、#562（交接，已合併）、#563（LLM 開關，Draft）、#564（workbench-v2 易用性，Draft）；#546、#547、#551、#556、#557 已合併、#553 已完成關閉，移到「已完成」；#554 工作已由 #560 合併但 issue 還開著，列「待確認」；#552、#555 的程式在 #559，改列「進行中」。`main` 頭為 `e9db4fdf`。
 - 2026-11-17 本 PR（#557）：協調者批次補列（D91-4），快照擴大到 #1–#557。新增 #549–#557（#549、#550 已合併；#551、#556 即時模式 Draft PR；#552–#555 Codex 佇列 CX-L1–CX-L4，D248）；#544（`7d612aa7`）、#548 已合併，#516 已完成關閉，移到「已完成」。`main` 頭為 `7d612aa7`。
@@ -90,10 +91,8 @@
 | [#224](https://github.com/Polalalabear/amidst/pull/224) | PR | CX-2／#164：隔離合成分母，補 Q1 請求與分頁檢查 | — | 已併入 staging（`08d4793`），待審入主線 |
 
 **其他分類中也涉及 Q1 的項目：**
-
 - 已完成：[#146](https://github.com/Polalalabear/amidst/issues/146)、[#149](https://github.com/Polalalabear/amidst/pull/149)、[#152](https://github.com/Polalalabear/amidst/pull/152)、[#204](https://github.com/Polalalabear/amidst/issues/204)、[#205](https://github.com/Polalalabear/amidst/pull/205)、[#221](https://github.com/Polalalabear/amidst/pull/221)、[#236](https://github.com/Polalalabear/amidst/pull/236)、[#240](https://github.com/Polalalabear/amidst/pull/240)、[#269](https://github.com/Polalalabear/amidst/pull/269)、[#284](https://github.com/Polalalabear/amidst/issues/284)、[#285](https://github.com/Polalalabear/amidst/issues/285)、[#167](https://github.com/Polalalabear/amidst/pull/167)、[#86](https://github.com/Polalalabear/amidst/pull/86)、[#88](https://github.com/Polalalabear/amidst/issues/88)、[#92](https://github.com/Polalalabear/amidst/pull/92)、[#94](https://github.com/Polalalabear/amidst/issues/94)、[#96](https://github.com/Polalalabear/amidst/issues/96)、[#98](https://github.com/Polalalabear/amidst/issues/98)、[#99](https://github.com/Polalalabear/amidst/issues/99)、[#126](https://github.com/Polalalabear/amidst/pull/126)、[#127](https://github.com/Polalalabear/amidst/pull/127)、[#133](https://github.com/Polalalabear/amidst/issues/133)、[#135](https://github.com/Polalalabear/amidst/pull/135)、[#142](https://github.com/Polalalabear/amidst/pull/142)、[#144](https://github.com/Polalalabear/amidst/issues/144)、[#145](https://github.com/Polalalabear/amidst/issues/145)、[#148](https://github.com/Polalalabear/amidst/pull/148)、[#156](https://github.com/Polalalabear/amidst/issues/156)、[#161](https://github.com/Polalalabear/amidst/pull/161)、[#173](https://github.com/Polalalabear/amidst/pull/173)、[#219](https://github.com/Polalalabear/amidst/pull/219)、[#220](https://github.com/Polalalabear/amidst/pull/220)、[#237](https://github.com/Polalalabear/amidst/pull/237)、[#260](https://github.com/Polalalabear/amidst/pull/260)、[#278](https://github.com/Polalalabear/amidst/pull/278)、[#296](https://github.com/Polalalabear/amidst/issues/296)、[#297](https://github.com/Polalalabear/amidst/issues/297)、[#303](https://github.com/Polalalabear/amidst/issues/303)、[#305](https://github.com/Polalalabear/amidst/pull/305)、[#97](https://github.com/Polalalabear/amidst/issues/97)、[#101](https://github.com/Polalalabear/amidst/issues/101)、[#102](https://github.com/Polalalabear/amidst/issues/102)、[#103](https://github.com/Polalalabear/amidst/issues/103)、[#113](https://github.com/Polalalabear/amidst/issues/113)、[#115](https://github.com/Polalalabear/amidst/issues/115)、[#118](https://github.com/Polalalabear/amidst/issues/118)、[#134](https://github.com/Polalalabear/amidst/pull/134)、[#136](https://github.com/Polalalabear/amidst/pull/136)、[#139](https://github.com/Polalalabear/amidst/pull/139)、[#155](https://github.com/Polalalabear/amidst/pull/155)、[#196](https://github.com/Polalalabear/amidst/issues/196)、[#197](https://github.com/Polalalabear/amidst/pull/197)、[#302](https://github.com/Polalalabear/amidst/issues/302)、[#90](https://github.com/Polalalabear/amidst/pull/90)、[#100](https://github.com/Polalalabear/amidst/issues/100)、[#112](https://github.com/Polalalabear/amidst/issues/112)、[#119](https://github.com/Polalalabear/amidst/issues/119)、[#120](https://github.com/Polalalabear/amidst/issues/120)、[#122](https://github.com/Polalalabear/amidst/issues/122)、[#124](https://github.com/Polalalabear/amidst/issues/124)、[#130](https://github.com/Polalalabear/amidst/issues/130)、[#175](https://github.com/Polalalabear/amidst/pull/175)、[#176](https://github.com/Polalalabear/amidst/pull/176)、[#180](https://github.com/Polalalabear/amidst/pull/180)、[#181](https://github.com/Polalalabear/amidst/pull/181)、[#182](https://github.com/Polalalabear/amidst/pull/182)、[#192](https://github.com/Polalalabear/amidst/issues/192)、[#193](https://github.com/Polalalabear/amidst/pull/193)、[#194](https://github.com/Polalalabear/amidst/issues/194)、[#195](https://github.com/Polalalabear/amidst/pull/195)、[#200](https://github.com/Polalalabear/amidst/issues/200)、[#201](https://github.com/Polalalabear/amidst/pull/201)、[#206](https://github.com/Polalalabear/amidst/issues/206)、[#207](https://github.com/Polalalabear/amidst/pull/207)、[#231](https://github.com/Polalalabear/amidst/pull/231)、[#233](https://github.com/Polalalabear/amidst/pull/233)、[#234](https://github.com/Polalalabear/amidst/pull/234)、[#242](https://github.com/Polalalabear/amidst/pull/242)、[#243](https://github.com/Polalalabear/amidst/pull/243)、[#257](https://github.com/Polalalabear/amidst/pull/257)、[#277](https://github.com/Polalalabear/amidst/pull/277)、[#300](https://github.com/Polalalabear/amidst/issues/300)、[#147](https://github.com/Polalalabear/amidst/issues/147)、[#151](https://github.com/Polalalabear/amidst/pull/151)、[#215](https://github.com/Polalalabear/amidst/pull/215)、[#226](https://github.com/Polalalabear/amidst/pull/226)、[#228](https://github.com/Polalalabear/amidst/pull/228)、[#263](https://github.com/Polalalabear/amidst/issues/263)、[#270](https://github.com/Polalalabear/amidst/pull/270)、[#276](https://github.com/Polalalabear/amidst/pull/276)
 - 進行中：[#93](https://github.com/Polalalabear/amidst/issues/93)
-
 
 ## Q2 在畫面中找人
 
@@ -109,10 +108,8 @@
 | [#388](https://github.com/Polalalabear/amidst/pull/388) | PR | DEMO-UI-F: 修復 live Q2 scope/session binding 與 P1 起點 | — | 已合併 `codex/q1q5-staging`（2026-11-03） |
 
 **其他分類中也涉及 Q2 的項目：**
-
 - 已完成：[#152](https://github.com/Polalalabear/amidst/pull/152)、[#269](https://github.com/Polalalabear/amidst/pull/269)、[#285](https://github.com/Polalalabear/amidst/issues/285)、[#114](https://github.com/Polalalabear/amidst/issues/114)、[#158](https://github.com/Polalalabear/amidst/pull/158)、[#104](https://github.com/Polalalabear/amidst/issues/104)、[#110](https://github.com/Polalalabear/amidst/issues/110)、[#116](https://github.com/Polalalabear/amidst/issues/116)、[#117](https://github.com/Polalalabear/amidst/issues/117)、[#150](https://github.com/Polalalabear/amidst/pull/150)、[#163](https://github.com/Polalalabear/amidst/pull/163)、[#166](https://github.com/Polalalabear/amidst/pull/166)、[#169](https://github.com/Polalalabear/amidst/pull/169)、[#184](https://github.com/Polalalabear/amidst/issues/184)、[#185](https://github.com/Polalalabear/amidst/pull/185)、[#202](https://github.com/Polalalabear/amidst/issues/202)、[#203](https://github.com/Polalalabear/amidst/pull/203)、[#218](https://github.com/Polalalabear/amidst/issues/218)、[#86](https://github.com/Polalalabear/amidst/pull/86)、[#88](https://github.com/Polalalabear/amidst/issues/88)、[#92](https://github.com/Polalalabear/amidst/pull/92)、[#94](https://github.com/Polalalabear/amidst/issues/94)、[#96](https://github.com/Polalalabear/amidst/issues/96)、[#98](https://github.com/Polalalabear/amidst/issues/98)、[#99](https://github.com/Polalalabear/amidst/issues/99)、[#127](https://github.com/Polalalabear/amidst/pull/127)、[#133](https://github.com/Polalalabear/amidst/issues/133)、[#135](https://github.com/Polalalabear/amidst/pull/135)、[#142](https://github.com/Polalalabear/amidst/pull/142)、[#144](https://github.com/Polalalabear/amidst/issues/144)、[#145](https://github.com/Polalalabear/amidst/issues/145)、[#148](https://github.com/Polalalabear/amidst/pull/148)、[#173](https://github.com/Polalalabear/amidst/pull/173)、[#178](https://github.com/Polalalabear/amidst/issues/178)、[#219](https://github.com/Polalalabear/amidst/pull/219)、[#220](https://github.com/Polalalabear/amidst/pull/220)、[#237](https://github.com/Polalalabear/amidst/pull/237)、[#260](https://github.com/Polalalabear/amidst/pull/260)、[#278](https://github.com/Polalalabear/amidst/pull/278)、[#296](https://github.com/Polalalabear/amidst/issues/296)、[#297](https://github.com/Polalalabear/amidst/issues/297)、[#303](https://github.com/Polalalabear/amidst/issues/303)、[#305](https://github.com/Polalalabear/amidst/pull/305)、[#75](https://github.com/Polalalabear/amidst/pull/75)、[#80](https://github.com/Polalalabear/amidst/pull/80)、[#97](https://github.com/Polalalabear/amidst/issues/97)、[#101](https://github.com/Polalalabear/amidst/issues/101)、[#102](https://github.com/Polalalabear/amidst/issues/102)、[#113](https://github.com/Polalalabear/amidst/issues/113)、[#115](https://github.com/Polalalabear/amidst/issues/115)、[#132](https://github.com/Polalalabear/amidst/pull/132)、[#134](https://github.com/Polalalabear/amidst/pull/134)、[#136](https://github.com/Polalalabear/amidst/pull/136)、[#155](https://github.com/Polalalabear/amidst/pull/155)、[#187](https://github.com/Polalalabear/amidst/pull/187)、[#227](https://github.com/Polalalabear/amidst/pull/227)、[#235](https://github.com/Polalalabear/amidst/pull/235)、[#238](https://github.com/Polalalabear/amidst/pull/238)、[#90](https://github.com/Polalalabear/amidst/pull/90)、[#100](https://github.com/Polalalabear/amidst/issues/100)、[#112](https://github.com/Polalalabear/amidst/issues/112)、[#119](https://github.com/Polalalabear/amidst/issues/119)、[#121](https://github.com/Polalalabear/amidst/issues/121)、[#122](https://github.com/Polalalabear/amidst/issues/122)、[#124](https://github.com/Polalalabear/amidst/issues/124)、[#130](https://github.com/Polalalabear/amidst/issues/130)、[#175](https://github.com/Polalalabear/amidst/pull/175)、[#177](https://github.com/Polalalabear/amidst/pull/177)、[#180](https://github.com/Polalalabear/amidst/pull/180)、[#181](https://github.com/Polalalabear/amidst/pull/181)、[#182](https://github.com/Polalalabear/amidst/pull/182)、[#192](https://github.com/Polalalabear/amidst/issues/192)、[#193](https://github.com/Polalalabear/amidst/pull/193)、[#194](https://github.com/Polalalabear/amidst/issues/194)、[#195](https://github.com/Polalalabear/amidst/pull/195)、[#200](https://github.com/Polalalabear/amidst/issues/200)、[#201](https://github.com/Polalalabear/amidst/pull/201)、[#206](https://github.com/Polalalabear/amidst/issues/206)、[#207](https://github.com/Polalalabear/amidst/pull/207)、[#208](https://github.com/Polalalabear/amidst/issues/208)、[#209](https://github.com/Polalalabear/amidst/pull/209)、[#210](https://github.com/Polalalabear/amidst/issues/210)、[#211](https://github.com/Polalalabear/amidst/pull/211)、[#216](https://github.com/Polalalabear/amidst/pull/216)、[#231](https://github.com/Polalalabear/amidst/pull/231)、[#233](https://github.com/Polalalabear/amidst/pull/233)、[#234](https://github.com/Polalalabear/amidst/pull/234)、[#242](https://github.com/Polalalabear/amidst/pull/242)、[#243](https://github.com/Polalalabear/amidst/pull/243)、[#257](https://github.com/Polalalabear/amidst/pull/257)、[#277](https://github.com/Polalalabear/amidst/pull/277)、[#300](https://github.com/Polalalabear/amidst/issues/300)、[#247](https://github.com/Polalalabear/amidst/issues/247)、[#273](https://github.com/Polalalabear/amidst/pull/273)、[#291](https://github.com/Polalalabear/amidst/issues/291)、[#215](https://github.com/Polalalabear/amidst/pull/215)、[#228](https://github.com/Polalalabear/amidst/pull/228)、[#263](https://github.com/Polalalabear/amidst/issues/263)、[#270](https://github.com/Polalalabear/amidst/pull/270)、[#276](https://github.com/Polalalabear/amidst/pull/276)
 - 進行中：[#93](https://github.com/Polalalabear/amidst/issues/93)
-
 
 ## Q3 理解使用者語意
 
@@ -144,10 +141,8 @@
 | [#285](https://github.com/Polalalabear/amidst/issues/285) | Issue | CQ-06 修 #269：刪文件內 Actual output、補 D92-2 與過期句 | Q1、Q2 | 已完成關閉（2026-11-08）；原備註：CQ-06；#269 審查 NEEDS_CHANGES 退回此議題 |
 
 **其他分類中也涉及 Q3 的項目：**
-
 - 已完成：[#202](https://github.com/Polalalabear/amidst/issues/202)、[#203](https://github.com/Polalalabear/amidst/pull/203)、[#86](https://github.com/Polalalabear/amidst/pull/86)、[#88](https://github.com/Polalalabear/amidst/issues/88)、[#92](https://github.com/Polalalabear/amidst/pull/92)、[#94](https://github.com/Polalalabear/amidst/issues/94)、[#96](https://github.com/Polalalabear/amidst/issues/96)、[#98](https://github.com/Polalalabear/amidst/issues/98)、[#99](https://github.com/Polalalabear/amidst/issues/99)、[#126](https://github.com/Polalalabear/amidst/pull/126)、[#127](https://github.com/Polalalabear/amidst/pull/127)、[#133](https://github.com/Polalalabear/amidst/issues/133)、[#135](https://github.com/Polalalabear/amidst/pull/135)、[#142](https://github.com/Polalalabear/amidst/pull/142)、[#144](https://github.com/Polalalabear/amidst/issues/144)、[#145](https://github.com/Polalalabear/amidst/issues/145)、[#148](https://github.com/Polalalabear/amidst/pull/148)、[#173](https://github.com/Polalalabear/amidst/pull/173)、[#219](https://github.com/Polalalabear/amidst/pull/219)、[#220](https://github.com/Polalalabear/amidst/pull/220)、[#237](https://github.com/Polalalabear/amidst/pull/237)、[#260](https://github.com/Polalalabear/amidst/pull/260)、[#278](https://github.com/Polalalabear/amidst/pull/278)、[#296](https://github.com/Polalalabear/amidst/issues/296)、[#297](https://github.com/Polalalabear/amidst/issues/297)、[#303](https://github.com/Polalalabear/amidst/issues/303)、[#305](https://github.com/Polalalabear/amidst/pull/305)、[#101](https://github.com/Polalalabear/amidst/issues/101)、[#134](https://github.com/Polalalabear/amidst/pull/134)、[#302](https://github.com/Polalalabear/amidst/issues/302)、[#90](https://github.com/Polalalabear/amidst/pull/90)、[#112](https://github.com/Polalalabear/amidst/issues/112)、[#119](https://github.com/Polalalabear/amidst/issues/119)、[#120](https://github.com/Polalalabear/amidst/issues/120)、[#122](https://github.com/Polalalabear/amidst/issues/122)、[#124](https://github.com/Polalalabear/amidst/issues/124)、[#130](https://github.com/Polalalabear/amidst/issues/130)、[#176](https://github.com/Polalalabear/amidst/pull/176)、[#180](https://github.com/Polalalabear/amidst/pull/180)、[#181](https://github.com/Polalalabear/amidst/pull/181)、[#182](https://github.com/Polalalabear/amidst/pull/182)、[#192](https://github.com/Polalalabear/amidst/issues/192)、[#193](https://github.com/Polalalabear/amidst/pull/193)、[#194](https://github.com/Polalalabear/amidst/issues/194)、[#195](https://github.com/Polalalabear/amidst/pull/195)、[#200](https://github.com/Polalalabear/amidst/issues/200)、[#201](https://github.com/Polalalabear/amidst/pull/201)、[#206](https://github.com/Polalalabear/amidst/issues/206)、[#207](https://github.com/Polalalabear/amidst/pull/207)、[#231](https://github.com/Polalalabear/amidst/pull/231)、[#233](https://github.com/Polalalabear/amidst/pull/233)、[#234](https://github.com/Polalalabear/amidst/pull/234)、[#242](https://github.com/Polalalabear/amidst/pull/242)、[#257](https://github.com/Polalalabear/amidst/pull/257)、[#277](https://github.com/Polalalabear/amidst/pull/277)、[#300](https://github.com/Polalalabear/amidst/issues/300)、[#147](https://github.com/Polalalabear/amidst/issues/147)、[#151](https://github.com/Polalalabear/amidst/pull/151)、[#214](https://github.com/Polalalabear/amidst/pull/214)、[#215](https://github.com/Polalalabear/amidst/pull/215)、[#226](https://github.com/Polalalabear/amidst/pull/226)、[#228](https://github.com/Polalalabear/amidst/pull/228)、[#263](https://github.com/Polalalabear/amidst/issues/263)、[#270](https://github.com/Polalalabear/amidst/pull/270)、[#276](https://github.com/Polalalabear/amidst/pull/276)
 - 進行中：[#93](https://github.com/Polalalabear/amidst/issues/93)
-
 
 ## Q4 判斷畫面是否含目標
 
@@ -166,10 +161,8 @@
 | [#342](https://github.com/Polalalabear/amidst/issues/342) | Issue | CQ-44（stretch）Q4 正式 T／F 評估 | — | 已完成關閉（2026-11-08）；owner:codex |
 
 **其他分類中也涉及 Q4 的項目：**
-
 - 已完成：[#262](https://github.com/Polalalabear/amidst/pull/262)、[#204](https://github.com/Polalalabear/amidst/issues/204)、[#205](https://github.com/Polalalabear/amidst/pull/205)、[#202](https://github.com/Polalalabear/amidst/issues/202)、[#203](https://github.com/Polalalabear/amidst/pull/203)、[#86](https://github.com/Polalalabear/amidst/pull/86)、[#88](https://github.com/Polalalabear/amidst/issues/88)、[#92](https://github.com/Polalalabear/amidst/pull/92)、[#94](https://github.com/Polalalabear/amidst/issues/94)、[#96](https://github.com/Polalalabear/amidst/issues/96)、[#99](https://github.com/Polalalabear/amidst/issues/99)、[#127](https://github.com/Polalalabear/amidst/pull/127)、[#135](https://github.com/Polalalabear/amidst/pull/135)、[#142](https://github.com/Polalalabear/amidst/pull/142)、[#144](https://github.com/Polalalabear/amidst/issues/144)、[#145](https://github.com/Polalalabear/amidst/issues/145)、[#148](https://github.com/Polalalabear/amidst/pull/148)、[#153](https://github.com/Polalalabear/amidst/issues/153)、[#161](https://github.com/Polalalabear/amidst/pull/161)、[#219](https://github.com/Polalalabear/amidst/pull/219)、[#220](https://github.com/Polalalabear/amidst/pull/220)、[#237](https://github.com/Polalalabear/amidst/pull/237)、[#97](https://github.com/Polalalabear/amidst/issues/97)、[#103](https://github.com/Polalalabear/amidst/issues/103)、[#113](https://github.com/Polalalabear/amidst/issues/113)、[#115](https://github.com/Polalalabear/amidst/issues/115)、[#118](https://github.com/Polalalabear/amidst/issues/118)、[#132](https://github.com/Polalalabear/amidst/pull/132)、[#136](https://github.com/Polalalabear/amidst/pull/136)、[#139](https://github.com/Polalalabear/amidst/pull/139)、[#155](https://github.com/Polalalabear/amidst/pull/155)、[#196](https://github.com/Polalalabear/amidst/issues/196)、[#197](https://github.com/Polalalabear/amidst/pull/197)、[#90](https://github.com/Polalalabear/amidst/pull/90)、[#121](https://github.com/Polalalabear/amidst/issues/121)、[#122](https://github.com/Polalalabear/amidst/issues/122)、[#124](https://github.com/Polalalabear/amidst/issues/124)、[#130](https://github.com/Polalalabear/amidst/issues/130)、[#177](https://github.com/Polalalabear/amidst/pull/177)、[#180](https://github.com/Polalalabear/amidst/pull/180)、[#181](https://github.com/Polalalabear/amidst/pull/181)、[#182](https://github.com/Polalalabear/amidst/pull/182)、[#192](https://github.com/Polalalabear/amidst/issues/192)、[#193](https://github.com/Polalalabear/amidst/pull/193)、[#194](https://github.com/Polalalabear/amidst/issues/194)、[#195](https://github.com/Polalalabear/amidst/pull/195)、[#200](https://github.com/Polalalabear/amidst/issues/200)、[#201](https://github.com/Polalalabear/amidst/pull/201)、[#206](https://github.com/Polalalabear/amidst/issues/206)、[#207](https://github.com/Polalalabear/amidst/pull/207)、[#231](https://github.com/Polalalabear/amidst/pull/231)、[#233](https://github.com/Polalalabear/amidst/pull/233)、[#234](https://github.com/Polalalabear/amidst/pull/234)、[#242](https://github.com/Polalalabear/amidst/pull/242)、[#277](https://github.com/Polalalabear/amidst/pull/277)、[#300](https://github.com/Polalalabear/amidst/issues/300)、[#147](https://github.com/Polalalabear/amidst/issues/147)、[#151](https://github.com/Polalalabear/amidst/pull/151)、[#215](https://github.com/Polalalabear/amidst/pull/215)、[#226](https://github.com/Polalalabear/amidst/pull/226)、[#228](https://github.com/Polalalabear/amidst/pull/228)、[#263](https://github.com/Polalalabear/amidst/issues/263)、[#270](https://github.com/Polalalabear/amidst/pull/270)、[#276](https://github.com/Polalalabear/amidst/pull/276)
 - 進行中：[#93](https://github.com/Polalalabear/amidst/issues/93)
-
 
 ## Q5 決定是否切鏡
 
@@ -199,10 +192,8 @@
 | [#229](https://github.com/Polalalabear/amidst/pull/229) | PR | docs(q5): Q5 逐事件決策窗（D79 核定版） | — | 已合併主線（`f5168f6`，2026-10-26）；D79 核定的決策窗文件 |
 
 **其他分類中也涉及 Q5 的項目：**
-
 - 已完成：[#262](https://github.com/Polalalabear/amidst/pull/262)、[#105](https://github.com/Polalalabear/amidst/issues/105)、[#140](https://github.com/Polalalabear/amidst/pull/140)、[#174](https://github.com/Polalalabear/amidst/pull/174)、[#186](https://github.com/Polalalabear/amidst/issues/186)、[#230](https://github.com/Polalalabear/amidst/pull/230)、[#239](https://github.com/Polalalabear/amidst/pull/239)、[#86](https://github.com/Polalalabear/amidst/pull/86)、[#88](https://github.com/Polalalabear/amidst/issues/88)、[#92](https://github.com/Polalalabear/amidst/pull/92)、[#94](https://github.com/Polalalabear/amidst/issues/94)、[#95](https://github.com/Polalalabear/amidst/issues/95)、[#96](https://github.com/Polalalabear/amidst/issues/96)、[#98](https://github.com/Polalalabear/amidst/issues/98)、[#99](https://github.com/Polalalabear/amidst/issues/99)、[#125](https://github.com/Polalalabear/amidst/pull/125)、[#126](https://github.com/Polalalabear/amidst/pull/126)、[#127](https://github.com/Polalalabear/amidst/pull/127)、[#135](https://github.com/Polalalabear/amidst/pull/135)、[#142](https://github.com/Polalalabear/amidst/pull/142)、[#144](https://github.com/Polalalabear/amidst/issues/144)、[#145](https://github.com/Polalalabear/amidst/issues/145)、[#148](https://github.com/Polalalabear/amidst/pull/148)、[#161](https://github.com/Polalalabear/amidst/pull/161)、[#168](https://github.com/Polalalabear/amidst/pull/168)、[#170](https://github.com/Polalalabear/amidst/issues/170)、[#171](https://github.com/Polalalabear/amidst/pull/171)、[#178](https://github.com/Polalalabear/amidst/issues/178)、[#183](https://github.com/Polalalabear/amidst/issues/183)、[#219](https://github.com/Polalalabear/amidst/pull/219)、[#220](https://github.com/Polalalabear/amidst/pull/220)、[#237](https://github.com/Polalalabear/amidst/pull/237)、[#97](https://github.com/Polalalabear/amidst/issues/97)、[#115](https://github.com/Polalalabear/amidst/issues/115)、[#132](https://github.com/Polalalabear/amidst/pull/132)、[#187](https://github.com/Polalalabear/amidst/pull/187)、[#227](https://github.com/Polalalabear/amidst/pull/227)、[#235](https://github.com/Polalalabear/amidst/pull/235)、[#238](https://github.com/Polalalabear/amidst/pull/238)、[#253](https://github.com/Polalalabear/amidst/pull/253)、[#254](https://github.com/Polalalabear/amidst/pull/254)、[#256](https://github.com/Polalalabear/amidst/pull/256)、[#259](https://github.com/Polalalabear/amidst/pull/259)、[#275](https://github.com/Polalalabear/amidst/pull/275)、[#280](https://github.com/Polalalabear/amidst/issues/280)、[#281](https://github.com/Polalalabear/amidst/issues/281)、[#282](https://github.com/Polalalabear/amidst/issues/282)、[#294](https://github.com/Polalalabear/amidst/pull/294)、[#295](https://github.com/Polalalabear/amidst/pull/295)、[#298](https://github.com/Polalalabear/amidst/issues/298)、[#299](https://github.com/Polalalabear/amidst/issues/299)、[#301](https://github.com/Polalalabear/amidst/issues/301)、[#90](https://github.com/Polalalabear/amidst/pull/90)、[#121](https://github.com/Polalalabear/amidst/issues/121)、[#122](https://github.com/Polalalabear/amidst/issues/122)、[#124](https://github.com/Polalalabear/amidst/issues/124)、[#130](https://github.com/Polalalabear/amidst/issues/130)、[#177](https://github.com/Polalalabear/amidst/pull/177)、[#180](https://github.com/Polalalabear/amidst/pull/180)、[#181](https://github.com/Polalalabear/amidst/pull/181)、[#182](https://github.com/Polalalabear/amidst/pull/182)、[#192](https://github.com/Polalalabear/amidst/issues/192)、[#193](https://github.com/Polalalabear/amidst/pull/193)、[#194](https://github.com/Polalalabear/amidst/issues/194)、[#195](https://github.com/Polalalabear/amidst/pull/195)、[#200](https://github.com/Polalalabear/amidst/issues/200)、[#201](https://github.com/Polalalabear/amidst/pull/201)、[#206](https://github.com/Polalalabear/amidst/issues/206)、[#207](https://github.com/Polalalabear/amidst/pull/207)、[#208](https://github.com/Polalalabear/amidst/issues/208)、[#209](https://github.com/Polalalabear/amidst/pull/209)、[#210](https://github.com/Polalalabear/amidst/issues/210)、[#211](https://github.com/Polalalabear/amidst/pull/211)、[#216](https://github.com/Polalalabear/amidst/pull/216)、[#231](https://github.com/Polalalabear/amidst/pull/231)、[#233](https://github.com/Polalalabear/amidst/pull/233)、[#234](https://github.com/Polalalabear/amidst/pull/234)、[#242](https://github.com/Polalalabear/amidst/pull/242)、[#277](https://github.com/Polalalabear/amidst/pull/277)、[#300](https://github.com/Polalalabear/amidst/issues/300)、[#244](https://github.com/Polalalabear/amidst/issues/244)、[#245](https://github.com/Polalalabear/amidst/issues/245)、[#246](https://github.com/Polalalabear/amidst/issues/246)、[#248](https://github.com/Polalalabear/amidst/issues/248)、[#249](https://github.com/Polalalabear/amidst/issues/249)、[#251](https://github.com/Polalalabear/amidst/issues/251)、[#255](https://github.com/Polalalabear/amidst/pull/255)、[#258](https://github.com/Polalalabear/amidst/pull/258)、[#261](https://github.com/Polalalabear/amidst/pull/261)、[#266](https://github.com/Polalalabear/amidst/pull/266)、[#271](https://github.com/Polalalabear/amidst/pull/271)、[#272](https://github.com/Polalalabear/amidst/pull/272)、[#274](https://github.com/Polalalabear/amidst/pull/274)、[#287](https://github.com/Polalalabear/amidst/issues/287)、[#288](https://github.com/Polalalabear/amidst/issues/288)、[#289](https://github.com/Polalalabear/amidst/issues/289)、[#290](https://github.com/Polalalabear/amidst/issues/290)、[#293](https://github.com/Polalalabear/amidst/issues/293)、[#304](https://github.com/Polalalabear/amidst/issues/304)、[#214](https://github.com/Polalalabear/amidst/pull/214)、[#215](https://github.com/Polalalabear/amidst/pull/215)、[#228](https://github.com/Polalalabear/amidst/pull/228)、[#263](https://github.com/Polalalabear/amidst/issues/263)、[#270](https://github.com/Polalalabear/amidst/pull/270)、[#276](https://github.com/Polalalabear/amidst/pull/276)
 - 進行中：[#93](https://github.com/Polalalabear/amidst/issues/93)
-
 
 ## 共用：契約、規則、參數與一致性檢查
 
@@ -254,7 +245,6 @@
 | [#391](https://github.com/Polalalabear/amidst/pull/391) | PR | FEAT-7: source-bound architecture guard and fixed-head acceptance | — | 已合併 `codex/q1q5-staging`（2026-11-03） |
 | [#393](https://github.com/Polalalabear/amidst/pull/393) | PR | FEAT-6: v2／rc5 成對整合與 176 份凍結重跑（PARTIAL） | — | 已合併 `codex/q1q5-staging`（2026-11-03） |
 | [#410](https://github.com/Polalalabear/amidst/pull/410) | PR | docs(contracts): PROPOSED core search/track contract + acceptance tests (D126) | — | 關閉未合併（2026-11-08） |
-
 
 ## 共用：r004 場景、資料、索引與儲存
 
@@ -313,7 +303,6 @@
 | [#357](https://github.com/Polalalabear/amidst/pull/357) | PR | test(qt25): SYNTHETIC 偵測索引收據與逐格 coverage 檢查 | — | 已合併 `codex/q1q5-staging`（2026-11-03） |
 | [#394](https://github.com/Polalalabear/amidst/pull/394) | PR | FEAT-1: integrate frozen baseline checks and fix private-token rejection | — | 已合併 `codex/q1q5-staging`（2026-11-03） |
 | [#402](https://github.com/Polalalabear/amidst/pull/402) | PR | D119: A4/B4 production safe bundle wire 與 #118 產製前計畫 | — | 已合併 `mainline/q1q5`（2026-11-04） |
-
 
 ## 共用：工作台、HTTP 與 Demo
 
@@ -384,7 +373,6 @@
 | [#406](https://github.com/Polalalabear/amidst/pull/406) | PR | feat(workbench-v2): demo 單純顯示模式 | — | 已合併 `mainline/q1q5`（2026-11-04） |
 | [#575](https://github.com/Polalalabear/amidst/pull/575) | PR | chore: retire old workbench and Office launcher (D268, D279) | — | 已合併 `main`（2026-11-18，`59782b1d`）；舊 `frontend/workbench/` 與 Office 啟動器刪除 |
 
-
 ## Line 2 複雜場景
 
 ### 已完成（50）
@@ -442,10 +430,9 @@
 | [#396](https://github.com/Polalalabear/amidst/pull/396) | PR | [BLOCKED] FEAT-4: integrate settled scoring and source-bound scenario plans | — | 關閉未合併（2026-11-08） |
 | [#399](https://github.com/Polalalabear/amidst/pull/399) | PR | feat(event-viewer): 複雜事件 A4-1/B4-1 唯讀多鏡頭播放（獨立包，D120） | — | 已合併 `mainline/q1q5`（2026-11-03） |
 
-
 ## 流程：任務板、交接與文件
 
-### 已完成（76）
+### 已完成（87）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -522,40 +509,37 @@
 | [#549](https://github.com/Polalalabear/amidst/pull/549) | PR | docs(ops): issues and fixes 2026-11-15~16; handoff 11-16 update | — | 已合併 `main`（2026-11-15，`1fe6e716`） |
 | [#550](https://github.com/Polalalabear/amidst/pull/550) | PR | docs(ops): coordinator handoff 2026-11-16 | — | 已合併 `main`（2026-11-16，`ccbd9533`） |
 | [#557](https://github.com/Polalalabear/amidst/pull/557) | PR | docs(agents): 2026-11-16/17 流程規則寫進 AGENTS/CLAUDE；進度導覽補到最新 | — | 已合併 `main`（2026-11-17，`31a69177`）；原備註：本 PR；待審，未合併 |
-| [#562](https://github.com/Polalalabear/amidst/pull/562) | PR | docs(agents): 交接規則寫進 CLAUDE.md（D255）＋協調者交接 2026-11-17 | — | 已合併 `main`（2026-11-17，`444d15f3`） |
 | [#558](https://github.com/Polalalabear/amidst/pull/558) | PR | docs(record): 實驗紀錄 v4——預錄與 live 的差異、參數依據、LLM 介入 | — | 已合併 `main`（2026-11-17，`edb96a31`）；原備註：審查 NEEDS_CHANGES 後修正 |
+| [#562](https://github.com/Polalalabear/amidst/pull/562) | PR | docs(agents): 交接規則寫進 CLAUDE.md（D255）＋協調者交接 2026-11-17 | — | 已合併 `main`（2026-11-17，`444d15f3`） |
 | [#565](https://github.com/Polalalabear/amidst/pull/565) | PR | docs(agents): 協調者交接 11-17 晚間快照；AGENTS 主要 UI 改 workbench-v2；進度導覽補到 #564 | — | 已合併 `main`（2026-11-17，`3137a1ca`）；分支 `claude/feat-ops-docs` |
+| [#577](https://github.com/Polalalabear/amidst/issues/577) | Issue | CL-B2 #563 的 P3：advisor_model 非字串、IPv6 | — | 已完成關閉（2026-11-18）；由 #609 合併（`fb4b99b9`）；原備註：blocked；owner:claude |
+| [#578](https://github.com/Polalalabear/amidst/issues/578) | Issue | CL-B3 #564 審查的 3 個 P3 | — | 已完成關閉（2026-11-18）；由 #609 合併（`fb4b99b9`）；原備註：blocked；owner:claude |
+| [#579](https://github.com/Polalalabear/amidst/issues/579) | Issue | CL-B4 Office 補列 8 檔的後續處理（office_demo_backend 仍 import office_display） | — | 已完成關閉（2026-11-18）；原備註：進行中（in-progress）；owner:claude |
+| [#580](https://github.com/Polalalabear/amidst/issues/580) | Issue | CL-B5 流程文件：R2 封存＋R3 ledger＋進度導覽＋AGENTS/CLAUDE 指向 #93（claude/feat-ops-docs） | — | 已完成關閉（2026-11-18）；原備註：進行中；本 PR（`claude/feat-ops-docs`）處理；owner:claude |
+| [#581](https://github.com/Polalalabear/amidst/issues/581) | Issue | CL-B6 #479 報告素材追加＋第 5 章補 WP5 數字 | — | 已完成關閉（2026-11-18）；原備註：進行中（in-progress）；owner:claude |
+| [#582](https://github.com/Polalalabear/amidst/issues/582) | Issue | CL-B7 #479／#489 子項勾選盤點＋#93 無編號留言編 D 號 | — | 已完成關閉（2026-11-18）；原備註：進行中（in-progress）；owner:claude |
+| [#583](https://github.com/Polalalabear/amidst/issues/583) | Issue | 待使用者決定（協調者維護） | — | 已完成關閉（2026-11-18）；原備註：needs-auth；等使用者決定的項目，由協調者維護 |
+| [#585](https://github.com/Polalalabear/amidst/issues/585) | Issue | CL-B8 LIVE 規格補丁：C-5 定義＋重新取得契約（分段門檻） | — | 已完成關閉（2026-11-18）；原備註：進行中（in-progress）；owner:claude |
+| [#586](https://github.com/Polalalabear/amidst/pull/586) | PR | docs(report): CH5 補 WP5 數字（5.3、5.4 第 5 點，#581） | — | 已合併 `main`（2026-11-18，`bd1dc614`） |
+| [#590](https://github.com/Polalalabear/amidst/pull/590) | PR | docs(ops): R2 文件封存、R3 ledger、進度導覽補到 #585、工作清單指向 #93（#580） | — | 已合併 `main`（2026-11-18，`703ce625`） |
+| [#606](https://github.com/Polalalabear/amidst/pull/606) | PR | docs(agents): 協調者交接 2026-11-18（D278–D308）；CLAUDE/AGENTS 連結改新檔 | — | 已合併 `main`（2026-11-18，`b7ca80f2`） |
 
-### 進行中（7）
+### 進行中（2）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D273（2026-11-17，下一個 D274）；D95 Codex 任務佇列為 [#279](https://github.com/Polalalabear/amidst/issues/279) |
 | [#479](https://github.com/Polalalabear/amidst/issues/479) | Issue | B｜實驗紀錄與研究報告（LaTeX 紀錄、RQ1–RQ5、延遲、評估） | — | 進行中；issue 開著；owner:argon |
-| [#579](https://github.com/Polalalabear/amidst/issues/579) | Issue | CL-B4 Office 補列 8 檔的後續處理（office_demo_backend 仍 import office_display） | — | 進行中（in-progress）；owner:claude |
-| [#580](https://github.com/Polalalabear/amidst/issues/580) | Issue | CL-B5 流程文件：R2 封存＋R3 ledger＋進度導覽＋AGENTS/CLAUDE 指向 #93（claude/feat-ops-docs） | — | 進行中；本 PR（`claude/feat-ops-docs`）處理；owner:claude |
-| [#581](https://github.com/Polalalabear/amidst/issues/581) | Issue | CL-B6 #479 報告素材追加＋第 5 章補 WP5 數字 | — | 進行中（in-progress）；owner:claude |
-| [#582](https://github.com/Polalalabear/amidst/issues/582) | Issue | CL-B7 #479／#489 子項勾選盤點＋#93 無編號留言編 D 號 | — | 進行中（in-progress）；owner:claude |
-| [#585](https://github.com/Polalalabear/amidst/issues/585) | Issue | CL-B8 LIVE 規格補丁：C-5 定義＋重新取得契約（分段門檻） | — | 進行中（in-progress）；owner:claude |
 
-### 未完成（3）
+### 未完成（1）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#576](https://github.com/Polalalabear/amidst/issues/576) | Issue | CL-B1 8785／8791 更新到 main（含 #559、#563、#564） | — | blocked（等 #559、#564 合併）；owner:claude |
-| [#577](https://github.com/Polalalabear/amidst/issues/577) | Issue | CL-B2 #563 的 P3：advisor_model 非字串、IPv6 | — | blocked；owner:claude |
-| [#578](https://github.com/Polalalabear/amidst/issues/578) | Issue | CL-B3 #564 審查的 3 個 P3 | — | blocked；owner:claude |
-
-### 待確認（1）
-
-| 編號 | 類型 | 標題 | 也涉及 | 備註 |
-| --- | --- | --- | --- | --- |
-| [#583](https://github.com/Polalalabear/amidst/issues/583) | Issue | 待使用者決定（協調者維護） | — | needs-auth；等使用者決定的項目，由協調者維護 |
-
+| [#576](https://github.com/Polalalabear/amidst/issues/576) | Issue | CL-B1 8785／8791 更新到 main（含 #559、#563、#564） | — | D318：8785／8791 更新到 main `b98fac2a`，gate 後由使用者核准 pin；原備註：blocked（等 #559、#564 合併）；owner:claude |
 
 ## Agent：WP／DP4 與評估
 
-### 已完成（22）
+### 已完成（25）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -579,8 +563,11 @@
 | [#541](https://github.com/Polalalabear/amidst/pull/541) | PR | feat(q1q5): implement DP4 attention API and Agent rankers (#532) | — | 已合併 `main`（2026-11-15） |
 | [#543](https://github.com/Polalalabear/amidst/pull/543) | PR | feat(wp5): Colab L4 and Windows local-model packs (main 18715e69) | — | 已合併 `main`（2026-11-15） |
 | [#546](https://github.com/Polalalabear/amidst/pull/546) | PR | fix(wp5): DP1/DP3 never reached Ollama on Colab L4 (dangling $ref); checks, one-click notebook v2 | — | 已合併 `main`（2026-11-17，`febc1707`，D251）；原備註：進行中；開著，未合併 |
-| [#560](https://github.com/Polalalabear/amidst/pull/560) | PR | feat(wp5): wire guarded DP4 API and agent ranking | — | 已合併 `main`（2026-11-17，`4142e26c`，D266）；Codex，#554 |
 | [#554](https://github.com/Polalalabear/amidst/issues/554) | Issue | CX-L3 WP5：把 DP4 的實跑接上 runner（移除 DP4_LIVE_NOT_WIRED） | — | 已完成關閉（2026-11-17，#560 `4142e26c`）；真實 provider DP4 smoke 等使用者核准金額；owner:codex |
+| [#560](https://github.com/Polalalabear/amidst/pull/560) | PR | feat(wp5): wire guarded DP4 API and agent ranking | — | 已合併 `main`（2026-11-17，`4142e26c`，D266）；Codex，#554 |
+| [#592](https://github.com/Polalalabear/amidst/issues/592) | Issue | CL-B10 WP5 改善：逐題型逾時＋縮短輸出＋加大 pilot＋DP4 smoke（上限 USD 3） | — | 關閉（不處理）（2026-11-18） |
+| [#601](https://github.com/Polalalabear/amidst/issues/601) | Issue | CL-B13 預錄模式（8785）追蹤方式可切換 OpenAI Agent | — | 已完成關閉（2026-11-18） |
+| [#604](https://github.com/Polalalabear/amidst/pull/604) | PR | feat(demo): 預錄模式（8785）可切 OpenAI Agent（CL-B13 #601） | — | 已合併 `main`（2026-11-18，`62da6464`） |
 
 ### 進行中（1）
 
@@ -590,44 +577,55 @@
 
 ## 即時模式（Live mode）
 
-### 已完成（8）
+### 已完成（21）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#544](https://github.com/Polalalabear/amidst/pull/544) | PR | Live mode spike: latency matrix, CPU comparison, report (D210) | — | 已合併 `main`（2026-11-16，`7d612aa7`，D247） |
 | [#547](https://github.com/Polalalabear/amidst/pull/547) | PR | docs(design): 即時模式的 LLM 決策：接法和測試設計 v1（DRAFT） | — | 已合併 `main`（2026-11-17，`da0dfe60`）；原備註：Draft；進行中 |
 | [#551](https://github.com/Polalalabear/amidst/pull/551) | PR | feat(live-mode): B 畫面跟隨視角＋HUD | — | 已合併 `main`（2026-11-17，`21aacc8e`）；原備註：Draft；進行中（`claude/feat-live-bscreen`，D247） |
+| [#552](https://github.com/Polalalabear/amidst/issues/552) | Issue | CX-L1 即時模式：A4 室外鏡頭偵測率（CAM_ENTRY 19%、R101_IN 47%、EXT_CAR 67%） | — | 已完成關閉（2026-11-18）；程式在 #559（`894bdd9e`）；原備註：程式在 #559（Draft）；owner:codex |
 | [#553](https://github.com/Polalalabear/amidst/issues/553) | Issue | CX-L2 即時模式：推論排程（只推論作用中鏡頭和鄰居） | — | 已完成關閉（2026-11-17，#561）；owner:codex |
 | [#556](https://github.com/Polalalabear/amidst/pull/556) | PR | fix(live-mode): people grouping dedup + 1.0 m cross-camera pairing (#544 follow-up) | — | 已合併 `main`（2026-11-17，`547a9e61`）；原備註：Draft；進行中（`claude/feat-live-people`，D247） |
+| [#559](https://github.com/Polalalabear/amidst/pull/559) | PR | fix(live): improve camera detection and add an isolated demo launcher | — | 已合併 `main`（2026-11-18，`894bdd9e`）；原備註：Draft；聯合驗證 NOT_PASSED，Codex 依第三份指示修排程與重新鎖定（D273）；#552、#555 |
 | [#561](https://github.com/Polalalabear/amidst/pull/561) | PR | feat(live): schedule camera inference from safe graph neighborhoods | — | 已合併 `main`（2026-11-17，`e9db4fdf`）；Codex，#553 |
 | [#563](https://github.com/Polalalabear/amidst/pull/563) | PR | feat(live-mode): LLM decision switch (default off, rule fallback with reason) | — | 已合併 `main`（2026-11-17，`0606b164`）；原備註：改接 workbench-v2，差異重審 APPROVE（附 P2） |
 | [#567](https://github.com/Polalalabear/amidst/pull/567) | PR | docs(specs): LIVE A/B dual-screen spec and interface contract v2 | — | 已合併 `main`（2026-11-17，`2f013cb8`）；分支 `claude/feat-live-ab` |
+| [#568](https://github.com/Polalalabear/amidst/issues/568) | Issue | CX-L5a 即時模式 A/B：人物不碰撞（crowd＋sim，C-1～C-8） | — | 已完成關閉（2026-11-18）；隨 #584 合併（`81ba829d`）；原備註：進行中；#584；C-5 改分類中（D282）；owner:codex |
+| [#569](https://github.com/Polalalabear/amidst/issues/569) | Issue | CX-L5b 即時模式 A/B：A 場景＋角色選單、滑鼠轉視角 | — | 已完成關閉（2026-11-18）；隨 #584 合併（`81ba829d`）；原備註：進行中；已交 #584（Draft）；owner:codex |
+| [#570](https://github.com/Polalalabear/amidst/issues/570) | Issue | CX-L5c 即時模式 A/B：離線評分 scripts/live_ab_score.py | — | 已完成關閉（2026-11-18）；隨 #584 合併（`81ba829d`）；原備註：進行中；已交 #584（Draft）；owner:codex |
+| [#573](https://github.com/Polalalabear/amidst/issues/573) | Issue | CX-L5f R4：smoke.mjs 預設輸出不寫 /private/tmp | — | 已完成關閉（2026-11-18）；隨 #584 合併（`81ba829d`）；原備註：進行中；已交 #584（Draft）；owner:codex |
+| [#584](https://github.com/Polalalabear/amidst/pull/584) | PR | feat(live-ab): add operator crowd and offline evaluation in stages | — | 已合併 `main`（2026-11-18，`81ba829d`）；原備註：Draft；進行中（`codex/feat-live-ab`），#568–#570、#573 |
+| [#587](https://github.com/Polalalabear/amidst/pull/587) | PR | docs(specs): LIVE A/B v2.1（C-5 補定義）＋重新取得契約 v1（#585） | — | 已合併 `main`（2026-11-18，`590afb34`）；即時模式 A/B 規格 v2.1＋重新取得契約 v1 |
+| [#591](https://github.com/Polalalabear/amidst/issues/591) | Issue | CL-B9 即時模式 LLM：sol6.1「目標不在名單」驗證（上限 USD 0.2） | — | 關閉（不處理）（2026-11-18） |
+| [#600](https://github.com/Polalalabear/amidst/issues/600) | Issue | CL-B12 即時模式場景外圍：從車子那側看出去直接看到房子建模，先出示意圖 | — | 已完成關閉（2026-11-18） |
+| [#602](https://github.com/Polalalabear/amidst/issues/602) | Issue | CL-B14 場景外圍實作：LIVE 加真實世界外圍（可走範圍不變） | — | 已完成關閉（2026-11-18） |
+| [#607](https://github.com/Polalalabear/amidst/pull/607) | PR | feat(live-mode): 場景外圍背景（LIVE，可走範圍不變）#602 | — | 已合併 `main`（2026-11-18，`7f8e8443`） |
+| [#611](https://github.com/Polalalabear/amidst/pull/611) | PR | docs(live): 重新取得契約補 NEEDS_CONFIRM 的 short_gate 出口（#588, D314-4） | — | 已合併 `main`（2026-11-18，`4bf9b5ed`） |
 
-### 進行中（8）
-
-| 編號 | 類型 | 標題 | 也涉及 | 備註 |
-| --- | --- | --- | --- | --- |
-| [#552](https://github.com/Polalalabear/amidst/issues/552) | Issue | CX-L1 即時模式：A4 室外鏡頭偵測率（CAM_ENTRY 19%、R101_IN 47%、EXT_CAR 67%） | — | 程式在 #559（Draft）；owner:codex |
-| [#559](https://github.com/Polalalabear/amidst/pull/559) | PR（Draft） | fix(live): improve camera detection and add an isolated demo launcher | — | Draft；聯合驗證 NOT_PASSED，Codex 依第三份指示修排程與重新鎖定（D273）；#552、#555 |
-| [#566](https://github.com/Polalalabear/amidst/issues/566) | Issue | CX-L5 即時模式 A/B 雙畫面：選角色、B 選目標、人物不碰撞 | — | 進行中；母 issue，子項 #568–#574；owner:codex |
-| [#568](https://github.com/Polalalabear/amidst/issues/568) | Issue | CX-L5a 即時模式 A/B：人物不碰撞（crowd＋sim，C-1～C-8） | — | 進行中；#584；C-5 改分類中（D282）；owner:codex |
-| [#569](https://github.com/Polalalabear/amidst/issues/569) | Issue | CX-L5b 即時模式 A/B：A 場景＋角色選單、滑鼠轉視角 | — | 進行中；已交 #584（Draft）；owner:codex |
-| [#570](https://github.com/Polalalabear/amidst/issues/570) | Issue | CX-L5c 即時模式 A/B：離線評分 scripts/live_ab_score.py | — | 進行中；已交 #584（Draft）；owner:codex |
-| [#573](https://github.com/Polalalabear/amidst/issues/573) | Issue | CX-L5f R4：smoke.mjs 預設輸出不寫 /private/tmp | — | 進行中；已交 #584（Draft）；owner:codex |
-| [#584](https://github.com/Polalalabear/amidst/pull/584) | PR（Draft） | feat(live-ab): add operator crowd and offline evaluation in stages | — | Draft；進行中（`codex/feat-live-ab`），#568–#570、#573 |
-
-### 未完成（3）
+### 進行中（4）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#571](https://github.com/Polalalabear/amidst/issues/571) | Issue | CX-L5d 即時模式 A/B：後台 /track/* 端點＋session＋Q3 句子接線（blocked on #559） | — | blocked（等 #559）；owner:codex |
-| [#572](https://github.com/Polalalabear/amidst/issues/572) | Issue | CX-L5e 即時模式 A/B：B 選目標流程＋句子輸入＋HUD＋協定（blocked on #559） | — | blocked（等 #559）；owner:codex |
+| [#566](https://github.com/Polalalabear/amidst/issues/566) | Issue | CX-L5 即時模式 A/B 雙畫面：選角色、B 選目標、人物不碰撞 | — | 子項 #568–#570、#573 已完成關閉，#571、#572、#574 未完成；原備註：進行中；母 issue，子項 #568–#574；owner:codex |
+| [#588](https://github.com/Polalalabear/amidst/issues/588) | Issue | CX-L6a 重新取得 R1：tracker 分段門檻狀態機＋外觀特徵＋門檻量測 | — | CX-L6a；D316：Codex 依 Opus 判定改 #608 並重跑驗收；owner:codex |
+| [#608](https://github.com/Polalalabear/amidst/pull/608) | PR（Draft） | LIVE relock R1 with fixed replay and prediction checkpoint | — | D316 驗收條件：B4 ≥58/60、錯接 0，否則回報；#588 的實作 |
+| [#610](https://github.com/Polalalabear/amidst/pull/610) | PR（Draft） | feat(live-ab): session-scoped target selection and B controls | — | D315：Codex 從最新 main 重開 `codex/feat-live-ab`，承接 #571 端點 |
+
+### 未完成（6）
+
+| 編號 | 類型 | 標題 | 也涉及 | 備註 |
+| --- | --- | --- | --- | --- |
+| [#571](https://github.com/Polalalabear/amidst/issues/571) | Issue | CX-L5d 即時模式 A/B：後台 /track/* 端點＋session＋Q3 句子接線（blocked on #559） | — | blocked 條件 #559 已解除；D315：Codex 另開 Draft #610 承接端點；原備註：blocked（等 #559）；owner:codex |
+| [#572](https://github.com/Polalalabear/amidst/issues/572) | Issue | CX-L5e 即時模式 A/B：B 選目標流程＋句子輸入＋HUD＋協定（blocked on #559） | — | blocked 條件 #559 已解除；未開工；原備註：blocked（等 #559）；owner:codex |
 | [#574](https://github.com/Polalalabear/amidst/issues/574) | Issue | CX-L5g 即時模式 A/B：整合、瀏覽器驗收、handoff 文件 | — | blocked（等 #571、#572）；owner:codex |
-
+| [#589](https://github.com/Polalalabear/amidst/issues/589) | Issue | CX-L6b 重新取得 R2：後台接線＋#559 adaptive 排程驗收（ENTRY） | — | CX-L6b；等 #588；owner:codex |
+| [#596](https://github.com/Polalalabear/amidst/issues/596) | Issue | CX-L7 LIVE 錄製與重播：玩家軌跡存成可重播劇本 | — | CX-L7；owner:codex |
+| [#597](https://github.com/Polalalabear/amidst/issues/597) | Issue | CL-B11 LIVE 難題集：規則 vs LLM 重播比較（含「目標不在名單」） | — | CL-B11；owner:claude |
 
 ## 4 人場景、8 鏡頭與 N6 素材（#516）
 
-### 已完成（13）
+### 已完成（16）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -644,11 +642,13 @@
 | [#533](https://github.com/Polalalabear/amidst/pull/533) | PR | feat(workbench): show #529 eight-camera 4-actor runs in view mode (D214) | — | 已合併 `main`（2026-11-15） |
 | [#534](https://github.com/Polalalabear/amidst/pull/534) | PR | feat(event-viewer): 格狀／焦點兩種版面與切換 | — | 已合併 `main`（2026-11-15） |
 | [#539](https://github.com/Polalalabear/amidst/pull/539) | PR | feat(N6): articulated r004 live assets and baked scene (#516) | — | 已合併 `main`（2026-11-15） |
-
+| [#593](https://github.com/Polalalabear/amidst/issues/593) | Issue | CX-N6b 即時模式 N6 場景：天花板亮度與接縫 | — | 已完成關閉（2026-11-18） |
+| [#599](https://github.com/Polalalabear/amidst/pull/599) | PR | Soften the baked N6 ceiling material | — | 已合併 `main`（2026-11-18，`3c3e1267`） |
+| [#603](https://github.com/Polalalabear/amidst/pull/603) | PR | Add A4-1-8CAM to workbench-v2 from the pinned safe bundle | — | 已合併 `main`（2026-11-18，`3b5a987a`） |
 
 ## Demo 整合、前台 UI 與 8785 更新（#445）
 
-### 已完成（19）
+### 已完成（24）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -671,14 +671,23 @@
 | [#535](https://github.com/Polalalabear/amidst/pull/535) | PR | N1: Spotlight 搜尋欄（一句話 → 標籤面板，API/本機/固定句型備援） | — | 已合併 `main`（2026-11-15） |
 | [#542](https://github.com/Polalalabear/amidst/pull/542) | PR | fix(workbench): frame swap never leaves an unloaded <img> (core-e2e check 91) + env_templates grep | — | 已合併 `main`（2026-11-15） |
 | [#545](https://github.com/Polalalabear/amidst/pull/545) | PR | docs(ops): 8785 update plan and 8CAM launcher fix | — | 已合併 `main`（2026-11-15） |
+| [#555](https://github.com/Polalalabear/amidst/issues/555) | Issue | CX-L4 8785 更新準備：launcher 兩項 P2 與即時模式啟動入口 | — | 已完成關閉（2026-11-18）；原備註：程式併在 #559（Draft）；8785 已在 2026-11-17 更新到 main `e9db4fdf`（D270）；owner:codex |
+| [#564](https://github.com/Polalalabear/amidst/pull/564) | PR | workbench-v2: 搜尋 Enter、追蹤分頁搜尋、概況排版、易讀名稱、live 入口 | — | 已合併 `main`（2026-11-18，`eb06e9a0`）；原備註：Draft；進行中（`claude/feat-workbench-v2-ux`，D271–D272） |
+| [#605](https://github.com/Polalalabear/amidst/issues/605) | Issue | CL-B15 預錄模式俯視圖改成 LIVE 式 3D 場景視圖（先出示意圖） | — | 已完成關閉（2026-11-18）；實作在 #613（`b98fac2a`） |
+| [#609](https://github.com/Polalalabear/amidst/pull/609) | PR | fix: #563/#564 review P3s (#577, #578) | — | 已合併 `main`（2026-11-18，`fb4b99b9`）；#577、#578 一併關閉 |
+| [#613](https://github.com/Polalalabear/amidst/pull/613) | PR | feat(workbench-v2): 預錄模式俯視圖 2D/3D 切換（LIVE 式 3D 場景，#605） | — | 已合併 `main`（2026-11-18，`b98fac2a`） |
 
-### 進行中（2）
+### 未完成（1）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#555](https://github.com/Polalalabear/amidst/issues/555) | Issue | CX-L4 8785 更新準備：launcher 兩項 P2 與即時模式啟動入口 | — | 程式併在 #559（Draft）；8785 已在 2026-11-17 更新到 main `e9db4fdf`（D270）；owner:codex |
-| [#564](https://github.com/Polalalabear/amidst/pull/564) | PR（Draft） | workbench-v2: 搜尋 Enter、追蹤分頁搜尋、概況排版、易讀名稱、live 入口 | — | Draft；進行中（`claude/feat-workbench-v2-ux`，D271–D272） |
+| [#612](https://github.com/Polalalabear/amidst/issues/612) | Issue | CX-8E 預錄模式提供系統估計位置 est_xy（給 #605 3D 視圖） | — | CX-8E；D318：等 Codex 實作；owner:codex |
 
+### 待確認（1）
+
+| 編號 | 類型 | 標題 | 也涉及 | 備註 |
+| --- | --- | --- | --- | --- |
+| [#594](https://github.com/Polalalabear/amidst/issues/594) | Issue | CX-8C 8785 workbench-v2 加 8CAM run | — | #603 已合併（`3b5a987a`）加入 A4-1-8CAM；是否仍需本 issue 待確認；owner:codex |
 
 ## W 系列：D126 查找與追蹤核心
 
@@ -748,10 +757,9 @@
 | [#477](https://github.com/Polalalabear/amidst/pull/477) | PR | docs(445): persistent independent previews and integration conflict plan | — | 關閉未合併（2026-11-08） |
 | [#478](https://github.com/Polalalabear/amidst/pull/478) | PR | feat(417): DEMO_DEFAULT cross-camera replay with source-pinned single view | — | 關閉未合併（2026-11-08） |
 
-
 ## 大掃除、CI 與可攜性（#486）
 
-### 已完成（18）
+### 已完成（19）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -773,7 +781,13 @@
 | [#514](https://github.com/Polalalabear/amidst/pull/514) | PR | ci: authority guard base for PRs into main = mainline tip (D188) | — | 已合併 `mainline/q1q5`（2026-11-10） |
 | [#517](https://github.com/Polalalabear/amidst/pull/517) | PR | ci: guard base for PRs into main back to the PR base (D200) | — | 已合併 `main`（2026-11-10） |
 | [#536](https://github.com/Polalalabear/amidst/pull/536) | PR | ops: 大掃除收尾 — AGENTS/CLAUDE 對齊 main、相對輸出路徑、LOCAL 引用檢查、資料夾收尾交接 (#486) | — | 已合併 `main`（2026-11-15） |
+| [#595](https://github.com/Polalalabear/amidst/pull/595) | PR | refactor(office): retire Office display and rehearsal check (#579) | — | 已合併 `main`（2026-11-18，`6bf287d7`） |
 
+### 未完成（1）
+
+| 編號 | 類型 | 標題 | 也涉及 | 備註 |
+| --- | --- | --- | --- | --- |
+| [#598](https://github.com/Polalalabear/amidst/issues/598) | Issue | 跨平台：Windows／Linux 執行 demo（延後） | — | 延後（標題無 owner 前綴） |
 
 ## 暫停：跨鏡頭盲區 3D 重建線
 
