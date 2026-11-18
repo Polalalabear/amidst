@@ -9,7 +9,8 @@ SCRIPTS = str(Path(__file__).resolve().parents[2] / "scripts")
 sys.path.insert(0, SCRIPTS)
 try:
     import demo_dependency_config as dependency
-    from demo_eightcam import RUN_ID, prepare_eightcam
+    from demo_eightcam import RUN_DESCRIPTOR, RUN_ID, EightCamSource, prepare_eightcam
+    from serve_demo_integration import Demo
 finally:
     sys.path.remove(SCRIPTS)
 
@@ -18,6 +19,42 @@ def test_missing_optional_eightcam_source_preserves_unknown(tmp_path):
     assert prepare_eightcam(None) == (None, "ROOT_NOT_CONFIGURED")
     assert prepare_eightcam(tmp_path / "missing") == (None, "SAFE_BUNDLE_MISSING")
     assert prepare_eightcam(tmp_path) == (None, "SAFE_BUNDLE_INCOMPLETE")
+
+
+def test_noncanonical_autodiscovered_root_is_unknown_but_explicit_source_stays_strict(tmp_path):
+    bad_root = tmp_path / ".." / tmp_path.name
+    assert prepare_eightcam(bad_root, required=False) == (
+        None, "EIGHTCAM_CANONICAL_ROOT_REQUIRED",
+    )
+    with pytest.raises(ValueError, match="EIGHTCAM_CANONICAL_ROOT_REQUIRED"):
+        prepare_eightcam(bad_root)
+
+
+def test_corrupt_auto_bundle_leaves_four_recorded_runs_available(tmp_path):
+    if "AMIDST_DEMO_HOME" not in os.environ:
+        pytest.skip("AMIDST_DEMO_HOME needed for the four recorded workbench runs")
+    config, owned = dependency.configuration()
+    bundle = tmp_path / "bundle"
+    descriptor = bundle / RUN_DESCRIPTOR
+    descriptor.parent.mkdir(parents=True)
+    descriptor.write_text("{}")
+    broken = EightCamSource(bundle, {RUN_DESCRIPTOR: "0" * 64})
+    kwargs = {
+        "job_path": dependency.owned_path(owned, config["cross_camera_job"]),
+        "job_pin": config["cross_camera_job_sha256"], "owned_root": owned, "eightcam": broken,
+    }
+    artifacts = dependency.owned_path(owned, config["artifacts_root"])
+    p1_bundle = dependency.owned_path(owned, config["p1_bundle"])
+    demo = Demo(artifacts, p1_bundle, tmp_path / "optional-state", **kwargs, eightcam_required=False)
+    bootstrap = demo.bootstrap()
+    assert bootstrap["eightcam"] == {
+        "run_id": RUN_ID, "status": "UNKNOWN", "reason": "BYTE_PIN_MISMATCH",
+    }
+    assert len(bootstrap["runs"]) == 4
+    assert all(run["run_id"] != RUN_ID for run in bootstrap["runs"])
+    assert all(run_id != RUN_ID for _, run_id in demo.rgb.frames)
+    with pytest.raises(ValueError, match="BYTE_PIN_MISMATCH"):
+        Demo(artifacts, p1_bundle, tmp_path / "required-state", **kwargs)
 
 
 def test_real_eightcam_binds_every_frame_to_the_detector_index():

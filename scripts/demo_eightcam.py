@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import re
 
 from amidst.q1q5.clock_mapping import ClockMapping
 from amidst.q1q5.store import DocumentPin, JsonRunStore
@@ -94,7 +95,29 @@ class EightCamSource:
         return index, clock, settings, catalog, graph, (interval, by_camera, clock.clock_id)
 
 
-def prepare_eightcam(root):
+def source_error_code(exc):
+    """Publish a bounded reason for an optional bundle without exposing data or paths."""
+    if isinstance(exc, OSError):
+        return 'EIGHTCAM_SOURCE_IO'
+    if type(exc) is ValueError:
+        code = str(exc)
+        if re.fullmatch(r'EIGHTCAM_[A-Z_]+', code) or code in {
+            'BYTE_PIN_MISMATCH', 'CANONICAL_FILE_REQUIRED', 'OWNED_PATH_ESCAPE_OR_SYMLINK',
+        }:
+            return code
+    return 'EIGHTCAM_SOURCE_INVALID'
+
+
+def prepare_eightcam(root, *, required=True):
+    try:
+        return _prepare_eightcam(root)
+    except (ValueError, OSError, TypeError, KeyError) as exc:
+        if required:
+            raise
+        return None, source_error_code(exc)
+
+
+def _prepare_eightcam(root):
     """Select exact read-only files from the checked-in #529 receipt."""
     if root is None:
         return None, 'ROOT_NOT_CONFIGURED'

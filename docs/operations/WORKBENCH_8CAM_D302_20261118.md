@@ -4,10 +4,11 @@ D302 選用 #529 safe bundle 的 A4-1-8CAM，50 秒、5 fps、八台鏡頭各 25
 此 run 與 B-05、A4-1、B4-1、r005 共用既有 bootstrap、監控牆與來源選單。
 名稱表新增一筆，讓展示模式標示「A4-1-8CAM · 4 人／8 鏡頭」。
 
-`start_445_demo.command` 在 checkout 的標準 safe bundle 目錄存在時傳入 `--root-8cam`。
-也可傳入明確的 `--root-8cam` 覆寫，例如用同一份既有資料測試另一個埠。
-如果未設定或目錄缺檔，bootstrap 的 `eightcam.status` 為 `UNKNOWN` 並附原因，四個既有 run
-仍可載入。指定有資料的目錄後若內容 pin 不符，驗證會報錯。
+`start_445_demo.command` 在 checkout 的標準 safe bundle 目錄存在時，透過 `--auto-root-8cam` 載入。
+自動找到的 bundle 如果缺檔、路徑不合法、pin 不符、或未通過索引和場景綁定，
+bootstrap 的 `eightcam.status` 為 `UNKNOWN` 並附原因，四個既有 run 仍可載入。
+明確的 `--root-8cam` 優先採用指定目錄。指定來源驗證若遇內容 pin 或綁定錯誤會報錯，
+且 dependency smoke 要求指定來源成功註冊第五個 run。
 資料來源為 `local/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe`，SHA-256 `0900d151e4e3360741f51d47f3d1a532db31e69818d1c8b1a325495a48bd413d`（原 SAFE_MANIFEST.json）。
 單跑的 2,000 個 PNG 與 7 個 metadata／index 檔以 #529 已提交的
 `docs/operations/R004_V2_4ACTOR_BUNDLE_MANIFEST.json` 為來源。程式在載入時綁定每格的 PNG、
@@ -44,3 +45,10 @@ UI_QA_BASE_URL=http://127.0.0.1:8799 UI_QA_REQUIRE_8CAM=1 UI_QA_HEIGHT=900 UI_QA
 
 正式 real-e2e 會跑原 D269 內容與新增的 8CAM 監控牆測試。
 `UI_QA_REQUIRE_8CAM=1` 使缺失的 8CAM 在 #576 中直接指出原因並失敗。
+
+## #603 審查 P2 回歸
+
+使用上述 focused Python 與 Node 指令重跑，分別為 22 和 17 個測試通過。
+測試用臨時目錄中的 descriptor 觸發 `BYTE_PIN_MISMATCH`。自動載入以 UNKNOWN
+回報並保有原 4 個 run，顯式載入會拒絕同一輸入。
+LOCAL `local/evidence/cx594-d308-p2-20261118/MANIFEST.json`，SHA-256 `034dc5d3a3ebe5c0997edb849df27ed1bef49013e1416eddcaf1ef5c2dbe625a`，3 檔／1,693 bytes。

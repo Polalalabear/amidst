@@ -12,6 +12,6 @@ export UV_CACHE_DIR="$demo_repo/.local/demo-cache/uv"
 # in "$@" takes precedence over the checkout's default.
 demo_eightcam="$demo_repo/local/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe"
 if [[ -d "$demo_eightcam" ]]; then
-  set -- --root-8cam "$demo_eightcam" "$@"
+  set -- --auto-root-8cam "$demo_eightcam" "$@"
 fi
 exec uv run --offline --no-project --python "$demo_python" python -B "$demo_repo/scripts/serve_demo_integration.py" "$@"
