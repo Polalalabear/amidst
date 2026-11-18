@@ -19,10 +19,13 @@ test('every graph v3 region and camera has a row; no extra ids', () => {
 
 test('PROPOSED names match the alias config; every row cites a source; UNKNOWN rows show the code', () => {
   for (const [id, e] of Object.entries(PLACE_NAMES)) if (e.status === 'PROPOSED') assert.equal(alias.region_aliases[e.name.replace(' ', '')], id);
-  for (const e of [...Object.values(PLACE_NAMES), ...Object.values(CAMERA_NAMES)]) { assert.ok(['PROPOSED', 'DERIVED', 'UNKNOWN'].includes(e.status)); assert.ok(e.source.length > 10); }
-  assert.equal(cameraName('CAM_WIDE'), 'CAM_WIDE'); assert.equal(cameraLabel('CAM_WIDE').known, false);
-  assert.match(nameTitle('CAM_WIDE'), /UNKNOWN/);
-  assert.ok(namesToConfirm().length >= 15);
+  for (const e of [...Object.values(PLACE_NAMES), ...Object.values(CAMERA_NAMES)]) { assert.ok(['PROPOSED', 'DERIVED', 'CONFIRMED', 'UNKNOWN'].includes(e.status)); assert.ok(e.source.length > 10); }
+  assert.equal(cameraName('CAM_EXT_CLEAR'), '室外西側'); assert.equal(cameraName('CAM_BRANCH'), '轉角'); assert.equal(cameraName('CAM_WIDE'), '轉角廣角');
+  assert.deepEqual(cameraLabel('CAM_WIDE'), {name: '轉角廣角', code: 'CAM_WIDE', known: true});
+  assert.match(nameTitle('CAM_WIDE'), /轉角廣角 · CAM_WIDE .*D302/);
+  assert.equal(CAMERA_NAMES.CAM_WIDE.status, 'CONFIRMED'); assert.match(CAMERA_NAMES.CAM_WIDE.source, /D302/);
+  assert.ok(!Object.values(CAMERA_NAMES).some(e => e.status === 'UNKNOWN'));
+  assert.ok(!namesToConfirm().some(e => e.id === 'CAM_WIDE')); assert.ok(namesToConfirm().length >= 12);
 });
 
 test('readable names with the code kept for tooltips; a real catalog label wins; unknown ids pass through', () => {
