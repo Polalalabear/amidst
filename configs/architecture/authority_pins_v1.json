@@ -416,6 +416,14 @@
       "sha256": "c41a6f0bedf9d5af2264b5a68cea4350dc2a09ded57af08386181e6d05199852",
       "status": "現行；進度導覽補到 #613（D311–D318，D91-4）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D331-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@f267a10d71c18f388a32943a702ebf027d6c7dbf（晚間交接 PR）",
+      "sha256": "a5100a0a7902c558e4959364a18450741d1f192f74e9922ce54ddcec4ac7ed20",
+      "status": "現行；進度導覽補到 #620（D331，D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
     }
   ],
   "authorized_changes": [
@@ -635,6 +643,13 @@
       "requires_commit": "bab9bd85a6b0df0e9efeb5f56c4e55f0109bfbac",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
       "reason": "進度導覽批次補列到 #613（D311–D318，D91-4），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "a5100a0a7902c558e4959364a18450741d1f192f74e9922ce54ddcec4ac7ed20",
+      "requires_commit": "f267a10d71c18f388a32943a702ebf027d6c7dbf",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "reason": "進度導覽批次補列到 #620（D331 晚間交接，D91-4），只改導覽內容，沒有放寬任何規則"
     }
   ]
 }
