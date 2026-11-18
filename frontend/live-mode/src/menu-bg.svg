@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+<style>
+ .plan{fill:none;stroke:#faf9f5;stroke-width:2;opacity:.32}
+ .plan line,.plan rect{vector-effect:non-scaling-stroke}
+ .cone{opacity:.06;animation:lit 16s linear infinite}
+ .cam circle{fill:none;stroke:#d97757;stroke-width:2;opacity:.45;animation:lit2 16s linear infinite}
+ .cam .dot{fill:#d97757}
+ .cam text{font:12px ui-monospace,Menlo,monospace;letter-spacing:.1em;fill:#b0aea5;text-anchor:middle;opacity:.7}
+ .trail{fill:none;stroke:#faf9f5;stroke-width:2;stroke-dasharray:3 9;opacity:.3}
+ .head{fill:none;stroke:#d97757;stroke-width:6;stroke-linecap:round;stroke-dasharray:.035 1;animation:move 16s linear infinite}
+ .flash{fill:none;stroke:#d97757;stroke-width:3;opacity:0;transform-box:fill-box;transform-origin:center;animation:ping 16s ease-out infinite}
+ @keyframes lit{0%{opacity:.05}2%{opacity:1}10.5%{opacity:1}12.5%,100%{opacity:.05}}
+ @keyframes lit2{0%{opacity:.45}2%{opacity:1}10.5%{opacity:1}12.5%,100%{opacity:.45}}
+ @keyframes move{from{stroke-dashoffset:.035}to{stroke-dashoffset:-1}}
+ @keyframes ping{0%{opacity:0;transform:scale(.4)}1%{opacity:1;transform:scale(.6)}6%{opacity:0;transform:scale(2.6)}100%{opacity:0}}
+ .c0{animation-delay:0.0s}
+ .c1{animation-delay:2.0s}
+ .c2{animation-delay:4.0s}
+ .c3{animation-delay:6.0s}
+ .c4{animation-delay:8.0s}
+ .c5{animation-delay:10.0s}
+ .c6{animation-delay:12.0s}
+ .c7{animation-delay:14.0s}
+ @media (prefers-reduced-motion:reduce){*{animation:none!important}.cone{opacity:.1}.flash,.head{display:none}}
+</style>
+<defs><linearGradient id="g0" gradientUnits="userSpaceOnUse" x1="205" y1="370" x2="205" y2="560"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g1" gradientUnits="userSpaceOnUse" x1="375" y1="530" x2="375" y2="340"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g2" gradientUnits="userSpaceOnUse" x1="545" y1="370" x2="545" y2="560"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g3" gradientUnits="userSpaceOnUse" x1="715" y1="530" x2="715" y2="340"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g4" gradientUnits="userSpaceOnUse" x1="885" y1="370" x2="885" y2="560"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g5" gradientUnits="userSpaceOnUse" x1="1055" y1="530" x2="1055" y2="340"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g6" gradientUnits="userSpaceOnUse" x1="1225" y1="370" x2="1225" y2="560"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient><linearGradient id="g7" gradientUnits="userSpaceOnUse" x1="1395" y1="530" x2="1395" y2="340"><stop offset="0" stop-color="#d97757" stop-opacity=".95"/><stop offset="1" stop-color="#d97757" stop-opacity="0"/></linearGradient></defs>
+<g class="plan"><rect x="120" y="140" width="1360" height="620"/><line x1="120" y1="370" x2="1480" y2="370"/><line x1="120" y1="530" x2="1480" y2="530"/><line x1="460" y1="140" x2="460" y2="370"/><line x1="460" y1="530" x2="460" y2="760"/><line x1="800" y1="140" x2="800" y2="370"/><line x1="800" y1="530" x2="800" y2="760"/><line x1="1140" y1="140" x2="1140" y2="370"/><line x1="1140" y1="530" x2="1140" y2="760"/></g>
+<path class="cone c0" fill="url(#g0)" d="M205 370 L80 560 L330 560 Z"/><path class="cone c1" fill="url(#g1)" d="M375 530 L250 340 L500 340 Z"/><path class="cone c2" fill="url(#g2)" d="M545 370 L420 560 L670 560 Z"/><path class="cone c3" fill="url(#g3)" d="M715 530 L590 340 L840 340 Z"/><path class="cone c4" fill="url(#g4)" d="M885 370 L760 560 L1010 560 Z"/><path class="cone c5" fill="url(#g5)" d="M1055 530 L930 340 L1180 340 Z"/><path class="cone c6" fill="url(#g6)" d="M1225 370 L1100 560 L1350 560 Z"/><path class="cone c7" fill="url(#g7)" d="M1395 530 L1270 340 L1520 340 Z"/>
+<path class="trail" pathLength="1" d="M120 450 H1480"/>
+<path class="head" pathLength="1" d="M120 450 H1480"/>
+<circle class="flash" style="animation-delay:2.0s" cx="290" cy="450" r="14"/><circle class="flash" style="animation-delay:4.0s" cx="460" cy="450" r="14"/><circle class="flash" style="animation-delay:6.0s" cx="630" cy="450" r="14"/><circle class="flash" style="animation-delay:8.0s" cx="800" cy="450" r="14"/><circle class="flash" style="animation-delay:10.0s" cx="970" cy="450" r="14"/><circle class="flash" style="animation-delay:12.0s" cx="1140" cy="450" r="14"/><circle class="flash" style="animation-delay:14.0s" cx="1310" cy="450" r="14"/>
+<g class="cam c0"><circle cx="205" cy="370" r="9"/><circle cx="205" cy="370" r="3" class="dot"/><text x="205" y="352">CAM 1</text></g><g class="cam c1"><circle cx="375" cy="530" r="9"/><circle cx="375" cy="530" r="3" class="dot"/><text x="375" y="560">CAM 2</text></g><g class="cam c2"><circle cx="545" cy="370" r="9"/><circle cx="545" cy="370" r="3" class="dot"/><text x="545" y="352">CAM 3</text></g><g class="cam c3"><circle cx="715" cy="530" r="9"/><circle cx="715" cy="530" r="3" class="dot"/><text x="715" y="560">CAM 4</text></g><g class="cam c4"><circle cx="885" cy="370" r="9"/><circle cx="885" cy="370" r="3" class="dot"/><text x="885" y="352">CAM 5</text></g><g class="cam c5"><circle cx="1055" cy="530" r="9"/><circle cx="1055" cy="530" r="3" class="dot"/><text x="1055" y="560">CAM 6</text></g><g class="cam c6"><circle cx="1225" cy="370" r="9"/><circle cx="1225" cy="370" r="3" class="dot"/><text x="1225" y="352">CAM 7</text></g><g class="cam c7"><circle cx="1395" cy="530" r="9"/><circle cx="1395" cy="530" r="3" class="dot"/><text x="1395" y="560">CAM 8</text></g>
+</svg>
