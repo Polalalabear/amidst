@@ -1,8 +1,9 @@
 # Live relock R1 replay (#588)
 
-This Draft contains the pure relock state machine, the optional velocity-based shortlist, and
-offline replay and scoring. The runtime continues to use its existing tracker configuration.
-R1 fails R-6 on the fixed B4 recording. The prediction sweep leaves prediction disabled.
+This PR contains the pure relock state machine, the optional velocity-based shortlist,
+and offline replay and scoring. The D331 merge and replay pass R-6 and the user-approved
+R-5a. Runtime relock and prediction remain disabled by default. Earlier checkpoints below
+retain their historical measurements.
 
 ## Inputs
 
@@ -17,7 +18,7 @@ R1 fails R-6 on the fixed B4 recording. The prediction sweep leaves prediction d
 - The prediction sweep uses 18 `sol2` recordings, 20 `gate` recordings and the two fixed
   observations. The source, calibration and configuration hashes are in the output receipts.
 
-## Fixed observation results
+## D308 fixed observation results
 
 | Scene | Visible scored ticks | Baseline on-target / lost | Relock on-target / lost | R-6 |
 | --- | ---: | --- | --- | --- |
@@ -187,3 +188,56 @@ Ruff on both changed Python files, architecture guard and diff check pass.
 R2 session and HTTP integration remains the scope of #589.
 
 LOCAL `local/evidence/cx588-d326-20261118/MANIFEST.json` SHA-256 `e938d246a8839291d97a9fc9b18bf2691b8e5d7dc6a290719384c8556fe4a924`, 471 files / 59,799,138 bytes. The reproduction commands above regenerate the reports. The matching runs are run2 and run3, and their file hashes are in determinism.json.
+
+## D331 merge and verification
+
+Merge commit 460d24dc has parents 533b4e99 and main 7393bf62. Tracker
+retains target_color, the projected=True path, explicit seed and session
+selection behavior from main. The optional relock policy uses the selected
+color. A seed creates fresh reference and velocity memory, clears pending
+confirmation options and resets the confirmation tick latch. The shared
+result method serves seed, normal updates and pure-policy confirmation.
+Synthetic regressions cover blue relock, projection reuse and fresh seed.
+HTTP relock candidate binding remains R2 work.
+
+The same six observation sources pass R-6 after the merge. A4 has 67/95
+correct and 4/95 lost. B4 has 58/60 correct and 1/60 lost. Fixed C acceptance
+checks that tracking preserves the baseline. It demonstrates no regression
+on these captures. Its two A4 and one B4 relock events do not establish an
+improvement over baseline.
+
+R-5a is unchanged after merge. The six correct and five wrong automatic
+recoveries all match the baseline actor at the same capture. New wrong
+recoveries, fixed C wrong recoveries and appearance wrong recoveries are
+zero. All five wrong recoveries were following the wrong person before
+loss. The D273 comparison uses its historical main runtime rows with
+SHA-256 a079664ed041486c1bdeaf12e8824d0466f751ac1f5814e51d356952a705e6a8.
+Fixed C uses the merged code's baseline replay. The historical comparison
+is explicitly retained under D326's approved acceptance rule.
+
+The D326 run1 folder is an intermediate comparison implementation which
+required a main REACQUIRE event. It counted SWITCH and continuing matches
+as different behavior and reported three new errors. Run2 and run3 use
+the final same-capture, same-actor comparison. They are the two deterministic
+runs at that checkpoint. D331 uses the final comparison for both run1 and
+run2.
+
+The appearance scale 0.2452331002331002 is GT-derived in offline calibration
+and used only in the replay configuration. Runtime appearance scales
+remain 1.0 and the appearance thresholds remain UNKNOWN. The projected
+speed and GT speed comparison also remains offline.
+
+The post-merge prediction sweep remains at 3/114 misses and 30 wrong
+recoveries for horizon zero, and 1/128 with 26 wrong recoveries for each
+1/2/3 s horizon. These equal D326 and retain its documented difference
+from D308. Prediction stays disabled. ENTRY remains 0 ms at all-A4 52
+and adaptive-A4 62, with null correct automatic recovery delay.
+
+Both runs produce identical relock.json, prediction.json and pool-misses.json
+bytes. The full LIVE suite passes 132 tests. Three browser-default and
+failure-cleanup tests pass in headless mode. The branch also carries the
+shared headless launcher and hardset two-page fix. Ruff passes for the new
+policy/replay tests and replay script. Tracker's existing layout is checked
+with F/I/UP. Architecture guard and diff check pass.
+
+LOCAL `local/evidence/cx588-d331-20261118/MANIFEST.json` SHA-256 `b8a9e5dd46ef583cef44ffb78a4728412a96240e5d93c90cd0d93990a77a65ad`, 433 files / 55,723,922 bytes. The documented commands regenerate the two replay sets. Model / effort for this checkpoint is gpt-6.1-sol / UNKNOWN.
