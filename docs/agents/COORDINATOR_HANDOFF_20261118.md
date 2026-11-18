@@ -235,7 +235,7 @@
 | 項目 | 值 |
 | --- | --- |
 | `main` | `7393bf62`（#615 merge） |
-| 8785 pin | `b98fac2a`（`local/demo-pin.json`，gate `local/evidence/gate-576-20261118/RESULT.txt`，D324）；`~/amidst` 工作樹在 `b98fac2a`，終端分頁「8785 demo」前景執行 |
+| 8785 pin | `b98fac2a`（`local/demo-pin.json`，gate `local/evidence/gate-576-20261118/RESULT.txt`（SHA-256 `60201b729e7c50eccfec1709e52803038a2425adf6c7f0fe14df15c165b8f927`），D324）；`~/amidst` 工作樹在 `b98fac2a`，終端分頁「8785 demo」前景執行 |
 | 8791 | `50f2fd14`（#618 merge），`local/runtime/live-main`，用 `local/runtime/start_live_8791.sh` 啟動（D329） |
 | 下一個決策編號 | D331（本交接）→ 新協調者用 **D332** |
 | 磁碟 | 可用約 7.0 GiB（低於 9 GiB 不開第三個寫手，低於 5 GiB 停工）；盤點已出：LOCAL `local/evidence/disk-inventory-20261118/INVENTORY.md`（SHA-256 `5afa743861e0c6d1f25fdee2e0f8840801e16bab5a65ff4c92ba20dafe6b7daa`，Haiku low，唯讀，未刪任何東西） |
