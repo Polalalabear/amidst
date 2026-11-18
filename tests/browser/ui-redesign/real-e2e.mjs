@@ -1,5 +1,6 @@
 // Real server acceptance: only visible UI controls, source-bound API, and decoded RGB.
 import assert from 'node:assert/strict';
+import {checkEightCamWall} from './eightcam-check.mjs';
 import {ownedRuntime} from '../core-preview/owned-runtime.mjs';
 const owned=ownedRuntime();
 import {pathToFileURL} from 'node:url';
@@ -159,7 +160,9 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  const transport=await p.locator('#ui-case3 .transport').boundingBox();check(Math.abs(transport.y+transport.height-viewportHeight)<2,'case3 transport at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const scrolled=await p.locator('#ui-case3 .transport').boundingBox();check(Math.abs(scrolled.y+scrolled.height-viewportHeight)<2,'case3 transport remains fixed while content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
  await capture(p,event+'-case3',{readyCameras:cameras,bar:transport,barAfterScroll:scrolled});await checkZoom(p,event,'wall');await Promise.all(frameJobs);
- const dest=event==='A4-1'?'B4-1':'A4-1', destButton=p.locator('#ui-events button').filter({hasText:dest}), destRun=await destButton.getAttribute('data-event');await destButton.click();await p.waitForURL(u=>u.searchParams.get('run')===destRun);await p.waitForFunction(()=>document.querySelectorAll('.mr-tile[data-status=READY]').length>0);check(true,'event selection loads source');
+ const dest=event==='A4-1'?'B4-1':'A4-1';
+ const destRun=boot.runs.find(r=>r.title?.startsWith(dest+' ·')).run_id;
+ await p.locator(`#ui-events button[data-event="${destRun}"]`).click();await p.waitForURL(u=>u.searchParams.get('run')===destRun);await p.waitForFunction(()=>document.querySelectorAll('.mr-tile[data-status=READY]').length>0);check(true,'event selection loads source');
  await p.goto(base+'admin.html',{waitUntil:'domcontentloaded'});await p.locator('#admin-title').waitFor();await p.waitForTimeout(300);await capture(p,event+'-admin-overview');
  await p.locator('[data-tab=settings]').click();await capture(p,event+'-admin-settings');
  await p.locator('.ui-set-row').filter({hasText:'預設進入'}).getByRole('button',{name:'case2',exact:true}).click();await p.getByRole('button',{name:'儲存',exact:true}).click();check((await p.locator('#settings-saved').innerText()).includes('已儲存'),'settings saved');
@@ -175,5 +178,7 @@ for(const [name,query,n]of[['r005-location','region=R101',1],['r005-laptop','cla
  await p.goto(base+'?run=r005&screen=search&'+query);await decoded(p,'#ui-case1 .ui-shot img',n);check(await p.locator('#ui-v1').getAttribute('data-screen')==='case1','r005 deep link opens result wall');await capture(p,name,{cards:n});
 }
 await p.goto(base+'?run=A4-1&screen=search&class=car');await decoded(p,'#ui-case1 .ui-shot img',1);check((await p.locator('#ui-case1').innerText()).includes('場景標註：車輛（非偵測）'),'D149 car card explicitly marked as scene annotation');await capture(p,'a4-car-annotation');
+const eightcam = await checkEightCamWall(p, base, check, {required: process.env.UI_QA_REQUIRE_8CAM === '1'});
+if (eightcam) await capture(p, 'a4-8cam-wall', eightcam);
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
 }finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
