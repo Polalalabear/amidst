@@ -7,6 +7,8 @@ set -u
 set -m  # 每個子進程各自一個 process group，Ctrl-C 時整組關閉
 cd "$(dirname "$0")" || exit 1
 ROOT="$PWD"
+# 即時模式是獨立入口／獨立埠；不啟動舊的A/B/C，也不占8785。
+if [ "${1:-}" = --live-mode ]; then shift; exec "$ROOT/start_live_mode.command" "$@"; fi
 
 # D171：預設位置都在本 repo 的 local/ 之下；搬遷前若新位置還不存在，才退回舊位置（過渡用，之後可刪）。
 pick() { if [ -e "$1" ] || [ ! -e "$2" ]; then printf '%s' "$1"; else printf '%s' "$2"; fi; }
@@ -81,7 +83,7 @@ CX8_ARGS=(); [ -d "$CX8_ROOT" ] && CX8_ARGS=(--root-8cam "$CX8_ROOT")
 node frontend/event-viewer/server.mjs --root "$CX7_ROOT" ${CX8_ARGS[@]+"${CX8_ARGS[@]}"} --port "$PORT_CX" >"$LOG_DIR/c-events.log" 2>&1 &
 PIDS+=($!)
 
-# --- 等全部 ready（段 C 啟動會全量驗證約 1.2 GB PNG，約 15 秒）---
+# --- 等全部 ready（段 C 全量驗證PNG；含8CAM實測約60–75秒，受磁碟／同機負載影響，最多等180秒）---
 ready() { curl -fsS -o /dev/null --max-time 2 "http://127.0.0.1:$1$2" 2>/dev/null; }
 check_one() {  # 名稱 埠 路徑 pid 日誌
   if ! kill -0 "$4" 2>/dev/null; then

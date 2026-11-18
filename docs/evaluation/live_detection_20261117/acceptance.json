@@ -1,0 +1,789 @@
+{
+  "issue": 552,
+  "baseline": "31a69177",
+  "metric": "detect_sweep.mjs: highest IoU before score threshold; IoU/score rounded 2/3 decimals; FP scores rounded 2 decimals",
+  "source_recording_manifest_sha256": "17429512cb75e3fa9e975220895dea77dcdbd0774590b7b17c89c6970dee06cf",
+  "source_inputs": [
+    {
+      "path": "data/live-assets-20261115/character.glb",
+      "bytes": 658080,
+      "sha256": "f46139c0d21aa0583cef9361d3c214efa09aea9cb3a257354f0792f5238ecf43"
+    },
+    {
+      "path": "data/live-assets-20261115/scene.glb",
+      "bytes": 33941072,
+      "sha256": "cf9ef5135774fd215090b8448c8757bcf241d29e9bfdf44fabde728a3be7d4f3"
+    },
+    {
+      "path": "data/live-assets-20261115/cameras.three.json",
+      "bytes": 14185,
+      "sha256": "6deb31b032f4a7ce2e1734db07b666d118e1b0de17e8e37be7008814ba0f4f41"
+    },
+    {
+      "path": "data/r004-build-v2-20261021/safe_static/cameras.json",
+      "bytes": 12793,
+      "sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+    },
+    {
+      "path": "data/demo-owned-v1/models/rtdetr/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth",
+      "bytes": 81001853,
+      "sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0"
+    },
+    {
+      "path": "evidence/live-mode-n6-20261115/glb_n6scene_320x180_r1.rows.json",
+      "bytes": 235561,
+      "sha256": "3a21e8773b5cc9cb22bd7bcb15807f99f7f388b08a146704a16b9fb919ec33a0"
+    }
+  ],
+  "baseline_detection": {
+    "all": {
+      "n": 1328,
+      "hits": 918,
+      "rate": 0.6912650602409639,
+      "fp_per_frame": 0,
+      "red_fp_per_frame": null
+    },
+    "by_camera": {
+      "CAM_BRANCH": {
+        "n": 36,
+        "hits": 33,
+        "rate": 0.9166666666666666,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_ENTRY": {
+        "n": 236,
+        "hits": 45,
+        "rate": 0.1906779661016949,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CAR": {
+        "n": 300,
+        "hits": 202,
+        "rate": 0.6733333333333333,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CLEAR": {
+        "n": 284,
+        "hits": 238,
+        "rate": 0.8380281690140845,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_R101_IN": {
+        "n": 68,
+        "hits": 32,
+        "rate": 0.47058823529411764,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_W1": {
+        "n": 116,
+        "hits": 103,
+        "rate": 0.8879310344827587,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_W2": {
+        "n": 208,
+        "hits": 198,
+        "rate": 0.9519230769230769,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_WIDE": {
+        "n": 80,
+        "hits": 67,
+        "rate": 0.8375,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      }
+    },
+    "empty_fp_per_frame": 0
+  },
+  "final_detection": {
+    "min_score": 0.15,
+    "camera_min_scores": {
+      "CAM_ENTRY": 0.05
+    },
+    "all": {
+      "n": 1328,
+      "hits": 1180,
+      "rate": 0.8885542168674698,
+      "fp_per_frame": 0.07153614457831325,
+      "red_fp_per_frame": 0.009789156626506024
+    },
+    "by_camera": {
+      "CAM_BRANCH": {
+        "n": 36,
+        "hits": 36,
+        "rate": 1,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      },
+      "CAM_ENTRY": {
+        "n": 236,
+        "hits": 173,
+        "rate": 0.7330508474576272,
+        "fp_per_frame": 0.3855932203389831,
+        "red_fp_per_frame": 0.05508474576271186
+      },
+      "CAM_EXT_CAR": {
+        "n": 300,
+        "hits": 258,
+        "rate": 0.86,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      },
+      "CAM_EXT_CLEAR": {
+        "n": 284,
+        "hits": 264,
+        "rate": 0.9295774647887324,
+        "fp_per_frame": 0.01056338028169014,
+        "red_fp_per_frame": 0
+      },
+      "CAM_R101_IN": {
+        "n": 68,
+        "hits": 57,
+        "rate": 0.8382352941176471,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      },
+      "CAM_W1": {
+        "n": 116,
+        "hits": 113,
+        "rate": 0.9741379310344828,
+        "fp_per_frame": 0.008620689655172414,
+        "red_fp_per_frame": 0
+      },
+      "CAM_W2": {
+        "n": 208,
+        "hits": 203,
+        "rate": 0.9759615384615384,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      },
+      "CAM_WIDE": {
+        "n": 80,
+        "hits": 76,
+        "rate": 0.95,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      }
+    },
+    "empty_fp_per_frame": 0
+  },
+  "diagnostic_controls": {
+    "stretch": {
+      "CAM_BRANCH": {
+        "n": 36,
+        "hits": 33,
+        "rate": 0.9166666666666666,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_ENTRY": {
+        "n": 236,
+        "hits": 45,
+        "rate": 0.1906779661016949,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CAR": {
+        "n": 300,
+        "hits": 202,
+        "rate": 0.6733333333333333,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CLEAR": {
+        "n": 284,
+        "hits": 238,
+        "rate": 0.8380281690140845,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_R101_IN": {
+        "n": 68,
+        "hits": 32,
+        "rate": 0.47058823529411764,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_W1": {
+        "n": 116,
+        "hits": 103,
+        "rate": 0.8879310344827587,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_W2": {
+        "n": 208,
+        "hits": 198,
+        "rate": 0.9519230769230769,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_WIDE": {
+        "n": 80,
+        "hits": 67,
+        "rate": 0.8375,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      }
+    },
+    "letterbox": {
+      "CAM_BRANCH": {
+        "n": 36,
+        "hits": 34,
+        "rate": 0.9444444444444444,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_ENTRY": {
+        "n": 236,
+        "hits": 67,
+        "rate": 0.2838983050847458,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CAR": {
+        "n": 300,
+        "hits": 200,
+        "rate": 0.6666666666666666,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CLEAR": {
+        "n": 284,
+        "hits": 223,
+        "rate": 0.7852112676056338,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_R101_IN": {
+        "n": 68,
+        "hits": 40,
+        "rate": 0.5882352941176471,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_W1": {
+        "n": 116,
+        "hits": 108,
+        "rate": 0.9310344827586207,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_W2": {
+        "n": 208,
+        "hits": 192,
+        "rate": 0.9230769230769231,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_WIDE": {
+        "n": 80,
+        "hits": 48,
+        "rate": 0.6,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      }
+    },
+    "bright": {
+      "CAM_ENTRY": {
+        "n": 236,
+        "hits": 50,
+        "rate": 0.211864406779661,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_EXT_CAR": {
+        "n": 300,
+        "hits": 216,
+        "rate": 0.72,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      },
+      "CAM_R101_IN": {
+        "n": 68,
+        "hits": 25,
+        "rate": 0.36764705882352944,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": null
+      }
+    },
+    "highres": {
+      "CAM_ENTRY": {
+        "n": 236,
+        "hits": 23,
+        "rate": 0.09745762711864407,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      },
+      "CAM_EXT_CAR": {
+        "n": 300,
+        "hits": 217,
+        "rate": 0.7233333333333334,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      },
+      "CAM_R101_IN": {
+        "n": 68,
+        "hits": 11,
+        "rate": 0.16176470588235295,
+        "fp_per_frame": 0,
+        "red_fp_per_frame": 0
+      }
+    }
+  },
+  "latency": [
+    {
+      "label": "baseline_r1",
+      "query": "auto=B4&duration=42&model=glb&w=320&h=180&fps=2&cams=CAM_W1,CAM_W2,CAM_R101_IN",
+      "secs": 50,
+      "config": {
+        "w": 320,
+        "h": 180,
+        "fps": 2,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2",
+          "CAM_R101_IN"
+        ],
+        "model": "glb",
+        "scene": "n6",
+        "auto": "B4",
+        "duration": 42,
+        "run": "B4-1-v2-4actor",
+        "sentence": "a person in a red top",
+        "quality": 0.85,
+        "tris": 3996,
+        "n6": true
+      },
+      "tick_period_ms": 500,
+      "ticks_displayed": 98,
+      "sent": 98,
+      "dropped": 2,
+      "achieved_fps": 1.9596038849194368,
+      "drop_ratio": 0.02,
+      "frame_latency_ms": {
+        "p50": 246.10009765625,
+        "p95": 269.3350830078125,
+        "max": 290.39990234375,
+        "n": 94
+      },
+      "stage_ms_p50": {
+        "render_capture": 46.6500244140625,
+        "http_roundtrip": 195.7498779296875,
+        "server_total": 192.87774999975227,
+        "forward": 178.56025051150937,
+        "color": 0.6572709971806034,
+        "channel_to_display": 2.199951171875
+      },
+      "first_lock_ms": 1203.099853515625,
+      "switch_events": [
+        {
+          "leave_tick": 10,
+          "from": "CAM_W1",
+          "to": "CAM_W2",
+          "ms": 1745.60009765625,
+          "ticks": 3
+        },
+        {
+          "leave_tick": 59,
+          "from": "CAM_W2",
+          "to": "CAM_R101_IN",
+          "ms": 1737.7001953125,
+          "ticks": 3
+        },
+        {
+          "leave_tick": 82,
+          "from": "CAM_R101_IN",
+          "to": "CAM_W2",
+          "ms": 1230.800048828125,
+          "ticks": 2
+        }
+      ],
+      "switch_ms": {
+        "p50": 1737.7001953125,
+        "p95": 1744.810107421875,
+        "n": 3
+      },
+      "correct_active_rate": 0.7078651685393258,
+      "protocol_violations": 0,
+      "usage_mean": {
+        "server_cpu": 0,
+        "chrome_cpu": 26.676190476190484,
+        "gpu_util": 93.45238095238095,
+        "blender_cpu": 0,
+        "load1": 4.752857142857145
+      }
+    },
+    {
+      "label": "baseline_r2",
+      "query": "auto=B4&duration=42&model=glb&w=320&h=180&fps=2&cams=CAM_W1,CAM_W2,CAM_R101_IN",
+      "secs": 50,
+      "config": {
+        "w": 320,
+        "h": 180,
+        "fps": 2,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2",
+          "CAM_R101_IN"
+        ],
+        "model": "glb",
+        "scene": "n6",
+        "auto": "B4",
+        "duration": 42,
+        "run": "B4-1-v2-4actor",
+        "sentence": "a person in a red top",
+        "quality": 0.85,
+        "tris": 3996,
+        "n6": true
+      },
+      "tick_period_ms": 500,
+      "ticks_displayed": 101,
+      "sent": 101,
+      "dropped": 0,
+      "achieved_fps": 1.9999919922195624,
+      "drop_ratio": 0,
+      "frame_latency_ms": {
+        "p50": 245.800048828125,
+        "p95": 264.99990234375,
+        "max": 334,
+        "n": 97
+      },
+      "stage_ms_p50": {
+        "render_capture": 49.10009765625,
+        "http_roundtrip": 194.400146484375,
+        "server_total": 191.58250000327826,
+        "forward": 177.54324999987148,
+        "color": 0.6586669769603759,
+        "channel_to_display": 2.10009765625
+      },
+      "first_lock_ms": 500.300048828125,
+      "switch_events": [
+        {
+          "leave_tick": 12,
+          "from": "CAM_W1",
+          "to": "CAM_W2",
+          "ms": 1743.099853515625,
+          "ticks": 3
+        },
+        {
+          "leave_tick": 61,
+          "from": "CAM_W2",
+          "to": "CAM_R101_IN",
+          "ms": 2257.39990234375,
+          "ticks": 4
+        },
+        {
+          "leave_tick": 84,
+          "from": "CAM_R101_IN",
+          "to": "CAM_W2",
+          "ms": 1260.699951171875,
+          "ticks": 2
+        }
+      ],
+      "switch_ms": {
+        "p50": 1743.099853515625,
+        "p95": 2205.9698974609373,
+        "n": 3
+      },
+      "correct_active_rate": 0.7065217391304348,
+      "protocol_violations": 0,
+      "usage_mean": {
+        "server_cpu": 0,
+        "chrome_cpu": 27.176190476190477,
+        "gpu_util": 92.71428571428571,
+        "blender_cpu": 0,
+        "load1": 3.3321428571428577
+      }
+    },
+    {
+      "label": "candidate_r1_retry",
+      "query": "auto=B4&duration=42&model=glb&w=320&h=180&fps=2&cams=CAM_W1,CAM_W2,CAM_R101_IN",
+      "secs": 50,
+      "config": {
+        "w": 320,
+        "h": 180,
+        "fps": 2,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2",
+          "CAM_R101_IN"
+        ],
+        "model": "glb",
+        "scene": "n6",
+        "auto": "B4",
+        "duration": 42,
+        "run": "B4-1-v2-4actor",
+        "sentence": "a person in a red top",
+        "quality": 0.85,
+        "tris": 3996,
+        "n6": true
+      },
+      "tick_period_ms": 500,
+      "ticks_displayed": 99,
+      "sent": 99,
+      "dropped": 2,
+      "achieved_fps": 1.9600078381172823,
+      "drop_ratio": 0.019801980198019802,
+      "frame_latency_ms": {
+        "p50": 230.400146484375,
+        "p95": 262.84990234375,
+        "max": 381.89990234375,
+        "n": 95
+      },
+      "stage_ms_p50": {
+        "render_capture": 36.300048828125,
+        "http_roundtrip": 191.300048828125,
+        "server_total": 188.9875830092933,
+        "forward": 176.9312089891173,
+        "color": 0.8104580047074705,
+        "channel_to_display": 2
+      },
+      "first_lock_ms": 1023.5,
+      "switch_events": [
+        {
+          "leave_tick": 59,
+          "from": "CAM_W2",
+          "to": "CAM_R101_IN",
+          "ms": 1748.900146484375,
+          "ticks": 3
+        },
+        {
+          "leave_tick": 82,
+          "from": "CAM_R101_IN",
+          "to": "CAM_W2",
+          "ms": 1220.099853515625,
+          "ticks": 2
+        }
+      ],
+      "switch_ms": {
+        "p50": 1484.5,
+        "p95": 1722.4601318359375,
+        "n": 2
+      },
+      "correct_active_rate": 0.7555555555555555,
+      "protocol_violations": 0,
+      "usage_mean": {
+        "server_cpu": 0,
+        "chrome_cpu": 31.026190476190475,
+        "gpu_util": 92.16666666666667,
+        "blender_cpu": 0,
+        "load1": 2.3150000000000004
+      }
+    },
+    {
+      "label": "candidate_r2",
+      "query": "auto=B4&duration=42&model=glb&w=320&h=180&fps=2&cams=CAM_W1,CAM_W2,CAM_R101_IN",
+      "secs": 50,
+      "config": {
+        "w": 320,
+        "h": 180,
+        "fps": 2,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2",
+          "CAM_R101_IN"
+        ],
+        "model": "glb",
+        "scene": "n6",
+        "auto": "B4",
+        "duration": 42,
+        "run": "B4-1-v2-4actor",
+        "sentence": "a person in a red top",
+        "quality": 0.85,
+        "tris": 3996,
+        "n6": true
+      },
+      "tick_period_ms": 500,
+      "ticks_displayed": 101,
+      "sent": 101,
+      "dropped": 0,
+      "achieved_fps": 1.999940001799946,
+      "drop_ratio": 0,
+      "frame_latency_ms": {
+        "p50": 232.5,
+        "p95": 256.27993164062497,
+        "max": 277.5,
+        "n": 97
+      },
+      "stage_ms_p50": {
+        "render_capture": 36,
+        "http_roundtrip": 191.199951171875,
+        "server_total": 188.46904099336825,
+        "forward": 176.5881250030361,
+        "color": 0.8278749883174896,
+        "channel_to_display": 2
+      },
+      "first_lock_ms": 464.60009765625,
+      "switch_events": [
+        {
+          "leave_tick": 12,
+          "from": "CAM_W1",
+          "to": "CAM_W2",
+          "ms": 2233.10009765625,
+          "ticks": 4
+        },
+        {
+          "leave_tick": 61,
+          "from": "CAM_W2",
+          "to": "CAM_R101_IN",
+          "ms": 1729.800048828125,
+          "ticks": 3
+        },
+        {
+          "leave_tick": 84,
+          "from": "CAM_R101_IN",
+          "to": "CAM_W2",
+          "ms": 1276.5,
+          "ticks": 2
+        }
+      ],
+      "switch_ms": {
+        "p50": 1729.800048828125,
+        "p95": 2182.7700927734377,
+        "n": 3
+      },
+      "correct_active_rate": 0.717391304347826,
+      "protocol_violations": 0,
+      "usage_mean": {
+        "server_cpu": 0,
+        "chrome_cpu": 28.02380952380953,
+        "gpu_util": 92.85714285714286,
+        "blender_cpu": 0,
+        "load1": 3.4469047619047637
+      }
+    }
+  ],
+  "existing_replay": {
+    "configs": {
+      "gate4_off": "--mode off --gate-m 4"
+    },
+    "table": {
+      "gate4_off": {
+        "a4 8cam": {
+          "n": 4,
+          "on_target": 0.472,
+          "wrong_person": 0.37,
+          "lost": 0.158
+        },
+        "a4 route cams": {
+          "n": 15,
+          "on_target": 0.382,
+          "wrong_person": 0.367,
+          "lost": 0.251
+        },
+        "b4 8cam": {
+          "n": 4,
+          "on_target": 0.726,
+          "wrong_person": 0.181,
+          "lost": 0.093
+        },
+        "b4 route cams": {
+          "n": 15,
+          "on_target": 0.922,
+          "wrong_person": 0.028,
+          "lost": 0.05
+        },
+        "ALL": {
+          "n": 38,
+          "on_target": 0.641,
+          "wrong_person": 0.214,
+          "lost": 0.145
+        }
+      }
+    }
+  },
+  "paired_rgb_replay": {
+    "baseline": [
+      {
+        "label": "a4_off_fromroute_baseline",
+        "visible_ticks": 95,
+        "on_target": 0.7368421052631579,
+        "wrong_person": 0.12631578947368421,
+        "lost": 0.1368421052631579
+      },
+      {
+        "label": "b4_off_fromroute_baseline",
+        "visible_ticks": 60,
+        "on_target": 0.8833333333333333,
+        "wrong_person": 0.03333333333333333,
+        "lost": 0.08333333333333333
+      }
+    ],
+    "redetected": [
+      {
+        "label": "a4_off_fromroute_baseline",
+        "visible_ticks": 95,
+        "on_target": 0.7052631578947368,
+        "wrong_person": 0.25263157894736843,
+        "lost": 0.042105263157894736
+      },
+      {
+        "label": "b4_off_fromroute_baseline",
+        "visible_ticks": 60,
+        "on_target": 0.9666666666666667,
+        "wrong_person": 0.016666666666666666,
+        "lost": 0.016666666666666666
+      }
+    ]
+  },
+  "focused_pytest": {
+    "command": "PYTHONPATH=src:<runtime-deps> uv run --offline --no-project --python \"$PYTHON\" python -m pytest tests/live_mode -q",
+    "passed": 45,
+    "output": ".............................................                            [100%]"
+  },
+  "artifacts": {
+    "manifest": "$AMIDST_ARTIFACTS/cx552-20261117/ARTIFACTS_MANIFEST.json",
+    "sha256": "073e569e2d71a0ebbf92580de52684589ae8e7882b20a6401f004769fa90591a",
+    "groups": {
+      "recording": {
+        "file_count": 2058,
+        "total_bytes": 16816049
+      },
+      "diagnosis": {
+        "file_count": 10,
+        "total_bytes": 3259613
+      },
+      "routes": {
+        "file_count": 181,
+        "total_bytes": 3780546
+      },
+      "replay": {
+        "file_count": 43,
+        "total_bytes": 4266079
+      },
+      "paired_replay": {
+        "file_count": 9,
+        "total_bytes": 688637
+      },
+      "latency": {
+        "file_count": 4,
+        "total_bytes": 42353
+      }
+    },
+    "regeneration": "Commands in docs/operations/LIVE_DETECTION_HANDOFF_20261117.md; latency and capture clock not exactly reproducible"
+  },
+  "not_verified": [
+    "human-operated routes",
+    "new scenes or characters",
+    "confirmed identity",
+    "physical safety",
+    "paid advisor",
+    "8785 deployment",
+    "pixel-level occlusion attribution"
+  ],
+  "limitations": [
+    "One paired A4 recording: correct falls 0.737 to 0.705 and wrong-person rises 0.126 to 0.253",
+    "Settings calibrated on this fixed grid and A4/B4; no independent held-out set",
+    "First candidate latency attempt aborted with detached Frame; no usable values, retry retained",
+    "Latency measured on shared GPU, two valid runs per setting; no confidence intervals"
+  ]
+}

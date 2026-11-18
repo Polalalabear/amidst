@@ -23,6 +23,24 @@ const sys = await b.newPage(); sys.on('pageerror', (e) => console.log('[sys err]
 await sys.goto(`${BASE}/?role=system`);
 await sys.waitForFunction('window.__ready === true');
 const op = await b.newPage(); op.on('pageerror', (e) => console.log('[op err]', e.message));
+if (process.env.RAW) await op.evaluateOnNewDocument(() => {
+  // Evaluation capture only. GT stays in this page/log and is never added to the request.
+  window.__jointInfer = [];
+  const original = window.fetch.bind(window);
+  window.fetch = async (url, init) => {
+    const infer = typeof url === 'string' && url.startsWith('/infer');
+    const truth = infer && window.__op ? [window.__op.P0.x, window.__op.P0.y] : null;
+    const clock = () => performance.timeOrigin + performance.now();
+    const tCall = clock();
+    const response = await original(url, init);
+    if (infer) {
+      const j = await response.clone().json();
+      window.__jointInfer.push({ tick: j.tick, t_call: tCall, t_resp: clock(), gt_xy: truth,
+        dets: j.dets, tracking: j.tracking, timing: j.timing_ms, schedule: j.schedule });
+    }
+    return response;
+  };
+});
 await op.goto(`${BASE}/?${query}`);
 await op.waitForFunction('window.__ready === true', { timeout: 60000 });
 const samples = [];
@@ -30,6 +48,14 @@ const tStart = Date.now();
 while (Date.now() - tStart < Number(secs) * 1000) { await sleep(1000); samples.push(usage()); }
 const o = await op.evaluate(() => ({ cfg: __log.config, sent: __log.sent, dropped: __log.dropped, t0: __log.fpsStart, ticks: __log.ticks }));
 const s = await sys.evaluate(() => ({ displays: __log.displays, viol: __log.violations }));
+if (process.env.RAW) {
+  const infer = await op.evaluate(() => window.__jointInfer);
+  const byTick = new Map(infer.map(r => [r.tick, r]));
+  const ticks = o.ticks.filter(r => byTick.has(r.tick));
+  fs.writeFileSync(`${out}/${label}.t1raw.json`, JSON.stringify({ label, query, secs: Number(secs),
+    cfg: o.cfg, t0: o.t0, sent: o.sent, dropped: o.dropped, ticks,
+    infer: ticks.map(r => byTick.get(r.tick)) }));
+}
 if (process.env.SHOT) {
   await sys.screenshot({ path: `${process.env.SHOT}_system.png` });
   await op.screenshot({ path: `${process.env.SHOT}_operator.png` });
