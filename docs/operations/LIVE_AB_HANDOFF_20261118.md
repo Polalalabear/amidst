@@ -252,3 +252,21 @@ ACQUIRING, SEARCHING and NEEDS_PICK contribute UNKNOWN with NOT_TRACKING. They
 stay out of the visible-scored denominator, even if a delayed sample falls
 inside a scoring segment. A reselect frame whose old tracker is still TRACKING
 continues to score that old target until pick.
+
+## v2.1 split wait totals and transitive phase changes (#568)
+
+The crowd simulation records direct player pauses and script pauses separately in
+`pause_player_i` and `pause_script_i`. Their sum remains `pause_total_i`. An actor
+whose clock was delayed by the player, or by an already affected script actor,
+remains marked for the run. Each forced script overlap records both actors'
+marks and direct player pause times. The scorer lists `script` and
+`player_phase_shift` counts and keeps chain events as a subset of phase shifts
+when the source log records a cause.
+
+The original eight role trials still show eleven phase shifts and zero failures
+under C-5. At 78.7 s both C and B are marked, with direct player pause times of
+0.0 and 19.0 s. The explicit zero-player-delay control emits `cause: "script"`.
+The original seed, scenario and collision movement rules were kept for this run.
+LOCAL `local/evidence/cx568-d308-20261118/MANIFEST.json`, SHA-256 `6432c321bd66b39655cfb91712ef3a3a2d70f04dd5205c355673b0f19ea9b021`, 3 files / 19,485 bytes.
+Run the crowd test with `AMIDST_TEST_EVIDENCE` pointing to a new output directory
+and the offline scorer's focused pytest to regenerate the results.

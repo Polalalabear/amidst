@@ -54,6 +54,7 @@ test('C-6 real A4/B4 60s stationary player; unaffected actors match baseline; on
    const s=c.step({},.1),b=baseline.step({},.1);close(s.t_sim,(k+1)*.1,1e-7);
    for(const a of s.actors.filter(x=>!x.is_player)){
     close(a.s_i+a.pause_total_i,s.t_sim,1e-7);
+    close(a.pause_player_i + a.pause_script_i, a.pause_total_i, 1e-7);
     const other=b.actors.find(x=>x.actor_id===a.actor_id);
     if(a.pause_total_i===0&&other.pause_total_i===0&&a.present&&other.present){close(a.x,other.x);close(a.y,other.y);}
    }
@@ -76,7 +77,10 @@ test('script mutual timeout only allows the later-priority script through; logs 
  for(let i=0;i<120;i++)c.step({},.1);
  const s=c.snapshot();assert.equal(s.events.filter(e=>e.kind==='player'&&e.type==='forced_overlap').length,0);
  assert.ok(s.events.some(e=>e.type==='forced_overlap'&&e.chain));
- for(const e of s.events.filter(e=>e.type==='forced_overlap')){assert.equal(e.i,'C');assert.equal(e.chain,true);}
+ for(const e of s.events.filter(e=>e.type==='forced_overlap')){assert.equal(e.i,'C');assert.equal(e.chain,true);
+  assert.equal(e.cause, 'player_phase_shift');
+  assert.equal(e.pause_player_i, 0); // C was delayed by A, not directly by the player.
+  assert.deepEqual(e.tainted, {i: true, j: true});}
 });
 test('C-5 a script conflict without direct player delay remains a failure event', () => {
  const routes = run([
@@ -91,7 +95,7 @@ test('C-5 a script conflict without direct player delay remains a failure event'
   assert.equal(events.some(event => event.type === 'block_wait'), false);
   const forced = events.filter(event => event.type === 'forced_overlap');
   assert.ok(forced.length > 0);
-  assert.ok(forced.every(event => event.kind === 'script' && !event.cause));
+  assert.ok(forced.every(event => event.kind === 'script' && event.cause === 'script' && !event.tainted.i && !event.tainted.j));
  }
 });
 test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clocks and C-7 timing',()=>{
@@ -118,6 +122,7 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
    }
    for(const a of s.actors.filter(a=>!a.is_player)){
     close(a.s_i+a.pause_total_i,s.t_sim,1e-7);
+    close(a.pause_player_i + a.pause_script_i, a.pause_total_i, 1e-7);
     const expected=scriptedPose(r.actors.find(x=>x.actor_id===a.actor_id),a.s_i,r.duration_us/1e6);
     const peer=base.actors.find(x=>x.actor_id===a.actor_id);if(a.pause_total_i===0&&peer.pause_total_i===0&&a.present&&peer.present){close(a.x,peer.x);close(a.y,peer.y);}
     assert.equal(a.present,!!expected);if(expected){close(a.x,expected.x,.001);close(a.y,expected.y,.001);}
@@ -155,6 +160,8 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
  assert.equal(phaseShiftCounterexample.chain, false);
  assert.equal(phaseShiftCounterexample.kind, 'script');
  assert.equal(phaseShiftCounterexample.cause, 'player_phase_shift');
+ assert.equal(phaseShiftCounterexample.tainted.j, true);
+ close(phaseShiftCounterexample.pause_player_j, 19);
  for (const metrics of report) {
   const receipt = JSON.stringify(metrics);
   assert.equal(metrics.player_penetrations, 0, receipt);

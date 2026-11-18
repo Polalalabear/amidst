@@ -222,12 +222,17 @@ def crowd_statistics(a):
     if not finite(radius) or not finite(eps) or radius <= 0 or eps < 0:
         raise ValueError("INVALID_CROWD_CONFIG")
     forced = unique_events(a, "forced_overlap")
-    counts = {"chain": 0, "nonchain": 0, "player": 0, "unknown_chain": 0, "player_phase_shift": 0}
+    counts = {
+        "chain": 0, "nonchain": 0, "player": 0, "unknown_chain": 0,
+        "script": 0, "player_phase_shift": 0,
+    }
     for e in forced:
         if e.get("kind") == "player":
             counts["player"] += 1
-        elif e.get("kind") == "script" and e.get("cause") == "player_phase_shift":
-            counts["player_phase_shift"] += 1
+        elif e.get("kind") == "script" and e.get("cause") in ("script", "player_phase_shift"):
+            counts[e["cause"]] += 1
+            if e["cause"] == "player_phase_shift" and e.get("chain") is True:
+                counts["chain"] += 1
         elif e.get("chain") is True:
             counts["chain"] += 1
         elif e.get("chain") is False:
@@ -318,6 +323,7 @@ def crowd_statistics(a):
         "invalid_forced_pair_samples": invalid_forced,
         "unknown_samples": missing,
         "forced_overlap": counts,
+        "forced_overlap_events": forced,
         "spawn_adjusted": spawn,
         "block_wait_total_s": ended_wait + active_wait,
         "pause_total_i": pauses,

@@ -86,9 +86,13 @@ export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
 }
 
 export function privateTick(snapshot, tick, t_capture, visible) {
+  const scripted = snapshot.actors.filter(actor => !actor.is_player);
+  const pauses = key => Object.fromEntries(scripted.map(actor => [actor.actor_id, actor[key]]));
   return {tick, t_capture, t_sim: snapshot.t_sim,
     actors: snapshot.actors.map(a => ({id: a.actor_id, present: a.present, xy: a.present ? [a.x, a.y] : null, gt_visible: a.present ? visible(a) : []})),
-    pause_total_i: Object.fromEntries(snapshot.actors.filter(a => !a.is_player).map(a => [a.actor_id, a.pause_total_i])),
+    pause_total_i: pauses('pause_total_i'),
+    pause_player_i: pauses('pause_player_i'),
+    pause_script_i: pauses('pause_script_i'),
     block_wait: snapshot.actors.filter(a => a.block_wait > 0).map(a => ({i: a.actor_id, j: 'player', waited_s: a.block_wait})),
     forced_pairs: snapshot.forced_pairs,
   };

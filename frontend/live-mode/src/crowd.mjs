@@ -59,7 +59,7 @@ export function createCrowd(run,{actorId='T',cfg:overrides={},segments=[],auto=f
  const selected=run.actors.find(a=>a.actor_id===actorId);
  if(actorId!==null&&!selected)throw new Error('ACTOR_NOT_IN_RUN');
  const scripts=run.actors.filter(a=>a.actor_id!==actorId).map(actor=>({
-  actor, s_i:0, pause_total_i:0, playerPauseSeconds:0,
+  actor, s_i:0, pause_total_i:0, pause_player_i:0, pause_script_i:0, tainted:false,
   pose:scriptedPose(actor,0,duration), waited_s:0, blocker:null, block_wait:0,
  }));
  const player=selected?{x:selected.waypoints[0].xy[0],y:selected.waypoints[0].xy[1],heading:0,moving:false,running:false}:null;
@@ -76,7 +76,7 @@ export function createCrowd(run,{actorId='T',cfg:overrides={},segments=[],auto=f
   }
  }
  function snapshot(){
-  const actors=scripts.map(s=>({actor_id:s.actor.actor_id,variant:s.actor.actor_id,is_player:false,present:!!s.pose,x:s.pose?.x??null,y:s.pose?.y??null,heading:s.pose?.heading??0,speed:s.speed||0,s_i:s.s_i,pause_total_i:s.pause_total_i,block_wait:s.block_wait,blocked_by:s.blocker}));
+  const actors=scripts.map(s=>({actor_id:s.actor.actor_id,variant:s.actor.actor_id,is_player:false,present:!!s.pose,x:s.pose?.x??null,y:s.pose?.y??null,heading:s.pose?.heading??0,speed:s.speed||0,s_i:s.s_i,pause_total_i:s.pause_total_i,pause_player_i:s.pause_player_i,pause_script_i:s.pause_script_i,tainted:s.tainted,block_wait:s.block_wait,blocked_by:s.blocker}));
   if(player)actors.unshift({actor_id:actorId,variant:actorId,is_player:true,present:playerPresent,...player,speed:player.speed||0});
   return copy({tick,t_sim,actors,events,spawn_adjusted,forced_pairs:[...passes.values()].map(p=>[p.i,p.j]),config:cfg});
  }
@@ -90,16 +90,15 @@ export function createCrowd(run,{actorId='T',cfg:overrides={},segments=[],auto=f
   for(const s of scripts)entities.push({id:s.actor.actor_id,is_player:false,from:s.pose,candidates:[scriptedPose(s.actor,s.s_i+dt,duration),s.pose]});
   // Resolve first: a timer alone must not manufacture a pass when the pair is no longer blocked.
   let resolved=resolveMoves(entities,cfg,new Set(passes.keys()));
+  const newForces = [];
   for(let round=0;round<scripts.length;round++){
    let added=false;
    for(const s of scripts){
     const id=s.actor.actor_id,why=resolved.blocked[id],peer=scripts.find(p=>p.actor.actor_id===why);
     if(!peer||resolved.indices[id]===0||s.blocker!==why||s.waited_s<cfg.wait_max_mutual_s-1e-9||ORDER.indexOf(id)<ORDER.indexOf(why))continue;
     const pair=key(id,why);if(passes.has(pair))continue;
-    const chain=!!player&&resolved.blocked[why]===actorId;
-    const e={type:'forced_overlap',tick:tick+1,t_sim:t_sim+dt,i:id,j:why,kind:'script',waited_s:s.waited_s,dist_m:distance(s.pose,peer.pose),chain};
-    // A direct player wait leaves a persistent delay in this actor's script clock.
-    if (s.playerPauseSeconds > 0 || peer.playerPauseSeconds > 0) e.cause = 'player_phase_shift';
+    const e={type:'forced_overlap',tick:tick+1,t_sim:t_sim+dt,i:id,j:why,kind:'script',waited_s:s.waited_s,dist_m:distance(s.pose,peer.pose)};
+    newForces.push({event:e, actor:s, peer});
     events.push(e);passes.set(pair,{...e,entered:false});added=true;
    }
    if(!added)break;
@@ -116,10 +115,36 @@ export function createCrowd(run,{actorId='T',cfg:overrides={},segments=[],auto=f
    const waitedOnPlayer=rejected&&player&&why===actorId;
    if (waitedOnPlayer) {
     s.block_wait += dt;
-    s.playerPauseSeconds += dt;
+    s.pause_player_i += dt;
+    s.tainted = true;
    }
-   else if(s.block_wait){events.push({type:'block_wait',tick:tick+1,t_sim:t_sim+dt,i:id,j:'player',waited_s:s.block_wait});s.block_wait=0;}
+   else {
+    if (rejected) s.pause_script_i += dt;
+    if (s.block_wait) {
+     events.push({type:'block_wait',tick:tick+1,t_sim:t_sim+dt,i:id,j:'player',waited_s:s.block_wait});
+     s.block_wait = 0;
+    }
+   }
    s.blocker=rejected?why:null;s.pose=resolved.poses[id];
+  }
+  // Carry phase changes through actual waits in this step, independent of actor order.
+  for (let round = 0; round < scripts.length; round++) {
+   let changed = false;
+   for (const script of scripts) {
+    const blocker = scripts.find(peer => peer.actor.actor_id === script.blocker);
+    if (!script.tainted && blocker?.tainted) {
+     script.tainted = true;
+     changed = true;
+    }
+   }
+   if (!changed) break;
+  }
+  for (const {event, actor, peer} of newForces) {
+   event.chain = !!player && peer.blocker === actorId;
+   event.tainted = {i: actor.tainted, j: peer.tainted};
+   event.cause = actor.tainted || peer.tainted ? 'player_phase_shift' : 'script';
+   event.pause_player_i = actor.pause_player_i;
+   event.pause_player_j = peer.pause_player_i;
   }
   for(const [pair,p] of passes){
    const a=scripts.find(s=>s.actor.actor_id===p.i)?.pose,b=scripts.find(s=>s.actor.actor_id===p.j)?.pose;
