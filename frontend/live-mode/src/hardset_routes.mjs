@@ -13,113 +13,46 @@ export const HARDSET_ROUTES = Object.freeze({
     "seconds": 3
    },
    {
-    "mode": "hold_until",
-    "t_s": 6
-   },
-   {
     "mode": "walk",
     "to_xy": [
-     -3.35,
-     -0.25
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     0.35,
-     1.1
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     7.0,
-     1.1
-    ]
-   },
-   {
-    "mode": "hold_until",
-    "t_s": 21.5
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     -0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     9.0,
-     -3.0
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     9.75,
-     -4.5
+     -13.0,
+     -1.0
     ]
    },
    {
     "mode": "hold",
-    "seconds": 20
+    "seconds": 2
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     9.0,
-     -3.0
+     -13.0,
+     3.0
     ]
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     8.0,
-     -0.6
+     -12.75,
+     6.0
     ]
    },
    {
-    "mode": "run",
+    "mode": "hold_until",
+    "t_s": 24.5
+   },
+   {
+    "mode": "walk",
     "to_xy": [
-     8.0,
-     0.6
+     -10.5,
+     7.8
     ]
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     9.5,
-     1.1
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     13.0,
-     1.1
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     14.0,
-     1.1
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     16.4,
-     0.8
+     -9.0,
+     7.8
     ]
    },
    {
@@ -141,13 +74,20 @@ export const HARDSET_ROUTES = Object.freeze({
    },
    {
     "mode": "hold_until",
-    "t_s": 4.5
+    "t_s": 11.0
    },
    {
     "mode": "walk",
     "to_xy": [
-     -8.5,
-     3.1
+     -9.0,
+     7.8
+    ]
+   },
+   {
+    "mode": "walk",
+    "to_xy": [
+     -10.5,
+     7.8
     ]
    },
    {
@@ -159,34 +99,20 @@ export const HARDSET_ROUTES = Object.freeze({
    },
    {
     "mode": "hold_until",
-    "t_s": 27.0
+    "t_s": 30.0
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     -11.5,
+     -13.0,
      3.0
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     -10.0,
-     -0.4
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     -3.35,
-     -0.25
     ]
    },
    {
     "mode": "walk",
     "to_xy": [
-     0.35,
-     1.1
+     -13.0,
+     -1.0
     ]
    },
    {
@@ -207,102 +133,60 @@ export const HARDSET_ROUTES = Object.freeze({
     "seconds": 3
    },
    {
-    "mode": "walk",
+    "mode": "run",
     "to_xy": [
-     8.0,
-     0.6
+     0.35,
+     1.1
     ]
    },
    {
-    "mode": "walk",
+    "mode": "run",
     "to_xy": [
-     8.0,
-     -0.6
+     -3.35,
+     -0.25
     ]
    },
    {
-    "mode": "walk",
+    "mode": "run",
     "to_xy": [
-     8.0,
-     -2.0
-    ]
-   },
-   {
-    "mode": "hold_until",
-    "t_s": 18.0
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     -0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     5.0,
-     1.0
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     3.4,
-     0.5
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     2.0,
-     -1.35
+     -13.0,
+     -1.0
     ]
    },
    {
     "mode": "hold",
-    "seconds": 15
+    "seconds": 2
    },
    {
     "mode": "walk",
     "to_xy": [
-     3.4,
-     0.5
+     -13.0,
+     3.0
     ]
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     8.0,
-     1.25
+     -12.75,
+     6.0
     ]
    },
    {
-    "mode": "run",
+    "mode": "hold_until",
+    "t_s": 30.0
+   },
+   {
+    "mode": "walk",
     "to_xy": [
-     11.4,
-     1.3
+     -10.5,
+     7.8
     ]
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     14.1,
-     1.1
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     15.5,
-     1.1
+     -9.0,
+     7.8
     ]
    },
    {
@@ -323,75 +207,62 @@ export const HARDSET_ROUTES = Object.freeze({
     "seconds": 3
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     -3.35,
-     -0.25
+     -10.8,
+     -1.5
     ]
    },
    {
-    "mode": "run",
+    "mode": "walk",
     "to_xy": [
-     0.35,
-     0.6
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     8.0,
-     0.6
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     8.0,
-     -0.6
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     8.0,
-     -1.6
+     -11.0,
+     -4.0
     ]
    },
    {
     "mode": "hold_until",
-    "t_s": 14.0
+    "t_s": 11.5
    },
    {
     "mode": "walk",
     "to_xy": [
-     8.0,
-     -0.6
+     -10.8,
+     -1.5
     ]
    },
    {
     "mode": "walk",
     "to_xy": [
-     8.0,
-     0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     9.5,
-     1.1
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     11.0,
-     1.1
+     -9.6,
+     0.7
     ]
    },
    {
     "mode": "hold",
-    "seconds": 2
+    "seconds": 1.5
+   },
+   {
+    "mode": "walk",
+    "to_xy": [
+     -11.0,
+     1.6
+    ]
+   },
+   {
+    "mode": "hold",
+    "seconds": 1.5
+   },
+   {
+    "mode": "walk",
+    "to_xy": [
+     -10.6,
+     4.6
+    ]
+   },
+   {
+    "mode": "hold",
+    "seconds": 3
    }
   ]
  },
@@ -407,61 +278,51 @@ export const HARDSET_ROUTES = Object.freeze({
     "seconds": 3
    },
    {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     -0.6
-    ]
-   },
-   {
-    "mode": "walk",
-    "to_xy": [
-     8.0,
-     -2.0
-    ]
-   },
-   {
-    "mode": "hold_until",
-    "t_s": 14.0
-   },
-   {
     "mode": "run",
     "to_xy": [
-     8.0,
-     0.6
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     11.4,
-     1.3
-    ]
-   },
-   {
-    "mode": "run",
-    "to_xy": [
-     15.0,
+     0.35,
      1.1
     ]
    },
    {
     "mode": "run",
     "to_xy": [
-     16.4,
-     0.8
+     -3.35,
+     -0.25
+    ]
+   },
+   {
+    "mode": "run",
+    "to_xy": [
+     -10.6,
+     4.6
     ]
    },
    {
     "mode": "hold",
-    "seconds": 6
+    "seconds": 3
+   },
+   {
+    "mode": "walk",
+    "to_xy": [
+     -11.0,
+     1.6
+    ]
+   },
+   {
+    "mode": "hold",
+    "seconds": 2
+   },
+   {
+    "mode": "walk",
+    "to_xy": [
+     -9.6,
+     0.7
+    ]
+   },
+   {
+    "mode": "hold",
+    "seconds": 5
    }
   ]
  },
