@@ -1,6 +1,6 @@
 # 即時模式重新取得（relock）契約 v1：分段門檻
 
-- 日期：2026-11-18。狀態：**v1 草案，等 Codex 實作與量測**（尚無程式碼、無實測數字）。
+- 日期：2026-11-18。狀態：**v1 草案，等 Codex 實作與量測**（尚無程式碼、無實測數字）。**範圍追加（D302 第 3 點，2026-11-18）**：不花錢備援（LLM_DECISION_V1 §0F.4 第 1 項的 T2 免費部分）併入本契約：失聯時主動接回（§2，本契約原本就是）、候選名單與連續性改用速度預測（§2.5、§3.4）、用重播驗收（§4.7、R-11～R-15）。同一個 tracker 改動、同一個 Codex 實作 issue。
 - 依據：[#93](https://github.com/Polalalabear/amidst/issues/93) 的 D254-3（協調者建議「分段門檻」）、D282（使用者決定採用；#559 先合併，重鎖另案）；issue [#585](https://github.com/Polalalabear/amidst/issues/585)、[#552](https://github.com/Polalalabear/amidst/issues/552)（排程，ENTRY 重鎖轉本契約）。
 - 實作：Codex（`owner:codex`，分支 `codex/feat-live-relock`）。規格：Claude（`claude/feat-live-relock`）。
 - 相關文件：[LIVE_MODE_AB_V1](LIVE_MODE_AB_V1.md)（§5.4 `reselect`、§7.1 評分、§9.3 子 issue）、[LIVE_MODE_LLM_DECISION_V1](../design/LIVE_MODE_LLM_DECISION_V1.md)（§0A.5 第 4、5 項：外觀特徵、失聯時主動重新鎖定）、[#559 的 D273 報告](https://github.com/Polalalabear/amidst/blob/6843d8f36919ae29e2f0040dc8c2e38b8a041627/docs/evaluation/LIVE_DETECTION_SCHEDULE_D273_20261118.md)（@`6843d8f3`）。
@@ -12,7 +12,9 @@
 
 目標：(1) 短失聯在 gate 內自動接回（現行行為，加上安全條件）；(2) 失聯久或候選在 gate 外時，放寬搜尋範圍，但**接回需要外觀確認**；(3) 多個候選都像目標時**不自動選**，標 `NEEDS_CONFIRM`；(4) **不設硬性的失聯時間上限**（D254-3）；(5) 輸入只能是鏡頭觀測。
 
-不在範圍：身分判定（接回只代表「外觀與連續性最符合的假設」，身分仍未確認）、實體路徑／碰撞、新增 LLM 呼叫（既有的 #563 開關與 `decider` 保持原樣，見 §3.3）。
+(6) 追蹤落後目標時，不讓候選名單或連續性判斷把真正的目標排除在外（速度預測，§2.5、§3.4）；(7) 全部用重播驗收，**0 USD、不呼叫任何付費 API**。
+
+不在範圍：身分判定（接回只代表「外觀與連續性最符合的假設」，身分仍未確認）、實體路徑／碰撞、新增 LLM 呼叫與任何付費測試（既有的 #563 開關與 `decider` 的提問、提示詞、ApiGuard 保持原樣，見 §3.3；「目標不在名單」的真模型測試是 #591，不在本契約）。
 
 ## 1. 輸入與 GT 隔離（不可變弱）
 
@@ -88,6 +90,15 @@ GT 只在**所有重鎖運算完成之後**的離線評分用（`frontend/live-m
 - **距離**：特徵向量的 L2 距離（各維先以量測得到的尺度正規化，尺度也由 §4.4 輸出）。
 - 不得用顏色名稱對角色的對照表；`d_app` 只比較「這個候選」與「系統自己的參考值」。
 
+### 2.5 速度預測（D302，LLM_DECISION_V1 §0F.2 第 2a 項）
+
+問題：現行以「上一個估計位置 `est`（凍結）」為圓心；追蹤器落後目標時（A4 實例落後約 3.5 m），真正的目標不在圓內。做法：圓心多一個**預測位置**。
+
+- `pred(t) = est + v · min(unseen_s, pred_horizon_s)`；`v` 是目標自己的人物軌跡速度（`people.py` `PeopleTracker` 對該 `pid` 的 `v`，已有上限 `vmax = 2.5 m/s`），**只由鏡頭投影的估計算出**，不用 GT。目標軌跡不存在或 `v` 為零向量時，`pred = est`。
+- **參考點集合 `{est, pred}`**：任何「候選到圓心的距離」改為 `min(dist(c, est), dist(c, pred))`。這適用於 §2.3 的 `d`（gate 內／外判斷與 `R(u)`）與 §3.4 的候選名單。**只放寬、不收緊**：原本 `est` 周圍的候選一律還在。
+- `pred_horizon_s`：預設 **UNKNOWN，由 §4.7 量測**（掃 0、1、2、3 s，0 = 關閉）；`PeopleTracker.keep_s = 2.0 s` 是現有常數，不代表量測值。
+- 設定旗標 `predict`（預設 `false`）：§4.7 驗收（R-12～R-14）通過才把預設改為 `true`，並在 PR 記錄；沒通過就保持關閉並報告，**不勉強打開**（避免 R-9 的既有行為變動）。
+
 ## 3. 事件與介面
 
 ### 3.1 事件（`tracking.events[]` 的形狀沿用 `{tick, type, cam, detail}`）
@@ -113,6 +124,13 @@ GT 只在**所有重鎖運算完成之後**的離線評分用（`frontend/live-m
 1. 自動：候選集變得唯一（§2.3 倒數第三列）。
 2. 使用者在 B 選其中一個候選：走 AB §5.4 的既有 `reselect` 路徑，**不新增端點**（本契約不新增任何 HTTP 端點）。
 3. 既有的 LLM 裁決（#563 開關，預設關；開時只在 `NEEDS_CONFIRM` 候選上做影像裁決）：結果只算「外觀最符合的假設」，`detail.by='llm_hypothesis'`，身分仍未確認。新增 LLM 呼叫須另外核准（ApiGuard、dry-run、使用者核准金額）；本契約的驗收**不**依賴 LLM。
+
+### 3.4 候選名單（`LiveDecider` 的提問池，D302）
+
+- 現行（`src/amidst/live_mode/advisor.py` 的 `LiveDecider`）：問題池是「距上一輪估計 `prev_est` 在 `gate_m` 內的人」，且至少 `lost_min_candidates`（預設 2）個才發問。
+- 新：池 = 距參考點集合 `{est, pred}`（§2.5）任一點在 `gate_m` 內的人，依 `min` 距離由近到遠，**仍最多 `max_candidates`（預設 4）個**，仍至少 `lost_min_candidates` 個才發問；提問、提示詞、圖片、ApiGuard、「都不是」的回答語意**全部不變**。
+- 影響範圍只在名單怎麼挑：不新增 LLM 呼叫，不新增送出的欄位（仍然是兩張 JPEG 與候選數，無座標、無角色）。
+- `predict = false` 時名單與現行逐 tick 相同。
 
 ## 4. 門檻秒數怎麼量（不憑感覺填數字）
 
@@ -163,6 +181,19 @@ node frontend/live-mode/measure/t1_analyze.mjs <上一步輸出資料夾下的�
 
 `replay_relock.py` 是新檔，輸入慣例沿用 `scripts/live_mode/replay_schedule.py`（只讀 `bbox`／`score`／`color`／`red_ratio`／`blue_ratio` 與 capture 時鐘；其餘欄位不傳進 tracker）。評分指令的確切參數：UNKNOWN，Codex 在 PR 的「Commands run」寫出實際值。輸出必須含 §4.2～§4.4 的表與 `N`，並把每份輸入的 SHA-256 記進報告。
 
+### 4.7 速度預測與候選名單的重播驗收（不花錢）
+
+- 資料：LOCAL 已錄好的即時模式紀錄（`local/evidence/live-mode-*`，LLM_DECISION_V1 §0F.4 第 2 項已指明；確切子資料夾 UNKNOWN，Codex 列清單與 SHA-256）與 §4.1 的固定 RGB。
+- 重播器：`scripts/live_mode/replay_advisor.py`（已存在）以**替身回答**重播裁決時刻，不呼叫任何付費 API、不需金鑰；替身規則沿用 #544 修好後的版本（LLM_DECISION_V1 §0F.1 更正）。GT 只在重播之後的評分用。
+- **名單遺漏率** `pool_miss`：在每個發問時刻，評分端 GT 的目標在某鏡頭看得到、且系統有一個投影在目標 1.5 m 內的紅衣候選，但該候選不在名單內，算一次遺漏。報告：遺漏次數、發問時刻總數、遺漏率；`predict` 關／開並列，`pred_horizon_s ∈ {0,1,2,3}` 掃描。
+- **取值規則**：取使 `pool_miss` 最低、且滿足 R-12～R-14 的最小 `pred_horizon_s`；`pool_miss` 沒有任何下降就保持 `predict=false`。樣本不足（發問時刻 < 20，或遺漏 < 3）標 `UNKNOWN`，不外推。
+- **給 #591 的副產品**：輸出一份「目標不在名單」時刻清單（`predict` 關時），含每筆的 session／tick／鏡頭，並數出題數；這是 D302 第 2 點（sol6.1、上限 USD 0.2）要的題數。本契約**不**執行該付費測試。
+- 指令（Codex 在 PR 補完整參數）：
+
+```bash
+python scripts/live_mode/replay_advisor.py <參數 UNKNOWN：照該腳本現有 --help，加 --predict-horizon 0,1,2,3> --out <新的 LOCAL 輸出資料夾>
+```
+
 ## 5. 與 #559 排程的介面
 
 #559（`scheduler.py`，D273 的「近 2 秒內任一像素紅衣候選鏡頭保留」）**先合併，不為本契約修改**（D282）。介面只有一條：
@@ -187,6 +218,11 @@ node frontend/live-mode/measure/t1_analyze.mjs <上一步輸出資料夾下的�
 | R-8 | **退回行為**（§4.5）：`relock` 設定中各量測值為 `null` 時，行為符合表中的退回，測試覆蓋三種 `null` |
 | R-9 | **既有行為不變**：既有 `tests/live_mode` 測試全數通過；`ACQUIRE`、`SWITCH`、`TARGET_OUT_OF_VIEW`、`LOST`（`lost_after`）事件在既有合成案例下與修改前逐 tick 相同；`git diff --check`、ruff、architecture guard 通過 |
 | R-10 | **量測可重現**：§4.2～§4.4 的表由 `replay_relock.py` 產生，輸出含 `N`、輸入 SHA-256、指令；重跑得到相同的表（確定性，不含隨機） |
+| R-11 | **預測圓心（單元，合成）**：目標以 1.2 m/s 走、投影落後 3.5 m（A4 實例量級）時，`predict=true` 的候選名單含真正目標，`predict=false` 不含；`unseen_s > pred_horizon_s` 後預測位置不再外推（停在 `horizon` 處）；目標軌跡不存在時 `pred = est` |
+| R-12 | **只放寬**：任何輸入下，`predict=true` 的名單是 `predict=false` 名單的超集（受 `max_candidates` 截斷前）；`predict=false` 時名單、事件與現行逐 tick 相同（回歸測試） |
+| R-13 | **重播不退步**：§4.7 的重播中，`pool_miss`（`predict` 開）≤ 關；跟錯 tick 比例與錯接數不高於關（R-5 同標準）；發問次數增加量在報告列出，且每題候選數 ≤ `max_candidates` |
+| R-14 | **0 USD 且隔離**：重播不呼叫付費 API、不讀金鑰；`PeopleTracker`、`LiveDecider` 新程式不收 GT 欄位（同 R-1 的塞欄位測試）；送出的訊息欄位與現行相同（測試比對鍵集合） |
+| R-15 | **清單可交接**：重播輸出「目標不在名單」時刻清單與題數（§4.7），含輸入 SHA-256 與指令，重跑相同（確定性） |
 
 ## 7. 檔案範圍、owner 與先後順序
 
@@ -195,18 +231,19 @@ node frontend/live-mode/measure/t1_analyze.mjs <上一步輸出資料夾下的�
 | 檔案 | owner | 備註 |
 | --- | --- | --- |
 | `src/amidst/live_mode/tracker.py` | **Codex**（本契約實作期間；Claude 不改） | 先前「Claude 正在改 tracker.py」的限制在此解除，Codex 可以改 |
+| `src/amidst/live_mode/advisor.py`（**只改** `LiveDecider` 挑名單的部分，§3.4）、`src/amidst/live_mode/people.py`（只加公開的預測讀取；不改 `group()` 與其他邏輯） | Codex | D302 追加；#559 沒改這兩個檔（D273 報告），無衝突。提問／提示詞／ApiGuard 不動 |
 | `src/amidst/live_mode/color.py`（新增外觀特徵純函式，如需要） | Codex | 不改 `judge` 的既有回傳 |
 | 新增外觀模組（如 `src/amidst/live_mode/appearance.py`） | Codex | 純函式，無 I/O、無網路 |
 | `scripts/live_mode/replay_relock.py`、`tests/live_mode/test_relock*.py` | Codex | 新檔 |
 | `src/amidst/live_mode/server.py`（把 `state`／`lost_phase`／`unseen_s`／`confirm_candidates` 帶進 `tracking`） | Codex，**R2，等 #559 合併** | #559 已改 `server.py`，避免衝突 |
 | `frontend/live-mode/src/protocol.mjs`（nested 白名單加 `NEEDS_CONFIRM`／`confirm_candidates`／`lost_phase`／`unseen_s`／`REACQUIRE.detail`） | #571／#572 的範圍 | 本契約只規定欄位內容 |
 | `src/amidst/live_mode/scheduler.py` | **不改**（#559 的檔） | §5 |
-| `src/amidst/live_mode/people.py`、`advisor.py`、`llm_switch.py`、scenario、LOCAL 資產 | 不改 | 可唯讀引用 `people.py` 的分群 |
+| `llm_switch.py`、`advisor.py` 的提問／提示詞／ApiGuard 部分、`people.py` 的 `group()`、scenario、LOCAL 資產 | 不改 | 可唯讀引用 `people.py` 的分群 |
 
 ### 7.2 先後順序
 
 1. **#559 先合併**（D282；Codex 先解 #563 衝突，轉 Ready，Claude 審查，使用者合併）。#552 的偵測率與排程驗收維持原結論；ENTRY 重鎖項轉本契約，不算排程失敗。
-2. **R1（`ready`，不依賴 #559）**：純 `Tracker` 狀態機＋外觀特徵＋`replay_relock.py` 與 §4 量測＋R-1、R-2、R-3、R-5、R-7、R-8、R-9、R-10，及 R-4／R-6 的 `all` 排程部分。理由：量測用的是固定 RGB 的 `all` 錄製，不經過 #559 的排程。
+2. **R1（`ready`，不依賴 #559）**：純 `Tracker` 狀態機＋外觀特徵＋速度預測與候選名單（§2.5、§3.4）＋`replay_relock.py` 與 §4 量測（含 §4.7 重播）＋R-1、R-2、R-3、R-5、R-7、R-8、R-9、R-10、R-11～R-15，及 R-4／R-6 的 `all` 排程部分。理由：量測用的是固定 RGB 的 `all` 錄製，不經過 #559 的排程。
 3. **R2（`blocked`：#559 合併、R1 完成）**：`server.py` 把新欄位帶進 `tracking`；R-4／R-6 用 #559 的 `adaptive` 排程重播；ENTRY 結果回貼 #552。
 4. **#571（後台 `/track/*`，`blocked` 於 #559）**：與 R1 可平行；#571 在 R2 前遇到未知 `state` 一律當失聯處理（不崩潰），R2 合併後處理 `confirm_candidates` 與 `reselect`。
 5. **#572（B 的 HUD 與候選疊圖）**：在 #571 與 R2 之後顯示 `NEEDS_CONFIRM` 的候選；在此之前 HUD 把 `NEEDS_CONFIRM` 顯示成「待確認／失聯」即可。
@@ -214,6 +251,9 @@ node frontend/live-mode/measure/t1_analyze.mjs <上一步輸出資料夾下的�
 7. 單一 feature 一個 PR（D216、D248）：`codex/feat-live-relock` 同一個 Draft PR，R1、R2 分階段 commit；Claude 在 R2 完成後審查。
 
 ## 8. 風險與未驗證
+
+- **速度預測可能讓名單變大、問題變多，或讓同色旁人搶走**（範圍越大越容易，LLM_DECISION_V1 §0F.3 D244 限制）；所以預設關、驗收通過才開（§2.5、R-13）。速度只來自投影估計，抖動大時 `pred` 會偏，`vmax` 夾住上限。
+- 「目標不在名單時真模型會不會答『都不是』」不在本契約，仍待 #591（sol6.1，上限 USD 0.2）。
 
 - **本版沒有任何實測數字**。§4 的門檻、速度、`tau_app` 都是待量測；若 `gap ≤ 0`（外觀特徵分不開兩個紅衣人），外觀自動接回等於關閉，所有長失聯接回都要人確認，展示上會出現較多「待確認」，這是誠實的結果，不是失敗。
 - **樣本小**：固定 RGB 只有 A4／B4 各一組，ENTRY 案例只有一個；`N` 小時結論標 `UNKNOWN`，不外推到其他場景。
@@ -225,4 +265,4 @@ node frontend/live-mode/measure/t1_analyze.mjs <上一步輸出資料夾下的�
 
 ## 9. 實際產出 / Actual output
 
-見 PR 描述。本文件為規格，無程式碼、無新的實測數字；§0 與 §4.1 的數字全部取自 D273 報告（@`6843d8f3`）與 #568 留言，未重新執行。
+見 PR 描述。D302 追加的 §2.5、§3.4、§4.7 同樣沒有實測；`advisor.py` 的現行名單規則取自 main 的程式讀取（未執行）。本文件為規格，無程式碼、無新的實測數字；§0 與 §4.1 的數字全部取自 D273 報告（@`6843d8f3`）與 #568 留言，未重新執行。
