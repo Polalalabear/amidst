@@ -10,10 +10,12 @@ export async function makePerson(kind, world, colorName = 'red', variant = 'T') 
     world.characterGltf ||= await makeLoader().loadAsync('/data/character.glb');
     const ch = makeCharacter(world.characterGltf, variant);
     world.scene.add(ch.object);
+    noFog(ch.object);
     return Object.assign(ch, { kind, setPose: ch.setPose, setVisible: ch.setVisible });
   }
   const o = buildCapsulePerson(c);
   world.root.add(o);
+  noFog(o);
   return {
     kind, object: o, tris: countTris(o),
     setPose(x, y, h) { o.position.set(x, y, 0); o.rotation.z = h; },
@@ -21,6 +23,8 @@ export async function makePerson(kind, world, colorName = 'red', variant = 'T') 
     setSpeed() {}, update() {},
   };
 }
+// #602: the exterior backdrop sets scene.fog; people stay un-hazed so detector input on them is unchanged.
+function noFog(o) { o.traverse((m) => { for (const x of [].concat(m.material || [])) if (x.fog) { x.fog = false; x.needsUpdate = true; } }); }
 function countTris(o) {
   let n = 0;
   o.traverse((m) => { if (m.isMesh) n += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3; });
