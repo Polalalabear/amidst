@@ -9,6 +9,18 @@ const runs = JSON.parse(fs.readFileSync(source)).runs.filter(r=>['A4-1-v2-4actor
 const actor=(id,points)=>({actor_id:id,waypoints:points.map(([t,x,y])=>({t_us:t*1e6,xy:[x,y]}))});
 const run=(actors,duration=100)=>({run_id:'fixture',duration_us:duration*1e6,actors});
 const close=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
+const checkedResolve = (entities, cfg, ignored) => {
+ for (const entity of entities) assert.deepEqual(entity.candidates.at(-1), entity.from, entity.id);
+ return resolveMoves(entities, cfg, ignored);
+};
+const checkPhase = (snap, dt) => {
+ for (const actor of snap.actors.filter(a => !a.is_player)) {
+  assert.equal(actor.tainted, actor.pause_total_i > 0, JSON.stringify({tick: snap.tick, actor}));
+ }
+ for (const event of snap.events.filter(e => e.type === 'forced_overlap' && e.tick === snap.tick)) {
+  assert.ok(Math.abs(event.phase_offset_s) >= dt / 2, JSON.stringify(event));
+ }
+};
 
 test('defaults have no timeout for player; baseline scripts validate for all five role selections',()=>{
  assert.equal('wait_max_player_s' in DEFAULT_CROWD_CONFIG,false);
@@ -107,12 +119,15 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
  const report=[];
  let phaseShiftCounterexample;
  for(const r of runs)for(const id of ['T','A','B','C']){
-  const c=createCrowd(r,{actorId:id}),baseline=createCrowd(r,{actorId:null});let raw=0,penetrations=0,total=0,separated=0,excluded=0,compute=0;
+  const c=createCrowd(r,{actorId:id,resolve:checkedResolve}),baseline=createCrowd(r,{actorId:null,resolve:checkedResolve});
+  let raw=0,penetrations=0,total=0,separated=0,excluded=0,compute=0,rawTotal=0,rawSeparated=0;
   for(let k=0;k<1000;k++){
    const before=c.snapshot(),p=before.actors.find(a=>a.is_player),others=before.actors.filter(a=>!a.is_player&&a.present);
    const nearest=others.sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
    let keys={};if(k%80<55&&nearest){keys={w:nearest.y>p.y,s:nearest.y<p.y,d:nearest.x>p.x,a:nearest.x<p.x,shift:k%3===0};}else keys={w:random()>.5,s:random()>.5,a:random()>.5,d:random()>.5};
    const start=performance.now(),s=c.step(keys,.1);compute+=performance.now()-start;const base=baseline.step({},.1);
+   checkPhase(s, .1);
+   checkPhase(base, .1);
    if (r.run_id === 'A4-1-v2-4actor' && id === 'T' && s.tick === 787) {
     phaseShiftCounterexample = s.events.find(event => event.type === 'forced_overlap'
       && event.tick === 787 && event.i === 'C' && event.j === 'B');
@@ -135,17 +150,35 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
    for(let i=0;i<visible.length;i++)for(let j=i+1;j<visible.length;j++){
     const a=visible[i],b=visible[j],d=Math.hypot(a.x-b.x,a.y-b.y),forced=s.forced_pairs.some(pair=>pair.includes(a.actor_id)&&pair.includes(b.actor_id));
     if((a.is_player||b.is_player)&&d<.58){raw++;if(!forced)penetrations++;}
+    rawTotal++;if(d>=.58)rawSeparated++;
     if(forced){excluded++;continue;}total++;if(d>=.58)separated++;
    }
   }
   const s=c.snapshot(),forced=s.events.filter(e=>e.type==='forced_overlap');
+  const ended = s.events.filter(e => e.type === 'pass_end');
+  assert.equal(ended.length, forced.length, JSON.stringify(s.events));
+  const active = new Set();
+  for (const event of s.events) {
+   const pair = [event.i, event.j].sort().join('|');
+   if (event.type === 'forced_overlap') active.add(pair);
+   if (event.type === 'pass_end') {
+    assert.ok(active.delete(pair), JSON.stringify(event));
+    assert.ok(event.duration_s <= s.config.pass_max_s + .1, JSON.stringify(event));
+   }
+  }
+  assert.equal(active.size, 0);
   const metrics = {
    run: r.run_id,
    actor: id,
    raw_player_penetrations: raw,
    player_penetrations: penetrations,
    separation: separated / total,
+   raw_separation: rawSeparated / rawTotal,
+   pair_samples: rawTotal,
+   nonseparated_excluding_passes: total - separated,
    excluded_pairs: excluded,
+   exempt_steps: ended.reduce((sum, e) => sum + e.exempt_steps, 0),
+   pass_ends: ended,
    baseline_forced_overlap: baseline.snapshot().events.filter(e => e.type === 'forced_overlap').length,
    forced_player_phase_shift: forced.filter(e => e.kind === 'script' && e.cause === 'player_phase_shift').length,
    forced_script_other: forced.filter(e => e.kind === 'script' && e.cause !== 'player_phase_shift').length,
@@ -210,3 +243,116 @@ test('an exempt script pair still checks collisions with a third actor', () => {
  assert.equal(result.blocked.C, 'B');
  close(result.poses.C.x, -.7);
 });
+
+const passFixture = (path = [[0, 0, 0], [100, 0, 0]], player = false) => run([
+ ...(player ? [actor('T', [[0, 0, 3], [100, 0, 3]])] : []),
+ actor('A', path),
+ actor('C', [[0, -2, 0], [100, 98, 0]]),
+]);
+
+test('a completed script crossing emits separated before the time cap', () => {
+ const crowd = createCrowd(passFixture(), {actorId: null});
+ for (let i = 0; i < 80; i++) crowd.step({}, .1);
+ const end = crowd.snapshot().events.find(e => e.type === 'pass_end');
+ assert.equal(end.reason, 'separated');
+ assert.ok(end.duration_s > 0 && end.duration_s < 3);
+ assert.ok(end.exempt_steps > 0);
+});
+
+test('a pass ends as receded when the second resolution moves apart before entry', () => {
+ const crowd = createCrowd(passFixture(), {actorId: null, resolve(entities, cfg, ignored) {
+  const result = resolveMoves(entities, cfg, ignored);
+  if (ignored.has('A|C')) result.poses.C.x = entities.find(e => e.id === 'C').from.x - .2;
+  return result;
+ }});
+ for (let i = 0; i < 50; i++) crowd.step({}, .1);
+ const end = crowd.snapshot().events.find(e => e.type === 'pass_end');
+ assert.equal(end.reason, 'receded');
+ assert.equal(end.exempt_steps, 1);
+});
+
+test('a same-direction overlap times out, rechecks the pair and can start a second pass', () => {
+ const path = [[0, 0, 0], [4.5, 0, 0], [8.3, 3.8, 0], [100, 3.8, 0]];
+ const crowd = createCrowd(passFixture(path), {actorId: null});
+ let timeout;
+ for (let i = 0; i < 125; i++) {
+  const snap = crowd.step({}, .1);
+  const last = snap.events.at(-1);
+  if (last?.type === 'pass_end' && last.reason === 'timeout' && !timeout) {
+   timeout = last;
+   assert.equal(snap.forced_pairs.length, 0);
+   const a = snap.actors.find(a => a.actor_id === 'A'), c = snap.actors.find(a => a.actor_id === 'C');
+   assert.ok(Math.hypot(a.x-c.x, a.y-c.y) < .6);
+  }
+ }
+ assert.ok(timeout);
+ close(timeout.duration_s, 3);
+ const forces = crowd.snapshot().events.filter(e => e.type === 'forced_overlap');
+ assert.equal(forces.length, 2);
+ assert.ok(forces[1].t_sim >= timeout.t_sim + 3);
+ assert.equal(forces[1].cause, 'script');
+ assert.ok(forces[1].phase_offset_s > forces[0].phase_offset_s);
+});
+
+test('a pass that never enters while the player blocks the passer still times out', () => {
+ const crowd = createCrowd(passFixture(undefined, true), {actorId: 'T', resolve(entities, cfg, ignored) {
+  const result = resolveMoves(entities, cfg, ignored);
+  if (ignored.has('A|C')) {
+   const mover = entities.find(e => e.id === 'C');
+   result.poses.C = {...mover.from};
+   result.blocked.C = 'T';
+   result.indices.C = mover.candidates.length - 1;
+  }
+  return result;
+ }});
+ for (let i = 0; i < 80; i++) {
+  const snap = crowd.step({}, .1);
+  if (snap.forced_pairs.length) {
+   const a = snap.actors.find(a => a.actor_id === 'A'), c = snap.actors.find(a => a.actor_id === 'C');
+   assert.ok(Math.hypot(a.x-c.x, a.y-c.y) >= .6 - 1e-9);
+   assert.equal(c.blocked_by, 'T');
+  }
+ }
+ const end = crowd.snapshot().events.find(e => e.type === 'pass_end');
+ assert.equal(end.reason, 'timeout');
+ close(end.duration_s, 3);
+});
+
+test('malformed proposal still fails the strict resolver', () => {
+ const a = {id: 'A', from: {x: 0, y: 0}, candidates: [{x: .2, y: 0}]};
+ const b = {id: 'B', from: {x: .7, y: 0}, candidates: [{x: .5, y: 0}]};
+ assert.throws(() => resolveMoves([a, b]), /CROWD_UNRESOLVED_PAIR/);
+});
+
+for (const strict of [undefined, false]) {
+ test(`a second-round resolver error ${strict === false ? 'rolls back the step' : 'throws by default'}`, () => {
+  let fail = true;
+  const crowd = createCrowd(passFixture(), {actorId: null, strict, resolve(entities, cfg, ignored) {
+   if (fail && ignored.size) throw new Error('CROWD_REJECTION_LIMIT');
+   return resolveMoves(entities, cfg, ignored);
+  }});
+  for (let i = 0; i < 70; i++) {
+   const before = crowd.snapshot();
+   if (strict !== false) {
+    try { crowd.step({}, .1); } catch (error) {
+     assert.equal(error.message, 'CROWD_REJECTION_LIMIT');
+     assert.deepEqual(crowd.snapshot(), before);
+     return;
+    }
+    continue;
+   }
+   const after = crowd.step({}, .1);
+   if (after.tick !== before.tick) continue;
+   assert.deepEqual(after, {...before, events: [...before.events,
+    {type: 'crowd_error', code: 'CROWD_REJECTION_LIMIT', tick: before.tick, t_sim: before.t_sim}]});
+   fail = false;
+   const resumed = crowd.step({}, .1);
+   assert.equal(resumed.tick, before.tick + 1);
+   assert.ok(resumed.events.some(e => e.type === 'forced_overlap'));
+   assert.ok(resumed.forced_pairs.length);
+   assert.throws(() => crowd.step({}, -1), /CROWD_DT_MUST_BE_0_TO_0_1/);
+   return;
+  }
+  assert.fail('second resolver round was not reached');
+ });
+}

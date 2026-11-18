@@ -85,6 +85,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   if(url==='/reset')return json({ok:true,session_id:'0123456789abcdef'});
   if(url==='/infer'){
    const chunks=[];for await(const c of req)chunks.push(c);const b=Buffer.concat(chunks);headers.push(JSON.parse(b.subarray(4,4+b.readUInt32LE(0)).toString()));
+   if(headers.length===1){res.statusCode=409;return json({error:'NON_MONOTONIC_TICK',next_tick:1});}
    return json({tracking:{state:'SEARCHING',lost_ticks:0},events:[],timing_ms:{server_total:0}});
   }
   const file=files[url]||(url.startsWith('/src/')?path.join(root,url.slice(1)):url.startsWith('/vendor/three/')?path.join(root,'node_modules/three',url.slice('/vendor/three/'.length)):null);
@@ -115,7 +116,11 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const log=await page.evaluate(()=>__log);assert.equal(log.schema_version,'live-ab.a-log.v1');assert.equal(log.session_id,initial.session);assert.ok(log.ticks.every(t => !('gt_visible' in t) && t.actors.length === 4
     && t.actors.every(actor => Array.isArray(actor.gt_visible))
     && Object.keys(t.pause_player_i).length === 3 && Object.keys(t.pause_script_i).length === 3
-    && Array.isArray(t.forced_overlap) && Array.isArray(t.spawn_adjusted) && Array.isArray(t.block_wait)));
+    && Array.isArray(t.forced_overlap) && Array.isArray(t.spawn_adjusted) && Array.isArray(t.block_wait)
+    && Array.isArray(t.pass_end) && Array.isArray(t.crowd_error)));
+  assert.deepEqual(headers.slice(0,2).map(h=>h.tick),[0,1]);
+  assert.equal(log.ticks[0].tick,1);
+  assert.deepEqual(log.errors,[{tick:0,error:'NON_MONOTONIC_TICK'}]);
   fs.writeFileSync(path.join(out,'a-browser.json'),JSON.stringify(log,null,2));
   const downloads=path.join(out,'downloads');fs.mkdirSync(downloads,{recursive:true});
   const cdp=await page.createCDPSession();await cdp.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:downloads});

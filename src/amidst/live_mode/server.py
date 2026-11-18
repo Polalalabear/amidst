@@ -90,6 +90,7 @@ class State:
             if cfg.prices is None:   # D237 prices, keyed by API model id
                 cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
             self.guard = ApiGuard(cfg)
+        # LIVE A/B §4.2 reserves a separately approved budget for Q3 sentences.
         self.sentence_parser = TrackSentenceParser(guard=track_sentence_guard)
         self.reset()
         self.llm_switch = {"requested": args.advisor, "effective": args.advisor, "available": True, "reason": None, "reason_code": None, "reason_text": None}
@@ -245,8 +246,12 @@ class State:
         t0 = time.perf_counter()
         with self.lock:  # one inference at a time on the device
             tick = header["tick"]
-            if track and (type(tick) is not int or not 0 <= tick < 2**53):
-                raise ValueError("INVALID_TICK")
+            if track:
+                if type(tick) is not int or not 0 <= tick < 2**53:
+                    raise TrackRequestError(400, "INVALID_TICK")
+                latest = self.selection.latest
+                if latest is not None and tick <= latest.tick:
+                    raise TrackRequestError(409, "NON_MONOTONIC_TICK", next_tick=latest.tick + 1)
             available = header.get('available_cameras', list(jpegs))
             registered = getattr(self,'registered_cameras',list(jpegs))
             if not isinstance(available,list) or any(not isinstance(c,str) for c in available):
@@ -437,7 +442,10 @@ def make_handler(state: State):
                 for f in header["frames"]:
                     jpegs[f["cam"]] = body[off:off + f["bytes"]]
                     off += f["bytes"]
-                res = state.infer(header, jpegs, track=(p == "/infer"))
+                try:
+                    res = state.infer(header, jpegs, track=(p == "/infer"))
+                except TrackRequestError as exc:
+                    return self._send(exc.status, json.dumps(exc.response).encode())
                 return self._send(200, json.dumps(res).encode())
             self._send(404, b"not found", "text/plain")
 

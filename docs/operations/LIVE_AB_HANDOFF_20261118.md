@@ -379,3 +379,81 @@ scheduling tests exercise clock behavior independently of target selection.
 The preview passed 102 LIVE Node cases, including both browser fixtures,
 and 177 Python cases covering LIVE, Q3 parsing and offline scoring.
 LOCAL `local/evidence/cx610-d315-final-20261118/MANIFEST.json` SHA-256 `ac1d2b2dda7b3fb4c55258dfa141c5db7b74db55da971758c2ecd032a4a28aff`, 16 files / 838,750 bytes. Regenerate by running the above tests on the merged content, with the existing N6 and owned fixtures.
+
+## D323 bounded passes and resolver errors
+
+The [Opus decision](https://github.com/Polalalabear/amidst/pull/610#issuecomment-6974004318)
+keeps taint for the entire run. Each script crossing records
+`phase_offset_s = pause_total_i − pause_total_j` after that step. The 100 s
+headless trials verify the phase offset, the equivalence of taint and a
+positive pause time, and the final candidate's equality to the starting pose.
+
+The default `pass_max_s` is 3 s. Each expired or completed pass records
+`pass_end` with a reason, elapsed time and exempt solver steps. Ordinary pair
+checks resume on the next step. The solver count includes the step that ends
+the pass, while C-2 counts pairs in the post-step snapshot. The offline scorer
+reports both separation rates and summarizes pass ends by reason.
+
+The live A operator skips the entire step on either resolver invariant error
+and displays a HUD warning. The A log records each occurrence as
+`crowd_error`. The offline scorer marks the report partial and preserves its
+tracking scores. Headless calls still raise by default. B's frame protocol
+rejects the private crowd events and phase offset.
+
+Within a capture session, the backend rejects repeated or regressing
+`/infer` ticks with 409 `NON_MONOTONIC_TICK` before detector, tracker or
+scheduler calls. The response includes `next_tick` so A can continue after a
+lost response. Reset starts a fresh sequence. The pointer-lock retry threshold
+is 3 CSS pixels and the synthetic tests cover DPR 1 and 2.
+
+Standard LIVE startup uses Q3 RULES. Under §4.2, paid Q3 parsing requires the
+effective #563 switch and its own approved sentence guard. The advisor guard
+does not enable it. The integration test uses a fake budget to check this
+boundary without creating a client.
+
+### Fixed trials
+
+| Run | Player | C-2 excluding passes | C-2 including passes | Excluded pair samples before → after | Exempt solver steps | Pass ends |
+|---|---|---:|---:|---:|---:|---|
+| A4-1 | T | 100% | 99.863% | 7 → 7 | 9 | 2 separated |
+| A4-1 | A | 100% | 99.825% | 10 → 10 | 12 | 2 separated |
+| A4-1 | B | 100% | 99.612% | 23 → 23 | 25 | 2 separated |
+| A4-1 | C | 100% | 99.532% | 27 → 27 | 29 | 2 separated |
+| B4-1 | T | 85.933% | 85.454% | 783 → 30 | 31 | 1 timeout |
+| B4-1 | A | 100% | 100% | 0 → 0 | 0 | 0 |
+| B4-1 | B | 100% | 99.910% | 5 → 5 | 6 | 1 separated |
+| B4-1 | C | 100% | 99.874% | 6 → 6 | 7 | 1 separated |
+
+Both no-player baselines produced zero crossings. The pressure trials
+produced zero player penetrations and zero pure-script crossings. There were
+11 player phase-shift crossings, including two chain crossings. The fixed
+A4-1 player T C→B crossing still occurs at 78.7 s.
+
+B4-1 player T fails C-2's 99% threshold. B→A starts at tick 218
+(21.8 s) and ends at tick 248 (24.8 s). Of 5,383 pair samples, 30 are
+excluded and 753 of the remaining 5,353 are below 0.58 m. In the separate
+stationary-player test, C→A times out at 13.1 s. At 60.1 s player T is
+0.895 m from A, but C still blocks A. A's script clock stays at 4.1 s
+through 62.0 s. On base `118c2035`, A advances to 4.2 s at 60.1 s.
+The two B4-1 T failures remain visible in the original C-2 and C-6 tests.
+
+Set `AMIDST_LIVE_ASSETS` using the existing N6 base and `$OUT` to an
+evidence directory. Run the following from the checkout with the existing
+Python and Node dependencies and Chrome installed.
+
+```sh
+python -B -m pytest tests/live_mode tests/q1q5/test_nl_query_parse.py tests/evaluation/test_live_ab_score.py -o addopts= -q -p no:cacheprovider
+LIVE_AB_BROWSER=1 LIVE_AB_TEST_OUTPUT="$OUT/browser" AMIDST_TEST_EVIDENCE="$OUT" node --test frontend/live-mode/test/*.test.mjs
+git diff --check
+python -B scripts/check_local_artifact_refs.py --strict --files docs/operations/LIVE_AB_HANDOFF_20261118.md
+```
+
+Python passed 182 tests. Node passed 112 tests including the A and B browser
+flows, with two failures and zero skips. The stationary comparison runs the
+C-6 fixture's B4-1 player T sequence on base and head with 600 stationary
+steps followed by 20 steps away at 0.1 s each. The evidence contains this
+comparison as `b4-stationary-release.json` and the pressure counts as
+`crowd-stress.json`. The commands regenerate the test receipts, with variable
+wall-clock timings and browser captures.
+
+LOCAL `local/evidence/cx-live-d323-20261118/MANIFEST.json` SHA-256 `f1f8666bcbadfdd8444b6bb4d365f7aab63d3ae8dbfa275c5bd19c19b86face4`, 11 files / 807,624 bytes.

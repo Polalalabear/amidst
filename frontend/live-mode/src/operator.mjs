@@ -66,6 +66,8 @@ export function variantSwatches(buffer) {
 export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
   if (mode === 'off') return () => {};
   const canLock = mode !== 'drag' && typeof canvas.requestPointerLock === 'function';
+  // clientX/clientY already use CSS pixels, independent of devicePixelRatio.
+  const retryClickTravelCssPx = 3;
   let dragMode = !canLock, dragging = false, previous = null, travel = 0, pending = null;
   const listeners = [];
   const on = (target, type, fn) => { target.addEventListener(type, fn); listeners.push(() => target.removeEventListener(type, fn)); };
@@ -75,7 +77,7 @@ export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
     dragMode = true;
   };
   on(canvas, 'click', () => {
-    if (!canLock || pending || doc.pointerLockElement === canvas || travel > 3) return;
+    if (!canLock || pending || doc.pointerLockElement === canvas || travel > retryClickTravelCssPx) return;
     const ticket = pending = Symbol();
     try { Promise.resolve(canvas.requestPointerLock()).catch(() => fallback(ticket)); }
     catch { fallback(ticket); }
@@ -223,11 +225,12 @@ export function makeOperatorView(world) {
 async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   body.insertAdjacentHTML('beforeend', `<div id="op"><canvas id="view"></canvas><div id="panel"><h2>A · 操作端</h2>
     <p>WASD 移動 · Shift 跑 · 點畫布鎖定滑鼠（Esc 釋放）；不支援鎖定時按住左鍵拖曳。</p>
-    <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p></div></div>`);
+    <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p>
+    <p id="crowd-warning" role="status" hidden>人群模擬錯誤（已跳過該步）</p></div></div>`);
   const {scenario, world, cams, n6, config} = await setupWorld(P, {scenario: true});
   if (gltf) world.characterGltf = gltf;
   const run = scenario.runs.find(r => r.run_id === session.run_id), camIds = P.cams || Object.keys(cams);
-  const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto});
+  const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto, strict: false});
   let snapshot = crowd.snapshot(), viewState = {view_yaw: 0, view_pitch: 0};
   const people = new Map();
   for (const actor of run.actors) people.set(actor.actor_id, await makePerson(P.model, world, actor.actor_id === 'C' ? 'blue' : actor.actor_id === 'B' ? 'orange' : 'red', actor.actor_id));
@@ -240,7 +243,9 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
   addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
   addEventListener('blur', () => { for (const k of Object.keys(keys)) delete keys[k]; });
-  const log = {schema_version: 'live-ab.a-log.v1', ...session, ticks: [], forced_overlap: [], block_wait: [], spawn_adjusted: snapshot.spawn_adjusted,
+  const eventTypes = ['forced_overlap', 'block_wait', 'pass_end', 'crowd_error'];
+  const log = {schema_version: 'live-ab.a-log.v1', ...session, ticks: [], forced_overlap: [], block_wait: [],
+    pass_end: [], crowd_error: [], spawn_adjusted: snapshot.spawn_adjusted,
     config: {...P, run: session.run_id, cams: camIds, n6, crowd: snapshot.config, ...snapshot.config, view: {...DEFAULT_VIEW_CONFIG, mouse}, schedule_mode: config.schedule_mode},
     sent: 0, dropped: 0, fpsStart: now()};
   window.__log = log;
@@ -253,9 +258,18 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   };
   const cap = makeCapture(world, cams, P.w, P.h, P.quality), chan = new BroadcastChannel(CHANNEL);
   const drawOperator = makeOperatorView(world); let last = performance.now();
+  const crowdWarning = body.querySelector('#crowd-warning');
+  let recordedEvents = 0, capturedEvents = 0;
   function frame(tn) {
     const dt = Math.min(.1, Math.max(0, (tn - last) / 1000)); last = tn;
-    if (dt > 0) snapshot = crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
+    if (dt > 0) {
+      snapshot = crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
+      for (const event of snapshot.events.slice(recordedEvents)) {
+        if (eventTypes.includes(event.type)) log[event.type].push(event);
+        if (event.type === 'crowd_error') crowdWarning.hidden = false;
+      }
+      recordedEvents = snapshot.events.length;
+    }
     for (const a of snapshot.actors) {
       const h = people.get(a.actor_id); h.setVisible(a.present);
       if (a.present) { h.setPose(a.x, a.y, a.heading); h.setSpeed(a.speed < .05 ? 0 : a.speed, a.is_player && !P.auto ? a.running : undefined); } h.update(dt);
@@ -279,16 +293,27 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
       const frames = await Promise.all(chooseCaptureIds(camIds, schedule).map(async id => ({cam: id, jpeg: await cap.shoot(id)})));
       const header = buildInferHeader({tick, tCaptureMs: tCap, frames, availableCameras: camIds});
       const tSend = now(), response = await fetcher('/infer', {method: 'POST', body: packInfer(header, frames.map(f => f.jpeg))});
-      if (!response.ok) throw new Error(`INFER_HTTP_${response.status}`);
+      if (!response.ok) {
+        if (response.status === 409) {
+          const error = await response.json();
+          if (error?.error === 'NON_MONOTONIC_TICK' && Number.isSafeInteger(error.next_tick) && error.next_tick > tick) {
+            log.dropped++;
+            log.errors ||= [];
+            log.errors.push({tick, error: 'NON_MONOTONIC_TICK'});
+            tick = error.next_tick;
+            return;
+          }
+        }
+        throw new Error(`INFER_HTTP_${response.status}`);
+      }
       const res = await response.json(), tResp = now(); schedule = res.schedule || null;
       chan.postMessage(buildSystemMessage({tick, tCaptureMs: tCap, frames, result: res}));
-      const forces = snap.events.filter(e => e.type === 'forced_overlap');
-      const waits = snap.events.filter(e => e.type === 'block_wait');
-      row.forced_overlap = forces.slice(log.forced_overlap.length);
-      row.block_wait.push(...waits.slice(log.block_wait.length));
+      const newEvents = snap.events.slice(capturedEvents);
+      for (const type of eventTypes) {
+        row[type] = [...(row[type] || []), ...newEvents.filter(event => event.type === type)];
+      }
       row.spawn_adjusted = log.ticks.length ? [] : snap.spawn_adjusted;
-      log.forced_overlap = forces;
-      log.block_wait = waits;
+      capturedEvents = snap.events.length;
       log.ticks.push({...row, t_send: tSend, t_resp: tResp, t_post: now(), timing: res.timing_ms,
         active: res.tracking?.active_cam, state: res.tracking?.state, schedule: res.schedule});
       log.sent++; stats.textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`; tick++;

@@ -14,7 +14,9 @@ export function blocked(x, y, segments, r = 0.25) {
 }
 
 // keys: {w,a,s,d,shift,view_yaw?}. Missing yaw preserves legacy W=+Y, D=+X.
-export const DEFAULT_CROWD_CONFIG = Object.freeze({r_person: 0.30, r_wall: 0.25, wait_max_mutual_s: 3, eps_m: 0.02});
+export const DEFAULT_CROWD_CONFIG = Object.freeze({
+  r_person: 0.30, r_wall: 0.25, wait_max_mutual_s: 3, pass_max_s: 3, eps_m: 0.02,
+});
 
 // All candidates use the same step-start position; no entity is pushed by another.
 export function playerCandidates(p, keys, dt, segments, cfg = DEFAULT_CROWD_CONFIG) {
