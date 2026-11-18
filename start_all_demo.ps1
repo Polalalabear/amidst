@@ -20,7 +20,8 @@ param(
     [int]$PortLive = 8765,
     [int]$PortCx = 8780,
     [switch]$NoOpen,
-    [switch]$CheckOnly
+    [switch]$CheckOnly,
+    [string]$CX8Root = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -51,6 +52,11 @@ if ([string]::IsNullOrWhiteSpace($StateParent)) {
         $StateParent = $env:STATE_PARENT
     } else {
         $StateParent = Join-Path $ROOT "local\data\demo-state"
+    }
+}
+if ([string]::IsNullOrWhiteSpace($CX8Root)) {
+    $CX8Root = if ($env:CX8_ROOT) { $env:CX8_ROOT } else {
+        Join-Path $ROOT "local\data\r004-4actor-natural-walk-eightcam-20261114\bundle\safe"
     }
 }
 if ($env:PYTHON -and $Python -eq "python") {
@@ -254,11 +260,15 @@ try {
         "--port", $PortLive
     ) -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "b-live.log") -RedirectStandardError (Join-Path $LOG_DIR "b-live-err.log") -PassThru
 
-    $procC = Start-Process -FilePath "node" -ArgumentList @(
+    $eventArgs = @(
         "frontend/event-viewer/server.mjs",
         "--root", "`"$CX7Root`"",
         "--port", $PortCx
-    ) -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "c-events.log") -RedirectStandardError (Join-Path $LOG_DIR "c-events-err.log") -PassThru
+    )
+    if (Test-Path -LiteralPath $CX8Root -PathType Container) {
+        $eventArgs += @("--root-8cam", "`"$CX8Root`"")
+    }
+    $procC = Start-Process -FilePath "node" -ArgumentList $eventArgs -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "c-events.log") -RedirectStandardError (Join-Path $LOG_DIR "c-events-err.log") -PassThru
 
     # Wait for services to be ready
     Write-Host "Waiting for services to become ready (max 180s)..." -ForegroundColor DarkGray

@@ -21,6 +21,12 @@ def make_state(provider="openai", advisor="off"):
     st.guard = None
     st.args = types.SimpleNamespace(advisor=advisor, advisor_provider=provider, advisor_model="sol6.1", advisor_timeout_s=5.0, advisor_fake_delay_s=0.0,
                                     advisor_lost_min_candidates=2, advisor_apply="reseed", gate_m=4.0, device="cpu", threads=1)
+    st.args.det_resize_mode = "letterbox"
+    st.args.min_score = 0.15
+    st.args.camera_min_scores = {"CAM_ENTRY": 0.05}
+    st.args.det_width, st.args.det_height = 320, 180
+    st.args.schedule, st.args.expand_every = "adaptive", 1
+    st.graph_meta = {"graph_sha256": "a" * 64}
     st.n6 = False
     st.llm_switch = {"requested": advisor, "effective": advisor, "available": True, "reason": None, "reason_code": None, "reason_text": None}
     return st

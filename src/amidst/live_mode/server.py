@@ -24,7 +24,7 @@ from PIL import Image
 
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
 from .color import judge
-from .detector import LiveDetector
+from .detector import DEFAULT_CAMERA_MIN_SCORES, DEFAULT_MIN_SCORE, LiveDetector
 from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, host_ok, resolve as resolve_llm
 from .people import PeopleTracker
 from .tracker import Projector, Tracker, load_cameras, catalog_path
@@ -64,7 +64,8 @@ class State:
                                         graph_sha256=self.graph_meta['graph_sha256'])
         self.args = args
         self.tracker = self._new_tracker()
-        self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads)
+        self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads,
+                                resize_mode=args.det_resize_mode)
         self.args = args
         self.assets = assets_dir(args.assets)
         self.n6 = bool(self.assets and all((self.assets / f).is_file() for f in N6_FILES.values()))
@@ -118,6 +119,8 @@ class State:
                            gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
 
     def reset(self):
+        if getattr(self, "scheduler", None):
+            self.scheduler.reset()
         self.tracker = self._new_tracker()
         self.decider = self._new_decider()
 
@@ -130,7 +133,8 @@ class State:
                 raise ValueError('AVAILABLE_CAMERA_IDS_REQUIRED')
             available = [c for c in dict.fromkeys(available) if c in registered]
             scheduler = getattr(self,'scheduler',None) if track else None
-            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available) if scheduler else None
+            t_s = float(header.get('t_capture_ms') or 0) / 1000.0
+            plan = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_s) if scheduler else None
             wanted = set(plan['camera_ids']) if plan else set(jpegs)
             cams = [c for c in jpegs if c in wanted and (not track or c in registered)]
             if not cams and track:
@@ -145,10 +149,12 @@ class State:
             dets, timing = self.det.detect(det_imgs)
             t2 = time.perf_counter()
             out = {}
+            camera_min_scores, min_score = self.args.camera_min_scores, self.args.min_score
             for cam, im, dim, lst in zip(cams, imgs, det_imgs, dets):
                 arr = np.asarray(dim)
                 if track:  # live path shows/uses only detections above the display threshold
-                    lst = [d for d in lst if d["score"] >= self.args.min_score]
+                    threshold = camera_min_scores.get(cam, min_score)
+                    lst = [d for d in lst if d["score"] >= threshold]
                 for d in lst:
                     d.update(judge(arr, d["bbox"]))
                     if dim is not im:
@@ -166,7 +172,8 @@ class State:
             t4 = time.perf_counter()
             schedule = None
             if scheduler:
-                following = scheduler.plan(self.tracker.active,self.tracker.lost,available)
+                scheduler.observe(out, t_s)
+                following = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_s)
                 schedule = dict(plan,camera_ids=cams,next_camera_ids=following['camera_ids'])
         timing.update({"decode": (t1 - t0) * 1e3, "detect_total": (t2 - t1) * 1e3,
                        "color": (t3 - t2) * 1e3, "track": (t4 - t3) * 1e3,
@@ -227,8 +234,14 @@ def make_handler(state: State):
             if p == "/config":
                 self._config_cors()
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
+                                                   "det_resize_mode": state.args.det_resize_mode,
+                                                   "min_score": state.args.min_score,
+                                                   "camera_min_scores": state.args.camera_min_scores,
+                                                   "det_size": [state.args.det_width, state.args.det_height],
                                                    "schedule_mode":state.args.schedule,
-                                                   "schedule_policy":{"expand_every":state.args.expand_every,**state.graph_meta},
+                                                   "schedule_policy":{"expand_every":state.args.expand_every,
+                                                                      "recent_red_s":getattr(state.scheduler,"recent_red_s",0) if hasattr(state,"scheduler") else 0,
+                                                                      **state.graph_meta},
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
                                                    "advisor_provider": state.args.advisor_provider if state.args.advisor != "off" else None,
@@ -273,11 +286,28 @@ def make_handler(state: State):
     return H
 
 
+def camera_min_score(value: str):
+    try:
+        camera, score = value.split('=', 1)
+        score = float(score)
+        if not camera or not 0.05 <= score <= 1:
+            raise ValueError
+        return camera, score
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError('expected CAMERA=SCORE with 0.05 <= SCORE <= 1') from exc
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8791)
     ap.add_argument("--device", default="cpu", choices=["cpu", "mps"])
-    ap.add_argument("--min-score", type=float, default=0.35)
+    ap.add_argument("--min-score", type=float, default=DEFAULT_MIN_SCORE,
+                    help="live person threshold; calibrated with letterbox on frozen N6 RGB (#552)")
+    ap.add_argument("--camera-min-score", action="append", type=camera_min_score,
+                    default=list(DEFAULT_CAMERA_MIN_SCORES.items()),
+                    help="repeatable CAMERA=SCORE override; CAM_ENTRY=0.05 by default; last value wins")
+    ap.add_argument("--det-resize-mode", choices=["letterbox", "stretch"], default="letterbox",
+                    help="preserve source aspect ratio (default); stretch reproduces the spike")
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument('--schedule',choices=['adaptive','all'],default='adaptive')
     ap.add_argument('--expand-every',type=int,default=DEFAULT_EXPAND_EVERY,help='lost rounds per expansion; full search after twice this')
@@ -306,6 +336,7 @@ def main():
     ap.add_argument("--advisor-lost-min-candidates", type=int, default=2, choices=[1, 2],
                     help="candidates needed to ask while the target is lost; 1 restores the first version, which often picked a lone wrong person")
     args = ap.parse_args()
+    args.camera_min_scores = dict(args.camera_min_score)
     if args.port == 8785:
         raise SystemExit("8785 is the pinned demo port; refusing")
     state = State(args)

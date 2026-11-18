@@ -1,0 +1,254 @@
+{
+  "schema_version": "live-ab.a-log.v1",
+  "session_id": "0123456789abcdef",
+  "run_id": "synthetic",
+  "actor_id": "A",
+  "config": {
+    "r_person": 0.3,
+    "eps_m": 0.02
+  },
+  "ticks": [
+    {
+      "tick": 0,
+      "t_capture": 0,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": [
+            "CAM_1"
+          ]
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 1,
+      "t_capture": 1000,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": [
+            "CAM_1"
+          ]
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 2,
+      "t_capture": 2000,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": [
+            "CAM_1"
+          ]
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 3,
+      "t_capture": 3000,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": [
+            "CAM_1"
+          ]
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 4,
+      "t_capture": 4000,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": [
+            "CAM_1"
+          ]
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 5,
+      "t_capture": 5000,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": [
+            "CAM_1"
+          ]
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 6,
+      "t_capture": 6000,
+      "actors": [
+        {
+          "id": "T",
+          "present": true,
+          "xy": [
+            0,
+            0
+          ],
+          "gt_visible": []
+        },
+        {
+          "id": "A",
+          "present": true,
+          "xy": [
+            5,
+            0
+          ],
+          "gt_visible": [
+            "CAM_2"
+          ]
+        }
+      ],
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    },
+    {
+      "tick": 7,
+      "t_capture": 7000,
+      "actors": null,
+      "forced_pairs": [],
+      "pause_total_i": {
+        "T": 0
+      },
+      "block_wait": []
+    }
+  ],
+  "forced_overlap": [],
+  "spawn_adjusted": [],
+  "block_wait": []
+}

@@ -21,11 +21,11 @@ test('D146: ON_CAMERA plays that segment camera and is the only observed state',
 });
 test('D146: every GAP keeps playing the camera the target left, including same-camera reacquisition gaps', () => {
   for (const [s, cam] of [[9.0, 'CAM_EXT_CLEAR'], [9.6, 'CAM_EXT_CLEAR'], [10.4, 'CAM_W1'], [12, 'CAM_W1'], [14.79, 'CAM_W1'], [15.0, 'CAM_W1'], [17, 'CAM_W1']]) { const p = at(s); assert.equal(p.kind, 'GAP', String(s)); assert.equal(p.cam, cam, String(s)); assert.equal(p.observed, false); }
-  assert.equal(gapLiveNote('CAM_W1'), '目標暫時不在畫面中，持續播放 W1 鏡頭');
+  assert.equal(gapLiveNote('CAM_W1'), '目標暫時不在畫面中，持續播放 走廊（門廳端） 鏡頭');
 });
 test('D146: LOST keeps playing the last camera (to the end of the window too)', () => {
   for (const s of [22.8, 30, 49.9, 50, 60]) { const p = at(s); assert.deepEqual([p.kind, p.cam, p.observed], ['LOST', 'CAM_W2', false], String(s)); }
-  assert.equal(lostLiveNote('CAM_W2'), '目標已跟丟，持續播放 W2 鏡頭');
+  assert.equal(lostLiveNote('CAM_W2'), '目標已跟丟，持續播放 走廊（轉角端） 鏡頭');
 });
 test('D146: the evidence state is never OBSERVED outside ON_CAMERA', () => {
   const v = s => buildCoreTrackingViewModel(resp, {tUs: s * 1e6, playbackMode: 'single', speed: 1});

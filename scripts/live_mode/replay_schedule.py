@@ -8,28 +8,44 @@ import argparse
 import copy
 import hashlib
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from amidst.live_mode.scheduler import (
-    CameraScheduler,
-    load_graph,
     DEFAULT_GRAPH,
     DEFAULT_GRAPH_SHA256,
+    DEFAULT_RECENT_RED_S,
+    CameraScheduler,
+    load_graph,
 )
 from amidst.live_mode.tracker import Projector, Tracker, load_cameras
 
 
-def replay_safe(records, available, size, projector, graph, mode, expand_every):
+def replay_safe(
+    records,
+    available,
+    size,
+    projector,
+    graph,
+    mode,
+    expand_every,
+    recent_red_s=DEFAULT_RECENT_RED_S,
+):
     tracker = Tracker(projector, gate_m=4.0)
-    scheduler = CameraScheduler(graph, mode=mode, expand_every=expand_every)
+    scheduler = CameraScheduler(
+        graph, mode=mode, expand_every=expand_every, recent_red_s=recent_red_s
+    )
     result = []
     for i, record in enumerate(records):
-        plan = scheduler.plan(tracker.active, tracker.lost, available)
+        t_s = record["t_capture_ms"] / 1000
+        plan = scheduler.plan(tracker.active, tracker.lost, available, t_s=t_s)
         dets = {
             c: copy.deepcopy(record["dets"][c]) for c in plan["camera_ids"] if c in record["dets"]
         }
         tracking = tracker.update(i, dets, size, record["t_capture_ms"] / 1000)
+        scheduler.observe(dets, t_s)
+        following = scheduler.plan(tracker.active, tracker.lost, available, t_s=t_s)
+        plan["next_camera_ids"] = following["camera_ids"]
         result.append({"dets": dets, "tracking": tracking, "schedule": plan})
     return result
 
@@ -42,6 +58,7 @@ def main():
     ap.add_argument("--graph", type=Path, default=DEFAULT_GRAPH)
     ap.add_argument("--graph-sha256", default=DEFAULT_GRAPH_SHA256)
     ap.add_argument("--expand-every", type=int, default=1)
+    ap.add_argument("--recent-red-s", type=float, default=DEFAULT_RECENT_RED_S)
     a = ap.parse_args()
     cameras = load_cameras(str(a.cameras))
     projector = Projector(cameras)
@@ -60,7 +77,7 @@ def main():
             for p in sorted(Path(directory).glob("*.t1raw.json")):
                 raw = json.loads(p.read_text())
                 n = min(len(raw["ticks"]), len(raw["infer"]))
-                # Source observations only; old projected positions and all evaluation fields are excluded.
+                # Source observations only: exclude old projections and evaluation fields.
                 records = [
                     {
                         "t_capture_ms": raw["ticks"][i]["t_capture"],
@@ -86,14 +103,16 @@ def main():
                     graph,
                     mode,
                     a.expand_every,
+                    a.recent_red_s,
                 )
-                # Evaluation envelope is only reattached after policy/tracker processing has finished.
+                # Reattach evaluation fields only after policy/tracker processing finishes.
                 out = copy.deepcopy(raw)
-                for response, row in zip(out["infer"], replay):
+                for response, row in zip(out["infer"], replay, strict=False):
                     response.update(row)
                 out["schedule_replay"] = {
                     "mode": mode,
                     "expand_every": a.expand_every,
+                    "recent_red_s": a.recent_red_s,
                     **meta,
                     "gt_in_policy": False,
                 }
@@ -136,6 +155,7 @@ def main():
     result = {
         "graph": meta,
         "expand_every": a.expand_every,
+        "recent_red_s": a.recent_red_s,
         "source_inventory": inventory,
         "runs": {m: compact(s) for m, s in summaries.items()},
     }
