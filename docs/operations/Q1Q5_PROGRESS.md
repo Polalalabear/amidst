@@ -1,6 +1,6 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-11-18 晚間（D331 批次補列，`gh` 逐項重查 #608、#610、#614–#620 與相關 issue；`main` `7393bf62`，為撰寫時 `origin/main` 的 head）。資料來源：GitHub 上全部 PR 與 issue。
+快照時間：2026-11-18 晚間（D332 批次補列，`gh` 逐項重查 #608、#610、#614–#620 與相關 issue；`main` `7393bf62`，為撰寫時 `origin/main` 的 head）。資料來源：GitHub 上全部 PR 與 issue。
 本文涵蓋 **358 個 PR 與 262 個 issue，共 620 項**（編號 #1–#620 連續，無缺號；本 PR 依 CLAUDE.md 不列自己的列，下次批次補列），每項只列在一個主分類下。
 維護方式（D91-4）：本文的列由協調者批次補列，一般 PR／issue 不必各自更新，2026-11-10 起主線改為 `main`（D200），PR 的 base 一律是 `main`；`mainline/q1q5` 凍結，staging 已不再使用。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
@@ -40,7 +40,7 @@
 
 ## 最近改動（2026-10-23 起）
 
-- 2026-11-18 晚間（協調者批次補列，D91-4，D331，隨晚間交接 PR）：快照擴大到 #1–#620。新增 #614–#620；已合併移到「已完成」：#610（`118c2035`）、#614（`1f6ecacd`）、#615（`7393bf62`）、#616（`d3dd2d65`）、#618（`50f2fd14`）；已關閉的 issue 移到「已完成」：#571、#572（由 #610 完成）、#576（D324）；#617 列「進行中」（Draft），#619、#620 列「未完成」；#608 改為非 Draft，審查 NEEDS_CHANGES。
+- 2026-11-18 晚間（協調者批次補列，D91-4，D332，隨晚間交接 PR）：快照擴大到 #1–#620。新增 #614–#620；已合併移到「已完成」：#610（`118c2035`）、#614（`1f6ecacd`）、#615（`7393bf62`）、#616（`d3dd2d65`）、#618（`50f2fd14`）；已關閉的 issue 移到「已完成」：#571、#572（由 #610 完成）、#576（D324）；#617 列「進行中」（Draft），#619、#620 列「未完成」；#608 改為非 Draft；#608、#617 NEEDS_CHANGES（和 main 衝突，D331）。
 - 2026-11-18（協調者批次補列，D91-4，D311–D318）：快照擴大到 #1–#613。新增 #586–#613；已合併（merge commit）移到「已完成」：#559、#564、#584、#587、#590、#595、#599、#603、#604、#606、#607、#609、#611、#613，已關閉的 issue 亦移到「已完成」：#552、#555、#568–#570、#573、#577–#583、#585、#591、#593、#600–#602、#605；#571、#572、#576、#588、#589、#596、#597、#598、#612 列「未完成」，#608、#610 列「進行中」（Draft），#594 列「待確認」。#599、#603 等已合併的 PR 的 merge commit 見各列。
 - 2026-11-18（#580 批次補列，D91-4、D281）：快照擴大到 #1–#585。新增 #565、#567、#575、#584（PR）與 #566、#568–#574（CX-L5 A/B 子項）、#576–#583、#585（CL-B 系列、待使用者決定）；#558（`edb96a31`）、#563（`0606b164`）、#565（`3137a1ca`）、#567（`2f013cb8`）、#575（`59782b1d`）已合併，#554 已關閉，移到「已完成」；#559、#564 仍開著。`main` 頭為 `59782b1d`。工作清單改在 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文（D281）。
 - 2026-11-17 晚間（協調者批次補列，D91-4，隨晚間交接 PR）：快照擴大到 #1–#564。新增 #558（實驗紀錄 v4）、#559（Codex 偵測＋啟動入口，Draft）、#560、#561（Codex，已合併）、#562（交接，已合併）、#563（LLM 開關，Draft）、#564（workbench-v2 易用性，Draft）；#546、#547、#551、#556、#557 已合併、#553 已完成關閉，移到「已完成」；#554 工作已由 #560 合併但 issue 還開著，列「待確認」；#552、#555 的程式在 #559，改列「進行中」。`main` 頭為 `e9db4fdf`。
@@ -531,7 +531,7 @@
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D331（2026-11-18 晚間交接，下一個 D332）；D95 Codex 任務佇列為 [#279](https://github.com/Polalalabear/amidst/issues/279) |
+| [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D332（2026-11-18 晚間交接，下一個 D333）；D95 Codex 任務佇列為 [#279](https://github.com/Polalalabear/amidst/issues/279) |
 | [#479](https://github.com/Polalalabear/amidst/issues/479) | Issue | B｜實驗紀錄與研究報告（LaTeX 紀錄、RQ1–RQ5、延遲、評估） | — | 進行中；issue 開著；owner:argon |
 
 ## Agent：WP／DP4 與評估
@@ -576,7 +576,7 @@
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#620](https://github.com/Polalalabear/amidst/issues/620) | Issue | CL-B16 8785 預錄 Q2 Agent 開關在 A4-1／B4-1／B-05 回 TRACKING_SCOPE_MISSING | — | D328 發現；D331 開；owner:claude |
+| [#620](https://github.com/Polalalabear/amidst/issues/620) | Issue | CL-B16 8785 預錄 Q2 Agent 開關在 A4-1／B4-1／B-05 回 TRACKING_SCOPE_MISSING | — | D328 發現；D332 開；owner:claude |
 
 ## 即時模式（Live mode）
 
@@ -616,9 +616,9 @@
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#566](https://github.com/Polalalabear/amidst/issues/566) | Issue | CX-L5 即時模式 A/B 雙畫面：選角色、B 選目標、人物不碰撞 | — | 子項 #568–#573 已完成關閉（#571、#572 由 #610），#574 未完成（等 #617）；原備註：進行中；母 issue，子項 #568–#574；owner:codex |
-| [#588](https://github.com/Polalalabear/amidst/issues/588) | Issue | CX-L6a 重新取得 R1：tracker 分段門檻狀態機＋外觀特徵＋門檻量測 | — | CX-L6a；D326：R-5 拆成 R-5a（R1 閘門）與 R-5b（移到 #597）；#608 驗證完成，Sonnet 審查 NEEDS_CHANGES（與 main 衝突，合併後重驗）；owner:codex |
-| [#608](https://github.com/Polalalabear/amidst/pull/608) | PR | LIVE relock R1 with fixed replay and prediction checkpoint | — | head `533b4e99`（D326）；Sonnet NEEDS_CHANGES：tracker.py 與 main 語意衝突，合併 main 後重跑驗收；#588 的實作 |
-| [#617](https://github.com/Polalalabear/amidst/pull/617) | PR（Draft） | feat(live-ab): record deterministic cases and audit lingering passes | — | head `50164136`；D327 pass 規則＋#596 錄製重播；CI 綠，Sonnet 審查中 |
+| [#588](https://github.com/Polalalabear/amidst/issues/588) | Issue | CX-L6a 重新取得 R1：tracker 分段門檻狀態機＋外觀特徵＋門檻量測 | — | CX-L6a；D326：R-5 拆成 R-5a（R1 閘門）與 R-5b（移到 #597）；#608 驗證完成，NEEDS_CHANGES（和 main 衝突，等 Codex 合 main，D331-2）；owner:codex |
+| [#608](https://github.com/Polalalabear/amidst/pull/608) | PR | LIVE relock R1 with fixed replay and prediction checkpoint | — | head `533b4e99`（D326）；NEEDS_CHANGES（D331-2）：和 main 衝突（tracker.py 語意衝突），等 Codex 合 main 重跑驗收；#588 的實作 |
+| [#617](https://github.com/Polalalabear/amidst/pull/617) | PR（Draft） | feat(live-ab): record deterministic cases and audit lingering passes | — | head `50164136`；D327 pass 規則＋#596 錄製重播；NEEDS_CHANGES（D331-2）：和 main 衝突，等 Codex 合 main |
 
 ### 未完成（5）
 
@@ -627,7 +627,7 @@
 | [#574](https://github.com/Polalalabear/amidst/issues/574) | Issue | CX-L5g 即時模式 A/B：整合、瀏覽器驗收、handoff 文件 | — | blocked（等 #617；#571、#572 已由 #610 完成）；owner:codex |
 | [#589](https://github.com/Polalalabear/amidst/issues/589) | Issue | CX-L6b 重新取得 R2：後台接線＋#559 adaptive 排程驗收（ENTRY） | — | CX-L6b；等 #608 合併；owner:codex |
 | [#596](https://github.com/Polalalabear/amidst/issues/596) | Issue | CX-L7 LIVE 錄製與重播：玩家軌跡存成可重播劇本 | — | CX-L7；D326 可開始；實作在 #617（`50164136`）；owner:codex |
-| [#597](https://github.com/Polalalabear/amidst/issues/597) | Issue | CL-B11 LIVE 難題集：規則 vs LLM 重播比較（含「目標不在名單」） | — | CL-B11；事件表、答案表、腳本操作者已由 #615 合併；D330：H1／H4 讀法、路線修正、#619；owner:claude |
+| [#597](https://github.com/Polalalabear/amidst/issues/597) | Issue | CL-B11 LIVE 難題集：規則 vs LLM 重播比較（含「目標不在名單」） | — | CL-B11；事件表、答案表、腳本操作者已由 #615 合併；D330：H1／H4 讀法、路線修正、#619；D331：全部改腳本產生；owner:claude |
 | [#619](https://github.com/Polalalabear/amidst/issues/619) | Issue | CX-L8 LIVE 室外遠端目標的偵測／追蹤失敗（難題集前置條件） | — | D330-c；owner:codex |
 
 ## 4 人場景、8 鏡頭與 N6 素材（#516）
