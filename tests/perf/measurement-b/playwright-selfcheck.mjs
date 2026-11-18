@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Quick headless self-check of the injector (NOT the official measurement: the official runs use the built-in
 // browser with its pane visible). Usage:
 //   node playwright-selfcheck.mjs [--base http://127.0.0.1:8785] [--n 3] [--out /path/export.json] [--events B-05,A4-1,B4-1]
@@ -10,7 +11,7 @@ const argv = process.argv.slice(2), opt = (k, d) => { const i = argv.indexOf('--
 const base = opt('base', 'http://127.0.0.1:8785'), n = Number(opt('n', 3)), events = opt('events', 'B-05,A4-1,B4-1').split(',');
 const owned = ownedRuntime();
 const {chromium} = await import(pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE ?? owned.playwrightModule).href);
-const browser = await chromium.launch({headless: true, executablePath: process.env.CHROME_EXECUTABLE ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const browser = await chromium.launch({headless: headlessMode(), executablePath: process.env.CHROME_EXECUTABLE ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 try {
   const page = await (await browser.newContext({viewport: {width: 1440, height: 900}, deviceScaleFactor: 1})).newPage();
   await page.goto(new URL('/workbench-v2/', base).href, {waitUntil: 'domcontentloaded'});

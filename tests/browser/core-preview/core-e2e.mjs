@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Synthetic API conformance through the redesigned visible front desk.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -10,9 +11,13 @@ import {startPreview} from './preview-server.mjs';
 const source=process.env.CORE_SOURCE;if(!source)throw Error('CORE_SOURCE_REQUIRED');
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE??owned.playwrightModule).href);
 const out=process.env.SCREENSHOT_DIR??join(owned.evidenceRoot,'ui-synthetic');await mkdir(out,{recursive:true});
-const preview=await startPreview({source,port:0}),browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
+const preview=await startPreview({source,port:0});
+let browser,page,result=null;
+try {
+browser=await chromium.launch({headless:headlessMode(),...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});
 const viewportHeight=Number(process.env.CORE_VIEWPORT_HEIGHT??900);
-const page=await browser.newPage({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),errors=[],shots=[];let checks=0,result=null;
+page=await browser.newPage({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1});
+const errors=[],shots=[];let checks=0;
 const check=(ok,msg)=>{assert.ok(ok,msg);checks++;console.log(JSON.stringify({check:checks,message:msg}));};page.on('pageerror',e=>errors.push(String(e)));const iconRequests=[];page.on('request',r=>{if(/favicon\.ico/.test(r.url()))iconRequests.push(r.url());});
 const shot=async name=>{const path=join(out,name+'.png');await page.screenshot({path,fullPage:true});const b=await readFile(path);shots.push({path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});};
 
@@ -39,7 +44,7 @@ const open=async kind=>{if(await page.locator('#ui-q-'+kind).getAttribute('data-
 const submit=async(kind,n)=>{await open(kind==='search'?'search':'track');const resp=page.waitForResponse(r=>r.url().endsWith('/api/q_core_'+kind)&&r.request().method()==='POST');await page.locator('#ui-'+kind+'-submit').click();await resp;if(kind==='search')await page.waitForFunction(n=>document.querySelectorAll('#ui-case1 .ui-shot').length===n,n);else await page.locator('#ui-scrub').waitFor();};
 const seek=async t=>{await page.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await page.locator('#ui-scrub').inputValue())===t,'seek value preserved');};
 const feature=async value=>{const b=page.locator('#ui-q-search [data-role=classes] [data-value="'+value+'"]');if(await b.getAttribute('aria-pressed')!=='true')await b.click();};
-try{
+
  await page.goto(preview.url,{waitUntil:'domcontentloaded'});await page.locator('#ui-enter').waitFor();
  check(await page.locator('#synthetic-api-banner').isVisible(),'synthetic banner visible above new UI');check((await page.locator('.ui-tagline').innerText()).includes('Agentic'),'approved cover tagline');await shot('00-cover');
  await page.locator('#ui-enter').click();await page.locator('[data-case=case1]').click();await page.locator('#ui-q-search [data-role=regions] button').first().waitFor();
@@ -135,11 +140,12 @@ try{
  result={status:'PASS',checks,viewport:{width:1440,height:viewportHeight},bar_rect:bar,source_head:preview.head,url:preview.url,screenshots:shots,page_errors:errors,source_kind:'SYNTHETIC API FIXTURE',physical_display_fps:null};
 }finally{
  try {
-  await page.unrouteAll({behavior:'ignoreErrors'});
-  await page.context().close();
-  await browser.close();
+  await page?.unrouteAll({behavior:'ignoreErrors'});
+  await page?.context().close();
  } finally {
+  try { await browser?.close(); } finally {
   await new Promise((done,reject)=>{preview.server.close(e=>e?reject(e):done());preview.server.closeAllConnections?.();});
+  }
  }
 }
 // PASS is emitted only after context, browser and owned HTTP server have closed.

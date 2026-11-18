@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import * as THREE from 'three';
 import {createSessionGate, menuOptions, variantSwatches, privateTick, makeOperatorView} from '../src/operator.mjs';
 import {createCrowd} from '../src/crowd.mjs';
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 import {buildInferHeader,buildSystemMessage} from '../src/protocol.mjs';
 const scenario=JSON.parse(fs.readFileSync(new URL('../../../docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json',import.meta.url)));
 test('scene defaults, legacy and short URL bypasses and role validation',()=>{
@@ -97,7 +98,8 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
  });
  await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
  try{
-  browser=await puppeteer.launch({executablePath:process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--use-angle=metal','--ignore-gpu-blocklist'],defaultViewport:{width:1440,height:1000}});
+  browser=await puppeteer.launch({executablePath:process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:headlessMode(),args:['--use-angle=metal','--ignore-gpu-blocklist'],defaultViewport:{width:1440,height:1000}});
+  if(headlessMode())assert.ok(browser.process().spawnargs.some(arg=>arg==='--headless=new'||arg==='--headless'));
   const page=await browser.newPage();page.on('pageerror',e=>errors.push(e.message));const base=`http://127.0.0.1:${server.address().port}`;
   await page.goto(`${base}/?mouse=drag&fps=2`);await page.waitForSelector('[data-actor="C"]');
   await page.waitForFunction(()=>document.querySelector('#ab-status')?.textContent!=='載入外觀…');

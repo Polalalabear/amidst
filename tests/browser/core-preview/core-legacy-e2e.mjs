@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir,readFile} from 'node:fs/promises';
@@ -11,10 +12,12 @@ if(!source)throw Error('CORE_SOURCE_REQUIRED');
 const moduleId=process.env.PLAYWRIGHT_CORE_MODULE;
 const {chromium}=await import(moduleId?pathToFileURL(moduleId).href:'playwright-core');
 const screenshotDir=process.env.SCREENSHOT_DIR??join(tmpdir(),'amidst-459-screenshots');
-const browserOptions={headless:true};
+const browserOptions={headless:headlessMode()};
 if(process.env.CHROME_EXECUTABLE)browserOptions.executablePath=process.env.CHROME_EXECUTABLE;
 const preview=await startPreview({source,port:0});
-const browser=await chromium.launch(browserOptions);
+let browser;
+try {
+browser=await chromium.launch(browserOptions);
 const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
 const pageErrors=[],shots=[];page.on('pageerror',error=>pageErrors.push(String(error)));
 await mkdir(screenshotDir,{recursive:true});
@@ -24,7 +27,7 @@ const awaitFeedback=async phrase=>{await page.waitForFunction(value=>document.qu
 const seek=async t=>page.locator('#q-scrub').evaluate((element,value)=>{element.value=String(value);element.dispatchEvent(new Event('input',{bubbles:true}));},t);
 const coreSearch=async expected=>{const response=page.waitForResponse(r=>r.url().endsWith('/api/q_core_search')&&r.request().method()==='POST');await page.locator('#q-core-search').click();await response;await page.waitForFunction(n=>document.querySelector('#q-core-feedback')?.textContent?.includes('查找回應：READY')&&document.querySelectorAll('#core-search-wall-slot .q-core-card').length===n,expected);};
 let checks=0;const check=(value,message)=>{assert.ok(value,message);checks++;};
-try{
+
   await page.goto(preview.url+'?ui=legacy',{waitUntil:'networkidle'});  // this script drives the legacy workbench DOM
   await page.locator('#q-core-region:not([disabled])').waitFor();
   check((await page.locator('#synthetic-api-banner').innerText()).includes('SYNTHETIC API FIXTURE'),'fixed synthetic banner');
@@ -122,4 +125,4 @@ try{
   }
   check(pageErrors.length===0,'no browser page errors: '+pageErrors.join('; '));
   console.log(JSON.stringify({status:'PASS',checks,source_head:preview.head,url:preview.url,screenshots:shots,not_verified:['Windows','Linux','real RGB','physical display fps; measured rate is the synthetic source clock only']},null,2));
-}finally{await browser.close();await new Promise((done,reject)=>preview.server.close(error=>error?reject(error):done()));}
+}finally{try{await browser?.close();}finally{await new Promise((done,reject)=>{preview.server.close(error=>error?reject(error):done());preview.server.closeAllConnections?.();});}}

@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Real server acceptance: only visible UI controls, source-bound API, and decoded RGB.
 import assert from 'node:assert/strict';
 import {checkEightCamWall} from './eightcam-check.mjs';
@@ -10,9 +11,10 @@ import {execFileSync} from 'node:child_process';
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE??owned.playwrightModule).href);
 const out=process.env.UI_QA_OUTPUT??owned.evidenceRoot+'/ui-real';await mkdir(out+'/screenshots',{recursive:true});
 const base=new URL('/workbench-v2/',process.env.UI_QA_BASE_URL??process.env.CORE_BASE_URL??'http://127.0.0.1:8785').href;
-const b=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const b=await chromium.launch({headless:headlessMode(),executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const viewportHeight=Number(process.env.UI_QA_HEIGHT??900);
 const results=[],errors=[],http=[],playbacks=[],backendStopRequests=[],blindReview=[],d146Review=[],assertions=[],observerErrors=[];let checks=0;const check=(ok,text)=>{assert.ok(ok,text);checks++;assertions.push(text);};
+try {
 const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png';await p.screenshot({path:file,fullPage:true});const raw=await readFile(file);const r={name,url:p.url(),bytes:raw.length,sha256:createHash('sha256').update(raw).digest('hex'),...data};results.push(r);console.log(JSON.stringify(r));};
 // D139: blank times select the full recording. A later snapshot must stay hidden at an earlier playhead; endpoint persistence is recorded separately as a review finding.
 const seek=async(p,t)=>{await p.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await p.locator('#ui-scrub').inputValue())===t,'range input preserves requested timestamp');};
@@ -72,7 +74,7 @@ const continuous=async(p,event,track,frames)=>{
  const review={event,kind:'continuous',sample,frameResponses:served.map(({mediaUrl,...f})=>f)};d146Review.push(review);
  await capture(p,event+'-continuous-end',{sampledRenders:sample.total,missing:sample.missing,notDecodedRenders:sample.notDecoded});
 };
-try{
+
 for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','14:00:00','14:00:50',4],['B4-1','14:10:00','14:10:42',5]]){
  const ctx=await b.newContext({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),p=await ctx.newPage(),frames=[],frameJobs=[];
  p.on('response',r=>{if(r.url().endsWith('/api/q_frames')&&r.status()===200)frameJobs.push(r.json().then(doc=>{for(const tile of doc.tiles??[])frames.push({tUs:doc.t_us,cam:tile.camera_id,status:tile.status,frameIndex:tile.frame_index,sourceTimeS:tile.timestamp_s,servedSha256:tile.served_sha256,mediaUrl:tile.media_url});}).catch(error=>observerErrors.push({event,error:String(error),kind:'RESPONSE_BODY_CAPTURE_UNAVAILABLE'})));});
@@ -181,4 +183,4 @@ await p.goto(base+'?run=A4-1&screen=search&class=car');await decoded(p,'#ui-case
 const eightcam = await checkEightCamWall(p, base, check, {required: process.env.UI_QA_REQUIRE_8CAM === '1'});
 if (eightcam) await capture(p, 'a4-8cam-wall', eightcam);
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
-}finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
+}finally{try{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));}finally{await b.close();}}
