@@ -78,9 +78,26 @@ test('script mutual timeout only allows the later-priority script through; logs 
  assert.ok(s.events.some(e=>e.type==='forced_overlap'&&e.chain));
  for(const e of s.events.filter(e=>e.type==='forced_overlap')){assert.equal(e.i,'C');assert.equal(e.chain,true);}
 });
+test('C-5 a script conflict without direct player delay remains a failure event', () => {
+ const routes = run([
+  actor('T', [[0, 0, 10], [100, 0, 10]]),
+  actor('A', [[0, 0, 0], [100, 0, 0]]),
+  actor('C', [[0, -2, 0], [100, 98, 0]]),
+ ]);
+ for (const actorId of [null, 'T']) {
+  const crowd = createCrowd(routes, {actorId});
+  for (let tick = 0; tick < 80; tick++) crowd.step({}, .1);
+  const events = crowd.snapshot().events;
+  assert.equal(events.some(event => event.type === 'block_wait'), false);
+  const forced = events.filter(event => event.type === 'forced_overlap');
+  assert.ok(forced.length > 0);
+  assert.ok(forced.every(event => event.kind === 'script' && !event.cause));
+ }
+});
 test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clocks and C-7 timing',()=>{
  let seed=0x568;const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/2**32);
  const report=[];
+ let phaseShiftCounterexample;
  for(const r of runs)for(const id of ['T','A','B','C']){
   const c=createCrowd(r,{actorId:id}),baseline=createCrowd(r,{actorId:null});let raw=0,penetrations=0,total=0,separated=0,excluded=0,compute=0;
   for(let k=0;k<1000;k++){
@@ -88,6 +105,17 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
    const nearest=others.sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
    let keys={};if(k%80<55&&nearest){keys={w:nearest.y>p.y,s:nearest.y<p.y,d:nearest.x>p.x,a:nearest.x<p.x,shift:k%3===0};}else keys={w:random()>.5,s:random()>.5,a:random()>.5,d:random()>.5};
    const start=performance.now(),s=c.step(keys,.1);compute+=performance.now()-start;const base=baseline.step({},.1);
+   if (r.run_id === 'A4-1-v2-4actor' && id === 'T' && s.tick === 787) {
+    phaseShiftCounterexample = s.events.find(event => event.type === 'forced_overlap'
+      && event.tick === 787 && event.i === 'C' && event.j === 'B');
+    const completedPlayerWait = before.events
+      .filter(event => event.type === 'block_wait' && event.i === 'B')
+      .reduce((seconds, event) => seconds + event.waited_s, 0);
+    const blocker = before.actors.find(a => a.actor_id === 'B');
+    close(completedPlayerWait, 19);
+    close(blocker.pause_total_i, 21.9);
+    assert.equal(blocker.block_wait, 0);
+   }
    for(const a of s.actors.filter(a=>!a.is_player)){
     close(a.s_i+a.pause_total_i,s.t_sim,1e-7);
     const expected=scriptedPose(r.actors.find(x=>x.actor_id===a.actor_id),a.s_i,r.duration_us/1e6);
@@ -102,10 +130,37 @@ test('C-1..5 fixed-seed 100s crowd stress, source line fidelity, independent clo
    }
   }
   const s=c.snapshot(),forced=s.events.filter(e=>e.type==='forced_overlap');
-  const metrics={run:r.run_id,actor:id,raw_player_penetrations:raw,player_penetrations:penetrations,separation:separated/total,excluded_pairs:excluded,forced_nonchain:forced.filter(e=>!e.chain).length,forced_chain:forced.filter(e=>e.chain).length,mean_step_ms:compute/1000,forced_events:forced};
+  const metrics = {
+   run: r.run_id,
+   actor: id,
+   raw_player_penetrations: raw,
+   player_penetrations: penetrations,
+   separation: separated / total,
+   excluded_pairs: excluded,
+   baseline_forced_overlap: baseline.snapshot().events.filter(e => e.type === 'forced_overlap').length,
+   forced_player_phase_shift: forced.filter(e => e.kind === 'script' && e.cause === 'player_phase_shift').length,
+   forced_script_other: forced.filter(e => e.kind === 'script' && e.cause !== 'player_phase_shift').length,
+   forced_player: forced.filter(e => e.kind === 'player').length,
+   forced_nonchain: forced.filter(e => !e.chain).length,
+   forced_chain: forced.filter(e => e.chain).length,
+   mean_step_ms: compute / 1000,
+   forced_events: forced,
+  };
   report.push(metrics);
  }
  if(process.env.AMIDST_TEST_EVIDENCE)fs.writeFileSync(`${process.env.AMIDST_TEST_EVIDENCE}/crowd-stress.json`,JSON.stringify(report,null,2));
  console.log('CROWD_STRESS '+JSON.stringify(report));
- for(const metrics of report){assert.equal(metrics.player_penetrations,0,JSON.stringify(metrics));assert.ok(metrics.separation>=.99,JSON.stringify(metrics));assert.equal(metrics.forced_nonchain,0,JSON.stringify(metrics));}
+ assert.ok(phaseShiftCounterexample, 'A4 player T emits C→B forced overlap at tick 787');
+ close(phaseShiftCounterexample.t_sim, 78.7);
+ assert.equal(phaseShiftCounterexample.chain, false);
+ assert.equal(phaseShiftCounterexample.kind, 'script');
+ assert.equal(phaseShiftCounterexample.cause, 'player_phase_shift');
+ for (const metrics of report) {
+  const receipt = JSON.stringify(metrics);
+  assert.equal(metrics.player_penetrations, 0, receipt);
+  assert.ok(metrics.separation >= .99, receipt);
+  assert.equal(metrics.baseline_forced_overlap, 0, receipt);
+  assert.equal(metrics.forced_player, 0, receipt);
+  assert.equal(metrics.forced_script_other, 0, receipt);
+ }
 });

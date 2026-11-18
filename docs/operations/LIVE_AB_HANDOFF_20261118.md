@@ -3,7 +3,36 @@
 Feature branch `codex/feat-live-ab`, base main `0606b164`; contract PR #567 v2
 `6e3a35f0`, decisions D279. One Draft PR for all #566 sub-issues.
 
-## #568: blocked on C-5, not accepted
+## #568: C-5 passes under D282
+
+[D282](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6966400705)
+keeps the no-player baseline at zero script forced overlaps. If either script actor
+already lost script time to direct player blocking, the force event carries
+`kind: "script", cause: "player_phase_shift"`. A force event without that cause
+still fails C-5. The existing `chain` flag records whether the peer is currently
+player-blocked at the force step. The offline scorer counts tagged events under
+`forced_overlap.player_phase_shift` and retains its legacy buckets for earlier logs.
+A copies these events into its private download.
+
+At seed `0x568` and 0.1 s steps, each 100 s A4-1/B4-1 × T/A/B/C trial had zero
+baseline forced overlaps, zero other script forced overlaps, zero player forced
+passes and zero player penetrations. Separation was 1.0 after declared script pair
+exclusion. Tagged events were A4 T/A/B/C = 2/2/2/2 and B4 = 1/0/1/1.
+The regression asserts that tick 787 (78.7 s, A4 player T) classifies C passing B
+as a phase shift even with `chain: false`. B had 19.0 s of direct player wait and
+21.9 s of total script pause. A separate fixture with neither script delayed by the
+player still emits an unclassified script force event with or without a player present.
+
+The final LIVE Node suite passed 61 tests with N6 assets and the fake-backend browser
+test enabled. Run it with `LIVE_AB_BROWSER=1 AMIDST_LIVE_ASSETS=<N6 assets>
+LIVE_AB_TEST_OUTPUT=<new evidence directory> AMIDST_TEST_EVIDENCE=<new evidence directory>
+node --test frontend/live-mode/test/*.test.mjs`. The offline scorer passed 27 tests with
+`python -B -m pytest tests/evaluation/test_live_ab_score.py -q`. `git diff --check` passed.
+LOCAL `local/evidence/cx568-d282-20261118/MANIFEST.json`, SHA-256 `7f37f44bf1d0606e30441a90a2718937d11ef9055085bf569d74b4d7234cc021`, 8 files / 38,558 bytes.
+The manifest binds both test logs, test-first failure, stress counts, scenario hash,
+browser receipt and diff check. Run times and browser clocks vary between runs.
+
+### Original C-5 checkpoint before D282
 
 Pure crowd/sim implementation is present. No operator/backend/B wiring in this stage.
 Player waits forever; script/script waits 3 s, only later-priority script gets a
@@ -21,11 +50,11 @@ baseline. C-8, legacy movement/sliding, and real A4/B4 60-second stationary play
 wait/release checks pass. C-7 mean step range 0.022720–0.030177 ms (report only).
 
 C-5 actual non-chain counts: A4 T/A/B/C =2/2/1/2; B4=0/0/1/1. Chain counts A4=0/0/1/0;
-B4=1/0/0/0. Do not relabel them, change seed or weaken the test. Counterexample:
+B4=1/0/0/0. The historical chain labels are retained. Counterexample:
 A4 selectedT, tick787 (78.7s), C waits3s for B at0.67738m; B is not currently blocked
 by player (chain=false), but its clock is delayed21.9s, so the original synchronous
 route separation does not guarantee separation after individual pauses. Original
-scenario remains unchanged. C-5 requires a contract decision; this stage is not complete.
+scenario remains unchanged. This was the C-5 checkpoint that prompted D282.
 
 Requested regression command (hud/llm_switch/n6/protocol/schedule), with
 `AMIDST_LIVE_ASSETS` pointing at existing LOCAL assets: **41 passed**, zero skipped.
@@ -44,11 +73,9 @@ scriptedPose at dt=.1s.
 
 ## Remaining scope and gates
 
-#569 depends on this crowd interface but C-5 remains unaccepted; #570 and #573 are
-independent ready work. #571/#572/#574 remain blocked until board prerequisites clear.
-#559 remains a separate feature branch/PR with D273 follow-up; do not merge it into
-this branch before the user merges it to main. No rebase, force-push, PR merge or
-cleanup process/file deletion is performed by this session (current AGENTS workflow).
+#568, #569, #570 and #573 are in the same draft #584. #571, #572 and #574 depend on
+#559 reaching main and on the prerequisites listed in their issues.
+#559 moved to Ready under D282 after merging main into its feature branch.
 
 
 ## #570: offline scorer complete, producer integration pending
@@ -157,8 +184,7 @@ Begin first requires a successful /reset with a 16-hex session_id. Missing-token
 backends fail closed and require reload; real integration awaits #571. Only after
 this response does A set up the scene, one selected player and three distinct
 script variants via the #568 crowd interface, render and capture camera pixels.
-The already reported #568 C-5 failure is unchanged, so this stage does not establish
-full crowd acceptance or a completed epic.
+The earlier #569 run preceded the D282 C-5 fix described above.
 
 Camera decision resolving spec §1.2 UNKNOWN: old A used a fixed world +Y view (N6
 height9m/back2.2m), independent of player heading. The new orbit follows player xy
@@ -200,8 +226,7 @@ logs, downloaded JSON and fake-backend request receipts. Final screenshots/recei
 under the manifest's verified-browser entries. Rebuild using the command above and
 the same source N6 assets/scenario; timing, screenshots and logs are not byte-identical.
 No real pointer-lock feel, full B/backend, detector latency, session reset across B,
-identity or physical safety verified. Real acceptance remains gated on #568 decision
-and #559/#571/#572/#574, not this fake backend.
+identity or physical safety verified. Backend and full A/B acceptance depend on #559/#571/#572/#574.
 
 ### #569 CI follow-up: schema inventory
 
@@ -214,4 +239,3 @@ CI-failing pytest nodes pass. LOCAL `local/evidence/cx569-ci-20261118/MANIFEST.j
 pre-fix CI log, post-fix guard and focused pytest output. Rebuild the guard with
 scripts/check_architecture_guard.py and the two test_verify_clean_clone nodes in
 tests/q1q5/test_cross_platform_scripts.py; the historical CI log is a retained receipt.
-C-5 is unchanged and still not accepted.

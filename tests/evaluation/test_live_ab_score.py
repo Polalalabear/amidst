@@ -142,13 +142,19 @@ def test_collision_event_dedup_chain_counts_and_wait_totals():
     a["forced_overlap"] = [
         {"tick": 10, "i": "T", "j": "A", "kind": "script", "chain": True},
         {"tick": 20, "i": "A", "j": "T", "kind": "script", "chain": False},
+        {
+            "tick": 30, "i": "B", "j": "C", "kind": "script", "chain": False,
+            "cause": "player_phase_shift",
+        },
     ]
     a["ticks"][3]["forced_overlap"] = copy.deepcopy(a["forced_overlap"])
     a["block_wait"] = [{"tick": 15, "i": "T", "j": "player", "waited_s": 10}]
     a["ticks"][-1]["block_wait"] = [{"i": "T", "j": "player", "waited_s": 3}]
     a["ticks"][-1]["pause_total_i"] = {"T": 15}
     stats = score_logs(a, b)["crowd"]
-    assert stats["forced_overlap"] == {"chain": 1, "nonchain": 1, "player": 0, "unknown_chain": 0}
+    assert stats["forced_overlap"] == {
+        "chain": 1, "nonchain": 1, "player": 0, "unknown_chain": 0, "player_phase_shift": 1,
+    }
     assert stats["block_wait_total_s"] == 13 and stats["pause_total_s"] == 15
 
 
