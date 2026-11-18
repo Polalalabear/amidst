@@ -72,12 +72,14 @@ GT 只在**所有重鎖運算完成之後**的離線評分用（`frontend/live-m
 | 外觀確認：≥ 2 群通過，或唯一通過者與次佳差距 `< margin_app`，或 `tau_app` 為 UNKNOWN／0（不允許自動） | 不能唯一決定 | **不自動選**，`state = 'NEEDS_CONFIRM'`，est 凍結在最後估計 | `NEEDS_CONFIRM`（只在進入時發一次，之後只更新 `confirm_candidates`） |
 | 外觀確認：有群在 `R(u)` 內但沒有一群通過 | 都不像目標 | **維持 `LOST`**（不接回，也不進 `NEEDS_CONFIRM`；避免對每個路人都問） | — |
 | `LOST`／`NEEDS_CONFIRM`，`R(u)` 內沒有任何群 | 沒有候選 | 維持原狀態，`unseen_s` 繼續增加 | — |
+| `NEEDS_CONFIRM`，恰好一群 `d ≤ gate_m`（到凍結的 `est`，`predict` 開時為 `{est, pred}`）且 `is_short(unseen_s)`（`t_short_s` UNKNOWN 依 §4.5 視為 ∞；`= 0` 時關閉） | 待確認中，有人回到 gate 內 | **自動接回 gate 內那一群**（同 `short_gate`）；gate 外的群，包括 `confirm_candidates` 中的候選，不阻擋，也不被選中；gate 內 ≥ 2 群時照外觀確認 | `REACQUIRE`，`detail.mode='short_gate'` |
 | `NEEDS_CONFIRM`，候選集變成「恰好 1 群通過且與次佳差距 ≥ margin」 | 其他候選離開 | 自動接回（同 `mode='appearance'`） | `REACQUIRE` |
 | `NEEDS_CONFIRM`，使用者／裁決選定其中一個 `cand_id` | 見 §3.3 | 以選定群接回，est 設為該群位置 | `REACQUIRE`，`detail.mode='confirmed'`，`detail.by='user'` 或 `'llm_hypothesis'` |
 | 任一狀態，使用者改選別人（AB §5.4 `reselect`） | — | 不屬於本契約，照 AB 規格 | — |
 
 重點：
 
+- `NEEDS_CONFIRM` 只比 `LOST` 多一個出口（使用者／裁決確認），不少任何出口：同一 tick、同一觀測下 `LOST` 會走的 `short_gate`，在 `NEEDS_CONFIRM` 也會走。待確認名單中 gate 外的唯一候選**不得**因唯一而自動接回（D314-4，#588 B4 capture 37 的唯一候選是路人）。
 - **`LOST` 與 `NEEDS_CONFIRM` 沒有失敗終點**：不設逾時、不自動放棄；`unseen_s` 一直累計，報表照列（§6 的失聯秒數）。
 - 「候選在 gate 外」不論 `unseen_s` 多短都走外觀確認，所以 A4 ENTRY 的 4.76／4.68 m 不會落在「短失聯但超出 gate」的空洞裡。
 - `ACQUIRE`（`SEARCHING` 時第一次鎖定）邏輯與 `same_m` 規則完全不變。
@@ -164,7 +166,7 @@ GT 只在**所有重鎖運算完成之後**的離線評分用（`frontend/live-m
 
 | 量測結果 | 退回 |
 | --- | --- |
-| `t_short_s` 為 UNKNOWN | 保持現行 gate 內自動接回（等於 `t_short_s = ∞`），但多個候選時仍走 §2.3（不再無聲選最近） |
+| `t_short_s` 為 UNKNOWN | 保持現行 gate 內自動接回（等於 `t_short_s = ∞`），但多個候選時仍走 §2.3（不再無聲選最近）；此退回同樣適用於 `NEEDS_CONFIRM` 的 gate 內出口（§2.3） |
 | `v_walk_m_s` 為 UNKNOWN | `R(u)` 暫時用現行 `max_gate_m`（8.0 m），並在報告標「暫用，非量測值」；這是唯一一處暫時的上限，量到後取消 |
 | `tau_app` 為 UNKNOWN 或 0 | 所有外觀確認結果走 `NEEDS_CONFIRM`，不自動接回；ENTRY 案例就會以 `NEEDS_CONFIRM`（含正確候選）收尾，這仍然符合 §6 的 R-4 |
 
@@ -209,7 +211,7 @@ python scripts/live_mode/replay_advisor.py <參數 UNKNOWN：照該腳本現有 
 | 編號 | 條件 |
 | --- | --- |
 | R-1 | **GT 隔離**：`Tracker` 與外觀模組不 import scenario、不收 GT 欄位；測試把 `actor_id`／`gt_visible`／`xy` 等欄位塞進 `dets` 後，輸出與沒塞時逐 tick 相同；`replay_relock.py` 的函式簽名沒有 scenario／GT 參數（靜態檢查＋測試） |
-| R-2 | **短失聯、gate 內、唯一候選**（合成觀測，`unseen_s ≤ t_short_s`）：自動 `REACQUIRE(mode:'short_gate')`；同一情況但 gate 內有第二個候選：**不**自動選最近，進外觀確認（結果為 `appearance` 接回或 `NEEDS_CONFIRM`） |
+| R-2 | **短失聯、gate 內、唯一候選**（合成觀測，`unseen_s ≤ t_short_s`）：自動 `REACQUIRE(mode:'short_gate')`；同一情況但 gate 內有第二個候選：**不**自動選最近，進外觀確認（結果為 `appearance` 接回或 `NEEDS_CONFIRM`）；在 `NEEDS_CONFIRM` 中（由 gate 外候選觸發），gate 內出現唯一一群且 `is_short` 時，自動 `REACQUIRE(mode:'short_gate')` 到該群，不選 gate 外的待確認候選 |
 | R-3 | **長失聯／gate 外**（合成）：候選在 `d = gate_m + 0.76 m`、`unseen_s ≤ t_short_s` 時，不走 `short_gate`，走外觀確認；`d_app ≤ tau_app` 且次佳差距 ≥ `margin_app` → `REACQUIRE(mode:'appearance')`；兩個都通過 → `NEEDS_CONFIRM`，`confirm_candidates` 長度 2、按 `d_app` 排序、**沒有自動選**；候選都不通過 → 維持 `LOST`，不進 `NEEDS_CONFIRM`；`R(u)` 外的候選被忽略 |
 | R-4 | **A4 ENTRY 再入鏡案例**（D273：`all` tick 52，adaptive tick 62，最近投影 4.7596／4.6824 m）：在 R-3 的規則下，該 tick 的結果必須是以下之一：(a) `REACQUIRE` 到**正確**目標群（離線評分用 §1 的 1.5 m 規則），或 (b) `NEEDS_CONFIRM` 且 `confirm_candidates` 含正確目標群。**不得**自動接到錯的人。報告把兩個延遲**分開列**：「正確候選第一次被呈現（自動接回或 `NEEDS_CONFIRM`）的 `t_capture` − 該人再入鏡的第一個 capture」與「正確的自動接回延遲」（後者不一定有值，沒有就寫 `null`，不當成通過也不當成失敗） |
 | R-5 | **錯接 = 0**：§4.1 整個重播集（A4、B4，`all` 與 `adaptive` 兩種排程）中，自動 `REACQUIRE` 接到錯誤目標群的次數 = 0；`NEEDS_CONFIRM` 次數與每次持續秒數另列，不設閘門 |
