@@ -329,3 +329,17 @@
 
 .q-core-tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
 .q-core-auto-seed,.q-core-reason{font-size:12px;padding:2px 8px;border:1px solid currentColor;border-radius:10px;opacity:.9}
+
+/* Topdown 2D/3D toggle and 3D scene (#605); desktop only */
+.q-topdown-mode{display:inline-flex;gap:4px;margin-left:.75rem}
+.q-topdown-mode-btn{padding:.1rem .55rem;font-size:.75rem}
+.q-scene3d-note{margin:.4rem 0;color:#ffb86c;font-size:.8rem}
+.q-scene3d-host{position:relative;width:100%;background:#1b2130;border-radius:4px;overflow:hidden;min-height:120px}
+.q-scene3d-canvas{display:block;width:100%}
+.q-scene3d-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.q-scene3d-label{position:absolute;transform:translate(-50%,-100%);font-size:11px;color:#fff;background:rgba(0,0,0,.55);padding:0 4px;border-radius:2px;white-space:nowrap}
+.q-scene3d-label.on{background:#2a9d5a;font-weight:600}
+.q-scene3d-label.blind{background:#a8670f}
+.q-scene3d-hud{display:flex;flex-wrap:wrap;gap:.9rem;margin:.4rem 0;font-size:.8rem;color:#ddd}
+.q-scene3d-blind{color:#ffb86c;font-weight:600}
+.q-scene3d-legend{margin:.2rem 0 0;padding-left:1.1rem;font-size:.75rem;color:#999}

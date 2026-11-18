@@ -17,6 +17,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import parse_qs, urlsplit
 
+from amidst.paths import amidst_root, local_dir
 from amidst.q1q5.api import QAPI, APIError, RecordingStore, from_environment
 from amidst.q1q5.dynamic_rgb import load_dynamic_rgb
 from amidst.q1q5.graphs import load_graphs
@@ -35,6 +36,25 @@ def local(root, ref):
     p=root.joinpath(*parts)
     require(p.resolve().is_relative_to(root) and not any(x.is_symlink() for x in [p,*p.parents] if x.is_relative_to(root)),'PATH_ESCAPE')
     return p
+
+
+REPO=amidst_root()
+SCENE3D_ASSET_FILES=('scene.glb','cameras.three.json')
+
+
+def scene3d_assets_root():
+    """N6 assets for the workbench 3D view: AMIDST_SCENE3D_ASSETS, else local/data/live-assets-20261115 (git-ignored)."""
+    env=os.environ.get('AMIDST_SCENE3D_ASSETS')
+    root=Path(env).expanduser().resolve() if env else local_dir()/'data/live-assets-20261115'
+    return root if root.is_dir() else None
+
+
+def scene3d_three_root():
+    """three.js 0.186.1 package folder: AMIDST_THREE_ROOT, else the live-mode node_modules copy (local, not in git)."""
+    env=os.environ.get('AMIDST_THREE_ROOT')
+    for c in ([Path(env).expanduser()] if env else [REPO/'frontend/live-mode/node_modules/three',local_dir()/'runtime/live-main/frontend/live-mode/node_modules/three']):
+        if (c/'build/three.module.js').is_file():return c.resolve()
+    return None
 
 
 def verify_bundle(root, expected_manifest_sha256):
@@ -196,6 +216,16 @@ class P1:
                 self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers();self.wfile.write(body)
             def valid_host(self):
                 port=self.server.server_port;require(self.headers.get('Host') in {f'127.0.0.1:{port}',f'localhost:{port}'},'LOOPBACK_HOST_REQUIRED')
+            def scene3d(self,rel):
+                # #605 3D scene view: LOCAL assets (not in git) + three.js, read-only, whitelisted names; absent -> 404 (client falls back to 2D).
+                try:
+                    if rel in SCENE3D_ASSET_FILES:root=scene3d_assets_root();p=root/rel if root else None
+                    elif rel.startswith('three/') and PurePosixPath(rel).suffix in {'.js','.mjs'}:root=scene3d_three_root();p=local(root,rel.removeprefix('three/')) if root else None
+                    else:raise ValueError('STATIC_SCOPE')
+                    if p is None or not p.is_file():return self.reply(404,b'{"error_code":"SCENE3D_ASSET_MISSING"}')
+                    kind={'.glb':'model/gltf-binary','.json':'application/json','.js':'text/javascript','.mjs':'text/javascript'}[p.suffix]
+                    return self.reply(200,p.read_bytes(),kind)
+                except (ValueError,KeyError,OSError):return self.reply(403,b'{"error_code":"FORBIDDEN_DATA_SCOPE"}')
             def do_GET(self):
                 try:
                     self.valid_host();u=urlsplit(self.path)
@@ -204,6 +234,7 @@ class P1:
                     if u.path=='/api/controlled_scene_media':
                         q=parse_qs(u.query);require(set(q)=={'token'} and len(q['token'])==1,'MEDIA_TOKEN_INVALID')
                         return self.reply(200,app.rgb.media(q['token'][0]),'image/png')
+                    if u.path.startswith('/scene3d/'):return self.scene3d(u.path.removeprefix('/scene3d/'))
                     relative='index.html' if u.path in {'/','/workbench-v2/','/workbench-v2'} else u.path.removeprefix('/workbench-v2/')
                     require(u.path in {'/','/workbench-v2/','/workbench-v2'} or u.path.startswith('/workbench-v2/'),'STATIC_SCOPE')
                     p=local(app.ui_root,relative)

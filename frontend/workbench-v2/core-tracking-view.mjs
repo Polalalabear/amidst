@@ -9,6 +9,8 @@ import {
   CORE_NAVIGATION_BADGE,
 } from './core-search-track-model.mjs';
 import { resolveFrameImageSrc } from './core-media.mjs';
+import { buildScene3dModel } from './scene3d-model.mjs';
+import { mountScene3dView } from './scene3d-view.mjs';
 
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -29,6 +31,7 @@ export function mountCoreTrackingView({
   mediaResolver = null,
   synthetic = false,
   onFrameReady = () => {},
+  scene3dFactory = mountScene3dView,
 } = {}) {
   if (!container) throw new Error('CONTAINER_REQUIRED');
 
@@ -37,6 +40,31 @@ export function mountCoreTrackingView({
   let generation = 0;
 
   let lastRenderKey=null;
+  // Topdown 2D/3D toggle (#605). 2D is the default; the 3D view is created on demand and kept across re-renders
+  // (the 34 MB scene loads once). Missing assets -> note + back to 2D, the page never breaks.
+  let topdownMode = '2d', scene3d = null, scene3dHost = null, scene3dReady = false, scene3dNote = '';
+  function setTopdownMode(mode) {
+    if (destroyed || mode === topdownMode) return;
+    if (mode === '2d') { topdownMode = '2d'; scene3dNote = ''; lastRenderKey = null; render(currentModel); return; }
+    topdownMode = '3d'; scene3dNote = scene3dReady ? '' : '載入 3D 場景…';
+    if (!scene3d) {
+      scene3dHost = el('div', undefined, 'q-scene3d-host');
+      try { scene3d = scene3dFactory({ host: scene3dHost }); } catch { scene3d = null; }
+      if (!scene3d) { failScene3d(); return; }
+      scene3d.ready.then(() => { if (destroyed) return; scene3dReady = true; scene3dNote = ''; lastRenderKey = null; render(currentModel); }, failScene3d);
+    }
+    lastRenderKey = null; render(currentModel);
+  }
+  function failScene3d() {
+    if (destroyed) return;
+    try { scene3d?.destroy(); } catch { /* ignore */ }
+    scene3d = null; scene3dHost = null; scene3dReady = false; topdownMode = '2d'; scene3dNote = '3D 資產不存在';
+    lastRenderKey = null; render(currentModel);
+  }
+  function syncScene3d(model) {
+    if (topdownMode !== '3d' || !scene3dReady || !scene3d) return;
+    scene3d.update(buildScene3dModel({ view: model, cameraAsset: scene3d.cameraAsset() }));
+  }
   function render(model) {
     if(store&&model){
       const state=store.getState(),intervals=state.activeRun?.sampling?.per_camera?.map(c=>c.source_frame_interval_us).filter(x=>Number.isSafeInteger(x)&&x>0)??[];
@@ -283,7 +311,38 @@ export function mountCoreTrackingView({
 
     const navLine = el('p', model?.topdown?.identity_line ?? CORE_NAVIGATION_BADGE, 'q-core-identity-note');
     tdHead.append(navLine);
+    const modeSeg = el('div', undefined, 'q-topdown-mode');
+    modeSeg.setAttribute('role', 'group');
+    modeSeg.setAttribute('aria-label', '俯視圖顯示方式');
+    for (const [mode, text] of [['2d', '2D 示意'], ['3d', '3D 場景']]) {
+      const b = el('button', text, 'q-core-btn q-topdown-mode-btn');
+      b.type = 'button'; b.dataset.mode = mode;
+      b.setAttribute('aria-pressed', String(topdownMode === mode));
+      if (topdownMode === mode) b.classList.add('active');
+      b.addEventListener('click', () => setTopdownMode(mode));
+      modeSeg.append(b);
+    }
+    tdHead.append(modeSeg);
     topdownBox.append(tdHead);
+    if (scene3dNote) { const n = el('p', scene3dNote, 'q-scene3d-note'); n.setAttribute('role', 'status'); topdownBox.append(n); }
+
+    if (topdownMode === '3d' && scene3dHost) {
+      topdownBox.append(scene3dHost);
+      if (scene3dReady) {
+        const m3 = buildScene3dModel({ view: model, cameraAsset: scene3d?.cameraAsset() });
+        const hud = el('div', undefined, 'q-scene3d-hud');
+        const blindNow = m3.segmentKind === 'GAP' || m3.segmentKind === 'LOST';
+        hud.append(el('span', `t = ${(m3.currentTUs / 1e6).toFixed(1)} s`), el('span', blindNow ? '盲區（無鏡頭看到）' : '追蹤中', blindNow ? 'q-scene3d-blind' : ''), el('span', `作用中鏡頭：${m3.activeCameraId ?? '—'}`), el('span', `估計位置：${m3.estimate.status}`));
+        topdownBox.append(hud);
+        const legend = el('ul', undefined, 'q-scene3d-legend');
+        for (const t of m3.legend) legend.append(el('li', t));
+        topdownBox.append(legend);
+      }
+      root.append(topdownBox);
+      container.append(root);
+      syncScene3d(model);
+      return;
+    }
 
     // SVG Map Rendering
     const svg = document.createElementNS(SVG_NS, 'svg');
@@ -370,6 +429,7 @@ export function mountCoreTrackingView({
       update(m) { render(m); },
       destroy() {
         destroyed = true;
+        try { scene3d?.destroy(); } catch { /* ignore */ }
         unsub();
         container.replaceChildren();
       },
@@ -380,6 +440,7 @@ export function mountCoreTrackingView({
     update(m) { render(m); },
     destroy() {
       destroyed = true;
+      try { scene3d?.destroy(); } catch { /* ignore */ }
       container.replaceChildren();
     },
   };

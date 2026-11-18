@@ -748,14 +748,27 @@ export function buildCoreTrackingViewModel(trackResponse, {
     multiView: {
       cameras: multiCameras,
     },
-    topdown: projectTopdown(topdown, cameraPositions, activeCameraId),
+    topdown: projectTopdown(topdown, cameraPositions, activeCameraId, trackResponse.estimate ?? null),
     reasons: Array.isArray(trackResponse.reasons) ? trackResponse.reasons : [],
   };
 }
 
 // Projects camera display positions and the blind-interval curve (INFERRED, LOW) into the 0..100 SVG box the
 // tracking view draws. Display-only: positions are static-plan sketch coordinates, never measured paths.
-export function projectTopdown(topdown, cameraPositions, activeCameraId = null) {
+// `estimate` (optional, system output only; Codex supplies the source): { est_xy:[x,y] Blender m, uncertainty_m, track?, wall_segments_xy? }.
+// Missing or malformed -> est_xy / uncertainty_m = 'UNKNOWN'; never filled from Ground Truth or any renderer-side source (#605).
+export function projectTopdown(topdown, cameraPositions, activeCameraId = null, estimate = null) {
+  const ok = estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && Array.isArray(estimate.est_xy) && estimate.est_xy.length === 2 && estimate.est_xy.every(Number.isFinite);
+  const est = {
+    est_xy: ok ? estimate.est_xy : 'UNKNOWN',
+    uncertainty_m: ok && Number.isFinite(estimate.uncertainty_m) && estimate.uncertainty_m >= 0 ? estimate.uncertainty_m : 'UNKNOWN',
+    estimate: ok ? estimate : null,
+  };
+  const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId);
+  return { ...base, ...est };
+}
+
+function projectTopdownNodes(topdown, cameraPositions, activeCameraId) {
   const positions = Object.entries(cameraPositions ?? {}).filter(([, p]) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite));
   const segment = topdown?.blind?.usable ? (topdown.blind.curve_segments ?? [])[0] : null;
   const curvePoints = segment && Array.isArray(segment.points) && segment.points.length > 1 ? segment.points : [];

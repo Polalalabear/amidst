@@ -57,3 +57,14 @@ def test_png_binary_pin_is_verified_separately_from_json(tmp_path):
     p=tmp_path/'frame.png';p.write_bytes(b'bounded RGB bytes')
     assert binary(p,hashlib.sha256(p.read_bytes()).hexdigest())==b'bounded RGB bytes'
     with pytest.raises(ValueError):binary(p,'0'*64)
+
+
+def test_scene3d_assets_are_local_env_scoped_and_absent_means_none(tmp_path, monkeypatch):
+    from amidst.q1q5.p1_workbench import SCENE3D_ASSET_FILES, scene3d_assets_root, scene3d_three_root
+    assert SCENE3D_ASSET_FILES==('scene.glb','cameras.three.json')
+    monkeypatch.setenv('AMIDST_SCENE3D_ASSETS',str(tmp_path/'missing'));assert scene3d_assets_root() is None
+    (tmp_path/'assets').mkdir();monkeypatch.setenv('AMIDST_SCENE3D_ASSETS',str(tmp_path/'assets'))
+    assert scene3d_assets_root()==(tmp_path/'assets').resolve()
+    monkeypatch.setenv('AMIDST_THREE_ROOT',str(tmp_path/'no-three'));assert scene3d_three_root() is None
+    (tmp_path/'three/build').mkdir(parents=True);(tmp_path/'three/build/three.module.js').write_text('x')
+    monkeypatch.setenv('AMIDST_THREE_ROOT',str(tmp_path/'three'));assert scene3d_three_root()==(tmp_path/'three').resolve()
