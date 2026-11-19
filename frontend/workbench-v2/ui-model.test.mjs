@@ -102,7 +102,7 @@ test('admin overview: figures come from bootstrap, the local snapshot and the ev
 
 const read = f => readFileSync(new URL('./' + f, import.meta.url), 'utf8');
 test('static: new front desk is wired, tokens match the approved design, no CDN, no GT words, one legacy bridge', () => {
-  const html = read('index.html'), admin = read('admin.html'), css = read('ui.css');
+  const html = read('index.html'), admin = read('admin.html'), css = read('ui.css') + read('tokens.css');
   assert.match(html, /id="ui-v1"/); assert.match(html, /href="ui\.css"/); assert.match(html, /<body id="q-root">/); assert.doesNotMatch(html + admin, /https?:\/\//);
   for (const token of ['#141413', '#d97757', '#d4724f', '#5a95d8']) assert.ok(css.toLowerCase().includes(token), token);
   for (const font of ['Source Serif 4', 'Inter', 'Noto Sans TC', 'JetBrains Mono']) assert.ok(css.includes(font), font);

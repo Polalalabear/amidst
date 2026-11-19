@@ -503,7 +503,7 @@ export async function start(body) {
     if (kind === 'lost' || kind === 'brief' || kind === 'searching' || kind === 'adjudicating') {
       c.style.display = 'flex';
       $('cb').textContent = v.track.text;
-      $('cb').style.color = kind === 'lost' ? '#e5484d' : kind === 'searching' ? '#aab2bf' : '#f5a623';
+      $('cb').style.color = kind === 'lost' ? '#e5484d' : kind === 'searching' ? 'var(--muted)' : 'var(--accent)';
       $('cs').textContent = kind === 'adjudicating' ? '畫面停在原鏡頭，等 LLM 回答' : kind === 'searching' ? '' : `最後鎖定的鏡頭：${v.cam}`;
     } else c.style.display = 'none';
     const bar = $('bar');
