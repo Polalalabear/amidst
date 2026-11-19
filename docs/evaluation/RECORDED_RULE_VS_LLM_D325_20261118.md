@@ -1,6 +1,6 @@
 # 預錄三事件：規則 vs LLM 覆核（D325，2026-11-18）
 
-授權：D325（使用者核准的 OpenAI 分析，上限 USD 10）。分析執行 session：`eval-recorded-llm`。本文件是研究紀錄，數字全部抄自 LOCAL 報告 `local/evidence/eval-recorded-llm-20261118/REPORT.md` 與 `tables.md`，沒有重算。相關 issue：[#597](https://github.com/Polalalabear/amidst/issues/597)（難題集，CL-B11）、[#620](https://github.com/Polalalabear/amidst/issues/620)（CL-B16，8785 Q2 Agent 開關）、報告素材 [#479](https://github.com/Polalalabear/amidst/issues/479)。
+授權：D325（使用者核准的 OpenAI 分析，上限 USD 10）。分析執行 session：`eval-recorded-llm`。本文件是研究紀錄，數字全部抄自 LOCAL 報告 `local/evidence/eval-recorded-llm-20261118/REPORT.md`（SHA-256 `2f6bd7c61c16aa158515e612c03b06c2eb98c38c6c16a6ef91c520c9e6013b31`）與 `tables.md`（SHA-256 `9da1910487f28fbb6a22f037a805dacfd41b4b76ab57a621e06a41b1dd0eab1c`），沒有重算。相關 issue：[#597](https://github.com/Polalalabear/amidst/issues/597)（難題集，CL-B11）、[#620](https://github.com/Polalalabear/amidst/issues/620)（CL-B16，8785 Q2 Agent 開關）、報告素材 [#479](https://github.com/Polalalabear/amidst/issues/479)。
 
 - Model / effort（本文件撰寫）：Claude Opus 5.5；effort UNKNOWN（session 看不到自己的設定）。分析本身的 model / effort：UNKNOWN（報告沒有記錄）。
 - 這是工程量測，不是辨識、身分或實體安全的正式驗收。「跟對」只表示顯示的框落在 GT 目標位置；身分仍然未確認。
@@ -85,7 +85,7 @@
 | 單次呼叫延遲 | p50 約 4.3–5.5 s，p95 約 6.7–7.4 s（見 §4 逐列） |
 | 整段事件重放牆鐘 | 80–116 s（規則 0.0 s） |
 | 花費（每模型每事件 K=3） | terra6.1 約 USD 0.065–0.073；sol6.1 約 USD 0.12–0.15 |
-| 本次總花費 | **USD 0.4115**（ApiGuard 帳本 `local/evidence/api-usage/usage.jsonl`，caller=`d325_eval`）；逾時呼叫沒有 usage，帳本按估價計，是上界 |
+| 本次總花費 | **USD 0.4115**（ApiGuard 帳本 `local/evidence/api-usage/usage.jsonl`，caller=`d325_eval`；帳本持續追加，SHA-256 不適用）；逾時呼叫沒有 usage，帳本按估價計，是上界 |
 | 事後診斷 | 約 USD 0.006（另計） |
 
 ## 8. 限制
@@ -105,9 +105,9 @@
 
 ## 10. LOCAL 產出
 
-目錄：`local/evidence/eval-recorded-llm-20261118/`（LOCAL，不進版控）。共 29 檔、約 2.3 MB（`raw/` 約 2.3 MB、`scripts/` 約 32 KB）。`SHA256SUMS` 列出其餘 28 檔，撰寫本文件時 `shasum -a 256 -c SHA256SUMS` 全部 OK。
+目錄：`local/evidence/eval-recorded-llm-20261118/`（LOCAL，不進版控；`SHA256SUMS` 的 SHA-256 `49c2d7903b24278f066b07d9d354f475b328840c98ab6283f0b344da818f1252`）。共 29 檔、約 2.3 MB（`raw/` 約 2.3 MB、`scripts/` 約 32 KB）。`SHA256SUMS` 列出其餘 28 檔，撰寫本文件時 `shasum -a 256 -c SHA256SUMS` 全部 OK。
 
-| 路徑（相對 `local/evidence/eval-recorded-llm-20261118/`） | 內容 | SHA-256 |
+| 路徑（相對上列目錄） | 內容 | SHA-256 |
 | --- | --- | --- |
 | `SHA256SUMS` | 其餘 28 檔的雜湊清單 | `49c2d7903b24278f066b07d9d354f475b328840c98ab6283f0b344da818f1252` |
 | `REPORT.md` | 完整報告（含附錄 A 診斷） | `2f6bd7c61c16aa158515e612c03b06c2eb98c38c6c16a6ef91c520c9e6013b31` |
