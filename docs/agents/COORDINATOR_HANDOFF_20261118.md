@@ -381,7 +381,7 @@ Codex 有沒推送的本機修改，額度用完，**2026-11-20 22:29** 才回�
 
 - 磁碟約 7.6 GiB 可用；交換檔約 5 GiB，可用空間會跳動。低於 9 GiB 不開第三個寫手，低於 5 GiB 停工。
 - 已刪：Xcode Previews、ShipIt、`~/.npm`。
-- B 類候選（要先確認才能刪）：codex-runtimes 2.4G、`.codex/visualizations` 1.8G、Chrome 快取 1.1G、`local/archive/office-canonical` 921M。
+- B 類候選（要先確認才能刪）：codex-runtimes 2.4G、`.codex/visualizations` 1.8G、Chrome 快取 1.1G、`local/archive/office-canonical` 921M（目錄層級的刪除候選，SHA-256 不適用）。
 
 ### 10.5 新協調者第一批工作（依優先順序）
 
