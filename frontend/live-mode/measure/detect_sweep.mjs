@@ -2,17 +2,17 @@
 // Output: JSON rows + summary in $OUT (default ./out).
 import fs from 'node:fs';
 import { launch, BASE, pct } from './lib.mjs';
-const [label, model = 'capsule', w = '320', h = '180', step = '1.0', headings = '0,90,180,270', scene = 'n6'] = process.argv.slice(2);
+const [label, model = 'capsule', w = '320', h = '180', step = '1.0', headings = '0,90,180,270', scene = 'n6', variant = 'T'] = process.argv.slice(2);
 const out = process.env.OUT || 'out'; fs.mkdirSync(out, { recursive: true });
 const b = await launch();
 const page = await b.newPage(); page.on('pageerror', (e) => console.log('[err]', e.message));
 page.on('console', (m) => { if (m.type() === 'error') console.log('[console]', m.text()); });
-await page.goto(`${BASE}/?role=sweep&model=${model}&scene=${scene}&w=${w}&h=${h}`);
+await page.goto(`${BASE}/?role=sweep&model=${model}&scene=${scene}&w=${w}&h=${h}&variant=${variant}`);
 await page.waitForFunction('window.__ready === true', { timeout: 60000 });
 const tris = await page.evaluate('window.__tris');
 const n6_scene = await page.evaluate('window.__n6');
 const t0 = Date.now();
-const { rows, times } = await page.evaluate(`window.__runSweep({step:${step}, headings:[${headings}]})`);
+const { rows, times } = await page.evaluate(`window.__runSweep({step:${step}, headings:[${headings}], region:${process.env.REGION || 'null'}})`);
 await b.close();
 const elig = rows.filter((r) => r.inside >= 0.6 && r.gt_h_px >= 16);
 const THR = Number(process.env.THR || 0.35); // live display threshold (server --min-score)

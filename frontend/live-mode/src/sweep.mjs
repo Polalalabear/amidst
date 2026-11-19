@@ -17,17 +17,22 @@ export async function start() {
   const P = params();
   const { geometry, world, cams, n6 } = await setupWorld(P);
   window.__n6 = n6;
-  const person = await makePerson(P.model, world, 'red');
+  const person = await makePerson(P.model, world, 'red', new URLSearchParams(location.search).get('variant') || 'T'); // #619: ?variant=T|A|B|C (glb)
   const cap = makeCapture(world, cams, P.w, P.h, P.quality);
   person.update(0.5); // apply the idle clip once (glb)
   window.__tris = person.tris;
-  window.__runSweep = async ({ step = 1.0, headings = [0, 90, 180, 270], limit = 1e9 } = {}) => {
+  // #619: GT pixel boxes of a person standing at given floor points, for offline scoring of recorded detections.
+  window.__project = (list) => { person.update(0.5); world.scene.updateMatrixWorld(true);
+    return list.map(({ cam, x, y }) => { const cc = cams[cam].camera.matrixWorld.elements;
+      return { box: projectBox(cams[cam].camera, world.root, x, y, P.w, P.h), dist_m: Math.hypot(cc[12] - x, cc[14] + y) }; }); };
+  window.__runSweep = async ({ step = 1.0, headings = [0, 90, 180, 270], limit = 1e9, region = null } = {}) => {
     const rows = [];
     let n = 0;
     const times = [];
     for (const f of geometry.floors) {
       if (f.floor_id === 'R004_EXTERIOR_FLOOR' && false) continue;
       for (let x = f.x_m[0] + step / 2; x < f.x_m[1]; x += step) for (let y = f.y_m[0] + step / 2; y < f.y_m[1]; y += step) {
+        if (region && (x < region[0] || x > region[1] || y < region[2] || y > region[3])) continue;
         if (blocked(x, y, world.segments, 0.3)) continue;
         for (const hd of headings) {
           if (n++ >= limit) return { rows, times };
@@ -54,7 +59,7 @@ export async function start() {
             let best = null, bi = 0;
             for (const d of ds) { const v = iou(d.bbox, clip); if (v > bi) { bi = v; best = d; } }
             rows.push({ cam, x, y, heading: hd, dist_m: +dist.toFixed(2), gt_h_px: +(clip[3] - clip[1]).toFixed(1), inside: +inside.toFixed(2),
-              iou: +bi.toFixed(2), score: best ? +best.score.toFixed(3) : 0, color: best ? best.color : null,
+              iou: +bi.toFixed(2), score: best ? +best.score.toFixed(3) : 0, color: best ? best.color : null, red_ratio: best ? +(best.red_ratio ?? 0).toFixed(3) : null,
               n_dets: ds.length, fp_scores: ds.filter((d) => iou(d.bbox, clip) < 0.1).map((d) => +d.score.toFixed(2)) });
           }
         }
