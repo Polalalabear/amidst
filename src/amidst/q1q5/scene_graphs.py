@@ -34,10 +34,25 @@ class SceneGraphs:
     """Search configuration copies, without a runtime candidate/authority grant."""
     _region: dict
     _camera: dict
+    _scope: dict | None = None          # r004 only: the byte-pinned tracking scope load_scene_graphs already verified
+    _scope_bytes: bytes | None = None
+    _scope_sha256: str | None = None
 
     @property
     def region(self):
         return deepcopy(self._region)
+
+    @property
+    def tracking_scope(self):
+        return deepcopy(self._scope)
+
+    @property
+    def tracking_scope_bytes(self):
+        return self._scope_bytes
+
+    @property
+    def tracking_scope_sha256(self):
+        return self._scope_sha256
 
     @property
     def camera(self):
@@ -154,7 +169,8 @@ def load_scene_graphs(scene_id, *, graph_root=None, run_scene_id=None, include_h
         checked = load_graphs(r, c, region_sha256=r['content_sha256'], camera_sha256=c['content_sha256'],
                               tracking_scope=scope, tracking_scope_bytes=docs['tracking_scope_v3_1.json'][1],
                               tracking_scope_sha256=R004_PINS['tracking_scope_v3_1.json'])
-        return SceneGraphs(checked.region, checked.camera)
+        return SceneGraphs(checked.region, checked.camera, checked.tracking_scope,
+                           docs['tracking_scope_v3_1.json'][1], R004_PINS['tracking_scope_v3_1.json'])
     directory = root / R005 / 'search_skeleton'
     pins, _ = _read(directory, 'source_pins.json', R005_MANIFEST_SHA256)
     try:
