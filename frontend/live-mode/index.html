@@ -1,41 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Amidst live mode (spike)</title>
-<style>
- html,body{margin:0;height:100%;background:#14171c;color:#d8dde5;font:13px/1.4 -apple-system,Helvetica,Arial,sans-serif}
- #op{display:grid;grid-template-columns:1fr 360px;height:100%}
- #op canvas#view{width:100%;height:100%;display:block}
- #panel{padding:12px;overflow:auto;border-left:1px solid #2a2f38}
- input,select,button{font:inherit} #sentence{width:100%;box-sizing:border-box;margin-bottom:6px}
- .kv{color:#8b93a0} .tiles{display:grid;align-content:start;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px}
- .tile{position:relative;background:#000;border:2px solid #2a2f38} .tile.active{border-color:#f5a623}
- .tile canvas{width:100%;display:block} .tile span{position:absolute;left:4px;top:2px;font-size:11px;color:#fff;text-shadow:0 0 3px #000}
- #sys{display:grid;grid-template-columns:1fr 420px;height:100%} #side{padding:8px;overflow:auto;border-left:1px solid #2a2f38}
- #map{background:#1c2027;width:400px;height:360px;display:block;margin-bottom:8px}
- /* B 畫面（跟隨視角） */
- #bs{display:grid;grid-template-columns:1fr 340px;height:100%}
- #bmain{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
- #hud{display:grid;grid-template-columns:1.1fr 1.1fr 1.6fr 1fr;gap:1px;background:#2a2f38;border-bottom:1px solid #2a2f38}
- .cell{background:#1a1e25;padding:6px 10px;min-width:0}
- .cell h4{margin:0 0 2px;font-size:11px;font-weight:600;color:#8b93a0;letter-spacing:.04em}
- .cell .v{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .cell .s{font-size:12px;color:#aab2bf;min-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .tone-tracking,.tone-llm{color:#4cc38a}.tone-rule{color:#d8dde5}.tone-wait,.tone-adjudicating,.tone-brief{color:#f5a623}
- .tone-lost,.tone-fallback{color:#e5484d}.tone-searching,.tone-waiting{color:#8b93a0}
- #stage{position:relative;background:#000;min-height:0;display:flex;align-items:center;justify-content:center;border:3px solid transparent}
- #stage.lost{border-color:#e5484d}#stage.brief{border-color:#f5a623}#stage.adjudicating{border-color:#f5a623}
- #fcv{width:100%;height:100%;object-fit:contain;display:block}
- #stage.lost #fcv{filter:brightness(.5) grayscale(.6)}#stage.searching #fcv{filter:brightness(.35) grayscale(1)}
- #fcv.fade{animation:fade150 .15s ease-out}@keyframes fade150{from{opacity:0}to{opacity:1}}
- #camname{position:absolute;left:10px;top:8px;background:rgba(0,0,0,.6);padding:2px 8px;border-radius:3px;font-size:14px;font-weight:600}
- #banner{position:absolute;top:8px;z-index:2;left:50%;transform:translateX(-50%);background:#f5a623;color:#111;padding:4px 14px;border-radius:3px;font-weight:700;display:none}
- #center{position:absolute;top:44px;left:50%;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;pointer-events:none;background:rgba(0,0,0,.65);padding:6px 22px;border-radius:6px;text-shadow:0 0 6px #000}
- #center b{font-size:30px}#center span{font-size:13px;color:#d8dde5}
- #bar{padding:8px 12px;font-size:15px;border-top:1px solid #2a2f38;background:#1a1e25;min-height:20px}
- #llmset{margin:8px 0;padding:8px;border:1px solid #2a2f38;background:#1a1e25} #llmset label{display:block;margin:4px 0} #llmset select{margin-right:4px} #llmstat{margin-top:6px;font-weight:600}
- #bside{padding:8px;overflow:auto;border-left:1px solid #2a2f38}
- #events{font:12px ui-monospace,Menlo,monospace;max-height:260px;overflow:auto}
-</style></head>
-<body>
+<link rel="stylesheet" href="/src/tokens.css"><link rel="stylesheet" href="/src/live.css"></head>
+<body class="amidst-ui">
 <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
 <script type="module">
   const role = new URLSearchParams(location.search).get('role') || 'operator';

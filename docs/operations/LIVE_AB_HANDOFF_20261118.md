@@ -292,3 +292,90 @@ coverage and 108 Python tests across the scorer and live-mode suites. The eight
 fixed-seed trials preserve the 11 player phase shifts (2 chain) and zero pure
 script violations. The A4 player T counterexample remains fixed at 78.7 s.
 LOCAL `local/evidence/cx584-d311-20261118/MANIFEST.json`, SHA-256 `bc91325a0f4e474f5d58ad06ae87df5e6c0bd72f567768f1485aff890cb9458a`, 20 files / 1,350,129 bytes.
+
+## D315 tracking endpoints (#571)
+
+The A reset response supplies a new 16-hex session ID. B reads that session
+through `GET /track/state` and uses it on each mutation. Candidate IDs are
+scoped to a session, selection epoch and tick. The backend keeps seven
+generations, so age six is selectable and age seven is stale. IDLE continues
+to expose pixel-derived candidates. A selection that reaches NEEDS_PICK
+requires a click even if the next capture has one candidate.
+
+Q3 uses the fixed LIVE person, red and blue vocabulary. The aliases are based
+on `configs/q1q5/class_alias_v1.json` and the LIVE chip labels. Parsing defaults
+to RULES and the client only receives a receipt. The existing effective LLM
+switch and a separate injected sentence ApiGuard are both needed for paid
+parsing. Tests use fake clients. The current image advisor shortlists red
+observations. Blue targets use the color-symmetric rule tracker.
+
+Run `python -B -m pytest tests/live_mode -q` and
+`python -B -m pytest tests/q1q5/test_nl_query_parse.py -q` with `PYTHONPATH=src`.
+The D315 branch from `3b5a987a` passed 107 live-mode tests and 35 Q3 tests.
+The endpoint tests serve synthetic camera frames on a temporary loopback port.
+LOCAL `local/evidence/cx571-d315-20261118/MANIFEST.json` SHA-256 `2fadd8c8d6e91029e365d902293bde85adea40835fac5f416cdebf30719a931d`, 5 files / 19,875 bytes. The commands above regenerate the test results.
+
+## D315 B screen and wire validation (#572)
+
+Use the existing operator page for A and open the same LIVE service with
+`?role=system` for B. Choose a chip or enter a sentence and start. When a
+choice is needed, the same numbered candidate is selectable by frame box,
+map point or list button. B uses only an exact capture tick and camera ID
+from its five-frame cache. A candidate without that frame stays selectable
+on the map and in the list. Reselect keeps the earlier tracking view and
+trail until a new person is picked. Stop clears the follow view.
+
+B polls the backend session at 1 Hz. A new session clears intent, traces,
+candidates and cached frames. In-flight results from the old session and
+frames older than the session observation are dropped. A stale pick fetches
+a new candidate snapshot. B's download contains only the current session.
+
+The protocol strips extras at send and rejects non-whitelisted or malformed
+input at receive. ACQUIRE accepts `by: USER_PICK|AUTO_SINGLE`, including
+legacy null detail. SWITCH uses `from` with `gap_ticks` or the advisor's
+`by: AGENT`. TARGET_OUT_OF_VIEW, LOST and REACQUIRE have null details.
+ADJUDICATE_ASK uses `kind,candidates`. ADJUDICATED uses
+`choice,applied,cleared,source,latency_ms`. The timing keys are
+`decode,preprocess,forward,post,detect_total,color,track,server_total`.
+
+The A-to-B header gains only the tracking target allowed by §5.2. B records
+`t_resp` at its BroadcastChannel receive boundary, which includes channel
+delivery. It records `t_display` after rendering, or null if a selection
+change interrupts painting. The HUD median and download use the inclusive
+previous 1000 ms ending at `t_resp`. The recorded action `t_op` is the B
+operation time, while the candidate tick stays the original observation tick.
+
+Run `LIVE_AB_BROWSER=1 LIVE_AB_B_OUTPUT="$OUT" node --test frontend/live-mode/test/{ab_flow,hud,protocol}.test.mjs`
+for the 55 focused cases with the synthetic HTTP and JPEG browser fixture.
+Set `AMIDST_LIVE_ASSETS` to the existing N6 base and run
+`node --test frontend/live-mode/test/{llm_switch,n6,schedule,crowd}.test.mjs`
+for the 27 regression cases. The production-detector dual-window and
+performance checks belong to #574.
+LOCAL `local/evidence/cx572-d315-20261118/MANIFEST.json` SHA-256 `73ac3374e34428920886d3d4ee090bfe2f376204bb0ceddb731c80ce1bd26b12`, 7 files / 173,623 bytes. The commands above reproduce the behavior; browser clocks and image captures may vary.
+
+## D315 P3 follow-up
+
+A failed pointer-lock request enables drag immediately. A later click without
+a drag can retry lock. Explicit drag mode has no pointer-lock request. The
+test exercises both transitions with synthetic pointer events. Physical
+pointer-lock feel is unverified.
+
+A script that is still hidden advances its own clock when another person
+obstructs its entrance. It becomes visible at a later pose with clearance.
+Those hidden steps add neither direct nor indirect waiting time. An already
+visible script that is blocked still follows §3.4. The fixed trials retain
+11 player phase-shift events, two of them chain events, and zero script or
+player-penetration violations.
+
+The added fixtures confirm that taint survives release under v2.1 and a pass
+exemption never skips a third actor's pair. The B4 player T trial still records
+783 exempt pair samples. The review's pending Opus questions about taint
+duration, pass lifetime and the resolver's error behavior are still open.
+
+The final behavioral preview against main `b98fac2a` includes #609's
+missing-capture-clock check. The scheduling-only fixture now uses the
+real inference path with an injected synthetic tracking step, so both
+scheduling tests exercise clock behavior independently of target selection.
+The preview passed 102 LIVE Node cases, including both browser fixtures,
+and 177 Python cases covering LIVE, Q3 parsing and offline scoring.
+LOCAL `local/evidence/cx610-d315-final-20261118/MANIFEST.json` SHA-256 `ac1d2b2dda7b3fb4c55258dfa141c5db7b74db55da971758c2ecd032a4a28aff`, 16 files / 838,750 bytes. Regenerate by running the above tests on the merged content, with the existing N6 and owned fixtures.

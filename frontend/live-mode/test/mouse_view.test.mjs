@@ -46,3 +46,30 @@ test('drag, off, rejected pointer lock fallback, and unlocked mouse isolation',a
  doc.pointerLockElement=null;event(doc,'pointerlockchange');event(doc,'mousemove',{movementX:10,movementY:0});assert.equal(calls,2);release();
  bindMouseView(canvas,doc,{mode:'off',update:()=>calls++});event(canvas,'click');event(doc,'mousemove',{movementX:2});assert.equal(calls,2);
 });
+
+test('a fresh click can retry pointer lock after fallback, while dragging never retries', async () => {
+ const doc = new EventTarget(), canvas = new EventTarget();
+ let requests = 0;
+ const moves = [];
+ canvas.requestPointerLock = () => {
+  if (++requests === 1) return Promise.reject(new Error('temporary failure'));
+  doc.pointerLockElement = canvas;
+  event(doc, 'pointerlockchange');
+ };
+ const release = bindMouseView(canvas, doc, {update: (x, y) => moves.push([x, y])});
+ event(canvas, 'click');
+ await Promise.resolve();
+ event(canvas, 'mousedown', {button: 0, clientX: 0, clientY: 0});
+ event(doc, 'mousemove', {clientX: 12, clientY: 0});
+ event(doc, 'mouseup');
+ event(canvas, 'click');
+ assert.equal(requests, 1);
+ assert.deepEqual(moves, [[12, 0]]);
+ event(canvas, 'mousedown', {button: 0, clientX: 0, clientY: 0});
+ event(doc, 'mouseup');
+ event(canvas, 'click');
+ assert.equal(requests, 2);
+ event(doc, 'mousemove', {movementX: 2, movementY: -4});
+ assert.deepEqual(moves, [[12, 0], [2, -4]]);
+ release();
+});

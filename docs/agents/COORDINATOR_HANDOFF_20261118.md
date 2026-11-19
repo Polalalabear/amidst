@@ -145,6 +145,8 @@
 
 ## 5. 等使用者決定
 
+> **已過時，見[晚間交接（D311–D330）](#9-晚間交接d311d330)。**以下保留原文。
+
 1. **#564 五點截圖**（`local/evidence/wb2-ux-564-20261118/`（SHA256SUMS.txt `4eb1e6dcd8617f14d5a072c884bc8d18902f8944bdf5a7d79f565d3f64b8de2e`））：OK 就合併。
 2. **#576 的 8785 pin**：gate 通過後由使用者在終端核准（`scripts/demo_pin.py approve`）並前景重啟 8785。
 3. **#601 真 provider smoke 金額**：先 dry-run；預估 ≤ USD 10 可直接跑（D306），超過才問。
@@ -153,6 +155,8 @@
 快照時 #93 沒有其他 `needs-auth` 項目（#583 已在 D282、D302 全部決定）。
 
 ## 6. 給新協調者的第一件事（依優先順序）
+
+> **已過時，見[晚間交接（D311–D330）](#9-晚間交接d311d330)。**以下保留原文。
 
 開始前先用 `gh issue view 93 --repo Polalalabear/amidst --comments` 看 D310 之後有沒有新留言，`gh pr list --repo Polalalabear/amidst` 看 PR 有沒有新進度。
 
@@ -195,3 +199,194 @@
 | `handoff-1118` | `UNKNOWN`（本 session） | — | 本文件 |
 
 已完成的 session 可在使用者同意後封存。
+
+## 8. D311–D318 補記（2026-11-18，事實補記；前文不改）
+
+> **已過時，見[晚間交接（D311–D330）](#9-晚間交接d311d330)。**以下保留原文。
+
+快照：`main` 頭為 `b98fac2a`（#613 merge）。進度導覽已依 GitHub 逐項批次補列到 #613（見 [Q1Q5_PROGRESS.md](../operations/Q1Q5_PROGRESS.md)）。
+
+| 決策 | 內容 | 結果 |
+| --- | --- | --- |
+| D311 | 收尾交接：#606、#599 合併；#584、#603 NEEDS_CHANGES；#564、#607、#604 等使用者 | #606 `b7ca80f2`、#599 `3c3e1267` 已合併 |
+| D312 | 使用者同意合併 #564、#607 | #564 `eb06e9a0`、#607 `7f8e8443` 已合併（#602 關閉） |
+| D313 | #604 逾時預設由使用者決定為每輪 8000 ms、總共 24000 ms | 已由 D317 指出 P1（LOCAL 參數檔仍 2000／5000），修後合併 |
+| D314 | 新協調者派工：#604 修正、#577＋#578 P3、#584／#603 複審、#588 判定、#571 改走法 | #577＋#578 合併（D317）；#584、#603 合併（D315）；#604 合併（D318） |
+| D315 | #584 `81ba829d`、#603 `3b5a987a` 合併；#571 改由 Codex 從最新 main 重開 `codex/feat-live-ab` 另開 Draft | #584、#603 已合併；Draft #610 為新開（待審） |
+| D316 | Opus 判定 #588 有條件允許（gate 內唯一群可走 short_gate）；#605 照示意圖做 | #611 `4bf9b5ed` 已合併；#613 實作完成 |
+| D317 | #609 `fb4b99b9`（#577、#578 P3）、#611 合併；#604 Opus NEEDS_CHANGES（P1） | #609、#611 已合併；#577、#578 關閉 |
+| D318 | #604 `62da6464`、#613 `b98fac2a` 合併（#601、#605 關閉）；8785／8791 由 #576 更新到 `b98fac2a`，gate 後使用者核准 pin | #604、#613 已合併 |
+
+目前等待（事實）：
+
+- **使用者**：#576 的 8785／8791 pin 核准（gate 通過後）。
+- **Codex**：#608（#588 relock R1，D316 驗收 B4 ≥58/60、錯接 0）、#610（D315 的 #571 端點 Draft）、#589、#596、#612（est_xy，#605 3D 視圖的估計位置）、#594（8CAM run，#603 已加入 A4-1-8CAM，是否關閉待確認）。
+- **Claude**：#597（LIVE 難題集）、#576（8785／8791 更新，gate 後）。
+- **未排程**：#598（跨平台，延後）、#566 母 issue（子項 #571、#572、#574 未完成）。
+
+本補記不改 #93 的決策紀錄；D 編號下一個為 D319。
+
+## 9. 晚間交接（D311–D330）
+
+2026-11-18 晚間快照，取代 §5、§6 與 §8 的狀態。數字和 SHA 已在撰寫時用 `gh`、`git` 核對。**新的協調者對話全程用繁體中文回覆**（D255）。協調者的 D331（難題集全由腳本產生、#608／#617 NEEDS_CHANGES、磁碟盤點結果）已貼 #93；本交接記為 **D332**，新協調者從 **D333** 起。
+
+### 9.1 現況
+
+| 項目 | 值 |
+| --- | --- |
+| `main` | `7393bf62`（#615 merge） |
+| 8785 pin | `b98fac2a`（`local/demo-pin.json`，gate `local/evidence/gate-576-20261118/RESULT.txt`（SHA-256 `60201b729e7c50eccfec1709e52803038a2425adf6c7f0fe14df15c165b8f927`），D324）；`~/amidst` 工作樹在 `b98fac2a`，終端分頁「8785 demo」前景執行 |
+| 8791 | `50f2fd14`（#618 merge），`local/runtime/live-main`，用 `local/runtime/start_live_8791.sh` 啟動（D329） |
+| 下一個決策編號 | D331（協調者）、D332（本交接）→ 新協調者用 **D333** |
+| 磁碟 | 可用約 7–8 GiB（低於 9 GiB 不開第三個寫手，低於 5 GiB 停工）；盤點已完成：LOCAL `local/evidence/disk-inventory-20261118/INVENTORY.md`（SHA-256 `5afa743861e0c6d1f25fdee2e0f8840801e16bab5a65ff4c92ba20dafe6b7daa`，Haiku low，唯讀，未刪任何東西）。A 類約 1.77 GiB（npm／uv／torch／pip 快取＋2 個殘留 clone）等使用者授權（D331-3），殘留 clone 要等所有 session 結束才刪；B 類走 Sonnet 驗證 → Opus 決定 → 使用者授權 |
+| OpenAI 額度 | D306 約 USD 50；今天花 USD 0.41（D325 預錄三事件分析）＋診斷約 USD 0.006 |
+
+### 9.2 所有工作，依類型分類
+
+#### 即時模式（LIVE）
+
+| 項目 | 預計產出 | 目前進度 | 卡在哪裡／在等誰 |
+| --- | --- | --- | --- |
+| #588／#608 重新取得 R1 | relock R1 合併，R-6、R-5a 過，runtime 預設不變 | D326：R-5 拆成 R-5a（相對 main 不新增錯接，R1 閘門）與 R-5b（LLM 救回同衣色錯接，移到 #597）。Codex 回報驗證完成（head `533b4e99`）。**NEEDS_CHANGES，原因是和 main 衝突，等 Codex 合 main**（D331-2；Sonnet [#608 留言](https://github.com/Polalalabear/amidst/pull/608#issuecomment-6980353441)）：數字核對全過，但 P1-1 `src/amidst/live_mode/tracker.py` 與 main 有語意衝突（main 已加 `target_color`、`project_detections()`、`seed()`、`_result(seen)`），合併 main 後要重跑 `replay_relock.py`、`replay_advisor.py`、逐位元組比對與 `pytest tests/live_mode`；P2 兩點、P3 四點；另有三個給 Opus 的問題 | **Codex**（用 merge commit 合 main 後重驗重送）→ Claude 複審；審查留給 Opus 的三題要協調者分派（R-5a 的 main 基準是否改同程式重播、NEEDS_CONFIRM 與 #610／#611 的銜接、接受 5 筆已知錯接是否已有 D 編號——D326 已記錄使用者同意 R-5 改寫） |
+| R-5a／R-5b 契約條文 | `docs/specs/LIVE_MODE_RELOCK_V1.md` 補 R-5a、R-5b | 未開始 | 派 Claude 文件寫手（可和 #610 Opus 三點的 v2.2 規格補丁同一個 PR，D323） |
+| #589 重新取得 R2 | 後台接線＋ENTRY 排程驗收 | blocked | 等 #608 合併 |
+| #566 A/B 雙畫面（母） | 選角色、B 選目標、不碰撞 | #610 已合併（`118c2035`，D323）；#571、#572 由 #610 完成，本交接已關閉 | 等 #617、#574 |
+| #617 pass 規則＋#596 錄製重播 | D327 pass 規則（只結束從未進入 2r 的 pass）＋確定性錄製重播 | Draft，head `50164136`，CI 綠；Codex 自報 C-2／C-6 回綠。**NEEDS_CHANGES，原因是和 main 衝突，等 Codex 合 main**（D331-2；Sonnet [#617 留言](https://github.com/Polalalabear/amidst/pull/617#issuecomment-6980418787)：程式核對通過，交接文件也過期） | **Codex**（合 main 重送）→ Claude 複審，通過就合併（D305） |
+| #574 整合驗收 | A/B 整合、瀏覽器驗收、handoff 文件 | blocked | 等 #617 |
+| #619 室外遠端目標偵測失敗（CX-L8） | 室外遠處目標能偵測與追蹤（難題集前置條件，D330-c） | 新開，`ready` | **Codex** |
+| LIVE A 選單工作台風格 | — | #618 已合併（`50f2fd14`，D329），8791 已更新 | 無；8785 的轉址修正等下一次 pin |
+
+#### 難題集與 LLM 價值證明
+
+| 項目 | 預計產出 | 目前進度 | 卡在哪裡／在等誰 |
+| --- | --- | --- | --- |
+| #597 LIVE 難題集（CL-B11） | 規則 vs LLM 重播比較，證明 LLM 價值 | 事件表、答案表、腳本操作者已合併（#615，`7393bf62`，D330）。D330 三個決定：(a) H1、H4 以不計 CAM_ENTRY 的讀法為正式判定，**要驗證 ENTRY 畫面沒有進入追蹤或 LLM 覆核輸入**，有就改回嚴格讀法；(b) 開場就通過的 3 段改路線，其餘標註前置條件；(c) 室外遠端 → #619。**D331-1：難題集全部改由 Claude 的腳本操作者產生**（使用者不親自玩），H2（相似人物交錯）、H3（不照路線）也寫成 `?script=` 路線；報告要聲明所有段落都是照規則弱點設計的腳本、沒有真人的不可預測性 | `hardset-597-plan` 正在 `claude/feat-live-hardset` 做 D330 (a)(b)＋D331-1 → 交件後派審查、合併；#596（在 #617）合併後接錄製；然後跑規則 vs LLM（付費先 ApiGuard dry-run，單次 > USD 10 要問） |
+| 預錄三事件分析（D325、D328） | 規則 vs LLM 在 A4-1、B4-1、B-05 的差異 | 完成：LLM 與規則相同（A4-1 0.970、B4-1 0.906；sol 在 B4-1 一次 0.901），題目太簡單；B-05 沒有 decider 注入點。報告 LOCAL `local/evidence/eval-recorded-llm-20261118/REPORT.md`（SHA-256 `2f6bd7c61c16aa158515e612c03b06c2eb98c38c6c16a6ef91c520c9e6013b31`） | 後續：`INVALID_RESPONSE`（`reason_codes` 超過 4 個）的提示修正，未開 issue |
+| #620 CL-B16 Q2 Agent 開關 | 8785 的 Agent 開關（#604）在 A4-1、B4-1 可用；B-05 顯示「不適用」 | 本交接開的 issue（引用 D328）：三個事件回 `TRACKING_SCOPE_MISSING` | 派 Claude 寫手（`claude/feat-recorded-openai-agent`） |
+
+#### 8785 預錄 demo
+
+| 項目 | 預計產出 | 目前進度 | 卡在哪裡／在等誰 |
+| --- | --- | --- | --- |
+| 已合併 | — | #604（OpenAI Agent，D313 逾時 8000／24000 ms，`62da6464`）、#613（3D 場景視圖，2D 為預設，`b98fac2a`）、#603（A4-1-8CAM，`3b5a987a`）、#609（`fb4b99b9`）、#616（`d3dd2d65`） | — |
+| #612 est_xy（CX-8E） | 預錄模式提供系統估計位置給 3D 視圖 | Codex 進行中，還沒開 PR | **Codex** |
+| #594 其餘 8CAM run（CX-8C） | workbench-v2 加其餘 8CAM run | Codex 進行中 | **Codex** |
+| 下一次 8785 更新 | pin 更新到含 #618 轉址修正、#617、#612 的 main | 未開始 | 等 #617、#612 合併；照 D269／D270 gate 流程：gate 的 `RESULT.txt` **每行必須以 PASS 結尾**（D324 教訓），**使用者**在終端執行 `scripts/demo_pin.py approve`，8785 前景重啟 |
+
+#### 流程與整理
+
+| 項目 | 預計產出 | 目前進度 | 卡在哪裡／在等誰 |
+| --- | --- | --- | --- |
+| 合併規則 | — | D305：審查過＋CI 綠就直接合併並刪分支；UI 要使用者先看截圖；pin、付費、刪原始資產要問 | — |
+| gate 檔格式 | — | D323：協調者替 gate 檔改格式被安全機制擋下；gate 檔只能由產出的 session 重寫 | — |
+| 磁碟清理 | 釋出空間到 ≥ 9 GiB | Haiku 盤點完成（見 9.1） | A 類約 1.77 GiB 等**使用者**授權（殘留 clone 等 session 結束）；B 類 Sonnet 驗證 → Opus 讀原始證據決定 → **使用者**授權並在自己的終端刪除 |
+| 冗餘程式盤點 | 沒被引用的模組／腳本清單 | 延後（D319） | 等 #608、#571（已由 #610 完成）、#612 合併 |
+| #598 跨平台 | — | 延後 | — |
+| 進度導覽 | — | 本交接 PR 批次補列到 #620 | 下一批補列本 PR 自己的列 |
+
+#### Codex 與 Argon
+
+- **Codex** 正在做：#608（合併 main 重驗）、#617（含 #596）、#612、#594、#619。
+- **給 Codex 的待貼文字**（還沒貼，交使用者轉給 Codex）：
+
+  > 使用者桌面在 live 測試時一直彈出 Chrome 視窗。請把 live 測試（node／瀏覽器驗收腳本）預設改成 headless，只有明確加旗標時才開有視窗的瀏覽器。改在你下一個 LIVE PR（#617 或 #608）裡，並在實際產出紀錄寫明。
+
+- **Argon**：#479 研究紀錄（沒有變動，沒有派工）。
+
+### 9.3 新協調者的第一件事（依優先順序）
+
+開始前先 `gh api "repos/Polalalabear/amidst/issues/93/comments?per_page=30&page=15"`（`gh issue view 93 --comments` 在 444 則留言時會逾時）看 D332 之後有沒有新留言，`gh pr list --repo Polalalabear/amidst` 看 PR 進度。
+
+1. **#608、#617**：兩者都是 NEEDS_CHANGES（和 main 衝突）。Codex 合 main 之後派 Sonnet 複審，通過就合併（D305）；#608 審查留給 Opus 的三題要派。
+2. **難題集 PR**：`hardset-597-plan`（`claude/feat-live-hardset`，D330 (a)(b)＋D331-1 全腳本）交件後派審查、合併。
+3. **磁碟**：A 類約 1.77 GiB 問使用者授權；B 類交 Sonnet 驗證、Opus 決定，使用者授權後由使用者刪除。
+4. **#620 CL-B16**：派 Sonnet medium 寫手。
+5. **下一次 8785 更新**：#617、#612 合併後照 gate 流程。
+
+### 9.4 Session（快照時，與前一位協調者連結）
+
+以 `list_sessions {"linked": true}` 為準。快照時仍在執行：`disk-inventory`（`local_0808ab32-1f79-4c8b-88e7-db04514ffcc5`，盤點已產出）、`rv-608-617`（`local_fe212872-521f-436b-8939-8220b24e2c41`，#608、#617 結論都已貼）、`hardset-597-plan`（難題集路線修正＋全腳本）。閒置：`opus-588-gate`、`mock-605-3d`、`board-d315`、`576-8785-8791-main-gate`、`eval-recorded-llm`。其餘已完成，使用者同意後可封存。
+
+### 9.5 最終狀態補記（D333，2026-11-18 深夜）
+
+本節是交接前最後一次核對（`gh pr view`、`gh pr checks`、`gh issue view`、`df`、`lsof`），只增補，§9.1–§9.4 與前文決策紀錄不改；狀態有出入時以本節為準。本補記在 #93 記為 **D333**，新協調者從 **D334** 起。
+
+**研究紀錄**：預錄三事件規則 vs LLM（D325）已寫成 [`docs/evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md`](../evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)：A4-1、B4-1 上 LLM 與規則相同（0.970／0.906，sol6.1 一次 0.901），A4-1 9.2 s、37.2 s 的 `INVALID_RESPONSE` 是 `reason_codes` 超過 4 個（37.4 s 請求已確認，9.4 s 未重現），B-05 不適用（#620、無 GT），花費 USD 0.4115。結論：這兩個基線事件沒有讓 LLM 贏的題目，要靠 #597 難題集。
+
+**PR 與 issue（核對時）**
+
+| 項目 | 狀態 | 下一步 |
+| --- | --- | --- |
+| [#622](https://github.com/Polalalabear/amidst/pull/622) 難題集 | `claude/feat-live-hardset` @ `de1be7e9`，Draft，可合併，CI `checks` 綠。內容：難題集全部由腳本產生（D331）、正式判定用 graph 讀法、H1-3／H4-2／H5-3 改路線（D330）；新一輪 9 段在 graph 讀法下全部成立，9 段中 5 段在難點前 3 s 規則跟對（H2-2、H2-3、H3-1、H3-2、H5-3）；smoke 改成只用無頭 Chrome（使用者不要彈視窗）。只跑了規則模式 | **待 Sonnet 正式審查後合併**（D305） |
+| [#608](https://github.com/Polalalabear/amidst/pull/608) relock R1（#588） | `codex/feat-live-relock` @ `fe4f2541`，非 Draft，可合併，CI 綠。Codex 已用 merge commit 合入 main `7393bf62`，回報 D326 數字不變、runtime relock／predict 預設關閉 | 待 Claude 複審（§9.2 列的 Opus 三題仍要派） |
+| [#617](https://github.com/Polalalabear/amidst/pull/617) pass 規則＋錄製重播（#596） | `codex/feat-live-ab` @ `c0498745`，Draft，可合併，CI 綠。已合 main；瀏覽器工具統一預設無頭（`--headful` 或 `AMIDST_HEADFUL=1` 才顯示），§9.2 的「給 Codex 的待貼文字」已由此處理 | 待 Claude 複審 |
+| [#623](https://github.com/Polalalabear/amidst/pull/623) 3D 視圖 est_xy（#612） | `codex/feat-workbench-8cam` @ `e49a31af`，Draft，可合併，CI 綠。Codex 回報 A4 240 INFERRED／10 UNKNOWN、B4 209／1；完整服務啟動因磁碟門檻未驗證 | 待 Claude 審；#594 由同一條線後續處理 |
+| #588 | open，`ready`、`in-progress`（經 #608） | 隨 #608 |
+| #594 | open，`in-progress`（Codex，CX-8C） | 隨 #623 同線 |
+| #612 | open，`in-progress`（經 #623） | 隨 #623 |
+| #619 | open，`ready`（Codex，CX-L8 室外遠端偵測） | Codex 取件 |
+| #571 | 已關閉（由 #610 完成） | — |
+| #620 | open，`owner:claude`、`ready` | 派 Sonnet medium 寫手 |
+
+**本機狀態**
+
+- 磁碟：可用約 8.7–8.8 GiB（仍低於 9 GiB，不開第三個寫手）。
+- 殘留 clone 與孤兒 8797／8798 伺服器已清；核對時只有 8785、8791 在監聽。
+- 8785 pin `b98fac2a`（`local/demo-pin.json`）；8791 在 `50f2fd14`（`local/runtime/live-main`）。
+- #618 的 308 轉址修正要到下一次 8785 pin 更新才生效。
+
+**新協調者第一件事（取代 §9.3 的 1、2 項）**
+
+1. 派 Sonnet 正式審查 #622、#608、#617、#623；審查過＋CI 綠即合併並刪分支（D305）。#608 審查留給 Opus 的三題照 §9.2 分派。
+2. 把 LIVE 規則 vs LLM 重播比較（#597 CL-B11 本體）排上：等 #622、#617（#596 錄製重播）、#608 合併後跑，付費先 ApiGuard dry-run，單次超過 USD 10 要問。
+3. §9.3 的 3–5 項（磁碟、#620、下一次 8785 更新）不變。
+4. 下一個決策編號 **D334**。
+
+## 10. 2026-11-19 交接（最終狀態，D335）
+
+給新協調者的最終狀態，取代 §9.3 與 §9.5 的狀態與「第一件事」；前文決策紀錄不改。PR、SHA、CI 都在撰寫時用 `gh`、`git` 核對。**新的協調者對話全程用繁體中文回覆**（D255）。本交接在 #93 記為 **D335**，新協調者從 **D336** 起。
+
+### 10.1 SHA 與今天合併
+
+| 項目 | 值 |
+| --- | --- |
+| `main` | `8e892804`（#621 merge） |
+| 8785 pin | `b98fac2a`（`local/demo-pin.json`，gate-576） |
+| 8791 | `50f2fd14`（`local/runtime/live-main`） |
+| 今天合併 | #622 → `ba535fef`（難題集全由腳本產生，smoke 預設無頭）；#621 → `8e892804`（研究紀錄 [`docs/evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md`](../evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)、D334 四條規範） |
+
+**D334 規範**（詳見 [AGENTS.md](../../AGENTS.md)）：瀏覽器測試一律無頭；每項工作先有 issue、以 PR 交付；相近工作共用一條 feature branch；工作狀態隨時更新在 issue 上，一次一人認領，審查者審完要更新 issue、#93 與受影響文件。
+
+### 10.2 開著的 PR
+
+| PR | 分支 @ head | 狀態（核對時） | 下一步 |
+| --- | --- | --- | --- |
+| [#624](https://github.com/Polalalabear/amidst/pull/624) #597 規則 vs LLM runner／評分器／dry-run | `claude/feat-live-hardset` @ `29110958` | Draft；Opus 裁決的 8 項已修；CI 執行中（BLOCKED 是在等 checks） | **待 Sonnet 確認**，CI 綠就合併（D305）。實跑要等 #608 合併，並由使用者核准金額；dry-run 估 9 段最壞 USD 2.90 |
+| [#625](https://github.com/Polalalabear/amidst/pull/625) CL-B16 8785 預錄 Q2 Agent 開關 | `claude/feat-recorded-openai-agent` @ `d46d55b5` | Draft，CI 綠；Opus **NEEDS_CHANGES**：3 項小修＋UI 截圖（A4-1、B4-1、B-05）。使用者選 A：demo 專用 APPROVED | **尚未派修正**。截圖要磁碟 ≥ 8 GiB，demo 伺服器才能啟動 |
+| [#627](https://github.com/Polalalabear/amidst/pull/627) D319 第一次檢索 | `claude/feat-ops-docs` @ `3e888e93`（本交接段也在這條分支） | Draft，CI 綠；Sonnet 已核對約 130 項並修正，紀錄在 `docs/index/` | **待複審**，過了就合併（交接文件跟著一起合） |
+| [#628](https://github.com/Polalalabear/amidst/pull/628) #619 室外遠端目標（Claude 接手） | `claude/feat-live-far-target` @ `7e2a1b91` | Draft，CI 綠；紅標籤 weak 0.3→0.2，標紅比例 78.8%；難題點前 3 s 跟對**沒有改善**，根因是覆蓋或排程缺口 | **待 Sonnet 審** |
+| [#608](https://github.com/Polalalabear/amidst/pull/608) relock R1 | `codex/feat-live-relock` @ `fe4f2541` | 和 main 衝突（DIRTY）；Opus NEEDS_CHANGES | 等 Codex |
+| [#617](https://github.com/Polalalabear/amidst/pull/617) LIVE A/B 錄製重播 | `codex/feat-live-ab` @ `c0498745` | Draft，和 main 衝突（DIRTY）；Opus NEEDS_CHANGES；**沒有對應 issue**，Codex 要補開（D334） | 等 Codex |
+| [#623](https://github.com/Polalalabear/amidst/pull/623) 3D 視圖 est_xy（#612） | `codex/feat-workbench-8cam` @ `e49a31af` | Draft，CI 綠；Opus NEEDS_CHANGES | 等 Codex |
+
+Codex 有沒推送的本機修改，額度用完，**2026-11-20 22:29** 才回來；在那之前 Claude 不接手 #608、#617、#623，以免衝突。
+
+### 10.3 待補
+
+- **D319 第二輪檢索**：等 #608、#617、#623、#624、#625、#628 合併後，補 `docs/index/` 的「待補檢索」那節。
+- **8785 pin 更新**：等 #625、#623 合併後跑 gate（`RESULT.txt` 每行以 PASS 結尾），使用者核准再更新；#618 的 308 轉址也要等這次 pin 更新才生效。
+- **A4、B4 候選數為 0**（#625 Opus 另提）：原因未查，建議另開 issue。
+
+### 10.4 本機
+
+- 磁碟約 7.6 GiB 可用；交換檔約 5 GiB，可用空間會跳動。低於 9 GiB 不開第三個寫手，低於 5 GiB 停工。
+- 已刪：Xcode Previews、ShipIt、`~/.npm`。
+- B 類候選（要先確認才能刪）：codex-runtimes 2.4G、`.codex/visualizations` 1.8G、Chrome 快取 1.1G、`local/archive/office-canonical` 921M（目錄層級的刪除候選，SHA-256 不適用）。
+
+### 10.5 新協調者第一批工作（依優先順序）
+
+1. 派 Sonnet 確認 #624 → CI 綠即合併（D305）。
+2. 派 #625 修正（3 項小修）；磁碟 ≥ 8 GiB 後補三張 UI 截圖。
+3. 派 Sonnet 審 #628、複審 #627 → 過了就合併。
+4. Codex 回來（11-20 22:29 後）推送修正後，審 #608、#617、#623。
+5. 下一個決策編號 **D336**。

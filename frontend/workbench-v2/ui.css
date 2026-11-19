@@ -1,7 +1,6 @@
 /* Redesigned front desk + admin (docs/specs/UI_REDESIGN_V1.md). Desktop only (1280–1920 px). Fonts are local stacks:
    Source Serif 4 / Inter / Noto TC / JetBrains Mono are used when installed, no CDN. */
-#ui-v1,.ui-admin-root{--bg:#141413;--surface:#1f1e1d;--surface-2:#262624;--line:#30302e;--line-strong:#3d3d3a;--text:#faf9f5;--muted:#b0aea5;--faint:#9c9a92;--dim:#73726c;--accent:#d97757;--accent-hover:#c6613f;--observed:#7fb59a;--observed-line:#3f7d62;--inferred:#6a9bcc;--missing:#5e5d59;--person:#d4724f;--object:#5a95d8;--grid:#232220;
---serif:'Source Serif 4','Noto Serif TC',Georgia,serif;--sans:Inter,'Noto Sans TC','PingFang TC',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace}
+@import url("tokens.css");
 body[data-ui="v1"]{margin:0}
 body[data-ui="v1"]>*:not(#ui-v1):not(#synthetic-api-banner):not(script){display:none!important}
 body.ui-admin{margin:0}
@@ -269,3 +268,5 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .live-entry-status[data-tone="ok"]{color:var(--observed,#4cc38a)}
 .live-entry-status[data-tone="off"]{color:#e0bb6a}
 .live-entry-retry{font-size:12px;background:none;border:none;color:var(--faint);text-decoration:underline;cursor:pointer}
+
+.ui-modeswitch{display:flex;align-items:center;gap:10px}.ui-toggle:disabled{opacity:.4;cursor:not-allowed}.ui-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

@@ -1,5 +1,10 @@
 # 2026-11-04 Demo 運行手冊
 
+> **2026-11-19 註（D338，#631）：本手冊的埠號與啟動方式已過時，只保留作 11-04 demo 的歷史紀錄。** 本文的 8765（段 B live）、8766（段 A 錄製）、8767（A2 範例）、8780（段 C 複雜事件）是 11-04 的三程序版面。現行：
+> - 工作台 workbench-v2 在 **8785**，由 `scripts/serve_demo_integration.py` 提供，啟動檔 `start_445_demo.command`，`local/demo-pin.json` 鎖定 commit（AGENTS.md、DEVELOPMENT_RULES；舊 `frontend/workbench/` 已於 D268 下線）。
+> - LIVE 即時模式在 **8791**（`start_live_mode.command`；規格 [`LIVE_MODE_AB_V1.md`](../specs/LIVE_MODE_AB_V1.md)、[Q1Q5_PRODUCT_SPEC §4.4](../specs/Q1Q5_PRODUCT_SPEC.md)）。
+> - 收尾步驟裡的「`git checkout main` 換回主線」不適用於 `~/amidst`（8785 pin 資料夾，不切分支，D218）。
+
 > 2026-11-08 起依 D132，GitHub 已整合成四個大問題：A #445（Demo 驗收）、B #479（實驗紀錄）、C #486（大掃除）、D #489（Agentic）。文中舊編號已關閉，括號內註明併入的大問題，以 #93 為準。
 
 - 狀態：依 `mainline/q1q5`@`97030cd`（tree `112229a`）於 2026-11-03 實測整理；攝影機時間標籤依 #404（已關閉，見 #93）@`4fbd8c2`；後端候選快照 403 修正依 #403（已關閉，見 #93）@`6d029ce`；複雜事件播放依 #399（已關閉，見 #93）@`02afeb3`。實測結果與 P1／P2／P3 清單在 [#279（已關閉，見 #93）](https://github.com/Polalalabear/amidst/issues/279) 的實際產出留言。

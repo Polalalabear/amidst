@@ -95,7 +95,7 @@ export function createCrowd(run,{actorId='T',cfg:overrides={},segments=[],auto=f
    let added=false;
    for(const s of scripts){
     const id=s.actor.actor_id,why=resolved.blocked[id],peer=scripts.find(p=>p.actor.actor_id===why);
-    if(!peer||resolved.indices[id]===0||s.blocker!==why||s.waited_s<cfg.wait_max_mutual_s-1e-9||ORDER.indexOf(id)<ORDER.indexOf(why))continue;
+    if(!s.pose||!peer||resolved.indices[id]===0||s.blocker!==why||s.waited_s<cfg.wait_max_mutual_s-1e-9||ORDER.indexOf(id)<ORDER.indexOf(why))continue;
     const pair=key(id,why);if(passes.has(pair))continue;
     const e={type:'forced_overlap',tick:tick+1,t_sim:t_sim+dt,i:id,j:why,kind:'script',waited_s:s.waited_s,dist_m:distance(s.pose,peer.pose)};
     newForces.push({event:e, actor:s, peer});
@@ -109,23 +109,25 @@ export function createCrowd(run,{actorId='T',cfg:overrides={},segments=[],auto=f
    if(p)Object.assign(player,p,{speed:distance(old,p)/dt});else player.speed=0;
   }
   for(const s of scripts){
-   const id=s.actor.actor_id,rejected=resolved.indices[id]>0,why=resolved.blocked[id]??null;
-   if(rejected){s.pause_total_i+=dt;s.speed=0;s.waited_s=s.blocker===why?s.waited_s+dt:dt;}
+   const id=s.actor.actor_id,why=resolved.blocked[id]??null;
+   // A hidden script clock keeps advancing even if its next pose cannot enter safely.
+   const waiting=!!s.pose&&resolved.indices[id]>0;
+   if(waiting){s.pause_total_i+=dt;s.speed=0;s.waited_s=s.blocker===why?s.waited_s+dt:dt;}
    else{s.s_i+=dt;s.speed=s.pose&&resolved.poses[id]?distance(s.pose,resolved.poses[id])/dt:0;s.waited_s=0;}
-   const waitedOnPlayer=rejected&&player&&why===actorId;
+   const waitedOnPlayer=waiting&&player&&why===actorId;
    if (waitedOnPlayer) {
     s.block_wait += dt;
     s.pause_player_i += dt;
     s.tainted = true;
    }
    else {
-    if (rejected) s.pause_script_i += dt;
+    if (waiting) s.pause_script_i += dt;
     if (s.block_wait) {
      events.push({type:'block_wait',tick:tick+1,t_sim:t_sim+dt,i:id,j:'player',waited_s:s.block_wait});
      s.block_wait = 0;
     }
    }
-   s.blocker=rejected?why:null;s.pose=resolved.poses[id];
+   s.blocker=waiting?why:null;s.pose=resolved.poses[id];
   }
   // Carry phase changes through actual waits in this step, independent of actor order.
   for (let round = 0; round < scripts.length; round++) {
