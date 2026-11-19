@@ -143,6 +143,12 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 ### 4.3 Agent 與 fallback
 
 - **D340（取代 D64）**：候選集合與排序由決定性模組產生，是規則模式的答案，也是 Agent 的輸入。Agent 模式（預設關）可以看影格（候選裁切圖或鏡頭畫面，限渲染合成畫面）、從所有偵測中選人（含低分與顏色不符）、回答「仍在這台」「不在」或「下一台看 X」、讀鏡頭圖的邊與各邊核定等級；規則閘門（`GRAPH_NOT_APPROVED`、`AMBIGUOUS_HANDOFF`、分數門檻、顏色篩選、發問條件）改成附給 Agent 的資訊。GT 隔離、`ApiGuard` 與付費核准、`identity_verdict` 一律 `UNCONFIRMED`、回應格式驗證照舊硬擋；圖上的邊不是實體可通行認證。有輪數與時間上限，超過、逾時或回應不合法由決定性規則兜底；記錄 prompt（或請求 SHA-256）、模型 digest、決策來源與 fallback 原因（D63 修訂、D340；[DEVELOPMENT_RULES D340 條](DEVELOPMENT_RULES.md)；契約 §0.3）。
+- **Agent 的必要輸入：場景上下文（D340 補充，使用者 2026-11-20）**。Agent 模式的每個決策請求都必須附上，缺項時標 `SCENE_CONTEXT_INCOMPLETE` 並列出缺項：
+  - 場景可行走連通性：區域圖（`region_graph_v3_1`）的區域、出口區、哪些區域相連；
+  - 鏡頭圖關係：鄰近鏡頭（`camera_graph_v3_1` 的邊）與各邊核定等級（`APPROVED`／`DRAFT`／`TOPOLOGICAL_ONLY`／`UNKNOWN`）；
+  - 每台鏡頭：地面覆蓋多邊形（由標定與已提交場景幾何投影，例如 `src/amidst/evaluation/live_coverage_gap.py` 的投影部分）、安裝位置、朝向角度、FOV、重疊鏡頭；
+  - 設定裡已有的其他鏡頭屬性（例如 `covered_regions`、`entry_zones`、`exit_zones`）。
+  來源只限已提交的設定檔或標定資料，每項附來源 SHA-256；不可用渲染真值、GT、visibility 或 depth（覆蓋分析中以 GT 評分的部分不送）。草稿圖也要提供，並標明核定等級。這是對 Agent 的基本輸入，不是選配；圖上的連通仍只是配置宣告，實體可通行是 `UNKNOWN`。
 - 契約 B（`Q1_Q2_FIRST_DEMO_V1.md`，不手改）的 §1、§8.4 仍寫 D64 時期的覆核者定義與 `q-demo.agent-decision.v2` 請求欄位；D340 的實作（請求加影格、空間資訊、閘門資訊）要另開契約版本，在新版契約確認前，舊欄位只代表規則模式與歷史重播。
 - typed tools 與 `q-demo.agent-decision.v2`：契約 §8.4。Agent 不能掃描檔案、跑任意 SQL 或 shell，也不能產生新的鏡頭、區域或觀測 ID（契約 §1）。
 - 預算：D65 原核准值與 D67 六項初值，見契約 §11（[D65](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)、[D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288)）。D73 維持 D65 預算（契約 §0.1）。
@@ -303,7 +309,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 | D331 | 難題集全部由腳本操作者產生，報告聲明腳本偏差 | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6980483909) |
 | D334 | 協作規範：瀏覽器測試無頭、每項工作有 issue 且以 PR 交付、相近工作共用分支、狀態隨時更新 | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6998419780) |
 | D338 | 依 D319 第一輪檢索更新規格、文件與索引（本次更新） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7003589354) |
-| D340 | 放寬 Agent 模式（取代 D64）：Agent 可看影格、從所有偵測選人、回答仍在／不在／下一台、讀圖的邊與核定等級；閘門改成資訊；GT 隔離、ApiGuard、身分未確認照舊硬擋；全模式可切換（H6） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7016410023)、[#641](https://github.com/Polalalabear/amidst/issues/641) |
+| D340 | 放寬 Agent 模式（取代 D64）：Agent 可看影格、從所有偵測選人、回答仍在／不在／下一台、讀圖的邊與核定等級；每個請求必附場景上下文（連通性、鏡頭圖、覆蓋範圍、位置、朝向、FOV、重疊）；閘門改成資訊；GT 隔離、ApiGuard、身分未確認照舊硬擋；全模式可切換（H6） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7016410023)、[#641](https://github.com/Polalalabear/amidst/issues/641) |
 
 原 2026-10-27 寫的「下一個編號：D93」已過時；下一個編號以 #93 最新留言為準。
 

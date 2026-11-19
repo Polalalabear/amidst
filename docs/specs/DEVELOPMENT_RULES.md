@@ -60,7 +60,7 @@ git diff --check
 - 工程可先以 synthetic/mock 調用、查找與 replay 並行推進，不以正式 Phase 1 全 Exit 作工程前置；工程通過不改寫正式研究狀態。Agent 的操作资源與輸出契約見 [工程邊界](../engineering/AGENT_RETRIEVAL_BOUNDARY.md)。不串接外部模型 API。2026-10-11 已授權圖形/label 前處理、明確 Agent I/O、階段性模擬資料庫併發與差異文件；此 token 兜底原型不代表已量測 token 減量。
 - 真實攝影機串流保留 FUTURE；正式帳號與部署保留 DEFERRED。專案媒體為 Blender camera 來源影像與依原 `.blend`／預設平滑展示材質的模型；替代 procedural RGB 必須另標來源，材質不改 scene 或 authority。
 - Blender 基底畫面檢索只使用來源綁定的安全 camera/time/media 欄位、實際 RGB pixels及獨立合法校正／floor plane；不讀 renderer 的 GT、trajectory、visibility、depth或預先給定 observation 答案。基底演算法模式不經 Agent 決策；像素元件／local tracks與使用者行為意圖不得改稱人物或行為已確認。
-- Q1–Q5 Agent 模式（D340，2026-11-20，取代 D64；issue [#641](https://github.com/Polalalabear/amidst/issues/641)、PR [#642](https://github.com/Polalalabear/amidst/pull/642)）：Q1–Q5 的每個模式（查找 Q1／Q2、Q4 單格判斷、Q5 切鏡、預錄 8785、LIVE）都有「規則／Agent」兩種模式可切換。**規則模式是預設與退路**：第一版仍只用 RT-DETR＋HSV，候選集合與排序由決定性模組（兩層圖與 D28）產生。**Agent 模式預設關**，開啟時：(1) 可以看影格（候選裁切圖或鏡頭畫面；限渲染合成畫面）；(2) 可以從所有偵測中選人，包括低分和顏色不符的偵測；(3) 可以回答「仍在這台（被遮擋或漏偵測）」「不在任何畫面」或「下一台看鏡頭 X」；(4) 可以讀鏡頭圖的邊與各邊的核定等級（APPROVED／DRAFT／TOPOLOGICAL_ONLY／UNKNOWN）。規則閘門（例如 `GRAPH_NOT_APPROVED`、`AMBIGUOUS_HANDOFF`、分數門檻、顏色篩選、發問條件）在 Agent 模式下改成提供給 Agent 的資訊，不在 Agent 看到之前刪掉候選。**照舊硬擋**：GT 隔離（GT、渲染軌跡、visibility、depth、劇本不得進入 Agent 或 prompt）、`ApiGuard` 與付費核准、`identity_verdict` 一律 `UNCONFIRMED`、回應格式驗證。圖上的邊只是配置宣告，Agent 不得把它當成實體可通行或碰撞認證，也不做 geometry 或 collision checking；未核定的通行性仍是 `UNKNOWN`。輪數與時間有上限，超過上限、逾時或回應不合法時由決定性規則兜底。全程記錄 prompt（或請求 SHA-256）、模型 digest、決策來源與 fallback 原因。外部模型 API 只能經 `ApiGuard`；真實人物影像不送外部模型。此規則不延伸到 Q1–Q5 以外的流程（例如 Blender 基底畫面檢索）。
+- Q1–Q5 Agent 模式（D340，2026-11-20，取代 D64；issue [#641](https://github.com/Polalalabear/amidst/issues/641)、PR [#642](https://github.com/Polalalabear/amidst/pull/642)）：Q1–Q5 的每個模式（查找 Q1／Q2、Q4 單格判斷、Q5 切鏡、預錄 8785、LIVE）都有「規則／Agent」兩種模式可切換。**規則模式是預設與退路**：第一版仍只用 RT-DETR＋HSV，候選集合與排序由決定性模組（兩層圖與 D28）產生。**Agent 模式預設關**，開啟時：(1) 可以看影格（候選裁切圖或鏡頭畫面；限渲染合成畫面）；(2) 可以從所有偵測中選人，包括低分和顏色不符的偵測；(3) 可以回答「仍在這台（被遮擋或漏偵測）」「不在任何畫面」或「下一台看鏡頭 X」；(4) 可以讀鏡頭圖的邊與各邊的核定等級（APPROVED／DRAFT／TOPOLOGICAL_ONLY／UNKNOWN）。**場景上下文是 Agent 的必要輸入，不是選配**（D340 補充，使用者 2026-11-20）：Agent 模式的每個決策請求都必須附上 (a) 場景可行走連通性：區域圖、出口區、哪些區域相連；(b) 鏡頭圖關係：鄰近鏡頭（邊）與各邊核定等級；(c) 每台鏡頭的照射範圍（地面覆蓋多邊形）、安裝位置、朝向角度、FOV、重疊鏡頭；(d) 現有設定裡已有的其他鏡頭屬性。來源限定為已提交的設定檔或標定資料（例如 `camera_graph_v3_1`、`region_graph_v3_1`、鏡頭內外參、由標定與場景幾何投影出的覆蓋多邊形），每項附來源 SHA-256；不可用渲染真值、GT、visibility 或 depth（覆蓋分析程式裡用 GT 評分的部分不能送）。草稿或未核定的圖也要提供，但必須標明核定等級。缺任一項時請求要標 `SCENE_CONTEXT_INCOMPLETE` 並列出缺項，不得默默省略。規則閘門（例如 `GRAPH_NOT_APPROVED`、`AMBIGUOUS_HANDOFF`、分數門檻、顏色篩選、發問條件）在 Agent 模式下改成提供給 Agent 的資訊，不在 Agent 看到之前刪掉候選。**照舊硬擋**：GT 隔離（GT、渲染軌跡、visibility、depth、劇本不得進入 Agent 或 prompt）、`ApiGuard` 與付費核准、`identity_verdict` 一律 `UNCONFIRMED`、回應格式驗證。圖上的邊只是配置宣告，Agent 不得把它當成實體可通行或碰撞認證，也不做 geometry 或 collision checking；未核定的通行性仍是 `UNKNOWN`。輪數與時間有上限，超過上限、逾時或回應不合法時由決定性規則兜底。全程記錄 prompt（或請求 SHA-256）、模型 digest、決策來源與 fallback 原因。外部模型 API 只能經 `ApiGuard`；真實人物影像不送外部模型。此規則不延伸到 Q1–Q5 以外的流程（例如 Blender 基底畫面檢索）。
   - 歷史（被 D340 取代）：D64（2026-10-20）原文為「僅 Q1–Q5 主線可由 Agent 在合法 top-k 候選內決定是否切鏡。候選集合與排序仍由決定性模組（兩層圖與 D28）產生，Agent 不排序、不增刪候選，也不做 geometry、pathfinding 或 collision checking。Agent 依序向候選取偵測與顏色證據；輪數與時間有上限（由 Codex 提案、使用者核定），超過上限或失敗時由決定性規則兜底。全程記錄 prompt、模型 digest、決策來源與 fallback 原因；GT 仍不得進入 Agent。第一版只用 RT-DETR＋HSV，不用看圖模型（VLM），不接外部模型 API。此例外不延伸到 Q1–Q5 主線以外的流程。」
 - source model 的 subset/crop 與平滑材質維持 PARTIAL display context，不擴大整場幾何、可行走、遮擋或碰撞authority。校正、plane與clip distances必須使用同一明確尺度；不能只改單位標頭或拿landmark plane代替接地面。
 - 分層資料流明列ACTUAL_BLENDER、SUBSTITUTE、DEFERRED及各自source/model/run/clock/hash；替代Graph／重建與歷史測試只用獨立fixture，不回填實際Blender run。未物化的物理曲線／影片保持未完成。公開PNG可剝除文字metadata但須保留像素chunks、核對原始／served hashes，不能修改原影像或洩漏private locator。
@@ -110,7 +110,18 @@ candidate set and its order. The Agent mode is off by default; when on, the Agen
 frames (candidate crops or camera images; rendered synthetic frames only), (2) choose among all
 detections, including low-score and color-mismatched ones, (3) answer "still on this camera
 (occluded or missed)", "not visible" or "check camera X next", and (4) read the camera graph's
-edges and each edge's approval level. Rule gates (such as GRAPH_NOT_APPROVED, AMBIGUOUS_HANDOFF,
+edges and each edge's approval level. Scene context is a required Agent input, not an option (D340
+addendum, user 2026-11-20): every Agent-mode decision request must carry (a) scene walkability
+connectivity (region graph, exit zones, which regions connect), (b) camera-graph relations
+(neighboring cameras as edges, with each edge's approval level), (c) each camera's ground coverage
+polygon, mounting position, heading, FOV and overlapping cameras, and (d) any other camera attribute
+already in the committed configuration. Sources are limited to committed configuration or
+calibration data (for example camera_graph_v3_1, region_graph_v3_1, camera intrinsics/extrinsics,
+coverage polygons projected from calibration and scene geometry), each with its source SHA-256;
+never renderer truth, GT, visibility or depth (the GT-scored part of a coverage analysis is not
+sent). Draft or unapproved graphs are included but labeled with their approval level. A request
+missing any item is marked SCENE_CONTEXT_INCOMPLETE with the missing items listed, never silently
+omitted. Rule gates (such as GRAPH_NOT_APPROVED, AMBIGUOUS_HANDOFF,
 score thresholds, color filters and ask conditions) become information given to the Agent instead
 of removing candidates before it sees them. Still hard-blocked: Ground Truth isolation (GT,
 renderer trajectories, visibility, depth and scripts never enter the Agent or a prompt), ApiGuard
