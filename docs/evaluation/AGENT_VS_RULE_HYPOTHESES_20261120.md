@@ -98,7 +98,7 @@
 
 | # | 位置 | 為什麼不合理 | 怎麼改 |
 | --- | --- | --- | --- |
-| C1 | `src/amidst/q1q5/agent_decision.py` L93–101：請求是封閉 schema，只有 `TRACK_KEYS`、`CANDIDATE_KEYS`、`TOPOLOGY_KEYS = {graph_status, edges}`；`agent_wiring.py` L38–45 只送軌跡摘要（顏色、分數統計） | **Agent 沒有圖**（H1／H2）；空間資訊只有邊清單，沒有重疊、出口區、可行走連通與各邊核定等級（H1／H4） | schema v3：加 `frames`（參考裁切＋候選鏡頭當下畫面＋候選裁切，JPEG 的 SHA-256 與內容）；把 `topology` 換成必填的 **`scene_context`**（D340 補充，W2 實作）：(a) 區域圖的區域、出口區、相連關係；(b) 鏡頭邊與各邊核定等級；(c) 每台鏡頭的地面覆蓋多邊形、安裝位置、朝向、FOV、重疊鏡頭；(d) 設定裡其他鏡頭屬性（`covered_regions`、`entry_zones`、`exit_zones`）。來源只限 `camera_graph_v3_1`、`region_graph_v3_1`、鏡頭內外參、由標定與場景幾何投影的覆蓋多邊形（`live_coverage_gap.py` 的投影部分，不含 GT 評分），每項附來源 SHA-256；草稿圖照給並標核定等級；缺項標 `SCENE_CONTEXT_INCOMPLETE`。`scene_context` 每個場景算一次並快取，請求帶它的 SHA-256 與內容。`FORBIDDEN_KEYS` 不變，另加測試確認 `scene_context` 不含 GT、visibility、depth 欄位 |
+| C1 | `src/amidst/q1q5/agent_decision.py` L93–101：請求是封閉 schema，只有 `TRACK_KEYS`、`CANDIDATE_KEYS`、`TOPOLOGY_KEYS = {graph_status, edges}`；`agent_wiring.py` L38–45 只送軌跡摘要（顏色、分數統計） | **Agent 沒有圖**（H1／H2）；空間資訊只有邊清單，沒有重疊、出口區、可行走連通與各邊核定等級（H1／H4） | schema v3：加 `frames`（參考裁切＋候選鏡頭當下畫面＋候選裁切，JPEG 的 SHA-256 與內容）；把 `topology` 換成必填的 **`scene_context`**（D340 補充，W2 實作）：(a) 區域圖的區域、出口區、相連關係；(b) 鏡頭邊與各邊核定等級；(c) 每台鏡頭的地面覆蓋多邊形、安裝位置、朝向、FOV、重疊鏡頭；(d) 設定裡其他鏡頭屬性（`covered_regions`、`entry_zones`、`exit_zones`）。來源只限 `camera_graph_v3_1`、`region_graph_v3_1`、鏡頭內外參、由標定與場景幾何投影的覆蓋多邊形（`live_coverage_gap.py` 的投影部分，不含 GT 評分），每項附來源 SHA-256；草稿圖照給並標核定等級；缺項標 `SCENE_CONTEXT_INCOMPLETE`。`scene_context` 每個場景算一次並快取，請求帶它的 SHA-256 與內容。`FORBIDDEN_KEYS` 不變，另加測試確認 `scene_context` 不含 GT、visibility、depth 欄位。請求分三層、靠前綴快取，見 §4.3 |
 | C2 | `agent_decision.py` L337：`if not match or not match[0]['rule_eligible']: raise ILLEGAL_CANDIDATE`；`cross_camera_demo.py` L195–196 也只接受 `eligible` 中的選擇 | Agent 看得到顏色不符的候選，卻**不准選**。顏色篩選仍是硬閘門（H3） | Agent 模式下可選任何 `considered` 候選；選了 `rule_eligible=false` 的人時，在稽核中記 `RULE_OVERRIDE:<原因>` |
 | C3 | `cross_camera_demo.py` L186：`if decider is not None and current is not None and eligible:` | 只有規則**至少有一個合格候選**時才問 Agent。全部顏色不符、目標失聯、零候選時 Agent 完全不被問，而這正是複雜情況 c3／c4（H1／H4） | 有 `considered` 候選、或失聯超過 N 個樣本時也呼叫 decider；新增回答 `STILL_HERE_OCCLUDED`、`NOT_VISIBLE`（附 `next_camera_hint`），由規則決定怎麼顯示 |
 | C4 | `cross_camera_demo.py` L170–172：`gap < 0` → `CURRENT_CAMERA_STILL_OBSERVED`，不進 `considered` | 重疊鏡頭交接（c5）時，另一台鏡頭的候選 Agent 根本看不到（H1） | 放進 `considered`，標 `overlap=true` |
@@ -118,12 +118,56 @@
 
 **和假設無關、不用優先處理**：#633（LIVE 改 workbench-v2 風格）。
 
+### 4.3 W2 實作要求與完成定義
+
+**請求三層結構（場景上下文做成固定前綴，靠快取減少重複傳送）**
+
+1. **固定前綴**：system 指示、角色、規則、輸出格式，加上整份 `scene_context`（連通性、鏡頭圖與核定等級、每台鏡頭的位置、朝向、FOV、覆蓋多邊形、重疊）。
+   - 每個場景版本只產生一次。
+   - 用穩定的序列化：鍵排序、固定數值格式、固定換行。
+   - 附場景版本雜湊（`scene_context_sha256`）。
+2. **每次追蹤固定**：目標參考裁切圖和外觀描述。
+3. **每次變動**：當下影格或裁切圖、候選、時間、規則給出的資訊（閘門結果、規則答案）。
+
+規則：
+
+- 每次請求只用鏡頭 ID 指向前綴裡的資料，不重送鏡頭屬性。
+- 使用 OpenAI 的前綴提示快取：前綴要逐字相同，放在請求最前面。若 API 支援 `prompt_cache_key`，就用場景雜湊當 key。
+- 參數名稱、最短可快取長度、折扣和保留時間，以實作當時的 OpenAI 官方文件為準，不憑記憶；實驗紀錄要寫出查閱的文件網址與日期。
+- 每次呼叫都記錄總輸入 token 和 `cached_tokens`（或官方對應欄位），透過 `ApiGuard` 帳本保存。
+
+**快取策略正式比較（使用者要求記錄這個比較）**
+
+- 用同一批決策點、同樣的請求內容，比較三組：
+  - (a) 每次完整重送，不快取；
+  - (b) 固定前綴＋提示快取；
+  - (c) 對話狀態接續（例如沿用前一輪回應的對話狀態；做法以官方文件為準），小樣本即可。
+- 每組記錄：
+  - 輸入 token、`cached_tokens`、命中率；
+  - 單次延遲 p50／p95；
+  - 每個決策點的花費（USD）；
+  - 決策結果是否和 (a) 相同。快取不應改變答案；不同的決策點要逐一列出，並在 K 次重複中區分模型本身的隨機性。
+- 結果寫在兩個地方：W2 的實驗紀錄，以及一份簡短的成本與延遲紀錄（`docs/evaluation/` 下），收錄到 [#479](https://github.com/Polalalabear/amidst/issues/479) 的「報告素材」。
+- 付費照 `ApiGuard` dry-run 與使用者核准；這個比較的金額在 W2 的核准裡另列。
+
+**完成定義（不能只交程式）**
+
+W2 的 PR 要同時包含：
+
+1. 程式與測試：C1–C6、三層請求、`scene_context` 與 GT 欄位檢查、快取欄位記錄。
+2. 快取策略比較的實驗紀錄，以及成本與延遲紀錄。
+3. 產品規格 `docs/specs/Q1Q5_PRODUCT_SPEC.md` 中 Agent 輸入與請求結構的章節：三層結構、`scene_context` 欄位。
+4. `docs/index/CODE_DOC_MAP.md`：新增的程式↔文件對應。
+5. `docs/index/README.md`：追加一筆。
+6. 本文件 §4 的現況對照：C1–C6 改成「已完成」並附 PR。
+7. 有 authority pin 的文件照前例登記新 pin，並跑 `scripts/check_architecture_guard.py`。
+
 ## 5. 工作拆解（依優先順序）
 
 | # | 工作 | 驗證 | 負責 | 依賴 | 建議模型／effort |
 | --- | --- | --- | --- | --- | --- |
 | W1 | **E1 逐格評估器並實跑**：從 r004 抽格並分層；三組比較：Q4 規則、Agent 看圖、Agent 只給文字 | H5、H2 | Claude | 無（付費金額需使用者核准；送渲染畫面已在 LIVE 做過，但預錄送圖是否要等 R1，由協調者決定） | Sonnet / high |
-| W2 | **主動 Agent 決策器**：完成 C1–C6（schema v3：送圖、空間資訊、閘門當資訊、可以不選人），在 r004 跑 E2a 試跑；併入看圖 Agent 實驗 session 的成果 | H1、H2、H3、H4 | Claude | R1 | Sonnet / high |
+| W2 | **主動 Agent 決策器**（實作要求與完成定義見 §4.3）：完成 C1–C6（schema v3：送圖、空間資訊、閘門當資訊、可以不選人），在 r004 跑 E2a 試跑；併入看圖 Agent 實驗 session 的成果 | H1、H2、H3、H4 | Claude | R1 | Sonnet / high |
 | W3 | **LIVE 端主動 Agent**：做 C7，在難題集跑 E2b，含四組消融與「閘門照擋」組 | H1、H2、H3、H4 | Claude | #608／#617 合併 | Sonnet / high |
 | W4 | **複雜場景**：Line 2 預錄 L2-S1–S6（相似人物交錯、遮擋、長失聯＋多出口、目標不在候選、重疊交接、離開路線圖），每類 ≥ 3 次；GT 只放 `gt_private/`；偵測用相同的 RT-DETR R18 | H1（樣本數） | Codex | 無 | — |
 | W5 | **判讀**：每次實驗前提交指標與推翻條件，實驗後寫結論 | 全部 | Claude | W1–W3 | Opus / high |
