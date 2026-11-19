@@ -100,7 +100,7 @@ export function renderLegend(el) {
   el.append(id);
 }
 
-const AGENT_REASON={GATEWAY_OFFLINE:'OpenAI gateway 沒有在執行',GUARD_NOT_APPROVED:'後台沒有核准付費呼叫',NO_API_KEY:'gateway 沒有 API key',MODEL_NOT_ENABLED:'gateway 沒有啟用此模型',NOT_APPLICABLE_NO_DECIDER:'此事件沒有 Agent 決策點'};
+import {AGENT_REASON} from './agent-switch-model.mjs';
 
 export function mountShell(root, store) {
   const $ = (sel) => root.querySelector(sel);
