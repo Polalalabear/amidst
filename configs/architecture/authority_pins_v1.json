@@ -440,6 +440,22 @@
       "sha256": "c65c5e4e0aa3d04677606930a3087ccd95c83d552d03753f5b1148ee5000520c",
       "status": "現行（D334 協作規範，2026-11-19）",
       "issue_ref": "#93"
+    },
+    {
+      "id": "D338-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@7550ac8155d6e48fa11c07d5aa8c48eea6921ecf（D338，#631）",
+      "sha256": "e0ad2248d4c6d3daa165683007f818c879693f518bbe08d6ba5d6cd64951d54c",
+      "status": "現行；依 D319 第一輪檢索補 LIVE §4.4、§6.1 決策選錄、鏡頭數、3D 現況，關閉 U-1、U-13（D338）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631"
+    },
+    {
+      "id": "D338-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@7550ac8155d6e48fa11c07d5aa8c48eea6921ecf（D338，#631）",
+      "sha256": "2f63c396877be1d36d2a8990cb31fc85ba66f34ebe1a29ea1265818354d3f964",
+      "status": "現行；「分類方式」加註整合分支為 main（D200、D338）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631"
     }
   ],
   "authorized_changes": [
@@ -680,6 +696,20 @@
       "requires_commit": "2a7d769090905333aaf2835cc93d34d12fb9cfbb",
       "issue_ref": "#93",
       "reason": "D334 協作規範（使用者 2026-11-19 在對話中授權）：瀏覽器測試預設無頭、每項工作有 issue 且以 PR 交付、相近工作共用 feature branch、工作狀態隨時更新在 issue 上。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "e0ad2248d4c6d3daa165683007f818c879693f518bbe08d6ba5d6cd64951d54c",
+      "requires_commit": "7550ac8155d6e48fa11c07d5aa8c48eea6921ecf",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631",
+      "reason": "D338（使用者要求依 D319 檢索紀錄直接更新規格）：只轉述既有決策與現況（LIVE、預錄 Agent 開關、3D 視圖、鏡頭數、決策索引、整合分支），關閉兩個已不成立的 UNKNOWN；沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "2f63c396877be1d36d2a8990cb31fc85ba66f34ebe1a29ea1265818354d3f964",
+      "requires_commit": "7550ac8155d6e48fa11c07d5aa8c48eea6921ecf",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631",
+      "reason": "D338：「分類方式」一句加註整合分支為 main（D200），只改導覽內容，沒有放寬任何規則"
     }
   ]
 }
