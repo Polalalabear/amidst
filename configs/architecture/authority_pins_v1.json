@@ -456,6 +456,14 @@
       "sha256": "2f63c396877be1d36d2a8990cb31fc85ba66f34ebe1a29ea1265818354d3f964",
       "status": "現行；「分類方式」加註整合分支為 main（D200、D338）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/631"
+    },
+    {
+      "id": "D340-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@b321f8833d583581c655904b4e35687ffa32fbe8（D340，#641）",
+      "sha256": "170b3d9b69dc7e04f40280a287d0d96959c470218cf438e157c5a2262a2f8eeb",
+      "status": "現行；D340 放寬 Agent 模式（§1.2、§3 表、§4.3，取代 D64），加入 H6 全模式可切換",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641"
     }
   ],
   "authorized_changes": [
@@ -710,6 +718,13 @@
       "requires_commit": "7550ac8155d6e48fa11c07d5aa8c48eea6921ecf",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/631",
       "reason": "D338：「分類方式」一句加註整合分支為 main（D200），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "170b3d9b69dc7e04f40280a287d0d96959c470218cf438e157c5a2262a2f8eeb",
+      "requires_commit": "b321f8833d583581c655904b4e35687ffa32fbe8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641",
+      "reason": "D340（使用者 2026-11-20 在對話中核准，#93 issuecomment-7016410023）：Agent 模式可看渲染影格、從所有偵測選人、回答仍在／不在／下一台、讀圖的邊與核定等級，規則閘門改成給 Agent 的資訊；GT 隔離、ApiGuard、付費核准、身分未確認、格式驗證照舊硬擋。這是放寬規則，已經使用者核准"
     }
   ]
 }
