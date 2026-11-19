@@ -206,17 +206,16 @@ export function mountUi(ctx) {
     // 追蹤方式: native v2 control (規則 / Agent) over the store's switchMode; wording comes from agentSwitchView.
     let modeField = null, modeSync = null;
     if (kind === 'track') {
-      const segBox = el('span', undefined, 'ui-seg'); segBox.id = 'ui-track-mode';
-      const ruleBtn = el('button', '規則', '', {type: 'button'}); ruleBtn.dataset.mode = 'RULE_ONLY';
-      const agentBtn = el('button', 'Agent', '', {type: 'button'}); agentBtn.dataset.mode = 'AGENT_SEQUENTIAL';
-      segBox.append(ruleBtn, agentBtn);
+      // Single switch: off = 規則, on = Agent (disabled while the Agent is unavailable / not applicable).
+      const modeToggle = el('button', undefined, 'ui-toggle', {type: 'button', role: 'switch', 'aria-checked': 'false', 'aria-label': '使用 Agent 決定換鏡'}); modeToggle.id = 'ui-track-mode';
+      const modeLabel = el('span', '規則', 'ui-small'); modeLabel.id = 'ui-track-mode-label';
+      const segBox = el('span', undefined, 'ui-modeswitch'); segBox.append(modeToggle, modeLabel);
       const modeNote = el('p', '', 'ui-note'); modeNote.id = 'ui-track-mode-note';
-      for (const b of [ruleBtn, agentBtn]) b.addEventListener('click', () => { if (!b.disabled) store.dispatch({type: 'SET_SWITCH_MODE', value: b.dataset.mode}); });
+      modeToggle.addEventListener('click', () => { if (!modeToggle.disabled) store.dispatch({type: 'SET_SWITCH_MODE', value: modeToggle.getAttribute('aria-checked') === 'true' ? 'RULE_ONLY' : 'AGENT_SEQUENTIAL'}); });
       modeSync = s => {
-        const v = agentSwitchView(s.activeRun, s.switchMode);
-        ruleBtn.className = v.effective === 'RULE_ONLY' ? 'on' : ''; agentBtn.className = v.effective === 'AGENT_SEQUENTIAL' ? 'on' : '';
-        agentBtn.disabled = !v.agentEnabled; agentBtn.textContent = v.agentLabel; agentBtn.title = v.agentEnabled ? '' : v.note;
-        ruleBtn.setAttribute('aria-pressed', String(v.effective === 'RULE_ONLY')); agentBtn.setAttribute('aria-pressed', String(v.effective === 'AGENT_SEQUENTIAL'));
+        const v = agentSwitchView(s.activeRun, s.switchMode), on = v.effective === 'AGENT_SEQUENTIAL';
+        modeToggle.setAttribute('aria-checked', String(on)); modeToggle.disabled = !v.agentEnabled; modeToggle.title = v.agentEnabled ? '' : v.note;
+        modeLabel.textContent = on ? 'Agent' : '規則';
         modeNote.textContent = v.note; modeNote.dataset.tone = v.tone;
       };
       modeField = field('追蹤方式', segBox); modeField.append(modeNote);

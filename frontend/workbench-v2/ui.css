@@ -269,3 +269,5 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .live-entry-status[data-tone="ok"]{color:var(--observed,#4cc38a)}
 .live-entry-status[data-tone="off"]{color:#e0bb6a}
 .live-entry-retry{font-size:12px;background:none;border:none;color:var(--faint);text-decoration:underline;cursor:pointer}
+
+.ui-modeswitch{display:flex;align-items:center;gap:10px}.ui-toggle:disabled{opacity:.4;cursor:not-allowed}.ui-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
