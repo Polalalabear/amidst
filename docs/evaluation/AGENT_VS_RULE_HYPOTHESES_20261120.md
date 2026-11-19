@@ -87,6 +87,8 @@
 
 ### 4.0 需要使用者決策（擋住 H1／H2／H5 的規則本身）
 
+**狀態（2026-11-20）**：R1、R2 已由使用者核准為 **D340**（[#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7016410023)），在本 PR 改寫 `docs/specs/DEVELOPMENT_RULES.md` 與產品規格。W1、W2 等本 PR 合併後才開始。
+
 | # | 位置 | 為什麼不合理 | 怎麼改 | 改的人 |
 | --- | --- | --- | --- | --- |
 | R1 | `docs/DEVELOPMENT_RULES.md` L63（D64 條）：「Agent 不排序、不增刪候選，也不做 geometry、pathfinding…Agent 依序向候選取偵測與顏色證據…**第一版只用 RT-DETR＋HSV，不用看圖**」 | 規則**明文禁止**本計畫要驗證的 Agent：不准看圖（H1／H2／H5），不准加入規則沒給的候選（H3），不准用空間做推理（H4）。現在所有 Agent 程式都照這條寫成覆核者，這是根本原因 | 新 D 號：**Agent 模式（預設關、研究與 demo 皆可）**可以看渲染畫面、可以從所有偵測（含低分、顏色不符）中選、可以回答「仍在／不在／下一台看 X」、可以讀圖的邊與核定等級。決定性規則仍是預設與兜底；GT 隔離、ApiGuard、身分未確認不變 | 使用者決定；Claude 起草條文 |
