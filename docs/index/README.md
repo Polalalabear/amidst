@@ -9,7 +9,7 @@
 ## 規則
 
 - **只記區段**（模組、檔案、文件章節名稱），不記行號；每項只寫「哪裡需要動、為什麼」，不寫修法細節。
-- **只記錄，不修改**。檢索結果中標為「可刪候選」或「可模組化」的項目，刪除或合併都需要使用者授權後另開工作。
+- **檢索紀錄只記錄，不修改**。依紀錄修改規格與文件時另開 issue／PR（例如 D338），並在下方「修改紀錄」追加一筆；檢索紀錄本身只追加補記，不改寫原文。標為「可刪候選」或「可模組化」的項目，刪除或合併都需要使用者授權後另開工作。
 - 每次檢索追加一份新的 `SWEEP_<D號>_<階段>_<日期>.md`，不覆寫舊紀錄。
 - 文件內不放絕對家目錄路徑。
 
@@ -28,8 +28,22 @@
 
 | 檔案 | 日期 | 範圍 | 狀態 |
 | --- | --- | --- | --- |
-| [SWEEP_D319_PASS1_20261119.md](SWEEP_D319_PASS1_20261119.md) | 2026-11-19 | D319 冗餘清理第一次檢索：src/、frontend/、scripts/、tests/、docs 各主要資料夾 | 已完成並經 Sonnet 全面核對修正（issue #626） |
+| [SWEEP_D319_PASS1_20261119.md](SWEEP_D319_PASS1_20261119.md) | 2026-11-19 | D319 冗餘清理第一次檢索：src/、frontend/、scripts/、tests/、docs 各主要資料夾 | 已完成並經 Sonnet 全面核對修正（issue #626）；2026-11-19 補記 §2.3（D338） |
+
+## 對應表
+
+| 檔案 | 內容 |
+| --- | --- |
+| [CODE_DOC_MAP.md](CODE_DOC_MAP.md) | 程式碼 ↔ 規格／文件對應表（主規格章節、LIVE 模組、其他套件），以及第一輪檢索項目的處理結果 |
+
+## 修改紀錄
+
+每次依檢索紀錄修改規格、文件或索引時追加一列。
+
+| 日期 | 決策／issue | 修改內容 | PR |
+| --- | --- | --- | --- |
+| 2026-11-19 | D338／[#631](https://github.com/Polalalabear/amidst/issues/631) | 新增 `CODE_DOC_MAP.md`；SWEEP 補記 §2.3（LIVE 樣式）；`Q1Q5_PRODUCT_SPEC.md` 補 §4.4 LIVE、§6.1 決策選錄、鏡頭數、3D 現況，關閉 U-1、U-13；修正 `DEMO_RUNBOOK_20261104.md`、`UI_REDESIGN_V1.md`、`Q1Q5_PROGRESS.md`、`WORKBENCH_V2_Q1Q5_DESIGN.md`、`docs/engineering/LIVE_MODE_SPIKE_20261115.md`；封存文件 `CURRENT_WORK_REPRODUCTION.md`、`OFFICE_DEMO_TASKS.md`（放棄）、`OFFICE_DEMO_MVP.md`、`OFFICE_DEMO_SCRIPT.md`、`SYSTEM_DESIGN.md`、`ISSUES_AND_DECISIONS.md` 只加檔頭；審查修正：§4.3 改寫 #625 已合併（`1d322837`）、後續 #629，工作 1 指向 #633／#634 | [#632](https://github.com/Polalalabear/amidst/pull/632)（Draft） |
 
 ## 論文素材
 
-論文素材索引尚未建立；待第二次以後的檢索完成後，於本節補上各章節對應的模組與文件。
+論文與研究紀錄先以 [CODE_DOC_MAP.md](CODE_DOC_MAP.md) 為起點（模組 → 規格章節 → 評估文件）；各章節的素材對應待第二次以後的檢索補上。報告素材另見 [#479](https://github.com/Polalalabear/amidst/issues/479)。
