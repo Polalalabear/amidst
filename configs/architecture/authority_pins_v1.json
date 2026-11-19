@@ -424,6 +424,22 @@
       "sha256": "895da1603ed887b2f7e0ad1f9fae9bba47d332089e0f49eca9f9cb263cc33b95",
       "status": "現行；進度導覽補到 #620（D332，D91-4）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D334-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "sha256": "78a65d785320b722640b68e4b447bebd99645b8a9d2452ea736e300ca35891d7",
+      "status": "現行（D334 協作規範，2026-11-19）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D334-A3",
+      "path": "CLAUDE.md",
+      "ref": "claude/feat-ops-docs@2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "sha256": "c65c5e4e0aa3d04677606930a3087ccd95c83d552d03753f5b1148ee5000520c",
+      "status": "現行（D334 協作規範，2026-11-19）",
+      "issue_ref": "#93"
     }
   ],
   "authorized_changes": [
@@ -650,6 +666,20 @@
       "requires_commit": "1e0f248f9ba32721b4e98f5329f8c1ad5a81677f",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
       "reason": "進度導覽批次補列到 #620（D332 晚間交接，D91-4），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "78a65d785320b722640b68e4b447bebd99645b8a9d2452ea736e300ca35891d7",
+      "requires_commit": "2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "issue_ref": "#93",
+      "reason": "D334 協作規範（使用者 2026-11-19 在對話中授權）：瀏覽器測試預設無頭、每項工作有 issue 且以 PR 交付、相近工作共用 feature branch、工作狀態隨時更新在 issue 上。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "c65c5e4e0aa3d04677606930a3087ccd95c83d552d03753f5b1148ee5000520c",
+      "requires_commit": "2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "issue_ref": "#93",
+      "reason": "D334 協作規範（使用者 2026-11-19 在對話中授權）：瀏覽器測試預設無頭、每項工作有 issue 且以 PR 交付、相近工作共用 feature branch、工作狀態隨時更新在 issue 上。只加規則，沒有放寬任何規則"
     }
   ]
 }
