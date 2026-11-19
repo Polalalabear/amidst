@@ -71,6 +71,34 @@ def test_demo_approved_is_scoped_and_leaves_inputs_alone():
     assert out['parameter_set_id'] == 'pset:q-demo:' + out['content_sha256'][:16] != src['parameter_set_id']
     formal = json.loads((ROOT / 'configs/q1q5/parameter_set_v1.json').read_text())
     assert formal['approval']['status'] == 'PROPOSED'     # the pinned file is not promoted
+    llm_seed = [r for r in out['parameters'] if r['name'] == 'llm_seed']
+    assert all(r['status'] == next(s['status'] for s in src['parameters'] if s['name'] == 'llm_seed') for r in llm_seed)
+    assert all(r['status'] == 'APPROVED' for r in out['parameters'] if r['name'] in demo.DEMO_APPROVED_ROWS and r['value'] is not None)
+    assert not any(r['status'] == 'APPROVED' for r in out['parameters'] if r['name'] not in demo.DEMO_APPROVED_ROWS and r['name'] in {p['name'] for p in src['parameters'] if p['status'] == 'DEMO_DEFAULT'})
+
+
+def test_demo_approved_missing_boundary_row_gives_explicit_error():
+    run = run_binding(agent=True)
+    src = demo_set(run)
+    src['parameters'] = [r for r in src['parameters'] if r['name'] != 'exit_boundary_inclusive']
+    with pytest.raises(Exception) as e:
+        demo.demo_approved(src)
+    assert 'DEMO_EXIT_BOUNDARY_MISSING' in str(e.value)
+
+
+def test_unapproved_set_through_scene_projection_path_stays_not_approved(tmp_path):
+    # the eightcam path: same scope-bearing projection, but no demo_approved -> Q2 must still refuse
+    _, _, provider = wire(tmp_path)
+    run = run_binding(agent=True)
+    ps = demo_set(run)
+    b = replace(run.bindings, parameter_set=ps, parameter_sha256=ps['content_sha256'])
+    settings = replace(run.parse_settings, parameter_set_id=ps['parameter_set_id'], parameter_set_sha256=ps['content_sha256'])
+    run = og.bind_openai_agent([replace(run, bindings=b, parse_settings=settings)], provider.queue_dir, provider=provider)[0]
+    api = QAPI([run], max_responses=128, max_media_refs=4096)
+    q = q2(run)
+    q['switch_mode'] = 'RULE_ONLY'
+    r = api.call('q2_select_seed', {'request': q, 'selected_observation_id': seed_id(run.bindings)}, authorize)
+    assert r['reason'] == 'PARAMETERS_NOT_APPROVED'
 
 
 def approved_agent_run(provider):
@@ -90,7 +118,10 @@ def test_a4_b4_style_run_completes_in_both_modes_with_mock_gateway(tmp_path, mod
     q['switch_mode'] = mode
     r = api.call('q2_select_seed', {'request': q, 'selected_observation_id': seed_id(run.bindings)}, authorize)
     assert r['status'] not in {'UNKNOWN'} and r['reason'] not in {'TRACKING_SCOPE_MISSING', 'PARAMETERS_NOT_APPROVED'}
-    assert r['agent_attempted'] is (mode == 'AGENT_SEQUENTIAL') or mode == 'RULE_ONLY'
+    if mode == 'RULE_ONLY':
+        assert r['agent_attempted'] is False
+    else:
+        assert r['agent_attempted'] is True
 
 
 def test_b05_shows_not_applicable_instead_of_an_error_code(tmp_path):

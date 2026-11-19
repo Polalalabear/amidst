@@ -65,6 +65,9 @@ def parameters(index, values):
         'parameters': deepcopy(list(unique.values()))}, 'pset:q-demo')
 
 
+DEMO_APPROVED_ROWS = ('query_min_score', 'top_k', 'search_window_us', 'research_interval_us', 'session_max_research_rounds',
+    'switch_min_presence', 'evidence_max_observations', 'fallback_budget_ms', 'exit_rule', 'link_iou_min',
+    'link_center_dist_max_diag_ratio', 'link_max_gap_us', 'link_min_score', 'link_color_rule', 'link_ambiguity_margin')
 DEMO_APPROVAL_REF = 'user-chat:2026-11-19:coordinator-option-A (CL-B16 #620)'
 
 
@@ -73,15 +76,17 @@ def demo_approved(params):
     the user (2026-11-19, coordinator conversation, option A) allowed treating the A4-1/B4-1 DEMO_DEFAULT set as APPROVED. This
     does not change the pinned parameter files and is not a research/formal acceptance."""
     p = deepcopy(params)
-    for row in p['parameters']:
-        if row.get('status') == 'DEMO_DEFAULT' and row.get('value') is not None:
-            row['status'] = 'APPROVED'
-        if row.get('status') == 'APPROVED' and not row.get('proposal_ref'):
-            row['proposal_ref'] = DEMO_APPROVAL_REF
     by = {row['name']: row for row in p['parameters']}
+    boundary = by.get('exit_boundary_inclusive')
+    require(boundary is not None and type(boundary.get('value')) is bool, 'DEMO_EXIT_BOUNDARY_MISSING')
+    for name in DEMO_APPROVED_ROWS:   # only the rows the Q5 controller checks; every other row keeps its own status
+        row = by.get(name)
+        if row is not None and row.get('status') == 'DEMO_DEFAULT' and row.get('value') is not None:
+            row['status'] = 'APPROVED'
+            row['proposal_ref'] = row.get('proposal_ref') or DEMO_APPROVAL_REF
     rule = by.get('exit_rule')   # same rule, spelled the way the Q5 controller reads it (method + boundary_inclusive)
     if rule is not None and rule.get('value') == 'BBOX_BOTTOM_MIDPOINT_IN_ROI':
-        rule['value'] = {'method': 'BBOX_BOTTOM_MIDPOINT', 'boundary_inclusive': by['exit_boundary_inclusive']['value']}
+        rule['value'] = {'method': 'BBOX_BOTTOM_MIDPOINT', 'boundary_inclusive': boundary['value']}
     p['approval'] = {'status': 'APPROVED', 'approval_ref': DEMO_APPROVAL_REF, 'approved_by': 'user-demo-only'}
     return seal(p, 'pset:q-demo')
 
