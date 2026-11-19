@@ -306,3 +306,38 @@
 ### 9.4 Session（快照時，與前一位協調者連結）
 
 以 `list_sessions {"linked": true}` 為準。快照時仍在執行：`disk-inventory`（`local_0808ab32-1f79-4c8b-88e7-db04514ffcc5`，盤點已產出）、`rv-608-617`（`local_fe212872-521f-436b-8939-8220b24e2c41`，#608、#617 結論都已貼）、`hardset-597-plan`（難題集路線修正＋全腳本）。閒置：`opus-588-gate`、`mock-605-3d`、`board-d315`、`576-8785-8791-main-gate`、`eval-recorded-llm`。其餘已完成，使用者同意後可封存。
+
+### 9.5 最終狀態補記（D333，2026-11-18 深夜）
+
+本節是交接前最後一次核對（`gh pr view`、`gh pr checks`、`gh issue view`、`df`、`lsof`），只增補，§9.1–§9.4 與前文決策紀錄不改；狀態有出入時以本節為準。本補記在 #93 記為 **D333**，新協調者從 **D334** 起。
+
+**研究紀錄**：預錄三事件規則 vs LLM（D325）已寫成 [`docs/evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md`](../evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)：A4-1、B4-1 上 LLM 與規則相同（0.970／0.906，sol6.1 一次 0.901），A4-1 9.2 s、37.2 s 的 `INVALID_RESPONSE` 是 `reason_codes` 超過 4 個（37.4 s 請求已確認，9.4 s 未重現），B-05 不適用（#620、無 GT），花費 USD 0.4115。結論：這兩個基線事件沒有讓 LLM 贏的題目，要靠 #597 難題集。
+
+**PR 與 issue（核對時）**
+
+| 項目 | 狀態 | 下一步 |
+| --- | --- | --- |
+| [#622](https://github.com/Polalalabear/amidst/pull/622) 難題集 | `claude/feat-live-hardset` @ `de1be7e9`，Draft，可合併，CI `checks` 綠。內容：難題集全部由腳本產生（D331）、正式判定用 graph 讀法、H1-3／H4-2／H5-3 改路線（D330）；新一輪 9 段在 graph 讀法下全部成立，9 段中 5 段在難點前 3 s 規則跟對（H2-2、H2-3、H3-1、H3-2、H5-3）；smoke 改成只用無頭 Chrome（使用者不要彈視窗）。只跑了規則模式 | **待 Sonnet 正式審查後合併**（D305） |
+| [#608](https://github.com/Polalalabear/amidst/pull/608) relock R1（#588） | `codex/feat-live-relock` @ `fe4f2541`，非 Draft，可合併，CI 綠。Codex 已用 merge commit 合入 main `7393bf62`，回報 D326 數字不變、runtime relock／predict 預設關閉 | 待 Claude 複審（§9.2 列的 Opus 三題仍要派） |
+| [#617](https://github.com/Polalalabear/amidst/pull/617) pass 規則＋錄製重播（#596） | `codex/feat-live-ab` @ `c0498745`，Draft，可合併，CI 綠。已合 main；瀏覽器工具統一預設無頭（`--headful` 或 `AMIDST_HEADFUL=1` 才顯示），§9.2 的「給 Codex 的待貼文字」已由此處理 | 待 Claude 複審 |
+| [#623](https://github.com/Polalalabear/amidst/pull/623) 3D 視圖 est_xy（#612） | `codex/feat-workbench-8cam` @ `e49a31af`，Draft，可合併，CI 綠。Codex 回報 A4 240 INFERRED／10 UNKNOWN、B4 209／1；完整服務啟動因磁碟門檻未驗證 | 待 Claude 審；#594 由同一條線後續處理 |
+| #588 | open，`ready`、`in-progress`（經 #608） | 隨 #608 |
+| #594 | open，`in-progress`（Codex，CX-8C） | 隨 #623 同線 |
+| #612 | open，`in-progress`（經 #623） | 隨 #623 |
+| #619 | open，`ready`（Codex，CX-L8 室外遠端偵測） | Codex 取件 |
+| #571 | 已關閉（由 #610 完成） | — |
+| #620 | open，`owner:claude`、`ready` | 派 Sonnet medium 寫手 |
+
+**本機狀態**
+
+- 磁碟：可用約 8.7–8.8 GiB（仍低於 9 GiB，不開第三個寫手）。
+- 殘留 clone 與孤兒 8797／8798 伺服器已清；核對時只有 8785、8791 在監聽。
+- 8785 pin `b98fac2a`（`local/demo-pin.json`）；8791 在 `50f2fd14`（`local/runtime/live-main`）。
+- #618 的 308 轉址修正要到下一次 8785 pin 更新才生效。
+
+**新協調者第一件事（取代 §9.3 的 1、2 項）**
+
+1. 派 Sonnet 正式審查 #622、#608、#617、#623；審查過＋CI 綠即合併並刪分支（D305）。#608 審查留給 Opus 的三題照 §9.2 分派。
+2. 把 LIVE 規則 vs LLM 重播比較（#597 CL-B11 本體）排上：等 #622、#617（#596 錄製重播）、#608 合併後跑，付費先 ApiGuard dry-run，單次超過 USD 10 要問。
+3. §9.3 的 3–5 項（磁碟、#620、下一次 8785 更新）不變。
+4. 下一個決策編號 **D334**。
