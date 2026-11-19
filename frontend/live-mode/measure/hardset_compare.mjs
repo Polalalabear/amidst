@@ -73,7 +73,7 @@ async function runOne({caseId, mode, rep, name}) {
     const bLog = await b.evaluate(() => JSON.parse(JSON.stringify(window.__log)));
     const after = await getConfig();
     const meta = {case_id: caseId, mode, rep, session, query, wall_s: (Date.now() - wallStart) / 1000, b_start_at_t_sim: tStart,
-      config_before: {advisor: cfg.advisor, advisor_model: cfg.advisor_model, provider}, config_after_advisor: after.advisor,
+      config_applied: {advisor: cfg.advisor, advisor_model: cfg.advisor_model, provider}, config_after_advisor: after.advisor, paid_approved_usd: process.env.HARDSET_PAID_APPROVED_USD ?? null,
       page_errors: errors, ...(ledger ? ledgerDelta(ledgerBefore, readLedger()) : {cost_usd: null, ledger: 'UNKNOWN (HARDSET_LEDGER not set)'})};
     fs.writeFileSync(path.join(out, `${name}.a-log.json`), JSON.stringify(aLog));
     fs.writeFileSync(path.join(out, `${name}.b-log.json`), JSON.stringify(bLog));

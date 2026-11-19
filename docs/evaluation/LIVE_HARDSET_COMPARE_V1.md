@@ -36,6 +36,10 @@ LIVE_BASE=http://127.0.0.1:<port> OUT=<dir> node measure/hardset_compare.mjs H5-
 python scripts/live_hardset_compare.py --dir <dir> [--cases H5-1,...] --out <outdir>   # report.md、score.json、decisions.csv
 ```
 
+- **與 D325 的分母差別（兩份數字不可直接並排）**：本工具跟對率＝ON_TARGET 秒 ÷ 目標 GT 可見秒，偵測漏掉的時間算失聯／錯人（端到端，與 `live_ab_score.py` 一致）；D325 是 ÷「偵測得到（score≥0.3）」的 tick，本工具的數字通常較低。同一案內三組共用同一份 GT 重播，所以規則 vs LLM 的比較是公平的。以「偵測得到」為分母的次要指標要等 B log 有偵測收據（#608），目前 UNKNOWN，不補值。
+- **未採用的裁決**：`choice≥1` 但 `applied=False`（例如該時刻目標已移動而被拒）記「未採用」、對錯 `—`，因為當時的系統輸出是規則的；`applied=True` 的 LLM 答案以採用後同一 tick 的追蹤位置代表（候選名單不在 B log，#608 收據契約前是替代量）；`choice` 不是 ≥ 0 的整數記 `UNKNOWN`。報告逐案表列「採用／未採用／都不是／退回」件數。
+- **「之後 10 s 跟對」**：規則、terra、sol 三欄都從問的時刻起算（LLM 的等待時間算在它的成本裡）；未採用列反映的是規則。
+- **切鏡點與較好／較差**：切鏡點只由規則組第 1 次重播定義；規則從頭沒跟上的案例沒有切鏡點，LLM 的改善只會反映在跟對率。某個切鏡點算「變好」或「變差」時，規則與 LLM 兩邊都取 K 次的嚴格多數（多數「接對」＝好），平手＝不確定，不算改善也不算退步。報告同時列跟對率的 K 次範圍，讓讀者看出 0.05 門檻是否在雜訊內。
 - 目標＝腳本玩家 T。逐 tick 類別沿用 `scripts/live_ab_score.py` 的 `classify()`（1.5 m 判定），**差別**：`NEEDS_CONFIRM` 算失聯（RELOCK §2.1；`live_ab_score` 目前記 UNKNOWN）。比率以秒加權。
 - 看不到期間另列：宣告失聯（正確）／追蹤在別人身上（`wrong_unseen_s`，H5 重點）／UNMATCHED。
 - 跟對率、失聯秒、錯人秒、身分交換（連續 ≥ 2 tick 的錯人區段）、重新找回秒數（從目標重新可見起算，未找回另計件數）。
@@ -64,5 +68,5 @@ python scripts/live_hardset_dryrun.py --cases nine --k 3        # H1×3、H4×3�
 
 ## 5. 驗證與沒驗證
 
-- 驗證：`tests/evaluation/test_live_hardset_compare.py`（13 個，合成 A／B log：秒加權類別、切鏡點、裁決點表含「都不是」、退回規則、`NEEDS_CONFIRM`、找回秒、REPLAY_MISMATCH、SESSION_MISMATCH、較好／較差定義、CLI 輸出、dry-run 估價）；`frontend/live-mode/test/hardset_compare.test.mjs`（5 個：模式請求、生效檢查、付費閘 fail-closed、執行計畫、帳本差額）；評分器另用本機真實規則組 log（`hardset-597-20261118-ab2` 的 H1-3、H2-1、H5-3）跑過，能出表。
+- 驗證：`tests/evaluation/test_live_hardset_compare.py`（17 個，合成 A／B log：秒加權類別、切鏡點、裁決點表含「都不是」、退回規則、未採用、規則 K 次不一致、K 平手、目標離開所有鏡頭的切鏡點、`NEEDS_CONFIRM`、找回秒、REPLAY_MISMATCH、SESSION_MISMATCH、較好／較差定義、CLI 輸出、dry-run 估價）；`frontend/live-mode/test/hardset_compare.test.mjs`（5 個：模式請求、生效檢查、付費閘 fail-closed、執行計畫、帳本差額）；評分器另用本機真實規則組 log（`hardset-597-20261118-ab2` 的 H1-3、H2-1、H5-3）跑過，能出表。
 - **沒驗證**：runner 的瀏覽器流程沒有端到端跑（需要 LOCAL 模型的後台與長時間；也沒有 terra／sol 的真實 B log）；A／B 用同一個 browser context 的兩個 page（同 #617 的做法）能否在無頭下穩定收到畫面，要實跑時確認。

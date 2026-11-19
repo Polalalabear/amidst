@@ -226,7 +226,9 @@ def decision_summary(run):
     lat = [d["latency_ms"] for d in ds if finite(d.get("latency_ms"))]
     return {"calls": calls, "answered": len(ds), "agent": sum(1 for d in ds if d["source"] == "AGENT"),
             "fallback": sum(1 for d in ds if d["source"] == "RULE_FALLBACK"),
-            "applied": sum(1 for d in ds if d["applied"]), "cleared": sum(1 for d in ds if d["cleared"]),
+            "applied": sum(1 for d in ds if d["applied"]),
+            "unadopted": sum(1 for d in ds if d["source"] == "AGENT" and isinstance(d.get("choice"), int) and d["choice"] >= 1 and not d["applied"]),
+            "cleared": sum(1 for d in ds if d["cleared"]),
             "p50_ms": percentile(lat, 0.5), "p95_ms": percentile(lat, 0.95)}
 
 
@@ -438,7 +440,7 @@ def decision_rows(case, by_mode):
                 run = per[mm][0]
                 row[mm] = llm_answer(dd, run) if dd else "—"
                 row[mm + "_ok"] = _ok(row[mm], vis)
-                row[mm + "_after"] = None if run is None or dd is None else run.rate(dd["answer_t"], dd["answer_t"] + AFTER_S)
+                row[mm + "_after"] = None if run is None or dd is None else run.rate(t, t + AFTER_S)   # from the question: the wait is the model's cost
             row["rule_ok"] = _ok(row["rule"], vis)
             row["rule_after"] = rule.rate(t, t + AFTER_S) if rule else None
             rows.append(row)
@@ -458,14 +460,19 @@ def _since_on(run, t):
 def llm_answer(d, run):
     if d["source"] != "AGENT":
         return "退回規則"
-    if d["choice"] == 0:
+    c = d.get("choice")
+    if not isinstance(c, int) or isinstance(c, bool) or c < 0:
+        return "UNKNOWN"
+    if c == 0:
         return "都不是"
+    if not d.get("applied"):
+        return "未採用"   # the system output at that moment is the rule's, so the position says nothing about the model
     row = d.get("answer_row")
     return actor_of(row) if row else "UNKNOWN"
 
 
 def _ok(answer, visible):
-    if answer in ("—", "UNKNOWN", "退回規則"):
+    if answer in ("—", "UNKNOWN", "退回規則", "未採用"):
         return "—"
     if visible:
         return "✓" if answer == TARGET else "✗"
@@ -486,15 +493,18 @@ def compare_to_rule(case_score, mode):
         return None
     d = statistics.median(oo) - statistics.median(rr)
     improved = degraded = 0
-    verdicts_rule = rule[0]["handoff"]["5.0"]
-    # K repetitions: a hand-off counts as changed only when the median repetition of the LLM mode agrees
-    for i, v0 in enumerate(verdicts_rule):
-        vs = [x["handoff"]["5.0"][i] for x in other if i < len(x["handoff"]["5.0"])]
-        if not vs:
+    # K repetitions on both sides: a hand-off is "good" when a strict majority of the repetitions are 接對, "bad" when a strict
+    # majority are not, and uncertain on a tie (a tie counts as neither improved nor degraded).
+    def majority(run_list, i):
+        vs = [x["handoff"]["5.0"][i] for x in run_list if i < len(x["handoff"]["5.0"])]
+        good = sum(1 for v in vs if v == "接對")
+        return None if not vs or good * 2 == len(vs) else good * 2 > len(vs)
+    for i in range(len(rule[0]["handoff"]["5.0"])):
+        g0, g1 = majority(rule, i), majority(other, i)
+        if g0 is None or g1 is None:
             continue
-        good = sum(1 for v in vs if v == "接對") * 2 > len(vs)
-        improved += v0 != "接對" and good
-        degraded += v0 == "接對" and not good
+        improved += (not g0) and g1
+        degraded += g0 and (not g1)
     better = d >= BETTER or (improved > 0 and degraded == 0)
     worse = d <= -BETTER or (degraded > 0 and improved == 0)
     if better and worse:
@@ -524,11 +534,13 @@ def rng(xs, nd=3):
 
 
 def render_markdown(scores, title="LIVE 難題集 規則 vs LLM 覆核"):
-    L = [f"# {title}", ""]
+    L = [f"# {title}", "",
+         "跟對率＝ON_TARGET 秒 ÷ 目標 GT 可見秒（偵測漏掉的時間算失聯／錯人）；與 D325（÷ 偵測得到的 tick）分母不同，兩份數字不可直接並排。"
+         "跟對率欄為 K 次的中位數（最小–最大）。", ""]
     scored = [s for s in scores if s["status"] == "SCORED"]
     skipped = [s for s in scores if s["status"] != "SCORED"]
     L += ["## 逐案", "",
-          "| 案例 | 組 | 次數 | 跟對率 | 失聯秒 | 錯人秒（可見／看不到） | 身分交換 | 找回秒 平均（未找回） | 切鏡 接對／接錯／沒接上（W=5 s） | LLM 呼叫 | 採用／退回 | 呼叫 p50／p95 ms | 花費 USD |",
+          "| 案例 | 組 | 次數 | 跟對率 | 失聯秒 | 錯人秒（可見／看不到） | 身分交換 | 找回秒 平均（未找回） | 切鏡 接對／接錯／沒接上（W=5 s） | LLM 呼叫 | 採用／未採用／都不是／退回 | 呼叫 p50／p95 ms | 花費 USD |",
           "| --- | --- | ---: | --- | --- | --- | ---: | --- | --- | ---: | --- | --- | ---: |"]
     for s in scored:
         for mode in MODES:
@@ -543,7 +555,7 @@ def render_markdown(scores, title="LIVE 難題集 規則 vs LLM 覆核"):
             L.append(f"| {s['case']} | {mode} | {k} | {rng([x['rate'] for x in xs])} | {rng([x['lost_s'] for x in xs], 1)} | "
                      f"{rng([x['wrong_s'] for x in xs], 1)}／{rng([x['wrong_unseen_s'] for x in xs], 1)} | {rng([x['identity_switches'] for x in xs], 0)} | "
                      f"{rng([x['reacquire_mean_s'] for x in xs], 1)}（{sum(x['reacquire_missing'] for x in xs)}） | "
-                     f"{hv['接對']}／{hv['接錯']}／{hv['沒接上']} | {sum(d['calls'] for d in ds)} | {sum(d['agent'] for d in ds)}／{sum(d['fallback'] for d in ds)} | "
+                     f"{hv['接對']}／{hv['接錯']}／{hv['沒接上']} | {sum(d['calls'] for d in ds)} | {sum(d['applied'] for d in ds)}／{sum(d['unadopted'] for d in ds)}／{sum(d['cleared'] for d in ds)}／{sum(d['fallback'] for d in ds)} | "
                      f"{f(med([d['p50_ms'] for d in ds]), 0)}／{f(med([d['p95_ms'] for d in ds]), 0)} | {cost_s} |")
     L.append("")
     L += ["## 逐類型", "", "| 類型 | 段數 | 組 | 較好 | 相同 | 較差 | 跟對率（各案中位數的中位數） |", "| --- | ---: | --- | ---: | ---: | ---: | --- |"]
@@ -585,6 +597,9 @@ def render_markdown(scores, title="LIVE 難題集 規則 vs LLM 覆核"):
     if skipped:
         L += ["## 未比較", ""] + [f"- {s['case']}：{s['status']} {', '.join(s['unknown'])}" for s in skipped] + [""]
     L += ["## 方法與限制", "",
+          "- 裁決點表：LLM 答案在 `applied=True` 時以採用後同一 tick 的追蹤位置代表（候選名單不在 B log，#608 收據契約前是替代量）；"
+          "`choice≥1` 但未採用記「未採用」、對錯 `—`（當時輸出是規則的）。「之後 10 s 跟對」三欄都從問的時刻起算（LLM 的等待算在它的成本裡）；未採用列反映規則。",
+          "- 切鏡點只由規則組第 1 次重播定義，規則從頭沒跟上的案例沒有切鏡點，LLM 的改善只反映在跟對率。較好／較差的切鏡點判定，規則與 LLM 兩邊都取 K 次嚴格多數，平手＝不確定（不算改善也不算退步）。",
           "- 目標＝腳本玩家 T；GT（A log 的 `actors`）只用於事後評分，B 與 LLM 請求都沒有它。",
           "- 三組以 `t_sim` 對齊（擷取 tick 用牆鐘，各組不同）；比率以秒加權；同一劇本三組的演員位置不一致（> 容許值）時整案不比較（REPLAY_MISMATCH）。",
           "- `NEEDS_CONFIRM` 算失聯（RELOCK §2.1）；目標看不到時的狀態另列（看不到期間的錯人秒）。",

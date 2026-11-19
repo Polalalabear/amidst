@@ -179,3 +179,51 @@ def test_dry_run_estimate_uses_pinned_prices_and_makes_no_call(capsys):
     assert w["calls"] == n and abs(w["est_cost_per_call_usd"] - (1100 * 2.0 + 400 * 10.0) / 1e6) < 1e-9
     assert res["per_model"]["terra6.1"]["typical"]["est_total_usd"] < res["per_model"]["sol6.1"]["typical"]["est_total_usd"]
     assert D.main(["--cases", "nine", "--json"]) == 0 and '"total_worst_usd"' in capsys.readouterr().out
+
+
+def test_unadopted_answer_is_not_credited_to_the_model():
+    rule = run("rule", 1, *build("rule", track=lambda t: "T"))
+    d = {"choice": 1, "applied": False, "cleared": False, "source": "AGENT", "latency_ms": 900}
+    terra = run("terra", 1, *build("terra", track=lambda t: "T", decisions=[(5.0, 5.6, d)]))
+    s = C.score_case("X-1", {"rule": [rule], "terra": [terra]})
+    row = s["decisions"][0]
+    assert row["terra"] == "未採用" and row["terra_ok"] == "—" and s["modes"]["terra"][0]["decision"]["unadopted"] == 1
+    bad = dict(d, choice=None)
+    terra = run("terra", 1, *build("terra", track=lambda t: "T", decisions=[(5.0, 5.6, bad)]))
+    assert C.score_case("X-1", {"rule": [rule], "terra": [terra]})["decisions"][0]["terra"] == "UNKNOWN"
+
+
+def test_after_window_starts_at_the_question_for_all_columns():
+    rule = run("rule", 1, *build("rule", track=rule_track))
+    d = {"choice": 1, "applied": True, "cleared": False, "source": "AGENT", "latency_ms": 4000}
+    terra = run("terra", 1, *build("terra", track=llm_track, decisions=[(16.2, 19.0, d)]))
+    row = C.score_case("X-1", {"rule": [rule], "terra": [terra]})["decisions"][0]
+    assert abs(row["terra_after"] - terra.rate(16.2, 26.2)) < 1e-9
+
+
+def fake_case(handoffs):
+    """A case score with only what compare_to_rule reads: one hand-off point, per-mode K repetitions."""
+    mk = lambda verdicts: [{"rate": 0.5, "handoff": {"5.0": [v]}} for v in verdicts]   # noqa: E731
+    return {"modes": {m: mk(v) for m, v in handoffs.items()}}
+
+
+def test_k_majority_on_both_sides_and_ties_are_uncertain():
+    good, bad = "接對", "接錯"
+    # rule is right 2 of 3 times, the model 3 of 3: no change, so not improved
+    assert C.compare_to_rule(fake_case({"rule": [good, good, bad], "terra": [good] * 3}), "terra") == "相同"
+    # rule wrong 3 of 3, model right 3 of 3: improved
+    assert C.compare_to_rule(fake_case({"rule": [bad] * 3, "terra": [good] * 3}), "terra") == "較好"
+    # the model ties (K=2, one right one wrong): uncertain, neither improved nor degraded
+    assert C.compare_to_rule(fake_case({"rule": [good, good], "terra": [good, bad]}), "terra") == "相同"
+    assert C.compare_to_rule(fake_case({"rule": [bad, bad], "terra": [good, bad]}), "terra") == "相同"
+    # a clear majority loss is degraded
+    assert C.compare_to_rule(fake_case({"rule": [good] * 3, "terra": [bad, bad, good]}), "terra") == "較差"
+
+
+def test_target_leaving_every_camera_while_rule_is_still_on_target_makes_a_handoff_point():
+    # the rule keeps "T" through the blind gap (10-16 s) and follows T when it returns: the hand-off is still defined by GT
+    rule = run("rule", 1, *build("rule", track=lambda t: "T"))
+    pts = C.handoff_points(rule)
+    assert len(pts) == 1 and abs(pts[0]["t_x"] - 10.0) < 0.3 and abs(pts[0]["t_n"] - 16.0) < 0.3
+    assert rule.rows[55]["status"] == "OUT_UNMATCHED" or rule.rows[55]["status"].startswith("OUT_")
+    assert C.handoff_verdict(rule, pts[0], 5.0)["verdict"] == "接對"
