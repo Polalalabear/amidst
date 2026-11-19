@@ -25,7 +25,9 @@ def _hsv(arr: np.ndarray):
     return h, s, mx
 
 
-def judge(rgb: np.ndarray, bbox: list) -> dict:
+def judge(rgb: np.ndarray, bbox: list, weak: float | None = None) -> dict:
+    """weak: minimum clothing-colour share of the crop (default CFG['weak']); #619 measures its effect on far people."""
+    weak = CFG["weak"] if weak is None else weak
     x0, y0, x1, y1 = [int(round(v)) for v in bbox]
     H, W = rgb.shape[:2]
     x0, x1 = max(0, x0), min(W, x1)
@@ -42,6 +44,6 @@ def judge(rgb: np.ndarray, bbox: list) -> dict:
     rr, br = float(red.sum()) / area, float(blue.sum()) / area
     # min_pixels (64 @960 px width) scales with image area, floor 8
     need = max(8, CFG["min_pixels"] * (W / 960.0) ** 2)
-    label = "red" if rr >= CFG["weak"] and red.sum() >= need else \
-        "blue" if br >= CFG["weak"] and blue.sum() >= need else "none"
+    label = "red" if rr >= weak and red.sum() >= need else \
+        "blue" if br >= weak and blue.sum() >= need else "none"
     return {"color": label, "red_ratio": rr, "blue_ratio": br}
