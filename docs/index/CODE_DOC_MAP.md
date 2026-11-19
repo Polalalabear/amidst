@@ -20,7 +20,7 @@
 | §4.2 8CAM run | `docs/operations/WORKBENCH_8CAM_D302_20261118.md`、`R004_EIGHT_CAMERA_DELIVERY_20261114.md` | `scripts/demo_eightcam.py`、`scripts/check_demo_dependencies.py` |
 | §4.2 俯視圖 2D／3D | D316；#613 | `frontend/workbench-v2/topdown-model.mjs`、`scene3d-model.mjs`、`scene3d-view.mjs`；`est_xy` 來源 #612（PR #623，未合併） |
 | §4.3 Agent 與 fallback | 契約 §8.4；`AGENT_DECISION_V1.md`；`EPIC_D_AGENTIC_V1.md` | `src/amidst/q1q5/agent_decision.py`、`agent_tools.py`、`agent_wiring.py`、`agent_providers.py`、`agent_recording.py` |
-| §4.3 預錄 Agent 開關（OpenAI） | `docs/operations/RECORDED_AGENT_OPENAI.md`；D306、D313 | `src/amidst/q1q5/openai_gateway.py`、`api_budget.py`；`start_agent_gateway.command` |
+| §4.3 預錄 Agent 開關（OpenAI） | `docs/operations/RECORDED_AGENT_OPENAI.md`；D306、D313 | `src/amidst/q1q5/openai_gateway.py`、`api_budget.py`、`scene_graphs.py`；`frontend/workbench-v2/shell-view.mjs`；`start_agent_gateway.command`（#625 修正 scope 與 B-05 不適用；候選 0 見 #629） |
 | §4.3 規則 vs LLM（預錄） | `docs/evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md` | 分析結果在 LOCAL（見該文件） |
 | §4.4 LIVE 即時模式 | `LIVE_MODE_AB_V1.md`（v2.1）、`LIVE_MODE_GAME_DESIGN_V2.md`、`LIVE_MODE_LLM_DECISION_V1.md` | 前端 `frontend/live-mode/src/`；後端 `src/amidst/live_mode/`；`start_live_mode.command`（8791） |
 | §4.4 重新取得 R1 | `LIVE_MODE_RELOCK_V1.md` | `src/amidst/live_mode/tracker.py`（`main` 仍是固定 gate；R1 實作在 PR #608，未合併） |
@@ -37,7 +37,7 @@
 | `frontend/live-mode/src/llm_switch.mjs`；`src/amidst/live_mode/llm_switch.py`、`advisor.py` | `LIVE_MODE_LLM_DECISION_V1.md`；`docs/operations/LIVE_MODE_LLM_TOGGLE_20261117.md` | #563 |
 | `frontend/live-mode/src/n6.mjs`、`n6-ceiling.mjs`、`exterior.mjs` | `docs/operations/N6_LIVE_ASSETS_20261115.md`、`N6_CEILING_D302_20261118.md` | N6 glTF 資產在 LOCAL |
 | `frontend/live-mode/src/capture.mjs`、`capture-plan.mjs`、`sweep.mjs` | `docs/evaluation/LIVE_MODE_SPIKE_20261115.md`、`LIVE_DETECTION_20261117.md` | 偵測量測 |
-| `frontend/live-mode/index.html`（內嵌 `<style>`） | `UI_REDESIGN_V1.md`（只涵蓋 workbench-v2） | 樣式 token 複製自 `workbench-v2/ui.css`（SWEEP §2.3），工作 1 處理 |
+| `frontend/live-mode/index.html`（內嵌 `<style>`） | `UI_REDESIGN_V1.md`（只涵蓋 workbench-v2） | 樣式 token 複製自 `workbench-v2/ui.css`（SWEEP §2.3），工作 1 處理（#633／PR #634） |
 | `src/amidst/live_mode/server.py` | `LIVE_MODE_AB_V1.md` §5.3–§5.4（`/reset`、`session_id`、`reselect`） | 8791 |
 | `src/amidst/live_mode/tracker.py`、`candidates.py`、`people.py`、`color.py` | `LIVE_MODE_RELOCK_V1.md`；`LIVE_MODE_TRACKER_20261116.md`、`LIVE_MODE_PEOPLE_GROUPING_20261117.md` | 關聯 4 m（D244） |
 | `src/amidst/live_mode/detector.py`、`scheduler.py` | `LIVE_SCHEDULE_20261117.md`、`LIVE_DETECTION_SCHEDULE_D273_20261118.md` | |
@@ -82,7 +82,7 @@
 | §2.2 `OFFICE_DEMO_MVP.md`、`OFFICE_DEMO_SCRIPT.md`、`SYSTEM_DESIGN.md`、`ISSUES_AND_DECISIONS.md` | 已封存，檔頭加 D268 註記 |
 | §2.2 `OFFICE_DEMO_LAUNCHER.md` | 檔頭原本已有 D268 下線註記，不動 |
 | §2.2 `WORKBENCH_V2_Q1Q5_DESIGN.md` §2.1 | 表格列加註來源檔已移除 |
-| §2.3 LIVE 樣式（本次補記） | 對應工作 1，不在本 PR 改程式 |
+| §2.3 LIVE 樣式（本次補記） | 對應工作 1（#633／PR #634），不在本 PR 改程式 |
 | §4.1 `docs/engineering/LIVE_MODE_SPIKE_20261115.md` | 檔頭標「已被取代」；歸檔仍待使用者決定 |
 | §4.1 `R004_A4B4_SCENARIO_CARDS_V1.md` | 有 authority pin 且仍被引用，**不動**，仍為歸檔候選 |
 | §4.1 `N6_LIVE_ASSETS_20261115.md`、`LIVE_MODE_HANDOFF_20261116.md` | 仍 `UNKNOWN`（未逐份比對），本次不動 |

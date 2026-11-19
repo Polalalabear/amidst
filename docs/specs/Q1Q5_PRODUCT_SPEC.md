@@ -136,7 +136,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 - **8785 的 run**：B-05、A4-1、B4-1、r005，加上 #594 的 A4-1-8CAM（D302；[`WORKBENCH_8CAM_D302_20261118.md`](../operations/WORKBENCH_8CAM_D302_20261118.md)；#594 仍開著，8785 pin 由使用者核准）。
 - **俯視圖 2D／3D 切換**（#605 → PR #613，已合併；D316）：2D 為預設，3D 由 `frontend/workbench-v2/scene3d-model.mjs`（純模型）與 `scene3d-view.mjs`（three.js）畫出，資產缺少時留在 2D（`SCENE3D_ASSETS_MISSING`）。只輸入系統輸出；帶推論守門禁止鍵的輸入讓估計變 `UNKNOWN`。系統估計位置 `est_xy` 的來源是 Codex 的 #612（PR #623，未合併）；之前顯示 `UNKNOWN`。
 - **LIVE 入口**：workbench-v2 的 `live-entry.mjs` 產生 LIVE 的兩個網址（`?role=operator`、`?role=system`，§4.4）。
-- **樣式**：LIVE 畫面與 workbench-v2 的視覺風格不一致、部分樣式是複製的（D319 檢索漏項，見 SWEEP 紀錄 §2.3）；統一樣式由工作 1（分支 `claude/feat-live-ui-style`）處理，規格以該 PR 合併後的結果為準。
+- **樣式**：LIVE 畫面與 workbench-v2 的視覺風格不一致、部分樣式是複製的（D319 檢索漏項，見 SWEEP 紀錄 §2.3）；統一樣式由工作 1 處理（issue [#633](https://github.com/Polalalabear/amidst/issues/633)，PR #634 第一段改用 workbench-v2 共用 token，第二段等 #617；分支 `claude/feat-live-ui-style`），規格以合併後的結果為準。
 
 ### 4.3 Agent 與 fallback
 
@@ -147,7 +147,8 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 - Q3：規則語法先擴充當第一版 baseline，LLM 解析路徑保留（D86 第 1 項）；只有「紅色的人」「那個人」而沒有追蹤動詞時依查找規則判 Q1（D92 第 2 項，[#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633)）。Q3 失敗與兜底見契約 §7.3。
 - recorded replay：不連模型也能重播（[驗收計畫 AC1、AC7](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)）。
 - **預錄模式（8785）的 Agent 開關**（#601 → PR #604，2026-11-18 合併；D306、D313）：設定「追蹤方式：規則／Agent」；Agent 可接 OpenAI，預設關，要另開 gateway 程序（`start_agent_gateway.command`，只有它有網路與 key，每次呼叫過 ApiGuard），8785 程序本身不開 socket。逾時預設每輪 8000 ms、總共 24000 ms、最多 3 輪（D313）。不可用時選項反灰並寫原因（`GATEWAY_OFFLINE`、`GUARD_NOT_APPROVED`、`NO_API_KEY`、`MODEL_NOT_ENABLED`）；執行中失敗退回規則並記 `fallback_reason`。操作見 [`RECORDED_AGENT_OPENAI.md`](../operations/RECORDED_AGENT_OPENAI.md)。
-  - **已知問題**：A4-1、B4-1、B-05 上開關回 `TRACKING_SCOPE_MISSING`（D328-2，issue [#620](https://github.com/Polalalabear/amidst/issues/620)）；修正 PR #625 未合併，B-05 標為不適用。
+  - **已修正**：A4-1、B4-1、B-05 上開關曾回 `TRACKING_SCOPE_MISSING`（D328-2，issue [#620](https://github.com/Polalalabear/amidst/issues/620)，已關閉）。PR #625 已於 2026-11-19 合併（merge `1d322837`）：`scene_projection` 保留已驗證的 tracking scope；A4-1／B4-1 的 Q5 參數集在 8785 demo 視為 APPROVED（使用者 2026-11-19 選 A，**只限 demo，不代表研究驗收**，`configs/q1q5/parameter_set_v1.json` 仍是 PROPOSED）；B-05 沒有 Agent 決策點，回 `agent_available=false`、`NOT_APPLICABLE_NO_DECIDER`，workbench-v2 選單顯示「Agent（不適用：此事件沒有 Agent 決策點）」。
+  - **後續**：修正後 A4-1、B4-1 規則與 Agent 模式都能跑完，但 Q5 controller 每一輪的候選都是 0 個，Agent 一次都沒被呼叫；原因調查是 issue [#629](https://github.com/Polalalabear/amidst/issues/629)（`ready`）。
   - **規則 vs LLM 的預錄結果**（D325、D328）：A4-1、B4-1 上 terra／sol 與規則相同（跟對率 0.970／0.906），34 個決策點中規則只有 0 或 1 個合格候選，LLM 沒有可勝出的題目；見 [`RECORDED_RULE_VS_LLM_D325_20261118.md`](../evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)。因此 LLM 價值的評估移到 LIVE 難題集（§4.4）。
 
 ### 4.4 LIVE 即時模式（D210 起）

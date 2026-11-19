@@ -1,7 +1,7 @@
 # 工作台 UI 改版規格 v1（PROPOSED）
 
 - 日期：2026-11-08
-- **2026-11-19 註（D338，#631）**：(1) 文中「7 台鏡頭」指追蹤圖（`camera_graph_v3`／`v3_1` 的 7 個節點，不含只供查找的 CAM_ENTRY）；catalog 與查找是 8 台，見 [Q1Q5_PRODUCT_SPEC §5.1](Q1Q5_PRODUCT_SPEC.md)。(2) 本規格只涵蓋 workbench-v2（預錄）畫面，**不含 LIVE 即時模式**；LIVE 見 [`LIVE_MODE_AB_V1.md`](LIVE_MODE_AB_V1.md) 與 [Q1Q5_PRODUCT_SPEC §4.4](Q1Q5_PRODUCT_SPEC.md)。LIVE 與 workbench-v2 的樣式統一由工作 1（`claude/feat-live-ui-style`）處理。(3) 之後加入的 2D／3D 俯視圖切換（#613）也不在本規格內。
+- **2026-11-19 註（D338，#631）**：(1) 文中「7 台鏡頭」指追蹤圖（`camera_graph_v3`／`v3_1` 的 7 個節點，不含只供查找的 CAM_ENTRY）；catalog 與查找是 8 台，見 [Q1Q5_PRODUCT_SPEC §5.1](Q1Q5_PRODUCT_SPEC.md)。(2) 本規格只涵蓋 workbench-v2（預錄）畫面，**不含 LIVE 即時模式**；LIVE 見 [`LIVE_MODE_AB_V1.md`](LIVE_MODE_AB_V1.md) 與 [Q1Q5_PRODUCT_SPEC §4.4](Q1Q5_PRODUCT_SPEC.md)。LIVE 與 workbench-v2 的樣式統一由工作 1（#633／PR #634，`claude/feat-live-ui-style`）處理。(3) 之後加入的 2D／3D 俯視圖切換（#613）也不在本規格內。
 - 作者：Claude Opus 5.5 / high
 - 狀態：**IMPLEMENTED（以核可範例為準，見 §12）**；原 PROPOSED 內容保留，與 §12 不一致處以 §12 為準。實作要等 #445 整合分支完成，在它上面做。
 - 依據：D126（兩個核心）、D129（先在 Mac 上跑起來）、使用者 2026-11-07～08 的 UI 要求、#383 的主頁面方向。
