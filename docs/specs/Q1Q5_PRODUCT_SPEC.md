@@ -5,6 +5,7 @@
 - **本文不新增規範。**每項敘述都只轉述既有決策（[#93](https://github.com/Polalalabear/amidst/issues/93) 的 D 編號）、契約與計畫，並附來源；查不到的寫 `UNKNOWN`。本文與來源不一致時，以來源為準。
 - 規則以 [DEVELOPMENT_RULES](DEVELOPMENT_RULES.md) 為準，本文不改它。
 - 即時狀態以 [#93](https://github.com/Polalalabear/amidst/issues/93) 與 [進度導覽](../operations/Q1Q5_PROGRESS.md) 為準；本文只寫範圍、組成與介面。
+- **2026-11-20 更新（D340，issue [#641](https://github.com/Polalalabear/amidst/issues/641)）**：Agent 模式依 D340 放寬（§1.2、§3 表、§4.3），加入 H6 全模式可切換。
 - **2026-11-19 更新（D338，issue [#631](https://github.com/Polalalabear/amidst/issues/631)）**：依 D319 第一輪檢索（[`docs/index/SWEEP_D319_PASS1_20261119.md`](../index/SWEEP_D319_PASS1_20261119.md)）補上 LIVE 即時模式（新 §4.4）、預錄 Agent 開關與 3D 視圖（§4.2、§4.3）、外部模型例外（§1.2）、鏡頭數（§5.1）、決策索引到 D334（§6），並修正整合分支與契約版本的敘述、§1.3／§7 P-5／U-14 的 3D 敘述、關閉 U-1、U-13。原則不變：只轉述既有決策與文件。程式碼與文件的對應見 [`docs/index/CODE_DOC_MAP.md`](../index/CODE_DOC_MAP.md)。
 
 **整合分支與契約版本（2026-11-19 更新）。**整合分支是 `main`（D200；GitHub 預設分支 D214）；`codex/q1q5-staging` 與 `mainline/q1q5`（凍結在 `8c741451`）只是歷史。契約檔 [`docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`](../contracts/Q1_Q2_FIRST_DEMO_V1.md) 在 `main` 上的 SHA-256 是 `51df6977…e667`，對應 `configs/architecture/authority_pins_v1.json` 的 pin `A6''`（#260 @ `d560f22`）；同一份 pin 表中標「現行」的 pin `A6` 是 staging 版 `b700bf86…`（[#237](https://github.com/Polalalabear/amidst/pull/237)，AGENTS.md 所稱的契約 B）。契約不手改。下文的「契約 §x」章節編號兩版相同；條文差異（如 §0.1 的 D92 回應 v2）以 `main` 上的檔案為準。
@@ -39,8 +40,9 @@
 - 「沒有偵測」不等於「不在畫面」或「已離開」（契約 §1）。
 - 兩層圖只表示「依配置可能連通」，不是人體通行或碰撞認證；核准範圍以外的通行性一律 `UNKNOWN`（契約 §1）。
 - Agent 與 LLM 只能經契約 §7、§8.4 的 typed tools 讀資料（契約 §1）。
-- 第一版只用本機 Ollama 的 Qwen，不串接外部模型 API（契約 §1）。**之後的有條件例外**：D107（俯視圖 OpenAI 推測，只作示意）、D128（baseline 後接 OpenAI，預設關、標來源、不送原始影格／GT／劇本、可追溯可重播）、D237（預設模型 `gpt-6.1-terra`）、D306（預錄模式的 LLM 以 OpenAI 為主，額度約 USD 50，每次先 ApiGuard dry-run）。所有付費呼叫經 `ApiGuard`（AGENTS.md，#537）。
-- Agent 切鏡是 Q1–Q5 主線的規則例外（D64，[#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)；規則條文見 [DEVELOPMENT_RULES 第 63 行的 D64 條](DEVELOPMENT_RULES.md)，規則 PR [#125](https://github.com/Polalalabear/amidst/pull/125)）。
+- 第一版只用本機 Ollama 的 Qwen，不串接外部模型 API（契約 §1）。**之後的有條件例外**：D107（俯視圖 OpenAI 推測，只作示意）、D128（baseline 後接 OpenAI，預設關、標來源、不送 GT／劇本、可追溯可重播；原本的「不送原始影格」已由 D340 改為：Agent 模式可以送渲染合成畫面的裁切圖或鏡頭畫面，真實人物影像仍不送外部模型）、D237（預設模型 `gpt-6.1-terra`）、D306（預錄模式的 LLM 以 OpenAI 為主，額度約 USD 50，每次先 ApiGuard dry-run）。所有付費呼叫經 `ApiGuard`（AGENTS.md，#537）。
+- Agent 模式依 D340（2026-11-20，取代 D64；[#641](https://github.com/Polalalabear/amidst/issues/641)、PR [#642](https://github.com/Polalalabear/amidst/pull/642)；規則條文見 [DEVELOPMENT_RULES 的 D340 條](DEVELOPMENT_RULES.md)）。D64 原本只准 Agent 在合法 top-k 內覆核、不准看圖（[#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)、規則 PR [#125](https://github.com/Polalalabear/amidst/pull/125)），現為歷史。
+- **全模式可切換（H6，D340）**：Agent／規則在 Q1–Q5 的每個模式都能切換，包括查找（Q1 找鏡頭、Q2 找人）、Q4 單格判斷、Q5 切鏡、預錄 8785 與 LIVE；規則模式是預設與退路。切到 Agent 時必須真的由模型決策，回應與畫面標示 `decision_source`。各模式目前的缺口見 [`AGENT_VS_RULE_HYPOTHESES_20261120.md`](../evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md) §1 H6 與 §4。
 
 ### 1.3 第一版不做
 
@@ -79,7 +81,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 | --- | --- | --- |
 | 偵測索引 | 一律離線，查詢不補推論；RT-DETR 權重 SHA-256 `3ba8b5c9…66f0`、不另做 NMS | 契約 §4、§13 Q-07／Q-14 |
 | 兩層圖 | Codex 產生、Claude 獨立檢查、使用者核准；圖與出口在事件渲染前凍結 | 契約 §5.1、§13 Q-15；D68、D74 |
-| 候選鏡頭排序 | 兩層圖＋D28 三個原鍵，決定性；Agent 不排序、不增刪 | 契約 §5.4、§13 Q-03；D64 |
+| 候選鏡頭排序 | 兩層圖＋D28 三個原鍵，決定性，是規則模式的答案與 Agent 的輸入；Agent 模式可從所有偵測（含低分、顏色不符）中選，也可答「仍在／不在／下一台看 X」，規則閘門改成給 Agent 的資訊 | 契約 §5.4、§13 Q-03；D64（已被 D340 取代）、D340 |
 | Q5 兩種模式 | `RULE_ONLY`、`AGENT_SEQUENTIAL`；超過上限由決定性規則兜底，兜底接手整段 session | 契約 §8.1、§8.6；D71、D73 |
 | 參數 | D65／D67 初值，依帶 hash 的 parameter_set 生效 | 契約 §11；D65、D67 |
 | 儲存 | 第一版不用 PG；版本化 JSON＋JSONL／manifest（優先）或 SQLite；薄 provider 直連 Ollama | 契約 §10、§13 Q-13 |
@@ -140,7 +142,14 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 
 ### 4.3 Agent 與 fallback
 
-- 候選集合與排序由決定性模組產生；Agent 只在合法 top-k 內依序取偵測與顏色證據、決定是否切鏡；有輪數與時間上限，超過或失敗由決定性規則兜底；記錄 prompt、模型 digest、決策來源與 fallback 原因（D63 修訂、D64；[DEVELOPMENT_RULES D64 條](DEVELOPMENT_RULES.md)；契約 §0.3）。
+- **D340（取代 D64）**：候選集合與排序由決定性模組產生，是規則模式的答案，也是 Agent 的輸入。Agent 模式（預設關）可以看影格（候選裁切圖或鏡頭畫面，限渲染合成畫面）、從所有偵測中選人（含低分與顏色不符）、回答「仍在這台」「不在」或「下一台看 X」、讀鏡頭圖的邊與各邊核定等級；規則閘門（`GRAPH_NOT_APPROVED`、`AMBIGUOUS_HANDOFF`、分數門檻、顏色篩選、發問條件）改成附給 Agent 的資訊。GT 隔離、`ApiGuard` 與付費核准、`identity_verdict` 一律 `UNCONFIRMED`、回應格式驗證照舊硬擋；圖上的邊不是實體可通行認證。有輪數與時間上限，超過、逾時或回應不合法由決定性規則兜底；記錄 prompt（或請求 SHA-256）、模型 digest、決策來源與 fallback 原因（D63 修訂、D340；[DEVELOPMENT_RULES D340 條](DEVELOPMENT_RULES.md)；契約 §0.3）。
+- **Agent 的必要輸入：場景上下文（D340 補充，使用者 2026-11-20）**。Agent 模式的每個決策請求都必須附上，缺項時標 `SCENE_CONTEXT_INCOMPLETE` 並列出缺項：
+  - 場景可行走連通性：區域圖（`region_graph_v3_1`）的區域、出口區、哪些區域相連；
+  - 鏡頭圖關係：鄰近鏡頭（`camera_graph_v3_1` 的邊）與各邊核定等級（`APPROVED`／`DRAFT`／`TOPOLOGICAL_ONLY`／`UNKNOWN`）；
+  - 每台鏡頭：地面覆蓋多邊形（由標定與已提交場景幾何投影，例如 `src/amidst/evaluation/live_coverage_gap.py` 的投影部分）、安裝位置、朝向角度、FOV、重疊鏡頭；
+  - 設定裡已有的其他鏡頭屬性（例如 `covered_regions`、`entry_zones`、`exit_zones`）。
+  來源只限已提交的設定檔或標定資料，每項附來源 SHA-256；不可用渲染真值、GT、visibility 或 depth（覆蓋分析中以 GT 評分的部分不送）。草稿圖也要提供，並標明核定等級。這是對 Agent 的基本輸入，不是選配；圖上的連通仍只是配置宣告，實體可通行是 `UNKNOWN`。
+- 契約 B（`Q1_Q2_FIRST_DEMO_V1.md`，不手改）的 §1、§8.4 仍寫 D64 時期的覆核者定義與 `q-demo.agent-decision.v2` 請求欄位；D340 的實作（請求加影格、空間資訊、閘門資訊）要另開契約版本，在新版契約確認前，舊欄位只代表規則模式與歷史重播。
 - typed tools 與 `q-demo.agent-decision.v2`：契約 §8.4。Agent 不能掃描檔案、跑任意 SQL 或 shell，也不能產生新的鏡頭、區域或觀測 ID（契約 §1）。
 - 預算：D65 原核准值與 D67 六項初值，見契約 §11（[D65](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)、[D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288)）。D73 維持 D65 預算（契約 §0.1）。
 - 兜底接手整段 session；fallback 時間只觀察（D71，[#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6308081801)）。
@@ -300,6 +309,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 | D331 | 難題集全部由腳本操作者產生，報告聲明腳本偏差 | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6980483909) |
 | D334 | 協作規範：瀏覽器測試無頭、每項工作有 issue 且以 PR 交付、相近工作共用分支、狀態隨時更新 | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6998419780) |
 | D338 | 依 D319 第一輪檢索更新規格、文件與索引（本次更新） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7003589354) |
+| D340 | 放寬 Agent 模式（取代 D64）：Agent 可看影格、從所有偵測選人、回答仍在／不在／下一台、讀圖的邊與核定等級；每個請求必附場景上下文（連通性、鏡頭圖、覆蓋範圍、位置、朝向、FOV、重疊）；閘門改成資訊；GT 隔離、ApiGuard、身分未確認照舊硬擋；全模式可切換（H6） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7016410023)、[#641](https://github.com/Polalalabear/amidst/issues/641) |
 
 原 2026-10-27 寫的「下一個編號：D93」已過時；下一個編號以 #93 最新留言為準。
 
