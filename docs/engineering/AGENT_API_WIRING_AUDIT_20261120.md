@@ -190,7 +190,7 @@ flowchart LR
 | G8 | **設定的 temperature／seed 不上線**：`AgentSettings.options`（`temperature:0`、`seed`）在 gateway 路徑被忽略；DP 的 `OpenAIProvider` 也不送（未設時）；結果非決定性但紀錄看起來像決定性 | `openai_gateway.py` L177–182（wire 只有 `max_output_tokens`）、`agent_providers.py` L420–423 | 實驗可重複性（H1 K=3） | 把 `temperature`／`seed` 送出或明確不送並在紀錄寫明；K 次重複要把模型隨機性分開 | Claude | 否 |
 | G9 | **Q1、Q4 沒有 Agent 路徑；模式切換詞彙分三套** | `q1_search.py`、`q4_evidence.py`；`app.mjs`、`live-llm-model.mjs`、`nl` | H6 | 先做 Q4 的「看圖確認」可選路徑（X3），回應附 `decision_source`；開關統一成一個 `decision_mode: RULE\|AGENT` | Claude | 否 |
 | G10 | **key 不只在 gateway**：8785／8791／評估腳本行程環境都讀 key | §4.3 | 最小暴露 | 所有付費呼叫走 gateway 或同一個後端服務 | Claude（8785 端改動交 Codex） | 部分 |
-| G11 | token 估計偏低：夾具估計 1025，真實 gateway 帳本 1135 prompt tokens（#601 煙霧測試，`local/evidence/recorded-agent-smoke-601-20261118/`，12–15 次呼叫）；gateway 預估用 `(len)//3+50` | `openai_gateway.py` L423 | ApiGuard 預估要保守 | 以真實 `prompt_tokens` 校準估計；不要用本檢查的啟發式當預算 | Claude | 否 |
+| G11 | token 估計偏低：夾具估計 1025，真實 gateway 帳本 1135 prompt tokens（#601 煙霧測試，`local/evidence/recorded-agent-smoke-601-20261118/`，12–15 次呼叫，付費紀錄無法重建、SHA-256 not applicable）；gateway 預估用 `(len)//3+50` | `openai_gateway.py` L423 | ApiGuard 預估要保守 | 以真實 `prompt_tokens` 校準估計；不要用本檢查的啟發式當預算 | Claude | 否 |
 
 ## 6. 統一接線建議（只寫建議）
 
