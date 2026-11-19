@@ -13,7 +13,7 @@ def clean(ax):
     ax.grid(axis='x',color='#e4e3dd',lw=0.8); ax.set_axisbelow(True)
 # 1 lost seconds by cause
 fig,ax=plt.subplots(figsize=(7.2,2.9),dpi=110)
-cats=[('BEFORE_FIRST_SEED','開場尚未鎖定（seed 前）'),('NO_TRACKLET_FOR_VISIBLE_CAMERA','目標鏡頭沒有軌跡片段（上游）'),('CANDIDATE_UNSELECTED','有候選但沒選（決策層可救）')]
+cats=[('BEFORE_FIRST_SEED','開場尚未鎖定（seed 前）'),('NO_TRACKLET_FOR_VISIBLE_CAMERA','目標鏡頭沒有軌跡片段（上游）'),('CANDIDATE_UNSELECTED','有候選但沒選（覆核可救）')]
 evs=['A4-1','B4-1']; y=[1,0]
 for i,ev in enumerate(evs):
     left=0
@@ -27,7 +27,7 @@ for i,ev in enumerate(evs):
 h,l=ax.get_legend_handles_labels(); d=dict(zip(l,h))
 ax.legend([d[c[1]] for c in cats],[c[1] for c in cats],loc='upper center',bbox_to_anchor=(0.5,-0.2),ncol=3,frameon=False,fontsize=8.5)
 ax.set_yticks(y,evs); ax.set_ylim(-0.4,1.65); ax.set_xlim(0,4.9); ax.set_xlabel('規則組失聯秒（目標可偵測卻顯示 GAP）')
-ax.set_title('失聯秒成因：任何決策者最多只能救回 B4-1 的 0.4 s',loc='left',color=INK,fontsize=11)
+ax.set_title('失聯秒成因：覆核架構只救得回 B4-1 的 0.4 s；橘色段偵測其實存在',loc='left',color=INK,fontsize=11)
 clean(ax); fig.tight_layout(); fig.savefig(out+'/lost_seconds_by_cause.png'); plt.close(fig)
 # 2 candidate distribution
 fig,ax=plt.subplots(figsize=(7.2,3.0),dpi=110)
