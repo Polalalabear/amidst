@@ -7,7 +7,7 @@
       "path": "docs/DEVELOPMENT_RULES.md",
       "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
       "sha256": "802963589c2b7f53691d1f3297bbe199415154898d31f8949f0b29d87c70852f",
-      "status": "現行",
+      "status": "現行；這是 docs/DEVELOPMENT_RULES.md 符號連結本身（連結位元組 specs/DEVELOPMENT_RULES.md）的 pin，不是規則內容；規則內容的 pin 見 D342-R1",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
     },
     {
@@ -488,6 +488,38 @@
       "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
       "status": "現行；§4.3 加 Agent 請求結構（三層請求、scene_context、回答類型），記載 W2 已實作的 D340 介面",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/645"
+    },
+    {
+      "id": "D342-R1",
+      "path": "docs/specs/DEVELOPMENT_RULES.md",
+      "ref": "main@8290f1903c8259ab93508f2dd1ac626f4f94fb42（內容最後改於 9401493b，D340）",
+      "sha256": "493329c72c0fd58c646e7da93a68f9b861f66b629348fb0f630692c3e5d90621",
+      "status": "現行；規則的實際檔案（docs/DEVELOPMENT_RULES.md 是指向它的符號連結，A1 只 pin 連結本身）。D342 補登，內容未改",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D342-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@beb72040a575e2e55cc1ef933c8fc10ea2fd06c2（D342）",
+      "sha256": "bcd54ab057c0e4e0267dbb96231783400d32a8afab9b1e39edf751b176f97765",
+      "status": "現行（D342：規則路徑改 docs/specs/、D340 Agent 模式指引、ApiGuard 路徑與 G7、來源文件加假設計畫與評估）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D342-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@beb72040a575e2e55cc1ef933c8fc10ea2fd06c2（D342）",
+      "sha256": "9d2849cea3e95d5439fd4d5a744c6bc48ce7b261185eb4d9676d69b85bd85f76",
+      "status": "現行；進度導覽補到 #650（D342，D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D342-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@beb72040a575e2e55cc1ef933c8fc10ea2fd06c2（D342）",
+      "sha256": "6603f8252df9c78c9efa27d4b00c31bfaf699c5479fc9a27493d54474e2f969c",
+      "status": "現行；§2 資料流加 Agent 模式、§4.3 ApiGuard 路徑／G7／H1–H6 證據、§8 U-9 關閉與 U-18",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -770,6 +802,27 @@
       "requires_commit": "fa8fe7105764fad45213f082d0661eb43d6ae90c",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",
       "reason": "W2（#645）：在 §4.3 記載 D340 已核准的 Agent 請求結構（三層請求、場景上下文欄位、回答類型），只描述已實作介面，沒有放寬任何規則或 GT 隔離"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "bcd54ab057c0e4e0267dbb96231783400d32a8afab9b1e39edf751b176f97765",
+      "requires_commit": "beb72040a575e2e55cc1ef933c8fc10ea2fd06c2",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D342 全面文件同步（#648 合併後，協調者派工）：規則連結改到 docs/specs/DEVELOPMENT_RULES.md；轉述既有決策 D340（Agent 模式）、D339（OpenAI 額度）與 ApiGuard 路徑，列出未解缺口 G7；來源文件清單加入假設計畫、W1／W2、接線檢查、索引。沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "9d2849cea3e95d5439fd4d5a744c6bc48ce7b261185eb4d9676d69b85bd85f76",
+      "requires_commit": "beb72040a575e2e55cc1ef933c8fc10ea2fd06c2",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D342 全面文件同步（#648 合併後，協調者派工）：批次補列 #621–#650 與狀態有變的 #489、#597、#619、#620（D91-4），更新總數與快照。只改導覽內容"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "6603f8252df9c78c9efa27d4b00c31bfaf699c5479fc9a27493d54474e2f969c",
+      "requires_commit": "beb72040a575e2e55cc1ef933c8fc10ea2fd06c2",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D342 全面文件同步（#648 合併後，協調者派工）：轉述 #648 已合併的介面（agent_service、scene_context、camera_projection、ApiGuard 路徑）與資料流，列出未解缺口 G7（U-18），關閉 U-9，記 H1–H6 目前證據。只轉述既有決策與文件，沒有放寬 GT 隔離或任何規則"
     }
   ]
 }
