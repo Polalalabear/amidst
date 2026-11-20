@@ -159,6 +159,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
   - **已修正**：A4-1、B4-1、B-05 上開關曾回 `TRACKING_SCOPE_MISSING`（D328-2，issue [#620](https://github.com/Polalalabear/amidst/issues/620)，已關閉）。PR #625 已於 2026-11-19 合併（merge `1d322837`）：`scene_projection` 保留已驗證的 tracking scope；A4-1／B4-1 的 Q5 參數集在 8785 demo 視為 APPROVED（使用者 2026-11-19 選 A，**只限 demo，不代表研究驗收**，`configs/q1q5/parameter_set_v1.json` 仍是 PROPOSED）；B-05 沒有 Agent 決策點，回 `agent_available=false`、`NOT_APPLICABLE_NO_DECIDER`，workbench-v2 選單顯示「Agent（不適用：此事件沒有 Agent 決策點）」。
   - **後續**：修正後 A4-1、B4-1 規則與 Agent 模式都能跑完，但 Q5 controller 每一輪的候選都是 0 個，Agent 一次都沒被呼叫；原因調查是 issue [#629](https://github.com/Polalalabear/amidst/issues/629)（`ready`）。
   - **規則 vs LLM 的預錄結果**（D325、D328）：A4-1、B4-1 上 terra／sol 與規則相同（跟對率 0.970／0.906），34 個決策點中規則只有 0 或 1 個合格候選，LLM 沒有可勝出的題目；見 [`RECORDED_RULE_VS_LLM_D325_20261118.md`](../evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)。因此 LLM 價值的評估移到 LIVE 難題集（§4.4）。
+    - **更正（2026-11-20）**：上述結果只適用於「LLM 覆核、不看圖」的架構，不能推論 LLM 無效；「34 個決策點」（以決策點計數；LLM 請求列有 35 筆，因 A4-1 37.4 s 重複一次）中只有 0／1 個合格候選的是 32 個（另 2 個是同一人在重疊鏡頭 W1／W2），見 PR [#637](https://github.com/Polalalabear/amidst/pull/637)（merge `3cdbbfc9`）。看圖 Agent 的先導結果見 PR [#647](https://github.com/Polalalabear/amidst/pull/647)；#629 的結論（候選被 `GRAPH_NOT_APPROVED` 擋成 0）見 [`AGENT_ZERO_CANDIDATES_629.md`](../evaluation/AGENT_ZERO_CANDIDATES_629.md)。
 
 ### 4.4 LIVE 即時模式（D210 起）
 
