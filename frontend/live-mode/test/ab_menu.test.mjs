@@ -94,7 +94,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   }
   const file=files[url]||(url.startsWith('/src/')?path.join(root,url.slice(1)):url.startsWith('/vendor/three/')?path.join(root,'node_modules/three',url.slice('/vendor/three/'.length)):null);
   if(!file||!fs.existsSync(file)){res.statusCode=404;return res.end();}
-  res.setHeader('Content-Type',file.endsWith('.mjs')||file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':file.endsWith('.json')?'application/json':'model/gltf-binary');fs.createReadStream(file).pipe(res);
+  res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.mjs')||file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':file.endsWith('.json')?'application/json':'model/gltf-binary');fs.createReadStream(file).pipe(res);
  });
  await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
  try{
@@ -108,6 +108,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   await page.waitForFunction(()=>!document.querySelector('#ab-begin').disabled);
   await page.screenshot({path:path.join(out,'menu.png')});await page.click('#ab-begin');
   await page.waitForFunction(()=>window.__ready===true,{timeout:60000});await page.waitForFunction(()=>window.__log?.ticks.length>0);
+  assert.equal(await page.$eval('#op',el=>getComputedStyle(el).display),'grid','shared LIVE styles load in fixture');
   assert.equal(await page.$('#ab-menu'),null);assert.equal(await page.$('#sentence'),null);assert.equal(await page.$('#who'),null);
   const initial=await page.evaluate(()=>({p:__op.P0,keys:Object.keys(__op),run:__log.run_id,actor:__log.actor_id,session:__log.session_id}));
   assert.deepEqual(initial.keys,['P0']);assert.equal(initial.run,'B4-1-v2-4actor');assert.equal(initial.actor,'T');

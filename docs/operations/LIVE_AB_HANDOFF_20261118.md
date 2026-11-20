@@ -518,3 +518,31 @@ fixtures, which use their own input sequences. The answer table's exclusions
 remain an offline decision for the hardset owner.
 
 LOCAL `local/evidence/cx617-d331-20261118/MANIFEST.json` SHA-256 `bd659770cb1cf2b9267a7e55470666a599e9a726e18b5008a1bd1242e9e997eb`, 32 files / 2,065,107 bytes. Regenerate with the documented focused commands.
+
+## 2026-11-20 main integration (#654 / #617)
+
+Merge commit `f51c5362` includes main `8290f190`, retaining the common LIVE
+style and the recording/crowd changes. The detect sweep keeps both variant
+and REGION parameters with finally cleanup. Hardset smoke keeps A/B in
+one headless browser, two pages, and clears its progress timer on failure.
+The registry retains live-ab.case.v1 alongside the main schemas. D340,
+D341 and W2 authority pins remain intact, and the current product document
+matches its W2-S1 SHA; the audit records the merged file hashes.
+
+Final focused results: 133 Node tests including browser, 185 LIVE/Q3/scorer
+Python tests, and 3 actual headless launcher tests pass with zero skips.
+The initial browser fixtures lacked CSS routes/MIME types after the main
+style migration; they now load the real styles and assert grid layout,
+without changing production style or weakening interaction checks.
+The B4 T stress metrics remain separation 100% excluding passes, 85.4542%
+including passes, 783 exempt solver steps, 1 lingering pass / 753 steps,
+78.2 s active at the end; no player penetrations or baseline forced overlaps.
+
+E3 readiness and deterministic scope are explicit in
+LIVE_AB_RECORDING_20261118.md: 8 configured cameras, 5 designed similar-color
+multi-person cases plus 1 single-distractor control; 15 route prefixes
+replayed twice, A4/B4 80-second input cases replayed twice, and a short
+browser H1-1 record/two replays. No full new E3 corpus or paired Agent
+experiment was run. Model output and wall-clock timing remain unverified.
+
+LOCAL `local/evidence/cx617-main-20261120/MANIFEST.json` SHA-256 `dde8dddd7a4505e7676ef1555a3b5184cd2bdf278e9c075551bbf5c9ea042a9f`, 30 files / 1,237,143 bytes. Reproduction commands and variable screenshot/clock fields are documented in LIVE_AB_RECORDING_20261118.md. Claude reviews the Draft; user merges and approves the later 8785 pin.
