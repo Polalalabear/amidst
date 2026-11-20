@@ -212,7 +212,7 @@ def make_guard():
     probe = ab.ApiGuard(dataclasses.replace(base, enabled=True))
     existing = sum(r['est_cost_usd'] for r in probe._rows() if isinstance(r.get('est_cost_usd'), (int, float)) and r.get('outcome') != 'DENIED')
     cfg = dataclasses.replace(base, enabled=True, max_usd_total=existing + BUDGET_USD, max_usd_per_day=BUDGET_USD, max_calls_per_day=6000,
-                              max_calls_per_min=120, max_usd_per_call=0.05, max_tokens_per_call=20000, prices=prices())
+                              max_calls_per_min=400, max_usd_per_call=0.05, max_tokens_per_call=20000, prices=prices())
     return ab.ApiGuard(cfg), probe.ledger_path
 
 
@@ -274,6 +274,19 @@ def cmd_call(args):
     frames = smp['frames'][: args.limit or None]
     for k in range(args.k):
         path = OUT / f'answers_{args.model}_{args.arm}_k{k}.json'
+        if path.exists() and args.fill:       # redo only frames that were denied by the rate limit / failed in transport
+            d = json.loads(path.read_text())
+            redo = [i for i, a in enumerate(d['answers']) if a.get('error') and not str(a['error']).startswith(('NOT_JSON', 'BAD_', 'NO_TARGET', 'FINISH'))]
+            ff = [frames[i] for i in redo] if len(d['answers']) == len(frames) else frames
+            if len(d['answers']) != len(frames):
+                redo = list(range(len(frames)))
+            with cf.ThreadPoolExecutor(max_workers=args.workers) as pool:
+                new = list(pool.map(lambda f: one_call(guard, f, args.arm, args.model, sd, dets, crops), ff))
+            for i, a in zip(redo, new):
+                d['answers'][i] = a
+            path.write_text(json.dumps(d, indent=1))
+            print(f'{path.name}: refilled {len(redo)}, errors now {sum(1 for r in d["answers"] if r.get("error"))}, spend {ledger_spent(ledger):.4f}', flush=True)
+            continue
         if path.exists() and not args.force:
             print('skip', path.name)
             continue
@@ -302,6 +315,7 @@ def main():
     c.add_argument('--workers', type=int, default=4)
     c.add_argument('--limit', type=int, default=0)
     c.add_argument('--force', action='store_true')
+    c.add_argument('--fill', action='store_true')
     sub.add_parser('score')
     args = ap.parse_args()
     {'frames': cmd_frames, 'dry-run': cmd_dry_run, 'call': cmd_call, 'score': lambda a: __import__('frame_eval_score').main()}[args.cmd](args)
