@@ -10,13 +10,13 @@ All relative paths resolve against amidst.paths.amidst_root() (D171 / #509).
 from __future__ import annotations
 
 import argparse
-from collections.abc import Callable, Mapping, Sequence
 import hashlib
 import json
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path, PureWindowsPath
-import sys
 
 from amidst.paths import amidst_root
+from amidst.q1q5 import api_budget as ab
 from amidst.q1q5.agent_providers import DEFAULT_OLLAMA_ENDPOINT, OllamaProvider, OpenAIProvider
 from amidst.q1q5.agent_recording import JSONLRecorder, ReplayProvider
 from amidst.q1q5.agent_wiring import ad
@@ -50,7 +50,7 @@ def resolve_repo_path(raw: str | Path, *, root: Path | None = None) -> Path:
 
 def _load_requests_from_jsonl(file_path: Path) -> list[dict]:
     requests: list[dict] = []
-    for idx, line in enumerate(file_path.read_text(encoding='utf-8').splitlines(), 1):
+    for _idx, line in enumerate(file_path.read_text(encoding='utf-8').splitlines(), 1):
         if not line.strip():
             continue
         row = json.loads(line)
@@ -123,6 +123,7 @@ def main(
     env: Mapping[str, str] | None = None,
     clock_ms: Callable[[], float] | None = None,
     sleep_ms: Callable[[int], None] | None = None,
+    api_guard: ab.ApiGuard | None = None,
 ) -> int:
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
@@ -214,6 +215,29 @@ def main(
             meta = adapter.provider_meta()
 
         records = []
+        guard_checks = []
+        if args.provider_kind == 'OPENAI':
+            guard = api_guard if api_guard is not None else ab.shared_guard(env)
+            api_model = next(m['api_model_id'] for m in params['models'] if m['config_id'] == args.model)
+            inner = call_fn
+
+            def call_fn(request, *, timeout_ms, max_output_tokens):
+                # Include the real system prompt and response schema in the reserve.
+                payload = adapter._build_payload(request, max_output_tokens=max_output_tokens) if provider is None else request
+                reserve = max(params['prompt_tokens_per_call_estimate'], len(ad.canonical(payload)) + 128)
+                dry_run = ab.estimate_run(questions=1, model=api_model, avg_prompt_tokens=reserve,
+                                         avg_output_tokens=max_output_tokens, prices=guard.config.prices,
+                                         config=guard.config)
+
+                def invoke():
+                    attempt = inner(request, timeout_ms=timeout_ms, max_output_tokens=max_output_tokens)
+                    return attempt, attempt.prompt_tokens, attempt.completion_tokens
+
+                result = guard.run('agent_run_provider', api_model, reserve, max_output_tokens, invoke)
+                guard_checks.append({'dry_run': dry_run, 'allowed': result.allowed, 'reason': result.reason,
+                                     'est_cost_usd': result.est_cost_usd})
+                return result.value if result.allowed else ad.Attempt(ad.CALL_UNAVAILABLE, 0.0)
+
         for req in loaded_requests:
             budget.begin_session()
             rec = ad.decide(
@@ -233,9 +257,15 @@ def main(
             'decisions': len(records),
             'recording_sha256': recorder.sha256(),
         }
+        if args.provider_kind == 'OPENAI':
+            summary['api_guard'] = guard_checks
+            denied = [check for check in guard_checks if not check['allowed']]
+            if denied:
+                summary.update(status='REFUSED' if len(denied) == len(guard_checks) else 'PARTIAL',
+                               reason=denied[-1]['reason'])
         _write_out_file(args.out, summary, root=root, default_name='live_summary.json')
         print(ad.canonical(summary).decode('ascii'))
-        return 0
+        return 2 if summary['status'] != 'OK' else 0
 
     if not loaded_requests or not args.recording:
         refusal = {

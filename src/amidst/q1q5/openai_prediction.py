@@ -5,13 +5,15 @@ Q1-Q5 decisions, candidate ranking or evaluation scoring.
 """
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, Sequence
-from copy import deepcopy
 import hashlib
 import json
 import logging
 import time
 import urllib.request
+from collections.abc import Callable, Mapping, Sequence
+from copy import deepcopy
+
+from amidst.q1q5 import api_budget as ab
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,7 @@ REQUEST_SCHEMA_VERSION = 'q-demo.external-prediction-request.v1'
 RESULT_SCHEMA_VERSION = 'q-demo.external-prediction.v1'
 RECORDING_SCHEMA_VERSION = 'q-demo.external-prediction-recording.v1'
 OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions'
+MAX_OUTPUT_TOKENS = 400
 AVAILABLE_LABEL = '外部模型推測（非系統判斷）'
 UNAVAILABLE_LABEL = '外部推測不可用'
 SYSTEM_PROMPT = (
@@ -317,6 +320,7 @@ class OpenAIPredictionAdapter:
         timeout_s: float = 5.0,
         max_calls_per_session: int = 6,
         clock: Callable[[], float] = time.monotonic,
+        guard: ab.ApiGuard | None = None,
     ):
         if mode not in {'LIVE', 'REPLAY'}:
             raise ValueError('Invalid mode')
@@ -338,6 +342,8 @@ class OpenAIPredictionAdapter:
         self.timeout_s = float(timeout_s)
         self.max_calls_per_session = max_calls_per_session
         self._clock = clock
+        self._guard = guard if guard is not None else ab.shared_guard(env)
+        self.last_estimate: dict | None = None
 
         self._replay_by_sha: dict[str, dict] = {}
         if mode == 'REPLAY':
@@ -511,6 +517,7 @@ class OpenAIPredictionAdapter:
 
         body_bytes = _canonical({
             'model': self.model,
+            'max_completion_tokens': MAX_OUTPUT_TOKENS,
             'response_format': {'type': 'json_object'},
             'messages': [
                 {'role': 'system', 'content': SYSTEM_PROMPT},
@@ -526,8 +533,14 @@ class OpenAIPredictionAdapter:
         deadline = start_time + self.timeout_s
         attempts = 0
         last_reason = 'TRANSPORT_ERROR'
+        reserve = len(body_bytes) + 128
+        self.last_estimate = ab.estimate_run(
+            questions=1, model=self.model, avg_prompt_tokens=reserve,
+            avg_output_tokens=MAX_OUTPUT_TOKENS, prices=self._guard.config.prices,
+            config=self._guard.config,
+        )
 
-        for attempt in range(2):
+        for _attempt in range(2):
             used_calls = self._session_calls.get(session_id, 0)
             if used_calls >= self.max_calls_per_session:
                 self._session_locked.add(session_id)
@@ -536,17 +549,32 @@ class OpenAIPredictionAdapter:
             if remaining <= 0:
                 last_reason = 'TIMEOUT'
                 break
-            attempts += 1
-            self._session_calls[session_id] = used_calls + 1
-            if self._session_calls[session_id] >= self.max_calls_per_session:
-                self._session_locked.add(session_id)
-            try:
+            def invoke(used_calls=used_calls, remaining=remaining):
+                nonlocal attempts
+                attempts += 1
+                self._session_calls[session_id] = used_calls + 1
+                if self._session_calls[session_id] >= self.max_calls_per_session:
+                    self._session_locked.add(session_id)
                 raw_resp = self._transport(
                     url=OPENAI_CHAT_URL,
                     headers=headers,
                     body=body_bytes,
                     timeout_s=min(self.timeout_s, remaining),
                 )
+                try:
+                    usage = json.loads(raw_resp).get('usage', {})
+                    pt, ct = usage.get('prompt_tokens'), usage.get('completion_tokens')
+                except (ValueError, TypeError, AttributeError):
+                    pt = ct = None
+                # Missing/malformed usage remains unknown and is charged at the reserve.
+                return raw_resp, pt if type(pt) is int and pt >= 0 else None, ct if type(ct) is int and ct >= 0 else None
+
+            try:
+                result = self._guard.run('external_prediction', self.model, reserve, MAX_OUTPUT_TOKENS, invoke)
+                if not result.allowed:
+                    last_reason = result.reason
+                    break
+                raw_resp = result.value
             except TimeoutError as exc:
                 last_reason = 'TIMEOUT'
                 logger.warning(

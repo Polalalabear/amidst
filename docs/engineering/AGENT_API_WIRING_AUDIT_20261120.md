@@ -234,3 +234,14 @@ env -u OPENAI_API_KEY AMIDST_DEMO_HOME=$PWD/local/data/demo-owned-v1 PYTHONPATH=
 - 需要 8785 同一個 venv、擁有的示範資料包；`state-parent` 必須是不含符號連結的絕對路徑（`Demo` 要求）。擷取不開 socket。
 - **沒驗證**：真實 OpenAI 回應（零呼叫）、token 精確值、Q3 `astra6` 是否被 API 接受、A4-1／B4-1 的 Q5 在 `TRACKING_SCOPE` 與核准參數齊備時的實際 payload（只有合成夾具的形狀）、LIVE 的完整決策序列（只擷取一次 `OpenAIAdjudicator` 的請求，圖來自探測包，不是即時錄製）。
 - 8785 預錄回放的「不呼叫模型」是由前端的 `q-recordings`／`q_recorded_response` 路徑與錄製檔名推得，沒有逐檔驗證每份錄製的來源。
+
+## G7 follow-up: #651
+
+The findings above describe the audit checkpoint, not a claim that the
+later repair is absent. PR for #651 adds ApiGuard.run to the OpenAI LIVE
+path in run_provider.py and every OpenAIPredictionAdapter transport attempt.
+Both retain a default-closed guard and recheck retries. See
+[PAID_API_G7_20261120.md](../operations/PAID_API_G7_20261120.md) for exact
+scope, commands, 168 passing focused tests and the four expected failures
+when guard placement is deliberately bypassed. The underlying provider
+architecture and the other audit gaps are unchanged; no paid call was made.

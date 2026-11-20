@@ -11,6 +11,8 @@ import socket
 import pytest
 from demo_ui_support_helpers import FORBIDDEN_TOKENS, require_module, require_route, walk_keys
 
+from amidst.q1q5.api_budget import ApiGuard, GuardConfig
+
 CODE = 'OPENAI_ADAPTER_IMPLEMENTATION_MISSING'
 KEY = 'sk-SYNTHETIC-NOT-A-REAL-KEY-0123456789abcdef'
 ENV = {'OPENAI_API_KEY': KEY}
@@ -25,13 +27,14 @@ GOOD = {'candidates': [{'camera_id': 'B', 'likelihood': 'MEDIUM', 'reason': '沿
 
 
 @pytest.fixture(autouse=True)
-def no_network(monkeypatch):
+def no_network(monkeypatch, tmp_path):
     def refuse(*args, **kwargs):
         raise AssertionError('NETWORK_BLOCKED_IN_TEST')
     monkeypatch.setattr(socket.socket, 'connect', refuse)
     monkeypatch.setattr(socket.socket, 'connect_ex', refuse)
     monkeypatch.setattr(socket, 'create_connection', refuse)
     monkeypatch.setattr(socket, 'getaddrinfo', refuse)
+    monkeypatch.setenv('AMIDST_API_USAGE_DIR', str(tmp_path / 'synthetic-usage'))
 
 
 def module():
@@ -91,7 +94,9 @@ def request(as_of=600_000, observed=None):
 
 def adapter(transport=None, **kwargs):
     args = dict(enabled=True, mode='LIVE', model='test-model', transport=transport, env=ENV, clock=Clock(),
-                timeout_s=5.0, max_calls_per_session=6)
+                timeout_s=5.0, max_calls_per_session=6,
+                guard=ApiGuard(GuardConfig(enabled=True, max_usd_total=10, max_calls_per_min=1000,
+                    max_tokens_per_call=100000, prices={'test-model': {'input_usd_per_mtok': .1, 'output_usd_per_mtok': .2}})))
     args.update(kwargs)
     return module().OpenAIPredictionAdapter(**args)
 
