@@ -472,6 +472,14 @@
       "sha256": "aea1d1bf4b76c89179bd221c394e76d5378830158b59867f4d23b33bcc84756f",
       "status": "現行；D340 補充：Agent 模式每個決策請求必附場景上下文（連通性、鏡頭圖、覆蓋多邊形、位置、朝向、FOV、重疊），只取設定檔與標定資料",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/641"
+    },
+    {
+      "id": "W2-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-agent-wiring@1df84fbab0504b7b144640d9b0d6919bc5010df1（W2，#645）",
+      "sha256": "38479ac331395ead58dc4d0ffab20b45475a5b9e105f1eff27b2f1df4aa9214b",
+      "status": "現行；§4.3 加 Agent 請求結構（三層請求、scene_context、回答類型），記載 W2 已實作的 D340 介面",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/645"
     }
   ],
   "authorized_changes": [
@@ -740,6 +748,13 @@
       "requires_commit": "9401493b3c4af82c0dfc7441d83fc93fd7279f6b",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/641",
       "reason": "D340 補充（使用者 2026-11-20 原話：Agent 本來就該知道場景連通性和鏡頭圖關係）：場景上下文是 Agent 的必要輸入，來源只限已提交設定檔與標定資料，不可用渲染真值、GT、visibility、depth；沒有放寬 GT 隔離"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "38479ac331395ead58dc4d0ffab20b45475a5b9e105f1eff27b2f1df4aa9214b",
+      "requires_commit": "1df84fbab0504b7b144640d9b0d6919bc5010df1",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",
+      "reason": "W2（#645）：在 §4.3 記載 D340 已核准的 Agent 請求結構（三層請求、場景上下文欄位、回答類型），只描述已實作介面，沒有放寬任何規則或 GT 隔離"
     }
   ]
 }
