@@ -14,8 +14,7 @@ import hashlib
 import json
 import math
 
-from amidst.evaluation.live_coverage_gap import make_camera  # noqa: F401  (projection helpers live there)
-from amidst.evaluation.live_coverage_gap import Camera
+from amidst.q1q5.camera_projection import Camera
 
 SCHEMA = 'amidst.scene-context.v1'
 # Fragments are joined so the architecture guard's string scan stays clean (same convention as agent_decision.py).

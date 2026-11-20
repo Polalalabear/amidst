@@ -484,8 +484,8 @@
     {
       "id": "W2-S1",
       "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
-      "ref": "claude/feat-agent-wiring@1df84fbab0504b7b144640d9b0d6919bc5010df1（W2，#645）",
-      "sha256": "38479ac331395ead58dc4d0ffab20b45475a5b9e105f1eff27b2f1df4aa9214b",
+      "ref": "claude/feat-agent-wiring@fa8fe7105764fad45213f082d0661eb43d6ae90c（W2，#645；合併 origin/main 後重算）",
+      "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
       "status": "現行；§4.3 加 Agent 請求結構（三層請求、scene_context、回答類型），記載 W2 已實作的 D340 介面",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/645"
     }
@@ -765,8 +765,8 @@
       "reason": "#649 研究紀錄更正（使用者要求把錯誤的實驗分析更新成正確的）：只在 §4.3 D325 摘要加更正註記與來源（#637 merge 3cdbbfc9、#647），沒有改動任何規則或數字"
     },
     {
-      "sha256": "38479ac331395ead58dc4d0ffab20b45475a5b9e105f1eff27b2f1df4aa9214b",
-      "requires_commit": "1df84fbab0504b7b144640d9b0d6919bc5010df1",
+      "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
+      "requires_commit": "fa8fe7105764fad45213f082d0661eb43d6ae90c",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",
       "reason": "W2（#645）：在 §4.3 記載 D340 已核准的 Agent 請求結構（三層請求、場景上下文欄位、回答類型），只描述已實作介面，沒有放寬任何規則或 GT 隔離"
     }

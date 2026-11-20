@@ -5,7 +5,7 @@ import pytest
 from amidst.q1q5 import agent_service as ag
 from amidst.q1q5 import scene_context as sx
 
-from amidst.evaluation.live_coverage_gap import make_camera
+from amidst.q1q5.camera_projection import make_camera
 
 
 def catalog():
@@ -141,3 +141,16 @@ def test_parse_select_and_restrict():
             frames=[('CAM_A', b'a'), ('CAM_B', b'b')])
     r = ag.restrict(i, ['CAM_B'])
     assert [c.camera_id for c in r.candidates] == ['CAM_B'] and [f[0] for f in r.frames] == ['CAM_B']
+
+
+def test_q1q5_modules_do_not_import_evaluation_package():
+    import ast
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2] / 'src/amidst/q1q5'
+    offenders = []
+    for path in root.rglob('*.py'):
+        for node in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
+            names = [a.name for a in node.names] if isinstance(node, ast.Import) else ([node.module or ''] if isinstance(node, ast.ImportFrom) else [])
+            if any(n == 'amidst.evaluation' or n.startswith('amidst.evaluation.') for n in names):
+                offenders.append(str(path.relative_to(root)))
+    assert not offenders, offenders
