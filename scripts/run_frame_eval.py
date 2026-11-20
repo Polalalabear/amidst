@@ -316,9 +316,10 @@ def main():
     c.add_argument('--limit', type=int, default=0)
     c.add_argument('--force', action='store_true')
     c.add_argument('--fill', action='store_true')
-    sub.add_parser('score')
+    sc_p = sub.add_parser('score')
+    sc_p.add_argument('--majority', action='store_true')
     args = ap.parse_args()
-    {'frames': cmd_frames, 'dry-run': cmd_dry_run, 'call': cmd_call, 'score': lambda a: __import__('frame_eval_score').main()}[args.cmd](args)
+    {'frames': cmd_frames, 'dry-run': cmd_dry_run, 'call': cmd_call, 'score': lambda a: __import__('frame_eval_score').main(a.majority)}[args.cmd](args)
 
 
 if __name__ == '__main__':

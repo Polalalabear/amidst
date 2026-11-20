@@ -40,7 +40,7 @@ def load():
     return smp, frames
 
 
-def outcome_fracs(frames):
+def outcome_fracs(frames, majority=False):
     """arm -> frame key -> {'out': {OUT: fraction over k}, 'iou': [..], 'lat': [..], 'tok': [(pt, ct, cached)], 'invalid': n}."""
     res = defaultdict(dict)
     for name, kw in (('rule', True), ('rule_nocolor', False)):
@@ -60,7 +60,8 @@ def outcome_fracs(frames):
                 inv = 1
             else:
                 inv = 0
-            cur = res[arm].setdefault(k, {'out': defaultdict(float), 'iou': [], 'lat': [], 'tok': [], 'invalid': 0, 'src': [], 'n': 0})
+            cur = res[arm].setdefault(k, {'out': defaultdict(float), 'iou': [], 'lat': [], 'tok': [], 'invalid': 0, 'src': [], 'n': 0, 'k_outs': []})
+            cur['k_outs'].append(o['out'])
             cur['out'][o['out']] += 1
             cur['n'] += 1
             cur['invalid'] += inv
@@ -73,7 +74,18 @@ def outcome_fracs(frames):
     for arm, m in res.items():
         for k, cur in m.items():
             n = cur.get('n', 1)
-            cur['out'] = {o: cur['out'].get(o, 0) / n for o in OUTS}
+            if majority and cur.get('k_outs'):
+                # majority vote over the K answers: present if > half of the answers are "present"; the outcome of the first
+                # present answer is kept; otherwise FN (T visible) / TN (T not visible)
+                outs = cur['k_outs']
+                present = [o for o in outs if o in ('TP', 'FP_wrong_box', 'FP_absent')]
+                if len(present) * 2 > len(outs):
+                    pick = present[0]
+                else:
+                    pick = 'FN' if frames[k]['lab']['present'] else 'TN'
+                cur['out'] = {o: 1.0 if o == pick else 0.0 for o in OUTS}
+            else:
+                cur['out'] = {o: cur['out'].get(o, 0) / n for o in OUTS}
     return res
 
 
@@ -119,9 +131,9 @@ def boot(frames_by_set, stat_fn, n_boot=N_BOOT, seed=7):
     return [round(est[int(.025 * len(est))], 3), round(est[min(len(est) - 1, int(.975 * len(est)))], 3)]
 
 
-def main():
+def main(majority=False):
     smp, frames = load()
-    res = outcome_fracs(frames)
+    res = outcome_fracs(frames, majority)
     strata = defaultdict(list)
     for k, fr in frames.items():
         for s in fr['strata']:
@@ -222,10 +234,11 @@ def main():
                              'n_red_person_boxes': frames[k]['lab']['n_other_red_persons'], 'src': sorted({x for x in res[arm][k]['src'] if x})})
         fpa[arm] = {'n_frames_with_any_fp': len(rows), 'by_camera': {c: sum(1 for r in rows if r['frame'][1] == c) for c in {r['frame'][1] for r in rows}}, 'rows': rows}
     out['fp_absent_analysis'] = fpa
-    (R.OUT / 'w1_scores.json').write_text(json.dumps(out, indent=1))
-    chart(out)
+    (R.OUT / ('w1_scores_majority.json' if majority else 'w1_scores.json')).write_text(json.dumps(out, indent=1))
+    if not majority:
+        chart(out)
     print(json.dumps({'table': {a: {s: v for s, v in t.items() if s in POS + NEG + ['ALL', 'cost']} for a, t in tab.items()}}, indent=1)[:200])
-    print('wrote', R.OUT / 'w1_scores.json')
+    print('wrote', 'majority' if majority else 'average')
 
 
 def chart(out):

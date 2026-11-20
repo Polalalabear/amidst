@@ -20,10 +20,18 @@ Issue [#644](https://github.com/Polalalabear/amidst/issues/644)；預先登記 [
 
 - **單位：** (事件、鏡頭、tick) 一格，逐格獨立呼叫。每格給 Agent：系統提示＋該事件固定的場景上下文（鏡頭清單、DRAFT 圖鄰居、種子顏色）、參考裁切圖（規則第一次鎖定的觀測；已核對種子框都落在 GT 目標身上）、當格畫面（偵測框畫成編號框）、所有偵測（分數 ≥ 0.3，任何類別）的 id／類別／框／分數／HSV 顏色。回答 `{present, detection_id|null, box_xyxy|null, confidence, reason}`。
 - **四組：** (a) 規則＝`q4_evidence.py` 判法（person、score ≥ 0.3、HSV 紅色 STRONG／WEAK，顯示最佳框；不看顏色的版本結果相同，因為此資料裡幾乎只有目標穿紅色）；(b) 看圖，可選框 id、自畫框或「不在」；(c) 同文字不給圖；(d) 看圖，只能選既有 id 或「不在」。
-- **GT 隔離：** 請求建立路徑（`build_messages`、`frame_image`、`seed_crop`、`frame_eval.request_text`）只用偵測索引、種子觀測、DRAFT 圖和影格像素，不碰 GT、標籤、分層。GT 只在 `frame_labels`（分層）與 `score_frame`（評分）。
+- **GT 隔離：** 請求建立路徑（`build_messages`、`frame_image`、`seed_crop`、`frame_eval.request_text`）只用偵測索引、種子觀測、DRAFT 圖和影格像素，不碰 GT、標籤、分層；抽樣名單雖由 GT 分層決定，但請求內容與格子本身不含任何 GT 欄位。GT 只在 `frame_labels`（分層）與 `score_frame`（評分）。逐欄位來源：
+
+  | 請求欄位 | 來源 | GT 衍生？ |
+  |---|---|---|
+  | 系統提示、場景上下文（鏡頭清單、DRAFT 圖鄰居、種子顏色） | 固定文字、事件鏡頭清單、DRAFT 圖 transitions、種子觀測的索引顏色 | 否 |
+  | 參考裁切圖 | 規則第一個被選觀測的框（偵測索引）＋該影格像素 | 否（已另行核對種子框落在 GT 目標上，僅供說明，沒有被使用） |
+  | 偵測清單（id、類別、框、分數、顏色） | 偵測索引（分數 ≥ 0.3） | 否 |
+  | 當格畫面（編號框） | 渲染影格像素＋索引框 | 否 |
+  | 哪些格子被送出 | 預先抽好的樣本名單（層由 GT 決定，但名單只含 事件／鏡頭／tick） | 抽樣用 GT，請求內容不含 |
 - **目標「可見」的標籤（評分端）：** GT 身體框落在畫面內 ≥ 50% **且**框內紅衣像素 ≥ 15。只用幾何不夠：抽樣檢視發現多數「在視錐內但偵測不到」的格子其實是 T 在牆後（約 763 格），這類格不是正樣本，而是負樣本 `neg_occluded`（正確答案是「看不到」）。
 - **分層（可重疊）：** `easy_visible`、`partial_occluded`（紅衣像素佔身體框 < 4.5%）、`partial_edge`（身體框被畫面邊緣切掉）、`far_small`（身體框高度在可見格下三分位，≤ 112 px）、`lowscore_person`（T 的人物框分數 0.3–0.5）、`nonperson_class`、`visible_nobox`、負樣本 `neg_absent`、`neg_occluded`、`neg_with_similar`。每層以隨機種子 644 抽至多 60 格，同鏡頭兩格間隔 ≥ 0.4 s。可抽數：easy 42、partial_occluded 121、partial_edge 55、far_small 267、lowscore 82、nonperson 316、visible_nobox 187、neg_absent 548、neg_occluded 763。
-- **計分：** TP（框中心在 GT 身體框內，或 IoU ≥ 0.3）、FP_wrong_box（有人但框錯＝錯人）、FP_absent（T 不可見卻答「在」）、FN、TN。recall = TP／T 可見格；precision = TP／答「在」的格。**層內 precision／F1 是該層加上全部負樣本（123 格）算的；整體數字是分層樣本的，不是母體比例。** K=3 的結果取每格三次的平均（不是多數決，與預先登記的差別，見 §6）。
+- **計分：** TP（框中心在 GT 身體框內，或 IoU ≥ 0.3）、FP_wrong_box（有人但框錯＝錯人）、FP_absent（T 不可見卻答「在」）、FN、TN。recall = TP／T 可見格；precision = TP／答「在」的格。**層內 precision／F1 是該層加上全部負樣本（123 格）算的；整體數字是分層樣本的，不是母體比例。** K=3 的主結果取每格三次的平均；另附多數決版本（預先登記寫的做法，見 §3b），兩者結論相同。
 - **統計：** 成對差用 5 秒區塊（事件×鏡頭×時間）的 cluster bootstrap，2000 次，95% 百分位區間。
 
 ## 3. 結果（terra，K=3 平均；sol K=1）
@@ -60,6 +68,24 @@ Issue [#644](https://github.com/Polalalabear/amidst/issues/644)；預先登記 [
 
 整體成對差（B − A，95% 區間）：(b)−(a) F1 +0.432 [0.322, 0.564]、recall +0.598 [0.487, 0.712]、precision −0.017 [−0.039, +0.010]；(b)−(c) F1 +0.690 [0.558, 0.822]；(b)−(d) F1 +0.187 [0.113, 0.281]；(c)−(a) F1 −0.258 [−0.379, −0.159]。完整的層內成對 recall／precision／TN 差與區間見 LOCAL `w1_scores.json`。
 
+### 3b. 多數決版本（預先登記的做法）
+
+多數決：同一格 K=3 次中超過一半答「在」才算「在」，取第一個答「在」的結果計分；否則依 T 是否可見記為 FN／TN。同一批答案檔離線重算（`score --majority`，LOCAL `w1_scores_majority.json`），不付費。
+
+| 指標 | 平均（主結果） | 多數決 |
+|---|---|---|
+| (b) 整體 F1／precision／recall | 0.955／0.955／0.955 | 0.957／0.953／0.960 |
+| (c) 整體 F1 | 0.265 | 0.272 |
+| (d) 整體 F1 | 0.768 | 0.770 |
+| (b)−(a) 整體 F1 差 | +0.432 [0.322, 0.564] | +0.433 [0.324, 0.566] |
+| (b)−(a) 整體 recall／precision 差 | +0.598／−0.017 | +0.602／−0.019 [−0.042, 0.009] |
+| (b)−(c) 整體 F1 差 | +0.690 [0.558, 0.822] | +0.685 [0.545, 0.827] |
+| (b)−(a) recall：partial_occluded／far_small／visible_nobox | +0.734／+0.571／+0.890 | +0.738／+0.574／+0.890 |
+| (b)−(a) precision（含負樣本）：partial_occluded／far_small／lowscore | +0.062／−0.018／−0.062 | +0.060／−0.017／−0.061 |
+| (b)−(c) `neg_absent`「不在」答對率差 | −0.111 [−0.200, −0.030] | −0.111 [−0.200, −0.030] |
+
+層內數字最多差 0.03–0.06（`easy_visible` 的 (c) recall 0.59 → 0.65、(b) 0.97 → 1.00），沒有任何判讀（H5 的層、H2 的 `neg_absent`）因此改變。
+
 ![各層 F1](w1_frame_eval_20261120/fig_f1_by_stratum.png)　左：各層 F1；右：負樣本「不在」答對率；灰＝(a) 規則、橘＝(b)、藍＝(d)、綠＝(c)。
 
 ## 4. 判讀（依預先登記）
@@ -88,10 +114,10 @@ Issue [#644](https://github.com/Polalalabear/amidst/issues/644)；預先登記 [
 
 - **範圍：** 預錄、渲染合成場景、兩個事件、單一目標（紅衣）、一個偵測器（RT-DETR R18）。不能外推到真實影像、其他服裝或多目標複雜場景。
 - **樣本：** 分層抽樣，整體數字不是母體比例；層內相鄰影格相關，已用 5 秒區塊 bootstrap 部分處理，區間仍可能偏窄。`easy_visible`（23）和 `partial_edge`（36）在場格 < 50，依預先登記「無法判斷」，表中數字只是點估計。`neg_with_similar` 只有 3 格，不能下結論。
-- **標籤：** 「可見」用 GT 身體框＋紅衣像素代理，不是場景幾何或深度；遮擋比例是紅衣像素佔比的代理。身體框是固定尺寸圓柱的投影，邊界格（T 緊貼鏡頭、12–50% 在畫面內）的標籤本身不確定，`neg_absent` 的 7 個 (b) 誤報全是這種格。標籤與規則的 HSV 都用紅色，兩者有部分耦合（標籤只用於分層與評分）。
+- **標籤：** 「可見」用 GT 身體框＋紅衣像素代理，不是場景幾何或深度；遮擋比例是紅衣像素佔比的代理。身體框是固定尺寸圓柱的投影，邊界格（T 緊貼鏡頭、12–50% 在畫面內）的標籤本身不確定，`neg_absent` 的 7 個 (b) 誤報全是這種格。**耦合：**「可見」的像素判定用的是紅衣像素（HSV 紅色），規則的顏色判斷也是 HSV 紅色，兩者不獨立：規則在「紅衣可見」的格子天然比較容易有顏色證據，標籤也因此偏向紅色清楚的格子；標籤只用於分層與評分，不進任何請求。「可見」層因此不涵蓋『紅衣像素極少但人其實看得見』的情況。
 - **做不到的層：** 索引分數下限 0.3，沒有 0.05–0.3 的框，原計畫的「RT-DETR 低分 0.05–0.3」層沒有測；「相似人物同框」在索引裡只有 3 格負樣本、0 格正樣本。
 - **「對」的判準寬鬆：** 框中心在身體框內或 IoU ≥ 0.3；自畫框平均 IoU 0.42–0.49。
-- **與預先登記的差異：** (1) K=3 用逐格三次平均而不是多數決（預先登記寫多數決）；未另算多數決版本。(2) 同鏡頭取樣間隔 0.4 s（預先登記規劃 ≥ 1 s，會讓 `easy_visible`、`partial_edge` 更少）；每層上限 60。(3) 費用估價 USD 11，原 issue 估 3–6，實際 6.4。
+- **與預先登記的差異：** (1) K=3 主結果用逐格三次平均，預先登記寫的是多數決；多數決版本已用同一批答案檔離線另算（§3b），結論不變。(2) 同鏡頭取樣間隔 0.4 s（預先登記規劃 ≥ 1 s，會讓 `easy_visible`、`partial_edge` 更少）；每層上限 60。(3) 費用估價 USD 11，原 issue 估 3–6，實際 6.4。
 - **執行紀錄：** (b) 組 k1、k2 各有約一半的呼叫被 ApiGuard 速率限制（每分鐘 120）擋下，未送出也未計費，已調高上限並只補跑被擋的格子；已付費的 c、d 組答案原樣保留。
 
 ## 7. 重現
@@ -104,7 +130,7 @@ python scripts/run_frame_eval.py call --model terra --arm vision_free --k 3 --fi
 python scripts/run_frame_eval.py call --model terra --arm text --k 3
 python scripts/run_frame_eval.py call --model terra --arm vision_pick --k 3
 python scripts/run_frame_eval.py call --model sol --arm vision_free --k 1
-python scripts/run_frame_eval.py score                   # 指標、成對 bootstrap、圖（可由 LOCAL 答案表離線重算）
+python scripts/run_frame_eval.py score [--majority]       # 指標、成對 bootstrap、圖（可由 LOCAL 答案表離線重算）
 python -m pytest tests/evaluation/test_frame_eval.py
 ```
 
@@ -112,14 +138,15 @@ python -m pytest tests/evaluation/test_frame_eval.py
 
 ## 8. LOCAL 證據
 
-目錄 `local/evidence/w1-frame-eval-20261120/`（LOCAL，不進版控；約 3.2 MB、17 檔；`SHA256SUMS` 的 SHA-256 `8d267964cc2b2216c8cb4d0c7b25e8579207bc2df2afdc43f74e3a3f36a1b68b`，列出其餘 16 檔）。可由 `frames` 重建（`sample.json`、`frames_all_labels.json`、`seeds.json`、`red_px.json`）；答案表為付費結果，不可重建。
+目錄 `local/evidence/w1-frame-eval-20261120/`（LOCAL，不進版控；約 3.3 MB、18 檔；`SHA256SUMS` 的 SHA-256 `3224c397fb33c96321cba57ff0dcd99f01f785968948171b0fd269f84b1e89df`，列出其餘 17 檔）。可由 `frames` 重建（`sample.json`、`frames_all_labels.json`、`seeds.json`、`red_px.json`）；答案表為付費結果，不可重建。
 
 | 檔案 | 內容 | SHA-256（前 12 碼） |
 |---|---|---|
 | `answers_terra_{vision_free,text,vision_pick}_k{0,1,2}.json`（9 檔）、`answers_sol_vision_free_k0.json` | 每次呼叫的原始回答、延遲、tokens、`cached_tokens` | `23079252ff6b`（vision_free k0）、`5c2d451dca7e`、`8342568cc685`、`9488dc20fcda`（text k0）、`e9c3ec5ec257`、`53fda1eb0620`、`29f58be5ca8d`（pick k0）、`0d934475bbd8`、`e65617d8f342`、`e78c272e3511`（sol） |
 | `sample.json` | 抽樣的 422 格與各層抽樣名單 | `78c1c71cd965` |
 | `frames_all_labels.json` | 兩事件全部 2,050 格的 GT 標籤與分層 | `a647cadac736` |
-| `w1_scores.json` | 全部指標、層內成對差與區間、誤報分析 | `66fef2b9e624` |
+| `w1_scores.json` | 全部指標（平均版）、層內成對差與區間、誤報分析 | `8452937aa41d` |
+| `w1_scores_majority.json` | 多數決版本的同一組指標 | `7fee3fb99e7d` |
 | `fig_f1_by_stratum.png` | 圖（已複製進 `w1_frame_eval_20261120/`） | `44c83391ba9c` |
 
-付費帳本：`local/evidence/api-usage/usage.jsonl`，caller=`frame_eval`（約 USD 6.4）。
+付費帳本：`local/evidence/api-usage/usage.jsonl`（持續追加，SHA-256 不適用），caller=`frame_eval`：OK 4,226 列、USD 6.414（= 4,220 次正式呼叫 ＋ 6 次試跑；試跑答案檔已被正式結果覆蓋）；DENIED 416 列（reason=`RATE_LIMIT`，est_cost 0，未送出、未計費，已補跑）。

@@ -14,7 +14,7 @@ Issue [#640](https://github.com/Polalalabear/amidst/issues/640)；報告素材 [
 4. **沒有看到錯接：** 錯接次數 0、錯人秒 0；自畫框錯的 tick：A4-1 terra 約 0.27 s、sol 0 s；B4-1 terra 約 0.6–0.7 s、sol 約 1.0 s（顯示的框不在目標身上，K=3 平均）。這是需要在複雜場景檢驗的風險，這裡的 n 太小，不能下結論。
 5. **「閘門只當資訊」（Agent 可選任何鏡頭、規則低分時也被叫來驗證）沒有讓結果變差：** 低分驗證點上，看圖 Agent 與規則同樣正確（Agent 在 39／42 個驗證 tick 的 K 平均中幾乎全對，只有 sol 在 B4-1 約 1 個、A4-1 約 0.7 個 tick 錯；terra B4-1 約 0.3 個）。不給圖的控制組在驗證點上幾乎都回答「不在」，反而推翻了規則本來正確的框（規則對、Agent 錯：A4-1 約 38.7、B4-1 42 個 tick）。這同時說明：**不給圖就不能信任純文字 Agent 的覆核**（本控制組的提示偏保守，見 §8）。
 6. **辨識對照（Agent 看圖 vs RT-DETR＋規則）：** 在失聯 tick，規則顯示不出東西（recall 0，這是定義上的結果，因為觸發條件就是規則沒顯示），看圖 Agent recall 0.91–1.0（B4-1 gap：terra 0.908、sol 0.955；A4-1 gap：兩者 1.0），precision 1.0（0 個 FP）；按目標偵測分數分層，目標沒有人物框的 tick（`no_person_box`）Agent recall 0.96–1.0，規則 0.65–0.72。
-7. **成本：** 本實驗總花費 **USD 6.61**（ApiGuard 帳本，caller=`vision_agent`，1551 列，含 6 次被護欄擋下的試跑列；額度 USD 50，停止線 45）。
+7. **成本：** 本實驗總花費 **USD 6.61**（ApiGuard 帳本，caller=`vision_agent`，1551 列，全部 outcome=OK，帳本沒有任何 DENIED 或 ERROR 列；對照 21 個答案檔共 1548 筆，多出的 3 列沒有對應的答案檔，推測是試跑，來源未記錄＝UNKNOWN；額度 USD 50，停止線 45）。本文先前寫的「6 次被護欄擋下」查無根據，已刪除（`d325_eval_diag` 另有 6 列，屬別的 caller，與本實驗無關）。
 
 ## 2. 設計（Agent 看什麼、做什麼）
 
@@ -34,6 +34,21 @@ Issue [#640](https://github.com/Polalalabear/amidst/issues/640)；報告素材 [
 - **控制組：** 同觸發點、同文字（含偵測清單與顏色標籤），不給圖。
 
 ## 3. GT 隔離
+
+**請求建立路徑的每個欄位來源（Opus 檢查用）：** 下表列 `Event.context`、`trigger_ticks`、`verify_ticks` 與 `build_images` 用到的每個欄位，沒有任何一個來自 GT。
+
+| 欄位 | 來源 | 是否 GT 衍生 |
+|---|---|---|
+| `trigger_ticks(view)` | `RuleView.kind`（規則 `single_view` 的 GAP／LOST）與 `first_lock`（規則第一個 ON_CAMERA tick） | 否（規則輸出） |
+| `verify_ticks()` | 規則 ON_CAMERA tick 且規則選中框的偵測分數 < 0.45（`sightings` 的觀測加偵測索引分數） | 否（系統分數） |
+| `rule_showing`、`last_camera`、`last_t`、`last_t_s` | `RuleView.kind`、`last_known(view, t)`（規則最後一次顯示） | 否 |
+| `seed.camera_id`、`seed.t_s`、`seed.colors`、種子裁切圖 | 規則第一個被選的 sighting 的觀測；框取自偵測索引、顏色標籤取自索引 HSV、像素取自該影格 | 否（種子是否真是目標未確認，見下） |
+| `neighbours`、`allowed` | DRAFT 鏡頭圖的 transitions 與事件的鏡頭清單 | 否 |
+| `dets`（id、框、分數、顏色） | 偵測索引（`detection_index.records.jsonl`），人物、分數 ≥ 0.3 | 否 |
+| 當前／最後已知影格 | 渲染影格像素（`safe/media`），框為規則框或索引框 | 否 |
+| `graph_info_only`、`rule_scores` | 組別設定／固定 None | 否 |
+
+GT 只出現在：`Event.body_of`／`rule_rows`（`gt_scoring_r004`，評分端）、`oracle_agent`（上限，不是 Agent）、`recognition()`（評分）。
 
 - 請求建立路徑（`Event.context`、`build_images`、`build_content`、`one_call`、`va.request_text`）只用：規則顯示、偵測索引、種子觀測、DRAFT 圖、影格像素；沒有讀 `gt`、`rule_rows` 或任何 GT 欄位。觸發 tick 由規則顯示和偵測分數決定。
 - GT 僅出現在 `Event.body_of`（評分用，傳給 `overlay`／`recognition`）與 `oracle_agent`（上限，不是 Agent）。`src/amidst/evaluation/vision_agent.py` 本身不 import GT，單元測試用合成資料。
@@ -64,7 +79,7 @@ Issue [#640](https://github.com/Polalalabear/amidst/issues/640)；報告素材 [
 | B4-1 | info terra 不看圖 | 0.906 | 4.2 | 0.0 | 4.2 | 0 | 0 | 0 |
 
 - 表中 K=3 的各列在三次之間沒有差異（除標了範圍者）。「含自畫框」的失聯秒 = 規則 MISSED tick 中，Agent 自畫框落在目標上的部分扣掉後的秒數。主指標「失聯秒」「跟對率」只計索引框（SNAP），所以 Agent 組的跟對率只和 B4-1 上限·索引框的 0.4 s 對得上。
-- 注意：D325 評分器的「跟對率」在部分 tick 因「偵測閃爍時沿用」可超過分母，因此「含自畫框跟對率」會 > 1（見 LOCAL `tables.md`），本文改用失聯秒說明。
+- 注意：D325 評分器的「跟對率」在部分 tick 因「偵測閃爍時沿用」可超過分母，因此「含自畫框跟對率」在 LOCAL `tables.md` 出現 **1.009**（A4-1 terra／sol 的 gate 與 info 看圖列）。這是評分器的人為結果，**不是比率，請勿引用**；本文改用失聯秒說明。`vision_agent_report.py` 之後產生的表會把大於 1 的值封頂為 1.0 並標 †（LOCAL `tables.md` 是封頂前產生的，未重新產生，其 SHA-256 不變）。
 - 圖：![失聯秒（含自畫框）](vision_agent_20261120/fig_summary.png)　橘＝看圖、綠＝不看圖、藍＝上限、灰＝規則；右欄（realtime）全部等於規則。
 
 ## 5. 模擬即時（realtime）
