@@ -474,6 +474,14 @@
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/641"
     },
     {
+      "id": "D341-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@c3a4be43f33e8a2d4986747dd4b1c5e18dc8b9e8（#649，D325 更正）",
+      "sha256": "5049798acec3d512265ce04969f97a5d08581cceb7c01a0f8c9e82e2a40f7fd2",
+      "status": "現行；§4.3 D325 摘要加更正：結論限定在 LLM 覆核、不看圖的架構；34 個決策點中 32 個只有 0／1 個合格候選（以決策點計數）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/649"
+    },
+    {
       "id": "W2-S1",
       "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
       "ref": "claude/feat-agent-wiring@1df84fbab0504b7b144640d9b0d6919bc5010df1（W2，#645）",
@@ -751,6 +759,12 @@
     },
     {
       "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "5049798acec3d512265ce04969f97a5d08581cceb7c01a0f8c9e82e2a40f7fd2",
+      "requires_commit": "c3a4be43f33e8a2d4986747dd4b1c5e18dc8b9e8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/649",
+      "reason": "#649 研究紀錄更正（使用者要求把錯誤的實驗分析更新成正確的）：只在 §4.3 D325 摘要加更正註記與來源（#637 merge 3cdbbfc9、#647），沒有改動任何規則或數字"
+    },
+    {
       "sha256": "38479ac331395ead58dc4d0ffab20b45475a5b9e105f1eff27b2f1df4aa9214b",
       "requires_commit": "1df84fbab0504b7b144640d9b0d6919bc5010df1",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",

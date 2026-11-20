@@ -27,7 +27,7 @@ def t_body(cam,foot,H=1.75,W=0.3):
     pts=[]
     for dx,dy in [(W,0),(-W,0),(0,W),(0,-W),(0,0)]:
         for z in (0,H):
-            p=project(cam,[foot[0]+dx,foot[1]+dy,z]); 
+            p=project(cam,[foot[0]+dx,foot[1]+dy,z]);
             if p is None: return None
             pts.append(p)
     us=[p[0] for p in pts]; vs=[p[1] for p in pts]; return [min(us),min(vs),max(us),max(vs)]

@@ -45,6 +45,7 @@ def main():
               ('combined_follow_rate', '含自畫框跟對率'), ('combined_lost_s_while_visible', '含自畫框失聯秒'),
               ('early_reconnect_s_total', '提早接回秒'), ('wrong_connections', '錯接次數'), ('own_box_wrong_s', '自畫框錯秒')]
     summary = {}
+    md.append('† 含自畫框跟對率：D325 評分器在偵測閃爍時沿用，分子可超過分母，原始值 > 1 的格子封頂為 1.0 並標 †；引用請用失聯秒。')
     for mode in MODES:
         md.append(f'\n### 時間模式：{mode}\n')
         md.append('| 事件 | 組 | ' + ' | '.join(n for _f, n in fields) + ' |')
@@ -65,7 +66,10 @@ def main():
                 cells = []
                 for f, _ in fields:
                     lo, hi = rng(f)
-                    cells.append(f'{vals[f]} [{lo}–{hi}]' if lo != hi else f'{vals[f]}')
+                    cell = f'{vals[f]} [{lo}–{hi}]' if lo != hi else f'{vals[f]}'
+                    if f == 'combined_follow_rate' and vals[f] is not None and vals[f] > 1:
+                        cell = f'1.0† (raw {vals[f]})'      # D325 scorer flicker-hold can push the ratio above 1: cap for citation
+                    cells.append(cell)
                 md.append(f'| {ev} | {NAMES[k]}（K={len(runs)}） | ' + ' | '.join(cells) + ' |')
                 summary[(ev, mode, k)] = vals
     md.append('\n### 呼叫統計\n')
