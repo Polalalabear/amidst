@@ -765,6 +765,7 @@
       "reason": "#649 研究紀錄更正（使用者要求把錯誤的實驗分析更新成正確的）：只在 §4.3 D325 摘要加更正註記與來源（#637 merge 3cdbbfc9、#647），沒有改動任何規則或數字"
     },
     {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
       "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
       "requires_commit": "fa8fe7105764fad45213f082d0661eb43d6ae90c",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",
