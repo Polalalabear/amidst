@@ -1,3 +1,4 @@
+> 2026-11-19 註（D338，#631）：§7.3 的 `node --test frontend/workbench/*.test.mjs …` 已失效：舊 `frontend/workbench/` 於 D268 下線、PR #575 移除。現行前端測試是 `node --test frontend/workbench-v2/*.test.mjs`（`frontend/product/timeline.test.mjs` 仍存在）。本文已封存，其餘內容不重寫。
 > 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
 
 # 全部工作交接與結果重現 / Current work and reproduction handoff

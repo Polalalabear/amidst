@@ -263,6 +263,21 @@ class GatewayAgentFactory:
         return self.provider.availability()
 
 
+NOT_APPLICABLE = 'NOT_APPLICABLE_NO_DECIDER'
+
+
+class NotApplicableAgent:
+    """CL-B16 (#620): B-05 is a synthetic P1 event served by ``q_core_track``, not by ``associate()``/the Q5 session, so it has no
+    Agent decision point. The bootstrap says so (``agent_unavailable_reason``) instead of letting a Q2 request fail with a scope error."""
+
+    def availability(self):
+        return False, NOT_APPLICABLE
+
+    def __call__(self, request, **kwargs):
+        from amidst.q1q5.api import APIError
+        raise APIError('AGENT_ADAPTER_NOT_CONFIGURED', 503)
+
+
 def load_settings(repo_root=None, api_model: str = API_MODEL) -> AgentSettings:
     from amidst.q1q5.llm_guidance import Q5_MARKER
     root = Path(repo_root) if repo_root else Path(__file__).resolve().parents[3]

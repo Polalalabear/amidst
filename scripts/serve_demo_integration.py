@@ -15,7 +15,7 @@ from amidst.q1q5.api import QAPI, QRun, _safe_request
 from amidst.q1q5.clock_mapping import ClockMapping, resolve_wall_range
 from amidst.q1q5.core_query import validate_track_request, _blind_for_track
 from amidst.q1q5.cross_camera_demo import Parameters, response as cross_response
-from amidst.q1q5.graphs import GraphBundle
+from amidst.q1q5.graphs import GraphBundle, load_graphs
 from amidst.q1q5.p1_workbench import P1, binary, public_png, require, server
 from amidst.q1q5.q3_parse import ParseSettings
 from amidst.q1q5.q5_controller import RuntimeBindings
@@ -66,6 +66,32 @@ def parameters(index, values):
         'parameters': deepcopy(list(unique.values()))}, 'pset:q-demo')
 
 
+DEMO_APPROVED_ROWS = ('query_min_score', 'top_k', 'search_window_us', 'research_interval_us', 'session_max_research_rounds',
+    'switch_min_presence', 'evidence_max_observations', 'fallback_budget_ms', 'exit_rule', 'link_iou_min',
+    'link_center_dist_max_diag_ratio', 'link_max_gap_us', 'link_min_score', 'link_color_rule', 'link_ambiguity_margin')
+DEMO_APPROVAL_REF = 'user-chat:2026-11-19:coordinator-option-A (CL-B16 #620)'
+
+
+def demo_approved(params):
+    """CL-B16 (#620): the Q5 controller refuses to track unless the parameter set is APPROVED. For the 8785 recorded demo only,
+    the user (2026-11-19, coordinator conversation, option A) allowed treating the A4-1/B4-1 DEMO_DEFAULT set as APPROVED. This
+    does not change the pinned parameter files and is not a research/formal acceptance."""
+    p = deepcopy(params)
+    by = {row['name']: row for row in p['parameters']}
+    boundary = by.get('exit_boundary_inclusive')
+    require(boundary is not None and type(boundary.get('value')) is bool, 'DEMO_EXIT_BOUNDARY_MISSING')
+    for name in DEMO_APPROVED_ROWS:   # only the rows the Q5 controller checks; every other row keeps its own status
+        row = by.get(name)
+        if row is not None and row.get('status') == 'DEMO_DEFAULT' and row.get('value') is not None:
+            row['status'] = 'APPROVED'
+            row['proposal_ref'] = row.get('proposal_ref') or DEMO_APPROVAL_REF
+    rule = by.get('exit_rule')   # same rule, spelled the way the Q5 controller reads it (method + boundary_inclusive)
+    if rule is not None and rule.get('value') == 'BBOX_BOTTOM_MIDPOINT_IN_ROI':
+        rule['value'] = {'method': 'BBOX_BOTTOM_MIDPOINT', 'boundary_inclusive': boundary['value']}
+    p['approval'] = {'status': 'APPROVED', 'approval_ref': DEMO_APPROVAL_REF, 'approved_by': 'user-demo-only'}
+    return seal(p, 'pset:q-demo')
+
+
 def qrun(index, clock, graphs, params, title, source_kind):
     m = index.manifest; a = aliases(index)
     cameras = [c['camera_id'] for c in m['sampling']['per_camera']]
@@ -93,7 +119,13 @@ def scene_projection(graphs, scene_id, binding):
         doc['inputs'].append({'ref': 'demo-scene-binding:' + canonical_hash(binding), 'sha256': canonical_hash(binding)})
     seal(r, 'rgraph:r004:static'); c['region_graph_sha256'] = r['content_sha256']
     seal(c, 'cgraph:r004:static')
-    return GraphBundle(r, c)
+    if graphs.tracking_scope is None:
+        return GraphBundle(r, c)
+    # CL-B16 (#620): the graphs still carry their tracking-scope pins, so dropping the scope made every Q2 session on
+    # A4-1/B4-1 answer TRACKING_SCOPE_MISSING (rule and Agent alike). Re-attach the byte-pinned scope and re-verify it.
+    return load_graphs(r, c, region_sha256=r['content_sha256'], camera_sha256=c['content_sha256'],
+                       tracking_scope=graphs.tracking_scope, tracking_scope_sha256=graphs.tracking_scope_sha256,
+                       tracking_scope_bytes=graphs.tracking_scope_bytes)
 
 
 class Media:
@@ -174,7 +206,7 @@ class Demo(P1):
                 'records': DocumentPin(m['records_ref'], spec['inputs']['records']['sha256'], 'q-demo.detection-record.v1')})
             index = store.load_detection_index('index'); clock = ClockMapping(clock_doc)
             values = loads(read_pin(spec['inputs']['config']))['parameters']
-            params = parameters(index, values)
+            params = demo_approved(parameters(index, values))
             g = scene_projection(graphs, m['scene_id'], job['graph_binding'])
             run = qrun(index, clock, g, params, spec['label'] + ' · D124 · ACTUAL_BLENDER · 自動種子', 'ACTUAL_BLENDER')
             runs.append(run); key = m['scene_id'], m['run_id']; self.cross[key] = tracks; self.positions[key] = positions
@@ -212,6 +244,9 @@ class Demo(P1):
         if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
             from amidst.q1q5.openai_gateway import configure_environment
             runs = list(configure_environment(runs, agent_queue))
+            if runs[0].agent_factory is not None:   # CL-B16 (#620): B-05 (runs[0]) has no Agent decision point
+                from amidst.q1q5.openai_gateway import NotApplicableAgent
+                runs[0] = replace(runs[0], agent_factory=NotApplicableAgent())
         self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb,
                         camera_display_positions=self.positions, track_estimator=self.estimate)
         self.scenes = {r.catalog['scene_id'] for r in runs}

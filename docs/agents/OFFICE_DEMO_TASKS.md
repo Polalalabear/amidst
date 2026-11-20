@@ -1,3 +1,4 @@
+> 2026-11-19 註（D338，#631）：**放棄**。本任務清單指向的 `frontend/workbench/` 已於 D268 下線、PR #575 移除；未完成的任務不再執行，現行工作見 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文工作清單。本文已封存，不重寫。
 > 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
 
 # Claude Code Office Demo task sequence
