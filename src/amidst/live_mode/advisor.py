@@ -32,6 +32,8 @@ import urllib.error
 import urllib.request
 from collections.abc import Callable
 
+from .relock import distance, reference_points
+
 URL = "https://api.openai.com/v1/chat/completions"
 # D237 (issue #93): config id -> (API model id, USD per million input tokens, output tokens). Live default: sol6.1.
 MODELS = {"sol6.1": ("gpt-6.1-sol", 2.0, 10.0), "terra6.1": ("gpt-6.1-terra", 1.0, 5.0), "astra6": ("gpt-6-astra", 10.0, 50.0)}
@@ -194,7 +196,7 @@ class LiveDecider:
 
     def __init__(self, mode: str, advisor: Advisor, people, gate_m: float = 3.0, lock_keep_s: float = 1.5, lost_ticks_before_ask: int = 2,
                  max_candidates: int = 4, recheck_s: float = 4.0, fallback_show_s: float = 3.0, lost_min_candidates: int = 2,
-                 apply: str = "lock"):
+                 apply: str = "lock", *, predict_horizon_s: float = 0.0):
         assert mode in ("review", "lead") and apply in ("lock", "reseed")
         self.mode, self.advisor, self.people = mode, advisor, people
         self.gate, self.keep, self.lost_n, self.max_c, self.recheck, self.show = gate_m, lock_keep_s, lost_ticks_before_ask, max_candidates, recheck_s, fallback_show_s
@@ -214,6 +216,9 @@ class LiveDecider:
         self.hold: dict | None = None
         self.ask_t = -1e9
         self.reseed = False
+        self.predict_horizon = predict_horizon_s
+        self.target_pid = None
+        self.target_seen_s = None
 
     @staticmethod
     def _tallest(person: dict):
@@ -279,7 +284,11 @@ class LiveDecider:
         can_ask = self.advisor.reference is not None and not self.advisor.busy() and self.prev_est is not None \
             and (self.locked is None or t_s - self.last_t >= self.recheck)
         if can_ask:
-            near = [p for p in people if math.dist(p["xy"], self.prev_est) <= self.gate]
+            points = (self.prev_est,)
+            if self.predict_horizon and self.target_seen_s is not None:
+                points = reference_points(self.prev_est, self.people.velocity(self.target_pid),
+                                          t_s - self.target_seen_s, self.predict_horizon)
+            near = [p for p in people if distance(p["xy"], points) <= self.gate]
             kind, pool, need = None, [], 1
             if matched and len(near) >= 2:
                 kind, pool, need = "SILENT_PICK", near, 2
@@ -292,7 +301,10 @@ class LiveDecider:
                         per_cam.setdefault(cam, []).append((p, det))
                 cam = max((c for c in per_cam if c in frames), key=lambda c: len(per_cam[c]), default=None)
                 if cam is not None and len(per_cam[cam]) >= need:
-                    cs = sorted(per_cam[cam], key=lambda pd: pd[1]["bbox"][0] + pd[1]["bbox"][2])[: self.max_c]   # left to right
+                    on_camera = per_cam[cam]
+                    if self.predict_horizon:
+                        on_camera = sorted(on_camera, key=lambda pd: distance(pd[0]["xy"], points))[: self.max_c]
+                    cs = sorted(on_camera, key=lambda pd: pd[1]["bbox"][0] + pd[1]["bbox"][2])[: self.max_c]   # left to right
                     if self.advisor.ask(kind, cam, [p["pid"] for p, _ in cs], frame_jpeg(frames[cam], [d["bbox"] for _, d in cs])):
                         self.hold = {"cam": tracking.get("active_cam"), "est": self.prev_est}
                         self.ask_t = t_s
@@ -309,4 +321,8 @@ class LiveDecider:
         out["events"] = events
         if out.get("est_xy") and out.get("state") != "ADJUDICATING":
             self.prev_est = out["est_xy"]
+            if self.predict_horizon and matched:
+                closest = min(people, key=lambda person: math.dist(person["xy"], self.prev_est), default=None)
+                self.target_pid = closest["pid"] if closest and math.dist(closest["xy"], self.prev_est) < 1.5 else None
+                self.target_seen_s = t_s
         return out

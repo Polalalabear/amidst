@@ -135,6 +135,11 @@ class PeopleTracker:
         tr = self.tracks.get(pid)
         return tr["t"] if tr else None
 
+    def velocity(self, pid: int | None) -> tuple[float, float] | None:
+        """Velocity of an active observation track, in metres per capture second."""
+        track = self.tracks.get(pid)
+        return tuple(track["v"]) if track is not None else None
+
     def contested_since(self, pid: int, t_s: float) -> bool:
         """True when the track came close to another person at or after ``t_s`` (its id may have changed hands)."""
         tr = self.tracks.get(pid)
