@@ -6,9 +6,9 @@
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> **狀態（2026-11-08）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。目前在做**大問題 A：Demo 驗收**（新 UI 加真實資料，[#445](https://github.com/Polalalabear/amidst/issues/445)），即時進度和決策紀錄看[決策板 #93](https://github.com/Polalalabear/amidst/issues/93)。
+> **狀態（2026-11-20）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。目前在驗證研究假設 H1–H6：能看圖、又知道場景空間資訊的 Agent，在複雜情況下的切鏡決策和辨識是否比規則與 RT-DETR 好（D340、D341）。工作清單和決策紀錄在[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)。
 >
-> **Status (2026-11-08):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. Current work is **epic A: demo acceptance** (new UI on real data, [#445](https://github.com/Polalalabear/amidst/issues/445)). Live progress and decisions are on [decision board #93](https://github.com/Polalalabear/amidst/issues/93).
+> **Status (2026-11-20):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. Current work tests research hypotheses H1–H6: whether an Agent that sees frames and knows the scene layout makes better camera-switching and recognition decisions than the rules and RT-DETR in hard cases (D340, D341). The work list and decision log are on [task board #93](https://github.com/Polalalabear/amidst/issues/93).
 
 ## 繁體中文
 
@@ -61,7 +61,8 @@
 
 - 地點命中是場景設定（人工在靜態畫面標的涵蓋範圍），不是看到目標，所以這類結果會標成「目標未觀測」。
 - 區域、鏡頭、類別、顏色都從 pinned 設定檔讀，程式不寫死特定教室或鏡頭。
-- Agent 和自然語言查詢（大問題 D）目前是把自然語言轉成查詢選項，使用者確認後才執行。自主行為仍是規則式，不是學習出來的。
+- 追蹤方式可以在「規則」和「Agent」之間切換（D340）。**規則是預設和退路**；Agent 模式預設關，開啟時可以看渲染畫面、從所有偵測中選人、回答「仍在這台」「不在」或「下一台看哪台」，每個請求都附場景上下文（區域連通、鏡頭圖與核定等級、鏡頭位置／朝向／FOV／覆蓋範圍），只取已提交的設定與標定。付費呼叫一律經 `ApiGuard`；Agent 失敗時退回規則。程式在 `src/amidst/q1q5/agent_service.py`、`scene_context.py`、`camera_projection.py`，介面見[產品規格 §4.3](docs/specs/Q1Q5_PRODUCT_SPEC.md)。
+- 自然語言查詢把句子轉成查詢選項，使用者確認後才執行。
 
 ### 核心原則
 
@@ -73,18 +74,20 @@
 | 來源追溯與 fail-closed | 每筆資料綁定來源、run、時鐘與 hash；不符就拒絕，缺資料只關閉該功能 |
 | 依賴自有 | 依賴、鎖定檔、啟動腳本、資料和模型的 manifest 都在 repo 裡，不借用舊環境（D133） |
 
-### 目前進度（2026-11-08）
+### 目前進度（2026-11-20）
 
-工作整合成四個大問題（D132）：
+研究假設與目前證據（[假設計畫 §0](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)；條件：渲染合成、預錄、A4-1／B4-1 兩事件、單一目標、DRAFT 鏡頭圖）：
 
-| 大問題 | 內容 | 狀態 |
+| 假設 | 內容 | 目前狀態 |
 | --- | --- | --- |
-| A [#445](https://github.com/Polalalabear/amidst/issues/445) | Demo 驗收：新 UI 加真實資料 | 新 UI（[#487](https://github.com/Polalalabear/amidst/pull/487)）在真實資料上的瀏覽器測試已通過；前台展示調整 D139（[#493](https://github.com/Polalalabear/amidst/pull/493)）審查中；之後做量測 B、走查，再由使用者驗收 |
-| B [#479](https://github.com/Polalalabear/amidst/issues/479) | 實驗紀錄與研究報告 | 實驗紀錄 v2 已出（[#488](https://github.com/Polalalabear/amidst/pull/488)）；v3 等新截圖和量測 B |
-| C [#486](https://github.com/Polalalabear/amidst/issues/486) | 大掃除與可攜性 | Python 3.12 鎖定和依賴收編已完成（[#491](https://github.com/Polalalabear/amidst/pull/491)）；Windows／Linux、CI、分支整理在驗收後 |
-| D [#489](https://github.com/Polalalabear/amidst/issues/489) | 讓 Agentic 成立 | 路徑 (b) 自然語言轉選項已完成（[#490](https://github.com/Polalalabear/amidst/pull/490)）；路徑 (a)、現場 Qwen／OpenAI 在驗收後 |
+| H5 辨識 | Agent 看圖判斷「這格有沒有目標」比 RT-DETR＋規則準 | 有條件成立：F1 0.52 → 0.96，增益集中在遮擋、遠小、沒有人物框的格子（[W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)） |
+| H2 機制 | 優勢來自看圖 | 有條件成立（部分）：不給圖就沒有優勢，但「不在」的判斷略差 |
+| H1 切換決策 | 複雜情況下 Agent 切鏡比規則好 | 尚無數據：兩個簡單事件只驗證可行（[W2](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)） |
+| 即時 | 模擬即時下的增益 | 0：單次延遲約 4.3 s，比失聯段長 |
+| H3、H4 | 閘門改資訊、依空間資訊主動找下一台 | H3 無害也無可見好處；H4 只有描述性訊號，不支持 |
+| H6 | 每個模式都能切規則／Agent | 部分完成：統一介面已有；8785 開關、LIVE、查找待做 |
 
-上面的 PR 都還沒合併進 `mainline/q1q5`，合併要使用者授權。跨攝影機 3D 軌跡重建線暫停但保留，在分支 `archive/3d-line`。
+下一步：W3 LIVE 難題集（等 Codex 的 LIVE 重新取得與錄製重播）、W4 複雜場景。已知缺口 G7（兩條付費路徑沒經 `ApiGuard`）尚未修。
 
 ### 開發環境
 
@@ -114,19 +117,18 @@ PYTHONPATH=src uv run --offline --no-project \
 
 ### 分支與協作
 
-- `mainline/q1q5`：預設與整合分支，只接受 merge commit。
-- `claude/445-demo-integration`（[#485](https://github.com/Polalalabear/amidst/pull/485)）：大問題 A 的整合分支，驗收後合進主線。
-- `claude/ui-redesign-v1`（[#487](https://github.com/Polalalabear/amidst/pull/487)）：新 UI，合進 #485。
-- `main`：Q1–Q5 轉向前的歷史版本，目前不更新。
-- Codex 和 Claude Code 依檔案和資料契約分工，規則見 [AGENTS.md](AGENTS.md)。只用 merge commit，不 rebase、不 force。
+- `main`：整合分支（D200；GitHub 預設分支），PR 的 base 一律是 `main`，CI `checks` 要綠，只用 merge commit，不 rebase、不 force。`mainline/q1q5` 凍結在 `8c741451`，只是歷史。
+- 功能分支：一個大功能一條分支，Claude 用 `claude/feat-<line>`、Codex 用 `codex/feat-<line>`；小修正進既有分支（D216、D248）。
+- Codex 和 Claude Code 依檔案和資料契約分工，規則見 [AGENTS.md](AGENTS.md)。
 
 ### 文件導覽
 
 - [核心功能契約：查找與追蹤](docs/contracts/Q_CORE_SEARCH_TRACK_V1.md)（`Q_CORE_SEARCH_TRACK_V1`）、[Demo UI 支援契約](docs/contracts/DEMO_UI_SUPPORT_V1.md)、[Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)（時鐘、偵測索引、兩層圖的定義沿用這份）
 - [Demo 腳本兼驗收清單](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md)、[依賴收編說明](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md)、[Python 3.12 鎖定同步](docs/operations/DEMO_PY312_LOCK_SYNC_20261108.md)
-- [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性）、[Q1–Q5 產品規格](docs/specs/Q1Q5_PRODUCT_SPEC.md)
-- [文件索引](docs/README.md)、[封存索引](docs/archive/ARCHIVE_20261027.md)
-- 舊的 issue 編號已經併入四個大問題，對照表在 [#93](https://github.com/Polalalabear/amidst/issues/93)。`docs/operations/Q1Q5_PROGRESS.md` 停在 2026-10-27，以 #93 為準。
+- [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性、D340 Agent 模式）、[Q1–Q5 產品規格](docs/specs/Q1Q5_PRODUCT_SPEC.md)（§2 資料流、§4 介面）
+- [Agent vs 規則假設計畫 H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)、[W1 逐格評估](docs/evaluation/W1_FRAME_EVAL_20261120.md)、[W2 主動 Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)、[Agent 接線與 ApiGuard 檢查](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md)
+- [程式碼 ↔ 文件對應表](docs/index/CODE_DOC_MAP.md)、[文件索引](docs/README.md)、[封存索引](docs/archive/ARCHIVE_20261027.md)
+- 工作清單在 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文（D281）；[進度導覽](docs/operations/Q1Q5_PROGRESS.md) 列出每個 PR 與 issue（批次補列到 #650）。
 - **給 AI agent：**依 [AGENTS.md](AGENTS.md) 工作；本 README 不重複其規則。
 
 ## English
@@ -180,7 +182,8 @@ Source RGB frames ─▶ RT-DETR object detection ─▶ upper-body HSV color si
 
 - A location hit is scene configuration (coverage hand-marked on a still frame), not a sighting, so such results are marked "target not observed".
 - Regions, cameras, classes and colors are read from pinned configuration; no classroom or camera is hard-coded.
-- The agent and natural-language query (epic D) currently turn a sentence into query options that run only after the user confirms. Autonomous behavior is still rule-based, not learned.
+- Tracking can switch between "rules" and "Agent" (D340). **Rules are the default and the fallback.** Agent mode is off by default; when on, the Agent may look at rendered frames, choose among all detections, and answer "still on this camera", "not visible" or "check camera X next". Every request carries the scene context (region connectivity, the camera graph with approval levels, camera position/heading/FOV/coverage), taken only from committed configuration and calibration. Paid calls always go through `ApiGuard`; on failure the rule answer stands. Code: `src/amidst/q1q5/agent_service.py`, `scene_context.py`, `camera_projection.py`; interface in [product spec §4.3](docs/specs/Q1Q5_PRODUCT_SPEC.md).
+- Natural-language queries turn a sentence into query options that run only after the user confirms.
 
 ### Principles
 
@@ -192,18 +195,20 @@ Source RGB frames ─▶ RT-DETR object detection ─▶ upper-body HSV color si
 | Provenance and fail-closed | Every record is bound to source, run, clock and hash. Mismatches are rejected; missing data disables only that feature |
 | Owned dependencies | Dependencies, lock files, launch scripts and data/model manifests live in the repository; no old environments are reused (D133) |
 
-### Progress (2026-11-08)
+### Progress (2026-11-20)
 
-Work is organized into four epics (D132):
+Research hypotheses and current evidence ([hypothesis plan §0](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md); conditions: synthetic rendering, recorded footage, two events A4-1/B4-1, one target, DRAFT camera graph):
 
-| Epic | Scope | Status |
+| Hypothesis | Claim | Current status |
 | --- | --- | --- |
-| A [#445](https://github.com/Polalalabear/amidst/issues/445) | Demo acceptance: new UI on real data | The new UI ([#487](https://github.com/Polalalabear/amidst/pull/487)) passes its browser tests on real data; presentation changes D139 ([#493](https://github.com/Polalalabear/amidst/pull/493)) are in review; measurement B, a walkthrough and the user's acceptance follow |
-| B [#479](https://github.com/Polalalabear/amidst/issues/479) | Experiment record and research report | Record v2 is out ([#488](https://github.com/Polalalabear/amidst/pull/488)); v3 waits for new screenshots and measurement B |
-| C [#486](https://github.com/Polalalabear/amidst/issues/486) | Cleanup and portability | Python 3.12 pin and owned dependencies are done ([#491](https://github.com/Polalalabear/amidst/pull/491)); Windows/Linux, CI and branch cleanup come after acceptance |
-| D [#489](https://github.com/Polalalabear/amidst/issues/489) | Making the agentic claim hold | Path (b), natural language to query options, is done ([#490](https://github.com/Polalalabear/amidst/pull/490)); path (a) and live Qwen/OpenAI come after acceptance |
+| H5 recognition | Looking at the frame, the Agent judges "is the target here" better than RT-DETR plus rules | Holds with conditions: F1 0.52 → 0.96, gains concentrated in occluded, small/distant and no-person-box frames ([W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)) |
+| H2 mechanism | The gain comes from seeing the image | Partly holds: without images there is no gain, but "not visible" answers are slightly worse |
+| H1 switching | In hard cases the Agent switches cameras better than the rules | No data yet: two simple events only show feasibility ([W2](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)) |
+| Real time | Gain under simulated real time | Zero: one call takes about 4.3 s, longer than the lost spans |
+| H3, H4 | Gates as information; spatial reasoning to pick the next camera | H3 no harm and no visible benefit; H4 only a descriptive signal, not supported |
+| H6 | Every mode can switch rules/Agent | Partly done: the shared interface exists; 8785 switch, LIVE and search remain |
 
-None of these PRs is merged into `mainline/q1q5` yet; merging needs the user's authorization. The cross-camera 3D reconstruction line is paused but kept on the branch `archive/3d-line`.
+Next: W3 on the LIVE hard set (waiting for Codex's LIVE relock and recording/replay) and W4 complex scenes. Known gap G7 (two paid paths bypass `ApiGuard`) is not fixed yet.
 
 ### Development setup
 
@@ -219,7 +224,7 @@ AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/even
 
 ### Running the real-data demo
 
-A clone contains code, configuration and documents only. Rendered frames, model weights and the detection index live in a local owned folder (default `~/amidst-artifacts/demo-owned-v1`, overridable with `AMIDST_DEMO_HOME`) and are not in the repository, so a clone alone cannot reproduce the demo. With that folder in place:
+A clone contains code, configuration and documents only. Rendered frames, model weights and the detection index live in a local owned folder (default `local/data/demo-owned-v1` under the repository root, git-ignored; overridable with `AMIDST_DEMO_HOME`; `OWNED_ROOT_NOT_FOUND` if missing) and are not in the repository, so a clone alone cannot reproduce the demo. With that folder in place:
 
 ```sh
 export AMIDST_DEMO_HOME="${AMIDST_DEMO_HOME:-$PWD/local/data/demo-owned-v1}"
@@ -233,17 +238,16 @@ Then open `http://localhost:8785/workbench-v2/`. Details and moving to another m
 
 ### Branches and collaboration
 
-- `mainline/q1q5`: default and integration branch; merge commits only.
-- `claude/445-demo-integration` ([#485](https://github.com/Polalalabear/amidst/pull/485)): epic A integration branch, merged into mainline after acceptance.
-- `claude/ui-redesign-v1` ([#487](https://github.com/Polalalabear/amidst/pull/487)): the new UI, merged into #485.
-- `main`: the pre-Q1–Q5 history; not currently updated.
-- Codex and Claude Code split work by file sets and data contracts; see [AGENTS.md](AGENTS.md). Merge commits only; no rebase or force-push.
+- `main`: the integration branch (D200; GitHub default). Every PR targets `main`, needs the CI check `checks` green and merges with a merge commit only; no rebase or force-push. `mainline/q1q5` is frozen at `8c741451` and is history only.
+- Feature branches: one branch per large feature, `claude/feat-<line>` for Claude and `codex/feat-<line>` for Codex; small fixes go to the existing branch (D216, D248).
+- Codex and Claude Code split work by file sets and data contracts; see [AGENTS.md](AGENTS.md).
 
 ### Documents
 
 - [Core contract: search and track](docs/contracts/Q_CORE_SEARCH_TRACK_V1.md) (`Q_CORE_SEARCH_TRACK_V1`), [demo UI support contract](docs/contracts/DEMO_UI_SUPPORT_V1.md), [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) (still the source for clocks, the detection index and the two-layer graph)
 - [Demo script and acceptance checklist](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md), [owned-dependency notes](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md), [Python 3.12 lock sync](docs/operations/DEMO_PY312_LOCK_SYNC_20261108.md)
-- [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty), [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md)
-- [Document index](docs/README.md), [archive index](docs/archive/ARCHIVE_20261027.md)
-- Old issue numbers were folded into the four epics; the mapping is on [#93](https://github.com/Polalalabear/amidst/issues/93). `docs/operations/Q1Q5_PROGRESS.md` stops at 2026-10-27; #93 is authoritative.
+- [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty, D340 Agent mode), [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) (§2 data flow, §4 interfaces)
+- [Agent vs rule hypotheses H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md), [W1 frame evaluation](docs/evaluation/W1_FRAME_EVAL_20261120.md), [W2 active Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md), [Agent wiring and ApiGuard audit](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md) (all in Traditional Chinese)
+- [Code ↔ document map](docs/index/CODE_DOC_MAP.md), [document index](docs/README.md), [archive index](docs/archive/ARCHIVE_20261027.md)
+- The work list is the body of [#93](https://github.com/Polalalabear/amidst/issues/93) (D281); the [progress guide](docs/operations/Q1Q5_PROGRESS.md) lists every PR and issue (batch-updated to #650).
 - **For AI agents:** work by [AGENTS.md](AGENTS.md); this README does not repeat its rules.

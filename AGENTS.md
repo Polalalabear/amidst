@@ -11,13 +11,14 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 
 ## Shared rules
 
-- Follow [docs/DEVELOPMENT_RULES.md](docs/DEVELOPMENT_RULES.md); it is the source of truth for architecture, source assets, GT isolation, camera conventions, uncertainty, and research boundaries. Do not duplicate or weaken those rules here.
+- Follow [docs/specs/DEVELOPMENT_RULES.md](docs/specs/DEVELOPMENT_RULES.md) (`docs/DEVELOPMENT_RULES.md` is a symlink to it); it is the source of truth for architecture, source assets, GT isolation, camera conventions, uncertainty, and research boundaries. Do not duplicate or weaken those rules here.
 - Preserve source/run/clock/hash provenance. Ground Truth, renderer trajectories, visibility, and depth stay out of inference, ranking, and reconstruction. Keep source observations, projections, inferences, `MISSING`, and `UNKNOWN` distinct; identity remains unconfirmed and physical navigation/collision remains unknown unless authorized evidence says otherwise.
 - Do not delete, overwrite, render, copy, or otherwise modify original Blender, video, dataset, calibration, or Ground Truth assets without explicit authorization. Do not inspect large media unless a scoped task needs it.
 - Use `frontend/workbench-v2/` as the primary UI (served on 8785 by `scripts/serve_demo_integration.py`). The old `frontend/workbench/` is being retired (user decision 2026-11-17, D268; plan in [#486](https://github.com/Polalalabear/amidst/issues/486#issuecomment-6950051568)): do not add features to it. Task ownership follows [§4 of the baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md#4-工作分配) and the [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`). One owner per file set; hand off through data contracts. Interface contracts are drafted by Claude Code and confirmed by Codex before parallel work starts.
 - Work on one concrete task per session. Do not recursively explore unrelated modules or the whole repository without explicit approval. Start from the named handoff and task paths; mark unresolved paths/dependencies `UNKNOWN` for the bounded audit.
 - Do not create worktrees. Preserve existing checkout, branch, uncommitted changes, and frozen inputs. Never reset, rebase, force-push, or merge without explicit authorization. Stage only task files; use a narrow commit and PR workflow on the assigned branch.
-- Paid API calls always go through `ApiGuard` (#537): dry-run first, and run only after the user approves the amount in chat. An approved budget covers only its stated purpose and does not carry over to other uses or later runs (D242).
+- Paid API calls always go through `ApiGuard` (#537): dry-run first, and run only after the user approves the amount in chat. An approved budget covers only its stated purpose and does not carry over to other uses or later runs (D242). The guard is `src/amidst/q1q5/api_budget.py` (ledger in `AMIDST_API_USAGE_DIR`); D339 lets OpenAI runs within the USD 50 allowance proceed without asking each time, but every run still dry-runs first and records its spend. Known gap G7, unresolved: `scripts/agent_decision/run_provider.py` and `OpenAIPredictionAdapter` bypass the guard (product spec §4.3, U-18); do not use them for paid calls.
+- The Q1–Q5 Agent mode follows D340 (supersedes D64; rule in DEVELOPMENT_RULES, interface in product spec §4.3): rule mode is the default and fallback; Agent mode is off by default, may see rendered frames and choose among all detections, and every request carries the scene context. GT isolation, `ApiGuard`, `UNCONFIRMED` identity and response validation stay hard-blocked. Research hypotheses H1–H6 and their current evidence are in the hypothesis plan below.
 - Make changes reproducible and source-bound. For code tasks, run only the focused tests named in the task and `git diff --check`; do not run full suites, Blender renders, inference, or research experiments unless the task explicitly requires and authorizes them.
 - Stop when the assigned task and its focused verification are complete; report exact files, evidence, blockers, and anything not verified.
 - Browser tests and smoke runs are headless by default and never open windows on the user's desktop (D334). Open a visible browser only when the user asks to watch or for visual debugging (for example `HEADLESS=0`), and close it afterwards. Chrome may add `--disable-background-timer-throttling` and `--disable-backgrounding-occluded-windows`. Applies to Claude and Codex.
@@ -25,7 +26,7 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 
 ## Source-of-truth documents
 
-- [Development rules](docs/DEVELOPMENT_RULES.md)
+- [Development rules](docs/specs/DEVELOPMENT_RULES.md) — D340 Agent mode (supersedes D64)
 - [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) — contract B ([#237](https://github.com/Polalalabear/amidst/pull/237), SHA `b700bf86…`, pinned in `configs/architecture/authority_pins_v1.json`); not edited by hand
 - [Baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) (Line 1)
 - [Two-line plan](https://github.com/Polalalabear/amidst/pull/252) (D87; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`)
@@ -35,7 +36,10 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - [Latest coordinator handoff (2026-11-18)](docs/agents/COORDINATOR_HANDOFF_20261118.md)
 - [Task board and decision log #93](https://github.com/Polalalabear/amidst/issues/93)
 - [Archive index](docs/archive/ARCHIVE_20261027.md) — superseded Office, 3D-line, Phase 1/2 and early Q1–Q5 documents (D91)
-- [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) — replaces the archived PRD, system design, data schema and interfaces
+- [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) — replaces the archived PRD, system design, data schema and interfaces; §2 data flow and §4.3 Agent request structure (`agent_service.py`, `scene_context.py`, `camera_projection.py`)
+- [Agent vs rule hypotheses H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md) (D340/D341) — §0 current evidence; results in [W1 frame evaluation](docs/evaluation/W1_FRAME_EVAL_20261120.md), [W2 active Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md) and the [vision-agent pilot](docs/evaluation/VISION_AGENT_RECORDED_20261120.md)
+- [Agent API wiring audit](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md) — every model call path, ApiGuard coverage, gap G7
+- [Code ↔ document map](docs/index/CODE_DOC_MAP.md) and [index](docs/index/README.md)
 
 ## Git workflow
 
@@ -74,7 +78,7 @@ Codex and Claude must both follow this rule (user, 2026-10-25). The trigger was 
   - source compositions.
 
   Commit it in the same PR as the work it describes, under `docs/operations/` or `docs/engineering/`. A copy only in `local/`, `/private/tmp` or chat does not count. <!-- local-ref-ignore -->
-- **Keep raw artifacts LOCAL** ([DEVELOPMENT_RULES](docs/DEVELOPMENT_RULES.md)): RGB, recordings, weights, databases and human returns. The committed document lists each LOCAL artifact:
+- **Keep raw artifacts LOCAL** ([DEVELOPMENT_RULES](docs/specs/DEVELOPMENT_RULES.md)): RGB, recordings, weights, databases and human returns. The committed document lists each LOCAL artifact:
   - path relative to `local/{data,evidence,archive}` or `$AMIDST_ARTIFACTS`, with no absolute home paths;
   - size and file count;
   - SHA-256 (or the MANIFEST SHA-256);
