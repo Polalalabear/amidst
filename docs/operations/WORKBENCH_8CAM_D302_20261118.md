@@ -96,3 +96,21 @@ LOCAL `local/evidence/cx594-d308-p2-20261118/MANIFEST.json`，SHA-256 `034dc5d3a
 本修正和最新 main `b98fac2a` 的 Git 合併預覽無衝突。
 預覽的 8CAM／launcher／D147 共 22 個 Python 測試全部通過。
 LOCAL `local/evidence/cx610-d315-final-20261118/MANIFEST.json` SHA-256 `ac1d2b2dda7b3fb4c55258dfa141c5db7b74db55da971758c2ecd032a4a28aff`，16 檔／838,750 bytes。可用本文件的 focused 測試指令重跑。
+
+## 2026-11-20 main integration
+
+Merge commit `dc2d5373` includes main `8290f190`. The only content conflict
+was service API initialization: keep both B-05 NotApplicableAgent and
+track_estimator. Main's D340/D341/W2 pins and schemas are retained; current
+product SHA matches W2-S1 and merged file hashes are in merge-audit.json.
+
+The D326 commands above were rerun, adding tests/q1q5/test_agent_service.py
+to the Python set: 90 Python tests, 53 Node tests, zero skips/failures.
+The W2 test that q1q5 cannot import amidst.evaluation passes. Dependency
+smoke passes with six runs and 20 first images. One default headless
+browser verifies both 8CAM runs at 900/1300 px, 20 unique assertions,
+no page errors or failed APIs, and closes normally. B-05-8CAM and
+r005-8CAM remain UNKNOWN because the approved bundle has no such source.
+No new assets, render, detector inference or provider call was produced.
+
+LOCAL `local/evidence/cx623-main-20261120/MANIFEST.json` SHA-256 `280ba887a7cf432c4fe3f1ce54ba9b984002bfc39d065f0aff8f45d6bcb8f9a2`, 12 files / 2,306,108 bytes. Rebuild with the focused commands above plus the W2 test; page clocks and tokens can differ. The 8785 full gate and pin remain unverified by this branch.

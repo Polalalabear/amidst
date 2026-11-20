@@ -66,3 +66,18 @@ remain with their assigned reviewer; the service and pin were not changed.
 LOCAL `local/evidence/cx612-d326-20261118/MANIFEST.json` SHA-256 `1f1ee80459a4eeb407c72d944b2e45e7e999edb42a3971213ce2194b021a6b0f`, 5 files / 292,776 bytes. The commands regenerate the model and observation replay receipts.
 
 Final integration evidence is LOCAL `local/evidence/cx594-d326-20261118/MANIFEST.json`, SHA-256 `95b30841b20777f92cf1d55b057c2e6846a3cd823673e5e777aa9b4c96c01db0`, 14 files / 2,308,983 bytes. It includes the normal-entry receipts, source-only projection replay, dependency smoke and four headless screenshots. The same commands regenerate the checks; screenshot clocks and tokens can differ.
+
+## 2026-11-20 main integration
+
+Merge commit `dc2d5373` includes main `8290f190`. The service initialization
+keeps main's NotApplicableAgent for B-05 and the recorded track_estimator
+hook. W2's camera projection relocation and Agent service are retained;
+q1q5/api.py introduces no evaluation import. The focused Python set above,
+plus tests/q1q5/test_agent_service.py, passes 90 tests with zero skips.
+The workbench model/name tests pass 53. Six-run dependency smoke and the
+A4/B4 eight-camera browser smoke pass after merge (20 decoded first
+frames, two heights, 20 unique browser assertions, no page/API errors).
+No new detector, Agent call or asset render is performed. Full 3D visual
+acceptance and the 8785 pin remain with Claude and the user.
+
+LOCAL `local/evidence/cx623-main-20261120/MANIFEST.json` SHA-256 `280ba887a7cf432c4fe3f1ce54ba9b984002bfc39d065f0aff8f45d6bcb8f9a2`, 12 files / 2,306,108 bytes. Contains the final tests, main pin audit, smoke receipts and four screenshots. Rebuild with WORKBENCH_8CAM_D302_20261118.md's focused commands, adding test_agent_service.py to pytest. Screenshot clocks and tokens vary.
