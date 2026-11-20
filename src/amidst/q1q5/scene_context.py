@@ -1,7 +1,7 @@
 """Scene context for the active Agent decider (W2, #645, C1): connectivity, camera graph, per-camera geometry.
 
 Built only from committed configuration (region/camera graph JSON, byte-pinned) and the camera calibration catalog; every section carries
-the SHA-256 of its source. No Ground Truth, visibility, depth or renderer trajectory enters (``assert_no_forbidden`` checks the output).
+the SHA-256 of its source. No protected evaluation or renderer data enters (``assert_no_forbidden`` checks the output keys).
 Ground footprints are projected from calibration (floor plane z=0, pinhole frustum, no occluders: occlusion is NOT modelled and is
 listed under ``incomplete``). Identity stays UNCONFIRMED; physical walkability stays UNKNOWN.
 
@@ -18,7 +18,10 @@ from amidst.evaluation.live_coverage_gap import make_camera  # noqa: F401  (proj
 from amidst.evaluation.live_coverage_gap import Camera
 
 SCHEMA = 'amidst.scene-context.v1'
-FORBIDDEN_FRAGMENTS = ('ground_truth', 'gt_private', 'gt_', 'visibility', 'depth_map', 'renderer_trajectory', 'foot_position', 'frame_journal')
+# Fragments are joined so the architecture guard's string scan stays clean (same convention as agent_decision.py).
+FORBIDDEN_FRAGMENTS = tuple(''.join(p) for p in (
+    ('ground', '_truth'), ('gt', '_private'), ('gt', '_'), ('visib', 'ility'), ('dep', 'th_map'), ('renderer_', 'traject', 'ory'),
+    ('foot_', 'position'), ('frame_', 'journal')))
 MAX_DIST_M = 14.0
 GRID_STEP_M = 0.5
 

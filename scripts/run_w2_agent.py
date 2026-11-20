@@ -47,7 +47,8 @@ STOP_USD = 12.0       # W2 stops here; total account stop is 40 (see brief)
 CACHED_READ_X, CACHE_WRITE_X = 0.05, 1.25     # docs (prompt-caching guide, 2026-11-20): GPT-6.1 Terra read 0.05x, 30m write 1.25x
 GRAPH_DIR = REPO / 'configs/q1q5/graphs/r004'
 CATALOG = sc.D / 'r004-cx7r-20261104-01a19f8b/bundle/safe_bundle/provenance/camera_catalog.json'
-GROUPS = {'A': dict(images=True, scene=True), 'B': dict(images=False, scene=True), 'C': dict(images=True, scene=False)}
+GROUPS = {'A': dict(images=True, scene=True), 'B': dict(images=False, scene=True), 'C': dict(images=True, scene=False),
+          'A2': dict(images=True, scene=True, two_stage=True), 'C2': dict(images=True, scene=False, two_stage=True)}
 
 
 # --------------------------------------------------------------------------------------------- scene + detections
@@ -239,11 +240,29 @@ def run_points(tr, ctxs, group, k, workers, limit=0):
         c, t = job
         inp = c.input_for(t, group)
         rec = {'event': c.ev.label, 't_us': t, 'group': group, 'k': k, 'rule_kind': c.ev.view.kind[t]}
+        two = GROUPS[group].get('two_stage')
         for attempt in (1, 2):
             try:
+                s1_lat = 0.0
+                if two:                                   # stage 1: the Agent picks where to look from the scene context only
+                    s1 = None
+                    try:
+                        r1 = tr(ag.build_select_body(MODEL, inp, c.ev.cams))
+                        s1, e1 = ag.parse_select(r1['text'], set(c.ev.cams))
+                        rec['stage1'] = {'look_at': s1['look_at'] if s1 else None, 'error': e1, 'usage': r1['usage'], 'latency_s': r1['latency_s'],
+                                         'reason_codes': s1['reason_codes'] if s1 else None}
+                        s1_lat = r1['latency_s']
+                    except Exception as exc:  # noqa: BLE001
+                        rec['stage1'] = {'look_at': None, 'error': f'{type(exc).__name__}:{str(exc)[:160]}'}
+                        if attempt == 1 and 'GUARD' not in str(exc):
+                            continue
+                    if s1 is None:
+                        rec.update(source='RULE', fallback='STAGE1_FAILED', answer=None, usage=None, latency_s=None, error=rec['stage1']['error'], attempts=attempt)
+                        break
+                    inp = ag.restrict(inp, s1['look_at'][:2])
                 d = ag.decide(inp, mode='AGENT', transport=tr, model=MODEL, cache='prefix')
                 rec.update(source=d.decision_source, fallback=d.fallback_reason, answer=d.answer if d.agent_used else None, usage=d.usage,
-                           latency_s=d.latency_s, error=d.error, attempts=attempt)
+                           latency_s=None if d.latency_s is None else round(d.latency_s + s1_lat, 3), error=d.error, attempts=attempt)
                 if d.fallback_reason and d.fallback_reason.startswith('TRANSPORT') and attempt == 1:
                     continue
                 break
@@ -388,7 +407,7 @@ def evaluate(ctx, recs, mode):
                     continue
                 box = det.box
             body = ev.body_of(cam, at)
-            hit = body is not None and (va.center_in(box, body, 0.0) if res[0] == 'SNAP' else va.iou(box, body) >= va.OWN_IOU)
+            hit = body is not None and (va.center_in(box, body, 0.0) or (res[0] == 'OWN' and va.iou(box, body) >= va.OWN_IOU))   # own box: centre-in-body OR IoU>=0.3 (#647 definition)
             new = dict(r, src='AGENT_ON', kind='ON_CAMERA', camera=cam, cls='CORRECT' if hit else ('WRONG_PERSON' if r['t_visible'] else 'FALSE_LOCK'))
         rows[i] = new
         if before == 'CORRECT' and new['cls'] != 'CORRECT':
@@ -416,6 +435,35 @@ def agg(ms):
     return out
 
 
+def h4_camera_hits(ctx, recs, group):
+    """Stage-1 'where to look' accuracy (scoring side, GT via rule_rows.t_visible). Loss ticks only (rule not ON_CAMERA) with the target
+    detectable somewhere; baselines: last displayed camera, last + DRAFT-graph neighbours, random k."""
+    ev = ctx.ev
+    n = len(ev.cams)
+    acc = {'ticks': 0, 'top1': 0, 'top2': 0, 'top3': 0, 'last_cam': 0, 'graph_nbrs': 0, 'random_top1': 0.0, 'random_top2': 0.0, 'random_top3': 0.0, 'n_cams': n}
+    per = []
+    for r in recs:
+        if r['event'] != ev.label or r['rule_kind'] == 'ON_CAMERA' or not (r.get('stage1') or {}).get('look_at'):
+            continue
+        t = r['t_us']
+        vis = set(ev.rule_rows[t // va.TICK]['t_visible'])
+        if not vis:
+            continue
+        lk = va.last_known(ev.view, t)
+        last = lk[0] if lk else None
+        nb = set(va.allowed_cameras(last, ev.transitions, ev.cams)) if last else set()
+        picks = r['stage1']['look_at']
+        acc['ticks'] += 1
+        for kk in (1, 2, 3):
+            acc[f'top{kk}'] += bool(set(picks[:kk]) & vis)
+        acc['last_cam'] += last in vis
+        acc['graph_nbrs'] += bool(nb & vis)
+        for kk in (1, 2, 3):
+            acc[f'random_top{kk}'] += 1 - math.comb(n - len(vis), kk) / math.comb(n, kk) if n - len(vis) >= kk else 1.0
+        per.append({'t_s': t / 1e6, 'last': last, 'picks': picks, 'target_visible_in': sorted(vis)})
+    return acc, per
+
+
 def cmd_score(args, ctxs):
     res = {}
     for label, c in ctxs.items():
@@ -429,6 +477,17 @@ def cmd_score(args, ctxs):
                 if ms:
                     res[label][f'{g}/{mode}'] = agg(ms)
                     res[label][f'{g}/{mode}']['k'] = len(ms)
+    h4 = {}
+    for g in ('A2', 'C2'):
+        for label, c in ctxs.items():
+            tot, perk = None, []
+            for f in sorted(OUT.glob(f'answers_{g}_k*.json')):
+                a, per = h4_camera_hits(c, json.loads(f.read_text())['answers'], g)
+                tot = a if tot is None else {k: (tot[k] + a[k] if k != 'n_cams' else a[k]) for k in a}
+                perk.append(per)
+            if tot:
+                h4[f'{g}/{label}'] = tot
+    res['h4_camera_choice'] = h4
     (OUT / 'scores.json').write_text(json.dumps(res, indent=1))
     print(json.dumps(res, indent=1))
 

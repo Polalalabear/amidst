@@ -223,3 +223,54 @@ def decide(inp: DecisionInput, *, mode: str = 'RULE', transport=None, model: str
         return DecisionRecord('RULE', True, False, True, 'INVALID_RESPONSE:' + str(err), inp.rule_answer, sha, resp.get('usage'),
                               resp.get('latency_s'), err)
     return DecisionRecord('AGENT', True, True, False, None, ans, sha, resp.get('usage'), resp.get('latency_s'))
+
+
+# ----------------------------------------------------------------------------------------------- stage 1: "where to look next"
+MAX_LOOK_AT = 3
+SELECT_SYSTEM_EXTRA = (
+    '\n\nSTAGE 1 (camera selection): you are NOT shown any camera image or detection yet. Using only the scene context '
+    '(camera positions, yaw, FOV, ground footprints, overlaps, exit zones, region and camera edges), the reference crop, the last '
+    'display and the time elapsed, rank the cameras where the target is most likely to be visible NOW. Reply with one JSON object: '
+    '{"look_at": [up to 3 camera ids, most likely first], "reason_codes": [at most 4 short codes], "reason": short text}. '
+    'A camera without a graph edge may still be listed.')
+
+
+def build_select_body(model: str, inp: DecisionInput, camera_ids, *, cache: str = 'prefix', max_output_tokens: int = 600) -> dict:
+    """Stage-1 request: same fixed prefix + track layer, but the variable layer has no detections and no frames."""
+    scene = inp.scene_context if inp.include_scene else None
+    prefix = prefix_text(scene) + SELECT_SYSTEM_EXTRA
+    rd = inp.rule_display or {}
+    var = (f'NOW t={inp.t_s:.1f}s. Rule display: {rd.get("kind", "NONE")} camera={rd.get("camera_id")} (last shown at t={rd.get("last_t_s")}). '
+           f'Cameras of this site: {", ".join(sorted(camera_ids))}.')
+    body = {'model': model, 'max_output_tokens': max_output_tokens, 'text': {'format': {'type': 'json_object'}},
+            'input': [{'role': 'developer', 'content': [{'type': 'input_text', 'text': prefix}]},
+                      {'role': 'user', 'content': track_layer(inp)}, {'role': 'user', 'content': [{'type': 'input_text', 'text': var}]}]}
+    if cache != 'none':
+        body['prompt_cache_key'] = (sx.sha256_of(inp.scene_context)[:30] + 's1') if inp.scene_context else 'no-scene-s1'
+    return body
+
+
+def parse_select(text: str, camera_ids):
+    try:
+        doc = json.loads(text)
+    except (ValueError, TypeError):
+        return None, 'NOT_JSON'
+    picks = doc.get('look_at') if isinstance(doc, dict) else None
+    if not isinstance(picks, list):
+        return None, 'BAD_LOOK_AT'
+    out = []
+    for c in picks:
+        if c in camera_ids and c not in out:
+            out.append(c)
+    if not out:
+        return None, 'NO_KNOWN_CAMERA'
+    codes = doc.get('reason_codes') or []
+    return {'look_at': out[:MAX_LOOK_AT], 'reason_codes': [str(c)[:40] for c in codes][:MAX_REASON_CODES] if isinstance(codes, list) else [],
+            'reason': str(doc.get('reason', ''))[:200]}, None
+
+
+def restrict(inp: DecisionInput, cameras) -> DecisionInput:
+    """Stage-2 input: only the chosen cameras' detections and frames are shown (the rest of the site stays only in the scene context)."""
+    import dataclasses as _dc
+    keep = set(cameras)
+    return _dc.replace(inp, candidates=[c for c in inp.candidates if c.camera_id in keep], frames=[f for f in inp.frames if f[0] in keep])

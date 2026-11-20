@@ -123,3 +123,21 @@ def test_parse_response_usage():
     r = ag.parse_response({'id': 'r', 'status': 'completed', 'output': [{'content': [{'type': 'output_text', 'text': '{}'}]}],
                            'usage': {'input_tokens': 3000, 'output_tokens': 50, 'input_tokens_details': {'cached_tokens': 2048, 'cache_write_tokens': 0}}})
     assert r['usage'] == {'input_tokens': 3000, 'cached_tokens': 2048, 'cache_write_tokens': 0, 'output_tokens': 50} and r['text'] == '{}'
+
+
+def test_stage1_has_no_detections_or_frames_and_shared_prefix():
+    b = ag.build_select_body('m', inp(), ['CAM_A', 'CAM_B'])
+    txt = json.dumps(b['input'][2])
+    assert 'DETECTIONS' not in txt and 'input_image' not in txt and 'CAM_A' in txt
+    assert 'SCENE_CONTEXT=' in b['input'][0]['content'][0]['text'] and 'STAGE 1' in b['input'][0]['content'][0]['text']
+    assert ag.build_select_body('m', inp(include_scene=False), ['CAM_A'])['input'][0]['content'][0]['text'].count('SCENE_CONTEXT=') == 0
+
+
+def test_parse_select_and_restrict():
+    ok, err = ag.parse_select(json.dumps({'look_at': ['CAM_B', 'CAM_X', 'CAM_B', 'CAM_A'], 'reason_codes': list('abcdef')}), {'CAM_A', 'CAM_B'})
+    assert err is None and ok['look_at'] == ['CAM_B', 'CAM_A'] and len(ok['reason_codes']) == 4
+    assert ag.parse_select('{"look_at": ["Z"]}', {'CAM_A'})[1] == 'NO_KNOWN_CAMERA'
+    i = inp(candidates=[ag.Candidate('D1', 'CAM_A', (0, 0, 5, 5), .9, 'person'), ag.Candidate('D1', 'CAM_B', (0, 0, 5, 5), .9, 'person')],
+            frames=[('CAM_A', b'a'), ('CAM_B', b'b')])
+    r = ag.restrict(i, ['CAM_B'])
+    assert [c.camera_id for c in r.candidates] == ['CAM_B'] and [f[0] for f in r.frames] == ['CAM_B']
