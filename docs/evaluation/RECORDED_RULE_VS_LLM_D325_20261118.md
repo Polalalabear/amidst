@@ -1,5 +1,12 @@
 # 預錄三事件：規則 vs LLM 覆核（D325，2026-11-18）
 
+> **更正說明（2026-11-20，issue [#649](https://github.com/Polalalabear/amidst/issues/649)）**：本文的數字與表格不變，以下結論的適用範圍與一處計數已修正。
+>
+> 1. **結論只適用於「LLM 覆核、不看圖」的架構。** 本分析的 LLM 只拿到不透明代號與軌跡摘要，沒有收到任何影格，只能在規則已判合格的候選中選或 ABSTAIN；而且 A4-1、B4-1 是簡單場景（各 1 個目標、目標在所有鏡頭都看不到的最長時間 1.0／0.4 s）。§1 第 1 條「LLM 沒有帶來可量到的好處」與第 2 條「原因是題目，不是模型」**不能推論為「LLM 無效」**：差異同時來自「沒有送圖、只覆核」與「題目簡單」。見 PR [#637](https://github.com/Polalalabear/amidst/pull/637)（`docs/evaluation/RULE_VS_LLM_RECORDED_AND_LIVE_20261120.md` §1.3，分支 head `6c318377`）。
+> 2. **「34 個決策點規則都只有 0 或 1 個合格候選」應為 32 個。** B4-1 24.8 s、25.0 s 的兩個 DP1 各有 2 個合格候選（CAM_W1、CAM_W2），但兩者是同一個紅衣人在重疊鏡頭的影像，選哪個都對；「沒有任何決策點需要在兩個不同的人之間選擇」的判斷不變。見 PR #637 §1.2b。
+> 3. **看圖的結果見 PR [#647](https://github.com/Polalalabear/amidst/pull/647)**（`docs/evaluation/VISION_AGENT_RECORDED_20261120.md`，分支 head `b6e99c9d`）：同樣兩個事件，離線可等待時看圖 Agent 把失聯秒由 2.6／4.2 s 降到 0.8／1.2 s，不給圖的對照組與本文一致沒有改善；模擬即時則因呼叫延遲沒有增益。該實驗 n＝2 事件、K=3，只談機制可行性。
+> 4. 失聯秒的成因分解（覆核架構最多只能救回 B4-1 的 0.4 s）見 PR #637 §1.2c；8785 Agent 開關實際上走不到模型，見 `docs/evaluation/AGENT_ZERO_CANDIDATES_629.md`（PR #635）與 PR [#648](https://github.com/Polalalabear/amidst/pull/648)。
+
 授權：D325（使用者核准的 OpenAI 分析，上限 USD 10）。分析執行 session：`eval-recorded-llm`。本文件是研究紀錄，數字全部抄自 LOCAL 報告 `local/evidence/eval-recorded-llm-20261118/REPORT.md`（SHA-256 `2f6bd7c61c16aa158515e612c03b06c2eb98c38c6c16a6ef91c520c9e6013b31`）與 `tables.md`（SHA-256 `9da1910487f28fbb6a22f037a805dacfd41b4b76ab57a621e06a41b1dd0eab1c`），沒有重算。相關 issue：[#597](https://github.com/Polalalabear/amidst/issues/597)（難題集，CL-B11）、[#620](https://github.com/Polalalabear/amidst/issues/620)（CL-B16，8785 Q2 Agent 開關）、報告素材 [#479](https://github.com/Polalalabear/amidst/issues/479)。
 
 - Model / effort（本文件撰寫）：Claude Opus 5.5；effort UNKNOWN（session 看不到自己的設定）。分析本身的 model / effort：UNKNOWN（報告沒有記錄）。
