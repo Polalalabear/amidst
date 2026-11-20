@@ -149,6 +149,12 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
   - 每台鏡頭：地面覆蓋多邊形（由標定與已提交場景幾何投影，例如 `src/amidst/evaluation/live_coverage_gap.py` 的投影部分）、安裝位置、朝向角度、FOV、重疊鏡頭；
   - 設定裡已有的其他鏡頭屬性（例如 `covered_regions`、`entry_zones`、`exit_zones`）。
   來源只限已提交的設定檔或標定資料，每項附來源 SHA-256；不可用渲染真值、GT、visibility 或 depth（覆蓋分析中以 GT 評分的部分不送）。草稿圖也要提供，並標明核定等級。這是對 Agent 的基本輸入，不是選配；圖上的連通仍只是配置宣告，實體可通行是 `UNKNOWN`。
+- **Agent 請求結構（W2 #645，`src/amidst/q1q5/agent_service.py`、`scene_context.py`；2026-11-20）**：Agent 模式的請求分三層，靠前綴提示快取減少重複傳送；規則模式（`decision_mode=RULE`，預設）不建請求、不呼叫模型。
+  1. **固定前綴**：系統指示＋整份 `scene_context`（區域與出口區、區域邊與核定等級、鏡頭邊、被排除的鏡頭對與原因、每台鏡頭的位置／朝向／俯角／FOV／地面覆蓋多邊形／`covered_regions`／`entry_zones`／`exit_zones`、鏡頭兩兩重疊、各來源 SHA-256、`incomplete` 缺項清單）。穩定序列化（鍵排序、數值 3 位小數、無空白），`scene_context_sha256` 同時是 `prompt_cache_key`。覆蓋多邊形由標定投影（地面 z=0、0.5 m 格、最遠 14 m；遮擋與牆面不建模，列在 `incomplete`）。測試確認不含 GT、visibility、depth 欄位。
+  2. **每次追蹤固定**：參考裁切圖（首次鎖定的觀測）與外觀（系統顏色標籤）。
+  3. **每次變動**：時間、規則的顯示與答案（資訊）、該事件所有鏡頭的所有偵測（含低分與非人物類別，分數索引下限 0.3；每個偵測附 `gate={rule_eligible, reasons[]}`，重疊鏡頭標 `overlap_with_last_camera`）、當下各鏡頭影格（偵測畫成編號框）。只用鏡頭 ID 指向前綴，不重送鏡頭屬性。
+  - **回答**：`SELECT`（任何偵測；選 `rule_eligible=false` 者記 `RULE_OVERRIDE:<原因>`）、`OWN_BOX`、`STILL_HERE_OCCLUDED`、`NOT_VISIBLE`（附 `next_camera_hint`）。`reason_codes` 超過 4 個先截斷，不是退回理由。無效回應、傳輸失敗或 ApiGuard 拒絕時退回規則答案並記 `fallback_reason`。
+  - **記錄**：每次呼叫的輸入 token、`cached_tokens`、`cache_write_tokens`、輸出 token、延遲，付費走 `ApiGuard`。結果與快取策略比較見 [`W2_ACTIVE_AGENT_20261120.md`](../evaluation/W2_ACTIVE_AGENT_20261120.md)。8785 開關改接這個介面是 #645 第二步（待 Codex #623）。
 - 契約 B（`Q1_Q2_FIRST_DEMO_V1.md`，不手改）的 §1、§8.4 仍寫 D64 時期的覆核者定義與 `q-demo.agent-decision.v2` 請求欄位；D340 的實作（請求加影格、空間資訊、閘門資訊）要另開契約版本，在新版契約確認前，舊欄位只代表規則模式與歷史重播。
 - typed tools 與 `q-demo.agent-decision.v2`：契約 §8.4。Agent 不能掃描檔案、跑任意 SQL 或 shell，也不能產生新的鏡頭、區域或觀測 ID（契約 §1）。
 - 預算：D65 原核准值與 D67 六項初值，見契約 §11（[D65](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)、[D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288)）。D73 維持 D65 預算（契約 §0.1）。

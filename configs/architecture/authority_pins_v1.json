@@ -480,6 +480,14 @@
       "sha256": "5049798acec3d512265ce04969f97a5d08581cceb7c01a0f8c9e82e2a40f7fd2",
       "status": "現行；§4.3 D325 摘要加更正：結論限定在 LLM 覆核、不看圖的架構；34 個決策點中 32 個只有 0／1 個合格候選（以決策點計數）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/649"
+    },
+    {
+      "id": "W2-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-agent-wiring@fa8fe7105764fad45213f082d0661eb43d6ae90c（W2，#645；合併 origin/main 後重算）",
+      "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
+      "status": "現行；§4.3 加 Agent 請求結構（三層請求、scene_context、回答類型），記載 W2 已實作的 D340 介面",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/645"
     }
   ],
   "authorized_changes": [
@@ -755,6 +763,13 @@
       "requires_commit": "c3a4be43f33e8a2d4986747dd4b1c5e18dc8b9e8",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/649",
       "reason": "#649 研究紀錄更正（使用者要求把錯誤的實驗分析更新成正確的）：只在 §4.3 D325 摘要加更正註記與來源（#637 merge 3cdbbfc9、#647），沒有改動任何規則或數字"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
+      "requires_commit": "fa8fe7105764fad45213f082d0661eb43d6ae90c",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",
+      "reason": "W2（#645）：在 §4.3 記載 D340 已核准的 Agent 請求結構（三層請求、場景上下文欄位、回答類型），只描述已實作介面，沒有放寬任何規則或 GT 隔離"
     }
   ]
 }

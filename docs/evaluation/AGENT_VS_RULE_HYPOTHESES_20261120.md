@@ -106,6 +106,18 @@
 | C6 | `agent_decision.py` L49 `MAX_REASON_CODES = 4` | 格式問題讓約 12% 的「圖上沒有邊」決策退回規則（D325 §5）；這不是決策閘門 | 驗證前截斷到 4 個，或在提示裡寫明上限 |
 | C8a | `src/amidst/q1q5/q4_evidence.py` L123、L131–134：`score < query_min_score` 直接跳過，`presence` 只由 HSV 判定（`MATCH_STRONG`／`WEAK`…）；`q1_search.py` 是 index-only | **RT-DETR 分數門檻加 HSV 是 Q4「有沒有目標」的最終答案**，沒有任何看圖確認（H5／H6） | 先做 E1 的離線評估器（不改 API）；E1 成立後，把 Agent 看圖確認加成 Q4 的可選路徑（見 X3） |
 
+**現況對照（2026-11-20，W2 #645 第一步，PR 見 #645；程式 `src/amidst/q1q5/agent_service.py`、`scene_context.py`，不改 `cross_camera_demo.py`／`agent_decision.py`）**
+
+| # | 狀態 | 做法與備註 |
+| --- | --- | --- |
+| C1 | 已完成（新介面） | 三層請求；必填 `scene_context`（含各來源 SHA-256、`incomplete` 缺項）；測試確認無 GT／visibility／depth。舊 `agent_decision.py` 的 schema 未動，契約新版本仍待另開 |
+| C2 | 已完成（新介面） | 可選任何偵測；`rule_eligible=false` 記 `RULE_OVERRIDE` |
+| C3 | 已完成（新介面） | 每個決策點都問；新回答 `STILL_HERE_OCCLUDED`、`NOT_VISIBLE`＋`next_camera_hint`。`cross_camera_demo.py` L186 未改 |
+| C4 | 已完成（新介面） | 所有鏡頭的偵測都進請求，重疊鏡頭標記；`cross_camera_demo.py` L170 未改 |
+| C5 | 已完成（新介面） | 索引下限 0.3 的所有類別偵測都送，分數與顏色是 `gate` 資訊 |
+| C6 | 已完成（新介面） | `reason_codes` 截斷到 4，不退回 |
+| X1／X2 | 未做 | `candidates.py`、8785 開關是 `waiting:codex`；#645 第二步 |
+
 ### 4.2 要等 Codex（同檔有 Codex 的 PR，或屬 Codex 範圍）
 
 | # | 位置 | 為什麼不合理 | 怎麼改 | 改的人 | `waiting:codex` |

@@ -20,6 +20,7 @@
 | §4.2 8CAM run | `docs/operations/WORKBENCH_8CAM_D302_20261118.md`、`R004_EIGHT_CAMERA_DELIVERY_20261114.md` | `scripts/demo_eightcam.py`、`scripts/check_demo_dependencies.py` |
 | §4.2 俯視圖 2D／3D | D316；#613 | `frontend/workbench-v2/topdown-model.mjs`、`scene3d-model.mjs`、`scene3d-view.mjs`；`est_xy` 來源 #612（PR #623，未合併） |
 | §4.3 Agent 與 fallback | 契約 §8.4；`AGENT_DECISION_V1.md`；`EPIC_D_AGENTIC_V1.md` | `src/amidst/q1q5/agent_decision.py`、`agent_tools.py`、`agent_wiring.py`、`agent_providers.py`、`agent_recording.py` |
+| §4.3 主動 Agent 決策器（W2 #645） | `docs/evaluation/W2_ACTIVE_AGENT_20261120.md`；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §4.1、§4.3；`docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md` §6 | `src/amidst/q1q5/agent_service.py`、`scene_context.py`；`scripts/run_w2_agent.py`；`tests/q1q5/test_agent_service.py`（8785 開關改接為第二步，`waiting:codex`） |
 | §4.3 預錄 Agent 開關（OpenAI） | `docs/operations/RECORDED_AGENT_OPENAI.md`；D306、D313 | `src/amidst/q1q5/openai_gateway.py`、`api_budget.py`、`scene_graphs.py`；`frontend/workbench-v2/shell-view.mjs`；`start_agent_gateway.command`（#625 修正 scope 與 B-05 不適用；候選 0 見 #629） |
 | §4.3 規則 vs LLM（預錄） | `docs/evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md` | 分析結果在 LOCAL（見該文件） |
 | §4.4 LIVE 即時模式 | `LIVE_MODE_AB_V1.md`（v2.1）、`LIVE_MODE_GAME_DESIGN_V2.md`、`LIVE_MODE_LLM_DECISION_V1.md` | 前端 `frontend/live-mode/src/`；後端 `src/amidst/live_mode/`；`start_live_mode.command`（8791） |

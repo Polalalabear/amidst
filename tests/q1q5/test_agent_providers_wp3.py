@@ -698,6 +698,8 @@ def test_static_only_wp3_files_import_new_modules_and_default_off_unchanged():
         # and send every paid call through ApiGuard (dry-run first, caller-tagged ledger); they are not imported by any serving path.
         ROOT / 'scripts/run_vision_agent.py',
         ROOT / 'scripts/run_frame_eval.py',
+        ROOT / 'scripts/capture_agent_payloads.py',   # offline payload capture (#643), no network
+        ROOT / 'scripts/run_w2_agent.py',   # W2 (#645): transport helper only, every paid call through ApiGuard
     }
     pattern = re.compile(r'\b(?:agent_providers|agent_recording)\b')
     offenders = []
