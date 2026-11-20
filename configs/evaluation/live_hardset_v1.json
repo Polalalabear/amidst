@@ -5,8 +5,13 @@
  "decision_refs": [
   "D304",
   "D306",
-  "D320"
+  "D320",
+  "D321",
+  "D322",
+  "D330",
+  "D331"
  ],
+ "source_policy": "D331 (2026-11-18, user decision relayed by the coordinator): every hard-case segment (H1-H5) is produced by the scripted operator; nobody plays by hand. All segments are scripts designed against known rule weaknesses, without human unpredictability; reports list results by family and never pool them into one rate.",
  "doc": "docs/evaluation/LIVE_HARDSET_V1.md",
  "gt_isolation": "Scoring only. This file holds planned events and correct answers derived from Ground Truth (scenario waypoints, A-log xy/gt_visible). It must not be read by src/amidst/live_mode, frontend/live-mode, the B window, the backend, prompts, ranking or reacquisition. Only offline scorers and the case generator (A side) may read it.",
  "identity": "unconfirmed; target_gt is an offline annotation only",
@@ -28,6 +33,14 @@
   "scorer": "scripts/live_ab_score.py",
   "base_commit": "1f6ecacdf156f6ce7935714cbbe2abb3dc6541ae"
  },
+ "readings": {
+  "official": "graph",
+  "graph": "CAM_ENTRY removed before every visibility test (graph v3 has no CAM_ENTRY); report field verdict_graph",
+  "strict": "all 8 cameras; report field verdict; kept as a note",
+  "decided": "2026-11-18, review of PR #615 (issuecomment-6980178481) and user decision relayed by the coordinator",
+  "caveat": "CAM_ENTRY frames do reach the live detector (src/amidst/live_mode/detector.py min score 0.05), so the graph reading can count a gap the system can still see"
+ },
+ "common_pre_policy": "COMMON.pre (ON_TARGET for the 3 s before the hard point) is labelled per mode, not a re-record condition: a segment whose GT conditions hold is kept, and ticks of a mode that misses COMMON.pre are scored with excluded_window (pre_not_met) for that mode. Opening passes by a same-colour distractor were removed from the routes instead (H1-3, H4-2, H5-3).",
  "defaults": {
   "match_m": 1.5,
   "gate_m": 4.0,
@@ -99,8 +112,8 @@
     "H1.a target gt_visible empty >= 15 s continuous",
     "H1.b dist(last visible xy, first re-visible xy) >= 8 m",
     "H1.c target visible >= 5 s (cumulative) within 10 s after reappearing",
-    "COMMON.pre ON_TARGET for the 3 s before the occlusion start",
-    "READINGS: strict = all 8 cameras incl. CAM_ENTRY (verdict); graph = CAM_ENTRY removed, as in graph v3 (verdict_graph). Strict H1 is not reachable in r004 (largest blind region: re-visible points <= 6.31 m apart), see doc 4.1"
+    "COMMON.pre ON_TARGET for the 3 s before the occlusion start (labelled per mode, see common_pre_policy)",
+    "READING (decided 2026-11-18, review of #615): the official verdict uses the graph reading (CAM_ENTRY removed, as in graph v3; verdict_graph). The strict reading (all 8 cameras, verdict) is kept as a note: strict H1 is not reachable in r004 (largest blind region: re-visible points <= 6.31 m apart), see doc 4.1"
    ],
    "events": [
     {
@@ -359,8 +372,8 @@
     "H1.a target gt_visible empty >= 15 s continuous",
     "H1.b dist(last visible xy, first re-visible xy) >= 8 m",
     "H1.c target visible >= 5 s (cumulative) within 10 s after reappearing",
-    "COMMON.pre ON_TARGET for the 3 s before the occlusion start",
-    "READINGS: strict = all 8 cameras incl. CAM_ENTRY (verdict); graph = CAM_ENTRY removed, as in graph v3 (verdict_graph). Strict H1 is not reachable in r004 (largest blind region: re-visible points <= 6.31 m apart), see doc 4.1"
+    "COMMON.pre ON_TARGET for the 3 s before the occlusion start (labelled per mode, see common_pre_policy)",
+    "READING (decided 2026-11-18, review of #615): the official verdict uses the graph reading (CAM_ENTRY removed, as in graph v3; verdict_graph). The strict reading (all 8 cameras, verdict) is kept as a note: strict H1 is not reachable in r004 (largest blind region: re-visible points <= 6.31 m apart), see doc 4.1"
    ],
    "events": [
     {
@@ -615,13 +628,13 @@
    "source": "GENERATED",
    "run_id": "B4-1",
    "priority": "alternate",
-   "length_s": 41.6,
+   "length_s": 51.6,
    "success_conditions": [
     "H1.a target gt_visible empty >= 15 s continuous",
     "H1.b dist(last visible xy, first re-visible xy) >= 8 m",
     "H1.c target visible >= 5 s (cumulative) within 10 s after reappearing",
-    "COMMON.pre ON_TARGET for the 3 s before the occlusion start",
-    "READINGS: strict = all 8 cameras incl. CAM_ENTRY (verdict); graph = CAM_ENTRY removed, as in graph v3 (verdict_graph). Strict H1 is not reachable in r004 (largest blind region: re-visible points <= 6.31 m apart), see doc 4.1"
+    "COMMON.pre ON_TARGET for the 3 s before the occlusion start (labelled per mode, see common_pre_policy)",
+    "READING (decided 2026-11-18, review of #615): the official verdict uses the graph reading (CAM_ENTRY removed, as in graph v3; verdict_graph). The strict reading (all 8 cameras, verdict) is kept as a note: strict H1 is not reachable in r004 (largest blind region: re-visible points <= 6.31 m apart), see doc 4.1"
    ],
    "events": [
     {
@@ -657,14 +670,14 @@
     {
      "event_id": "H1-3-E1",
      "t_window_s": [
-      4.5,
-      7.0
+      19.8,
+      24.0
      ],
      "type": "CAMERA_SWITCH",
      "actors": [
       "T"
      ],
-     "place": "CORR_W -> VEST_W -> OUT_W (running)",
+     "place": "CORR_W -> VEST_W -> OUT_W (running from (-3.35,0.2), where T waits 3.7-19.8 s, 2.6 m west of C standing at (-0.75,0.4))",
      "condition": "target first visible in EXT cameras",
      "answer": {
       "target_gt": "T",
@@ -689,8 +702,8 @@
     {
      "event_id": "H1-3-E2",
      "t_window_s": [
-      12.0,
-      16.0
+      25.5,
+      30.0
      ],
      "type": "OCCLUSION_START",
      "actors": [
@@ -718,8 +731,8 @@
      },
      "planned_detail": {
       "hide_s": [
-       17.75,
-       30.0
+       31.55,
+       40.0
       ],
       "hide_xy": [
        -12.75,
@@ -730,8 +743,8 @@
     {
      "event_id": "H1-3-E3",
      "t_window_s": [
-      31.0,
-      34.0
+      41.0,
+      44.0
      ],
      "type": "REAPPEAR",
      "actors": [
@@ -768,21 +781,32 @@
     "steps": [
      {
       "mode": "hold",
-      "seconds": 3
+      "seconds": 0.5
      },
      {
       "mode": "run",
       "to_xy": [
        0.35,
-       1.1
+       1.7
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -2.5,
+       1.2
       ]
      },
      {
       "mode": "run",
       "to_xy": [
        -3.35,
-       -0.25
+       0.2
       ]
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 19.81
      },
      {
       "mode": "run",
@@ -811,7 +835,7 @@
      },
      {
       "mode": "hold_until",
-      "t_s": 30.0
+      "t_s": 40.0
      },
      {
       "mode": "walk",
@@ -841,86 +865,100 @@
       ]
      },
      {
-      "t_s": 3.0,
+      "t_s": 0.5,
       "xy": [
        4,
        1
       ]
      },
      {
-      "t_s": 4.46,
+      "t_s": 1.99,
       "xy": [
        0.35,
-       1.1
+       1.7
       ]
      },
      {
-      "t_s": 6.04,
+      "t_s": 3.14,
+      "xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 3.67,
       "xy": [
        -3.35,
-       -0.25
+       0.2
       ]
      },
      {
-      "t_s": 9.91,
+      "t_s": 19.81,
+      "xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "t_s": 23.7,
       "xy": [
        -13.0,
        -1.0
       ]
      },
      {
-      "t_s": 11.91,
+      "t_s": 25.7,
       "xy": [
        -13.0,
        -1.0
       ]
      },
      {
-      "t_s": 15.24,
+      "t_s": 29.03,
       "xy": [
        -13.0,
        3.0
       ]
      },
      {
-      "t_s": 17.75,
+      "t_s": 31.54,
       "xy": [
        -12.75,
        6.0
       ]
      },
      {
-      "t_s": 30.0,
+      "t_s": 40.0,
       "xy": [
        -12.75,
        6.0
       ]
      },
      {
-      "t_s": 32.4,
+      "t_s": 42.4,
       "xy": [
        -10.5,
        7.8
       ]
      },
      {
-      "t_s": 33.65,
+      "t_s": 43.65,
       "xy": [
        -9.0,
        7.8
       ]
      },
      {
-      "t_s": 41.65,
+      "t_s": 51.65,
       "xy": [
        -9.0,
        7.8
       ]
      }
     ],
-    "length_s": 41.6
+    "length_s": 51.6
    },
-   "notes": "Exterior route: CAM_ENTRY-only strip x -15..-10, y 0..3.5 joins the W2-visible door apron and the blind NW corner (P1). Strict reading: gap = blind only (H1n expected). Graph reading: gap includes the CAM_ENTRY-only strip, jump >= 8 m planned. B4-1 has nobody outdoors after about 6 s, so this is the H1-1 route without a red distractor."
+   "notes": "Exterior route: CAM_ENTRY-only strip x -15..-10, y 0..3.5 joins the W2-visible door apron and the blind NW corner (P1). Strict reading: gap = blind only (H1n expected). Graph reading: gap includes the CAM_ENTRY-only strip, jump >= 8 m planned. Opening: T runs west at 0.5 s and waits at (-3.35,0.2) (corridor, visible in W1/W2), away from A (same red top), who spawns at P4 at 2 s and walks east along the north lane; min T-A 3.48 m at 2.0 s. The first route (T waiting in R101) still lost T to A: once T left the corridor cameras, A was the only red top in view. Nobody is outdoors in B4-1 after about 6 s (the script loops at 42 s while T hides; everyone respawns indoors)."
   },
   {
    "case_id": "H4-1",
@@ -932,7 +970,8 @@
    "success_conditions": [
     "H4.a skip: without CAM_ENTRY, no (x,z) pair of consecutive visible camera sets is a graph v3 transition, and the gap >= 1 s (strict: gap = no camera at all; graph: gap = no camera other than CAM_ENTRY)",
     "or H4.b overlap (GT only): the target is seen by BRANCH (or WIDE), then only by the other for >= 3 s",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)",
+    "READING (decided): graph reading is official; strict reading kept as a note"
    ],
    "events": [
     {
@@ -1164,11 +1203,12 @@
    "source": "GENERATED",
    "run_id": "B4-1",
    "priority": "primary",
-   "length_s": 23.4,
+   "length_s": 37.1,
    "success_conditions": [
     "H4.a skip: without CAM_ENTRY, no (x,z) pair of consecutive visible camera sets is a graph v3 transition, and the gap >= 1 s (strict: gap = no camera at all; graph: gap = no camera other than CAM_ENTRY)",
     "or H4.b overlap (GT only): the target is seen by BRANCH (or WIDE), then only by the other for >= 3 s",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)",
+    "READING (decided): graph reading is official; strict reading kept as a note"
    ],
    "events": [
     {
@@ -1204,14 +1244,14 @@
     {
      "event_id": "H4-2-E1",
      "t_window_s": [
-      4.5,
-      9.5
+      19.8,
+      24.0
      ],
      "type": "CAMERA_SWITCH",
      "actors": [
       "T"
      ],
-     "place": "CORR_W -> VEST_W -> OUT_W (running)",
+     "place": "CORR_W -> VEST_W -> OUT_W (running from (-3.35,0.2), where T waits 3.7-19.8 s)",
      "condition": "target first visible in EXT cameras",
      "answer": {
       "target_gt": "T",
@@ -1236,8 +1276,8 @@
     {
      "event_id": "H4-2-E2",
      "t_window_s": [
-      13.0,
-      19.0
+      26.0,
+      33.0
      ],
      "type": "CAMERA_SKIP",
      "actors": [
@@ -1275,21 +1315,32 @@
     "steps": [
      {
       "mode": "hold",
-      "seconds": 3
+      "seconds": 0.5
      },
      {
       "mode": "run",
       "to_xy": [
        0.35,
-       1.1
+       1.7
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -2.5,
+       1.2
       ]
      },
      {
       "mode": "run",
       "to_xy": [
        -3.35,
-       -0.25
+       0.2
       ]
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 19.81
      },
      {
       "mode": "run",
@@ -1334,72 +1385,86 @@
       ]
      },
      {
-      "t_s": 3.0,
+      "t_s": 0.5,
       "xy": [
        4,
        1
       ]
      },
      {
-      "t_s": 4.46,
+      "t_s": 1.99,
       "xy": [
        0.35,
-       1.1
+       1.7
       ]
      },
      {
-      "t_s": 6.04,
+      "t_s": 3.14,
+      "xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 3.67,
       "xy": [
        -3.35,
-       -0.25
+       0.2
       ]
      },
      {
-      "t_s": 9.53,
+      "t_s": 19.81,
+      "xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "t_s": 23.2,
       "xy": [
        -10.6,
        4.6
       ]
      },
      {
-      "t_s": 12.53,
+      "t_s": 26.2,
       "xy": [
        -10.6,
        4.6
       ]
      },
      {
-      "t_s": 15.05,
+      "t_s": 28.72,
       "xy": [
        -11.0,
        1.6
       ]
      },
      {
-      "t_s": 17.05,
+      "t_s": 30.72,
       "xy": [
        -11.0,
        1.6
       ]
      },
      {
-      "t_s": 18.43,
+      "t_s": 32.11,
       "xy": [
        -9.6,
        0.7
       ]
      },
      {
-      "t_s": 23.43,
+      "t_s": 37.11,
       "xy": [
        -9.6,
        0.7
       ]
      }
     ],
-    "length_s": 23.4
+    "length_s": 37.1
    },
-   "notes": "Corridor-side skips are not reachable (doc 4.1). Nobody else is outdoors in B4-1 after about 6 s."
+   "notes": "Corridor-side skips are not reachable (doc 4.4). Opening: T runs west at 0.5 s and waits at (-3.35,0.2) (corridor, visible in W1/W2), away from A (same red top), who spawns at P4 at 2 s and walks east along the north lane; min T-A 3.48 m at 2.0 s. The first route (T waiting in R101) still lost T to A: once T left the corridor cameras, A was the only red top in view. Nobody else is outdoors in B4-1 after about 6 s."
   },
   {
    "case_id": "H4-3",
@@ -1411,7 +1476,8 @@
    "success_conditions": [
     "H4.a skip: without CAM_ENTRY, no (x,z) pair of consecutive visible camera sets is a graph v3 transition, and the gap >= 1 s (strict: gap = no camera at all; graph: gap = no camera other than CAM_ENTRY)",
     "or H4.b overlap (GT only): the target is seen by BRANCH (or WIDE), then only by the other for >= 3 s",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)",
+    "READING (decided): graph reading is official; strict reading kept as a note"
    ],
    "events": [
     {
@@ -1812,7 +1878,7 @@
    "success_conditions": [
     "H5.a target gt_visible empty >= 3 s continuous",
     "H5.b within the first 3 s of that gap, >= 2 other red persons (A, B) present, visible and <= 4 m (gate_m) from the last visible target xy",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -2107,7 +2173,7 @@
    "success_conditions": [
     "H5.a target gt_visible empty >= 3 s continuous",
     "H5.b within the first 3 s of that gap, >= 2 other red persons (A, B) present, visible and <= 4 m (gate_m) from the last visible target xy",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -2457,11 +2523,11 @@
    "source": "GENERATED",
    "run_id": "B4-1",
    "priority": "alternate (control)",
-   "length_s": 44.6,
+   "length_s": 45.1,
    "success_conditions": [
     "H5c.a target gt_visible empty >= 3 s",
     "H5c.b exactly 1 other red person visible <= 4 m from the last visible target xy during the gap (control: the LiveDecider pool needs >= 2, so no LLM call is expected)",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -2497,69 +2563,6 @@
     {
      "event_id": "H5-3-E1",
      "t_window_s": [
-      6.0,
-      9.0
-     ],
-     "type": "CAMERA_SWITCH",
-     "actors": [
-      "T"
-     ],
-     "place": "CORR_W -> R101",
-     "condition": "target first visible in R101_IN",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "HANDOFF_T",
-      "expected_cameras_from_graph": [
-       "CAM_R101_IN"
-      ],
-      "expected_regions": [
-       "R101"
-      ],
-      "max_latency_s": 5.0,
-      "score_fields": [
-       "handoff_verdict[W=2,5,10] (NEW)",
-       "reacquire_s (NEW)",
-       "counts.ON_TARGET",
-       "wrong_person_episodes",
-       "lost_episodes"
-      ]
-     }
-    },
-    {
-     "event_id": "H5-3-E2",
-     "t_window_s": [
-      21.0,
-      24.0
-     ],
-     "type": "CAMERA_SWITCH",
-     "actors": [
-      "T"
-     ],
-     "place": "R101 -> CORR_W",
-     "condition": "target first visible in W1/W2",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "HANDOFF_T",
-      "expected_cameras_from_graph": [
-       "CAM_W1",
-       "CAM_W2"
-      ],
-      "expected_regions": [
-       "CORR_W"
-      ],
-      "max_latency_s": 5.0,
-      "score_fields": [
-       "handoff_verdict[W=2,5,10] (NEW)",
-       "reacquire_s (NEW)",
-       "counts.ON_TARGET",
-       "wrong_person_episodes",
-       "lost_episodes"
-      ]
-     }
-    },
-    {
-     "event_id": "H5-3-E3",
-     "t_window_s": [
       27.5,
       29.5
      ],
@@ -2591,8 +2594,8 @@
      },
      "planned_detail": {
       "hide_s": [
-       28.78,
-       38.78
+       29.32,
+       39.32
       ],
       "hide_xy": [
        13.75,
@@ -2601,10 +2604,10 @@
      }
     },
     {
-     "event_id": "H5-3-E4",
+     "event_id": "H5-3-E2",
      "t_window_s": [
-      38.5,
-      40.0
+      39.0,
+      40.5
      ],
      "type": "REAPPEAR",
      "actors": [
@@ -2644,53 +2647,71 @@
     "steps": [
      {
       "mode": "hold",
-      "seconds": 3
+      "seconds": 0.5
      },
      {
-      "mode": "walk",
+      "mode": "run",
       "to_xy": [
-       8.0,
-       0.6
+       0.35,
+       1.7
       ]
      },
      {
-      "mode": "walk",
+      "mode": "run",
       "to_xy": [
-       8.0,
-       -0.6
+       -2.5,
+       1.2
       ]
      },
      {
-      "mode": "walk",
+      "mode": "run",
       "to_xy": [
-       8.0,
-       -2.0
+       -3.35,
+       0.2
       ]
      },
      {
       "mode": "hold_until",
-      "t_s": 21.0
+      "t_s": 14.0
      },
      {
-      "mode": "walk",
+      "mode": "run",
       "to_xy": [
-       8.0,
-       -0.6
+       -2.5,
+       1.2
       ]
      },
      {
-      "mode": "walk",
+      "mode": "run",
+      "to_xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       4.0,
+       1.0
+      ]
+     },
+     {
+      "mode": "run",
       "to_xy": [
        8.0,
        0.6
       ]
      },
      {
-      "mode": "walk",
+      "mode": "run",
       "to_xy": [
        11.4,
        1.3
       ]
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 26.6
      },
      {
       "mode": "walk",
@@ -2745,263 +2766,152 @@
       ]
      },
      {
-      "t_s": 3.0,
+      "t_s": 0.5,
       "xy": [
        4,
        1
       ]
      },
      {
-      "t_s": 6.35,
+      "t_s": 1.99,
+      "xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "t_s": 3.14,
+      "xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 3.67,
+      "xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "t_s": 14.0,
+      "xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "t_s": 14.52,
+      "xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 15.68,
+      "xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "t_s": 17.17,
+      "xy": [
+       4.0,
+       1.0
+      ]
+     },
+     {
+      "t_s": 18.78,
       "xy": [
        8.0,
        0.6
       ]
      },
      {
-      "t_s": 7.35,
-      "xy": [
-       8.0,
-       -0.6
-      ]
-     },
-     {
-      "t_s": 8.52,
-      "xy": [
-       8.0,
-       -2.0
-      ]
-     },
-     {
-      "t_s": 21.0,
-      "xy": [
-       8.0,
-       -2.0
-      ]
-     },
-     {
-      "t_s": 22.17,
-      "xy": [
-       8.0,
-       -0.6
-      ]
-     },
-     {
-      "t_s": 23.17,
-      "xy": [
-       8.0,
-       0.6
-      ]
-     },
-     {
-      "t_s": 26.06,
+      "t_s": 20.17,
       "xy": [
        11.4,
        1.3
       ]
      },
      {
-      "t_s": 27.4,
+      "t_s": 26.6,
+      "xy": [
+       11.4,
+       1.3
+      ]
+     },
+     {
+      "t_s": 27.94,
       "xy": [
        13.0,
        1.1
       ]
      },
      {
-      "t_s": 28.24,
+      "t_s": 28.78,
       "xy": [
        14.0,
        1.1
       ]
      },
      {
-      "t_s": 28.78,
+      "t_s": 29.32,
       "xy": [
        13.75,
        0.5
       ]
      },
      {
-      "t_s": 38.78,
+      "t_s": 39.32,
       "xy": [
        13.75,
        0.5
       ]
      },
      {
-      "t_s": 39.36,
+      "t_s": 39.9,
       "xy": [
        14.1,
        1.1
       ]
      },
      {
-      "t_s": 41.61,
+      "t_s": 42.15,
       "xy": [
        11.4,
        1.3
       ]
      },
      {
-      "t_s": 44.61,
+      "t_s": 45.15,
       "xy": [
        11.4,
        1.3
       ]
      }
     ],
-    "length_s": 44.6
+    "length_s": 45.1
    },
-   "notes": "Guide H5-1 assumed A at (16.4,6.0) after 31.6 s; in v2.3 A leaves that spot at 28.0 s, so this B4-1 window has one red distractor only."
+   "notes": "Guide H5-1 assumed A at (16.4,6.0) after 31.6 s; in v2.3 A leaves that spot at 28.0 s, so this B4-1 window has one red distractor only. Opening: T runs west at 0.5 s and waits at (-3.35,0.2) (corridor, visible in W1/W2), away from A (same red top), who spawns at P4 at 2 s and walks east along the north lane; min T-A 3.48 m at 2.0 s. The first route (T waiting in R101) still lost T to A: once T left the corridor cameras, A was the only red top in view. H5-3 then runs east at 14 s (north of C) to (11.4,1.3) and waits until 26.6 s; A is at (16.4,6.0), 6.9 m away."
   },
   {
    "case_id": "H2-1",
    "family": "H2",
-   "source": "PLAYER",
-   "run_id": "B4-1",
+   "source": "GENERATED",
+   "run_id": "A4-1",
    "priority": "primary",
-   "length_s": 60.0,
+   "length_s": 49.0,
    "success_conditions": [
     "H2.a >= 1 tick with dist(T, A or B) <= 1.0 m and a shared camera in both gt_visible",
     "H2.b within 10 s the distance grows to >= 3 m",
     "H2.c target visible >= 5 s after separating",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
      "event_id": "H2-1-E0",
-     "t_window_s": [
-      0.0,
-      3.0
-     ],
-     "type": "START_LOCK",
-     "actors": [
-      "T"
-     ],
-     "place": "start",
-     "condition": "B start op -> ACQUIRE detail.by = AUTO_SINGLE; score pick_status == target_gt T",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "ACQUIRE_T",
-      "expected_cameras_from_graph": [
-       "CAM_W1",
-       "CAM_W2"
-      ],
-      "expected_regions": [
-       "CORR_W"
-      ],
-      "max_latency_s": 3.0,
-      "score_fields": [
-       "pick_status",
-       "target_gt"
-      ],
-      "note": "Not T or AMBIGUOUS_PICK/MISPICK -> segment re-recorded, not scored"
-     }
-    },
-    {
-     "event_id": "H2-1-E1",
-     "t_window_s": [
-      15.0,
-      18.0
-     ],
-     "type": "CROSS_START",
-     "actors": [
-      "T",
-      "A"
-     ],
-     "place": "CORNER, T standing near (16.2,1.85)",
-     "condition": "H2.a (event start = first tick <= 1.0 m)",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "KEEP_TRACKING",
-      "score_fields": [
-       "counts.WRONG_PERSON",
-       "wrong_person_episodes",
-       "identity_switch_proxy_count"
-      ]
-     },
-     "planned_detail": {
-      "script_hint": "A follows T into CORNER ~1.8 s later; script A-T 0.68 m at 16.5 s"
-     }
-    },
-    {
-     "event_id": "H2-1-E2",
-     "t_window_s": [
-      16.0,
-      28.0
-     ],
-     "type": "CROSS_END",
-     "actors": [
-      "T",
-      "A"
-     ],
-     "place": "A goes north to (16.4,6.0); T walks back west",
-     "condition": "H2.b (event = first tick >= 3 m)",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "ON_TARGET_AFTER_SPLIT",
-      "max_latency_s": 5.0,
-      "score_fields": [
-       "handoff_verdict[W=2,5,10] (NEW)",
-       "reacquire_s (NEW)",
-       "counts.ON_TARGET",
-       "wrong_person_episodes",
-       "lost_episodes"
-      ],
-      "note": "If lost/wrong at the split, ON_TARGET must return within 5 s."
-     }
-    },
-    {
-     "event_id": "H2-1-E3",
-     "t_window_s": [
-      19.0,
-      30.0
-     ],
-     "type": "CAMERA_SWITCH",
-     "actors": [
-      "T"
-     ],
-     "place": "CORNER -> CORR_W",
-     "condition": "target first visible in W1/W2",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "HANDOFF_T",
-      "expected_cameras_from_graph": [
-       "CAM_W1",
-       "CAM_W2"
-      ],
-      "expected_regions": [
-       "CORR_W"
-      ],
-      "max_latency_s": 5.0,
-      "score_fields": [
-       "handoff_verdict[W=2,5,10] (NEW)",
-       "reacquire_s (NEW)",
-       "counts.ON_TARGET",
-       "wrong_person_episodes",
-       "lost_episodes"
-      ]
-     }
-    }
-   ],
-   "player_card_ref": "CARD-H2-1"
-  },
-  {
-   "case_id": "H2-2",
-   "family": "H2",
-   "source": "PLAYER",
-   "run_id": "A4-1",
-   "priority": "primary",
-   "length_s": 60.0,
-   "success_conditions": [
-    "H2.a >= 1 tick with dist(T, A or B) <= 1.0 m and a shared camera in both gt_visible",
-    "H2.b within 10 s the distance grows to >= 3 m",
-    "H2.c target visible >= 5 s after separating",
-    "COMMON.pre ON_TARGET for the 3 s before"
-   ],
-   "events": [
-    {
-     "event_id": "H2-2-E0",
      "t_window_s": [
       0.0,
       3.0
@@ -3031,17 +2941,17 @@
      }
     },
     {
-     "event_id": "H2-2-E1",
+     "event_id": "H2-1-E1",
      "t_window_s": [
-      37.0,
-      45.0
+      35.0,
+      38.0
      ],
      "type": "CROSS_START",
      "actors": [
       "T",
       "A"
      ],
-     "place": "CORR_W x 2-7, A westbound north lane (y 1.95)",
+     "place": "CORR_W x 12 -> 4.5: T walks west beside A (T y 1.2, A y 1.95 westbound, lateral 0.75 m)",
      "condition": "H2.a (event start = first tick <= 1.0 m)",
      "answer": {
       "target_gt": "T",
@@ -3053,21 +2963,292 @@
       ]
      },
      "planned_detail": {
-      "script_hint": "A crosses W1 westbound 35.0-43.5 s"
+      "script_hint": "plan T-A <= 1.0 m 35.3-42.0 s, min 0.75 m at 35.8 s"
      }
     },
     {
-     "event_id": "H2-2-E2",
+     "event_id": "H2-1-E2",
      "t_window_s": [
-      38.0,
-      55.0
+      36.0,
+      48.0
      ],
      "type": "CROSS_END",
      "actors": [
       "T",
       "A"
      ],
-     "place": "T continues east, A west",
+     "place": "T stops at (4.5,1.2) and walks back east; A turns south to P4 (2,-1.35) 43.5-46 s",
+     "condition": "H2.b (event = first tick >= 3 m)",
+     "answer": {
+      "target_gt": "T",
+      "expected_action": "ON_TARGET_AFTER_SPLIT",
+      "max_latency_s": 5.0,
+      "score_fields": [
+       "handoff_verdict[W=2,5,10] (NEW)",
+       "reacquire_s (NEW)",
+       "counts.ON_TARGET",
+       "wrong_person_episodes",
+       "lost_episodes"
+      ],
+      "note": "If lost/wrong at the split, ON_TARGET must return within 5 s."
+     }
+    }
+   ],
+   "route_plan": {
+    "start_xy": [
+     -10,
+     -0.4
+    ],
+    "steps": [
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 22.0
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       0.35,
+       1.1
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       7.5,
+       1.1
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       9.5,
+       1.1
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       12.0,
+       1.2
+      ]
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 35.8
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       4.5,
+       1.2
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 0.5
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       7.5,
+       1.2
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 4
+     }
+    ],
+    "timeline": [
+     {
+      "t_s": 0.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 3.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 22.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 24.66,
+      "xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "t_s": 26.24,
+      "xy": [
+       0.35,
+       1.1
+      ]
+     },
+     {
+      "t_s": 29.1,
+      "xy": [
+       7.5,
+       1.1
+      ]
+     },
+     {
+      "t_s": 29.9,
+      "xy": [
+       9.5,
+       1.1
+      ]
+     },
+     {
+      "t_s": 30.9,
+      "xy": [
+       12.0,
+       1.2
+      ]
+     },
+     {
+      "t_s": 35.8,
+      "xy": [
+       12.0,
+       1.2
+      ]
+     },
+     {
+      "t_s": 42.05,
+      "xy": [
+       4.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 42.55,
+      "xy": [
+       4.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 45.05,
+      "xy": [
+       7.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 49.05,
+      "xy": [
+       7.5,
+       1.2
+      ]
+     }
+    ],
+    "length_s": 49.0
+   },
+   "notes": "T waits outdoors until 22 s (A passes the exterior 2-10.65 s, B leaves the west door 20-21 s; T-B min 2.79 m at 23.3 s), runs to (12,1.2) behind C and waits until A comes back west (35 s)."
+  },
+  {
+   "case_id": "H2-2",
+   "family": "H2",
+   "source": "GENERATED",
+   "run_id": "B4-1",
+   "priority": "primary",
+   "length_s": 33.2,
+   "success_conditions": [
+    "H2.a >= 1 tick with dist(T, A or B) <= 1.0 m and a shared camera in both gt_visible",
+    "H2.b within 10 s the distance grows to >= 3 m",
+    "H2.c target visible >= 5 s after separating",
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
+   ],
+   "events": [
+    {
+     "event_id": "H2-2-E0",
+     "t_window_s": [
+      0.0,
+      3.0
+     ],
+     "type": "START_LOCK",
+     "actors": [
+      "T"
+     ],
+     "place": "start",
+     "condition": "B start op -> ACQUIRE detail.by = AUTO_SINGLE; score pick_status == target_gt T",
+     "answer": {
+      "target_gt": "T",
+      "expected_action": "ACQUIRE_T",
+      "expected_cameras_from_graph": [
+       "CAM_W1",
+       "CAM_W2"
+      ],
+      "expected_regions": [
+       "CORR_W"
+      ],
+      "max_latency_s": 3.0,
+      "score_fields": [
+       "pick_status",
+       "target_gt"
+      ],
+      "note": "Not T or AMBIGUOUS_PICK/MISPICK -> segment re-recorded, not scored"
+     }
+    },
+    {
+     "event_id": "H2-2-E1",
+     "t_window_s": [
+      21.0,
+      24.0
+     ],
+     "type": "CROSS_START",
+     "actors": [
+      "T",
+      "B"
+     ],
+     "place": "CORR_W x 5 -> 8: T overtakes B (T y 1.2, B y 1.95 eastbound, lateral 0.75 m)",
+     "condition": "H2.a (event start = first tick <= 1.0 m)",
+     "answer": {
+      "target_gt": "T",
+      "expected_action": "KEEP_TRACKING",
+      "score_fields": [
+       "counts.WRONG_PERSON",
+       "wrong_person_episodes",
+       "identity_switch_proxy_count"
+      ]
+     },
+     "planned_detail": {
+      "script_hint": "plan T-B <= 1.0 m 21.1-24.7 s, min 0.75 m at 23.7 s"
+     }
+    },
+    {
+     "event_id": "H2-2-E2",
+     "t_window_s": [
+      22.0,
+      34.0
+     ],
+     "type": "CROSS_END",
+     "actors": [
+      "T",
+      "B"
+     ],
+     "place": "T turns into R101 (8,-2); B continues east",
      "condition": "H2.b (event = first tick >= 3 m)",
      "answer": {
       "target_gt": "T",
@@ -3086,24 +3267,23 @@
     {
      "event_id": "H2-2-E3",
      "t_window_s": [
-      45.0,
-      60.0
+      25.0,
+      28.0
      ],
      "type": "CAMERA_SWITCH",
      "actors": [
       "T"
      ],
-     "place": "CORR_W -> CORNER",
-     "condition": "target first visible in BRANCH/WIDE",
+     "place": "CORR_W -> R101",
+     "condition": "target first visible in R101_IN",
      "answer": {
       "target_gt": "T",
       "expected_action": "HANDOFF_T",
       "expected_cameras_from_graph": [
-       "CAM_BRANCH",
-       "CAM_WIDE"
+       "CAM_R101_IN"
       ],
       "expected_regions": [
-       "CORNER"
+       "R101"
       ],
       "max_latency_s": 5.0,
       "score_fields": [
@@ -3116,21 +3296,211 @@
      }
     }
    ],
-   "player_card_ref": "CARD-H2-2",
-   "notes": "Wait at the start until ~30 s: A passes the exterior 2-10 s, B walks back out of the west door 16.9-21 s and through the exterior until 32.2 s."
+   "route_plan": {
+    "start_xy": [
+     4,
+     1
+    ],
+    "steps": [
+     {
+      "mode": "hold",
+      "seconds": 0.5
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 18.0
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       4.0,
+       1.4
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       5.0,
+       1.2
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       1.2
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       0.0
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       -2.0
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 6
+     }
+    ],
+    "timeline": [
+     {
+      "t_s": 0.0,
+      "xy": [
+       4,
+       1
+      ]
+     },
+     {
+      "t_s": 0.5,
+      "xy": [
+       4,
+       1
+      ]
+     },
+     {
+      "t_s": 1.99,
+      "xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "t_s": 3.14,
+      "xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 3.67,
+      "xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "t_s": 18.0,
+      "xy": [
+       -3.35,
+       0.2
+      ]
+     },
+     {
+      "t_s": 18.52,
+      "xy": [
+       -2.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 19.68,
+      "xy": [
+       0.35,
+       1.7
+      ]
+     },
+     {
+      "t_s": 21.15,
+      "xy": [
+       4.0,
+       1.4
+      ]
+     },
+     {
+      "t_s": 22.0,
+      "xy": [
+       5.0,
+       1.2
+      ]
+     },
+     {
+      "t_s": 24.5,
+      "xy": [
+       8.0,
+       1.2
+      ]
+     },
+     {
+      "t_s": 25.5,
+      "xy": [
+       8.0,
+       0.0
+      ]
+     },
+     {
+      "t_s": 27.16,
+      "xy": [
+       8.0,
+       -2.0
+      ]
+     },
+     {
+      "t_s": 33.16,
+      "xy": [
+       8.0,
+       -2.0
+      ]
+     }
+    ],
+    "length_s": 33.2
+   },
+   "notes": "B4-1 start hold is 0.5 s, as in H1-3/H4-2/H5-3 (A, same red top, spawns at P4 at 2 s and walks past the T spawn). T waits at (-3.35,0.2) until 18 s, then runs east north of C (1.10 m at 19.2 s)."
   },
   {
    "case_id": "H2-3",
    "family": "H2",
-   "source": "PLAYER",
+   "source": "GENERATED",
    "run_id": "B4-1",
    "priority": "alternate",
-   "length_s": 60.0,
+   "length_s": 19.0,
    "success_conditions": [
     "H2.a >= 1 tick with dist(T, A or B) <= 1.0 m and a shared camera in both gt_visible",
     "H2.b within 10 s the distance grows to >= 3 m",
     "H2.c target visible >= 5 s after separating",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -3166,15 +3536,15 @@
     {
      "event_id": "H2-3-E1",
      "t_window_s": [
-      24.5,
-      27.5
+      7.5,
+      9.5
      ],
      "type": "CROSS_START",
      "actors": [
       "T",
-      "B"
+      "A"
      ],
-     "place": "CORR_W x 9-10, T westbound, B eastbound north lane",
+     "place": "CORR_W (7.5,1.2): T stands, A overtakes on y 1.95 eastbound (lateral 0.75 m)",
      "condition": "H2.a (event start = first tick <= 1.0 m)",
      "answer": {
       "target_gt": "T",
@@ -3186,21 +3556,21 @@
       ]
      },
      "planned_detail": {
-      "script_hint": "script B-T 0.98 m at 25.9 s on the T route"
+      "script_hint": "plan T-A <= 1.0 m 7.9-9.3 s, min 0.75 m at 8.6 s"
      }
     },
     {
      "event_id": "H2-3-E2",
      "t_window_s": [
-      25.5,
-      37.5
+      8.5,
+      19.5
      ],
      "type": "CROSS_END",
      "actors": [
       "T",
-      "B"
+      "A"
      ],
-     "place": "T into R101, B to CORNER",
+     "place": "A walks on east to (13,1.95) at 13.9 s; T stays",
      "condition": "H2.b (event = first tick >= 3 m)",
      "answer": {
       "target_gt": "T",
@@ -3215,53 +3585,75 @@
       ],
       "note": "If lost/wrong at the split, ON_TARGET must return within 5 s."
      }
-    },
-    {
-     "event_id": "H2-3-E3",
-     "t_window_s": [
-      27.0,
-      35.0
-     ],
-     "type": "CAMERA_SWITCH",
-     "actors": [
-      "T"
-     ],
-     "place": "CORR_W -> R101",
-     "condition": "target first visible in R101_IN",
-     "answer": {
-      "target_gt": "T",
-      "expected_action": "HANDOFF_T",
-      "expected_cameras_from_graph": [
-       "CAM_R101_IN"
-      ],
-      "expected_regions": [
-       "R101"
-      ],
-      "max_latency_s": 5.0,
-      "score_fields": [
-       "handoff_verdict[W=2,5,10] (NEW)",
-       "reacquire_s (NEW)",
-       "counts.ON_TARGET",
-       "wrong_person_episodes",
-       "lost_episodes"
-      ]
-     }
     }
    ],
-   "player_card_ref": "CARD-H2-3",
-   "notes": "Guide H2-3 assumed B stands still at (16.4,0.8); in v2.3 B stands only 31.6-33.4 s. Replaced by the T route crossing with B (lateral distance ~0.9-1.0 m, H2.a may need 1.2 m; any change is noted in the result table)."
+   "route_plan": {
+    "start_xy": [
+     4,
+     1
+    ],
+    "steps": [
+     {
+      "mode": "hold",
+      "seconds": 0.5
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       7.5,
+       1.2
+      ]
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 19.0
+     }
+    ],
+    "timeline": [
+     {
+      "t_s": 0.0,
+      "xy": [
+       4,
+       1
+      ]
+     },
+     {
+      "t_s": 0.5,
+      "xy": [
+       4,
+       1
+      ]
+     },
+     {
+      "t_s": 1.9,
+      "xy": [
+       7.5,
+       1.2
+      ]
+     },
+     {
+      "t_s": 19.0,
+      "xy": [
+       7.5,
+       1.2
+      ]
+     }
+    ],
+    "length_s": 19.0
+   },
+   "notes": "B4-1 start hold is 0.5 s, as in H1-3/H4-2/H5-3 (A, same red top, spawns at P4 at 2 s and walks past the T spawn). T runs east to (7.5,1.2) at 0.5 s, ahead of A. The segment ends at 19 s, before B (spawn 18 s) reaches T."
   },
   {
    "case_id": "H3-1",
    "family": "H3",
-   "source": "PLAYER",
+   "source": "GENERATED",
    "run_id": "A4-1",
    "priority": "primary",
-   "length_s": 60.0,
+   "length_s": 49.7,
    "success_conditions": [
     "H3.a fold-back: gap >= 2 s after leaving a camera, first re-visible camera set contains the same camera",
     "or H3.b detour: gap >= 6 s (> D79 5.2 s) then visible",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -3297,14 +3689,14 @@
     {
      "event_id": "H3-1-E1",
      "t_window_s": [
-      28.0,
-      36.0
+      29.0,
+      34.5
      ],
      "type": "ROUTE_FOLDBACK",
      "actors": [
       "T"
      ],
-     "place": "VEST_W -> P4 pocket 3 s -> back out (1st)",
+     "place": "VEST_W (3.4,0.5) -> P4 pocket (2,-1.35) 3 s -> back to (3.4,0.5) (1st)",
      "condition": "H3.a",
      "answer": {
       "target_gt": "T",
@@ -3326,14 +3718,14 @@
     {
      "event_id": "H3-1-E2",
      "t_window_s": [
-      34.0,
-      43.0
+      37.5,
+      43.5
      ],
      "type": "ROUTE_FOLDBACK",
      "actors": [
       "T"
      ],
-     "place": "P4 pocket 3 s again (2nd), must be out before ~43 s",
+     "place": "P4 pocket 3 s again (2nd); out at 43.1 s (A reaches P4 at 46 s)",
      "condition": "H3.a",
      "answer": {
       "target_gt": "T",
@@ -3351,22 +3743,249 @@
        "lost_episodes"
       ]
      }
+    },
+    {
+     "event_id": "H3-1-E3",
+     "t_window_s": [
+      43.0,
+      47.0
+     ],
+     "type": "CAMERA_SWITCH",
+     "actors": [
+      "T"
+     ],
+     "place": "VEST_W -> CORR_W",
+     "condition": "target first visible in W1",
+     "answer": {
+      "target_gt": "T",
+      "expected_action": "HANDOFF_T",
+      "expected_cameras_from_graph": [
+       "CAM_W1",
+       "CAM_W2"
+      ],
+      "expected_regions": [
+       "CORR_W"
+      ],
+      "max_latency_s": 5.0,
+      "score_fields": [
+       "handoff_verdict[W=2,5,10] (NEW)",
+       "reacquire_s (NEW)",
+       "counts.ON_TARGET",
+       "wrong_person_episodes",
+       "lost_episodes"
+      ]
+     }
     }
    ],
-   "player_card_ref": "CARD-H3-1",
-   "notes": "Changed from the guide: the vestibule is seen by W2 and both EXT cameras, so leaving W1 into the vestibule is not a gap. The pocket behind the screen (P4) is used instead, between B leaving (~21 s) and A arriving (43.5-46 s)."
+   "route_plan": {
+    "start_xy": [
+     -10,
+     -0.4
+    ],
+    "steps": [
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 22.0
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       2.0,
+       -1.35
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 2
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       2.0,
+       -1.35
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       4.35,
+       1.1
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       7.5,
+       1.1
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 3
+     }
+    ],
+    "timeline": [
+     {
+      "t_s": 0.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 3.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 22.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 24.66,
+      "xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "t_s": 27.38,
+      "xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "t_s": 29.31,
+      "xy": [
+       2.0,
+       -1.35
+      ]
+     },
+     {
+      "t_s": 32.31,
+      "xy": [
+       2.0,
+       -1.35
+      ]
+     },
+     {
+      "t_s": 34.24,
+      "xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "t_s": 36.24,
+      "xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "t_s": 38.18,
+      "xy": [
+       2.0,
+       -1.35
+      ]
+     },
+     {
+      "t_s": 41.18,
+      "xy": [
+       2.0,
+       -1.35
+      ]
+     },
+     {
+      "t_s": 43.11,
+      "xy": [
+       3.4,
+       0.5
+      ]
+     },
+     {
+      "t_s": 44.05,
+      "xy": [
+       4.35,
+       1.1
+      ]
+     },
+     {
+      "t_s": 46.67,
+      "xy": [
+       7.5,
+       1.1
+      ]
+     },
+     {
+      "t_s": 49.67,
+      "xy": [
+       7.5,
+       1.1
+      ]
+     }
+    ],
+    "length_s": 49.7
+   },
+   "notes": "The vestibule is seen by W2 and both EXT cameras, so the pocket behind the screen (P4) is used. T runs in at 22 s after B left the west door (T-B min 2.79 m at 23.3 s)."
   },
   {
    "case_id": "H3-2",
    "family": "H3",
-   "source": "PLAYER",
-   "run_id": "B4-1",
+   "source": "GENERATED",
+   "run_id": "A4-1",
    "priority": "primary",
-   "length_s": 60.0,
+   "length_s": 48.5,
    "success_conditions": [
     "H3.a fold-back: gap >= 2 s after leaving a camera, first re-visible camera set contains the same camera",
     "or H3.b detour: gap >= 6 s (> D79 5.2 s) then visible",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -3385,11 +4004,11 @@
       "target_gt": "T",
       "expected_action": "ACQUIRE_T",
       "expected_cameras_from_graph": [
-       "CAM_W1",
-       "CAM_W2"
+       "CAM_EXT_CAR",
+       "CAM_EXT_CLEAR"
       ],
       "expected_regions": [
-       "CORR_W"
+       "OUT_W"
       ],
       "max_latency_s": 3.0,
       "score_fields": [
@@ -3402,15 +4021,15 @@
     {
      "event_id": "H3-2-E1",
      "t_window_s": [
-      15.0,
-      30.0
+      29.5,
+      34.5
      ],
      "type": "ROUTE_FOLDBACK",
      "actors": [
       "T"
      ],
-     "place": "CORR_W east end -> stop 2-3 s out of W2 view (not in CORNER) -> back west",
-     "condition": "H3.a (gap between W2 and CORNER coverage is UNKNOWN)",
+     "place": "CORR_W -> stop behind the corridor screen (9.6,0.45) 3 s -> back out to (9.6,1.3) and west",
+     "condition": "H3.a",
      "answer": {
       "target_gt": "T",
       "expected_action": "REACQUIRE_T",
@@ -3431,14 +4050,14 @@
     {
      "event_id": "H3-2-E2",
      "t_window_s": [
-      20.0,
-      40.0
+      35.5,
+      39.0
      ],
      "type": "CAMERA_SWITCH",
      "actors": [
       "T"
      ],
-     "place": "CORR_W -> R101",
+     "place": "CORR_W -> R101 (in and out again: 37.9-41.9 s inside)",
      "condition": "target first visible in R101_IN",
      "answer": {
       "target_gt": "T",
@@ -3458,21 +4077,280 @@
        "lost_episodes"
       ]
      }
+    },
+    {
+     "event_id": "H3-2-E3",
+     "t_window_s": [
+      42.0,
+      46.0
+     ],
+     "type": "CAMERA_SWITCH",
+     "actors": [
+      "T"
+     ],
+     "place": "R101 -> CORR_W (back out the same door)",
+     "condition": "target first visible in W1/W2",
+     "answer": {
+      "target_gt": "T",
+      "expected_action": "HANDOFF_T",
+      "expected_cameras_from_graph": [
+       "CAM_W1",
+       "CAM_W2"
+      ],
+      "expected_regions": [
+       "CORR_W"
+      ],
+      "max_latency_s": 5.0,
+      "score_fields": [
+       "handoff_verdict[W=2,5,10] (NEW)",
+       "reacquire_s (NEW)",
+       "counts.ON_TARGET",
+       "wrong_person_episodes",
+       "lost_episodes"
+      ]
+     }
     }
    ],
-   "player_card_ref": "CARD-H3-2"
+   "route_plan": {
+    "start_xy": [
+     -10,
+     -0.4
+    ],
+    "steps": [
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 21.5
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       0.35,
+       1.1
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       7.5,
+       1.1
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       9.6,
+       1.3
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       9.6,
+       0.45
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       9.6,
+       1.3
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       1.2
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       0.0
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       -2.0
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 4
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       0.0
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       8.0,
+       1.2
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 4
+     }
+    ],
+    "timeline": [
+     {
+      "t_s": 0.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 3.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 21.5,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 24.16,
+      "xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "t_s": 25.74,
+      "xy": [
+       0.35,
+       1.1
+      ]
+     },
+     {
+      "t_s": 28.6,
+      "xy": [
+       7.5,
+       1.1
+      ]
+     },
+     {
+      "t_s": 29.44,
+      "xy": [
+       9.6,
+       1.3
+      ]
+     },
+     {
+      "t_s": 30.15,
+      "xy": [
+       9.6,
+       0.45
+      ]
+     },
+     {
+      "t_s": 33.15,
+      "xy": [
+       9.6,
+       0.45
+      ]
+     },
+     {
+      "t_s": 33.86,
+      "xy": [
+       9.6,
+       1.3
+      ]
+     },
+     {
+      "t_s": 35.19,
+      "xy": [
+       8.0,
+       1.2
+      ]
+     },
+     {
+      "t_s": 36.19,
+      "xy": [
+       8.0,
+       0.0
+      ]
+     },
+     {
+      "t_s": 37.86,
+      "xy": [
+       8.0,
+       -2.0
+      ]
+     },
+     {
+      "t_s": 41.86,
+      "xy": [
+       8.0,
+       -2.0
+      ]
+     },
+     {
+      "t_s": 43.53,
+      "xy": [
+       8.0,
+       0.0
+      ]
+     },
+     {
+      "t_s": 44.53,
+      "xy": [
+       8.0,
+       1.2
+      ]
+     },
+     {
+      "t_s": 48.53,
+      "xy": [
+       8.0,
+       1.2
+      ]
+     }
+    ],
+    "length_s": 48.5
+   },
+   "notes": "A4-1 instead of B4-1: the B4-1 east corridor has A, then B walking through it. Here the corridor is free 30-37 s (C has gone north, A is in the corner until 32.6 s and passes R101 westbound at about 38.9 s while T is inside)."
   },
   {
    "case_id": "H3-3",
    "family": "H3",
-   "source": "PLAYER",
+   "source": "GENERATED",
    "run_id": "A4-1",
    "priority": "alternate",
-   "length_s": 75.0,
+   "length_s": 44.5,
    "success_conditions": [
     "H3.a fold-back: gap >= 2 s after leaving a camera, first re-visible camera set contains the same camera",
     "or H3.b detour: gap >= 6 s (> D79 5.2 s) then visible",
-    "COMMON.pre ON_TARGET for the 3 s before"
+    "COMMON.pre ON_TARGET for the 3 s before (labelled per mode)"
    ],
    "events": [
     {
@@ -3508,15 +4386,36 @@
     {
      "event_id": "H3-3-E1",
      "t_window_s": [
-      12.0,
-      40.0
+      16.0,
+      21.0
+     ],
+     "type": "ROUTE_FOLDBACK",
+     "actors": [
+      "T"
+     ],
+     "place": "OUT_W -> VEST_W (-2.5,-0.3), 1 s -> back out (run)",
+     "condition": "route reversal only (no gap expected)",
+     "answer": {
+      "target_gt": "T",
+      "expected_action": "KEEP_TRACKING",
+      "score_fields": [
+       "counts.ON_TARGET",
+       "lost_episodes"
+      ]
+     }
+    },
+    {
+     "event_id": "H3-3-E2",
+     "t_window_s": [
+      22.5,
+      36.0
      ],
      "type": "ROUTE_DETOUR",
      "actors": [
       "T"
      ],
-     "place": "OUT_W -> VEST_W -> back out -> loop >= 6 s out of EXT_CAR view -> VEST_W -> CORR_W",
-     "condition": "H3.b",
+     "place": "(-13,-1) [W2] -> ENTRY-only strip (-13,2.0) 7 s -> back to (-13,-1)",
+     "condition": "H3.b (graph reading; strict reading: ENTRY keeps seeing T, no gap)",
      "answer": {
       "target_gt": "T",
       "expected_action": "REACQUIRE_T",
@@ -3535,26 +4434,27 @@
      }
     },
     {
-     "event_id": "H3-3-E2",
+     "event_id": "H3-3-E3",
      "t_window_s": [
-      20.0,
-      60.0
+      40.0,
+      44.5
      ],
      "type": "CAMERA_SWITCH",
      "actors": [
       "T"
      ],
-     "place": "VEST_W -> CORR_W",
-     "condition": "target first visible in W1/W2",
+     "place": "OUT_W -> VEST_W (west door)",
+     "condition": "target first visible in W2",
      "answer": {
       "target_gt": "T",
       "expected_action": "HANDOFF_T",
       "expected_cameras_from_graph": [
-       "CAM_W1",
+       "CAM_EXT_CAR",
+       "CAM_EXT_CLEAR",
        "CAM_W2"
       ],
       "expected_regions": [
-       "CORR_W"
+       "VEST_W"
       ],
       "max_latency_s": 5.0,
       "score_fields": [
@@ -3567,7 +4467,164 @@
      }
     }
    ],
-   "player_card_ref": "CARD-H3-3"
+   "route_plan": {
+    "start_xy": [
+     -10,
+     -0.4
+    ],
+    "steps": [
+     {
+      "mode": "hold",
+      "seconds": 3
+     },
+     {
+      "mode": "hold_until",
+      "t_s": 11.0
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       -2.5,
+       -0.3
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 1
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -7.0,
+       -0.5
+      ]
+     },
+     {
+      "mode": "run",
+      "to_xy": [
+       -13.0,
+       -1.0
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       -13.0,
+       2.0
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 7
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       -13.0,
+       -1.0
+      ]
+     },
+     {
+      "mode": "walk",
+      "to_xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "mode": "hold",
+      "seconds": 2
+     }
+    ],
+    "timeline": [
+     {
+      "t_s": 0.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 3.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 11.0,
+      "xy": [
+       -10,
+       -0.4
+      ]
+     },
+     {
+      "t_s": 17.25,
+      "xy": [
+       -2.5,
+       -0.3
+      ]
+     },
+     {
+      "t_s": 18.25,
+      "xy": [
+       -2.5,
+       -0.3
+      ]
+     },
+     {
+      "t_s": 20.05,
+      "xy": [
+       -7.0,
+       -0.5
+      ]
+     },
+     {
+      "t_s": 22.46,
+      "xy": [
+       -13.0,
+       -1.0
+      ]
+     },
+     {
+      "t_s": 24.96,
+      "xy": [
+       -13.0,
+       2.0
+      ]
+     },
+     {
+      "t_s": 31.96,
+      "xy": [
+       -13.0,
+       2.0
+      ]
+     },
+     {
+      "t_s": 34.46,
+      "xy": [
+       -13.0,
+       -1.0
+      ]
+     },
+     {
+      "t_s": 42.53,
+      "xy": [
+       -3.35,
+       -0.25
+      ]
+     },
+     {
+      "t_s": 44.53,
+      "xy": [
+       -3.35,
+       -0.25
+      ]
+     }
+    ],
+    "length_s": 44.5
+   },
+   "notes": "T steps in after A (A at the door 10-10.65 s) and runs back out before B (B leaves the door 20.1 s; T-B min 2.72 m at 18.3 s). B walks to P1 26.8-32.2 s, 4 m or more from the strip."
   },
   {
    "case_id": "BA4",

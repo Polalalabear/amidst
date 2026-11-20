@@ -270,7 +270,7 @@ status READY · 解析 LLM · Agent 未呼叫 · 決定 RULE_ONLY · 兜底 否 
 | #74 | `store.mjs`：`createStore`、`reduce` | 單一 state。`MODES` 換成任務 `q1`／`q2`；Demo 步驟欄位暫不用（T1 改） |
 | #79 | `api.mjs`：`createEpoch`、`apiError`、`errorFromBody`、`validateBootstrap` | `q-api.mjs` import 這幾個；`api.mjs` 的五個 controlled-scene 端點與 `uncertainty.mjs` 是 3D 線用的，Q 線不用、不改 |
 | #71 | `player-grid.mjs`：`layoutFor`、`createGridState`、`pageView`、`pageCount`、`expectedFrame`、`buildSyncedFramesRequest`、`toDisplayModel`、`renderGrid` | Q1 牆的格數與分頁；Q1「播放片段」與 Q2 主畫面、候選欄的影格顯示 |
-| 舊工作台 | `../workbench/demo-mode.mjs`：`canonicalJSON`、`sha256Hex`、`isTypingTarget` | 重算 `output_sha256`、匯出審核 JSON 的 hash、快捷鍵。`canonicalJSON` 是否完全符合 v1.1 §2.1 的規則：**UNKNOWN**，T1 先比對；不符就在 v2 另寫，不改舊檔 |
+| 舊工作台（2026-11-19 註：該檔已隨 D268 下線移除；現行 `canonicalJSON` 在 `frontend/workbench-v2/q-validate.mjs` 自行定義） | `../workbench/demo-mode.mjs`：`canonicalJSON`、`sha256Hex`、`isTypingTarget` | 重算 `output_sha256`、匯出審核 JSON 的 hash、快捷鍵。`canonicalJSON` 是否完全符合 v1.1 §2.1 的規則：**UNKNOWN**，T1 先比對；不符就在 v2 另寫，不改舊檔 |
 | #78 | （只沿用用語，不 import） | `PASS`／`FAIL`／`UNSURE`／未審、`p`／`f`／`u` 快捷鍵、進度列格式 |
 
 ### 2.2 新增

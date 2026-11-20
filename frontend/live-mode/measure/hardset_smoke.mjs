@@ -14,6 +14,7 @@ fs.mkdirSync(out, {recursive: true});
 const steps = HARDSET_ROUTES[caseId].steps.length;
 // Shared launcher is headless by default. A and B are pages in the same browser context.
 const browser = await launch();
+let progress;
 try {
   const errors = {a: [], b: []};
   // Both pages share the storage partition needed by BroadcastChannel.
@@ -36,7 +37,7 @@ try {
   console.error('B started');
   const tStart = await a.evaluate(() => window.__log.ticks.at(-1)?.t_sim ?? 0);
   const t0 = Date.now();
-  const progress = setInterval(async () => {
+  progress = setInterval(async () => {
     try {
       const p = await a.evaluate(() => ({t: window.__log.ticks.at(-1)?.t_sim, n: window.__log.ticks.length, done: (window.__log.script_events || []).filter(e => e.type === 'script_step_done').length, sim: window.__op?.t_sim}));
       console.error('progress', JSON.stringify(p));
@@ -59,5 +60,6 @@ try {
   console.log(caseId, 'session', session, 'A ticks', aLog.ticks.length, 'dropped', aLog.dropped, 'B ticks', bLog.ticks.length,
     'B actions', (bLog.actions || []).map(x => `${x.type}:${x.mode}`).join(','), 'B start t_sim', tStart.toFixed(2), 'errors', errors.a.length, errors.b.length);
 } finally {
+  clearInterval(progress);
   await browser.close();
 }

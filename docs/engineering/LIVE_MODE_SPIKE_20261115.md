@@ -1,3 +1,5 @@
+> 2026-11-19 註（D338，#631）：**已被取代**。最終報告是 [`docs/evaluation/LIVE_MODE_SPIKE_20261115.md`](../evaluation/LIVE_MODE_SPIKE_20261115.md)（該文第 3 行寫明取代本草稿）；本文只保留作歷史。是否移到封存：歸檔候選，需使用者決定。現行 LIVE 規格見 [`docs/specs/LIVE_MODE_AB_V1.md`](../specs/LIVE_MODE_AB_V1.md) 與 [Q1Q5_PRODUCT_SPEC §4.4](../specs/Q1Q5_PRODUCT_SPEC.md)。
+
 # Live mode spike (WIP, 2026-11-15) — INCOMPLETE
 
 Status: prototype + detection-rate sweeps done; latency matrix, CPU comparison, screenshots and the final feasibility write-up are NOT done (usage limit reached). Latency runs were started in a session scratchpad (a temporary folder, cannot be rebuilt as such); their results are kept as LOCAL `local/evidence/live-mode-spike-20261115/lat/*.latency.json` (SHA-256 in `docs/evaluation/live_mode_spike_20261115/SHA256SUMS_local.txt`).

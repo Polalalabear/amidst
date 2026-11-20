@@ -86,7 +86,7 @@ test('a person in the way is waited for (no pushing through) and the wait is log
   assert.ok(op.events.some(e => e.type === 'script_stall'));
 });
 
-test('all nine generated routes are walkable with real walls and never block a scripted person', () => {
+test('every generated route are walkable with real walls and never block a scripted person', () => {
   for (const id of Object.keys(HARDSET_ROUTES)) {
     const {op, snapshot, plan} = play(id);
     assert.equal(op.done, true, `${id} finished`);

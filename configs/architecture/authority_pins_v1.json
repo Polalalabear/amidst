@@ -416,6 +416,78 @@
       "sha256": "c41a6f0bedf9d5af2264b5a68cea4350dc2a09ded57af08386181e6d05199852",
       "status": "現行；進度導覽補到 #613（D311–D318，D91-4）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D332-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@1e0f248f9ba32721b4e98f5329f8c1ad5a81677f（晚間交接 PR）",
+      "sha256": "895da1603ed887b2f7e0ad1f9fae9bba47d332089e0f49eca9f9cb263cc33b95",
+      "status": "現行；進度導覽補到 #620（D332，D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "D334-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-ops-docs@2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "sha256": "78a65d785320b722640b68e4b447bebd99645b8a9d2452ea736e300ca35891d7",
+      "status": "現行（D334 協作規範，2026-11-19）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D334-A3",
+      "path": "CLAUDE.md",
+      "ref": "claude/feat-ops-docs@2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "sha256": "c65c5e4e0aa3d04677606930a3087ccd95c83d552d03753f5b1148ee5000520c",
+      "status": "現行（D334 協作規範，2026-11-19）",
+      "issue_ref": "#93"
+    },
+    {
+      "id": "D338-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@4faa5327d1dab2a0ab510bcdb9b80b217c03cc6a（D338，#631；#632 審查修正）",
+      "sha256": "adcb281917cbf34a4a16ae663cea2eb036ac9ede4b04a0ac1df062ceea76098d",
+      "status": "現行；依 D319 第一輪檢索補 LIVE §4.4、§6.1 決策選錄、鏡頭數、3D 現況，關閉 U-1、U-13（D338）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631"
+    },
+    {
+      "id": "D338-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/feat-ops-docs@7550ac8155d6e48fa11c07d5aa8c48eea6921ecf（D338，#631）",
+      "sha256": "2f63c396877be1d36d2a8990cb31fc85ba66f34ebe1a29ea1265818354d3f964",
+      "status": "現行；「分類方式」加註整合分支為 main（D200、D338）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631"
+    },
+    {
+      "id": "D340-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@b321f8833d583581c655904b4e35687ffa32fbe8（D340，#641）",
+      "sha256": "170b3d9b69dc7e04f40280a287d0d96959c470218cf438e157c5a2262a2f8eeb",
+      "status": "現行；D340 放寬 Agent 模式（§1.2、§3 表、§4.3，取代 D64），加入 H6 全模式可切換",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641"
+    },
+    {
+      "id": "D340-S2",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@9401493b3c4af82c0dfc7441d83fc93fd7279f6b（D340 補充，#641）",
+      "sha256": "aea1d1bf4b76c89179bd221c394e76d5378830158b59867f4d23b33bcc84756f",
+      "status": "現行；D340 補充：Agent 模式每個決策請求必附場景上下文（連通性、鏡頭圖、覆蓋多邊形、位置、朝向、FOV、重疊），只取設定檔與標定資料",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641"
+    },
+    {
+      "id": "D341-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-ops-docs@c3a4be43f33e8a2d4986747dd4b1c5e18dc8b9e8（#649，D325 更正）",
+      "sha256": "5049798acec3d512265ce04969f97a5d08581cceb7c01a0f8c9e82e2a40f7fd2",
+      "status": "現行；§4.3 D325 摘要加更正：結論限定在 LLM 覆核、不看圖的架構；34 個決策點中 32 個只有 0／1 個合格候選（以決策點計數）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/649"
+    },
+    {
+      "id": "W2-S1",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-agent-wiring@fa8fe7105764fad45213f082d0661eb43d6ae90c（W2，#645；合併 origin/main 後重算）",
+      "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
+      "status": "現行；§4.3 加 Agent 請求結構（三層請求、scene_context、回答類型），記載 W2 已實作的 D340 介面",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/645"
     }
   ],
   "authorized_changes": [
@@ -635,6 +707,69 @@
       "requires_commit": "bab9bd85a6b0df0e9efeb5f56c4e55f0109bfbac",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
       "reason": "進度導覽批次補列到 #613（D311–D318，D91-4），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "895da1603ed887b2f7e0ad1f9fae9bba47d332089e0f49eca9f9cb263cc33b95",
+      "requires_commit": "1e0f248f9ba32721b4e98f5329f8c1ad5a81677f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "reason": "進度導覽批次補列到 #620（D332 晚間交接，D91-4），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "78a65d785320b722640b68e4b447bebd99645b8a9d2452ea736e300ca35891d7",
+      "requires_commit": "2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "issue_ref": "#93",
+      "reason": "D334 協作規範（使用者 2026-11-19 在對話中授權）：瀏覽器測試預設無頭、每項工作有 issue 且以 PR 交付、相近工作共用 feature branch、工作狀態隨時更新在 issue 上。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "c65c5e4e0aa3d04677606930a3087ccd95c83d552d03753f5b1148ee5000520c",
+      "requires_commit": "2a7d769090905333aaf2835cc93d34d12fb9cfbb",
+      "issue_ref": "#93",
+      "reason": "D334 協作規範（使用者 2026-11-19 在對話中授權）：瀏覽器測試預設無頭、每項工作有 issue 且以 PR 交付、相近工作共用 feature branch、工作狀態隨時更新在 issue 上。只加規則，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "adcb281917cbf34a4a16ae663cea2eb036ac9ede4b04a0ac1df062ceea76098d",
+      "requires_commit": "4faa5327d1dab2a0ab510bcdb9b80b217c03cc6a",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631",
+      "reason": "D338（使用者要求依 D319 檢索紀錄直接更新規格）：只轉述既有決策與現況（LIVE、預錄 Agent 開關、3D 視圖、鏡頭數、決策索引、整合分支），關閉兩個已不成立的 UNKNOWN；沒有放寬任何規則"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "2f63c396877be1d36d2a8990cb31fc85ba66f34ebe1a29ea1265818354d3f964",
+      "requires_commit": "7550ac8155d6e48fa11c07d5aa8c48eea6921ecf",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/631",
+      "reason": "D338：「分類方式」一句加註整合分支為 main（D200），只改導覽內容，沒有放寬任何規則"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "170b3d9b69dc7e04f40280a287d0d96959c470218cf438e157c5a2262a2f8eeb",
+      "requires_commit": "b321f8833d583581c655904b4e35687ffa32fbe8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641",
+      "reason": "D340（使用者 2026-11-20 在對話中核准，#93 issuecomment-7016410023）：Agent 模式可看渲染影格、從所有偵測選人、回答仍在／不在／下一台、讀圖的邊與核定等級，規則閘門改成給 Agent 的資訊；GT 隔離、ApiGuard、付費核准、身分未確認、格式驗證照舊硬擋。這是放寬規則，已經使用者核准"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "aea1d1bf4b76c89179bd221c394e76d5378830158b59867f4d23b33bcc84756f",
+      "requires_commit": "9401493b3c4af82c0dfc7441d83fc93fd7279f6b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641",
+      "reason": "D340 補充（使用者 2026-11-20 原話：Agent 本來就該知道場景連通性和鏡頭圖關係）：場景上下文是 Agent 的必要輸入，來源只限已提交設定檔與標定資料，不可用渲染真值、GT、visibility、depth；沒有放寬 GT 隔離"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "5049798acec3d512265ce04969f97a5d08581cceb7c01a0f8c9e82e2a40f7fd2",
+      "requires_commit": "c3a4be43f33e8a2d4986747dd4b1c5e18dc8b9e8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/649",
+      "reason": "#649 研究紀錄更正（使用者要求把錯誤的實驗分析更新成正確的）：只在 §4.3 D325 摘要加更正註記與來源（#637 merge 3cdbbfc9、#647），沒有改動任何規則或數字"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "59d9775de5db691568b2e61c392c2b55febef0a5186d4374d0dae20f662f5587",
+      "requires_commit": "fa8fe7105764fad45213f082d0661eb43d6ae90c",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/645",
+      "reason": "W2（#645）：在 §4.3 記載 D340 已核准的 Agent 請求結構（三層請求、場景上下文欄位、回答類型），只描述已實作介面，沒有放寬任何規則或 GT 隔離"
     }
   ]
 }

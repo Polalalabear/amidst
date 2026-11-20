@@ -1,3 +1,4 @@
+> 2026-11-19 註（D338，#631）：文中稱為共用 UI 的 `frontend/workbench/` 已於 D268 下線；現行主畫面是 `frontend/workbench-v2/`，現行規格見 [Q1Q5_PRODUCT_SPEC](Q1Q5_PRODUCT_SPEC.md)。本文已封存，不重寫。
 > 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
 
 ## 1. Design Goal
