@@ -241,3 +241,32 @@ policy/replay tests and replay script. Tracker's existing layout is checked
 with F/I/UP. Architecture guard and diff check pass.
 
 LOCAL `local/evidence/cx588-d331-20261118/MANIFEST.json` SHA-256 `b8a9e5dd46ef583cef44ffb78a4728412a96240e5d93c90cd0d93990a77a65ad`, 433 files / 55,723,922 bytes. The documented commands regenerate the two replay sets. Model / effort for this checkpoint is gpt-6.1-sol / UNKNOWN.
+
+## 2026-11-20 main integration
+
+Merge commit `3ab2fd5e43bc4c6379675a500a9f8f7a605863ac` includes main
+`8290f1903c8259ab93508f2dd1ac626f4f94fb42`, without rebasing or rewriting
+history. The hardset smoke conflict preserves its route/start/log flow,
+uses one headless browser with two pages, and clears its progress interval
+on failure before closing the browser. Both architecture pin files match
+main exactly; D340, D341 and W2 entries remain intact, with no merged
+document changes requiring a new SHA.
+
+Commands: `.venv/bin/python -B -m pytest tests/live_mode -q` passes all
+135 collected tests. `AMIDST_BROWSER_TEST=1 AMIDST_BROWSER_EVIDENCE="$OUT/browser"
+node --test tests/browser/browser-options.test.mjs` passes 3 tests, zero
+skips, including actual headless Chrome and failure-path closure. Architecture
+guard and `git diff --check origin/main...HEAD` pass. Initial restricted
+socket attempts failed; the final run used the authorized local HTTP environment.
+The R6/R5a and sweep numbers above are the historical D331 replay checkpoint;
+no new experiment or paid call was made during this integration.
+
+E3 prerequisites: the safe runtime catalog registers 8 cameras, including
+CAM_ENTRY; per-tick scheduling can select a subset. The answer table contains
+15 hard cases plus 3 baselines. H2-1/2/3 and H5-1/2/3 are the 6 cases explicitly
+designed around similar-color distractors. These are planned cases, not six
+new completed recordings. This PR supplies the relock policy/replay component;
+deterministic simulation recording is delivered by #617. Paired eight-camera
+LIVE rule/Agent E3 results remain UNKNOWN and are not claimed here.
+
+LOCAL `local/evidence/cx608-main-20261120/MANIFEST.json` SHA-256 `81207ce04c0030a26c331497d5c9ef73495f8873fc90672af2b11110380c600b`, 6 files / 13,961 bytes. Contains focused test logs, guard receipt, two headless screenshots and browser receipt. The commands above regenerate the checks; screenshot bytes may vary.

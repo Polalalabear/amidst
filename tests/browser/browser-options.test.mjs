@@ -18,7 +18,7 @@ test('hardset smoke uses the shared launcher and two pages with failure cleanup'
   assert.match(source, /const browser = await launch\(\)/);
   assert.equal(source.match(/await browser\.newPage\(\)/g)?.length, 2);
   assert.doesNotMatch(source, /newWindow|openWindow|HEADLESS|headless:\s*false|bringToFront/);
-  assert.match(source, /finally\s*\{\s*await browser\.close\(\)/);
+  assert.match(source, /finally\s*\{\s*clearInterval\(progress\);\s*await browser\.close\(\)/);
 });
 
 test('one headless browser owns A/B pages and closes on failure', {
