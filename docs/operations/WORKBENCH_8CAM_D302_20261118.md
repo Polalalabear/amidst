@@ -1,22 +1,28 @@
-# Workbench-v2 的 A4-1-8CAM（#594）
+# Workbench-v2 的 A4-1／B4-1-8CAM（#594）
 
 D302 選用 #529 safe bundle 的 A4-1-8CAM，50 秒、5 fps、八台鏡頭各 250 格。
-此 run 與 B-05、A4-1、B4-1、r005 共用既有 bootstrap、監控牆與來源選單。
-名稱表新增一筆，讓展示模式標示「A4-1-8CAM · 4 人／8 鏡頭」。
+D326 再接入同包 B4-1-8CAM，42 秒、5 fps、八台鏡頭各 210 格。
+兩個 run 與 B-05、A4-1、B4-1、r005 共用既有 bootstrap、監控牆與來源選單。
+名稱表分別標示「A4-1-8CAM · 4 人／8 鏡頭」及「B4-1-8CAM · 4 人／8 鏡頭」。
+核准 safe bundle 的 runs 目錄只有 A4-1.json、B4-1.json；B-05-8CAM、r005-8CAM
+在 bootstrap.eightcam_runs 明列 UNKNOWN，reason 為 NO_PINNED_EIGHTCAM_SOURCE_IN_APPROVED_BUNDLE。
+沒有以其他 run 替代，也沒有重新渲染。
 
 `start_445_demo.command` 在 checkout 的標準 safe bundle 目錄存在時，透過 `--auto-root-8cam` 載入。
 自動找到的 bundle 如果缺檔、路徑不合法、pin 不符、或未通過索引和場景綁定，
 bootstrap 的 `eightcam.status` 為 `UNKNOWN` 並附原因，四個既有 run 仍可載入。
 明確的 `--root-8cam` 優先採用指定目錄。指定來源驗證若遇內容 pin 或綁定錯誤會報錯，
-且 dependency smoke 要求指定來源成功註冊第五個 run。
+且 dependency smoke 要求指定來源成功註冊兩個新增 run，總計六個。
 資料來源為 `local/data/r004-4actor-natural-walk-eightcam-20261114/bundle/safe`，SHA-256 `0900d151e4e3360741f51d47f3d1a532db31e69818d1c8b1a325495a48bd413d`（原 SAFE_MANIFEST.json）。
-單跑的 2,000 個 PNG 與 7 個 metadata／index 檔以 #529 已提交的
+兩個 run 的 3,680 個 PNG 與 12 個 metadata／index 檔以 #529 已提交的
 `docs/operations/R004_V2_4ACTOR_BUNDLE_MANIFEST.json` 為來源。程式在載入時綁定每格的 PNG、
 時鐘和 detector index。每個被請求的 PNG 會再驗 byte SHA，既有媒體供應路徑會清除 PNG 文字 metadata。
-8785 的 I/O guard 只增列這 2,007 個檔案的讀取權限。以既有 v3.1 graph 呈現七個已知 graph 節點。
+I/O guard 只增列這 3,692 個檔案的讀取權限。兩個 descriptor 和索引都通過後才一起註冊；
+任一失敗時，自動載入仍保有四個原始 run，顯式載入保持嚴格拒絕。
+以既有 v3.1 graph 呈現七個已知 graph 節點。
 CAM_ENTRY 有校正與影像，跨鏡頭轉移仍為 UNKNOWN。另案才可核定跨鏡頭追蹤 scope。
 
-已於獨立 checkout 驗證以下項目。
+以下為 D302 歷史 checkpoint，保留當時的單一 A4-1-8CAM 結果。
 
 - Python 20 pass（8CAM、D147 既有資料、launcher），Node 17 pass（來源命名與 monitor room）。
 - Dependency smoke 帶 `--root-8cam` 時 PASS，5 個 run、12 個首格，包含新 run 的全部 8 台。
@@ -45,6 +51,35 @@ UI_QA_BASE_URL=http://127.0.0.1:8799 UI_QA_REQUIRE_8CAM=1 UI_QA_HEIGHT=900 UI_QA
 
 正式 real-e2e 會跑原 D269 內容與新增的 8CAM 監控牆測試。
 `UI_QA_REQUIRE_8CAM=1` 使缺失的 8CAM 在 #576 中直接指出原因並失敗。
+
+## D326：B4-1-8CAM 與預錄估計的聯合驗證
+
+以下結果在獨立 checkout 執行，沒有改動 8785 pin。以既有 owned demo 設定
+AMIDST_DEMO_HOME，EIGHTCAM_ROOT 為上述 safe bundle，OUT 為新的 LOCAL evidence 目錄。
+本次直接使用既有 uv 環境的 .venv/bin/python，沒有安裝新 Python 依賴。
+
+```bash
+AMIDST_ROOT_8CAM="$EIGHTCAM_ROOT" AMIDST_TEST_EVIDENCE="$OUT" .venv/bin/python -B -m pytest tests/q1q5/test_demo_eightcam.py tests/q1q5/test_demo_estimate.py tests/q1q5/test_d147_acceptance.py tests/q1q5/test_demo_launcher.py tests/q1q5/test_api.py -o addopts= -q -p no:cacheprovider
+node --test frontend/workbench-v2/event-names.test.mjs frontend/workbench-v2/monitor-room-model.test.mjs frontend/workbench-v2/scene3d-model.test.mjs frontend/workbench-v2/core-screens.test.mjs
+.venv/bin/python -B scripts/check_demo_dependencies.py --smoke --root-8cam "$EIGHTCAM_ROOT"
+AMIDST_ROOT_8CAM="$EIGHTCAM_ROOT" AMIDST_TEST_EVIDENCE="$OUT" PYTHONPATH=src:scripts node tests/browser/ui-redesign/eightcam-smoke.mjs
+.venv/bin/python -B scripts/check_architecture_guard.py --repo . --base origin/main
+git diff --check
+```
+
+- Python 76 pass、0 skip；Node 53 pass。正常 Demo 入口的四個既有 run 估計測試另確認 4 pass。
+- Dependency smoke PASS：六個 run、20 張首格，兩個新增 run 各檢查八台鏡頭。
+- Focused browser smoke PASS：1440×900、1440×1300 各檢查 A4-1、B4-1；
+  共 20 個獨立斷言，四張截圖，全部八格解碼並可 seek 到 1.0 秒。
+  0 page errors、0 failed APIs。伺服器 log 有頁面關閉時已取消請求的 BrokenPipeError，
+  runner 與 owned fixture 均正常結束，exit 0。
+- 新 runner 使用同一個預設無頭 browser，finally 關閉並以 stdin EOF 結束 fixture。
+  只有明確 --headful 或 AMIDST_HEADFUL=1 才開視窗；需要目視時才使用並在交件註明。
+- Architecture guard、LOCAL refs strict 與 git diff --check 通過。
+
+LOCAL `local/evidence/cx594-d326-20261118/MANIFEST.json`，SHA-256 `95b30841b20777f92cf1d55b057c2e6846a3cd823673e5e777aa9b4c96c01db0`，14 檔／2,308,983 bytes。包含 focused 測試、六 run smoke、投影重播、來源範圍、四張截圖和 browser 收據，可用上述命令重建；頁面時鐘與 token 可變動。
+完整 #576／8785 gate 與 pin 核准不在本次 focused 驗證內。B-05-8CAM、r005-8CAM
+的來源仍為 UNKNOWN，需有核准且帶 pin 的資料才能再接入。
 
 ## #603 審查 P2 回歸
 

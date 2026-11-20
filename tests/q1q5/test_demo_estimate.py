@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from test_bootstrap_class_counts import recorded_demo  # noqa: F401
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 try:
@@ -224,3 +225,31 @@ def test_api_saves_the_estimate_with_its_final_response_hash():
     )
     assert result["estimate"] == {"est_xy": [1, 2], "uncertainty_m": 0.4}
     assert api.responses[(TOKEN, result["output_sha256"])]["response"] == result
+
+
+@pytest.mark.parametrize("label", ["B-05", "A4-1", "B4-1", "r005"])
+def test_normal_recorded_entry_supplies_a_bound_estimate_or_unknown(label, request):
+    demo = request.getfixturevalue("recorded_demo")
+    run = next(r for r in demo.api.runs.values() if r.title.startswith(label + " "))
+    token = demo.call("session", {"role": "demo"})["session_ref"]
+    result = demo.call(
+        "q_core_track",
+        {
+            "schema_version": "q-core.track-request.v1",
+            "session_ref": token,
+            "scene_id": run.catalog["scene_id"],
+            "run_id": run.catalog["run_id"],
+            "feature": {"class_label": "person", "color_label": None},
+            "region_ids": [],
+            "time": None,
+            "playback_now_us": run.bindings.clock.duration_us,
+        },
+    )
+    estimate = result["estimate"]
+    if label in ("B-05", "r005"):
+        assert estimate["reason"] == "CALIBRATION_MISSING"
+    else:
+        assert len(estimate["est_xy"]) == 2
+        assert estimate["source_clock_id"] == run.bindings.clock.clock_id
+        assert estimate["source_index_sha256"] == run.bindings.index_sha256
+        assert estimate["uncertainty_m"] >= 0

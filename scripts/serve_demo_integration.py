@@ -24,7 +24,7 @@ from amidst.q1q5.scene_annotations import bind_annotations
 from amidst.q1q5.store import DetectionSnapshot, DocumentPin, JsonRunStore, canonical_hash
 from run_cross_camera_demo import read_pin, loads, load_run
 from demo_dependency_config import configuration, owned_path, resolve_job, install_owned_io_guard
-from demo_eightcam import RUN_ID as EIGHTCAM_RUN, TITLE as EIGHTCAM_TITLE, prepare_eightcam, source_error_code
+from demo_eightcam import RUN_ID as EIGHTCAM_RUN, RUN_SPECS, prepare_eightcam, source_error_code
 from demo_estimate import estimate_track
 
 REPO = Path(__file__).resolve().parents[1]
@@ -193,18 +193,20 @@ class Demo(P1):
         self.eightcam_status = {'run_id': EIGHTCAM_RUN, 'status': 'UNKNOWN', 'reason': eightcam_reason}
         if eightcam is not None:
             try:
-                added, frames, camera_positions = self.load_eightcam(eightcam, graphs)
+                loaded = [(source, *self.load_eightcam(source, graphs),
+                           source.document('provenance/camera_catalog.json'))
+                          for source in eightcam.sources]
             except (ValueError, OSError, TypeError, KeyError) as exc:
                 if eightcam_required:
                     raise
                 self.eightcam_status['reason'] = source_error_code(exc)
             else:
-                key = (added.catalog['scene_id'], EIGHTCAM_RUN)
-                runs.append(added)
-                self.rgb.frames[key] = frames
-                self.positions[key] = camera_positions
-                self.calibrations[key] = (eightcam.document('provenance/camera_catalog.json'),
-                                          eightcam.pins['provenance/camera_catalog.json'])
+                for source, added, frames, camera_positions, calibration in loaded:
+                    key = (added.catalog['scene_id'], source.run_id)
+                    runs.append(added)
+                    self.rgb.frames[key] = frames
+                    self.positions[key] = camera_positions
+                    self.calibrations[key] = (calibration, source.pins['provenance/camera_catalog.json'])
                 self.eightcam_status.update(status='READY', reason=None)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
         if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
@@ -221,10 +223,10 @@ class Demo(P1):
         bound = scene_projection(graphs, index.manifest['scene_id'], {
             'camera_catalog_sha256': settings['catalog_sha256'],
             'clock_sha256': settings['clock_sha256'],
-            'run_id': EIGHTCAM_RUN,
+            'run_id': eightcam.run_id,
         })
         params = parameters(index, settings['parameters'])
-        run = qrun(index, clock, bound, params, EIGHTCAM_TITLE, 'ACTUAL_BLENDER')
+        run = qrun(index, clock, bound, params, eightcam.title, 'ACTUAL_BLENDER')
         positions = {
             c['camera_id']: {'xy_m': [c['camera_to_world'][0][3], c['camera_to_world'][1][3]],
                              'basis_ref': 'calibration:'+c['camera_id'],
@@ -281,6 +283,15 @@ class Demo(P1):
         value = super().bootstrap()
         value['demo_integration'] = True
         value['eightcam'] = self.eightcam_status.copy()
+        value['eightcam_runs'] = [
+            {'label': label + '-8CAM', 'run_id': spec['run_id'],
+             'status': self.eightcam_status['status'], 'reason': self.eightcam_status['reason']}
+            for label, spec in RUN_SPECS.items()
+        ] + [
+            {'label': label + '-8CAM', 'run_id': None, 'status': 'UNKNOWN',
+             'reason': 'NO_PINNED_EIGHTCAM_SOURCE_IN_APPROVED_BUNDLE'}
+            for label in ('B-05', 'r005')
+        ]
         for row in value['runs']:
             run = self.api.runs[(row['scene_id'], row['run_id'])]
             row['region_graph'] = run.bindings.graphs.region
@@ -341,8 +352,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config', type=Path)
     p.add_argument('--port', type=int, default=8785)
-    p.add_argument('--root-8cam', type=Path, help='Existing #529 safe bundle for A4-1-8CAM')
-    p.add_argument('--auto-root-8cam', type=Path, help='Optional launcher-discovered A4-1-8CAM bundle')
+    p.add_argument('--root-8cam', type=Path, help='Existing #529 safe bundle for A4-1/B4-1-8CAM')
+    p.add_argument('--auto-root-8cam', type=Path, help='Optional launcher-discovered A4-1/B4-1-8CAM bundle')
     args = p.parse_args(); config, root = configuration(args.config)
     eightcam_required = args.root_8cam is not None
     eightcam, reason = prepare_eightcam(args.root_8cam or args.auto_root_8cam, required=eightcam_required)

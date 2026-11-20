@@ -1,4 +1,4 @@
-"""Load the existing #529 A4-1 safe bundle for the recorded workbench."""
+"""Load the existing #529 A4-1 and B4-1 safe observations for the workbench."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,6 +23,19 @@ GRAPH = 'provenance/camera_graph_v3_1.json'
 INDEX = 'indexes/A4-1/detection_index.json'
 RECORDS = 'indexes/A4-1/detection_index.records.jsonl'
 METADATA = (RUN_DESCRIPTOR, CLOCK, CONFIG, CATALOG, GRAPH, INDEX, RECORDS)
+RUN_SPECS = {
+    'A4-1': {'run_id': RUN_ID, 'title': TITLE, 'duration_us': 50_000_000, 'samples': 250},
+    'B4-1': {'run_id': 'r004-4actor-natural-walk-eightcam-20261114-b4-1',
+             'title': 'B4-1-8CAM · 4 人／8 鏡頭 · ACTUAL_BLENDER',
+             'duration_us': 42_000_000, 'samples': 210},
+}
+
+
+def metadata_for(label):
+    return (f'runs/{label}.json', f'clocks/{label}.json', f'config/{label}.json',
+            CATALOG, GRAPH, f'indexes/{label}/detection_index.json',
+            f'indexes/{label}/detection_index.records.jsonl')
+
 
 
 class _EightCamIndexStore(JsonRunStore):
@@ -37,6 +50,19 @@ class _EightCamIndexStore(JsonRunStore):
 class EightCamSource:
     root: Path
     pins: dict[str, str]
+    label: str = 'A4-1'
+
+    @property
+    def run_id(self):
+        return RUN_SPECS[self.label]['run_id']
+
+    @property
+    def title(self):
+        return RUN_SPECS[self.label]['title']
+
+    @property
+    def sources(self):
+        return tuple(EightCamSource(self.root, self.pins, label) for label in RUN_SPECS)
 
     @property
     def read_files(self):
@@ -46,28 +72,31 @@ class EightCamSource:
         return loads(read_pin({'path': str(owned_path(self.root, name)), 'sha256': self.pins[name]}))
 
     def load(self):
-        run = self.document(RUN_DESCRIPTOR)
-        clock = ClockMapping(self.document(CLOCK))
-        settings = self.document(CONFIG)
+        run_path, clock_path, config_path, _, _, index_path, records_path = metadata_for(self.label)
+        spec = RUN_SPECS[self.label]
+        samples = spec['samples']
+        run = self.document(run_path)
+        clock = ClockMapping(self.document(clock_path))
+        settings = self.document(config_path)
         catalog = self.document(CATALOG)
         graph = self.document(GRAPH)
-        source = self.document(INDEX)
+        source = self.document(index_path)
 
         index = _EightCamIndexStore(self.root, {
-            'index': DocumentPin(INDEX, self.pins[INDEX], 'q-demo.detection-index.v1',
+            'index': DocumentPin(index_path, self.pins[index_path], 'q-demo.detection-index.v1',
                                  source['content_sha256']),
-            'records': DocumentPin(RECORDS, self.pins[RECORDS], 'q-demo.detection-record.v1'),
+            'records': DocumentPin(records_path, self.pins[records_path], 'q-demo.detection-record.v1'),
         }).load_detection_index('index')
         require(source['provenance']['gt_read'] is False and settings['formal_eligible'] is False,
                 'EIGHTCAM_ENGINEERING_SCOPE')
         require(source['scene_id'] == run['scene_id'] == settings['scene_id']
                 and source['scene_revision'] == run['scene_revision'] == settings['scene_revision'],
                 'EIGHTCAM_SCENE_BINDING')
-        require(source['run_id'] == run['run_id'] == settings['run_id'] == RUN_ID
+        require(source['run_id'] == run['run_id'] == settings['run_id'] == self.run_id
                 and source['clock_id'] == run['clock_id'] == settings['clock_id'] == clock.clock_id
-                and clock.duration_us == run['duration_us'] == 50_000_000
-                and settings['clock_sha256'] == self.pins[CLOCK]
-                and settings['run_descriptor_sha256'] == self.pins[RUN_DESCRIPTOR],
+                and clock.duration_us == run['duration_us'] == spec['duration_us']
+                and settings['clock_sha256'] == self.pins[clock_path]
+                and settings['run_descriptor_sha256'] == self.pins[run_path],
                 'EIGHTCAM_RUN_CLOCK_BINDING')
         require(run['catalog_sha256'] == settings['catalog_sha256'] == self.pins[CATALOG]
                 == graph['camera_catalog_sha256'], 'EIGHTCAM_CATALOG_BINDING')
@@ -75,7 +104,7 @@ class EightCamSource:
         require(len(cameras) == 8 and cameras == set(run['camera_ids'])
                 == {c['camera_id'] for c in catalog['cameras']}, 'EIGHTCAM_CAMERA_SCOPE')
         interval = 200_000
-        require(run['fps'] == 5 and run['sample_count_per_camera'] == 250
+        require(run['fps'] == 5 and run['sample_count_per_camera'] == samples
                 and all(m['index_interval_us'] == interval for m in source['sampling']['per_camera']),
                 'EIGHTCAM_SAMPLING')
         by_camera = {camera: {} for camera in cameras}
@@ -83,14 +112,14 @@ class EightCamSource:
                    for row in index.records}
         for entry in run['frames']:
             camera, frame = entry['camera_id'], entry['frame_index']
-            relative = f'rgb/{RUN_ID}/{camera}/{frame:06d}.png'
+            relative = f'rgb/{self.run_id}/{camera}/{frame:06d}.png'
             digest = entry['sha256']
-            require(camera in by_camera and 0 <= frame < 250 and frame not in by_camera[camera]
+            require(camera in by_camera and 0 <= frame < samples and frame not in by_camera[camera]
                     and entry['source_time_us'] == frame * interval
                     and relative == entry['relative_path'] and self.pins.get(relative) == digest
                     == indexed.get((camera, frame)), 'EIGHTCAM_FRAME_BINDING')
             by_camera[camera][frame] = self.root / relative, digest
-        require(len(indexed) == 2000 and all(len(frames) == 250 for frames in by_camera.values()),
+        require(len(indexed) == 8 * samples and all(len(frames) == samples for frames in by_camera.values()),
                 'EIGHTCAM_FRAME_COVERAGE')
         return index, clock, settings, catalog, graph, (interval, by_camera, clock.clock_id)
 
@@ -126,18 +155,21 @@ def _prepare_eightcam(root):
     if not root.is_dir():
         return None, 'SAFE_BUNDLE_MISSING'
     entries = loads(RECEIPT.read_bytes())['files']
+    metadata = set().union(*(metadata_for(label) for label in RUN_SPECS))
+    prefixes = tuple(f"rgb/{spec['run_id']}/" for spec in RUN_SPECS.values())
     pins = {}
     for entry in entries:
         if not entry['relative_path'].startswith(BUNDLE_PREFIX):
             continue
         relative = entry['relative_path'][len(BUNDLE_PREFIX):]
-        if relative not in METADATA and not relative.startswith(f'rgb/{RUN_ID}/'):
+        if relative not in metadata and not relative.startswith(prefixes):
             continue
         require(relative not in pins and len(entry['sha256']) == 64, 'EIGHTCAM_RECEIPT')
         path = owned_path(root, relative)
         if not path.is_file():
             return None, 'SAFE_BUNDLE_INCOMPLETE'
         pins[relative] = entry['sha256']
-    require(len(pins) == 2000 + len(METADATA) and set(METADATA) <= pins.keys(),
+    require(len(pins) == sum(8 * spec['samples'] for spec in RUN_SPECS.values()) + len(metadata)
+            and metadata <= pins.keys(),
             'EIGHTCAM_RECEIPT_SCOPE')
     return EightCamSource(root, pins), None

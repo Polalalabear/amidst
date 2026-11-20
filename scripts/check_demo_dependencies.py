@@ -14,7 +14,7 @@ import tomllib
 from urllib.parse import parse_qs, urlsplit
 
 from demo_dependency_config import REPO, MIN_FREE, configuration, owned_path, install_owned_io_guard
-from demo_eightcam import RUN_ID as EIGHTCAM_RUN, prepare_eightcam
+from demo_eightcam import RUN_ID as EIGHTCAM_RUN, RUN_SPECS, prepare_eightcam
 
 
 def require(value, code):
@@ -99,13 +99,13 @@ def verify(config_path=None, *, smoke=False, root_8cam=None):
                    eightcam=eightcam, eightcam_reason=reason)
         boot = app.bootstrap()
         eightcam_status = boot['eightcam']
-        require(boot.get('demo_integration') is True and len(boot['runs']) == 4 + bool(eightcam),
+        require(boot.get('demo_integration') is True and len(boot['runs']) == 4 + (len(RUN_SPECS) if eightcam else 0),
                 'SOURCE_BOOTSTRAP')
         if root_8cam is not None:
             require(eightcam_status['status'] == 'READY', 'EIGHTCAM_UNKNOWN:'+str(reason))
         token = app.call('session', {'role': 'demo'})['session_ref']
         for run in boot['runs']:
-            is_eightcam = run['run_id'] == EIGHTCAM_RUN
+            is_eightcam = run['run_id'] in {spec['run_id'] for spec in RUN_SPECS.values()}
             camera_ids = run['camera_ids'] if is_eightcam else run['camera_ids'][:1]
             payload = {'session_ref': token, 'scene_id': run['scene_id'], 'run_id': run['run_id'], 't_s': 0, 'camera_ids': camera_ids}
             frame = app.rgb.call('synced_frames', payload)

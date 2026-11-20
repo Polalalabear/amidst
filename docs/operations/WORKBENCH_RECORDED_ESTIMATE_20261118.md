@@ -27,6 +27,7 @@ The API adds the estimate before hashing and saving its response.
 | B4-1 | Existing D124 selected detections and pinned r004 camera catalog |
 | r005 | UNKNOWN, no bound calibration registered for this static demo adapter |
 | A4-1-8CAM | Existing selected index records and the bundle's pinned camera catalog |
+| B4-1-8CAM | Existing selected index records and the same bundle's pinned camera catalog |
 
 The two real observation replays queried every 200 ms. A4-1 produced 240
 INFERRED and 10 UNKNOWN samples out of 250. B4-1 produced 209 INFERRED and
@@ -51,9 +52,17 @@ check future observations, source preservation, ambiguity, missing
 calibration and saved-response hash consistency. New Python files pass Ruff.
 Architecture guard and diff check pass.
 
-The full integration-service startup and dependency smoke remain pending.
-The existing P1 startup requires 8 GiB free, and the disk check reported
-approximately 6.8 GiB. Startup returned DISK_BELOW_8_GIB. The existing
-threshold was retained. The 8785 service and pin were not changed.
+The initial startup attempt returned DISK_BELOW_8_GIB at approximately
+6.8 GiB free. At the final D326 check approximately 9 GiB was available;
+the unchanged 8 GiB startup threshold passed. The normal Demo entry point
+then loaded all four original runs and both available 8CAM runs. The final
+focused Python set passed 76 tests with zero skips, including normal-entry
+estimates for B-05/A4-1/B4-1/r005 and both 8CAM responses. Dependency smoke
+passed with six runs and 20 first frames. The headless browser verified
+both 8CAM walls at 900 and 1300 px heights. See the reproduction commands
+in WORKBENCH_8CAM_D302_20261118.md. The full 3D visual gate and 8785 pin
+remain with their assigned reviewer; the service and pin were not changed.
 
 LOCAL `local/evidence/cx612-d326-20261118/MANIFEST.json` SHA-256 `1f1ee80459a4eeb407c72d944b2e45e7e999edb42a3971213ce2194b021a6b0f`, 5 files / 292,776 bytes. The commands regenerate the model and observation replay receipts.
+
+Final integration evidence is LOCAL `local/evidence/cx594-d326-20261118/MANIFEST.json`, SHA-256 `95b30841b20777f92cf1d55b057c2e6846a3cd823673e5e777aa9b4c96c01db0`, 14 files / 2,308,983 bytes. It includes the normal-entry receipts, source-only projection replay, dependency smoke and four headless screenshots. The same commands regenerate the checks; screenshot clocks and tokens can differ.

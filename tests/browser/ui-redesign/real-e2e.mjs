@@ -181,5 +181,9 @@ for(const [name,query,n]of[['r005-location','region=R101',1],['r005-laptop','cla
 await p.goto(base+'?run=A4-1&screen=search&class=car');await decoded(p,'#ui-case1 .ui-shot img',1);check((await p.locator('#ui-case1').innerText()).includes('場景標註：車輛（非偵測）'),'D149 car card explicitly marked as scene annotation');await capture(p,'a4-car-annotation');
 const eightcam = await checkEightCamWall(p, base, check, {required: process.env.UI_QA_REQUIRE_8CAM === '1'});
 if (eightcam) await capture(p, 'a4-8cam-wall', eightcam);
+if (eightcam) {
+ const b4Eightcam = await checkEightCamWall(p, base, check, {required: true, label: 'B4-1'});
+ await capture(p, 'b4-8cam-wall', b4Eightcam);
+}
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
 }finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
