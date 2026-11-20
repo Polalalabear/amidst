@@ -1,3 +1,4 @@
+import {headlessMode} from '../browser_options.mjs';
 import {readFile,writeFile,mkdir,statfs} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import os from 'node:os';
@@ -11,7 +12,7 @@ const toolPins={};for(const name of ['measure_playback.mjs','browser_probe.mjs']
 async function disk(){const s=await statfs(path.dirname(options.output));if(s.bavail*s.bsize<8*1024**3)throw Error('DISK_BELOW_8_GIB');}
 await disk();
 await mkdir(options.output,{recursive:false});
-const headful=options.visible==='true';
+const headful=!headlessMode();
 const browser=await chromium.launch({headless:!headful,executablePath:options.chrome,args:['--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows']});
 const rows=[];const quantile=(a,p)=>a.length?[...a].sort((x,y)=>x-y)[Math.ceil(p*a.length)-1]:null;
 try{

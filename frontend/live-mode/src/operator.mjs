@@ -9,6 +9,9 @@ import {applyMouseDelta, DEFAULT_VIEW_CONFIG} from './view.mjs';
 import {makeCapture, packInfer, chooseCaptureIds} from './capture.mjs';
 import {buildSystemMessage, buildInferHeader} from './protocol.mjs';
 import {CHANNEL, params, now} from './common.mjs';
+import {RECORD_DT, captureStride, hashBinding, validateCase, createInputRecording,
+  createPlayback, importActions, replayActions} from './recording.mjs';
+
 import {createScriptOperator, createFixedStepper, SCRIPT_DT} from './script_operator.mjs';
 import {HARDSET_ROUTES} from './hardset_routes.mjs';
 
@@ -71,6 +74,8 @@ export function variantSwatches(buffer) {
 export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
   if (mode === 'off') return () => {};
   const canLock = mode !== 'drag' && typeof canvas.requestPointerLock === 'function';
+  // clientX/clientY already use CSS pixels, independent of devicePixelRatio.
+  const retryClickTravelCssPx = 3;
   let dragMode = !canLock, dragging = false, previous = null, travel = 0, pending = null;
   const listeners = [];
   const on = (target, type, fn) => { target.addEventListener(type, fn); listeners.push(() => target.removeEventListener(type, fn)); };
@@ -80,7 +85,7 @@ export function bindMouseView(canvas, doc, {mode = 'lock', update}) {
     dragMode = true;
   };
   on(canvas, 'click', () => {
-    if (!canLock || pending || doc.pointerLockElement === canvas || travel > 3) return;
+    if (!canLock || pending || doc.pointerLockElement === canvas || travel > retryClickTravelCssPx) return;
     const ticket = pending = Symbol();
     try { Promise.resolve(canvas.requestPointerLock()).catch(() => fallback(ticket)); }
     catch { fallback(ticket); }
@@ -126,6 +131,7 @@ export function privateTick(snapshot, tick, t_capture, visible) {
     pause_script_i: pauses('pause_script_i'),
     block_wait: snapshot.actors.filter(a => a.block_wait > 0).map(a => ({i: a.actor_id, j: 'player', waited_s: a.block_wait})),
     forced_pairs: snapshot.forced_pairs,
+    active_passes: snapshot.active_passes,
   };
 }
 
@@ -151,6 +157,20 @@ function previews(body, gltf) {
 export async function start(body, {fetcher = globalThis.fetch, query = location.search, enter = runOperator, preview = previews} = {}) {
   const q = new URLSearchParams(query), options = menuOptions(q);
   const P = {...params(), model: q.get('model') || 'glb'};
+  let recordedCase = null;
+  if (q.get('auto') === 'recorded') {
+    body.innerHTML = '<main style="padding:5vw"><h1>A · 載入重播劇本</h1><input id="case-file" type="file" accept=".json"><p id="case-status" role="status"></p></main>';
+    recordedCase = await new Promise(resolve => {
+      body.querySelector('#case-file').onchange = async event => {
+        try { resolve(validateCase(JSON.parse(await event.target.files[0].text()))); }
+        catch (error) { body.querySelector('#case-status').textContent = error.message; }
+      };
+    });
+    Object.assign(P, recordedCase.config, {auto: recordedCase.config.auto || null});
+    Object.assign(options, {run_id: recordedCase.run_id, actor_id: recordedCase.actor_id, mouse: 'off'});
+    body.replaceChildren();
+  }
+  P.record = q.get('record') === '1' || !!recordedCase;
   const response = await fetcher('/data/scenario.json');
   if (!response.ok) throw new Error('SCENARIO_LOAD_FAILED');
   const scenario = await response.json(), gate = createSessionGate(scenario, options, fetcher);
@@ -158,7 +178,7 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
   async function begin() {
     const session = await gate.begin();
     cleanup(); body.querySelector('#ab-menu')?.remove();
-    return enter(body, P, session, {fetcher, mouse: options.mouse, gltf});
+    return enter(body, P, session, {fetcher, mouse: options.mouse, gltf, recordedCase});
   }
   if (options.skip) return begin();
   body.insertAdjacentHTML('beforeend', `<main id="ab-menu" style="box-sizing:border-box;min-height:100%;padding:4vh 5vw;max-width:1200px;margin:auto">
@@ -225,19 +245,33 @@ export function makeOperatorView(world) {
   };
 }
 
-async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
+async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase}) {
   body.insertAdjacentHTML('beforeend', `<div id="op"><canvas id="view"></canvas><div id="panel"><h2>A · 操作端</h2>
     <p>WASD 移動 · Shift 跑 · 點畫布鎖定滑鼠（Esc 釋放）；不支援鎖定時按住左鍵拖曳。</p>
-    <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p></div></div>`);
+    <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p>
+    <p id="crowd-warning" role="status" hidden>人群模擬錯誤（已跳過該步）</p></div></div>`);
+  if (P.record) body.querySelector('#panel').insertAdjacentHTML('beforeend',
+    '<button id="record-stop">結束錄製</button> <button id="case-download">下載重播劇本</button><p><label>附加同局 B 紀錄 <input id="case-actions" type="file" accept=".json"></label></p><button id="replay-system-download">下載重播系統紀錄</button>');
   const {scenario, world, cams, n6, config} = await setupWorld(P, {scenario: true});
   if (gltf) world.characterGltf = gltf;
   const run = scenario.runs.find(r => r.run_id === session.run_id), camIds = P.cams || Object.keys(cams);
-  const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto});
-  // #597 scripted operator: same crowd step (walls, avoidance) as the keyboard; reads only the player pose and t_sim.
+  const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto,
+    cfg: recordedCase?.config.crowd || {}, strict: false});
   const route = P.script ? HARDSET_ROUTES[P.script] : null;
   if (P.script && (!route || runId(route.run_id) !== session.run_id || P.auto)) throw new Error('SCRIPT_SESSION_MISMATCH');
-  const scripted = route ? createScriptOperator(route) : null, stepper = scripted ? createFixedStepper(crowd, scripted) : null;
+  const scripted = route ? createScriptOperator(route) : null;
+  const stepper = scripted && !P.record ? createFixedStepper(crowd, scripted) : null;
   let snapshot = crowd.snapshot(), viewState = {view_yaw: 0, view_pitch: 0};
+  const stride = P.record ? captureStride(P.fps) : null;
+  const bindings = P.record ? {scene_sha256: await hashBinding({run, segments: world.segments}),
+    cameras_sha256: await hashBinding(Object.fromEntries(Object.entries(cams).map(([id, c]) =>
+      [id, {world: c.camera.matrixWorld.toArray(), projection: c.camera.projectionMatrix.toArray()}])))} : null;
+  const recording = P.record ? createInputRecording({case_id: recordedCase?.case_id || P.script || 'case-' + Date.now(),
+    script_id: recordedCase?.script_id || P.script || null,
+    run_id: session.run_id, actor_id: session.actor_id, seed: recordedCase?.seed ?? 0, bindings,
+    config: {w:P.w,h:P.h,fps:P.fps,cams:camIds,model:P.model,scene:P.scene,quality:P.quality,
+      auto:P.auto,crowd:snapshot.config}}, snapshot) : null;
+  const playback = recordedCase ? createPlayback(recordedCase, crowd, bindings) : null;
   const people = new Map();
   for (const actor of run.actors) people.set(actor.actor_id, await makePerson(P.model, world, actor.actor_id === 'C' ? 'blue' : actor.actor_id === 'B' ? 'orange' : 'red', actor.actor_id));
   const view = body.querySelector('#view'), stats = body.querySelector('#stats');
@@ -249,11 +283,32 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
   addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
   addEventListener('blur', () => { for (const k of Object.keys(keys)) delete keys[k]; });
-  const log = {schema_version: 'live-ab.a-log.v1', ...session, ticks: [], forced_overlap: [], block_wait: [], spawn_adjusted: snapshot.spawn_adjusted,
+  const eventTypes = ['forced_overlap', 'block_wait', 'pass_end', 'crowd_error'];
+  const log = {schema_version: 'live-ab.a-log.v1', ...session, ticks: [], forced_overlap: [], block_wait: [],
+    pass_end: [], crowd_error: [], spawn_adjusted: snapshot.spawn_adjusted,
     config: {...P, run: session.run_id, cams: camIds, n6, crowd: snapshot.config, ...snapshot.config, view: {...DEFAULT_VIEW_CONFIG, mouse}, schedule_mode: config.schedule_mode},
     sent: 0, dropped: 0, fpsStart: now()};
   if (scripted) { log.config.script = {case_id: P.script, dt: SCRIPT_DT, steps: route.steps.length}; log.script_events = scripted.events; }
   window.__log = log;
+  let caseActions = recordedCase?.actions || [], finished = false, stopped = false, carry = 0;
+  const replayLog = {schema_version: 'live-ab.b-log.v1', session_id: session.session_id,
+    ticks: [], actions: [], hud_latency: [], displays: [], violations: [], capture_source: 'A_REPLAY_RESPONSE'};
+  function download(value, name) {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], {type: 'application/json'}));
+    const link = Object.assign(body.ownerDocument.createElement('a'), {href: url, download: name});
+    link.click(); URL.revokeObjectURL(url);
+  }
+  if (P.record) {
+    window.__case = () => recording.export(caseActions);
+    window.__replayLog = replayLog;
+    body.querySelector('#record-stop').onclick = () => { stopped = true; };
+    body.querySelector('#case-download').onclick = () => download(recording.export(caseActions), recording.export().case_id + '.case.json');
+    body.querySelector('#replay-system-download').onclick = () => download(replayLog, 'live-ab-b-' + session.session_id + '.json');
+    body.querySelector('#case-actions').onchange = async event => {
+      try { caseActions = importActions(JSON.parse(await event.target.files[0].text()), log); stats.textContent = '已附加 B 操作'; }
+      catch (error) { stats.textContent = error.message; }
+    };
+  }
   window.__setKeys = k => Object.assign(keys, k);
   // Read-only coordinates preserve the legacy measurement hook; no object/variant/session setter.
   Object.defineProperty(window, '__op', {configurable: false, value: Object.freeze({get P0() { const a = snapshot.actors.find(a => a.is_player); return Object.freeze({x: a.x, y: a.y, heading: a.heading}); }})});
@@ -263,18 +318,53 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
   };
   const cap = makeCapture(world, cams, P.w, P.h, P.quality), chan = new BroadcastChannel(CHANNEL);
   const drawOperator = makeOperatorView(world); let last = performance.now();
+  const crowdWarning = body.querySelector('#crowd-warning');
+  let recordedEvents = 0, capturedEvents = 0;
   function frame(tn) {
     const dt = Math.min(.1, Math.max(0, (tn - last) / 1000)); last = tn;
-    if (dt > 0) snapshot = stepper ? stepper.advance(dt) : crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
-    for (const a of snapshot.actors) {
+    let advanced = dt;
+    if (P.record) {
+      advanced = 0;
+      carry = Math.min(.2, carry + dt);
+      while (!inflight && !finished && !stopped && carry >= RECORD_DT
+          && snapshot.tick < tick * stride && !playback?.done) {
+        const player = snapshot.actors.find(a => a.is_player);
+        const input = playback ? recordedCase.inputs[recording.length].keys
+          : scripted ? scripted.keys({x: player.x, y: player.y}, snapshot.t_sim)
+          : {...keys, view_yaw: viewState.view_yaw};
+        try { snapshot = playback ? playback.step() : crowd.step(input, RECORD_DT); }
+        catch (error) { finished = true; window.__recordingError = error.message; stats.textContent = error.message; break; }
+        recording.append(input, snapshot);
+        updatePeople(RECORD_DT);
+        carry -= RECORD_DT;
+        advanced += RECORD_DT;
+      }
+    } else if (dt > 0) snapshot = stepper ? stepper.advance(dt) : crowd.step({...keys, view_yaw: viewState.view_yaw}, dt);
+    if (advanced > 0) {
+      for (const event of snapshot.events.slice(recordedEvents)) {
+        if (eventTypes.includes(event.type) && event.type !== 'crowd_error') log[event.type].push(event);
+      }
+      recordedEvents = snapshot.events.length;
+      log.crowd_error = snapshot.events.filter(event => event.type === 'crowd_error');
+      if (log.crowd_error.length) crowdWarning.hidden = false;
+    }
+    if (!P.record) updatePeople(dt);
+    else if (snapshot.tick === 0) updatePeople(0);
+    function updatePeople(stepDt) {
+     for (const a of snapshot.actors) {
       const h = people.get(a.actor_id); h.setVisible(a.present);
-      if (a.present) { h.setPose(a.x, a.y, a.heading); h.setSpeed(a.speed < .05 ? 0 : a.speed, a.is_player && !P.auto ? a.running : undefined); } h.update(dt);
+      if (a.present) { h.setPose(a.x, a.y, a.heading); h.setSpeed(a.speed < .05 ? 0 : a.speed, a.is_player && !P.auto ? a.running : undefined); } h.update(stepDt);
+     }
     }
     const p = snapshot.actors.find(a => a.is_player), yaw = viewState.view_yaw * Math.PI / 180, pitch = viewState.view_pitch * Math.PI / 180;
     // Independent orbit follows the player at 4.5 m, eye height 2.1 m; body heading stays movement-derived.
     vcam.position.set(p.x - 4.5 * Math.sin(yaw), 2.1, -p.y + 4.5 * Math.cos(yaw));
     vcam.lookAt(vcam.position.x + Math.sin(yaw) * Math.cos(pitch), vcam.position.y + Math.sin(pitch), vcam.position.z - Math.cos(yaw) * Math.cos(pitch));
     drawOperator(() => renderer.render(world.scene, vcam));
+    if (P.record && !inflight && !finished && !stopped && snapshot.tick === tick * stride) void captureTick();
+    if (P.record && (stopped || playback?.done) && !inflight) {
+      finished = true; window.__recordingDone = true;
+    }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -284,27 +374,42 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf}) {
     inflight = true;
     try {
       const tCap = now(), snap = snapshot;
+      if (recordedCase) replayLog.actions.push(...await replayActions(caseActions, tick, session.session_id, fetcher, now));
       const row = privateTick(snap, tick, tCap, a => groundTruthVisible(cams, world.blockers, world.root, a.x, a.y));
       if (scripted) row.script_step = scripted.step;
       // Start every shoot synchronously in this task, before the next animation frame changes poses.
-      const frames = await Promise.all(chooseCaptureIds(camIds, schedule).map(async id => ({cam: id, jpeg: await cap.shoot(id)})));
-      const header = buildInferHeader({tick, tCaptureMs: tCap, frames, availableCameras: camIds});
+      const frames = await Promise.all((P.record ? camIds : chooseCaptureIds(camIds, schedule)).map(async id => ({cam: id, jpeg: await cap.shoot(id)})));
+      const header = buildInferHeader({tick, tCaptureMs: P.record ? tick * 1000 / P.fps : tCap, frames, availableCameras: camIds});
       const tSend = now(), response = await fetcher('/infer', {method: 'POST', body: packInfer(header, frames.map(f => f.jpeg))});
-      if (!response.ok) throw new Error(`INFER_HTTP_${response.status}`);
+      if (!response.ok) {
+        if (!P.record && response.status === 409) {
+          const error = await response.json();
+          if (error?.error === 'NON_MONOTONIC_TICK' && Number.isSafeInteger(error.next_tick) && error.next_tick > tick) {
+            log.dropped++;
+            log.errors ||= [];
+            log.errors.push({tick, error: 'NON_MONOTONIC_TICK'});
+            tick = error.next_tick;
+            return;
+          }
+        }
+        throw new Error(`INFER_HTTP_${response.status}`);
+      }
       const res = await response.json(), tResp = now(); schedule = res.schedule || null;
-      chan.postMessage(buildSystemMessage({tick, tCaptureMs: tCap, frames, result: res}));
-      const forces = snap.events.filter(e => e.type === 'forced_overlap');
-      const waits = snap.events.filter(e => e.type === 'block_wait');
-      row.forced_overlap = forces.slice(log.forced_overlap.length);
-      row.block_wait.push(...waits.slice(log.block_wait.length));
+      const message = buildSystemMessage({tick, tCaptureMs: tCap, frames, result: res});
+      chan.postMessage(message);
+      if (P.record) replayLog.ticks.push({tick, t_capture: tCap, t_resp: tResp, t_display: null, tracking: message.tracking});
+      const newEvents = snap.events.slice(capturedEvents);
+      for (const type of eventTypes) {
+        row[type] = [...(row[type] || []), ...newEvents.filter(event => event.type === type)];
+      }
       row.spawn_adjusted = log.ticks.length ? [] : snap.spawn_adjusted;
-      log.forced_overlap = forces;
-      log.block_wait = waits;
-      log.ticks.push({...row, t_send: tSend, t_resp: tResp, t_post: now(), timing: res.timing_ms,
+      capturedEvents = snap.events.length;
+      log.ticks.push({...row, t_infer_capture_ms: header.t_capture_ms, t_send: tSend, t_resp: tResp, t_post: now(), timing: res.timing_ms,
         active: res.tracking?.active_cam, state: res.tracking?.state, schedule: res.schedule});
       log.sent++; stats.textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`; tick++;
-    } catch (error) { stats.textContent = `擷取失敗：${error.message}`; log.errors ||= []; log.errors.push({tick, error: error.message}); }
+    } catch (error) { if (P.record) { finished = true; window.__recordingError = error.message; } stats.textContent = `擷取失敗：${error.message}`; log.errors ||= []; log.errors.push({tick, error: error.message}); }
     finally { inflight = false; }
   }
-  setInterval(captureTick, 1000 / P.fps); window.__ready = true;
+  if (!P.record) setInterval(captureTick, 1000 / P.fps);
+  window.__ready = true;
 }

@@ -351,7 +351,52 @@ def test_penetration_raw_adjusted_and_script_forced_pair_exclusion():
     a["ticks"][1]["actors"][-1]["xy"] = [0.4, 0]
     a["forced_overlap"] = [{"tick": 1, "i": "T", "j": "B", "kind": "script", "chain": True}]
     a["ticks"][1]["forced_pairs"] = [["T", "B"]]
-    assert score_logs(a, b)["crowd"]["forced_pair_samples_excluded"] == 1
+    stats = score_logs(a, b)["crowd"]
+    assert stats["forced_pair_samples_excluded"] == 1
+    assert stats["separation_excluding_passes"] == stats["separation"] == 1
+    assert stats["separation_including_passes"] < 1
+
+
+def test_pass_end_summary_deduplicates_log_levels():
+    a, b = logs()
+    a["pass_end"] = [
+        {"type": "pass_end", "tick": 40, "i": "A", "j": "B", "reason": "timeout",
+         "duration_s": 3, "exempt_steps": 31},
+        {"type": "pass_end", "tick": 52, "i": "C", "j": "B", "reason": "separated",
+         "duration_s": 0.5, "exempt_steps": 6},
+    ]
+    a["ticks"][3]["pass_end"] = copy.deepcopy(a["pass_end"])
+    assert score_logs(a, b)["crowd"]["pass_end"] == {
+        "count": 2,
+        "by_reason": {"hidden": 0, "separated": 1, "receded": 0, "timeout": 1},
+        "exempt_steps": 37,
+        "lingering": 0,
+        "lingering_steps": 0,
+        "max_duration_s": 3,
+    }
+    a["ticks"][-1]["active_passes"] = [
+        {"i": "A", "j": "C", "lingering": True, "lingering_steps": 70, "duration_s": 10}
+    ]
+    stats = score_logs(a, b)["crowd"]
+    assert stats["pass_end"]["lingering"] == 1
+    assert stats["pass_end"]["lingering_steps"] == 70
+    assert stats["pass_end"]["max_duration_s"] == 10
+
+
+@pytest.mark.parametrize("run_level", [True, False])
+def test_repeated_crowd_errors_are_partial_and_keep_tracking_scores(run_level):
+    a, b = logs()
+    baseline = score_logs(a, b)
+    error = {"type": "crowd_error", "code": "CROWD_UNRESOLVED_PAIR", "tick": 2, "t_sim": 0.2, "count": 2}
+    a["ticks"][3]["crowd_error"] = [error]
+    if run_level:
+        a["crowd_error"] = [error]
+    result = score_logs(a, b)
+    assert result["status"] == "PARTIAL"
+    assert result["unknown_reasons"] == sorted([*baseline["unknown_reasons"], "CROWD_ERROR"])
+    assert result["crowd"]["crowd_error_count"] == 1
+    assert result["crowd"]["crowd_error_occurrences"] == 2
+    assert result["segments"] == baseline["segments"]
 
 
 @pytest.mark.parametrize("delta,status", [(1.5, "PICKED"), (1.50001, "MISPICK")])

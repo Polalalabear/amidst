@@ -18,7 +18,10 @@ function usage() {
     load1: Number(sh('sysctl -n vm.loadavg').trim().split(' ')[1]) };
 }
 
+const samples = [];
+let o, s;
 const b = await launch();
+try {
 const sys = await b.newPage(); sys.on('pageerror', (e) => console.log('[sys err]', e.message));
 await sys.goto(`${BASE}/?role=system`);
 await sys.waitForFunction('window.__ready === true');
@@ -43,10 +46,10 @@ if (process.env.RAW) await op.evaluateOnNewDocument(() => {
 });
 await op.goto(`${BASE}/?${query}`);
 await op.waitForFunction('window.__ready === true', { timeout: 60000 });
-const samples = [];
+
 const tStart = Date.now();
 while (Date.now() - tStart < Number(secs) * 1000) { await sleep(1000); samples.push(usage()); }
-const o = await op.evaluate(() => {
+o = await op.evaluate(() => {
   const {config: cfg, sent, dropped, fpsStart: t0, actor_id, ticks} = __log;
   // This measurement uses the selected operator actor as a visibility proxy, separate from B's target.
   // The A download stores one
@@ -55,7 +58,7 @@ const o = await op.evaluate(() => {
     ...tick, gt_visible: tick.actors?.find(actor => actor.id === actor_id)?.gt_visible ?? tick.gt_visible ?? [],
   }))};
 });
-const s = await sys.evaluate(() => ({ displays: __log.displays, viol: __log.violations }));
+s = await sys.evaluate(() => ({ displays: __log.displays, viol: __log.violations }));
 if (process.env.RAW) {
   const infer = await op.evaluate(() => window.__jointInfer);
   const byTick = new Map(infer.map(r => [r.tick, r]));
@@ -68,7 +71,9 @@ if (process.env.SHOT) {
   await sys.screenshot({ path: `${process.env.SHOT}_system.png` });
   await op.screenshot({ path: `${process.env.SHOT}_operator.png` });
 }
-await b.close();
+} finally {
+  await b.close();
+}
 
 const WARM = 4; // drop first ticks (MPS/JIT warm-up)
 const disp = new Map(s.displays.map((d) => [d.tick, d]));

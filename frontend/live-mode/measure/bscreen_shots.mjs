@@ -17,6 +17,7 @@ const test = {
   fallback: (v) => v.source.tone === 'fallback' && v.status.tone === 'fallback',
 };
 const b = await launch(['--window-size=1600,900']);
+try {
 const sys = await b.newPage(); await sys.setViewport({ width: 1600, height: 900 });
 sys.on('pageerror', (e) => console.log('[sys err]', e.message));
 await sys.goto(`${BASE}/?role=system`); await sys.waitForFunction('window.__ready === true');
@@ -36,4 +37,6 @@ while (Date.now() - t0 < Number(secs) * 1000 && done.size < want.size) {
 }
 const viol = await sys.evaluate(() => __log.violations.length);
 console.log('done', [...done], 'missing', [...want].filter((c) => !done.has(c)), 'violations', viol);
-await b.close();
+} finally {
+  await b.close();
+}

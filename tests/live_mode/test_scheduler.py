@@ -4,6 +4,7 @@ import json
 
 import pytest
 
+from amidst.live_mode.candidates import TrackSelection
 from amidst.live_mode.scheduler import CameraScheduler, load_graph
 
 
@@ -70,6 +71,7 @@ def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations
     from amidst.live_mode.server import State
 
     state = object.__new__(State)
+    state.selection = TrackSelection()
     state.registered_cameras = list("ABCDE")
     state.scheduler = CameraScheduler(graph(), expand_every=1)
     state.args = SimpleNamespace(
