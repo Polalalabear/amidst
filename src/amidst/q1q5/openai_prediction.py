@@ -342,7 +342,9 @@ class OpenAIPredictionAdapter:
         self.timeout_s = float(timeout_s)
         self.max_calls_per_session = max_calls_per_session
         self._clock = clock
-        self._guard = guard if guard is not None else ab.shared_guard(env)
+        self._guard = guard
+        if enabled and mode == 'LIVE' and self._guard is None:
+            self._guard = ab.shared_guard(env)
         self.last_estimate: dict | None = None
 
         self._replay_by_sha: dict[str, dict] = {}

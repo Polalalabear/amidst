@@ -242,6 +242,6 @@ later repair is absent. PR for #651 adds ApiGuard.run to the OpenAI LIVE
 path in run_provider.py and every OpenAIPredictionAdapter transport attempt.
 Both retain a default-closed guard and recheck retries. See
 [PAID_API_G7_20261120.md](../operations/PAID_API_G7_20261120.md) for exact
-scope, commands, 168 passing focused tests and the four expected failures
+scope, commands, 181 passing focused tests and the four expected failures
 when guard placement is deliberately bypassed. The underlying provider
 architecture and the other audit gaps are unchanged; no paid call was made.
