@@ -1,3 +1,4 @@
+> 2026-11-19 註（D338，#631）：文中的 `frontend/workbench/` 路徑已於 D268 下線、PR #575 移除；現行主畫面是 `frontend/workbench-v2/`。本文已封存，不重寫。
 > 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
 
 # Office Demo MVP

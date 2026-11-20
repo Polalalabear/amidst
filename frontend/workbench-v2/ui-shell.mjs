@@ -23,6 +23,7 @@ import {
 import {eventDisplayName} from './event-names.mjs';
 import {planFromParse} from './nl-spotlight-model.mjs';
 import {placeName, nameTitle} from './place-names.mjs';
+import {agentSwitchView} from './agent-switch-model.mjs';
 import {mountSpotlight} from './nl-spotlight-view.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
@@ -202,20 +203,38 @@ export function mountUi(ctx) {
     const regionField = el('div', undefined, 'ui-field'); regionField.hidden = !regionEnabled; regionField.append(el('span', kind === 'search' ? '地點' : '地點（選填）', 'ui-label'), regionsBox);
     const featField = el('div', undefined, 'ui-field'); featField.append(el('span', kind === 'track' ? '特徵（必填）' : '特徵', 'ui-label'), classBox, colorBox);
     const filterInput = el('input', undefined, 'ui-input ui-feat-search', {type: 'search', placeholder: '搜尋特徵，例如「人」「person」「bag」', 'aria-label': '搜尋特徵', autocomplete: 'off'}); filterInput.id = `ui-${id}-feat-search`;
+    // 追蹤方式: native v2 control (規則 / Agent) over the store's switchMode; wording comes from agentSwitchView.
+    let modeField = null, modeSync = null;
+    if (kind === 'track') {
+      // Single switch: off = 規則, on = Agent (disabled while the Agent is unavailable / not applicable).
+      const modeToggle = el('button', undefined, 'ui-toggle', {type: 'button', role: 'switch', 'aria-checked': 'false', 'aria-label': '使用 Agent 決定換鏡'}); modeToggle.id = 'ui-track-mode';
+      const modeLabel = el('span', '規則', 'ui-small'); modeLabel.id = 'ui-track-mode-label';
+      const segBox = el('span', undefined, 'ui-modeswitch'); segBox.append(modeToggle, modeLabel);
+      const modeNote = el('p', '', 'ui-note'); modeNote.id = 'ui-track-mode-note';
+      modeToggle.addEventListener('click', () => { if (!modeToggle.disabled) store.dispatch({type: 'SET_SWITCH_MODE', value: modeToggle.getAttribute('aria-checked') === 'true' ? 'RULE_ONLY' : 'AGENT_SEQUENTIAL'}); });
+      modeSync = s => {
+        const v = agentSwitchView(s.activeRun, s.switchMode), on = v.effective === 'AGENT_SEQUENTIAL';
+        modeToggle.setAttribute('aria-checked', String(on)); modeToggle.disabled = !v.agentEnabled; modeToggle.title = v.agentEnabled ? '' : v.note;
+        modeLabel.textContent = on ? 'Agent' : '規則';
+        modeNote.textContent = v.note; modeNote.dataset.tone = v.tone;
+      };
+      modeField = field('追蹤方式', segBox); modeField.append(modeNote);
+    }
     const note = kind === 'track' ? el('p', '第一次鎖定需要掃過全部鏡頭，會顯示進度；鎖定之後換鏡頭會立即切換。', 'ui-note') : null;
     // Layout: only the feature list scrolls; head, time, place, submit and notes stay put (the button never scrolls away).
     featField.classList.add('ui-qfeat'); card.classList.add('ui-qcard-split');
-    card.append(head, timeField, ...(regionEnabled ? [regionField] : []), filterInput, featField, submit, feedback);   // search stays pinned with the time fields; only the list scrolls
+    card.append(head, timeField, ...(regionEnabled ? [regionField] : []), filterInput, featField, ...(modeField ? [modeField] : []), submit, feedback);   // search stays pinned with the time fields; only the list scrolls
     if (note) card.append(note);
     const progress = el('div', undefined, 'ui-card ui-progress'); progress.id = `ui-${id}-progress`; progress.hidden = true;
     win.append(card, progress);
-    const api = {filterInput, filter: '', start, end, regionsBox, classBox, colorBox, feedback, submit, progress, form, kind, card, regionField};
+    const api = {modeSync, filterInput, filter: '', start, end, regionsBox, classBox, colorBox, feedback, submit, progress, form, kind, card, regionField};
     submit.addEventListener('click', () => submitQuery(api));
     filterInput.addEventListener('input', () => { api.filter = filterInput.value; renderCatalog(); });
     for (const input of [start, end]) input.addEventListener('keydown', e => { if (e.key === 'Enter') submitQuery(api); });
     return api;
   }
   function renderCatalog() {
+    for (const w of [q1, q2]) w.modeSync?.(store.getState());
     const cat = ctx.coreCatalog?.() ?? {regions: [], classes: [], colors: [], aliases: {}};
     for (const w of [q1, q2]) {
       const {regionsBox, classBox, colorBox, form} = w;
@@ -826,7 +845,7 @@ export function mountUi(ctx) {
     else if (screen === 'case3') mountCase3();
   }
   let prevState = store.getState();
-  disposers.push(store.subscribe(s => { afterStore(s, prevState); const prev = prevState; prevState = s; if (s.bootstrap !== prev.bootstrap || s.activeRun !== prev.activeRun) renderCatalog(); render(); }));
+  disposers.push(store.subscribe(s => { q2.modeSync?.(s); afterStore(s, prevState); const prev = prevState; prevState = s; if (s.bootstrap !== prev.bootstrap || s.activeRun !== prev.activeRun) renderCatalog(); render(); }));
   const unsubCatalog = ctx.subscribeCatalog?.(renderCatalog); if (unsubCatalog) disposers.push(unsubCatalog);
   const noteTimer = setInterval(() => { if (screen === 'case2' && trackParts.actual) trackParts.actual.textContent = shownSpeedNote(); if (screen === 'case3') updateWallTransport(); }, 500);
   disposers.push(() => clearInterval(noteTimer));

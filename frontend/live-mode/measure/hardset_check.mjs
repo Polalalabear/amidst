@@ -1,10 +1,11 @@
 // #597 offline check of a scripted segment's success conditions from its A log, and (when given) the B log
 // (GT, evaluation only). node measure/hardset_check.mjs <a-log.json> [<b-log.json>] ... -> JSON report on stdout.
 // Pairs: each A log may be followed by its B log (file name ending .b-log.json).
-// Implements the H1 / H4 / H5 / H5c conditions of docs/evaluation/LIVE_HARDSET_V1.md §4 in two readings:
-//   strict: every camera counts as seeing the target (CAM_ENTRY included)  -> verdict
-//   graph : CAM_ENTRY is removed first, as in graph v3                    -> verdict_graph
-// COMMON.pre (B ON_TARGET for the 3 s before the hard point) uses the B log; the classification copies
+// Implements the H1 / H2 / H3 / H4 / H5 / H5c conditions of docs/evaluation/LIVE_HARDSET_V1.md §4 in two readings:
+//   graph : CAM_ENTRY is removed first, as in graph v3   -> verdict (official, decided 2026-11-18)
+//   strict: every camera counts (CAM_ENTRY included)    -> verdict_strict (note only)
+// COMMON.pre (B ON_TARGET for the 3 s before the hard point) uses the B log and is a per-mode label
+// (common_pre_by_mode; MODE env, default "rules"), not a re-record condition. The classification copies
 // scripts/live_ab_score.py classify() (match 1.5 m, TRACKING with lost_ticks 0).
 import fs from 'node:fs';
 
@@ -52,6 +53,31 @@ function redNear(ticks, g, windowS = 3, gate = 4) {
     best = Math.max(best, n);
   }
   return best;
+}
+
+// H2: first tick where T and a red distractor are <= 1.0 m apart and share a camera; then the first tick within
+// 10 s where that person is >= 3 m away; then seconds T is visible within 10 s after that split.
+function cross(ticks, ignore) {
+  for (let i = 0; i < ticks.length; i++) {
+    const t = actor(ticks[i], 'T');
+    for (const id of RED) {
+      const o = actor(ticks[i], id);
+      if (!t?.present || !o?.present || dist(t.xy, o.xy) > 1.0) continue;
+      const shared = cams(t, ignore).filter(cam => cams(o, ignore).includes(cam));
+      if (!shared.length) continue;
+      const out = {who: id, t_close: ticks[i].t_sim, d_close_m: +dist(t.xy, o.xy).toFixed(2), shared, t_split: null};
+      for (let j = i + 1; j < ticks.length && ticks[j].t_sim <= ticks[i].t_sim + 10; j++) {
+        const tj = actor(ticks[j], 'T'), oj = actor(ticks[j], id);
+        if (!oj?.present || dist(tj.xy, oj.xy) >= 3) {
+          out.t_split = ticks[j].t_sim;
+          out.visible_after_s = +visibleAfter(ticks, j, ignore).toFixed(2);
+          break;
+        }
+      }
+      return out;
+    }
+  }
+  return null;
 }
 
 function skipped(x, z) {
@@ -146,6 +172,23 @@ function family(meta, ticks, ignore, b) {
     c['H4.b overlap >= 3 s'] = ov.s >= 3;
     r.hard_point_t = skips[0]?.t_start ?? (ov.s >= 3 ? ov.t_start : null);
     r.verdict = c['H4.a skip with gap >= 1 s'] || c['H4.b overlap >= 3 s'] ? 'H4' : 'NOT_PRODUCED';
+  } else if (meta.family === 'H2') {
+    const x = cross(ticks, ignore);
+    r.h2 = x;
+    c['H2.a <= 1.0 m sharing a camera'] = !!x;
+    c['H2.b >= 3 m within 10 s'] = !!x?.t_split;
+    c['H2.c visible >= 5 s after the split'] = !!x?.t_split && x.visible_after_s >= 5;
+    r.hard_point_t = x?.t_close ?? null;
+    r.verdict = Object.values(c).every(Boolean) ? 'H2' : 'NOT_PRODUCED';
+  } else if (meta.family === 'H3') {
+    const fold = all.filter(g => g.unseen_s >= 2 && g.reappear_cams.some(cam => g.last_cams.includes(cam)));
+    const detour = all.filter(g => g.unseen_s >= 6);
+    r.h3_foldbacks = fold.map(g => ({t_start: g.t_start, unseen_s: +g.unseen_s.toFixed(2), cams: g.last_cams}));
+    r.h3_detours = detour.map(g => ({t_start: g.t_start, unseen_s: +g.unseen_s.toFixed(2)}));
+    c['H3.a fold-back (gap >= 2 s, same camera)'] = fold.length > 0;
+    c['H3.b detour (gap >= 6 s)'] = detour.length > 0;
+    r.hard_point_t = [...fold, ...detour].sort((p, q) => p.t_start - q.t_start)[0]?.t_start ?? null;
+    r.verdict = fold.length || detour.length ? 'H3' : 'NOT_PRODUCED';
   } else r.verdict = 'NOT_APPLICABLE';
   r.common_pre = pre(b, r.hard_point_t);
   return r;
@@ -161,8 +204,9 @@ export function check(log, bLog = null) {
     pause_player_max_s: Math.max(0, ...ticks.flatMap(t => Object.values(t.pause_player_i || {}))),
     forced_overlap: (log.forced_overlap || []).length, script_stalls: (log.script_events || []).filter(e => e.type === 'script_stall').length};
   for (const [name, ignore] of Object.entries(READINGS)) out[name] = family(meta, ticks, ignore, b);
-  out.verdict = out.strict.verdict;
-  out.verdict_graph = out.graph.verdict;
+  out.verdict = out.graph.verdict;
+  out.verdict_strict = out.strict.verdict;
+  out.common_pre_by_mode = {[process.env.MODE || 'rules']: out.graph.common_pre.status};
   if (b) { const {rows, ...rest} = b; out.b = rest; }
   return out;
 }

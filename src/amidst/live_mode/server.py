@@ -68,6 +68,9 @@ def assets_dir(arg: str | None) -> Path | None:
     return Path(art) / "data" / "live-assets-20261115" if art else None
 
 
+COLOR_WEAK_DEFAULT = 0.2   # #619: live red/blue label share; offline CFG["weak"] (D131) stays 0.3
+
+
 class State:
     def __init__(self, args, *, track_sentence_guard=None):
         self.lock = threading.Lock()
@@ -285,7 +288,7 @@ class State:
                     bbox, score = d["bbox"], d["score"]
                     if not finite_point(bbox, 4) or not finite_point([score], 1) or (track and score < threshold):
                         continue
-                    colors = judge(arr, bbox)
+                    colors = judge(arr, bbox, getattr(self.args, "color_weak", None))
                     if dim is not im:
                         k = im.width / dim.width
                         bbox = [v * k for v in bbox]
@@ -487,6 +490,7 @@ def main():
                          "target much less often in replay and in fresh runs (docs/evaluation/LIVE_MODE_TRACKER_20261116.md)")
     ap.add_argument("--gate-growth", type=float, default=0.0, help="metres per second the gate widens while the target is unseen (0 = fixed)")
     ap.add_argument("--max-gate", type=float, default=8.0)
+    ap.add_argument("--color-weak", type=float, default=COLOR_WEAK_DEFAULT, help="minimum clothing-colour share of the box crop for a red/blue label (#619)")
     ap.add_argument("--det-width", type=int, default=320, help="frames wider than this are shrunk to det-width x det-height for detection")
     ap.add_argument("--det-height", type=int, default=180)
     ap.add_argument("--workbench-ports", type=lambda v: [int(x) for x in v.split(",")], default=[8785],

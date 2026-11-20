@@ -653,7 +653,7 @@ def test_existing_path_does_not_import_agent_decision():
     offenders = []
     for root in ('src', 'scripts'):
         for path in (ROOT / root).rglob('*.py'):
-            if path in (MODULE, MODULE.with_name('agent_wiring.py')):  # WP2's opt-in wiring is the one importer
+            if path in (MODULE, MODULE.with_name('agent_wiring.py'), ROOT / 'scripts/capture_agent_payloads.py'):  # WP2's opt-in wiring; offline payload capture (#643)
                 continue
             tree = ast.parse(path.read_text(encoding='utf-8'))
             for node in ast.walk(tree):
