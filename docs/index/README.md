@@ -43,6 +43,7 @@
 | 日期 | 決策／issue | 修改內容 | PR |
 | --- | --- | --- | --- |
 | 2026-11-19 | D338／[#631](https://github.com/Polalalabear/amidst/issues/631) | 新增 `CODE_DOC_MAP.md`；SWEEP 補記 §2.3（LIVE 樣式）；`Q1Q5_PRODUCT_SPEC.md` 補 §4.4 LIVE、§6.1 決策選錄、鏡頭數、3D 現況，關閉 U-1、U-13；修正 `DEMO_RUNBOOK_20261104.md`、`UI_REDESIGN_V1.md`、`Q1Q5_PROGRESS.md`、`WORKBENCH_V2_Q1Q5_DESIGN.md`、`docs/engineering/LIVE_MODE_SPIKE_20261115.md`；封存文件 `CURRENT_WORK_REPRODUCTION.md`、`OFFICE_DEMO_TASKS.md`（放棄）、`OFFICE_DEMO_MVP.md`、`OFFICE_DEMO_SCRIPT.md`、`SYSTEM_DESIGN.md`、`ISSUES_AND_DECISIONS.md` 只加檔頭；審查修正：§4.3 改寫 #625 已合併（`1d322837`）、後續 #629，工作 1 指向 #633／#634 | [#632](https://github.com/Polalalabear/amidst/pull/632)（Draft） |
+| 2026-11-20 | W2／[#645](https://github.com/Polalalabear/amidst/issues/645) | `CODE_DOC_MAP.md` 加 §4.3 主動 Agent 決策器；`Q1Q5_PRODUCT_SPEC.md` §4.3 加 Agent 請求結構；新增 `W2_ACTIVE_AGENT_20261120.md`；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §4.1 加現況對照 | W2 PR（Draft，見 #645） |
 
 ## 論文素材
 
