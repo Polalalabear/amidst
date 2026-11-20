@@ -1,4 +1,4 @@
-"""The optional workbench run binds only the pinned A4-1 safe observations."""
+"""The optional workbench sources bind the pinned A4-1/B4-1 observations."""
 import os
 import sys
 from pathlib import Path
@@ -63,7 +63,7 @@ def test_real_eightcam_binds_every_frame_to_the_detector_index():
         pytest.skip("AMIDST_ROOT_8CAM needed for the #529 LOCAL bundle")
     bundle, reason = prepare_eightcam(root)
     assert reason is None
-    assert len(bundle.read_files) == 2007
+    assert len(bundle.read_files) == 3692
     index, clock, settings, catalog, graph, frames = bundle.load()
     interval, by_camera, clock_id = frames
     assert index.manifest["run_id"] == RUN_ID
@@ -73,6 +73,17 @@ def test_real_eightcam_binds_every_frame_to_the_detector_index():
     assert all(len(samples) == 250 for samples in by_camera.values())
     assert "CAM_ENTRY" in by_camera
     assert "CAM_ENTRY" not in {camera["camera_id"] for camera in graph["cameras"]}
+    secondary = bundle.sources[1]
+    index, clock, settings, catalog, graph, frames = secondary.load()
+    assert index.manifest["run_id"] == secondary.run_id
+    assert secondary.title.startswith("B4-1-8CAM")
+    assert clock.duration_us == 42_000_000
+    assert all(len(samples) == 210 for samples in frames[1].values())
+    assert len(index.records) == 1680
+    broken = EightCamSource(bundle.root, dict(bundle.pins), 'B4-1')
+    broken.pins['indexes/B4-1/detection_index.json'] = '0' * 64
+    with pytest.raises(ValueError, match='BYTE_PIN_MISMATCH'):
+        broken.load()
 
 
 def test_guard_limits_eightcam_to_explicit_read_only_files(monkeypatch, tmp_path):
@@ -99,3 +110,33 @@ def test_guard_limits_eightcam_to_explicit_read_only_files(monkeypatch, tmp_path
     with pytest.raises(ValueError, match="EXTERNAL_LOCAL_INPUT_DENIED"):
         audit("open", (allowed, "r", os.O_RDONLY))
     audit("open", (demo / "existing-run.png", "r", os.O_RDONLY))
+
+
+def test_both_eightcam_runs_are_registered_with_estimates_and_missing_sources_unknown(tmp_path):
+    if not os.environ.get("AMIDST_DEMO_HOME") or not os.environ.get("AMIDST_ROOT_8CAM"):
+        pytest.skip("owned demo and pinned 8CAM bundle required")
+    config, owned = dependency.configuration()
+    bundle, reason = prepare_eightcam(os.environ["AMIDST_ROOT_8CAM"])
+    demo = Demo(dependency.owned_path(owned, config["artifacts_root"]),
+                dependency.owned_path(owned, config["p1_bundle"]), tmp_path / "state",
+                job_path=dependency.owned_path(owned, config["cross_camera_job"]),
+                job_pin=config["cross_camera_job_sha256"], owned_root=owned,
+                eightcam=bundle, eightcam_reason=reason)
+    bootstrap = demo.bootstrap()
+    assert len(bootstrap["runs"]) == 6
+    assert len([r for r in bootstrap["eightcam_runs"] if r["status"] == "READY"]) == 2
+    missing = [r for r in bootstrap["eightcam_runs"] if r["status"] == "UNKNOWN"]
+    assert {r["label"] for r in missing} == {"B-05-8CAM", "r005-8CAM"}
+    assert all(r["run_id"] is None for r in missing)
+    token = demo.call("session", {"role": "demo"})["session_ref"]
+    for source in bundle.sources:
+        run = next(r for r in demo.api.runs.values() if r.catalog["run_id"] == source.run_id)
+        result = demo.call("q_core_track", {
+            "schema_version": "q-core.track-request.v1", "session_ref": token,
+            "scene_id": run.catalog["scene_id"], "run_id": source.run_id,
+            "feature": {"class_label": "person", "color_label": None},
+            "region_ids": [], "time": None, "playback_now_us": run.bindings.clock.duration_us,
+        })
+        assert "estimate" in result
+        if result["estimate"]["est_xy"] != "UNKNOWN":
+            assert result["estimate"]["calibration_sha256"] == bundle.pins["provenance/camera_catalog.json"]
