@@ -211,8 +211,8 @@ test('B browser selects via frame, map and list, downloads receipts and clears o
     if (req.url === '/?role=system') {
       return res.writeHead(200, { 'Content-Type': 'text/html' }).end(await readFile(new URL('../index.html', import.meta.url)));
     }
-    const match = req.url.match(/^\/src\/([a-z_]+\.mjs)$/);
-    if (match) return res.writeHead(200, { 'Content-Type': 'text/javascript' })
+    const match = req.url.match(/^\/src\/([a-z_-]+\.(?:mjs|css))$/);
+    if (match) return res.writeHead(200, { 'Content-Type': match[1].endsWith('.css') ? 'text/css' : 'text/javascript' })
       .end(await readFile(new URL(`../src/${match[1]}`, import.meta.url)));
     res.writeHead(404).end();
   });
@@ -228,6 +228,7 @@ test('B browser selects via frame, map and list, downloads receipts and clears o
     const click = selector => page.click(selector);
     await page.goto(`http://127.0.0.1:${server.address().port}/?role=system`);
     await waitText('#h1v', '尚未開始追蹤');
+    assert.equal(await page.$eval('#bs',el=>getComputedStyle(el).display),'grid','shared LIVE styles load in fixture');
     await page.type('#target-sentence', '查找藍衣的人');
     await click('#target-start');
     await waitText('#target-feedback', '畫面中沒有符合的人');

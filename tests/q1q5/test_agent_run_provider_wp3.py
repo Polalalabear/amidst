@@ -8,16 +8,15 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
-from pathlib import Path
 import socket
 import subprocess
 import sys
-
-import pytest
+from pathlib import Path
 
 from amidst.q1q5 import agent_decision as ad
 from amidst.q1q5.agent_decision import RuleDecider
 from amidst.q1q5.agent_providers import FakeClock
+from amidst.q1q5.api_budget import ApiGuard, GuardConfig
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_PATH = ROOT / 'scripts/agent_decision/run_provider.py'
@@ -233,6 +232,9 @@ def test_paths_resolve_via_amidst_root_across_windows_and_posix(tmp_path, monkey
         env={'OPENAI_API_KEY': 'sk-test-FAKE-CLI-KEY'},
         clock_ms=clock.now_ms,
         sleep_ms=clock.sleep_ms,
+        api_guard=ApiGuard(GuardConfig(enabled=True, max_usd_total=1, max_tokens_per_call=100000,
+            prices={'gpt-6-astra': {'input_usd_per_mtok': .1, 'output_usd_per_mtok': .2}}),
+            usage_dir=tmp_path / 'synthetic-usage'),
     )
     assert rc_live == 0
     live_out = json.loads(capsys.readouterr().out.strip())

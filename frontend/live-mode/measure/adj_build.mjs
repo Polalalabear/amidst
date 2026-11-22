@@ -18,7 +18,9 @@ const GATE = 3.0, SAME = 1.5, MIN_GAP_S = 2.0, K = 3; // K: 320 -> 960
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const b64 = (f) => fs.readFileSync(f).toString('base64');
 
+const questions = [], answers = [], skipped = [];
 const browser = await launch();
+try {
 const page = await browser.newPage();
 await page.goto('about:blank');
 await page.evaluate(() => {
@@ -57,7 +59,7 @@ await page.evaluate(() => {
   };
 });
 
-const questions = [], answers = [], skipped = [];
+
 for (const label of fs.readdirSync(dir).filter((d) => fs.existsSync(path.join(dir, d, 'raw.json'))).sort()) {
   const raw = JSON.parse(fs.readFileSync(path.join(dir, label, 'raw.json'), 'utf8'));
   const run = scenario.runs.find((r) => r.run_id === raw.cfg.run), dur = run.duration_us / 1e6, T = run.actors.find((a) => a.actor_id === 'T');
@@ -116,7 +118,9 @@ for (const label of fs.readdirSync(dir).filter((d) => fs.existsSync(path.join(di
     if (matched) lastMatchT = tNow;
   }
 }
-await browser.close();
+} finally {
+  await browser.close();
+}
 fs.writeFileSync(path.join(outDir, 'questions.jsonl'), questions.map((q) => JSON.stringify(q)).join('\n') + '\n');
 fs.writeFileSync(path.join(outDir, 'answers_private.jsonl'), answers.map((a) => JSON.stringify(a)).join('\n') + '\n');
 const c = (f) => answers.filter(f).length;

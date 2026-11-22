@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Browser DOM/lifecycle tests for mountUi and mountTabs; no new DOM shim dependency.
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -6,7 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {ownedRuntime} from '../core-preview/owned-runtime.mjs';
 const owned=ownedRuntime(),out=process.env.UI_DOM_OUTPUT??owned.evidenceRoot+'/ui-dom',base=process.env.CORE_BASE_URL??'http://127.0.0.1:8785';
 const {chromium}=await import(pathToFileURL(owned.playwrightModule).href);await mkdir(out,{recursive:true});
-const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const browser=await chromium.launch({headless:headlessMode(),executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 let checks=0;const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};
 try{
  const p=await browser.newPage();await p.goto(base+'/workbench-v2/?run=B-05');await p.locator('#ui-enter').waitFor();

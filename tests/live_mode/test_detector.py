@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
+from amidst.live_mode.candidates import TrackSelection
 from amidst.live_mode.detector import prepare_image, source_box
 
 
@@ -63,6 +64,7 @@ def test_entry_threshold_does_not_lower_other_camera_thresholds():
     from amidst.live_mode.server import State
 
     state = object.__new__(State)
+    state.selection = TrackSelection()
     state.args = SimpleNamespace(
         det_width=320, det_height=180, min_score=0.15, camera_min_scores={"CAM_ENTRY": 0.05}
     )

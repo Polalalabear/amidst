@@ -4,8 +4,10 @@ import fs from 'node:fs';
 import { launch, BASE, sleep } from './lib.mjs';
 const out = process.argv[2] || 'shots'; fs.mkdirSync(out, { recursive: true });
 const Q = 'model=glb&w=320&h=180&fps=3&cams=CAM_W1,CAM_W2,CAM_R101_IN';
-const b = await launch();
 const meta = {};
+const b = await launch();
+try {
+
 async function pair(query) {
   const sys = await b.newPage(); await sys.goto(`${BASE}/?role=system`); await sys.waitForFunction('window.__ready === true');
   const op = await b.newPage(); op.on('pageerror', (e) => console.log('[op err]', e.message));
@@ -39,5 +41,7 @@ async function snap(name, sys, op) {
   meta.switch_found = shot;
   await sys.close(); await op.close();
 }
-await b.close();
+} finally {
+  await b.close();
+}
 fs.writeFileSync(`${out}/shots.meta.json`, JSON.stringify(meta, null, 1));
