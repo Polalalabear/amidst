@@ -132,11 +132,11 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  for(const speed of ['0.5','1','1.5','2']){await p.locator('#ui-speed').selectOption(speed);check(await p.locator('#ui-speed').inputValue()===speed,'source speed '+speed);}
  await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),__camName(next.camera_id),{timeout:15000});
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
- await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);
- const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);check(true,event+' multi-view playback advances with decoded source RGB');
+ await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',cameras);check(await p.locator('#ui-case2 .ui-multi-tile').count()===cameras,event+' F3 multi view shows every camera of the run ('+cameras+')');
+ const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',cameras);check(true,event+' multi-view playback advances with decoded source RGB');
  const multiBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiBar.y+multiBar.height-viewportHeight)<2,'multi bar at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const multiScrolled=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiScrolled.y+multiScrolled.height-viewportHeight)<2&&await p.locator('#ui-v1').evaluate(el=>el.scrollTop===0),'multi bar fixed while only content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
- await capture(p,event+'-case2-multi',{tiles:track.multi_view.length,decoded:track.multi_view.length,bar:multiBar,barAfterScroll:multiScrolled});
+ await capture(p,event+'-case2-multi',{tiles:cameras,decoded:cameras,trackMultiView:track.multi_view.length,bar:multiBar,barAfterScroll:multiScrolled});
  await p.locator('#ui-layout [data-layout=single]').click();
  const stamp=event==='A4-1'?9400000:event==='B4-1'?2100000:3000000;await seek(p,stamp);
  // Empty start/end now mean a concrete full-recording WALL window, not playback_now.
