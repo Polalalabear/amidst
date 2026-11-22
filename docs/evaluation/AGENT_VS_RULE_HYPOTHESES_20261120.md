@@ -6,6 +6,7 @@
 - 身分永遠**未確認**；可行走連通是圖上的宣告，實體可通行是 **UNKNOWN**。GT 只在評分端。
 - **2026-11-20 更新（D342）**：新增 §0「目前證據狀態」（W1 #647、W2 #648 之後）。§2 是實驗前的證據，保留作對照。
 - 2026-11-22：新增 §0.1 H1–H6 總表（導讀，不改判定）。
+- 2026-11-22：新增 §0.2 LIVE 追其他目標（後續工作，#672）。
 
 ## 0. 目前證據狀態（2026-11-20，W1／W2 之後；D342）
 
@@ -41,6 +42,40 @@
 | **H6** 全模式可切換 | 每個模式都能在 Agent 和規則之間切換嗎？ | 前提，不做統計；統一介面 `agent_service.py`；8785 主畫面 #666；LIVE W3（#646）；Q1／Q2 查找與 Q4 是 X3 | 部分完成：8785 只限 D124 run，8CAM／B-05 未接，X3 未做（列後續工作） |
 
 關係：核心是 H1、H2、H5；H3 是前提（規則不放寬，Agent 沒機會贏），H4 讓 Agent 知道去哪找，H6 讓結果能在 demo 實際切換。
+
+## 0.2 後續：LIVE 追其他目標（2026-11-22，探索性，非預先登記）
+
+Issue [#672](https://github.com/Polalalabear/amidst/issues/672)。狀態：blocked，E3 凍結後才開始。
+
+**現況（以 main 為準，2026-11-22 核對）**
+- main 已有 LIVE 選目標功能（commit `df006515`「Add session-scoped LIVE target selection endpoints」）：`server.py` 的 `/track/start` 收 `color`（red／blue 色票）、`sentence`（句子解析）、`reselect`；`/track/candidates` 列候選；使用者可點選候選（`USER_PICK`）或單一候選自動種子（`AUTO_SINGLE`）。`tracker.py:65` 的 `LiveTracker` 有 `target_color` 參數（只接受 `COLORS`，即 red／blue），`tracker.py:130` 依 `self.target_color` 篩偵測；`hud.mjs:124` 顯示「目標：紅衣／藍衣」。
+- 仍寫死紅色：`advisor.py:229`（Agent 候選只收 `color == "red"`）、`scheduler.py:94`；`live_mode/color.py` 仍只分 red／blue／none。
+- LIVE 劇本固定為 `docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json`（A4-1、B4-1，各 4 人）：T 紅上衣＋背包＋胸章（目標）、A 與 T 同款紅上衣無背包、B 橘紅上衣（H 0.012，可能也被判 red）、C 藍上衣。
+- 所以：LIVE 已可選紅或藍為目標顏色，並可點選特定候選作為種子（追 C 在追蹤器路徑已可行）；但 (a) 追蹤器重新取得時只靠顏色＋位置連續，無法區分同為紅色的 T／A／B；(b) Agent 路徑（`advisor.py:229`）與排程（`scheduler.py:94`）仍只認紅色，Agent 模式下追藍衣不會問 Agent；(c) E3 主實驗只以 T 為目標。
+- 評分端 `src/amidst/evaluation/e3_scoring.py` 已收 `target` 參數，評分端有每個人物 GT，評分不用改。
+
+**設計（baseline／對誰做／用誰判斷）**
+
+| 目標 | 對誰做 | Baseline | 被比較 | 判斷 | 回答什麼 |
+|---|---|---|---|---|---|
+| T（現行） | 紅衣＋背包＋胸章 | B1 規則（RT-DETR＋HSV＋閘門，追紅） | A1／A2／A3（T 的參考裁切） | `e3_scoring` target='T'，預先登記 §6 | E3 主實驗 H1／H2／H4／H5 |
+| C | 唯一藍衣 | B1 改追藍 | 同組，C 的參考裁切 | target='C' | 簡單對照：規則應夠好 |
+| A | 與 T 同款紅衣 | B1 追紅（規則本來分不出 A／T） | Agent 用背包、胸章、褲色分辨 | target='A'，另報「跟成 T」錯人秒 | 最直接測 H2 |
+| B | 橘紅 | B1 追紅 | 同上 | target='B' | 顏色接近的干擾 |
+
+GT 只在評分端；身分 UNCONFIRMED；非預先登記，結果只標探索性。
+
+**要做的事**
+1. 把 `advisor.py`、`scheduler.py` 的紅色常數改成 session 選定的 `target_color`／種子描述；Agent 請求的參考裁切改用使用者選定的種子；同色目標（A、B）需要外觀描述（背包、褲色）才能區分，顏色門檻做不到。
+2. B1 顏色跟著目標；目標 A／B 時寫明規則本來分不出。
+3. Agent 請求的參考裁切換成選定目標。
+4. 規則組用現有錄製重播（#617 輸入側確定），零成本；Agent 組要付費，每目標 K=3，走 ApiGuard。
+
+**順序與限制**
+- blocked：E3 評分與判定進 main（凍結）之前不動，避免改到 E3 正在用的推論路徑。
+- 第一步：零成本規則組重播，target=C、A 評分；看規則在 A 上錯多少，再決定是否付費跑 Agent 組。
+- 論文寫法：「目前只驗證單一目標 T；其他目標列後續工作」。
+
 
 ## 1. 要證明的事
 
