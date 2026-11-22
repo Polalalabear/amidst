@@ -14,8 +14,7 @@ trajectories, visibility and depth are not read by any path below.
 
 ## Evidence (LOCAL)
 
-`local/evidence/f3-657-20261122/` has 27 files (6.8 MB). `MANIFEST.sha256` SHA-256 is
-`4c329e6f8c2332bd3aacf3285bc51a04eec68c269539a84e1e3fc3a6c0926588`. It cannot be rebuilt byte for byte, because the model answers vary.
+`local/evidence/f3-657-20261122/` (MANIFEST.sha256 SHA-256 `4c329e6f8c2332bd3aacf3285bc51a04eec68c269539a84e1e3fc3a6c0926588`) has 27 files (6.8 MB). It cannot be rebuilt byte for byte, because the model answers vary.
 
 - `track/{A4-1,B4-1,A4-1-8CAM}-{rule,agent,agent-replay}.json` are the q_core_track responses from the clone server (port 8795). `track/summary.json` summarises them.
 - `screens/screenshots/*.png` are headless screenshots (1440×900). `screens/f3-screens-results.json` lists each screenshot's title, plan note, tiles and manual note, with its SHA-256.
