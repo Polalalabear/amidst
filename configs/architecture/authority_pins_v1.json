@@ -823,6 +823,13 @@
       "requires_commit": "beb72040a575e2e55cc1ef933c8fc10ea2fd06c2",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "D342 全面文件同步（#648 合併後，協調者派工）：轉述 #648 已合併的介面（agent_service、scene_context、camera_projection、ApiGuard 路徑）與資料流，列出未解缺口 G7（U-18），關閉 U-9，記 H1–H6 目前證據。只轉述既有決策與文件，沒有放寬 GT 隔離或任何規則"
+    },
+    {
+      "path": "docs/specs/DEVELOPMENT_RULES.md",
+      "sha256": "493329c72c0fd58c646e7da93a68f9b861f66b629348fb0f630692c3e5d90621",
+      "requires_commit": "9401493b3c4af82c0dfc7441d83fc93fd7279f6b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/641",
+      "reason": "D340（使用者 2026-11-20 在對話中核准，#93 issuecomment-7016410023；場景上下文補充 issuecomment-7016519527）：Agent 模式放寬，取代 D64。D342 補登 pin D342-R1 後，從較早 base 起算的 diff 會把這次改寫算成改動，這筆收據綁定 9401493b 的位元組。GT 隔離、ApiGuard、身分未確認、回應驗證照舊硬擋"
     }
   ]
 }
