@@ -13,7 +13,7 @@ timeline, decision journal) but at every search the model decides, and the rule 
 The rule's own answer is still computed (same evidence calls) and attached as information. Only when the model fails (transport,
 guard denial, timeout, invalid reply) or the session round limit is reached does the rule answer execute, as ``RULE_FALLBACK``
 with a contract ``fallback_reason``. Every model call is in the decision record (``llm_calls``) and in ``trace()``.
-Identity stays UNCONFIRMED. No Ground Truth, renderer trajectory, visibility or depth enters this module.
+Identity stays UNCONFIRMED. No Ground Truth or renderer-side data enters this module (DEVELOPMENT_RULES GT isolation).
 """
 from __future__ import annotations
 
