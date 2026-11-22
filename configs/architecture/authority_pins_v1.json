@@ -500,25 +500,25 @@
     {
       "id": "D342-A2",
       "path": "AGENTS.md",
-      "ref": "claude/feat-ops-docs@beb72040a575e2e55cc1ef933c8fc10ea2fd06c2（D342）",
-      "sha256": "bcd54ab057c0e4e0267dbb96231783400d32a8afab9b1e39edf751b176f97765",
-      "status": "現行（D342：規則路徑改 docs/specs/、D340 Agent 模式指引、ApiGuard 路徑與 G7、來源文件加假設計畫與評估）",
+      "ref": "claude/feat-ops-docs@6b1206d3819ff059dd471af2354b5436b4e1cea3（D342 修正輪）",
+      "sha256": "2e57a1915812503ab69705e0e53198d91ce120c2d8f7fa238a4e6a6d2e858814",
+      "status": "現行（D342：規則路徑改 docs/specs/、D340 Agent 模式指引、ApiGuard 路徑與 G7、來源文件加假設計畫與評估）；2026-11-22：ApiGuard 條目改為 G7 已修正（4f665d55）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     },
     {
       "id": "D342-P1",
       "path": "docs/operations/Q1Q5_PROGRESS.md",
-      "ref": "claude/feat-ops-docs@beb72040a575e2e55cc1ef933c8fc10ea2fd06c2（D342）",
-      "sha256": "9d2849cea3e95d5439fd4d5a744c6bc48ce7b261185eb4d9676d69b85bd85f76",
-      "status": "現行；進度導覽補到 #650（D342，D91-4）",
+      "ref": "claude/feat-ops-docs@6b1206d3819ff059dd471af2354b5436b4e1cea3（D342 修正輪）",
+      "sha256": "731e52d861207bce89f2b7465c352d17613817df0f64bf254a5166ba2f1ee7ed",
+      "status": "現行；進度導覽補到 #650（D342，D91-4）；2026-11-22：補 #651–#655，#608／#617 移到已完成",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     },
     {
       "id": "D342-S1",
       "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
-      "ref": "claude/feat-ops-docs@beb72040a575e2e55cc1ef933c8fc10ea2fd06c2（D342）",
-      "sha256": "6603f8252df9c78c9efa27d4b00c31bfaf699c5479fc9a27493d54474e2f969c",
-      "status": "現行；§2 資料流加 Agent 模式、§4.3 ApiGuard 路徑／G7／H1–H6 證據、§8 U-9 關閉與 U-18",
+      "ref": "claude/feat-ops-docs@6b1206d3819ff059dd471af2354b5436b4e1cea3（D342 修正輪）",
+      "sha256": "f8ba8c96321378188102962d67fb71f20f0f1d4b8e9cbc326e3e55c2fa9c7914",
+      "status": "現行；§2 資料流加 Agent 模式、§4.3 ApiGuard 路徑／G7／H1–H6 證據、§8 U-9 關閉與 U-18；2026-11-22：G7 已修正（4f665d55）、U-18 關閉、§4.4 記 #608／#617 已合併",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
@@ -830,6 +830,27 @@
       "requires_commit": "9401493b3c4af82c0dfc7441d83fc93fd7279f6b",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/641",
       "reason": "D340（使用者 2026-11-20 在對話中核准，#93 issuecomment-7016410023；場景上下文補充 issuecomment-7016519527）：Agent 模式放寬，取代 D64。D342 補登 pin D342-R1 後，從較早 base 起算的 diff 會把這次改寫算成改動，這筆收據綁定 9401493b 的位元組。GT 隔離、ApiGuard、身分未確認、回應驗證照舊硬擋"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "2e57a1915812503ab69705e0e53198d91ce120c2d8f7fa238a4e6a6d2e858814",
+      "requires_commit": "6b1206d3819ff059dd471af2354b5436b4e1cea3",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D342 修正輪（#653 Sonnet NEEDS_CHANGES）：G7 已由 #655 修正（4f665d55），改寫為「已修正：所有付費呼叫經 ApiGuard」；補 #608（cfbfe4e9）、#617（1742ed06）現況與 PROGRESS #651–#655。只改文件敘述，規則不變"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "731e52d861207bce89f2b7465c352d17613817df0f64bf254a5166ba2f1ee7ed",
+      "requires_commit": "6b1206d3819ff059dd471af2354b5436b4e1cea3",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D342 修正輪（#653 Sonnet NEEDS_CHANGES）：G7 已由 #655 修正（4f665d55），改寫為「已修正：所有付費呼叫經 ApiGuard」；補 #608（cfbfe4e9）、#617（1742ed06）現況與 PROGRESS #651–#655。只改文件敘述，規則不變"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "f8ba8c96321378188102962d67fb71f20f0f1d4b8e9cbc326e3e55c2fa9c7914",
+      "requires_commit": "6b1206d3819ff059dd471af2354b5436b4e1cea3",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D342 修正輪（#653 Sonnet NEEDS_CHANGES）：G7 已由 #655 修正（4f665d55），改寫為「已修正：所有付費呼叫經 ApiGuard」；補 #608（cfbfe4e9）、#617（1742ed06）現況與 PROGRESS #651–#655。只改文件敘述，規則不變"
     }
   ]
 }
