@@ -183,7 +183,7 @@ class Demo(P1):
         base = list(self.api.runs.values())[0]
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
         self.rgb = Media(self.rgb, self.authorize)
-        self.cross = {}; self.transitions = {}; self.positions = {}
+        self.cross = {}; self.transitions = {}; self.positions = {}; agent_scenes = {}
         job = resolve_job(loads(pinned(job_path, job_pin)), owned_root)
         graph = loads(read_pin(job['graph']))
         graphs = load_scene_graphs('r004')
@@ -208,6 +208,7 @@ class Demo(P1):
             g = scene_projection(graphs, m['scene_id'], job['graph_binding'])
             run = qrun(index, clock, g, params, spec['label'] + ' · D124 · ACTUAL_BLENDER · 自動種子', 'ACTUAL_BLENDER')
             runs.append(run); key = m['scene_id'], m['run_id']; self.cross[key] = tracks; self.positions[key] = positions
+            agent_scenes[key] = (catalog, manifest['files']['provenance/camera_catalog.json'])
             rel = 'runs/' + spec['label'] + '.json'; data = loads(pinned(media_root/rel, manifest['files'][rel]))
             require(data['run_id'] == m['run_id'] and data['catalog_sha256'] == job['graph_binding']['catalog_sha256'], 'RGB_INDEX_BINDING')
             by_camera = {c: {} for c in data['camera_ids']}
@@ -222,7 +223,7 @@ class Demo(P1):
         self.eightcam_status = {'run_id': EIGHTCAM_RUN, 'status': 'UNKNOWN', 'reason': eightcam_reason}
         if eightcam is not None:
             try:
-                added, frames, camera_positions = self.load_eightcam(eightcam, graphs)
+                added, frames, camera_positions, eight_catalog = self.load_eightcam(eightcam, graphs)
             except (ValueError, OSError, TypeError, KeyError) as exc:
                 if eightcam_required:
                     raise
@@ -232,11 +233,12 @@ class Demo(P1):
                 runs.append(added)
                 self.rgb.frames[key] = frames
                 self.positions[key] = camera_positions
+                agent_scenes[key] = eight_catalog
                 self.eightcam_status.update(status='READY', reason=None)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
         if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
             from amidst.q1q5.openai_gateway import configure_environment
-            runs = list(configure_environment(runs, agent_queue))
+            runs = list(configure_environment(runs, agent_queue, service=self.agent_service(graphs, agent_scenes)))
             if runs[0].agent_factory is not None:   # CL-B16 (#620): B-05 (runs[0]) has no Agent decision point
                 from amidst.q1q5.openai_gateway import NotApplicableAgent
                 runs[0] = replace(runs[0], agent_factory=NotApplicableAgent())
@@ -260,7 +262,24 @@ class Demo(P1):
                              'basis_sha256': c['calibration_sha256']}
             for c in catalog['cameras']
         }
-        return run, frames, positions
+        return run, frames, positions, (catalog, settings['catalog_sha256'])
+
+    def agent_service(self, graphs, agent_scenes):
+        """F3 (#657): per-run agent_service inputs. scene_context from the pinned r004 graphs + the run's catalog + D346 walls; frames from
+        the server's pinned RGB table. A run without a catalog gets no scene_context (requests say SCENE_CONTEXT_INCOMPLETE)."""
+        from amidst.q1q5.service_agent_q5 import pinned_frame_reader, r004_scene_context
+
+        def service(run):
+            key = (run.catalog['scene_id'], run.catalog['run_id'])
+            out = {}
+            if key in agent_scenes:
+                catalog, catalog_sha = agent_scenes[key]
+                ids = {x['camera_id'] for x in run.bindings.index.manifest['sampling']['per_camera']} & {c['camera_id'] for c in catalog['cameras']}
+                out['scene_context'] = r004_scene_context(graphs, catalog, catalog_sha, ids, REPO)
+            if key in self.rgb.frames:
+                out['frame_reader'] = pinned_frame_reader(self.rgb.frames[key][1])
+            return out
+        return service
 
     def add_static(self, artifacts, runs):
         report = loads(pinned(artifacts/'d129-464-r005-probe-20261105-a/report.json', REPORT_PIN))
