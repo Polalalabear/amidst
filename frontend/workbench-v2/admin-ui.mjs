@@ -123,7 +123,7 @@ export function mountSettings(box, {getBootstrap, storage = globalThis.localStor
       group('即時模式 · LIVE', (() => {
         const v = liveLlmView(live), c = el('span', undefined, 'row');
         const sw = toggle(v.checked, () => liveSend(liveLlmRequest(!v.checked, v.mode, v.model))); sw.disabled = v.disabled || liveBusy; sw.id = 'live-llm-switch';
-        const mode = seg([['review', 'LLM 覆核'], ['lead', 'LLM 主導']], v.mode, m => { if (v.checked) liveSend(liveLlmRequest(true, m, v.model)); });
+        const mode = seg([['review', 'LLM 覆核'], ['lead', 'LLM 主導'], ['agent', 'Agent 決策']], v.mode, m => { if (v.checked) liveSend(liveLlmRequest(true, m, v.model)); });
         mode.querySelectorAll('button').forEach(b => { b.disabled = v.disabled || liveBusy; });
         c.append(sw, mode); return row('即時 LLM 決策', '預設關閉；只影響即時模式的 live 伺服器，不影響這頁的「追蹤方式」。連不上 live 伺服器時顯示不可用', c);
       })(), (() => { const s = el('div', undefined, 'ui-set-row'); const d = el('div', undefined, 'd'), v = liveLlmView(live); const st = el('span', `${v.text}${v.detail ? ` · ${v.detail}` : ''}`, `live-llm-status tone-${v.tone}`); st.id = 'live-llm-status'; st.setAttribute('role', 'status'); d.append(el('b', '狀態'), st); s.append(d); return s; })()),

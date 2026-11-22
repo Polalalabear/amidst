@@ -3,7 +3,7 @@
 // 前端不存「已開啟」：重新整理後讀 /config，後台預設 off、重啟後回到 off，所以只有使用者明確打開才會是開。
 // cfg 是 GET /config：{advisor: 實際模式, advisor_provider, llm_switch: {requested, effective, available, reason_text, provider, model, models}}
 
-export const MODE_LABEL = { review: 'LLM 覆核', lead: 'LLM 主導' };
+export const MODE_LABEL = { review: 'LLM 覆核', lead: 'LLM 主導', agent: 'Agent 決策' };   // agent：F3 #657 agent_service
 
 export function switchView(cfg = {}) {
   const sw = cfg.llm_switch || {};
@@ -20,7 +20,7 @@ export function switchView(cfg = {}) {
 }
 
 export function buildRequest(checked, mode, model) {
-  const body = { advisor: checked && (mode === 'review' || mode === 'lead') ? mode : 'off' };
+  const body = { advisor: checked && Object.hasOwn(MODE_LABEL, mode) ? mode : 'off' };
   if (model) body.advisor_model = model;
   return body;
 }

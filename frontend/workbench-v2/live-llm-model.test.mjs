@@ -90,3 +90,10 @@ test('settings pane: live server unreachable shows 不可用, switch off and dis
   assert.equal(sw.attrs['aria-checked'], 'false'); assert.equal(sw.disabled, true);
   assert.match(st.textContent, /不可用/); assert.match(st.textContent, /8791/);
 });
+
+test('F3 #657: workbench LIVE switch can request agent mode', () => {
+  assert.deepEqual(liveLlmRequest(true, 'agent'), {advisor: 'agent'});
+  assert.deepEqual(liveLlmRequest(true, 'constructor'), {advisor: 'off'});
+  const v = liveLlmView({reachable: true, advisor: 'agent', llm_switch: {requested: 'agent', effective: 'agent', provider: 'openai', model: 'terra6.1', models: []}});
+  assert.equal(v.mode, 'agent'); assert.match(v.text, /Agent 決策/);
+});

@@ -126,6 +126,8 @@ class State:
         a = self.args
         if a.advisor == "off":
             return None
+        if a.advisor == "agent":   # F3 (#657): agent_service decides; the rule gates of LiveDecider (red only, >=2 candidates) do not apply
+            return self._new_service_decider()
         if a.advisor_provider == "openai":
             provider = OpenAIAdjudicator(a.advisor_model)
             model_id = provider.api_model
@@ -136,6 +138,39 @@ class State:
             model_id = "fake"
         return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker(),
                            gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
+
+    def _new_service_decider(self):
+        from .service_decider import ServiceLiveDecider, guarded_responses_transport
+        a = self.args
+        if a.advisor_provider == "openai":
+            api_model = ADVISOR_MODELS[a.advisor_model][0]
+            transport = guarded_responses_transport(self.guard, api_model, a.advisor_timeout_s)
+        else:   # no network, no cost: always "not visible, look at the first camera"; only for exercising the flow
+            api_model = "fake"
+
+            def transport(body):
+                time.sleep(a.advisor_fake_delay_s)
+                return {"text": json.dumps({"answer": "NOT_VISIBLE", "next_camera_hint": None, "reason_codes": ["FAKE"], "reason": "假模型"}),
+                        "usage": {}, "latency_s": a.advisor_fake_delay_s}
+        return ServiceLiveDecider(transport, PeopleTracker(), self._live_scene_context(), model=api_model,
+                                  timeout_s=max(a.advisor_timeout_s, 8.0), gate_m=a.gate_m)
+
+    def _live_scene_context(self):
+        """r004 graphs + this server's camera catalog (calibration). The F2 wall gate validated no LIVE camera, so no wall clipping:
+        every camera is listed SCENE_CONTEXT_INCOMPLETE for walls. Any failure -> None (requests say the scene context is missing)."""
+        try:
+            from amidst.q1q5 import scene_context as sx
+            from amidst.q1q5.scene_graphs import R004_PINS, load_scene_graphs
+            repo = Path(__file__).resolve().parents[3]
+            raw = catalog_path(self.args.cameras).read_bytes()
+            catalog = json.loads(raw)
+            g = load_scene_graphs("r004")
+            sha = {**R004_PINS, "camera_catalog.json": hashlib.sha256(raw).hexdigest()}
+            static = sx.static_geometry((repo / "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json").read_bytes(),
+                                        (repo / "docs/evaluation/F2_WALL_GATE_20261122.json").read_bytes(), "live")
+            return sx.build(g.region, g.camera, catalog, sorted(self.registered_cameras), sha, g.tracking_scope, static=static)
+        except Exception:  # noqa: BLE001
+            return None
 
     def reset(self):
         if getattr(self, "scheduler", None):
@@ -239,7 +274,7 @@ class State:
             self.pending_acquire = []
             if self.selection.reselecting:
                 tracking["state"] = "TRACKING"
-            elif self.decider is not None and self.selection.color == "red":
+            elif self.decider is not None and (self.selection.color == "red" or getattr(self.decider, "any_color", False)):
                 # The current image-advisor shortlist is red-only. Blue keeps the rule track.
                 tracking = self.decider.step(tick, t_s, self.tracker, tracking, out, frames)
         tracking["target"] = {"color": self.selection.color, "mode": self.selection.mode}
@@ -495,7 +530,8 @@ def main():
     ap.add_argument("--det-height", type=int, default=180)
     ap.add_argument("--workbench-ports", type=lambda v: [int(x) for x in v.split(",")], default=[8785],
                     help="ports of the workbench page(s) allowed to read and set /config from the browser (loopback origins only; default 8785)")
-    ap.add_argument("--advisor", default="off", choices=["off", "review", "lead"], help="image adjudication (advisor.py); off = rule tracker only")
+    ap.add_argument("--advisor", default="off", choices=["off", "review", "lead", "agent"],
+                    help="image adjudication (advisor.py); agent = agent_service decider (service_decider.py, F3 #657); off = rule tracker only")
     ap.add_argument("--advisor-model", default="sol6.1", choices=sorted(ADVISOR_MODELS))
     ap.add_argument("--advisor-provider", default="openai", choices=["openai", "fake"], help="fake = no network, no cost, always answers 1")
     ap.add_argument("--advisor-timeout-s", type=float, default=5.0)

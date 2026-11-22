@@ -11,8 +11,8 @@ export const REASON_TEXT = {
   PROVIDER_UNAVAILABLE: '服務無法使用',
 };
 export const reasonText = (code) => (code ? REASON_TEXT[code] || String(code) : null);
-export const MODE_TEXT = { off: '規則（advisor off）', review: 'LLM 覆核', lead: 'LLM 主導' };
-export const SOURCE_TEXT = { review: 'LLM 覆核', lead: 'LLM 主導' };
+export const MODE_TEXT = { off: '規則（advisor off）', review: 'LLM 覆核', lead: 'LLM 主導', agent: 'Agent 決策' };
+export const SOURCE_TEXT = { review: 'LLM 覆核', lead: 'LLM 主導', agent: 'Agent 決策' };
 const REASON_MAX = 40;
 const LOST_RED_MS = 3000;     // 失聯超過這個秒數用紅色；更短的是「短暫失聯」（琥珀色）
 const APPLIED_SHOW_MS = 8000; // 採用 LLM 答案後，決策來源繼續標示 LLM 的秒數（覆核的 reseed 只修正一次，後台很快就退回 RULE_ONLY）
