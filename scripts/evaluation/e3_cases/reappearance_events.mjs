@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 // Evaluation-only GT event extraction. No inference, ranking, scores or B logs.
 export function extractReappearances(rows,policy,{family='B'}={}){
  const target=r=>r.actors?.find(a=>(a.id??a.actor_id)==='T');
@@ -25,4 +26,26 @@ export function extractReappearances(rows,policy,{family='B'}={}){
    h4_reappearance:true});
  }
  return {points,diagnostics};
+}
+
+// Conservative anti-repeat check over the full three-second GT scene window.
+// Actor positions are quantized to 1 cm; this is not a pixel-identity claim.
+export function deduplicateGTWindows(items,{round_m=.01,window_s=3}={}){
+ const seen=new Map(),result=[];
+ for(const item of items){
+  const points=[],duplicates=[];
+  for(const point of item.points){
+   const window=item.rows.slice(point.tick,point.tick+Math.round(window_s*5)+1).map(row=>
+    [...row.actors].sort((a,b)=>a.id.localeCompare(b.id)).map(actor=>{
+     if(actor.present&&(!Array.isArray(actor.xy)||actor.xy.length!==2))throw new Error('GT_POSITION_REQUIRED');
+     return [actor.id,actor.present,actor.xy?.map(v=>Math.round(v/round_m)*round_m)??null,[...actor.gt_visible].sort()];
+    }));
+   const digest=createHash('sha256').update(JSON.stringify([item.renderer_run_id,window])).digest('hex');
+   const entry={...point,gt_window_sha256:digest};
+   if(seen.has(digest))duplicates.push({...entry,duplicate_of:seen.get(digest),exclusion_reason:'DUPLICATE_GT_WINDOW_1CM'});
+   else{seen.set(digest,point.point_id);points.push(entry);}
+  }
+  result.push({case_id:item.case_id,points,duplicates});
+ }
+ return result;
 }

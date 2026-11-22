@@ -33,10 +33,12 @@ export const REAPPEARANCE_ROUTES={
   steps:branches(eastStart(22),[4,3,4,3,4])},
  'E3-C5':{run_id:'B4-1',start_xy:[4,1],family:'C',tail_s:1,
   steps:branches(eastStart(21),[3,5,4,3,4])},
+ 'E3-C6':{run_id:'B4-1',start_xy:[4,1],family:'C',tail_s:1,
+  steps:branches(eastStart(15),[3,4,3,4,3])},
 };
 export const REAPPEARANCE_POLICY=Object.freeze({
  min_blind_s:3,max_blind_s:10,pre_visible_s:3,post_visible_s:3,
- points_per_gap:1,window_s:3,minimum_new_points:27,
+ points_per_gap:1,window_s:3,minimum_new_points:30,gt_window_round_m:.01,
  base_declared_reappearance_points:3,base_declared_primary_points:38,
  selection:'SCRIPT_AND_GT_ONLY_NO_AGENT_OR_RULE_OUTPUTS',
  c_requirement:'different visible camera sets before and after gap; no claim about top3 without experiment outputs',

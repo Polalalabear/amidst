@@ -42,3 +42,22 @@ test('a target removed from the scene cannot count as a blind-gap return',()=>{
 test('synthetic system output cannot substitute for the required private GT rows',()=>{
  assert.throws(()=>extractReappearances([{tick:0,tracking:{state:'TRACKING'}}],policy),/GT_GRID_REQUIRED/);
 });
+test('identical GT scene windows from two clip IDs count once',async()=>{
+ const {deduplicateGTWindows}=await import('../../scripts/evaluation/e3_cases/reappearance_events.mjs');
+ const data=rows().map(r=>({...r,actors:r.actors.map(a=>({...a,xy:[r.tick/5,1]}))}));
+ const base=extractReappearances(data,policy).points.map(p=>({...p,point_id:'first'}));
+ const second=base.map(p=>({...p,point_id:'second'}));
+ const out=deduplicateGTWindows([{case_id:'one',renderer_run_id:'run',rows:data,points:base},
+  {case_id:'two',renderer_run_id:'run',rows:data,points:second}]);
+ assert.equal(out[0].points.length,1);assert.equal(out[1].points.length,0);
+ assert.equal(out[1].duplicates[0].duplicate_of,'first');
+});
+test('changed crowd scene windows are retained without consulting group outputs',async()=>{
+ const {deduplicateGTWindows}=await import('../../scripts/evaluation/e3_cases/reappearance_events.mjs');
+ const data=rows().map(r=>({...r,actors:r.actors.map(a=>({...a,xy:[r.tick/5,1]}))}));
+ const shifted=data.map(r=>({...r,actors:r.actors.map(a=>({...a,xy:[a.xy[0]+.02,1]}))}));
+ const pts=extractReappearances(data,policy).points;
+ const out=deduplicateGTWindows([{case_id:'one',renderer_run_id:'run',rows:data,points:pts.map(p=>({...p,point_id:'a'}))},
+  {case_id:'two',renderer_run_id:'run',rows:shifted,points:pts.map(p=>({...p,point_id:'b'}))}]);
+ assert.equal(out.reduce((n,c)=>n+c.points.length,0),2);
+});

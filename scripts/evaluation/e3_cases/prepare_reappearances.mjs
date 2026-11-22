@@ -5,6 +5,7 @@ import {groundTruthVisible} from '../../../frontend/live-mode/src/world.mjs';
 import {REAPPEARANCE_ROUTES,REAPPEARANCE_POLICY} from './reappearance_routes.mjs';
 import {extractReappearances} from './reappearance_events.mjs';
 const [out,assets]=process.argv.slice(2);if(!out||!assets)throw new Error('usage: prepare_reappearances.mjs OUT ASSETS');
+if(fs.existsSync(path.join(out,'MANIFEST.json'))||fs.existsSync(path.join(out,'GT_FREEZE.json')))throw new Error('REFUSE_FROZEN_CORPUS');
 fs.mkdirSync(out,{recursive:true});const env=setup(assets),receipts=[],cases=[];
 for(const [id,route]of Object.entries(REAPPEARANCE_ROUTES)){
  const file=path.join(out,`${id}.case.json`);if(fs.existsSync(file))throw new Error('REFUSE_EXISTING_CASE');
