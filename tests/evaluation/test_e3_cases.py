@@ -71,3 +71,21 @@ def test_fallback_has_explicit_unknown_origin_and_unreachable_camera():
     assert next(r["rank"] for r in row["ranking"] if r["camera_id"] == "CAM_WIDE") > 3
     assert all(r["camera_id"] != "CAM_ENTRY" for r in row["ranking"])
     assert b.graph_ranking(graph, "CAM_ENTRY")["status"] == "UNKNOWN_ORIGIN_OUTSIDE_GRAPH"
+
+
+@pytest.mark.parametrize("corruption", ["snapshot", "index"])
+def test_c_freeze_rejects_unbound_baseline_snapshots(tmp_path, corruption):
+    import hashlib
+    freezer = module("finalize")
+    snapshot = {"status": "READY", "ranking": [{"camera_id": f"CAM_{i}", "rank": i + 1} for i in range(3)],
+                "index_sha256": "a" * 64}
+    digest = hashlib.sha256(json.dumps(snapshot, sort_keys=True, separators=(",", ":"),
+                                      ensure_ascii=True, allow_nan=False).encode()).hexdigest()
+    snapshot["snapshot_sha256"] = "0" * 64 if corruption == "snapshot" else digest
+    (tmp_path / "baseline").mkdir()
+    (tmp_path / "baseline/SAMPLE.json").write_text(json.dumps([snapshot]))
+    index = tmp_path / "indexes/SAMPLE/detection_index.json"
+    index.parent.mkdir(parents=True)
+    index.write_text(json.dumps({"content_sha256": "b" * 64}))
+    with pytest.raises(ValueError, match="B1_SNAPSHOT_PIN_MISMATCH" if corruption == "snapshot" else "B1_INDEX_SOURCE_MISMATCH"):
+        freezer.bind_c(tmp_path, {"case_id": "SAMPLE", "metrics": {"baseline_tick": 0}})

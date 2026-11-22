@@ -30,6 +30,14 @@ def bind_c(root, annotation):
     snapshot = baseline[annotation["metrics"]["baseline_tick"]]
     if snapshot["status"] != "READY" or len(snapshot["ranking"]) < 3:
         raise ValueError(f"{case_id}:BASELINE_UNKNOWN")
+    body = {k: v for k, v in snapshot.items() if k != "snapshot_sha256"}
+    if sha(json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False).encode()) != snapshot["snapshot_sha256"]:
+        raise ValueError("B1_SNAPSHOT_PIN_MISMATCH")
+    index = json.loads((root / "indexes" / case_id / "detection_index.json").read_text())
+    if snapshot["index_sha256"] != index["content_sha256"]:
+        raise ValueError("B1_INDEX_SOURCE_MISMATCH")
+    if snapshot["source"]["fallback_source_sha256"] != sha((ROOT / "scripts/evaluation/e3_cases/baseline.py").read_bytes()):
+        raise ValueError("B1_FALLBACK_SOURCE_MISMATCH")
     top3 = {r["camera_id"] for r in snapshot["ranking"][:3]}
     gt = json.loads((root / annotation["gt_path"]).read_text())
     rows = gt["ticks"]
@@ -79,7 +87,7 @@ def main():
           "index_path": index_rel, "index_sha256": sha((root / index_rel).read_bytes()),
           "rgb_index_path": rgb_rel, "rgb_index_sha256": sha((root / rgb_rel).read_bytes()),
           "gt_sha256": sha((root / annotation["gt_path"]).read_bytes())})
-    if not a.sample and (len(cases) < 8 or sum(c["family"] == "C" for c in cases) < 2):
+    if not a.sample and (len(cases) < 8 or {c["family"] for c in cases} != {"A", "B", "C", "D"} or sum(c["family"] == "C" for c in cases) < 2):
         raise ValueError("CORPUS_REQUIREMENTS_NOT_MET")
     sources = {f: {"bytes": (a.assets / f).stat().st_size, "sha256": sha((a.assets / f).read_bytes())}
                for f in ["character.glb", "scene.glb", "cameras.three.json"]}
@@ -108,6 +116,7 @@ def main():
         index = json.loads((root / case["index_path"]).read_text())
         records_path = str(Path(case["index_path"]).parent / index["records_ref"])
         inputs.append({"run_id": index["run_id"], "clock_id": index["clock_id"],
+            "scene_id": index["scene_id"], "scene_revision": index["scene_revision"],
             "duration_us": round(case["duration_s"] * 1_000_000), "frame_interval_us": 200000,
             "image_size_px": [320, 180], "camera_ids": case["cameras"],
             "rgb_index_path": case["rgb_index_path"], "rgb_index_sha256": case["rgb_index_sha256"],
