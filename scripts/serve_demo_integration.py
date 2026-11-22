@@ -264,6 +264,23 @@ class Demo(P1):
         }
         return run, frames, positions, (catalog, settings['catalog_sha256'])
 
+    def track_decider(self, key, run):
+        """One ServiceTrackDecider per run (its answer cache makes replays free). None + reason when the Agent cannot run."""
+        from amidst.q1q5.openai_gateway import agent_status
+        from amidst.q1q5.service_agent_q5 import ServiceAgentFactory
+        from amidst.q1q5.service_agent_track import ServiceTrackDecider
+        factory = run.agent_factory
+        if not isinstance(factory, ServiceAgentFactory):
+            return None, 'AGENT_NOT_CONFIGURED'
+        ok, reason = agent_status(run)
+        if not ok:
+            return None, reason
+        cache = self.__dict__.setdefault('track_deciders', {})
+        if key not in cache:
+            cache[key] = ServiceTrackDecider(factory.transport, run.bindings.index.records, scene_context=factory.scene_context,
+                                             frame_reader=factory.frame_reader, model=factory.model)
+        return cache[key], None
+
     def agent_service(self, graphs, agent_scenes):
         """F3 (#657): per-run agent_service inputs. scene_context from the pinned r004 graphs + the run's catalog + D346 walls; frames from
         the server's pinned RGB table. A run without a catalog gets no scene_context (requests say SCENE_CONTEXT_INCOMPLETE)."""
@@ -360,8 +377,16 @@ class Demo(P1):
             require(bool(resolved.ranges) and resolved.ranges[0].range_us[0] == 0, 'AUTOMATIC_SEED_PRESET_ONLY')
             stamp = resolved.ranges[0].range_us[1]
         require(0 <= stamp <= b.clock.duration_us, 'TIME_SCOPE')
+        agent_mode = normalized.get('switch_mode') == 'AGENT_SEQUENTIAL'
+        decider, why = self.track_decider(key, run) if agent_mode else (None, None)
         doc, _, _ = cross_response(self.cross[key], self.transitions, as_of_us=stamp,
-            parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256)
+            parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256, decider=decider)
+        if agent_mode:   # F3 (#657): which decisions the Agent made and whether they were adopted (association_audit has every row)
+            rows = [r for r in doc['association_audit'] if r.get('reason') == 'AGENT_SERVICE_DECISION']
+            doc['agent'] = {'switch_mode': 'AGENT_SEQUENTIAL', 'available': decider is not None, 'unavailable_reason': why,
+                            'decisions': len(rows), 'adopted': sum(1 for r in rows if r.get('adopted_track_ref')),
+                            'fallbacks': sum(1 for r in rows if r.get('fallback_reason')), 'model_calls_total': decider.calls if decider else 0,
+                            'agent_used': any(e.get('reason') == 'AGENT_ASSOCIATION_HYPOTHESIS' for e in doc['association_audit'])}
         doc['resolved_scope'] = {'scene_id': key[0], 'run_id': key[1], 'detection_index_sha256': b.index_sha256}
         doc['provenance'] = {'producer': 'demo-cross-camera-local-linker', 'gt_read': False,
             'parameter_mode': 'DEMO_DEFAULT', 'formal_eligible': False, 'seed_policy': 'AUTOMATIC_EARLIEST_LOCAL_SEED',

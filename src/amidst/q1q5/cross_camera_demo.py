@@ -134,6 +134,10 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
     times = sorted({o.timestamp_us for t in available for o in t.observations})
     chain, events, audit = [], [], []
     current = None
+    # F3 (#657): a decider with ``agent_mode`` (service_agent_track.ServiceTrackDecider) decides every loss itself: it is asked with
+    # zero, one or many candidates (C3), sees candidates of a still-observed/overlapping camera (C4) and colour-incompatible ones
+    # (C2), and while it waits the rule does not cut on its own. ``handoff`` returning None hands the decision to the rule (fallback).
+    agent_mode = bool(getattr(decider, 'agent_mode', False))
 
     def known_colors(track, stamp):
         return next((o.colors for o in reversed(track.observations)
@@ -179,19 +183,35 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
             audit.append(row)
             if reason is None:
                 eligible.append((candidate, row))
-            if decider is not None and reason in (None, 'COLOR_NOT_COMPATIBLE'):
+            if decider is not None and (reason in (None, 'COLOR_NOT_COMPATIBLE') or (agent_mode and reason == 'CURRENT_CAMERA_STILL_OBSERVED')):
                 considered.append({'track': candidate, 'row': row, 'eligible': reason is None,
                                    'graph_edge': edge is not None})
         agent_pick = None
-        if decider is not None and current is not None and eligible:
+        if decider is not None and current is not None and (eligible or agent_mode):
             choice, agent_audit = decider.handoff({
                 'timestamp_us': timestamp, 'sample_interval_us': parameters.sample_interval_us,
                 'current': current, 'current_colors': known_colors(current, timestamp),
                 'considered': considered, 'transitions': transitions,
-                'known_colors': known_colors})
+                'known_colors': known_colors, 'anchor': chain[0][0] if chain else None})
             if agent_audit is not None:
                 audit.append(agent_audit)
-            if choice is not None:
+            if agent_mode and choice is not None:
+                pool = {c['track'].track_ref: c for c in considered}
+                if choice[0] == 'SELECT' and choice[1] in pool:
+                    picked = pool[choice[1]]
+                    for c in considered:
+                        if c is not picked and c['row']['reason'] is None:
+                            c['row']['reason'] = 'AGENT_NOT_SELECTED'
+                    if picked['row']['reason'] is not None:
+                        picked['row']['rule_override'] = picked['row']['reason']
+                        picked['row']['reason'] = None
+                    eligible, agent_pick = [(picked['track'], picked['row'])], True
+                else:                                  # WAIT (still here / not visible / nothing adoptable): stay lost
+                    for c in considered:
+                        if c['row']['reason'] is None:
+                            c['row']['reason'] = 'AGENT_WAITING'
+                    continue
+            elif choice is not None:
                 match = [e for e in eligible if choice[0] == 'SELECT' and e[0].track_ref == choice[1]]
                 if not match:  # ABSTAIN (a SELECT of a non-eligible track cannot occur: wiring validates)
                     for _, row in eligible:
@@ -259,9 +279,10 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
         anchor, first_time = chain[0]
         anchor_colors = known_colors(anchor, first_time)
         all_sightings = []
+        in_chain = {t.track_ref for t, _ in chain}   # F3: a track the Agent adopted over the colour gate stays (rule-only: same set)
         for track in available:
             seed = track.observations[0]
-            if seed.timestamp_us < first_time or not seed.colors.intersection(anchor_colors):
+            if seed.timestamp_us < first_time or (not seed.colors.intersection(anchor_colors) and track.track_ref not in in_chain):
                 continue
             for obs in track.observations:
                 chosen = (track.track_ref, obs.observation_id) in selected
