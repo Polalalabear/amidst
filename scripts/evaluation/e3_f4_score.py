@@ -73,6 +73,17 @@ def api_breakdown(calls):
     return out
 
 
+def exit_point(S, by, cls, d):
+    """#671 / §6.2 D condition: correct = no FALSE_LOCK / WRONG_PERSON / WRONG_CAMERA tick in the evaluation window (following T to the
+    new camera, not showing, or a camera-only hold are all correct). Not decision_point_correct, which needs a CORRECT tick."""
+    w0, w1 = d['evaluation_window_us']
+    win = [k for k, t in by.items() if w0 <= t.t_us <= w1]
+    bad = [k for k in win if cls[k] in BAD | {'FALSE_LOCK'}]
+    stale = [k for k in win if cls[k] in ('FALSE_LOCK', 'WRONG_CAMERA')]
+    return {'tick': d['tick'], 'type': d['type'], 'correct': bool(win) and not bad, 'window_ticks': len(win),
+            'stale_old_camera_s': round(len(stale) * TICK_US / 1e6, 2)}
+
+
 def diagnostics(S, case, ticks, b1_class, missed):
     """D350 H2 supplementary diagnostics for one run (supplementary analysis; never changes a §6 verdict)."""
     by = {t.t_us // TICK_US: t for t in ticks}
@@ -81,10 +92,16 @@ def diagnostics(S, case, ticks, b1_class, missed):
     dps = {d['type']: d for d in case['decision_points']}
     occ = next((e for e in case.get('diagnostic_events') or [] if e['type'] == 'SCREEN_OCCLUSION'), None)
     if occ and 'SCREEN_RETURN' in dps and 'SCREEN_BEFORE_OCCLUSION' in dps:            # 1. occlusion keep rate (D)
+        # the screen is in the GT visibility set: the target is visible nowhere inside the window, so keep = display position (#671)
         cams = set(dps['SCREEN_BEFORE_OCCLUSION']['cameras'])
         win = [k for k in range(occ['tick'], dps['SCREEN_RETURN']['tick']) if k in by]
-        kept = [k for k in win if by[k].shown_camera in cams and cls[k] not in BAD | {'FALSE_LOCK'}]
-        out['occlusion'] = {'ticks': len(win), 'kept': len(kept), 'keep_rate': round(len(kept) / len(win), 4) if win else None,
+        on_cam = [k for k in win if by[k].shown_camera in cams]
+        none = [k for k in win if by[k].shown_camera is None]
+        n = len(win)
+        out['occlusion'] = {'ticks': n, 'kept': len(on_cam) + len(none), 'keep_rate': round((len(on_cam) + len(none)) / n, 4) if n else None,
+                            'share_target_camera': round(len(on_cam) / n, 4) if n else None, 'share_not_shown': round(len(none) / n, 4) if n else None,
+                            'share_other_camera': round((n - len(on_cam) - len(none)) / n, 4) if n else None,
+                            'box_on_target_camera_ticks': sum(1 for k in on_cam if by[k].boxes),
                             'false_lock_s': round(sum(cls[k] == 'FALSE_LOCK' for k in win) * TICK_US / 1e6, 2)}
     lost_missed = [k for k in sorted(missed) if b1_class.get(k) == 'LOST' and k in by]  # 2. detector-miss rescue (all)
     rescued = [k for k in lost_missed if cls[k] == 'CORRECT']
@@ -94,10 +111,7 @@ def diagnostics(S, case, ticks, b1_class, missed):
     ex = []                                                                            # 3. exit judgement (D)
     for d in case['decision_points']:
         if d['type'] in D_EXIT:
-            w0, w1 = d['evaluation_window_us']
-            stale = sum(1 for k, t in by.items() if w0 <= t.t_us <= w1 and t.shown_camera is not None and t.shown_camera not in t.visible)
-            ex.append({'tick': d['tick'], 'type': d['type'], 'correct': S.decision_point_correct(ticks, d['timestamp_us']),
-                       'stale_old_camera_s': round(stale * TICK_US / 1e6, 2)})
+            ex.append(exit_point(S, by, cls, d))
     if ex:
         out['exit'] = ex
     switches = wrong = 0                                                               # 4. wrong switches (all)
@@ -295,8 +309,8 @@ def main():
         for cc in cases:
             idx = [i for i, d in enumerate(cc['decision_points']) if d['type'] in D_EXIT]
             if idx and has(cc['case_id'], 'A2') and has(cc['case_id'], 'B2'):
-                a2, b2 = dp_majority(cc['case_id'], 'A2'), dp_majority(cc['case_id'], 'B2')
-                dcl[cc['case_id']] = [(a2[i], b2[i]) for i in idx]
+                ex = lambda arm: [S.majority([e['correct'] for e in col]) for col in zip(*[r['diag']['exit'] for r in per[(cc['case_id'], arm)]])]
+                dcl[cc['case_id']] = list(zip(ex('A2'), ex('B2')))     # §6.2 D condition, rule of #671 item 3
         dstat = lambda vs: (sum(a for v in vs for a, _ in v) - sum(b for v in vs for _, b in v)) / max(1, sum(len(v) for v in vs))
         dci = S.cluster_bootstrap(dcl, dstat) if dcl else [0.0, 0.0]
         report['verdicts']['H2'] = S.verdict_h2(cmp['A1-B1']['wp_diff_ci'], cmp['A2-B2']['wp_diff_ci'], dci, cmp['A2-B1']['n_points'], cmp['A2-B1']['n_segments'])

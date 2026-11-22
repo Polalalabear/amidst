@@ -51,7 +51,9 @@ def test_diagnostics_occlusion_rescue_exit_and_switches():
                                 {'type': 'TRUE_EXIT_BOUNDARY', 'tick': 4, 'cameras': ['R'], 'timestamp_us': 800000, 'evaluation_window_us': [800000, 1000000]}],
             'diagnostic_events': [{'type': 'SCREEN_OCCLUSION', 'tick': 1}]}
     d = F4.diagnostics(S, case, ticks, b1_class={4: 'LOST', 5: 'LOST'}, missed={4, 5})
-    assert d['occlusion']['ticks'] == 2 and d['occlusion']['kept'] == 0 and d['occlusion']['false_lock_s'] == 0.2
+    assert d['occlusion']['ticks'] == 2 and d['occlusion']['kept'] == 2 and d['occlusion']['share_target_camera'] == 0.5
+    assert d['occlusion']['share_not_shown'] == 0.5 and d['occlusion']['false_lock_s'] == 0.2
     assert d['miss_rescue'] == {'rule_lost_on_missed_ticks': 2, 'rescued': 1, 'rescued_own_box': 0, 'rescued_detection_box': 1, 'rate': 0.5}
     assert d['switches'] == {'total': 3, 'wrong': 1}
     assert [e['type'] for e in d['exit']] == ['TRUE_EXIT_BOUNDARY'] and d['exit'][0]['stale_old_camera_s'] == 0.0
+    assert d['exit'][0]['correct'] is True and d['exit'][0]['window_ticks'] == 2       # correct then not shown: no false claim
