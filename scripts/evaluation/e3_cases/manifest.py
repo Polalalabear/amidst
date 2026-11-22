@@ -11,6 +11,12 @@ a = p.parse_args(); root = a.root.resolve()
 corpus_name = "CORPUS_SAMPLE.json" if a.sample else "CORPUS.json"
 corpus = json.loads((root / corpus_name).read_text())
 files = {root / corpus_name}
+registry = root / ("RUNTIME_INPUTS_SAMPLE.json" if a.sample else "RUNTIME_INPUTS.json")
+if registry.is_file():
+    files.add(registry)
+for name in ["environment.json", "source_receipt.json", "verification.json", "architecture-guard.json", "focused-pytest.txt", "focused-node.txt", "f1-format-probe.json", "f1_e3_scoring.py", "f1_preregistration.md", "browser-replay.json"]:
+    if (root / name).is_file() and not a.sample:
+        files.add(root / name)
 for c in corpus["cases"]:
     case_id = c["case_id"]
     files.update(root.glob(f"{case_id}.*"))

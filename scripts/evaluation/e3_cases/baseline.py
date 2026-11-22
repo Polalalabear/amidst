@@ -29,11 +29,11 @@ def graph_ranking(graph, active):
         a = todo.popleft()
         for b in sorted(adjacent[a] - distances.keys()):
             distances[b] = distances[a] + 1; todo.append(b)
-    ordered = sorted((c for c in distances if c != active), key=lambda c: (distances[c], c))
+    ordered = sorted(distances, key=lambda c: (distances[c], c))
     return {"basis": "GRAPH_DISTANCE_FALLBACK", "status": "READY", "ranking": [
         {"camera_id": c, "rank": i, "path_distance_hops": distances[c]} for i, c in enumerate(ordered, 1)],
         "tie_policy": "camera_id ascending; representation only, no probability",
-        "topology": "undirected adjacency, matching CameraScheduler; excludes current camera",
+        "topology": "undirected adjacency, matching CameraScheduler; current camera included at distance zero",
         "limitations": "Topological distance only, no approved physical path; CAM_ENTRY absent from graph; no F2 ranking."}
 
 
@@ -52,7 +52,7 @@ def main():
     a = ap.parse_args()
     graph_path = ROOT / "configs/q1q5/graphs/r004/camera_graph_v3.json"
     graph_bytes = graph_path.read_bytes(); graph = json.loads(graph_bytes)
-    source = {"main_sha": a.main_sha, "graph_sha256": hashlib.sha256(graph_bytes).hexdigest(),
+    source = {"main_sha": a.main_sha, "configuration": {"schedule": "all", "gate_m": 4.0, "gate_growth": 0.0, "max_gate": 8.0, "min_score": .15, "CAM_ENTRY_min_score": .05, "color_weak": .2, "advisor": "off", "relock": "disabled"}, "fallback_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "camera_catalog_sha256": hashlib.sha256(Path(a.cameras).read_bytes()).hexdigest(), "graph_sha256": hashlib.sha256(graph_bytes).hexdigest(),
               "files": {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in [
                   "src/amidst/live_mode/server.py", "src/amidst/live_mode/tracker.py",
                   "src/amidst/live_mode/candidates.py", "src/amidst/live_mode/scheduler.py",

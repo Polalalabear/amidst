@@ -67,6 +67,7 @@ def test_fallback_has_explicit_unknown_origin_and_unreachable_camera():
     graph = json.loads((ROOT / "configs/q1q5/graphs/r004/camera_graph_v3.json").read_text())
     row = b.graph_ranking(graph, "CAM_W2")
     assert row["basis"] == "GRAPH_DISTANCE_FALLBACK"
+    assert row["ranking"][0] == {"camera_id": "CAM_W2", "rank": 1, "path_distance_hops": 0}
     assert next(r["rank"] for r in row["ranking"] if r["camera_id"] == "CAM_WIDE") > 3
     assert all(r["camera_id"] != "CAM_ENTRY" for r in row["ranking"])
     assert b.graph_ranking(graph, "CAM_ENTRY")["status"] == "UNKNOWN_ORIGIN_OUTSIDE_GRAPH"

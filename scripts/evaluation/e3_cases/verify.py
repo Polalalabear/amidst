@@ -66,16 +66,35 @@ def verify(root, case_id):
             raise ValueError("INDEX_PIXEL_HASH")
         observations += len(row["detections"])
     # Private GT must be a separate file, never mixed into source RGB/index metadata.
-    gt = json.loads((root / "gt" / f"{case_id}.a-log.json").read_text())
+    gt_path = root / "gt-boxes" / f"{case_id}.a-log.json"
+    if not gt_path.is_file():
+        gt_path = root / "gt" / f"{case_id}.a-log.json"
+    gt = json.loads(gt_path.read_text())
     if gt["provenance"]["role"] != "EVALUATION_ONLY" or gt["ticks"][-1]["tick"] != count:
         raise ValueError("GT_SIDECAR_GRID")
+    if len(gt["ticks"]) != count + 1:
+        raise ValueError("GT_CAPTURE_COUNT")
+    for row, actual in zip(gt["ticks"], logical[0], strict=True):
+        if row["tick"] != actual["tick"]:
+            raise ValueError("GT_TICK_ALIGNMENT")
+        originals = {x["id"]: x for x in actual["actors"]}
+        for actor in row["actors"]:
+            source = originals[actor["id"]]
+            if any(actor[k] != source[k] for k in ("present", "xy", "gt_visible")):
+                raise ValueError("GT_SOURCE_MISMATCH")
+            if actor["id"] == "T" and "gt_boxes" in actor:
+                import math
+                for cam in actor["gt_visible"]:
+                    box = actor["gt_boxes"].get(cam)
+                    if not box or len(box) != 4 or not all(math.isfinite(v) for v in box) or box[2] <= box[0] or box[3] <= box[1]:
+                        raise ValueError("GT_TARGET_BOX_MISSING")
     wire = json.loads((root / f"{case_id}.replay1.wire.json").read_text())
     for h in wire:
         if set(h) != {"tick", "t_capture_ms", "frames", "available_cameras"}:
             raise ValueError("PRIVATE_INFERENCE_HEADER")
     return {"case_id": case_id, "status": "PASS", "frames": count * 8,
             "observations": observations, "case_sha256": sha((root / f"{case_id}.case.json").read_bytes()),
-            "index_sha256": sha(raw), "gt_sha256": sha((root / "gt" / f"{case_id}.a-log.json").read_bytes()),
+            "index_sha256": sha(raw), "gt_sha256": sha(gt_path.read_bytes()),
             "reader": "JsonRunStore.load_detection_index", "replays_checked": 3}
 
 

@@ -52,7 +52,8 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
 try{
  browser=await puppeteer.launch({executablePath:process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,
   args:['--use-angle=metal','--ignore-gpu-blocklist','--disable-background-timer-throttling'],defaultViewport:{width:960,height:640}});
- const receipts=[];
+ const priorPath=path.join(out,'browser-replay.json');
+ const receipts=fs.existsSync(priorPath)?read(priorPath).filter(r=>!cases.includes(r.case_id)):[];
  for(const id of cases){
   let data=read(path.join(out,`${id}.case.json`));const replays=[];
   const inputData={...data};delete inputData.expected;

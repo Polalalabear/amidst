@@ -36,10 +36,10 @@ def bind_c(root, annotation):
     target = lambda row: next(a for a in row["actors"] if a["id"] == "T")
     # A C challenge requires a later camera set that has NO member of the frozen
     # top 3, not merely an extra wide camera during an overlap still covered by top3.
-    outside = next((r for r in rows if r["tick"] > snapshot["tick"] and target(r)["gt_visible"]
-                    and not top3.intersection(target(r)["gt_visible"])), None)
-    if outside is None:
-        raise ValueError(f"{case_id}:NOT_OUTSIDE_TOP3")
+    # Primary point is fixed from script/GT reappearance, independent of B1 outputs.
+    outside = rows[annotation["metrics"]["return_tick"]]
+    if not target(outside)["gt_visible"] or top3.intersection(target(outside)["gt_visible"]):
+        raise ValueError(f"{case_id}:FIRST_RETURN_NOT_OUTSIDE_TOP3")
     tick = outside["tick"]
     ranks = {r["camera_id"]: r["rank"] for r in snapshot["ranking"]}
     annotation["baseline"] = {"snapshot": snapshot, "snapshot_source_path": f"baseline/{case_id}.json",
@@ -48,12 +48,8 @@ def bind_c(root, annotation):
             "rank_status": "RANKED" if c in ranks else "NOT_IN_CANDIDATES"} for c in target(outside)["gt_visible"]],
         "first_reappearance": {"tick": annotation["metrics"]["return_tick"],
                                "cameras": annotation["metrics"]["return_cameras"]},
-        "limitation": "Later exclusive transfer can be outside top3 even if the first reappearance was inside top3. No F2 ranking used."}
-    for point, index in zip(annotation["decision_points"][2:], [tick, tick + 5, tick + 15], strict=True):
-        if index >= len(rows):
-            raise ValueError("C_FOLLOWUP_MISSING")
-        point.update(tick=index, timestamp_us=index * 200000,
-                     cameras=target(rows[index])["gt_visible"], source_ref=f"ticks[{index}]")
+        "first_reappearance_outside_top3": not top3.intersection(annotation["metrics"]["return_cameras"]),
+        "limitation": "Actual B1 state is preserved, including any existing lost ticks or wrong association; no oracle reseed. Camera hop ranking does not certify physical reachability. No F2 ranking used."}
     return snapshot
 
 
@@ -90,7 +86,7 @@ def main():
     sources.update({f: {"bytes": (ROOT / f).stat().st_size, "sha256": sha((ROOT / f).read_bytes())} for f in [
         "docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json",
         "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json",
-        "configs/q1q5/graphs/r004/camera_graph_v3.json"]})
+        "configs/q1q5/graphs/r004/camera_graph_v3.json", "frontend/live-mode/src/person.mjs"]})
     corpus = {"status": "TWO_CASE_FORMAT_HANDOFF" if a.sample else "FORMAL_RECORDED_FROZEN",
        "issue": 652, "baseline_main_sha": a.main_sha, "cases": cases, "source_files": sources,
        "case_count": len(cases), "decision_points": sum(len(c["decision_points"]) for c in cases),
@@ -103,8 +99,24 @@ def main():
          "replay": "Chrome expected states and logical captures match 3 complete runs; wall clocks/JPEGs/detector outputs not asserted deterministic.",
          "sampling": "5 Hz, 320x180, 8 cameras; original N6 GLBs, no Blender render or asset modification.",
          "visibility": "Existing static-wall body-point-ray proxy; not pixel masks or person-person occlusion truth.",
-         "points": "5 declared opportunities per clip, correlated phases within 9 authored scripts; not independent observations or model decisions.",
+         "gt_boxes": "Existing person.mjs projectBox: 0.5x0.5x1.75 m standing-body proxy; not measured pixel silhouettes.",
+         "points": "38 primary decision points in 9 authored scripts; B points are reappearances. Correlated phases remain clustered by script. Blind/exit diagnostic events are separate, not extra independent trials.",
          "identity": "UNCONFIRMED", "physical_navigation": "UNKNOWN", "paid_api_calls": 0}}
+    # Separate runtime registry: no private case, GT, event labels or baseline answers.
+    inputs = []
+    for case in cases:
+        index = json.loads((root / case["index_path"]).read_text())
+        records_path = str(Path(case["index_path"]).parent / index["records_ref"])
+        inputs.append({"run_id": index["run_id"], "clock_id": index["clock_id"],
+            "duration_us": round(case["duration_s"] * 1_000_000), "frame_interval_us": 200000,
+            "image_size_px": [320, 180], "camera_ids": case["cameras"],
+            "rgb_index_path": case["rgb_index_path"], "rgb_index_sha256": case["rgb_index_sha256"],
+            "index_path": case["index_path"], "index_file_sha256": case["index_sha256"],
+            "index_content_sha256": index["content_sha256"],
+            "records_path": records_path, "records_file_sha256": index["records_file_sha256"]})
+    dump(root / ("RUNTIME_INPUTS_SAMPLE.json" if a.sample else "RUNTIME_INPUTS.json"),
+         {"role": "SHARED_PIXEL_INPUTS_ONLY", "runs": inputs,
+          "policy": "Both arms use these exact PNGs and detection indexes; no per-arm redetection."})
     dump(root / ("CORPUS_SAMPLE.json" if a.sample else "CORPUS.json"), corpus)
     print(json.dumps({k: corpus[k] for k in ["status", "case_count", "decision_points", "duration_s", "indexed_frames"]}))
 

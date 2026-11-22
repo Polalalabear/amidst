@@ -3,7 +3,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {read,sha} from './generate.mjs';
 import {E3_ROUTES} from './routes.mjs';
-const [outArg,...ids]=process.argv.slice(2),out=path.resolve(outArg);
+import {setup} from './generate.mjs';
+import {projectBox} from '../../../frontend/live-mode/src/person.mjs';
+const [outArg,assets,...ids]=process.argv.slice(2),out=path.resolve(outArg);
+if(!assets)throw new Error('usage: annotations.mjs OUT ASSETS [CASE_IDS...]');
+const env=setup(assets);
 const actor=(r,id='T')=>r.actors.find(a=>a.id===id);
 const distance=(a,b)=>Math.hypot(a.xy[0]-b.xy[0],a.xy[1]-b.xy[1]);
 function point(rows,index,type,expected){
@@ -18,7 +22,7 @@ for(const id of ids.length?ids:Object.keys(E3_ROUTES)){
   if(!actor(rows[i]).gt_visible.length){if(start===null)start=i;}
   else if(start!==null){gaps.push({start,end:i,duration_s:(i-start)/5});start=null;}
  }
- let points=[],metrics={gaps:gaps.map(g=>({start_tick:rows[g.start].tick,end_tick:rows[g.end].tick,duration_s:g.duration_s}))};
+ let points=[],diagnostic_events=[],metrics={script_wrap_times_s:Array.from({length:Math.floor(rows.at(-1).tick/5/(route.run_id==='A4-1'?50:42))},(_,i)=>(i+1)*(route.run_id==='A4-1'?50:42)),gaps:gaps.map(g=>({start_tick:rows[g.start].tick,end_tick:rows[g.end].tick,duration_s:g.duration_s}))};
  if(route.family==='A'){
   const pairs=rows.flatMap((r,i)=>['A','B'].flatMap(who=>{const a=actor(r,who),t=actor(r);
    return a.present&&t.gt_visible.some(c=>a.gt_visible.includes(c))?[{i,who,d:distance(t,a)}]:[];}));
@@ -38,9 +42,10 @@ for(const id of ids.length?ids:Object.keys(E3_ROUTES)){
   const qualifying=gaps.filter(g=>g.duration_s>=3&&g.duration_s<=10);
   if(!qualifying.length)throw new Error(`${id}:NO_3_TO_10_SECOND_GAP`);
   const g=qualifying[0];
-  points=[point(rows,g.start,'BLIND_START','DECLARE_UNSEEN'),point(rows,g.start+5,'BLIND_1S','ABSTAIN_FROM_DISTRACTORS'),
-   point(rows,g.start+15,'BLIND_3S','CONTINUE_SEARCH_WITH_UNCERTAINTY'),
-   point(rows,g.end,'REAPPEAR','REACQUIRE_T'),point(rows,g.end+5,'RETURN_1S','KEEP_REACQUIRED_T')];
+  points=qualifying.map(g=>point(rows,g.end,'REAPPEAR','REACQUIRE_T_WITHIN_3S'));
+  diagnostic_events=qualifying.flatMap(g=>[
+   point(rows,g.start,'BLIND_START','DECLARE_UNSEEN'),point(rows,g.start+5,'BLIND_1S','ABSTAIN_FROM_DISTRACTORS'),
+   point(rows,g.start+15,'BLIND_3S','CONTINUE_SEARCH_WITH_UNCERTAINTY')]);
  }else if(route.family==='C'){
   const g=gaps.at(-1);if(!g)throw new Error(`${id}:NO_BRANCH_GAP`);
   points=[point(rows,g.start-1,'BRANCH_BEFORE_EXIT','FREEZE_B1_BASELINE'),point(rows,g.start,'BRANCH_UNSEEN','DO_NOT_FABRICATE_MATCH'),
@@ -55,21 +60,33 @@ for(const id of ids.length?ids:Object.keys(E3_ROUTES)){
   let exit=rows.findIndex((r,i)=>i>after&&actor(rows[i-1]).gt_visible.some(c=>!actor(r).gt_visible.includes(c)));
   if(id==='E3-D2')exit=rows.findIndex((r,i)=>i>after&&!actor(r).gt_visible.length);
   if(exit<0)throw new Error(`${id}:NO_TRUE_EXIT`);
-  points=[point(rows,g.start,'SCREEN_OCCLUSION','ABSTAIN_WHILE_OCCLUDED'),point(rows,g.start+5,'SCREEN_OCCLUSION_1S','DO_NOT_CALL_DISTRACTOR_T'),
-   point(rows,g.end,'SCREEN_RETURN','REACQUIRE_AFTER_OCCLUSION'),point(rows,exit,'TRUE_CAMERA_EXIT','SWITCH_OR_DECLARE_UNSEEN'),
+  diagnostic_events=[point(rows,g.start,'SCREEN_OCCLUSION','ABSTAIN_WHILE_OCCLUDED'),
+   point(rows,g.start+5,'SCREEN_OCCLUSION_1S','DO_NOT_CALL_DISTRACTOR_T'),
+   point(rows,exit,'TRUE_CAMERA_EXIT','SWITCH_OR_DECLARE_UNSEEN'),
    point(rows,exit+5,'EXIT_1S','DO_NOT_CLAIM_OLD_CAMERA_STILL_SEES_T')];
-  metrics={...metrics,true_exit_tick:rows[exit].tick,old_cameras:actor(rows[exit-1]).gt_visible,
+  points=[point(rows,g.start-1,'SCREEN_BEFORE_OCCLUSION','KEEP_T_THEN_ABSTAIN'),
+   point(rows,g.end,'SCREEN_RETURN','REACQUIRE_AFTER_OCCLUSION'),
+   point(rows,g.end+2,'SCREEN_RETURN_0_4S','VERIFY_RETURNED_T'),
+   point(rows,id==='E3-D2'?exit-6:exit,'TRUE_EXIT_APPROACH','FOLLOW_T_OR_SWITCH'),
+   point(rows,id==='E3-D2'?exit-1:exit+5,'TRUE_EXIT_BOUNDARY','FOLLOW_T_OR_DECLARE_EXIT')];
+  metrics={...metrics,true_exit_tick:rows[exit].tick,true_exit_kind:id==='E3-D2'?'LEAVES_ALL_CAMERAS_NORTH_FRUSTUM':'LEAVES_CORRIDOR_CAMERA_ENTERING_ROOM',old_cameras:actor(rows[exit-1]).gt_visible,
    after_exit_cameras:actor(rows[exit]).gt_visible};
  }
- if(new Set(points.map(p=>p.tick)).size!==5)throw new Error(`${id}:DUPLICATE_POINTS`);
+ if(new Set(points.map(p=>p.tick)).size!==points.length)throw new Error(`${id}:DUPLICATE_POINTS`);
  const gt={schema_version:'live-ab.a-log.v1',session_id:log.session_id,run_id:log.run_id,actor_id:'T',
-  config:{...log.config,case_id:id},ticks:rows.map(r=>({tick:r.tick,t_capture:r.t_capture,t_sim:r.tick/5,actors:r.actors})),
+  config:{...log.config,case_id:id},ticks:rows.map(r=>({tick:r.tick,t_capture:r.t_capture,t_sim:r.tick/5,actors:r.actors.map(a=>({...a,gt_boxes:Object.fromEntries(a.gt_visible.map(cam=>[cam,projectBox(env.cams[cam].camera,env.world.root,a.xy[0],a.xy[1],320,180)]))}))})),
   provenance:{role:'EVALUATION_ONLY',visibility:'THREE_BODY_POINT_RAYS_STATIC_WALLS_NOT_ACTOR_OCCLUSION',
+   gt_box_kind:'EXISTING_PROJECTBOX_0_5_X_0_5_X_1_75_M_PROXY_NOT_PIXEL_MASK',image_size_px:[320,180],
    identity_verdict:'UNCONFIRMED',physical_verdict:'UNKNOWN',source_a_log_sha256:sha(fs.readFileSync(path.join(out,`${id}.replay1.a-log.json`)))}};
+ const legacy=structuredClone(gt);
+ for(const r of legacy.ticks)for(const a of r.actors)delete a.gt_boxes;
+ delete legacy.provenance.gt_box_kind;delete legacy.provenance.image_size_px;
  fs.mkdirSync(path.join(out,'gt'),{recursive:true});
- fs.writeFileSync(path.join(out,'gt',`${id}.a-log.json`),JSON.stringify(gt));
+ fs.writeFileSync(path.join(out,'gt',`${id}.a-log.json`),JSON.stringify(legacy));
+ fs.mkdirSync(path.join(out,'gt-boxes'),{recursive:true});
+ fs.writeFileSync(path.join(out,'gt-boxes',`${id}.a-log.json`),JSON.stringify(gt));
  summaries.push({case_id:id,family:route.family,duration_s:rows.at(-1).tick/5,cameras:log.config.cams,
-  decision_points:points,metrics,gt_path:`gt/${id}.a-log.json`,gt_sha256:sha(JSON.stringify(gt))});
+  decision_points:points.map(p=>({...p,evaluation_window_us:[p.timestamp_us,p.timestamp_us+3000000]})),diagnostic_events,metrics,gt_path:`gt-boxes/${id}.a-log.json`,gt_sha256:sha(JSON.stringify(gt))});
 }
 fs.writeFileSync(path.join(out,ids.length?'annotations-sample.json':'annotations.json'),JSON.stringify(summaries,null,2)+'\n');
 console.log(summaries.map(s=>({case_id:s.case_id,decision_points:s.decision_points.length,metrics:s.metrics})));
