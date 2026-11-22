@@ -84,6 +84,23 @@ def exit_point(S, by, cls, d):
             'stale_old_camera_s': round(len(stale) * TICK_US / 1e6, 2)}
 
 
+def h3_overrides(S, ticks, calls):
+    """D353 (H3, descriptive and exploratory): SELECT answers that override a rule gate (reason code RULE_OVERRIDE:*), and the GT class
+    of the first tick at or after the answer's tick (applied answers only show their effect there)."""
+    by = {t.t_us // TICK_US: t for t in ticks}
+    out = {'override_answers': 0, 'override_applied': 0, 'applied_first_tick_class': {}}
+    for c in calls:
+        if c.get('answer') != 'SELECT' or not any(str(r).startswith('RULE_OVERRIDE') for r in c.get('reason_codes') or []):
+            continue
+        out['override_answers'] += 1
+        if c.get('applied'):
+            out['override_applied'] += 1
+            k = next((k for k in sorted(by) if k >= c['tick']), None)
+            cl = S.classify(by[k]) if k is not None else 'NO_TICK'
+            out['applied_first_tick_class'][cl] = out['applied_first_tick_class'].get(cl, 0) + 1
+    return out
+
+
 def diagnostics(S, case, ticks, b1_class, missed):
     """D350 H2 supplementary diagnostics for one run (supplementary analysis; never changes a §6 verdict)."""
     by = {t.t_us // TICK_US: t for t in ticks}
@@ -162,7 +179,7 @@ def run_scores(S, case, a_log, b_doc, b1_class=None, missed=frozenset()):
     calls = b_doc.get('calls') or []
     return {'primary': prim, 'iou': iou, 'decision_points': dps, 'n_ticks': len(ticks), 'k': b_doc.get('k'),
             'classes': {t.t_us // TICK_US: S.classify(t) for t in ticks},
-            'diag': diagnostics(S, case, ticks, b1_class or {}, missed), 'api_breakdown': api_breakdown(calls),
+            'diag': diagnostics(S, case, ticks, b1_class or {}, missed), 'api_breakdown': api_breakdown(calls), 'h3': h3_overrides(S, ticks, calls),
             'images': {c['request']['t_s']: c['request']['images'] for c in calls if c.get('request')},
             'api': {'calls': len(calls), 'answered': sum(1 for c in calls if c.get('source') == 'AGENT'),
                     'applied': sum(1 for c in calls if c.get('applied')),
@@ -329,6 +346,17 @@ def main():
         n_re = sum(1 for c in h4c for d in c['decision_points'] if d['type'] in REAPPEAR)
         report['verdicts']['H4'] = S.verdict_h4(S.cluster_bootstrap(both, diff) or [0, 0], pa2['top1'][0] / max(1, pa2['top1'][1]), pa2['random_top1'],
                                                 S.cluster_bootstrap(both, rate2) or [0, 0], lat2, lat1, n_re)
+    report['h3_descriptive'] = {}                                                 # D353: exploratory, no verdict
+    for arm in ('A1', 'A2', 'A3'):
+        rs = [r['h3'] for c in cases if has(c['case_id'], arm) for r in per[(c['case_id'], arm)]]
+        if rs:
+            cls = {}
+            for r in rs:
+                for k2, v in r['applied_first_tick_class'].items():
+                    cls[k2] = cls.get(k2, 0) + v
+            report['h3_descriptive'][arm] = {'runs': len(rs), 'override_answers': sum(r['override_answers'] for r in rs),
+                                             'override_applied': sum(r['override_applied'] for r in rs), 'applied_first_tick_class': cls,
+                                             'label': 'EXPLORATORY (D353)'}
     report['diagnostics_h2'] = {}                                                  # D350: per segment and arm (K mean + each run)
     for c in cases:
         for arm in arms:
