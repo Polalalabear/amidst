@@ -71,7 +71,7 @@ render is needed. F4 owns model calls and scoring, outside this production.
 
 ```sh
 node --test tests/evaluation/e3_reappearance_events.test.mjs
-uv run --no-project --python "$E3_PYTHON" python -B -m pytest tests/evaluation/test_e3_reappearances.py tests/evaluation/test_e3_cases.py -o addopts= -q -p no:cacheprovider
+uv run --no-project --python "$E3_PYTHON" python -B -m pytest tests/evaluation/test_e3_reappearances.py -o addopts= -q -p no:cacheprovider
 git diff --check
 ```
 
@@ -84,6 +84,7 @@ node scripts/evaluation/e3_cases/record.mjs "$NEW_ROOT" "$LIVE_ASSETS" E3-B3 E3-
 node scripts/evaluation/e3_cases/freeze_reappearances.mjs "$NEW_ROOT" "$LIVE_ASSETS"
 # Commit the case/GT point pins before the following index-production step.
 PYTHONPATH="src:$RUNTIME_DEPS" uv run --no-project --python "$E3_PYTHON" python -B scripts/evaluation/e3_cases/index.py --root "$NEW_ROOT" --models "$MODEL_ROOT" --cases E3-B3 E3-B4 E3-B5 E3-C3 E3-C4 E3-C5 E3-C6
+PYTHONPATH="src:$RUNTIME_DEPS" uv run --no-project --python "$E3_PYTHON" python -B scripts/evaluation/e3_cases/release_reappearances.py --root "$NEW_ROOT" --base-root "$BASE_ROOT" --assets "$LIVE_ASSETS"
 ```
 
 ## GT freeze before index production
@@ -119,3 +120,40 @@ extension input registries will be composed with explicit root references.
 The base evaluation catalog and its old baseline snapshots are not opened by
 this producer; base counts are the user's declared 3/38, with its manifest pin
 checked without parsing group outputs.
+
+## F4 input contract
+
+The clean combined runtime registry is `COMBINED_INPUTS.json`: resolve each
+run's `root_ref` through its `roots` mapping, then use its hash-bound
+`rgb_index_path`, `index_path` and `records_path`. All arms consume the same
+320×180 PNGs and native `q-demo.detection-index.v1` index at 5 Hz. The PNGs
+preserve the exact decoded pixels of the recorded camera JPEGs. The last
+endpoint guard capture is excluded from inference, giving 25,000 indexed
+camera frames across the seven new cases.
+
+Only the scoring process reads `GT_FREEZE.json`, the committed point catalog
+and the separate `gt-boxes/*.a-log.json` files. Do not mount `.case.json`, A
+logs, control plans, point catalogs or GT sidecars into runtime/Agent inputs.
+Each scoring window is listed explicitly in microseconds; use 200,000 µs ticks
+and the 320×180 image size for the F1 LIVE adapter. Diagnostic/excluded returns
+are not additional primary points. The five duplicate exclusions retain
+`duplicate_of` references for audit.
+
+Release validation uses `JsonRunStore.load_detection_index`, verifies the
+complete eight-camera/time grid and file SHA-256 pins, and compares all three
+logical capture runs per case (21 complete runs). It does not execute or score
+an Agent/rule arm. This delivery establishes usable input/GT counts; H4
+performance and statistical power remain untested.
+
+`GT_FREEZE.json` and `configs/evaluation/e3_reappearances_v1.json` must remain
+byte-identical. A fresh capture has a new provenance/timestamp and therefore
+requires its own committed GT definition before indexing; do not replace the
+current frozen definition to make a rebuild pass. Exact F4 reuse requires the
+preserved artifacts, because JPEG/GPU/RT-DETR output bytes are not promised to
+repeat. The v2 pre-capture forecast was 31 unique points; measured Chrome GT
+produced 30 after deduplication, and the delivered count uses that measurement.
+
+The design was committed in `de32fae6`, the prospective anti-repeat/C6 revision
+in `7d54c91e`, and the final case/GT SHA pins in `08d70d78`, before RT-DETR
+production. `source_receipt.json` pins unchanged LIVE capture files. This PR
+does not change `operator.mjs` or the minimap, so F2's file ownership is preserved.

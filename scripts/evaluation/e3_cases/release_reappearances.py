@@ -58,7 +58,7 @@ def release(root, base, assets):
         raise ValueError("BASE_CORPUS_MANIFEST_CHANGED")
     if len(freeze["cases"]) != 7 or {c["family"] for c in freeze["cases"]} != {"B", "C"}:
         raise ValueError("EXTENSION_CASE_SCOPE")
-    cases = []; inputs = []; identities = set()
+    cases = []; inputs = []; identities = set(); gt_windows = set()
     for case in freeze["cases"]:
         case_id = case["case_id"]
         if sha(root / case["case_path"]) != case["case_sha256"] or sha(root / case["gt_path"]) != case["gt_sha256"]:
@@ -68,6 +68,9 @@ def release(root, base, assets):
             if key in identities or point["tick"] != point["return_tick"] or point["type"] != "REAPPEAR":
                 raise ValueError("DUPLICATE_OR_NONRETURN_POINT")
             identities.add(key)
+            if point["gt_window_sha256"] in gt_windows:
+                raise ValueError("DUPLICATE_GT_WINDOW_IN_PRIMARY_POINTS")
+            gt_windows.add(point["gt_window_sha256"])
             if point["evaluation_window_us"] != [point["timestamp_us"], point["timestamp_us"] + 3_000_000]:
                 raise ValueError("POINT_WINDOW_CHANGED")
         result = verify(root, case_id)
@@ -88,7 +91,7 @@ def release(root, base, assets):
                       "index_path": index_path, "index_file_sha256": inp["index_file_sha256"],
                       "rgb_index_path": rgb_path, "rgb_index_sha256": inp["rgb_index_sha256"]})
     count = len(identities)
-    if count != freeze["new_reappearance_points"] or count + 3 < 30 or count + 38 < 40:
+    if count != freeze["new_reappearance_points"] or count < 30 or count + 38 < 40:
         raise ValueError("POINT_TARGET_NOT_MET")
     base_inputs_path = base / "RUNTIME_INPUTS.json"
     base_inputs = read(base_inputs_path); check_safe_registry(base_inputs)
@@ -124,9 +127,9 @@ def release(root, base, assets):
 
 def make_manifest(root):
     corpus = read(root / "CORPUS.json")
-    files = {root / f for f in ["DESIGN.json", "GT_FREEZE.json", "DESIGN_V2.json", "GT_FREEZE_CANDIDATE_V1.json", "input-replay.json", "browser-replay.json",
+    files = {root / f for f in ["DESIGN.json", "GT_FREEZE.json", "input-replay.json", "browser-replay.json",
              "CORPUS.json", "RUNTIME_INPUTS.json", "COMPOSITION.json", "COMBINED_INPUTS.json", "verification.json"]}
-    for name in ["source_receipt.json", "environment.json", "focused-pytest.txt", "focused-node.txt"]:
+    for name in ["DESIGN_V2.json", "GT_FREEZE_CANDIDATE_V1.json", "source_receipt.json", "environment.json", "focused-pytest.txt", "focused-node.txt"]:
         if (root / name).is_file():
             files.add(root / name)
     for c in corpus["cases"]:
