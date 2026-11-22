@@ -65,7 +65,7 @@ The source GLBs, videos, calibration, original GT and old corpus are not
 modified. GT uses the existing static-wall body-point-ray visibility proxy and
 `person.mjs::projectBox` standing-body box proxy. Person-person occlusion masks,
 identity and physical navigation remain unvalidated. No paid API or Blender
-render is needed. F4 owns model calls and scoring, outside this production.
+render is needed. F4 owns experimental Agent/rule runs and scoring, outside this production.
 
 ## Focused checks
 
@@ -175,3 +175,26 @@ The design was committed in `de32fae6`, the prospective anti-repeat/C6 revision
 in `7d54c91e`, and the final case/GT SHA pins in `08d70d78`, before RT-DETR
 production. `source_receipt.json` pins unchanged LIVE capture files. This PR
 does not change `operator.mjs` or the minimap, so F2's file ownership is preserved.
+
+## Final delivery (2026-11-22)
+
+LOCAL `local/evidence/e3-reappearances-20261122/MANIFEST.json` lists
+**50,176 delivered files / 874,503,221 bytes**, excluding the manifest itself,
+caches and intermediate PR text. SHA-256:
+`5eac93379533485e754f29ebf54f409e7992bd551db822ab6aeea2022aa78517`.
+Every listed file was rehashed after release: **50,176 checked, zero mismatches**.
+All seven native JsonRunStore checks pass, covering 25,000 PNG/index frames,
+complete eight-camera grids, separate GT pins and 21 matching logical browser
+runs. All 30 inclusive three-second scoring windows finish before their indexed
+interval endpoint. Focused checks: Node 12 passed, Python 3 passed;
+`git diff --check` passed. No Agent/rule experiment or H4 scoring was run.
+
+The committed clean registry is
+`docs/operations/E3_REAPPEARANCES_INPUTS_20261122.json`, byte-identical to LOCAL
+`COMBINED_INPUTS.json`. It contains 16 runtime runs (9 base + 7 extension), with
+explicit LOCAL root references and individual pixel/index SHA pins. Use it for
+F4 inputs; use the frozen point catalog separately in the scoring process.
+The new private release catalog is LOCAL `CORPUS.json`; `COMPOSITION.json`
+records the declared 33 H4 / 68 primary counts and their base-count source.
+The original manifest remains `853390e3…` and the retained scratch clone is
+preserved. No paid API calls, Blender renders or demo-service changes occurred.
