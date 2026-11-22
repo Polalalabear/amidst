@@ -88,7 +88,7 @@ class GT:
                        hold_ok=(not boxes) and self.hold_ok(cam, t), src=src)
 
     def score(self, displays):
-        return e3.score_event([self.tick(t, displays.get(t)) for t in self.ticks()])
+        return e3.score_event([self.tick(t, displays.get(t)) for t in self.ticks()], tick_us=e3.TICK_US)   # r004 index 5 fps
 
 
 # --------------------------------------------------------------------------------------------- displays

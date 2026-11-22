@@ -32,7 +32,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 
 SCHEMA = 'e3.score.v1'
-TICK_US = 200_000
+TICK_US = 200_000          # r004 index cadence (5 fps); LIVE logs carry their own cadence. Always passed explicitly (#662 Opus 5)
 IOU_HIT = 0.3
 POS_HIT_M = 1.5
 HOLD_US = 600_000
@@ -40,6 +40,8 @@ CRITERIA = ('primary', 'iou')
 VISIBLE_CLASSES = ('CORRECT', 'MISLOCALIZED', 'WRONG_PERSON', 'WRONG_CAMERA', 'LOST')
 ERROR_CLASSES = ('WRONG_PERSON', 'MISLOCALIZED', 'LOST', 'WRONG_CAMERA')
 BLIND_CLASSES = ('FALSE_LOCK', 'BLIND_OK', 'BLIND_HOLD')
+UNKNOWN_CLASSES = ('GT_UNKNOWN',)   # target visible in the shown camera, a box is shown, but the GT body box is missing
+GT_UNKNOWN_STOP = 0.05            # preregistration §9: stop when GT_UNKNOWN > 5 % of GT-visible ticks in any group
 
 
 # --------------------------------------------------------------------------------------------- box judgement
@@ -89,6 +91,7 @@ class Tick:
     pos_other: bool | None = None       # GT: LIVE estimate within 1.5 m of another actor
     src: str = 'RULE'                   # who produced the display (RULE / AGENT / AGENT_OWN / ...), for breakdowns only
     extra: dict = field(default_factory=dict, compare=False)
+    tick_us: int | None = None          # tick length; metrics() refuses ticks whose tick_us disagrees with its argument
 
 
 def box_judgements(tick: Tick) -> list:
@@ -107,6 +110,8 @@ def classify(tick: Tick, criterion: str = 'primary'):
     if tick.boxes:
         if cam not in tick.visible:
             return 'WRONG_CAMERA'
+        if tick.body is None:                          # GT box missing for a visible target: not scoreable, never WRONG_PERSON
+            return 'GT_UNKNOWN'
         js = box_judgements(tick)
         if any(j['iou_hit'] for j in js):
             return 'CORRECT'
@@ -137,7 +142,7 @@ def _pct(xs, q):
     return xs[lo] + (xs[hi] - xs[lo]) * (k - lo)
 
 
-def reacquire_episodes(ticks, classes, tick_us=TICK_US) -> list:
+def reacquire_episodes(ticks, classes, tick_us: int) -> list:
     """Episodes of not-CORRECT GT-visible ticks (blind ticks are skipped, they neither end nor extend an episode).
     latency = GT-visible seconds from the first tick of the episode to the next CORRECT tick; censored when the event ends first."""
     eps, cur = [], None
@@ -161,9 +166,24 @@ def reacquire_episodes(ticks, classes, tick_us=TICK_US) -> list:
     return eps
 
 
-def metrics(ticks, criterion: str = 'primary', tick_us: int = TICK_US) -> dict:
-    """All per-event tracking metrics under one criterion. Denominator = GT-visible ticks."""
+def resolve_tick_us(ticks, tick_us) -> int:
+    """The tick length: the argument and every tick's own ``tick_us`` must agree; at least one must be given (no default)."""
+    own = {t.tick_us for t in ticks if t.tick_us is not None}
+    if len(own) > 1:
+        raise ValueError(f'TICK_US_MIXED: {sorted(own)}')
+    if tick_us is None:
+        if not own:
+            raise ValueError('TICK_US_REQUIRED')
+        return own.pop()
+    if own and own != {tick_us}:
+        raise ValueError(f'TICK_US_MISMATCH: argument {tick_us}, ticks {sorted(own)}')
+    return tick_us
+
+
+def metrics(ticks, criterion: str = 'primary', tick_us: int | None = None) -> dict:
+    """All per-event tracking metrics under one criterion. Denominator = GT-visible ticks (GT_UNKNOWN excluded, counted apart)."""
     ticks = sorted(ticks, key=lambda t: t.t_us)
+    tick_us = resolve_tick_us(ticks, tick_us)
     classes = [classify(t, criterion) for t in ticks]
     sec = tick_us / 1e6
     if any(c is None for c in classes):
@@ -203,12 +223,14 @@ def metrics(ticks, criterion: str = 'primary', tick_us: int = TICK_US) -> dict:
                       'mean_s': round(statistics.mean(done), 3) if done else None},
         'box_iou': {'n': len(ious), 'mean': round(statistics.mean(ious), 4) if ious else None,
                     'median': _pct(ious, .5)},
-        'counts': {c: cnt[c] for c in VISIBLE_CLASSES + BLIND_CLASSES},
+        'counts': {c: cnt[c] for c in VISIBLE_CLASSES + BLIND_CLASSES + UNKNOWN_CLASSES},
+        'gt_unknown_share': round(cnt['GT_UNKNOWN'] / (nv + cnt['GT_UNKNOWN']), 4) if nv + cnt['GT_UNKNOWN'] else None,
+        'gt_unknown_stop': bool(nv + cnt['GT_UNKNOWN']) and cnt['GT_UNKNOWN'] / (nv + cnt['GT_UNKNOWN']) > GT_UNKNOWN_STOP,
         'counts_by_src': {s: dict(v) for s, v in sorted(by_src.items())},
     }
 
 
-def score_event(ticks, tick_us: int = TICK_US) -> dict:
+def score_event(ticks, tick_us: int | None = None) -> dict:
     """Both criteria for one event/run."""
     return {'schema_version': SCHEMA, 'primary': metrics(ticks, 'primary', tick_us), 'iou': metrics(ticks, 'iou', tick_us),
             'identity': 'UNCONFIRMED'}
@@ -244,8 +266,9 @@ def mcnemar(pairs) -> dict:
     return {'agent_only': b, 'baseline_only': c, 'p': min(1.0, 2 * tail), 'favours': 'agent' if b > c else ('baseline' if c > b else None)}
 
 
-def cluster_bootstrap(clusters: dict, stat, n_boot: int = BOOT_N, seed: int = BOOT_SEED):
-    """95 % percentile interval of ``stat(list of cluster values)`` resampling whole clusters (E3: one cluster = one segment)."""
+def cluster_bootstrap(clusters: dict, stat, n_boot: int = BOOT_N, seed: int = BOOT_SEED, level: float = 0.95):
+    """Percentile interval (``level``, default 95 %) of ``stat(list of cluster values)`` resampling whole clusters
+    (E3: one cluster = one segment)."""
     keys = sorted(clusters)
     if not keys:
         return None
@@ -258,7 +281,8 @@ def cluster_bootstrap(clusters: dict, stat, n_boot: int = BOOT_N, seed: int = BO
     est.sort()
     if not est:
         return None
-    return [est[int(.025 * len(est))], est[min(len(est) - 1, int(.975 * len(est)))]]
+    a = (1 - level) / 2
+    return [est[int(a * len(est))], est[min(len(est) - 1, int((1 - a) * len(est)))]]
 
 
 # --------------------------------------------------------------------------------------------- camera ranking (H4)
@@ -333,12 +357,18 @@ def _dist(a, b):
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
 
-def ticks_from_live(a_ticks, b_ticks, target: str, tick_us: int = 50_000) -> list:
+def ticks_from_live(a_ticks, b_ticks, target: str, *, tick_us: int, size: tuple) -> list:
     """Scored ticks from aligned LIVE A/B logs (``live-ab.a-log.v1`` / ``live-ab.b-log.v1`` rows of one tracking segment).
 
     A rows (scoring side): ``actors`` = [{id, present, xy, gt_visible[, gt_boxes{cam: box}]}]. B rows (system): ``tracking`` =
     {state, active_cam, est_xy, lost_ticks[, box]}. Ticks whose A row is missing or ambiguous are skipped (the caller reports
-    them as UNKNOWN, as ``scripts/live_ab_score.py`` does)."""
+    them as UNKNOWN, as ``scripts/live_ab_score.py`` does). ``tick_us`` (LIVE: 50_000) and ``size`` (capture (w, h)) are required:
+    every Tick carries them, so seconds cannot be off by the r004 cadence and GT boxes are clipped to the image."""
+    if not isinstance(tick_us, int) or tick_us <= 0:
+        raise ValueError('TICK_US_REQUIRED')
+    if not (isinstance(size, (tuple, list)) and len(size) == 2):
+        raise ValueError('SIZE_REQUIRED')
+    size = tuple(size)
     a_by = {}
     for r in a_ticks:
         a_by.setdefault(r['tick'], []).append(r)
@@ -357,15 +387,121 @@ def ticks_from_live(a_ticks, b_ticks, target: str, tick_us: int = 50_000) -> lis
         showing = state == 'TRACKING' and not tr.get('lost_ticks') and tr.get('est_xy') is not None and tr.get('active_cam')
         t_us = int(b['tick']) * tick_us
         if not showing:
-            out.append(Tick(t_us, None, visible=vis, src='SYSTEM'))
+            out.append(Tick(t_us, None, visible=vis, size=size, src='SYSTEM', tick_us=tick_us))
             continue
         cam, est = tr['active_cam'], tr['est_xy']
         box = tr.get('box')
         body = (gt.get('gt_boxes') or {}).get(cam) if gt.get('present') else None
         if box is not None:
-            out.append(Tick(t_us, cam, boxes=(tuple(box),), visible=vis, body=tuple(body) if body else None, src='SYSTEM'))
+            out.append(Tick(t_us, cam, boxes=(tuple(box),), visible=vis, body=tuple(body) if body else None, size=size, src='SYSTEM',
+                            tick_us=tick_us))
             continue
         hit = bool(gt.get('present')) and _dist(est, gt['xy']) <= POS_HIT_M
         other = any(x.get('present') and k != target and _dist(est, x['xy']) <= POS_HIT_M for k, x in actors.items())
-        out.append(Tick(t_us, cam, visible=vis, pos_hit=hit, pos_other=other, src='SYSTEM'))
+        out.append(Tick(t_us, cam, visible=vis, size=size, pos_hit=hit, pos_other=other, src='SYSTEM', tick_us=tick_us))
     return out
+
+
+# --------------------------------------------------------------------------------------------- verdicts (preregistration §6)
+# Pure functions: intervals, McNemar results, random expectations and sample counts in, one of four verdicts out. The E3 report
+# applies these to the numbers; the version of this file at the PR #662 merge commit decides (preregistration §6.0).
+SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE, EXPLORATORY = 'SUPPORTED', 'NOT_SUPPORTED', 'INCONCLUSIVE', 'EXPLORATORY'
+VERDICT_ZH = {SUPPORTED: '成立', NOT_SUPPORTED: '不成立', INCONCLUSIVE: '無法判斷', EXPLORATORY: '探索性'}
+MIN_POINTS, MIN_SEGMENTS, MIN_REAPPEAR, MIN_LAYER_FRAMES = 40, 8, 30, 50
+FOLLOW_MARGIN = 0.05
+P_ALPHA = 0.05
+H5_LAYERS = ('similar_clothing', 'occlusion', 'far_small', 'no_person_box', 'non_person_box')
+H5_LEVEL = 0.99        # Bonferroni over the 5 hard layers (0.05 / 5)
+
+
+def side(ci):
+    """'below' (whole interval < 0), 'above' (> 0) or 'zero' (contains 0) for an interval [lo, hi]."""
+    lo, hi = ci
+    return 'below' if hi < 0 else 'above' if lo > 0 else 'zero'
+
+
+def _out(verdict, reasons, **extra):
+    return {'verdict': verdict, 'verdict_zh': VERDICT_ZH[verdict], 'reasons': reasons, **extra}
+
+
+def verdict_h1(wp_diff_ci, follow_diff_ci, mc: dict, n_points: int, n_segments: int, iou_follow_diff=None) -> dict:
+    """H1 primary test: A2 vs B1 offline (A3 vs B1 is the secondary test, same rule, reported apart). Differences are A - B1;
+    ``wp_diff_ci`` wrong-person seconds, ``follow_diff_ci`` follow rate, ``mc`` = mcnemar(agent majority, B1)."""
+    note = None
+    if iou_follow_diff is not None and iou_follow_diff < -FOLLOW_MARGIN:
+        note = 'DEPENDS_ON_BOX_CRITERION'
+    agent_sig = mc['p'] < P_ALPHA and mc['favours'] == 'agent'
+    rule_sig = mc['p'] < P_ALPHA and mc['favours'] == 'baseline'
+    supported = side(wp_diff_ci) == 'below' and follow_diff_ci[0] > -FOLLOW_MARGIN and agent_sig
+    against = side(wp_diff_ci) == 'above' or follow_diff_ci[1] < -FOLLOW_MARGIN or rule_sig
+    reasons = {'wrong_person': side(wp_diff_ci), 'follow_lower': follow_diff_ci[0], 'follow_upper': follow_diff_ci[1],
+               'mcnemar_p': mc['p'], 'mcnemar_favours': mc['favours']}
+    if n_points < MIN_POINTS or n_segments < MIN_SEGMENTS:
+        return _out(EXPLORATORY, reasons, robustness=note, would_be=(SUPPORTED if supported and not against else
+                                                                     NOT_SUPPORTED if against else INCONCLUSIVE))
+    if against:
+        return _out(NOT_SUPPORTED, reasons, robustness=note)
+    if supported:
+        return _out(SUPPORTED, reasons, robustness=note)
+    return _out(INCONCLUSIVE, reasons, robustness=note)
+
+
+# H2 combination table (preregistration §6.2): primary metric = wrong-person seconds difference (A - B), 'below' = Agent better.
+H2_TABLE = {
+    ('below', 'below'): SUPPORTED,        # both image effects present (also needs the D-class exit condition)
+    ('zero', 'below'): NOT_SUPPORTED,     # gain only with spatial info: interaction, not "the gain comes from images"
+    ('below', 'zero'): INCONCLUSIVE,
+    ('zero', 'zero'): INCONCLUSIVE,       # no difference observed
+}
+
+
+def verdict_h2(a1b1_wp_ci, a2b2_wp_ci, d_exit_diff_ci, n_points: int, n_segments: int) -> dict:
+    """H2: image main effect. ``a1b1_wp_ci`` / ``a2b2_wp_ci`` wrong-person-second differences; ``d_exit_diff_ci`` = A2 - B2 accuracy
+    of "has left" judgements on D-class points. Any 'above' (Agent worse) -> NOT_SUPPORTED."""
+    key = (side(a1b1_wp_ci), side(a2b2_wp_ci))
+    if 'above' in key:
+        v = NOT_SUPPORTED
+    else:
+        v = H2_TABLE[key]
+        if v == SUPPORTED and not d_exit_diff_ci[0] > -FOLLOW_MARGIN:
+            v = INCONCLUSIVE
+    reasons = {'a1_b1': key[0], 'a2_b2': key[1], 'd_exit_lower': d_exit_diff_ci[0],
+               'interaction': key == ('zero', 'below')}
+    if n_points < MIN_POINTS or n_segments < MIN_SEGMENTS:
+        return _out(EXPLORATORY, reasons, would_be=v)
+    return _out(v, reasons)
+
+
+def verdict_h4(top1_diff_ci, a2_top1_rate: float, a2_random_top1_rate: float, a2_top1_ci, a2_latency_median, a1_latency_median,
+               n_reappear: int) -> dict:
+    """H4: spatial ranking. One decision point per reappearance; no hint counts as a miss (caller). ``top1_diff_ci`` = A2 - A1."""
+    above_random = a2_top1_ci[0] > a2_random_top1_rate
+    faster = a2_latency_median is not None and a1_latency_median is not None and a2_latency_median < a1_latency_median
+    supported = side(top1_diff_ci) == 'above' and above_random and faster
+    against = side(top1_diff_ci) != 'above' or a2_top1_rate <= a2_random_top1_rate
+    v = SUPPORTED if supported else NOT_SUPPORTED if against else INCONCLUSIVE
+    reasons = {'top1_diff': side(top1_diff_ci), 'a2_top1': a2_top1_rate, 'random_top1': a2_random_top1_rate,
+               'a2_top1_lower_above_random': above_random, 'faster_reacquire': faster}
+    if n_reappear < MIN_REAPPEAR:
+        return _out(EXPLORATORY, reasons, would_be=v)
+    return _out(v, reasons)
+
+
+def verdict_h5(layers: dict, precision_diff_ci) -> dict:
+    """H5: per-frame recognition. ``layers`` = {layer: {'n': present frames, 'recall_diff_ci': 99 % interval (Agent - rule)}} for the
+    five hard layers; ``precision_diff_ci`` = 95 % interval of the precision difference pooled over the judged hard layers.
+    Bootstrap unit = segment. Layers with n < 50 are not judged; fewer than two judged layers -> EXPLORATORY."""
+    judged = {k: v for k, v in layers.items() if k in H5_LAYERS and v['n'] >= MIN_LAYER_FRAMES}
+    up = [k for k, v in judged.items() if side(v['recall_diff_ci']) == 'above']
+    down = [k for k, v in judged.items() if side(v['recall_diff_ci']) == 'below']
+    if precision_diff_ci[1] < -FOLLOW_MARGIN or len(down) >= 2:
+        v = NOT_SUPPORTED
+    elif len(up) >= 2 and precision_diff_ci[0] > -FOLLOW_MARGIN:
+        v = SUPPORTED
+    else:
+        v = INCONCLUSIVE
+    reasons = {'judged_layers': sorted(judged), 'recall_up': sorted(up), 'recall_down': sorted(down),
+               'precision_lower': precision_diff_ci[0], 'precision_upper': precision_diff_ci[1]}
+    if len(judged) < 2:
+        return _out(EXPLORATORY, reasons, would_be=v)
+    return _out(v, reasons)
