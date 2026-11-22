@@ -60,7 +60,7 @@ test('selected actor is sole player; all actors and visibility stay in private l
 test('operator transparency restores opaque virtual-camera materials even after render failure',()=>{
  const scene=new THREE.Scene(),shared=new THREE.MeshBasicMaterial(),wall=new THREE.Mesh(new THREE.BoxGeometry(),shared),floor=new THREE.Mesh(new THREE.PlaneGeometry(),shared),ceiling=new THREE.Group();
  wall.name='WALL_JOINED_SHELL_LIVE';ceiling.name='CEILING_STATIC_LIVE';scene.add(wall,floor,ceiling);
- const draw=makeOperatorView({scene,wallMats:[]});assert.notEqual(wall.material,shared);
+ const draw=makeOperatorView({scene,wallMats:[]},{xray:true});assert.notEqual(wall.material,shared);
  assert.throws(()=>draw(()=>{assert.equal(wall.material.opacity,.18);assert.equal(floor.material.opacity,1);assert.equal(ceiling.visible,false);throw new Error('render failed');}),/render failed/);
  assert.equal(wall.material.opacity,1);assert.equal(wall.material.transparent,false);assert.equal(wall.material.depthWrite,true);assert.equal(ceiling.visible,true);
 });

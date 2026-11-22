@@ -14,6 +14,7 @@ import hashlib
 import json
 import math
 
+from amidst.q1q5 import camera_projection as cp
 from amidst.q1q5.camera_projection import Camera
 
 SCHEMA = 'amidst.scene-context.v1'
@@ -93,7 +94,7 @@ def _cell_set(cam: Camera, region, step=GRID_STEP_M, max_dist=MAX_DIST_M):
     return cells
 
 
-def camera_geometry(entry: dict, region=((-10.0, 40.0), (-10.0, 30.0))) -> dict:
+def camera_geometry(entry: dict, region=((-10.0, 40.0), (-10.0, 30.0)), walls=None) -> dict:
     cam = Camera(entry['camera_id'], entry['camera_to_world'], entry['fx'], entry['fy'], entry['width'], entry['height'],
                  entry.get('clip_start', 0.05), entry.get('clip_end', 100.0))
     fwd = [-cam.rot[r][2] for r in range(3)]            # camera looks along -Z of its own frame
@@ -102,7 +103,14 @@ def camera_geometry(entry: dict, region=((-10.0, 40.0), (-10.0, 30.0))) -> dict:
     cells = _cell_set(cam, region)
     pts = [(region[0][0] + i * GRID_STEP_M, region[1][0] + j * GRID_STEP_M) for i, j in cells]
     hull = _hull(pts)
-    return {'camera_id': entry['camera_id'], 'position_xyz_m': list(cam.pos), 'yaw_deg_0_is_plus_x': yaw, 'pitch_down_deg': pitch,
+    extra = {}
+    if walls is not None:   # F2: wall-clipped coverage (static geometry); overlaps then use the clipped cells
+        poly = cp.visibility_polygon(entry, walls)
+        cells = {c for c in cells if poly and cp.point_in_polygon(region[0][0] + c[0] * GRID_STEP_M, region[1][0] + c[1] * GRID_STEP_M, poly)}
+        extra = {'visible_area_polygon_xy_m': [list(p) for p in poly], 'visible_area_m2': _area(poly),
+                 'visible_area_basis': (f'WALL_CLIPPED body point z={cp.COVER_Z} m in image, 2D sight line crosses no wall, '
+                                        f'ray every {cp.STEP_DEG} deg, march {cp.MARCH_M} m, max {cp.MAX_RANGE_M} m; people do not occlude')}
+    return {**extra, 'camera_id': entry['camera_id'], 'position_xyz_m': list(cam.pos), 'yaw_deg_0_is_plus_x': yaw, 'pitch_down_deg': pitch,
             'image_px': [entry['width'], entry['height']],
             'fov_h_deg': 2 * math.degrees(math.atan(entry['width'] / 2 / entry['fx'])),
             'fov_v_deg': 2 * math.degrees(math.atan(entry['height'] / 2 / entry['fy'])),
@@ -111,11 +119,14 @@ def camera_geometry(entry: dict, region=((-10.0, 40.0), (-10.0, 30.0))) -> dict:
             'calibration_sha256': entry.get('calibration_sha256'), '_cells': cells}
 
 
-def build(region_graph: dict, camera_graph: dict, catalog: dict, camera_ids=None, source_sha256: dict | None = None, tracking_scope: dict | None = None) -> dict:
-    """Assemble the scene context. ``camera_ids`` limits the cameras (the cameras of the run)."""
+def build(region_graph: dict, camera_graph: dict, catalog: dict, camera_ids=None, source_sha256: dict | None = None, tracking_scope: dict | None = None,
+          walls=None) -> dict:
+    """Assemble the scene context. ``camera_ids`` limits the cameras (the cameras of the run). ``walls`` (F2): static wall segments
+    [(ax, ay, bx, by), ...] from an approved geometry source; when given, each camera carries its wall-clipped visible area and the
+    overlaps are computed on it. Default None keeps the unclipped v1 context byte-identical."""
     cat = {c['camera_id']: c for c in catalog['cameras']}
     ids = sorted(camera_ids) if camera_ids else sorted(cat)
-    geo = {cid: camera_geometry(cat[cid]) for cid in ids}
+    geo = {cid: camera_geometry(cat[cid], walls=walls) for cid in ids}
     overlap = []
     for i, a in enumerate(ids):
         for b in ids[i + 1:]:
@@ -152,7 +163,7 @@ def build(region_graph: dict, camera_graph: dict, catalog: dict, camera_ids=None
         'cameras': cameras,
         'overlaps': overlap,
         'sources': dict(sorted((source_sha256 or {}).items())),
-        'incomplete': ['OCCLUSION_NOT_MODELLED', 'WALL_GEOMETRY_NOT_IN_CONTEXT'] + (['SCENE_CONTEXT_INCOMPLETE:NO_SOURCE_HASHES'] if not source_sha256 else []),
+        'incomplete': (['PEOPLE_OCCLUSION_NOT_MODELLED'] if walls is not None else ['OCCLUSION_NOT_MODELLED', 'WALL_GEOMETRY_NOT_IN_CONTEXT']) + (['SCENE_CONTEXT_INCOMPLETE:NO_SOURCE_HASHES'] if not source_sha256 else []),
     }
     missing = [c for c in ids if c not in gcams]
     if missing:
