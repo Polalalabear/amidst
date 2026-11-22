@@ -18,7 +18,9 @@
 | **即時（realtime）** | **增益 0** | W2：所有 Agent 組在模擬即時下都等於規則；單次延遲 p50 約 4.3 s、p95 約 6.2 s，比失聯段（2.6／4.2 s）長。先導 #640 同（p50 約 3.2–4.0 s） | 更快的模型或非同步預取；依 §6，只能寫「可以等待時較好，即時沒有顯示優勢」 |
 | **H3 閘門改資訊** | 這兩個事件上**沒有害處，也沒有可見好處** | W2：Agent 多次選 `rule_eligible=false` 的偵測（記 `RULE_OVERRIDE`），中心點準則下錯人 0 秒；「選中的框落在目標上的機率是否與規則相同」沒有計算 | 規則真的錯的場景（E2b 的「閘門照擋」組） |
 | **H4 主動搜尋** | **只有描述性訊號，不支持 H4** | W2 兩階段挑鏡頭：B4-1 前 3 名命中 有場景 37／40 vs 無場景 9／40，但差異**全部來自第 3 順位**；前 1、前 2 名只有 8／40，低於隨機期望（10、19），等於繼續看最後一台；A4-1 無區分力；只看前 2 名的第二階段沒有改善失聯。tick 高度自相關，B4-1 只有 3 段失聯 | 更多失聯段；覆蓋多邊形不建模遮擋（CAM_WIDE 恆排第 2，未驗證） |
-| **H6 全模式可切換** | 前提，**部分完成** | `src/amidst/q1q5/agent_service.py` 提供 `RULE`／`AGENT` 統一介面（RULE 不呼叫模型）；8785 開關改接是 #645 第二步（等 Codex #623）；LIVE 是 W3（#646）；Q1／Q2 查找與 Q4 的 Agent 路徑（X3）未做。付費路徑缺口 G7 未解（見規格 §4.3） | #645 第二步、#646、X3、G7 |
+| **H6 全模式可切換** | 前提，**部分完成** | `src/amidst/q1q5/agent_service.py` 提供 `RULE`／`AGENT` 統一介面（RULE 不呼叫模型）；8785 開關改接是 #645 第二步（等 Codex #623）；LIVE 是 W3（#646；前置 #608、#617 已於 2026-11-22 合併）；Q1／Q2 查找與 Q4 的 Agent 路徑（X3）未做。G7 已修正：所有付費呼叫經 ApiGuard（4f665d55） | #645 第二步、#646、X3 |
+
+**LIVE 前置（2026-11-22）**：#608 重新取得 R1 已合併（`cfbfe4e9`）：`RelockConfig` 門檻全部預設 `None`（預設關閉，未設定時走原固定 gate），`t_short_s`、`tau_app`、`margin_app` 量測依據不足，值為 `UNKNOWN`；#617 LIVE 錄製重播已合併（`1742ed06`）：輸入側確定性成立，完整 E3 corpus 為 0，輸出側（偵測器、Agent 回應、延遲）確定性未驗。E3 劇本前提見 #652。
 
 **先導 #640（PR #647，n = 2 事件、K = 3 平均）只作描述性引用**：失聯秒 A4-1 規則 2.6 → 看圖 0.8 s、B4-1 4.2 → 1.2 s，錯接 0 次；不給圖零改善；不作推論統計。
 
@@ -95,7 +97,7 @@
 
 1. **E1（立刻可做）**：H5＋H2 逐格評估，用 r004 現有的 GT、索引和畫面。估計 USD 3–6，先跑 ApiGuard dry-run。不依賴 Codex。
 2. **E2a（修完 §4 C1–C3 後）**：主動 Agent 在 r004 上試跑，確認請求、回應和評分都能跑通。估計 USD 2–4。
-3. **E2b（#608／#617 合併、LIVE 端完成 §4 C7 後）**：在 LIVE 難題集上正式驗 H1／H2／H3／H4。估計 USD 6–12。
+3. **E2b（#608／#617 已於 2026-11-22 合併；等 LIVE 端完成 §4 C7）**：在 LIVE 難題集上正式驗 H1／H2／H3／H4。估計 USD 6–12。
 4. **E3（Codex 完成 Line 2 場景後）**：補足決策點數量。需求見 §5 W4。
 
 總計約 USD 15–25，每一步先跑 dry-run。依 D242，每次核准只用於該實驗。
@@ -137,7 +139,7 @@
 | C6 | 已完成（新介面） | `reason_codes` 截斷到 4，不退回 |
 | X1／X2 | 未做 | `candidates.py`、8785 開關是 `waiting:codex`；#645 第二步 |
 | C8a | E1 已完成；API 未改 | W1 逐格評估（#644，PR #647 merge `afddfe74`）：H5 有條件成立（§0）。Q4 仍只有規則路徑，Agent 看圖確認的可選路徑是 X3，未做 |
-| G7 | 未解 | `scripts/agent_decision/run_provider.py` 的付費路徑只有 `CallBudget`、沒有 ApiGuard 帳本；`OpenAIPredictionAdapter`（`openai_prediction.py`）自帶傳輸、沒有 guard（目前沒接線，永遠 `DISABLED`）。見 [`AGENT_API_WIRING_AUDIT_20261120.md`](../engineering/AGENT_API_WIRING_AUDIT_20261120.md) G7 |
+| G7 | 已修正 | 已修正：所有付費呼叫經 ApiGuard（4f665d55）：#655（issue #651）讓 `scripts/agent_decision/run_provider.py` 的 OPENAI 每次嘗試、`OpenAIPredictionAdapter` 的每次傳輸嘗試都先經 `ApiGuard.run`，DENIED 時不呼叫 provider，重試重新檢查；兩者仍預設關閉，adapter 仍未接到 8785。見 [`PAID_API_G7_20261120.md`](../operations/PAID_API_G7_20261120.md) |
 
 ### 4.2 要等 Codex（同檔有 Codex 的 PR，或屬 Codex 範圍）
 
@@ -147,7 +149,7 @@
 | X1 | `src/amidst/q1q5/candidates.py` L63–71：`scope_unapproved` → 所有轉移記 `GRAPH_NOT_APPROVED` 並排除 | 8785 Q5 controller 的 Agent 候選是 0，從來沒有呼叫 API（H3／H6） | Agent 模式下把未核定的轉移連同核定狀態一起交給 Agent；規則模式維持 fail-closed | Codex（Q5 controller） | 是 |
 | X2 | #639：8785 Agent 開關改接 `associate()` | 方向對，但如果只改接、不先做 C1–C3，8785 的 Agent 仍然是不看圖的覆核者，結果會和 D325 一樣 | 順序改成 C1–C3 → #639 | Claude | 是（#623 動 `serve_demo_integration.py`） |
 | X3 | Q1／Q2 查找、Q4 證據的 API（`q1_search.py`、`q4_evidence.py` 的 route） | Agent／規則在查找模式不能切換，只有 Q3 解析可以走 LLM（H6） | E1 成立後加入 Agent 看圖確認的可選路徑，回應附 `decision_source` | Codex（API 契約）；Claude 起草契約 | 是 |
-| X4 | 資料：複雜預錄場景不存在；LIVE 難題集還沒正式錄製 | H1 沒有足夠的複雜決策點 | Line 2 場景（§5 W4）；#608／#617 合併後錄製難題集 | Codex | 是 |
+| X4 | 資料：複雜預錄場景不存在；LIVE 難題集還沒正式錄製 | H1 沒有足夠的複雜決策點 | Line 2 場景（§5 W4）；#608／#617 已合併（2026-11-22），E3 劇本待 #652後錄製難題集 | Codex | 是 |
 
 **和假設無關、不用優先處理**：#633（LIVE 改 workbench-v2 風格）。
 
@@ -201,7 +203,7 @@ W2 的 PR 要同時包含：
 | --- | --- | --- | --- | --- | --- |
 | W1 | **E1 逐格評估器並實跑**：從 r004 抽格並分層；三組比較：Q4 規則、Agent 看圖、Agent 只給文字 | H5、H2 | Claude | 無（付費金額需使用者核准；送渲染畫面已在 LIVE 做過，但預錄送圖是否要等 R1，由協調者決定） | Sonnet / high |
 | W2 | **主動 Agent 決策器**（實作要求與完成定義見 §4.3）：完成 C1–C6（schema v3：送圖、空間資訊、閘門當資訊、可以不選人），在 r004 跑 E2a 試跑；併入看圖 Agent 實驗 session 的成果 | H1、H2、H3、H4 | Claude | R1 | Sonnet / high |
-| W3 | **LIVE 端主動 Agent**：做 C7，在難題集跑 E2b，含四組消融與「閘門照擋」組 | H1、H2、H3、H4 | Claude | #608／#617 合併 | Sonnet / high |
+| W3 | **LIVE 端主動 Agent**：做 C7，在難題集跑 E2b，含四組消融與「閘門照擋」組 | H1、H2、H3、H4 | Claude | C7（#608／#617 已合併；E3 劇本 #652） | Sonnet / high |
 | W4 | **複雜場景**：Line 2 預錄 L2-S1–S6（相似人物交錯、遮擋、長失聯＋多出口、目標不在候選、重疊交接、離開路線圖），每類 ≥ 3 次；GT 只放 `gt_private/`；偵測用相同的 RT-DETR R18 | H1（樣本數） | Codex | 無 | — |
 | W5 | **判讀**：每次實驗前提交指標與推翻條件，實驗後寫結論 | 全部 | Claude | W1–W3 | Opus / high |
 

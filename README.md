@@ -85,9 +85,9 @@
 | H1 切換決策 | 複雜情況下 Agent 切鏡比規則好 | 尚無數據：兩個簡單事件只驗證可行（[W2](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)） |
 | 即時 | 模擬即時下的增益 | 0：單次延遲約 4.3 s，比失聯段長 |
 | H3、H4 | 閘門改資訊、依空間資訊主動找下一台 | H3 無害也無可見好處；H4 只有描述性訊號，不支持 |
-| H6 | 每個模式都能切規則／Agent | 部分完成：統一介面已有；8785 開關、LIVE、查找待做 |
+| H6 | 每個模式都能切規則／Agent | 部分完成：統一介面已有；8785 開關、LIVE Agent（W3）、查找待做 |
 
-下一步：W3 LIVE 難題集（等 Codex 的 LIVE 重新取得與錄製重播）、W4 複雜場景。已知缺口 G7（兩條付費路徑沒經 `ApiGuard`）尚未修。
+下一步：W3 LIVE 難題集（前置已合併：LIVE 重新取得 R1 #608 `cfbfe4e9`，門檻 UNKNOWN、預設關閉；錄製重播 #617 `1742ed06`）、E3 劇本（#652）、W4 複雜場景。G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）。
 
 ### 開發環境
 
@@ -206,9 +206,9 @@ Research hypotheses and current evidence ([hypothesis plan §0](docs/evaluation/
 | H1 switching | In hard cases the Agent switches cameras better than the rules | No data yet: two simple events only show feasibility ([W2](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)) |
 | Real time | Gain under simulated real time | Zero: one call takes about 4.3 s, longer than the lost spans |
 | H3, H4 | Gates as information; spatial reasoning to pick the next camera | H3 no harm and no visible benefit; H4 only a descriptive signal, not supported |
-| H6 | Every mode can switch rules/Agent | Partly done: the shared interface exists; 8785 switch, LIVE and search remain |
+| H6 | Every mode can switch rules/Agent | Partly done: the shared interface exists; 8785 switch, LIVE Agent (W3) and search remain |
 
-Next: W3 on the LIVE hard set (waiting for Codex's LIVE relock and recording/replay) and W4 complex scenes. Known gap G7 (two paid paths bypass `ApiGuard`) is not fixed yet.
+Next: W3 on the LIVE hard set (prerequisites merged: LIVE relock R1 #608 `cfbfe4e9`, thresholds UNKNOWN and off by default; recording/replay #617 `1742ed06`), E3 scripts (#652) and W4 complex scenes. G7 is fixed: every paid call goes through `ApiGuard` (`4f665d55`).
 
 ### Development setup
 

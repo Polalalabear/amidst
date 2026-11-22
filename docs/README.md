@@ -34,7 +34,7 @@
 ### 評估
 
 - **Agent vs 規則（D340、D341，2026-11-20）**：[假設計畫 H1–H6](evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)（§0 目前證據狀態）、[W1 逐格評估](evaluation/W1_FRAME_EVAL_20261120.md)（[預先登記](evaluation/W1_FRAME_EVAL_PREREG_20261120.md)）、[看圖 Agent 先導](evaluation/VISION_AGENT_RECORDED_20261120.md)、[W2 主動 Agent 與快取比較](evaluation/W2_ACTIVE_AGENT_20261120.md)、[規則 vs LLM（預錄與 LIVE，覆核架構）](evaluation/RULE_VS_LLM_RECORDED_AND_LIVE_20261120.md)、[D325 預錄規則 vs LLM（含更正說明）](evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)
-- [Agent 接線與 ApiGuard 檢查](engineering/AGENT_API_WIRING_AUDIT_20261120.md)：所有模型呼叫路徑、付費護欄覆蓋、未解缺口 G7
+- [Agent 接線與 ApiGuard 檢查](engineering/AGENT_API_WIRING_AUDIT_20261120.md)：所有模型呼叫路徑、付費護欄覆蓋；G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）
 - [評估文件資料夾](evaluation/)：其他評估文件（D79 決策窗、LIVE 難題集等）。
 - [程式碼 ↔ 文件對應表](index/CODE_DOC_MAP.md)、[索引與檢索紀錄](index/README.md)
 
