@@ -154,6 +154,8 @@
 | `region_ids` | 可為 `[]`。非空時只從涵蓋這些區域的鏡頭（§2.2 地點規則）挑起點 |
 | `time` | `null` 表示「現在」：用 `playback_now_us`（回放時鐘目前時間，整數微秒，必填）；視窗為 `[max(0, now − track_lookback_us), now)`，`track_lookback_us` PROPOSED 預設 60 000 000。非 null 時同 §2.1 的 WALL 範圍，此時 `playback_now_us` 可省略，`as_of_us` 取範圍結束 |
 | 不看未來 | 回應只能用 `source_time_us < as_of_us` 的證據（回放時不偷看之後的畫面） |
+| `switch_mode` | 選填（F3 #657／D340 相容新增）。`RULE_ONLY`（不給時的預設）或 `AGENT_SEQUENTIAL`（失聯時由 Agent 決定，規則是預設和退路）。其他值回 422 `FORBIDDEN_INFERENCE_INPUT` |
+| `manual_seed` | 選填（F3 #657／D340 相容新增）。`{track_ref: 非空字串, at_us: ≥ 0 整數}`，不得有其他鍵；操作者從 `at_us` 起改選這條本地軌跡為目標，身分仍 `UNCONFIRMED`。格式錯回 422 `FORBIDDEN_INFERENCE_INPUT` |
 
 ### 3.2 類別支援
 
@@ -375,3 +377,7 @@ from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us�
 - 原凍結設定仍保留；D148 replay 的明確覆寫為 seed/continuation 分數 0.3、面積比 12、
   IoU 0.2、中心距 0.6×高、尺寸平滑 0.5、最多容許 2 個漏格（第 3 個結束）。
   回應 provenance 明列此 replay policy；不宣稱正式參數已核准。
+
+### F3（#657，D340）：追蹤請求的兩個選填欄位（2026-11-22）
+
+`q-core.track-request.v1` 加上選填的 `switch_mode` 與 `manual_seed`（§3.1；schema `$defs/trackRequest`）。兩者都可省略，省略時行為與原本相同，屬相容新增，`schema_version` 不變，也不新增 pin。驗收測試：`tests/q1q5/test_service_agent_track.py`（schema 與 `core_query.validate_track_request` 對同一組請求的接受／拒絕一致）。本節由 Claude 依 #666 Opus 裁決 M2 補上；契約歸 Codex，已通知。

@@ -1,5 +1,6 @@
 """F3 (#657): Agent mode on the 8785 main tracking screen (q_core_track -> associate). SYNTHETIC tracks and index, fake transport."""
 import json
+from pathlib import Path
 
 import pytest
 
@@ -68,13 +69,36 @@ def test_agent_select_of_a_colour_incompatible_track_is_adopted_with_audit():
     assert result['identity_verdict'] == 'UNCONFIRMED' and [s['camera_id'] for s in result['sightings'] if s['selected_for_single_view']][-1] == 'B'
 
 
-def test_agent_wait_keeps_the_target_lost_even_where_the_rule_would_cut():
+STILL_HERE = {'answer': 'STILL_HERE_OCCLUDED', 'camera_id': 'A', 'reason_codes': ['OCCLUDED'], 'reason': 'x'}
+
+
+@pytest.mark.parametrize('answer', [NOT_VISIBLE, STILL_HERE], ids=['NOT_VISIBLE', 'STILL_HERE_OCCLUDED'])
+def test_explicit_agent_wait_keeps_the_target_lost_even_where_the_rule_would_cut(answer):
     tracks = [track('A', [0, 200_000]), track('B', [800_000, 1_000_000])]
     assert len(run(tracks)[1]) == 1                                         # the rule cuts to B (red, graph edge)
-    fake = Fake(NOT_VISIBLE)
+    fake = Fake(answer)
     result, events, audit = run(tracks, ServiceTrackDecider(fake, index(tracks)))
     assert not events and any(a.get('reason') == 'AGENT_WAITING' for a in audit)
-    assert next(a for a in audit if a['reason'] == AUDIT_REASON)['answer']['answer'] == 'NOT_VISIBLE'
+    assert next(a for a in audit if a['reason'] == AUDIT_REASON)['answer']['answer'] == answer['answer']
+
+
+@pytest.mark.parametrize('answer,code', [
+    ({'answer': 'SELECT', 'camera_id': 'B', 'detection_id': 'D2', 'confidence': 'medium', 'reason_codes': ['X'], 'reason': 'x'},
+     'NO_LOCAL_TRACK_FOR_DETECTION'),
+    ({'answer': 'OWN_BOX', 'camera_id': 'B', 'box_xyxy': [1, 1, 20, 40], 'confidence': 'low', 'reason_codes': ['X'], 'reason': 'x'},
+     'OWN_BOX_NOT_LINKED')], ids=['SELECT_NO_TRACK', 'OWN_BOX'])
+def test_unadoptable_agent_answer_hands_the_loss_back_to_the_rule(answer, code):
+    tracks = [track('A', [0, 200_000]), track('B', [800_000, 1_000_000])]
+    rows = index(tracks)
+    extra = next(r for r in rows if (r['camera_id'], r['timestamp_us']) == ('B', 800_000))   # an index detection that no local track holds
+    extra['detections'].append(dict(extra['detections'][0], observation_id='B:extra', bbox_xyxy_px=[60, 10, 90, 90]))
+    fake = Fake(answer)
+    result, events, audit = run(tracks, ServiceTrackDecider(fake, rows))
+    row = next(a for a in audit if a['reason'] == AUDIT_REASON)
+    assert row['rule_answer']['rule_would_cut'] is True
+    assert row['decision_source'] == 'RULE_FALLBACK' and row['fallback_reason'] == code and row['not_adoptable'] == code
+    assert len(events) == 1 and events[0]['reason'] == 'DEMO_ASSOCIATION_HYPOTHESIS'      # the rule cut, not a WAIT
+    assert not any(a.get('reason') == 'AGENT_WAITING' for a in audit) and len(fake.bodies) == 1
 
 
 def test_failed_call_falls_back_to_the_rule_with_reason():
@@ -162,3 +186,53 @@ def test_manual_selection_as_the_first_seed_and_none_is_unchanged():
 def test_track_request_rejects_malformed_manual_seed(bad):
     with pytest.raises(CoreRequestError):
         validate_track_request(track_request(manual_seed=bad), **CATALOG)
+
+
+# ------------------------------------------------------------------------------------------------ schema == core_query (#666 M2)
+SCHEMA = json.loads((Path(__file__).resolve().parents[2] / 'docs/contracts/schemas/q-core.search-track.v1.schema.json').read_text())
+
+
+def schema_ok(value, sub):
+    """The JSON-Schema subset trackRequest uses for these fields (no jsonschema dependency in the checkout)."""
+    if '$ref' in sub:
+        return schema_ok(value, SCHEMA['$defs'][sub['$ref'].rsplit('/', 1)[1]])
+    if 'enum' in sub and value not in sub['enum']:
+        return False
+    if sub.get('type') == 'string' and not (isinstance(value, str) and len(value) >= sub.get('minLength', 0)):
+        return False
+    if sub.get('type') == 'integer' and not (type(value) is int and value >= sub.get('minimum', value)):
+        return False
+    if sub.get('type') == 'object':
+        if not isinstance(value, dict) or not set(sub.get('required', ())) <= set(value):
+            return False
+        if sub.get('additionalProperties') is False and not set(value) <= set(sub['properties']):
+            return False
+        return all(schema_ok(v, sub['properties'][k]) for k, v in value.items() if k in sub.get('properties', {}))
+    return True
+
+
+TRACK = SCHEMA['$defs']['trackRequest']
+
+
+def test_schema_declares_the_two_optional_track_fields():
+    assert {'switch_mode', 'manual_seed'} <= set(TRACK['properties']) and not {'switch_mode', 'manual_seed'} & set(TRACK['required'])
+    assert TRACK['additionalProperties'] is False
+
+
+@pytest.mark.parametrize('change', [{'switch_mode': 'AGENT_SEQUENTIAL', 'manual_seed': {'track_ref': 'synthetic:C', 'at_us': 400_000}},
+                                    {'switch_mode': 'RULE_ONLY'}, {'manual_seed': {'track_ref': 'x', 'at_us': 0}}])
+def test_a_request_core_query_accepts_also_passes_the_schema(change):
+    q = track_request(**change)
+    try:
+        validate_track_request(q, **CATALOG)
+    except CoreRequestError as e:
+        assert e.code != 'FORBIDDEN_INFERENCE_INPUT'
+    assert set(q) <= set(TRACK['properties']) and set(TRACK['required']) <= set(q)
+    assert all(schema_ok(q[k], TRACK['properties'][k]) for k in change)
+
+
+@pytest.mark.parametrize('bad', [{'track_ref': 'x'}, {'track_ref': '', 'at_us': 0}, {'track_ref': 'x', 'at_us': -1},
+                                 {'track_ref': 'x', 'at_us': 1.5}, {'track_ref': 'x', 'at_us': 0, 'gt': 1}, 'x'])
+def test_schema_rejects_what_core_query_rejects(bad):
+    assert not schema_ok(bad, TRACK['properties']['manual_seed'])
+    assert not schema_ok('AGENT_LIVE', TRACK['properties']['switch_mode'])

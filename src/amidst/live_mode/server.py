@@ -96,7 +96,8 @@ class State:
         # LIVE A/B §4.2 reserves a separately approved budget for Q3 sentences.
         self.sentence_parser = TrackSentenceParser(guard=track_sentence_guard)
         self.reset()
-        self.llm_switch = {"requested": args.advisor, "effective": args.advisor, "available": True, "reason": None, "reason_code": None, "reason_text": None}
+        self.llm_switch = self._scene_context_gate({"requested": args.advisor, "effective": args.advisor, "available": True, "reason": None,
+                                                    "reason_code": None, "reason_text": None})
 
     def set_llm_mode(self, requested: str, model: str | None = None) -> dict:
         """Workbench switch (llm_switch.py). Off or an unusable provider leaves the decider None: the rule-only path."""
@@ -113,8 +114,18 @@ class State:
                     cfg = dataclasses.replace(cfg, prices={m[0]: {"input_usd_per_mtok": m[1], "output_usd_per_mtok": m[2]} for m in ADVISOR_MODELS.values()})
                 self.guard = ApiGuard(cfg)
             self.decider = self._new_decider()
-            self.llm_switch = res
+            self.llm_switch = res = self._scene_context_gate(res)
         return res
+
+    def _scene_context_gate(self, res: dict) -> dict:
+        """#666 M3: Agent mode needs the scene context (D340). If it could not be built, Agent mode does not start: the rule-only path
+        runs and /config llm_switch (shown by the HUD switch) says SCENE_CONTEXT_UNAVAILABLE:<exception type>."""
+        err = getattr(self, "scene_context_error", None)
+        if self.args.advisor != "agent" or not err:
+            return res
+        self.args.advisor, self.decider = "off", None
+        return {**res, "effective": "off", "available": False, "reason": err, "reason_code": err,
+                "reason_text": f"場景上下文建不起來（{err}），Agent 模式沒有啟動，只用規則"}
 
     def _new_tracker(self, color="red"):
         a = self.args
@@ -127,7 +138,8 @@ class State:
         if a.advisor == "off":
             return None
         if a.advisor == "agent":   # F3 (#657): agent_service decides; the rule gates of LiveDecider (red only, >=2 candidates) do not apply
-            return self._new_service_decider()
+            context = self._live_scene_context()
+            return None if context is None else self._new_service_decider(context)   # None: see _scene_context_gate (#666 M3)
         if a.advisor_provider == "openai":
             provider = OpenAIAdjudicator(a.advisor_model)
             model_id = provider.api_model
@@ -139,7 +151,7 @@ class State:
         return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker(),
                            gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
 
-    def _new_service_decider(self):
+    def _new_service_decider(self, scene_context):
         from .service_decider import ServiceLiveDecider, guarded_responses_transport
         a = self.args
         if a.advisor_provider == "openai":
@@ -152,12 +164,14 @@ class State:
                 time.sleep(a.advisor_fake_delay_s)
                 return {"text": json.dumps({"answer": "NOT_VISIBLE", "next_camera_hint": None, "reason_codes": ["FAKE"], "reason": "假模型"}),
                         "usage": {}, "latency_s": a.advisor_fake_delay_s}
-        return ServiceLiveDecider(transport, PeopleTracker(), self._live_scene_context(), model=api_model,
+        return ServiceLiveDecider(transport, PeopleTracker(), scene_context, model=api_model,
                                   timeout_s=max(a.advisor_timeout_s, 8.0), gate_m=a.gate_m)
 
     def _live_scene_context(self):
         """r004 graphs + this server's camera catalog (calibration). The F2 wall gate validated no LIVE camera, so no wall clipping:
-        every camera is listed SCENE_CONTEXT_INCOMPLETE for walls. Any failure -> None (requests say the scene context is missing)."""
+        every camera is listed SCENE_CONTEXT_INCOMPLETE for walls. A failure is not swallowed silently (#666 M3): it is logged, kept in
+        ``scene_context_error`` (SCENE_CONTEXT_UNAVAILABLE:<exception type>) and returns None, so Agent mode does not start."""
+        self.scene_context_error = None
         try:
             from amidst.q1q5 import scene_context as sx
             from amidst.q1q5.scene_graphs import R004_PINS, load_scene_graphs
@@ -169,7 +183,9 @@ class State:
             static = sx.static_geometry((repo / "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json").read_bytes(),
                                         (repo / "docs/evaluation/F2_WALL_GATE_20261122.json").read_bytes(), "live")
             return sx.build(g.region, g.camera, catalog, sorted(self.registered_cameras), sha, g.tracking_scope, static=static)
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 -- any build failure: reported, never a silent downgrade to "no spatial information"
+            self.scene_context_error = f"SCENE_CONTEXT_UNAVAILABLE:{type(exc).__name__}"
+            print(f"[live] {self.scene_context_error}: {exc}; Agent mode not started", flush=True)
             return None
 
     def reset(self):

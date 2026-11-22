@@ -3,7 +3,9 @@
 ``associate(..., decider=ServiceTrackDecider(...))`` with ``agent_mode=True``: at a loss the model decides (see associate), with every
 index detection of every camera at that time (score >= 0.3, all classes; C5), annotated frames, the reference crop and the scene
 context. SELECT of a detection that belongs to a local track adopts that track, also one the rule rejects (RULE_OVERRIDE recorded).
-STILL_HERE_OCCLUDED / NOT_VISIBLE / a box with no local track -> WAIT (stay lost; the rule does not cut on its own meanwhile).
+Only an explicit STILL_HERE_OCCLUDED / NOT_VISIBLE -> WAIT (stay lost; the rule does not cut on its own meanwhile). A SELECT of a
+detection with no local track, or an OWN_BOX, cannot be executed here: that loss goes back to the rule (decision_source RULE_FALLBACK,
+fallback_reason NO_LOCAL_TRACK_FOR_DETECTION / OWN_BOX_NOT_LINKED; #666 Opus M1), as LIVE does for an unappliable SELECT.
 A failed call -> None: the rule decides that loss (RULE_FALLBACK, with the contract fallback_reason in the audit row).
 
 Cadence (cost): asked at the first lost time of an episode, again when the set of candidate tracks changes, and at most every
@@ -142,5 +144,7 @@ class ServiceTrackDecider:
             if ref is not None:
                 row['adopted_track_ref'] = ref
                 return ('SELECT', ref), row
-            row['not_adoptable'] = 'NO_LOCAL_TRACK_FOR_DETECTION' if ans['answer'] == 'SELECT' else 'OWN_BOX_NOT_LINKED'
-        return ('WAIT', None), row
+            code = 'NO_LOCAL_TRACK_FOR_DETECTION' if ans['answer'] == 'SELECT' else 'OWN_BOX_NOT_LINKED'
+            row.update(not_adoptable=code, decision_source='RULE_FALLBACK', fallback_reason=code)   # the system cannot execute it: rule decides
+            return None, row
+        return ('WAIT', None), row      # explicit STILL_HERE_OCCLUDED / NOT_VISIBLE only
