@@ -200,3 +200,4 @@ Issue [#660](https://github.com/Polalalabear/amidst/issues/660)（F1）；實驗
   3. **離開判斷**（只有 D 類段）：樣本＝`TRUE_EXIT_APPROACH` 與 `TRUE_EXIT_BOUNDARY` 決策點。正確＝`e3_scoring.decision_point_correct`（評估窗內至少一個 CORRECT，沒有 WRONG_PERSON／WRONG_CAMERA；目標都不可見時不顯示框算對），Agent 組再用 K=3 多數決。另報窗內「目標已離開舊鏡頭、系統仍在舊鏡頭顯示」的秒數。這就是 §6.2 附帶條件所用的「已離開」正確率，這裡逐點列出。
   4. **錯誤切鏡次數**（全部 16 段）：顯示鏡頭在相鄰兩個 tick 之間改變（含從無顯示到有顯示），而且切過去後的第一個 tick 判 WRONG_CAMERA 或 WRONG_PERSON，就算一次。以事件計，不以 tick 計；同時報總切鏡次數。
   樣本限制照實寫：1 和 3 只有 2 段（4 個離開點），只能逐案描述，不做區間判定。
+- 2026-11-22（D352，協調者）：**A3 的實作改成符合 §7**。第一版 F4 執行程式在 A3 用的是 LIVE 人物追蹤器的連續性（1.5 s 內看過、沒有爭議），不是 §7.4 的逐 tick IoU ≥ 0.3 串接。改正後，答案只在 `t_arrive` 之後的第一個 tick 生效：從 `t_call` 到 `t_arrive`，在同一鏡頭以 IoU ≥ 0.3 串接系統偵測，串得上才切換，串不上記 `EXPIRED`，不顯示。改正後 A3 在原本 9 段全部重跑（K=3）。這是讓實作符合本文件，不改 §4 評分和 §6 門檻。同時記下：受 ApiGuard 帳本上限擋下的執行（`CALL_BUDGET_EXHAUSTED`），只用這個欄位挑選，同段同組的 K 次全部重跑，舊檔保留。決定和寫這條時**還沒有計算或看過任何 E3 分數**。
