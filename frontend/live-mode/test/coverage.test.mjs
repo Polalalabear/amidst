@@ -11,7 +11,7 @@ const cam = id => GEOM.cameras.find(c => c.camera_id === id);
 test('vehicles are not walls; every other clearance segment is', () => {
   assert.equal(isWall({collider: 'R004_ENV_CAR_1'}), false);
   assert.equal(isWall({collider: 'WALL_X'}), true);
-  assert.ok(WALLS.length > 0 && WALLS.length < GEOM.clearance_segments.length + 1);
+  assert.equal(WALLS.length, GEOM.occluders_full_height.length);   // D346: occluders only
 });
 
 test('rayHit finds the nearest wall and ignores walls behind', () => {

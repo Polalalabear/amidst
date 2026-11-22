@@ -60,7 +60,8 @@ def is_wall(segment: dict) -> bool:
 
 
 def walls_of(geometry: dict) -> list:
-    return [(s['a'][0], s['a'][1], s['b'][0], s['b'][1]) for s in geometry['clearance_segments'] if is_wall(s)]
+    """D346: only ``occluders_full_height`` (static, solid up to 3.2 m) enters inference; doors are the gaps between them."""
+    return [(s['a'][0], s['a'][1], s['b'][0], s['b'][1]) for s in geometry['occluders_full_height']]
 
 
 def pose_of(entry: dict):
@@ -127,3 +128,23 @@ def point_in_polygon(x: float, y: float, poly) -> bool:
             inside = not inside
         j = i
     return inside
+
+
+def simplify_polygon(poly, tol: float = 0.1) -> list:
+    """Douglas-Peucker on the open ring (endpoints kept); vertices closer than ``tol`` metres to the simplified edge are dropped."""
+    if len(poly) < 4:
+        return list(poly)
+
+    def rec(pts):
+        (ax, ay), (bx, by) = pts[0], pts[-1]
+        ex, ey = bx - ax, by - ay
+        L = math.hypot(ex, ey) or 1e-12
+        best, idx = -1.0, 0
+        for i in range(1, len(pts) - 1):
+            d = abs((pts[i][0] - ax) * ey - (pts[i][1] - ay) * ex) / L if L > 1e-9 else math.hypot(pts[i][0] - ax, pts[i][1] - ay)
+            if d > best:
+                best, idx = d, i
+        if best <= tol:
+            return [pts[0], pts[-1]]
+        return rec(pts[:idx + 1])[:-1] + rec(pts[idx:])
+    return rec(list(poly))

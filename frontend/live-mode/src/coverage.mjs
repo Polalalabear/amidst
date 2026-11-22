@@ -6,7 +6,7 @@
 // (pinhole, catalog intrinsics/extrinsics) and the 2D sight line camera->point crosses no wall segment.
 // Rays are swept over the horizontal FOV every STEP_DEG; along each ray we march MARCH_M until the first wall.
 // The polygon is the ring of the nearest and farthest covered point of every ray (camera blind spots under
-// the lens are excluded). Vehicles (R004_ENV_*, 1.5 m) are not walls here, as in the occluder list.
+// the lens are excluded). Walls = occluders_full_height (D346); vehicles (R004_ENV_*, 1.5 m) are not occluders.
 
 export const COVER_Z = 0.9;
 export const STEP_DEG = 1;
@@ -16,8 +16,10 @@ export const BLIND_CELL_M = 0.5;
 
 export function isWall(segment) { return !String(segment.collider || '').startsWith('R004_ENV_'); }
 
+// D346: only occluders_full_height (solid at every slice height up to 3.2 m) and door_openings may enter
+// inference; walls are the occluders (doors are already gaps between them, vehicles are not occluders).
 export function wallsOf(geometry) {
-  return geometry.clearance_segments.filter(isWall).map(s => [s.a[0], s.a[1], s.b[0], s.b[1]]);
+  return geometry.occluders_full_height.map(s => [s.a[0], s.a[1], s.b[0], s.b[1]]);
 }
 
 export function pose(spec) {
