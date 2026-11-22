@@ -1,0 +1,248 @@
+{
+  "baseline_main_sha": "802bc24fbb24d8c779c3e4a00ebb452855ba63a6",
+  "boundary": {
+    "case_and_gt": "A_PRIVATE_RENDER_OR_OFFLINE_EVALUATION_ONLY",
+    "identity": "UNCONFIRMED",
+    "inference_allowlist": "Only rgb PNGs, RGB descriptor and detection_index manifest/records. Neither cases, GT nor this evaluation catalog.",
+    "last_capture": "Endpoint guard at case duration; excluded from half-open [0,duration) detection grid.",
+    "paid_api_calls": 0,
+    "physical_navigation": "UNKNOWN",
+    "points": "5 declared opportunities per clip, correlated phases within 9 authored scripts; not independent observations or model decisions.",
+    "replay": "Chrome expected states and logical captures match 3 complete runs; wall clocks/JPEGs/detector outputs not asserted deterministic.",
+    "sampling": "5 Hz, 320x180, 8 cameras; original N6 GLBs, no Blender render or asset modification.",
+    "shared_input_policy": "Every F4 arm uses the same PNG bytes and detection_index; never redetect per arm.",
+    "visibility": "Existing static-wall body-point-ray proxy; not pixel masks or person-person occlusion truth."
+  },
+  "case_count": 2,
+  "cases": [
+    {
+      "cameras": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "case_id": "E3-A3",
+      "case_path": "E3-A3.case.json",
+      "case_sha256": "deab6db16aea007998b8a7c283073686f09947bff0dc432e215da3db954d2fec",
+      "decision_points": [
+        {
+          "cameras": [
+            "CAM_R101_IN",
+            "CAM_W1",
+            "CAM_W2"
+          ],
+          "expected": "KEEP_T_UNCONFIRMED",
+          "source_ref": "ticks[32]",
+          "tick": 32,
+          "timestamp_us": 6400000,
+          "type": "SIMILAR_APPROACH"
+        },
+        {
+          "cameras": [
+            "CAM_R101_IN",
+            "CAM_W1",
+            "CAM_W2"
+          ],
+          "expected": "DO_NOT_CONFIRM_SAME_COLOR_IDENTITY",
+          "source_ref": "ticks[39]",
+          "tick": 39,
+          "timestamp_us": 7800000,
+          "type": "CROSS_AMBIGUITY"
+        },
+        {
+          "cameras": [
+            "CAM_R101_IN",
+            "CAM_W1",
+            "CAM_W2"
+          ],
+          "expected": "KEEP_T_OR_ABSTAIN",
+          "source_ref": "ticks[43]",
+          "tick": 43,
+          "timestamp_us": 8600000,
+          "type": "CLOSEST_CROSSING"
+        },
+        {
+          "cameras": [
+            "CAM_R101_IN",
+            "CAM_W1",
+            "CAM_W2"
+          ],
+          "expected": "FOLLOW_T_NOT_DISTRACTOR",
+          "source_ref": "ticks[60]",
+          "tick": 60,
+          "timestamp_us": 12000000,
+          "type": "CROSS_SPLIT"
+        },
+        {
+          "cameras": [
+            "CAM_R101_IN",
+            "CAM_W1",
+            "CAM_W2"
+          ],
+          "expected": "REACQUIRE_T_WITHIN_REGISTERED_WINDOW",
+          "source_ref": "ticks[85]",
+          "tick": 85,
+          "timestamp_us": 17000000,
+          "type": "POST_SPLIT_5S"
+        }
+      ],
+      "duration_s": 26,
+      "family": "A",
+      "gt_path": "gt/E3-A3.a-log.json",
+      "gt_sha256": "0e8c86940a898a5760524ba552ccb8e0eb41221b4310621ced92696607cd1074",
+      "index_path": "indexes/E3-A3/detection_index.json",
+      "index_sha256": "3937edac85be2924dd64a1c0a86b180820d20c1f272de7e069080f552b6ad6c3",
+      "metrics": {
+        "distractor": "A",
+        "gaps": [],
+        "min_separation_m": 0.7503473859029965
+      },
+      "rgb_index_path": "rgb/E3-A3/rgb_index.json",
+      "rgb_index_sha256": "a0fa2ffa8e2f4c5f6921791515e3a2d15df528d9d5a80c4afa69988e3c4f3df5",
+      "status": "FORMAL_RECORDED_FROZEN",
+      "verification": {
+        "case_id": "E3-A3",
+        "case_sha256": "deab6db16aea007998b8a7c283073686f09947bff0dc432e215da3db954d2fec",
+        "frames": 1040,
+        "gt_sha256": "0e8c86940a898a5760524ba552ccb8e0eb41221b4310621ced92696607cd1074",
+        "index_sha256": "3937edac85be2924dd64a1c0a86b180820d20c1f272de7e069080f552b6ad6c3",
+        "observations": 4929,
+        "reader": "JsonRunStore.load_detection_index",
+        "replays_checked": 3,
+        "status": "PASS"
+      }
+    },
+    {
+      "cameras": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "case_id": "E3-B1",
+      "case_path": "E3-B1.case.json",
+      "case_sha256": "062c6db0e2a8f530675818d576209b81a975c0be0e1d4e313d1594f5e24d8438",
+      "decision_points": [
+        {
+          "cameras": [],
+          "expected": "DECLARE_UNSEEN",
+          "source_ref": "ticks[143]",
+          "tick": 143,
+          "timestamp_us": 28600000,
+          "type": "BLIND_START"
+        },
+        {
+          "cameras": [],
+          "expected": "ABSTAIN_FROM_DISTRACTORS",
+          "source_ref": "ticks[148]",
+          "tick": 148,
+          "timestamp_us": 29600000,
+          "type": "BLIND_1S"
+        },
+        {
+          "cameras": [],
+          "expected": "CONTINUE_SEARCH_WITH_UNCERTAINTY",
+          "source_ref": "ticks[158]",
+          "tick": 158,
+          "timestamp_us": 31600000,
+          "type": "BLIND_3S"
+        },
+        {
+          "cameras": [
+            "CAM_W2"
+          ],
+          "expected": "REACQUIRE_T",
+          "source_ref": "ticks[167]",
+          "tick": 167,
+          "timestamp_us": 33400000,
+          "type": "REAPPEAR"
+        },
+        {
+          "cameras": [
+            "CAM_W1",
+            "CAM_W2"
+          ],
+          "expected": "KEEP_REACQUIRED_T",
+          "source_ref": "ticks[172]",
+          "tick": 172,
+          "timestamp_us": 34400000,
+          "type": "RETURN_1S"
+        }
+      ],
+      "duration_s": 52.8,
+      "family": "B",
+      "gt_path": "gt/E3-B1.a-log.json",
+      "gt_sha256": "f36a544987317c14c549873ef84558d5e6a8d71c59b55403bf7148c1f73e7627",
+      "index_path": "indexes/E3-B1/detection_index.json",
+      "index_sha256": "7e2de005884e716e2dffe8c4be3f207c9252ab6f7b756aaa41549e96596f8aca",
+      "metrics": {
+        "gaps": [
+          {
+            "duration_s": 4.8,
+            "end_tick": 167,
+            "start_tick": 143
+          },
+          {
+            "duration_s": 4.8,
+            "end_tick": 211,
+            "start_tick": 187
+          }
+        ]
+      },
+      "rgb_index_path": "rgb/E3-B1/rgb_index.json",
+      "rgb_index_sha256": "2cee97dc4e9cb6221a1647ecc50aff2c6898a074ab9588af7f64a69981e55de3",
+      "status": "FORMAL_RECORDED_FROZEN",
+      "verification": {
+        "case_id": "E3-B1",
+        "case_sha256": "062c6db0e2a8f530675818d576209b81a975c0be0e1d4e313d1594f5e24d8438",
+        "frames": 2112,
+        "gt_sha256": "f36a544987317c14c549873ef84558d5e6a8d71c59b55403bf7148c1f73e7627",
+        "index_sha256": "7e2de005884e716e2dffe8c4be3f207c9252ab6f7b756aaa41549e96596f8aca",
+        "observations": 6007,
+        "reader": "JsonRunStore.load_detection_index",
+        "replays_checked": 3,
+        "status": "PASS"
+      }
+    }
+  ],
+  "decision_points": 10,
+  "duration_s": 78.8,
+  "indexed_frames": 3152,
+  "issue": 652,
+  "source_files": {
+    "cameras.three.json": {
+      "bytes": 14185,
+      "sha256": "6deb31b032f4a7ce2e1734db07b666d118e1b0de17e8e37be7008814ba0f4f41"
+    },
+    "character.glb": {
+      "bytes": 658080,
+      "sha256": "f46139c0d21aa0583cef9361d3c214efa09aea9cb3a257354f0792f5238ecf43"
+    },
+    "configs/q1q5/graphs/r004/camera_graph_v3.json": {
+      "bytes": 25152,
+      "sha256": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e"
+    },
+    "docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json": {
+      "bytes": 32796,
+      "sha256": "9962bd595946eedb66f8197d28013f8ffac922bb9ea58136042b1f1465633619"
+    },
+    "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json": {
+      "bytes": 61152,
+      "sha256": "73e263819c38da1acd5ccc347bc07f788544fc7a95813e1aa25a0ecbe4c18ae3"
+    },
+    "scene.glb": {
+      "bytes": 33941072,
+      "sha256": "cf9ef5135774fd215090b8448c8757bcf241d29e9bfdf44fabde728a3be7d4f3"
+    }
+  },
+  "status": "TWO_CASE_FORMAT_HANDOFF"
+}
