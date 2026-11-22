@@ -1,0 +1,1175 @@
+{
+ "schema": "amidst.f2-wall-gate.v1",
+ "decision_ref": "D346 (#93); E3 gate from #664 Opus review",
+ "gate_rule": "VALIDATED only when every frame set of the source passes: scored samples >= 30, strict median <= 2 px and >= 80 % within 3 px (960-px equivalent), shifted control (camera 0.3 m sideways) median >= 3 px and >= 2x strict median. Thresholds were written in scripts/f2_validate_wall_projection.py before the run.",
+ "source_report": {
+  "path": "local/evidence/f2-coverage-20261122/gate/gate.json",
+  "sha256": "084ba490b0ee0fce47d58cc978267651a1b4c9c4e3bbb6e49743af779f3fc585",
+  "storage": "LOCAL"
+ },
+ "geometry_sha256": "f654c9935c1aed58c2215dfadddc92590dec554f81fce453ad9e7c84f9269342",
+ "sources": {
+  "r004": {
+   "frame_sets": [
+    "r004A",
+    "r004B"
+   ],
+   "cameras": {
+    "CAM_BRANCH": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "CONTROL_NOT_DISCRIMINATING"
+     ],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 925,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.995
+       },
+       "nearest_edge": {
+        "n": 925,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.995
+       },
+       "control_shift": {
+        "n": 300,
+        "median_px": 2.0,
+        "p90_px": 2.0,
+        "within_3px": 1.0
+       },
+       "standard_native": {
+        "n": 925,
+        "median_px": 0.0,
+        "within_1px": 0.989,
+        "within_2px": 0.994
+       },
+       "control_native": {
+        "n": 300,
+        "median_px": 2.0,
+        "within_1px": 0.367,
+        "within_2px": 1.0
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 555,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.98
+       },
+       "nearest_edge": {
+        "n": 555,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.993
+       },
+       "control_shift": {
+        "n": 180,
+        "median_px": 2.0,
+        "p90_px": 2.0,
+        "within_3px": 0.956
+       },
+       "standard_native": {
+        "n": 555,
+        "median_px": 0.0,
+        "within_1px": 0.975,
+        "within_2px": 0.978
+       },
+       "control_native": {
+        "n": 180,
+        "median_px": 2.0,
+        "within_1px": 0.35,
+        "within_2px": 0.956
+       }
+      }
+     }
+    },
+    "CAM_ENTRY": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "TOO_FEW_SAMPLES"
+     ],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "nearest_edge": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "control_shift": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "standard_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       },
+       "control_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "nearest_edge": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "control_shift": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "standard_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       },
+       "control_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       }
+      }
+     }
+    },
+    "CAM_EXT_CAR": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 1870,
+        "median_px": 1.0,
+        "p90_px": 5.0,
+        "within_3px": 0.741
+       },
+       "nearest_edge": {
+        "n": 1870,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.999
+       },
+       "control_shift": {
+        "n": 1890,
+        "median_px": 8.0,
+        "p90_px": 14.0,
+        "within_3px": 0.168
+       },
+       "standard_native": {
+        "n": 1870,
+        "median_px": 1.0,
+        "within_1px": 0.703,
+        "within_2px": 0.733
+       },
+       "control_native": {
+        "n": 1890,
+        "median_px": 8.0,
+        "within_1px": 0.006,
+        "within_2px": 0.026
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 1122,
+        "median_px": 1.0,
+        "p90_px": 5.0,
+        "within_3px": 0.766
+       },
+       "nearest_edge": {
+        "n": 1122,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 1.0
+       },
+       "control_shift": {
+        "n": 1134,
+        "median_px": 8.0,
+        "p90_px": 14.0,
+        "within_3px": 0.18
+       },
+       "standard_native": {
+        "n": 1122,
+        "median_px": 1.0,
+        "within_1px": 0.729,
+        "within_2px": 0.758
+       },
+       "control_native": {
+        "n": 1134,
+        "median_px": 8.0,
+        "within_1px": 0.005,
+        "within_2px": 0.028
+       }
+      }
+     }
+    },
+    "CAM_EXT_CLEAR": {
+     "verdict": "VALIDATED",
+     "reasons": [],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 3600,
+        "median_px": 1.0,
+        "p90_px": 3.0,
+        "within_3px": 0.978
+       },
+       "nearest_edge": {
+        "n": 3600,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.999
+       },
+       "control_shift": {
+        "n": 3765,
+        "median_px": 4.0,
+        "p90_px": 8.0,
+        "within_3px": 0.453
+       },
+       "standard_native": {
+        "n": 3600,
+        "median_px": 1.0,
+        "within_1px": 0.558,
+        "within_2px": 0.844
+       },
+       "control_native": {
+        "n": 3765,
+        "median_px": 4.0,
+        "within_1px": 0.097,
+        "within_2px": 0.207
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 2160,
+        "median_px": 1.0,
+        "p90_px": 3.0,
+        "within_3px": 0.983
+       },
+       "nearest_edge": {
+        "n": 2160,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.999
+       },
+       "control_shift": {
+        "n": 2259,
+        "median_px": 4.0,
+        "p90_px": 8.0,
+        "within_3px": 0.453
+       },
+       "standard_native": {
+        "n": 2160,
+        "median_px": 1.0,
+        "within_1px": 0.567,
+        "within_2px": 0.85
+       },
+       "control_native": {
+        "n": 2259,
+        "median_px": 4.0,
+        "within_1px": 0.1,
+        "within_2px": 0.208
+       }
+      }
+     }
+    },
+    "CAM_R101_IN": {
+     "verdict": "VALIDATED",
+     "reasons": [],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 925,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.992
+       },
+       "nearest_edge": {
+        "n": 925,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 1.0
+       },
+       "control_shift": {
+        "n": 890,
+        "median_px": 10.5,
+        "p90_px": 13.0,
+        "within_3px": 0.028
+       },
+       "standard_native": {
+        "n": 925,
+        "median_px": 0.0,
+        "within_1px": 0.992,
+        "within_2px": 0.992
+       },
+       "control_native": {
+        "n": 890,
+        "median_px": 10.5,
+        "within_1px": 0.022,
+        "within_2px": 0.028
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 555,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.959
+       },
+       "nearest_edge": {
+        "n": 555,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 1.0
+       },
+       "control_shift": {
+        "n": 534,
+        "median_px": 11.0,
+        "p90_px": 13.0,
+        "within_3px": 0.032
+       },
+       "standard_native": {
+        "n": 555,
+        "median_px": 0.0,
+        "within_1px": 0.957,
+        "within_2px": 0.957
+       },
+       "control_native": {
+        "n": 534,
+        "median_px": 11.0,
+        "within_1px": 0.022,
+        "within_2px": 0.032
+       }
+      }
+     }
+    },
+    "CAM_W1": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 1530,
+        "median_px": 1.0,
+        "p90_px": 9.0,
+        "within_3px": 0.867
+       },
+       "nearest_edge": {
+        "n": 1530,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.994
+       },
+       "control_shift": {
+        "n": 490,
+        "median_px": 13.0,
+        "p90_px": 18.0,
+        "within_3px": 0.01
+       },
+       "standard_native": {
+        "n": 1530,
+        "median_px": 1.0,
+        "within_1px": 0.826,
+        "within_2px": 0.858
+       },
+       "control_native": {
+        "n": 490,
+        "median_px": 13.0,
+        "within_1px": 0.002,
+        "within_2px": 0.006
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 918,
+        "median_px": 1.0,
+        "p90_px": 11.3,
+        "within_3px": 0.797
+       },
+       "nearest_edge": {
+        "n": 918,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.975
+       },
+       "control_shift": {
+        "n": 294,
+        "median_px": 12.0,
+        "p90_px": 18.0,
+        "within_3px": 0.01
+       },
+       "standard_native": {
+        "n": 918,
+        "median_px": 1.0,
+        "within_1px": 0.739,
+        "within_2px": 0.781
+       },
+       "control_native": {
+        "n": 294,
+        "median_px": 12.0,
+        "within_1px": 0.0,
+        "within_2px": 0.003
+       }
+      }
+     }
+    },
+    "CAM_W2": {
+     "verdict": "VALIDATED",
+     "reasons": [],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 2240,
+        "median_px": 1.0,
+        "p90_px": 12.0,
+        "within_3px": 0.811
+       },
+       "nearest_edge": {
+        "n": 2240,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.993
+       },
+       "control_shift": {
+        "n": 1866,
+        "median_px": 13.0,
+        "p90_px": 19.0,
+        "within_3px": 0.234
+       },
+       "standard_native": {
+        "n": 2240,
+        "median_px": 1.0,
+        "within_1px": 0.785,
+        "within_2px": 0.802
+       },
+       "control_native": {
+        "n": 1866,
+        "median_px": 13.0,
+        "within_1px": 0.16,
+        "within_2px": 0.199
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 1344,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.965
+       },
+       "nearest_edge": {
+        "n": 1344,
+        "median_px": 0.0,
+        "p90_px": 1.0,
+        "within_3px": 0.996
+       },
+       "control_shift": {
+        "n": 973,
+        "median_px": 13.0,
+        "p90_px": 19.0,
+        "within_3px": 0.182
+       },
+       "standard_native": {
+        "n": 1344,
+        "median_px": 0.0,
+        "within_1px": 0.954,
+        "within_2px": 0.965
+       },
+       "control_native": {
+        "n": 973,
+        "median_px": 13.0,
+        "within_1px": 0.139,
+        "within_2px": 0.157
+       }
+      }
+     }
+    },
+    "CAM_WIDE": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "r004A": {
+       "standard": {
+        "n": 2155,
+        "median_px": 1.0,
+        "p90_px": 18.0,
+        "within_3px": 0.633
+       },
+       "nearest_edge": {
+        "n": 2155,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.947
+       },
+       "control_shift": {
+        "n": 1925,
+        "median_px": 9.0,
+        "p90_px": 17.0,
+        "within_3px": 0.314
+       },
+       "standard_native": {
+        "n": 2155,
+        "median_px": 1.0,
+        "within_1px": 0.617,
+        "within_2px": 0.624
+       },
+       "control_native": {
+        "n": 1925,
+        "median_px": 9.0,
+        "within_1px": 0.244,
+        "within_2px": 0.275
+       }
+      },
+      "r004B": {
+       "standard": {
+        "n": 1293,
+        "median_px": 1.0,
+        "p90_px": 18.0,
+        "within_3px": 0.616
+       },
+       "nearest_edge": {
+        "n": 1293,
+        "median_px": 1.0,
+        "p90_px": 1.0,
+        "within_3px": 0.945
+       },
+       "control_shift": {
+        "n": 1160,
+        "median_px": 10.0,
+        "p90_px": 17.0,
+        "within_3px": 0.299
+       },
+       "standard_native": {
+        "n": 1293,
+        "median_px": 1.0,
+        "within_1px": 0.6,
+        "within_2px": 0.606
+       },
+       "control_native": {
+        "n": 1160,
+        "median_px": 10.0,
+        "within_1px": 0.228,
+        "within_2px": 0.259
+       }
+      }
+     }
+    }
+   }
+  },
+  "live": {
+   "frame_sets": [
+    "liveA1",
+    "liveC1"
+   ],
+   "cameras": {
+    "CAM_BRANCH": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 740,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.742
+       },
+       "nearest_edge": {
+        "n": 740,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.847
+       },
+       "control_shift": {
+        "n": 424,
+        "median_px": 3.0,
+        "p90_px": 21.0,
+        "within_3px": 0.566
+       },
+       "standard_native": {
+        "n": 740,
+        "median_px": 1.0,
+        "within_1px": 0.742,
+        "within_2px": 0.995
+       },
+       "control_native": {
+        "n": 424,
+        "median_px": 1.0,
+        "within_1px": 0.566,
+        "within_2px": 0.585
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 555,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.742
+       },
+       "nearest_edge": {
+        "n": 555,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.847
+       },
+       "control_shift": {
+        "n": 318,
+        "median_px": 3.0,
+        "p90_px": 21.0,
+        "within_3px": 0.569
+       },
+       "standard_native": {
+        "n": 555,
+        "median_px": 1.0,
+        "within_1px": 0.742,
+        "within_2px": 0.996
+       },
+       "control_native": {
+        "n": 318,
+        "median_px": 1.0,
+        "within_1px": 0.569,
+        "within_2px": 0.588
+       }
+      }
+     }
+    },
+    "CAM_ENTRY": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "TOO_FEW_SAMPLES"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "nearest_edge": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "control_shift": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "standard_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       },
+       "control_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "nearest_edge": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "control_shift": {
+        "n": 0,
+        "median_px": null,
+        "p90_px": null,
+        "within_3px": null
+       },
+       "standard_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       },
+       "control_native": {
+        "n": 0,
+        "median_px": null,
+        "within_1px": null,
+        "within_2px": null
+       }
+      }
+     }
+    },
+    "CAM_EXT_CAR": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 1496,
+        "median_px": 3.0,
+        "p90_px": 9.0,
+        "within_3px": 0.556
+       },
+       "nearest_edge": {
+        "n": 1496,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.824
+       },
+       "control_shift": {
+        "n": 1512,
+        "median_px": 3.0,
+        "p90_px": 12.0,
+        "within_3px": 0.595
+       },
+       "standard_native": {
+        "n": 1496,
+        "median_px": 1.0,
+        "within_1px": 0.556,
+        "within_2px": 0.89
+       },
+       "control_native": {
+        "n": 1512,
+        "median_px": 1.0,
+        "within_1px": 0.595,
+        "within_2px": 0.749
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 1122,
+        "median_px": 3.0,
+        "p90_px": 9.0,
+        "within_3px": 0.556
+       },
+       "nearest_edge": {
+        "n": 1122,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.824
+       },
+       "control_shift": {
+        "n": 1134,
+        "median_px": 3.0,
+        "p90_px": 12.0,
+        "within_3px": 0.595
+       },
+       "standard_native": {
+        "n": 1122,
+        "median_px": 1.0,
+        "within_1px": 0.556,
+        "within_2px": 0.89
+       },
+       "control_native": {
+        "n": 1134,
+        "median_px": 1.0,
+        "within_1px": 0.595,
+        "within_2px": 0.749
+       }
+      }
+     }
+    },
+    "CAM_EXT_CLEAR": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 2880,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.881
+       },
+       "nearest_edge": {
+        "n": 2880,
+        "median_px": 3.0,
+        "p90_px": 3.0,
+        "within_3px": 0.96
+       },
+       "control_shift": {
+        "n": 3048,
+        "median_px": 6.0,
+        "p90_px": 12.0,
+        "within_3px": 0.495
+       },
+       "standard_native": {
+        "n": 2880,
+        "median_px": 1.0,
+        "within_1px": 0.881,
+        "within_2px": 0.951
+       },
+       "control_native": {
+        "n": 3048,
+        "median_px": 2.0,
+        "within_1px": 0.495,
+        "within_2px": 0.825
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 2160,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.881
+       },
+       "nearest_edge": {
+        "n": 2160,
+        "median_px": 3.0,
+        "p90_px": 3.0,
+        "within_3px": 0.96
+       },
+       "control_shift": {
+        "n": 2286,
+        "median_px": 6.0,
+        "p90_px": 12.0,
+        "within_3px": 0.495
+       },
+       "standard_native": {
+        "n": 2160,
+        "median_px": 1.0,
+        "within_1px": 0.881,
+        "within_2px": 0.951
+       },
+       "control_native": {
+        "n": 2286,
+        "median_px": 2.0,
+        "within_1px": 0.495,
+        "within_2px": 0.825
+       }
+      }
+     }
+    },
+    "CAM_R101_IN": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 736,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.664
+       },
+       "nearest_edge": {
+        "n": 736,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.874
+       },
+       "control_shift": {
+        "n": 696,
+        "median_px": 12.0,
+        "p90_px": 18.0,
+        "within_3px": 0.036
+       },
+       "standard_native": {
+        "n": 736,
+        "median_px": 1.0,
+        "within_1px": 0.664,
+        "within_2px": 0.992
+       },
+       "control_native": {
+        "n": 696,
+        "median_px": 4.0,
+        "within_1px": 0.036,
+        "within_2px": 0.159
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 552,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.63
+       },
+       "nearest_edge": {
+        "n": 552,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.87
+       },
+       "control_shift": {
+        "n": 524,
+        "median_px": 9.0,
+        "p90_px": 18.0,
+        "within_3px": 0.044
+       },
+       "standard_native": {
+        "n": 552,
+        "median_px": 1.0,
+        "within_1px": 0.63,
+        "within_2px": 0.96
+       },
+       "control_native": {
+        "n": 524,
+        "median_px": 3.0,
+        "within_1px": 0.044,
+        "within_2px": 0.177
+       }
+      }
+     }
+    },
+    "CAM_W1": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 1224,
+        "median_px": 6.0,
+        "p90_px": 9.0,
+        "within_3px": 0.287
+       },
+       "nearest_edge": {
+        "n": 1224,
+        "median_px": 3.0,
+        "p90_px": 3.0,
+        "within_3px": 0.907
+       },
+       "control_shift": {
+        "n": 392,
+        "median_px": 9.0,
+        "p90_px": 18.0,
+        "within_3px": 0.125
+       },
+       "standard_native": {
+        "n": 1224,
+        "median_px": 2.0,
+        "within_1px": 0.287,
+        "within_2px": 0.866
+       },
+       "control_native": {
+        "n": 392,
+        "median_px": 3.0,
+        "within_1px": 0.125,
+        "within_2px": 0.411
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 918,
+        "median_px": 6.0,
+        "p90_px": 15.0,
+        "within_3px": 0.28
+       },
+       "nearest_edge": {
+        "n": 918,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.899
+       },
+       "control_shift": {
+        "n": 294,
+        "median_px": 9.0,
+        "p90_px": 18.0,
+        "within_3px": 0.139
+       },
+       "standard_native": {
+        "n": 918,
+        "median_px": 2.0,
+        "within_1px": 0.28,
+        "within_2px": 0.797
+       },
+       "control_native": {
+        "n": 294,
+        "median_px": 3.0,
+        "within_1px": 0.139,
+        "within_2px": 0.469
+       }
+      }
+     }
+    },
+    "CAM_W2": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 1783,
+        "median_px": 3.0,
+        "p90_px": 9.0,
+        "within_3px": 0.727
+       },
+       "nearest_edge": {
+        "n": 1783,
+        "median_px": 3.0,
+        "p90_px": 3.0,
+        "within_3px": 0.939
+       },
+       "control_shift": {
+        "n": 1591,
+        "median_px": 15.0,
+        "p90_px": 21.0,
+        "within_3px": 0.108
+       },
+       "standard_native": {
+        "n": 1783,
+        "median_px": 1.0,
+        "within_1px": 0.727,
+        "within_2px": 0.898
+       },
+       "control_native": {
+        "n": 1591,
+        "median_px": 5.0,
+        "within_1px": 0.108,
+        "within_2px": 0.201
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 1338,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.783
+       },
+       "nearest_edge": {
+        "n": 1338,
+        "median_px": 3.0,
+        "p90_px": 3.0,
+        "within_3px": 0.947
+       },
+       "control_shift": {
+        "n": 1185,
+        "median_px": 15.0,
+        "p90_px": 21.0,
+        "within_3px": 0.1
+       },
+       "standard_native": {
+        "n": 1338,
+        "median_px": 1.0,
+        "within_1px": 0.783,
+        "within_2px": 0.968
+       },
+       "control_native": {
+        "n": 1185,
+        "median_px": 5.0,
+        "within_1px": 0.1,
+        "within_2px": 0.19
+       }
+      }
+     }
+    },
+    "CAM_WIDE": {
+     "verdict": "NOT_VALIDATED",
+     "reasons": [
+      "MISALIGNED"
+     ],
+     "per_set": {
+      "liveA1": {
+       "standard": {
+        "n": 1712,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.692
+       },
+       "nearest_edge": {
+        "n": 1712,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.876
+       },
+       "control_shift": {
+        "n": 1654,
+        "median_px": 12.0,
+        "p90_px": 18.0,
+        "within_3px": 0.197
+       },
+       "standard_native": {
+        "n": 1712,
+        "median_px": 1.0,
+        "within_1px": 0.692,
+        "within_2px": 0.901
+       },
+       "control_native": {
+        "n": 1654,
+        "median_px": 4.0,
+        "within_1px": 0.197,
+        "within_2px": 0.257
+       }
+      },
+      "liveC1": {
+       "standard": {
+        "n": 1284,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.71
+       },
+       "nearest_edge": {
+        "n": 1284,
+        "median_px": 3.0,
+        "p90_px": 6.0,
+        "within_3px": 0.884
+       },
+       "control_shift": {
+        "n": 1245,
+        "median_px": 12.0,
+        "p90_px": 18.0,
+        "within_3px": 0.202
+       },
+       "standard_native": {
+        "n": 1284,
+        "median_px": 1.0,
+        "within_1px": 0.71,
+        "within_2px": 0.923
+       },
+       "control_native": {
+        "n": 1245,
+        "median_px": 4.0,
+        "within_1px": 0.202,
+        "within_2px": 0.26
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

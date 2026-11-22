@@ -54,11 +54,6 @@ MARCH_M = 0.25
 MAX_RANGE_M = 14.0
 
 
-def is_wall(segment: dict) -> bool:
-    """Vehicles (R004_ENV_*, 1.5 m high) are not walls; every other clearance segment is a full-height wall or screen."""
-    return not str(segment.get('collider', '')).startswith('R004_ENV_')
-
-
 def walls_of(geometry: dict) -> list:
     """D346: only ``occluders_full_height`` (static, solid up to 3.2 m) enters inference; doors are the gaps between them."""
     return [(s['a'][0], s['a'][1], s['b'][0], s['b'][1]) for s in geometry['occluders_full_height']]

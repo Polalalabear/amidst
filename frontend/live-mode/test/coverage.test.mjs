@@ -2,15 +2,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {wallsOf, isWall, rayHit, visibilityPolygon, pointInPolygon, polygonArea, coverageOf, seesPoint} from '../src/coverage.mjs';
+import {wallsOf, rayHit, visibilityPolygon, pointInPolygon, polygonArea, coverageOf, seesPoint} from '../src/coverage.mjs';
 
 const GEOM = JSON.parse(fs.readFileSync(new URL('../../../docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json', import.meta.url), 'utf8'));
 const WALLS = wallsOf(GEOM);
 const cam = id => GEOM.cameras.find(c => c.camera_id === id);
 
-test('vehicles are not walls; every other clearance segment is', () => {
-  assert.equal(isWall({collider: 'R004_ENV_CAR_1'}), false);
-  assert.equal(isWall({collider: 'WALL_X'}), true);
+test('walls are the D346 occluders only (vehicles are not occluders)', () => {
   assert.equal(WALLS.length, GEOM.occluders_full_height.length);   // D346: occluders only
 });
 

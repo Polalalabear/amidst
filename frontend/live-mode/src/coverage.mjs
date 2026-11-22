@@ -14,8 +14,6 @@ export const MARCH_M = 0.25;
 export const MAX_RANGE_M = 14;
 export const BLIND_CELL_M = 0.5;
 
-export function isWall(segment) { return !String(segment.collider || '').startsWith('R004_ENV_'); }
-
 // D346: only occluders_full_height (solid at every slice height up to 3.2 m) and door_openings may enter
 // inference; walls are the occluders (doors are already gaps between them, vehicles are not occluders).
 export function wallsOf(geometry) {
