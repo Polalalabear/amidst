@@ -19,7 +19,7 @@ for(const [id,route]of Object.entries(REAPPEARANCE_ROUTES)){
 }
 const count=cases.reduce((n,c)=>n+c.planned_points.length,0);
 fs.writeFileSync(path.join(out,'input-replay.json'),JSON.stringify(receipts,null,2)+'\n');
-fs.writeFileSync(path.join(out,'DESIGN.json'),JSON.stringify({status:'GT_ONLY_DESIGN_BEFORE_CAPTURE',policy:REAPPEARANCE_POLICY,cases,
+fs.writeFileSync(path.join(out,'DESIGN.json'),JSON.stringify({status:'GT_ONLY_DESIGN_BEFORE_CAPTURE',counting_stage:'RAW_TRANSITIONS_BEFORE_WINDOW_DEDUPLICATION',policy:REAPPEARANCE_POLICY,cases,
  producer_files:Object.fromEntries(['reappearance_routes.mjs','reappearance_events.mjs','prepare_reappearances.mjs','generate.mjs'].map(f=>[f,sha(fs.readFileSync(path.join(ROOT,'scripts/evaluation/e3_cases',f)))])),
  new_reappearance_points:count,combined_reappearance_points:count+3,combined_primary_points:count+38},null,2)+'\n');
 if(count<REAPPEARANCE_POLICY.minimum_new_points)throw new Error(`INSUFFICIENT_GT_PREFLIGHT:${count}`);

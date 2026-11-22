@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(Path(__file__).parent))
 from verify import verify
 
+GT_PIN_CONFIG = ROOT / "configs/evaluation/e3_reappearances_v1.json"
 BASE_MANIFEST_SHA = "853390e3dbecc8209c16c47d6e6a6cd5fc73d57bef2d1c4e11c757f8fa8b812e"
 
 
@@ -48,6 +49,8 @@ def release(root, base, assets):
     if (root / "MANIFEST.json").exists():
         raise ValueError("REFUSE_FROZEN_RELEASE_OVERWRITE")
     freeze_path = root / "GT_FREEZE.json"
+    if not GT_PIN_CONFIG.is_file() or sha(freeze_path) != sha(GT_PIN_CONFIG):
+        raise ValueError("FROZEN_GT_DEFINITION_CHANGED")
     freeze = read(freeze_path)
     if freeze["status"] != "GT_AND_SCRIPT_FROZEN_BEFORE_DETECTION_AND_E3":
         raise ValueError("GT_FREEZE_REQUIRED")

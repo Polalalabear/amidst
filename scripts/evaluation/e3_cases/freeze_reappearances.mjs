@@ -10,6 +10,7 @@ const out=path.resolve(outArg),freezeFile=path.join(out,'GT_FREEZE.json');
 if(fs.existsSync(freezeFile)||fs.existsSync(path.join(out,'indexes')))throw new Error('GT_MUST_FREEZE_BEFORE_DETECTION');
 const designPath=path.join(out,fs.existsSync(path.join(out,'DESIGN_V2.json'))?'DESIGN_V2.json':'DESIGN.json');
 const design=read(designPath),env=setup(assets),summaries=[],windowItems=[];
+if(JSON.stringify(design.policy)!==JSON.stringify(REAPPEARANCE_POLICY))throw new Error('DESIGN_POLICY_CHANGED');
 const browser=read(path.join(out,'browser-replay.json'));
 for(const [id,route]of Object.entries(REAPPEARANCE_ROUTES)){
  if(JSON.stringify(design.cases.find(c=>c.case_id===id)?.route)!==JSON.stringify(route))throw new Error('DESIGN_ROUTE_CHANGED');

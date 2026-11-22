@@ -44,6 +44,7 @@ def test_release_stops_if_gt_changed_before_index_validation(tmp_path, monkeypat
     frozen = {"status": "GT_AND_SCRIPT_FROZEN_BEFORE_DETECTION_AND_E3",
               "cases": [case] * 4 + [{**case, "family": "C"}] * 3}
     (new / "GT_FREEZE.json").write_text(json.dumps(frozen))
+    monkeypatch.setattr(producer, "GT_PIN_CONFIG", new / "GT_FREEZE.json")
     # No indexes/pixels exist: this must reject the changed GT first.
     with pytest.raises(ValueError, match="FROZEN_CASE_OR_GT_CHANGED"):
         producer.release(new, base, tmp_path)
