@@ -6,6 +6,7 @@ Run via uv with an existing environment containing numpy and Pillow.
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import hashlib
 import io
@@ -14,6 +15,8 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+
+from e3_coverage import BOUNDS, CELL, HEIGHTS, SCENE_SHA, camera_position, coverage, load_triangles, section_segments
 
 REPO = Path(__file__).resolve().parents[2]
 ROOT_PINS = {
@@ -27,7 +30,6 @@ MUTED = '#536877'
 BG = '#ffffff'
 TEAL = '#007b82'
 ORANGE = '#b45100'
-CAM_COLORS = ['#3d67ac','#9c6c20','#667a3a','#a44a81','#6862a4','#227f77','#a54f3c','#427d9b']
 
 
 def sha(data):
@@ -114,118 +116,122 @@ def montage(out, point, phase, tick, records, inputs, cams, painter):
             'gt_overlay': False, 'pixel_transform': 'nearest-neighbor 2x, no crop or color change'}
 
 
-def clip_polygon(poly, value):
-    result = []
-    if not poly:
-        return result
-    for a, b in zip(poly, poly[1:]+poly[:1]):
-        va, vb = value(a), value(b)
-        if va >= 0:
-            result.append(a)
-        if (va >= 0) != (vb >= 0):
-            t = va / (va-vb)
-            result.append((a[0]+t*(b[0]-a[0]), a[1]+t*(b[1]-a[1])))
-    return result
-
-
-def footprint(camera, bounds):
-    """Clip the actual 6-plane frustum at Blender z=0 to the map rectangle."""
-    # Blender (x,y,0,1) -> glTF (x,0,-y,1); matrices are row-major.
-    transform = np.array([[1,0,0], [0,0,0], [0,-1,0], [0,0,1]], dtype=float)
-    matrix = np.array(camera['projection_matrix']) @ np.array(camera['world_to_camera']) @ transform
-    poly = [(bounds[0],bounds[2]),(bounds[1],bounds[2]),(bounds[1],bounds[3]),(bounds[0],bounds[3])]
-    for axis in range(3):
-        for sign in [-1, 1]:
-            coeff = matrix[3] + sign*matrix[axis]
-            poly = clip_polygon(poly, lambda p, c=coeff: c[0]*p[0]+c[1]*p[1]+c[2])
-    return poly
-
-
 def target(row):
     return next(a for a in row['actors'] if a['id']=='T')
 
 
-def minimap(out, point, gt, cameras, geometry, window, painter):
-    ticks = gt['ticks']
-    lo, hi = max(0, point['tick']+window[0]), min(len(ticks)-2, point['tick']+window[1])
-    im = Image.new('RGB', (2280, 1600), BG)
-    d = ImageDraw.Draw(im)
-    painter.text(d, (55, 30), f"{point['figure_id']}  {point['title']}", 46)
-    painter.text(d, (55, 100), 'GT，評分端', 42, '#a63d0b')
-    painter.text(d, (390, 108), f"{point['case_id']}  ｜  {lo/5:.1f}–{hi/5:.1f} s  ｜  決策錨點 {point['tick']/5:.1f} s", 30)
-    bounds = (-15, 23, -10, 18)
-    left, top, scale = 105, 220, 42
-    def xy(p):
-        return (left+(p[0]-bounds[0])*scale, top+(bounds[3]-p[1])*scale)
-    for x in range(-15,24,5):
-        a,b=xy((x,-10)),xy((x,18)); d.line((a,b),fill='#e6ebef',width=1)
-        painter.text(d,(a[0],a[1]+16),str(x),24,MUTED,anchor='mt')
-    for y in range(-10,19,5):
-        a,b=xy((-15,y)),xy((23,y));d.line((a,b),fill='#e6ebef',width=1)
-        painter.text(d,(a[0]-18,a[1]),str(y),24,MUTED,anchor='rm')
-    d.rectangle((*xy((-15,18)),*xy((23,-10))),outline='#aebec8',width=2)
-    # All eight calibrated FOV footprints, uniformly styled (no GT-based camera ranking).
-    for camera,color in zip(cameras,CAM_COLORS):
-        overlay = Image.new('RGBA', im.size)
-        od = ImageDraw.Draw(overlay)
-        poly = footprint(camera,bounds)
-        if len(poly)>=3:
-            rgb=tuple(int(color[i:i+2],16) for i in (1,3,5))
-            od.polygon([xy(p) for p in poly], fill=(*rgb,8), outline=(*rgb,130), width=3)
-        im = Image.alpha_composite(im.convert('RGBA'),overlay).convert('RGB')
+def draw_panel(im, box, bounds, camera, mask, segments, painter, ticks=None, point=None):
+    """One camera per panel: actual heading, occluded region, and optional GT."""
+    d=ImageDraw.Draw(im);left,top,width,height=box
+    name=camera['camera_id']
+    d.rounded_rectangle((left,top,left+width,top+height),radius=18,fill='#f7f9fa',outline='#cbd5db',width=2)
+    painter.text(d,(left+26,top+22),name,34)
+    painter.text(d,(left+26,top+72),'箭頭：觀看方向　青色：靜態可見區',23,MUTED)
+    pad=38;map_top=top+135;map_height=height-410;map_width=width-2*pad
+    scale=min(map_width/(bounds[1]-bounds[0]),map_height/(bounds[3]-bounds[2]))
+    ox=left+pad+(map_width-(bounds[1]-bounds[0])*scale)/2
+    oy=map_top+(map_height-(bounds[3]-bounds[2])*scale)/2
+    def xy(p):return (ox+(p[0]-bounds[0])*scale,oy+(bounds[3]-p[1])*scale)
+    plot_w=round((bounds[1]-bounds[0])*scale);plot_h=round((bounds[3]-bounds[2])*scale)
+    x0=round((bounds[0]-BOUNDS[0])/CELL);x1=round((bounds[1]-BOUNDS[0])/CELL)
+    y0=round((BOUNDS[3]-bounds[3])/CELL);y1=round((BOUNDS[3]-bounds[2])/CELL)
+    raster=Image.fromarray(mask[y0:y1,x0:x1].astype('uint8')*255).resize((plot_w,plot_h),Image.Resampling.NEAREST)
+    im.paste('#75c9c2',(round(ox),round(oy),round(ox)+plot_w,round(oy)+plot_h),raster)
     d=ImageDraw.Draw(im)
-    for s in geometry['clearance_segments']:
-        d.line((xy(s['a']),xy(s['b'])),fill='#687780' if not s['collider'].startswith('OBSTACLE') else '#718748',width=3)
-    # Full continuous GT positions within the explicit temporal crop; no interpolation.
-    for a,b in zip(ticks[lo:hi],ticks[lo+1:hi+1]):
-        ta,tb=target(a),target(b)
-        if ta['present'] and tb['present'] and ta['xy'] and tb['xy']:
-            # Orange denotes globally unseen under the frozen visibility proxy.
-            color=TEAL if ta['gt_visible'] and tb['gt_visible'] else ORANGE
-            d.line((xy(ta['xy']),xy(tb['xy'])),fill=color,width=7)
-    marker_ticks = [(point['tick']-5,'前',TEAL,'circle'),(point['tick'],'錨點',INK,'diamond'),(point['tick']+5,'後',ORANGE,'square')]
-    marker_xy=[xy(target(ticks[t])['xy']) for t,_,_,_ in marker_ticks]
-    for index,(tick,label,color,shape) in enumerate(marker_ticks):
-        p=marker_xy[index];r=11
-        if any(j!=index and np.linalg.norm(np.array(p)-np.array(q))<24 for j,q in enumerate(marker_xy)):
-            actual=p;p=(p[0]+(index-1)*38,p[1]-45)
-            d.line((actual,p),fill=color,width=2)
-        if shape=='circle':d.ellipse((p[0]-r,p[1]-r,p[0]+r,p[1]+r),fill='white',outline=color,width=4)
-        elif shape=='diamond':d.polygon([(p[0],p[1]-r),(p[0]+r,p[1]),(p[0],p[1]+r),(p[0]-r,p[1])],fill=color)
-        else:d.rectangle((p[0]-r,p[1]-r,p[0]+r,p[1]+r),fill='white',outline=color,width=4)
-    # Offset number labels and leaders preserve temporal markers near cameras.
-    for i,c in enumerate(cameras):
-        m=c['camera_to_world'];p=xy((m[0][3],-m[2][3]));q=(p[0]+45,p[1]-36)
-        color=CAM_COLORS[i]
-        d.line((p,q),fill=color,width=3)
-        d.polygon([(p[0],p[1]-7),(p[0]+7,p[1]+6),(p[0]-7,p[1]+6)],fill=color)
-        d.ellipse((q[0]-18,q[1]-18,q[0]+18,q[1]+18),fill=color,outline='white',width=2)
-        painter.text(d,q,f'{i+1}',24,'white',anchor='mm')
-    # Dedicated legend column avoids covering the trajectory or cameras.
-    lx=1780
-    painter.text(d,(lx,220),'鏡頭位置',32)
-    for i,c in enumerate(cameras):painter.text(d,(lx,280+i*49),f"{i+1:02d}  {c['camera_id']}",25,CAM_COLORS[i])
-    painter.text(d,(lx,725),'FOV：鏡頭同色淡面',29,TEAL)
-    painter.text(d,(lx,772),'地平面 z=0 投影',26,MUTED)
-    painter.text(d,(lx,814),'裁至圖界，未扣遮擋',26,MUTED)
-    painter.text(d,(lx,895),'GT 軌跡（非推論）',29)
-    painter.text(d,(lx,946),'青：至少一鏡可見',26,TEAL)
-    painter.text(d,(lx,991),'橙：全鏡不可見',26,ORANGE)
-    painter.text(d,(lx,1056),'○ 前   ◆ 錨點   □ 後',27)
-    for j,(tick,label,_,_) in enumerate(marker_ticks):
-        a=target(ticks[tick]);vis=', '.join(c.replace('CAM_','') for c in a['gt_visible']) or 'NONE'
-        painter.text(d,(lx,1110+j*75),f'{label} {tick/5:.1f} s',25)
-        painter.text(d,(lx,1141+j*75),vis,22,MUTED)
-    painter.text(d,(lx,1350),'重合標記以引線連回',23,MUTED)
-    painter.text(d,(900,1470),'Blender 世界 X（m）／Y（m），等比例；灰：牆體，綠：屏風',27,MUTED,anchor='mm')
-    painter.text(d,(55,1520),'GT 僅供評分示意；靜態牆射線代理未含人擋人。身分未確認；實體導航／碰撞 UNKNOWN。',26,MUTED)
-    artifact=save_png(im,out/f"{point['figure_id']}_map.png")
-    return {**artifact,'kind':'evaluation_gt_map','figure_id':point['figure_id'],'case_id':point['case_id'],
+    for a,b in segments:
+        # Clip schematic walls to each panel, so no line crosses unrelated panels.
+        ax,ay=a;bx,by=b;dx=bx-ax;dy=by-ay;t0=0.;t1=1.
+        for v,q in [(-dx,ax-bounds[0]),(dx,bounds[1]-ax),(-dy,ay-bounds[2]),(dy,bounds[3]-ay)]:
+            if abs(v)<1e-12:
+                if q<0:t0=2;break
+            elif v<0:t0=max(t0,q/v)
+            else:t1=min(t1,q/v)
+        if t0<=t1:d.line((xy((ax+t0*dx,ay+t0*dy)),xy((ax+t1*dx,ay+t1*dy))),fill='#505c65',width=4)
+    if ticks is not None:
+        lo=max(0,point['tick']-50);hi=min(len(ticks)-2,point['tick']+25)
+        route=Image.new('RGBA',im.size);rd=ImageDraw.Draw(route)
+        for a,b in zip(ticks[lo:hi],ticks[lo+1:hi+1]):
+            ta,tb=target(a),target(b)
+            if ta['present'] and tb['present'] and ta['xy'] and tb['xy']:
+                rd.line((xy(ta['xy']),xy(tb['xy'])),fill='#a01b70',width=7)
+        # Temporal marks remain visible even when the target stands still.
+        positions=[xy(target(ticks[t])['xy']) for t in [point['tick']-5,point['tick'],point['tick']+5]]
+        for i,pos in enumerate(positions):
+            q=pos
+            if any(j!=i and np.linalg.norm(np.array(pos)-np.array(other))<28 for j,other in enumerate(positions)):
+                q=(pos[0]+(i-1)*38,pos[1]-42)
+            camera_xy=camera_position(camera)[:2];matrix=np.array(camera['camera_to_world'])
+            heading=np.array([-matrix[0,2],matrix[2,2]]);heading/=np.linalg.norm(heading)
+            arrow_a=np.array(xy(camera_xy));arrow_b=np.array(xy(camera_xy+heading*min(2.,(bounds[1]-bounds[0])/7)))
+            delta=arrow_b-arrow_a;fraction=np.clip(np.dot(np.array(pos)-arrow_a,delta)/np.dot(delta,delta),0,1)
+            if np.linalg.norm(np.array(pos)-(arrow_a+fraction*delta))<38:
+                q=(pos[0]-65,pos[1]+(i-1)*38)
+            if q!=pos:rd.line((pos,q),fill='#a01b70',width=2)
+            rd.ellipse((q[0]-15,q[1]-15,q[0]+15,q[1]+15),fill='white',outline='#a01b70',width=3)
+            painter.text(rd,q,str(i+1),21,'#a01b70',anchor='mm')
+        # Crop all trajectory annotations to this map's rectangle.
+        crop=route.crop((round(ox),round(oy),round(ox)+plot_w,round(oy)+plot_h))
+        im.paste(crop,(round(ox),round(oy)),crop);d=ImageDraw.Draw(im)
+    position=camera_position(camera);m=np.array(camera['camera_to_world'])
+    forward=np.array([-m[0,2],m[2,2]]);forward/=np.linalg.norm(forward)
+    c=xy(position[:2]);length=min(2.,(bounds[1]-bounds[0])/7)
+    tip=xy(position[:2]+forward*length)
+    d.line((c,tip),fill=INK,width=8)
+    direction=np.array(tip)-np.array(c);direction/=np.linalg.norm(direction)
+    normal=np.array([-direction[1],direction[0]])
+    d.polygon([tuple(tip),tuple(np.array(tip)-direction*24+normal*11),tuple(np.array(tip)-direction*24-normal*11)],fill=INK)
+    d.ellipse((c[0]-10,c[1]-10,c[0]+10,c[1]+10),fill=INK,outline='white',width=2)
+    # The context axes are below the plot; north is Blender +Y.
+    painter.text(d,(ox+6,oy+6),'↑ +Y',22,INK)
+    painter.text(d,(ox+plot_w-7,oy+plot_h+20),'+X →',22,INK,anchor='rt')
+    # A metric scale remains valid for all crop aspect ratios.
+    scale_y=oy+plot_h+39;scale_x=ox+8
+    d.line((scale_x,scale_y,scale_x+2*scale,scale_y),fill=INK,width=4)
+    d.line((scale_x,scale_y-6,scale_x,scale_y+6),fill=INK,width=3)
+    d.line((scale_x+2*scale,scale_y-6,scale_x+2*scale,scale_y+6),fill=INK,width=3)
+    painter.text(d,(scale_x+scale,scale_y+13),'2 m',21,INK,anchor='mt')
+    yaw=np.degrees(np.arctan2(forward[1],forward[0]))
+    painter.text(d,(left+25,top+height-130),f'位置 ({position[0]:.1f}, {position[1]:.1f}) m',24)
+    painter.text(d,(left+25,top+height-88),f'朝向 {yaw:.1f}°（+X 起，逆時針）',23,MUTED)
+    if point:
+        visible=[name in target(ticks[t])['gt_visible'] for t in [point['tick']-5,point['tick'],point['tick']+5]]
+        painter.text(d,(left+25,top+height-46),'凍結 GT ①／②／③：'+'／'.join('可見' if v else '不可見' for v in visible),22,MUTED)
+    return {'camera_id':name,'position_blender_xyz_m':position.tolist(),
+            'forward_xy_unit':forward.tolist(),'yaw_deg_ccw_from_x':float(yaw),'bounds_xy_m':list(bounds)}
+
+
+def minimap(out, point, gt, cameras, window, painter, fields, sections):
+    ticks=gt['ticks'];lo=max(0,point['tick']+window[0]);hi=min(len(ticks)-2,point['tick']+window[1])
+    im=Image.new('RGB',(2700,1500),BG);d=ImageDraw.Draw(im)
+    painter.text(d,(50,28),f"{point['figure_id']}  {point['title']}",48)
+    painter.text(d,(50,105),'GT，評分端',38,'#a01b70')
+    painter.text(d,(370,110),f"{point['case_id']}　錨點 {point['tick']/5:.1f} s　軌跡 {lo/5:.1f}–{hi/5:.1f} s",31)
+    painter.text(d,(50,170),'每格一支鏡頭：深色箭頭＝朝向　青色區域＝經原場景遮擋後可見　紫線＝目標 GT 軌跡',29)
+    by_id={c['camera_id']:c for c in cameras};panels=[]
+    for i,name in enumerate(point['display_cameras']):
+        panels.append(draw_panel(im,(50+i*880,235,840,1070),point['map_bounds_xy_m'],by_id[name],fields[name],sections,painter,ticks,point))
+    d=ImageDraw.Draw(im)
+    painter.text(d,(50,1345),f"① 前 {point['tick']/5-1:.1f} s　② 決策錨點 {point['tick']/5:.1f} s　③ 後 {point['tick']/5+1:.1f} s",30,'#a01b70')
+    painter.text(d,(50,1401),'可見區：原始靜態 GLB＋校正，人體 0.15／0.9／1.6 m 三高度至少兩點可見；網格 0.05 m。',27,MUTED)
+    painter.text(d,(50,1445),'不含移動人物遮擋；青色區域與凍結評分 GT 分別呈現，未改寫 GT。身分未確認，實體導航／碰撞 UNKNOWN。',25,MUTED)
+    return {**save_png(im,out/f"{point['figure_id']}_map.png"),'kind':'evaluation_gt_map','figure_id':point['figure_id'],'case_id':point['case_id'],
             'gt_label':'GT，評分端','actor_id':'T','time_window_us':[lo*200000,hi*200000],
-            'anchor_timestamp_us':point['tick']*200000,'cameras':[c['camera_id'] for c in cameras],
-            'fov_plane_blender_z_m':0,'fov_clipped_bounds_xy_m':list(bounds),'occlusion_clipped':False,
-            'gt_path':f"gt-boxes/{point['case_id']}.a-log.json",'root_ref':point['root_ref'],
-            'trajectory_interpolation':False}
+            'anchor_timestamp_us':point['tick']*200000,'cameras':point['display_cameras'],'panels':panels,
+            'occlusion_clipped':True,'coverage_source':'COVERAGE.json','gt_path':f"gt-boxes/{point['case_id']}.a-log.json",'root_ref':point['root_ref'],
+            'trajectory_interpolation':False,'gt_trajectory_color':'#a01b70'}
+
+
+def coverage_atlas(out,cameras,fields,sections,painter):
+    im=Image.new('RGB',(3520,2400),BG);d=ImageDraw.Draw(im)
+    painter.text(d,(50,30),'八鏡頭｜朝向與原場景遮擋後可見範圍',50)
+    painter.text(d,(50,112),'每格一支鏡頭、同一世界座標；青色只保留穿過門洞、未被牆體／屏風／車輛擋住的區域。',30)
+    panels=[]
+    for i,camera in enumerate(cameras):
+        panels.append(draw_panel(im,(50+(i%4)*870,200+(i//4)*1010,820,970),BOUNDS,camera,fields[camera['camera_id']],sections,painter))
+    d=ImageDraw.Draw(im)
+    painter.text(d,(50,2260),'深色圓點＝鏡頭位置　箭頭＝真實校正朝向　灰色＝原場景 0.9 m 高度剖面　青色＝靜態人體可見區',30)
+    painter.text(d,(50,2320),'人體高度採 0.15／0.9／1.6 m，至少兩點可見；0.05 m 網格。不含人物間遮擋，非實體場域驗證。',27,MUTED)
+    return {**save_png(im,out/'camera_coverage_atlas.png'),'kind':'camera_coverage_atlas','cameras':[c['camera_id'] for c in cameras],'panels':panels,'coverage_source':'COVERAGE.json'}
 
 
 def overview(out,cases,painter):
@@ -267,8 +273,10 @@ def main():
     calibration_path=args.assets/'cameras.three.json'
     cal_bytes=calibration_path.read_bytes();assert sha(cal_bytes)==CAL_PIN
     cameras=json.loads(cal_bytes)['cameras'];cams=[c['camera_id'] for c in cameras]
-    geometry_path=REPO/'docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json'
-    geometry=json.loads(geometry_path.read_bytes())
+    scene_path=args.assets/'scene.glb';assert sha(scene_path.read_bytes())==SCENE_SHA
+    triangles,components=load_triangles(scene_path)
+    fields={c['camera_id']:coverage(triangles,c) for c in cameras}
+    sections=section_segments(triangles)
     catalog_paths=[REPO/'configs/evaluation/e3_live_cases_v1.json',REPO/'configs/evaluation/e3_reappearances_v1.json']
     # Project source/GT definitions only; ignore verification, baseline and ranking fields.
     cases=[]
@@ -294,12 +302,15 @@ def main():
             tick=point['tick']+offset
             assert all(round(records[(cam,tick)]['timestamp_s']*1e6)==tick*200000 for cam in cams)
             artifacts.append(montage(args.output,point,phase,tick,records,inputs,cams,painter))
-        artifacts.append(minimap(args.output,point,gt,cameras,geometry,selection['map_window_ticks'],painter))
+        artifacts.append(minimap(args.output,point,gt,cameras,selection['map_window_ticks'],painter,fields,sections))
+    artifacts.append(coverage_atlas(args.output,cameras,fields,sections,painter))
     artifacts.append(overview(args.output,cases,painter))
+    coverage_data={'schema':'amidst.static-camera-coverage.v2','scene_sha256':SCENE_SHA,'calibration_sha256':CAL_PIN,'triangles':len(triangles),'components':components,'bounds_xy_m':list(BOUNDS),'cell_m':CELL,'body_heights_m':list(HEIGHTS),'minimum_visible_heights':2,'dynamic_person_occlusion':False,'mask_shape':list(next(iter(fields.values())).shape),'mask_encoding':'numpy.packbits C-order, big bit order, base64','masks':{name:base64.b64encode(np.packbits(mask).tobytes()).decode('ascii') for name,mask in fields.items()},'visible_cells':{name:int(mask.sum()) for name,mask in fields.items()}}
+    dump(args.output/'COVERAGE.json',coverage_data)
     provenance={'schema':'amidst.e3-figures.v1','issue':668,'selection':selection,
                 'roots':{k:f'local/evidence/{v[0]}' for k,v in ROOT_PINS.items()},
-                'source_files':inputs.used,'calibration':{'path':'local/data/live-assets-20261115/cameras.three.json','sha256':CAL_PIN},
-                'repo_inputs':{str(path.relative_to(REPO)):sha(path.read_bytes()) for path in [selection_path,geometry_path,*catalog_paths,Path(__file__),REPO/'scripts/publication/verify_e3_figures.py']},
+                'source_files':inputs.used,'scene_mesh':{'path':'local/data/live-assets-20261115/scene.glb','sha256':SCENE_SHA,'bytes':scene_path.stat().st_size},'calibration':{'path':'local/data/live-assets-20261115/cameras.three.json','sha256':CAL_PIN},
+                'repo_inputs':{str(path.relative_to(REPO)):sha(path.read_bytes()) for path in [selection_path,*catalog_paths,Path(__file__),REPO/'scripts/publication/verify_e3_figures.py',REPO/'scripts/publication/e3_coverage.py']},
                 'font':{'basename':font.name,'sha256':sha(font.read_bytes()),'pillow':Image.__version__,'numpy':np.__version__},
                 'artifacts':artifacts,'agent_rule_outputs_read':False,'paid_api_calls':0,'blender_renders':0,
                 'source_pngs_consumed':sum(len(a.get('sources',[])) for a in artifacts)}

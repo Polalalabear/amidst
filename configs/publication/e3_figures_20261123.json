@@ -2,16 +2,176 @@
   "schema": "amidst.e3-figure-selection.v1",
   "issue": 668,
   "selection_basis": "Frozen script/GT event diversity only; no Agent/rule outputs, ranking or scores. A: two crossing locations; B: base long gap and extension repeated gap; C: two opposite camera-set transitions in extension; D: occlusion return versus true departure.",
-  "offset_ticks": [-5, 5],
-  "map_window_ticks": [-50, 25],
+  "offset_ticks": [
+    -5,
+    5
+  ],
+  "map_window_ticks": [
+    -50,
+    25
+  ],
   "points": [
-    {"figure_id":"A1", "case_id":"E3-A1", "root_ref":"base", "event_type":"CLOSEST_CROSSING", "tick":179, "title":"相似衣著交錯｜走廊東段", "reason":"與同色干擾者近距離交錯；以凍結最近點為錨點。"},
-    {"figure_id":"A2", "case_id":"E3-A3", "root_ref":"base", "event_type":"CLOSEST_CROSSING", "tick":43, "title":"相似衣著交錯｜房門附近", "reason":"另一位置的同色交錯，多鏡頭同時涵蓋。"},
-    {"figure_id":"B1", "case_id":"E3-B2", "root_ref":"base", "event_type":"REAPPEAR", "tick":187, "title":"長盲區重現｜8.8 秒", "reason":"第一批較長的全鏡頭盲區；於原走廊鏡頭重現。"},
-    {"figure_id":"B2", "case_id":"E3-B3", "root_ref":"extension", "event_type":"REAPPEAR", "tick":241, "title":"長盲區重現｜重複盲區中的一次", "reason":"第二批連續多次重現中的第二點，盲區 6.4 秒。"},
-    {"figure_id":"C1", "case_id":"E3-C3", "root_ref":"extension", "event_type":"REAPPEAR", "tick":147, "title":"多出口｜走廊轉往支廊", "reason":"CAM_W2 → CAM_BRANCH，返回鏡頭集合與離開前不相交；排名 UNKNOWN。"},
-    {"figure_id":"C2", "case_id":"E3-C6", "root_ref":"extension", "event_type":"REAPPEAR", "tick":218, "title":"多出口｜支廊返回走廊", "reason":"CAM_BRANCH → CAM_W2，與 C1 方向相反；採未被去重排除的點；排名 UNKNOWN。"},
-    {"figure_id":"D1", "case_id":"E3-D1", "root_ref":"base", "event_type":"SCREEN_RETURN", "tick":167, "title":"遮擋｜屏風後返回", "reason":"目標仍在場景內，3.2 秒靜態遮擋後重新可見。"},
-    {"figure_id":"D2", "case_id":"E3-D2", "root_ref":"base", "event_type":"TRUE_EXIT_BOUNDARY", "tick":190, "title":"真正離開｜向北離開鏡頭覆蓋", "reason":"凍結邊界點為最後可見 tick；下一 tick 起離開全部鏡頭，與 D1 對比。"}
-  ]
+    {
+      "figure_id": "A1",
+      "case_id": "E3-A1",
+      "root_ref": "base",
+      "event_type": "CLOSEST_CROSSING",
+      "tick": 179,
+      "title": "相似衣著交錯｜走廊東段",
+      "reason": "與同色干擾者近距離交錯；以凍結最近點為錨點。",
+      "display_cameras": [
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_R101_IN"
+      ],
+      "map_bounds_xy_m": [
+        -4,
+        18,
+        -6,
+        6.5
+      ]
+    },
+    {
+      "figure_id": "A2",
+      "case_id": "E3-A3",
+      "root_ref": "base",
+      "event_type": "CLOSEST_CROSSING",
+      "tick": 43,
+      "title": "相似衣著交錯｜房門附近",
+      "reason": "另一位置的同色交錯，多鏡頭同時涵蓋。",
+      "display_cameras": [
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2"
+      ],
+      "map_bounds_xy_m": [
+        -4,
+        18,
+        -6,
+        6.5
+      ]
+    },
+    {
+      "figure_id": "B1",
+      "case_id": "E3-B2",
+      "root_ref": "base",
+      "event_type": "REAPPEAR",
+      "tick": 187,
+      "title": "長盲區重現｜8.8 秒",
+      "reason": "第一批較長的全鏡頭盲區；於原走廊鏡頭重現。",
+      "display_cameras": [
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_R101_IN"
+      ],
+      "map_bounds_xy_m": [
+        -4,
+        18,
+        -6,
+        6.5
+      ]
+    },
+    {
+      "figure_id": "B2",
+      "case_id": "E3-B3",
+      "root_ref": "extension",
+      "event_type": "REAPPEAR",
+      "tick": 241,
+      "title": "長盲區重現｜重複盲區中的一次",
+      "reason": "第二批連續多次重現中的第二點，盲區 6.4 秒。",
+      "display_cameras": [
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_R101_IN"
+      ],
+      "map_bounds_xy_m": [
+        -4,
+        18,
+        -6,
+        6.5
+      ]
+    },
+    {
+      "figure_id": "C1",
+      "case_id": "E3-C3",
+      "root_ref": "extension",
+      "event_type": "REAPPEAR",
+      "tick": 147,
+      "title": "多出口｜走廊轉往支廊",
+      "reason": "CAM_W2 → CAM_BRANCH，返回鏡頭集合與離開前不相交；排名 UNKNOWN。",
+      "display_cameras": [
+        "CAM_W2",
+        "CAM_BRANCH",
+        "CAM_WIDE"
+      ],
+      "map_bounds_xy_m": [
+        7,
+        21,
+        -2,
+        15.5
+      ]
+    },
+    {
+      "figure_id": "C2",
+      "case_id": "E3-C6",
+      "root_ref": "extension",
+      "event_type": "REAPPEAR",
+      "tick": 218,
+      "title": "多出口｜支廊返回走廊",
+      "reason": "CAM_BRANCH → CAM_W2，與 C1 方向相反；採未被去重排除的點；排名 UNKNOWN。",
+      "display_cameras": [
+        "CAM_BRANCH",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "map_bounds_xy_m": [
+        7,
+        21,
+        -2,
+        15.5
+      ]
+    },
+    {
+      "figure_id": "D1",
+      "case_id": "E3-D1",
+      "root_ref": "base",
+      "event_type": "SCREEN_RETURN",
+      "tick": 167,
+      "title": "遮擋｜屏風後返回",
+      "reason": "目標仍在場景內，3.2 秒靜態遮擋後重新可見。",
+      "display_cameras": [
+        "CAM_W2",
+        "CAM_W1",
+        "CAM_R101_IN"
+      ],
+      "map_bounds_xy_m": [
+        -4,
+        18,
+        -6,
+        6.5
+      ]
+    },
+    {
+      "figure_id": "D2",
+      "case_id": "E3-D2",
+      "root_ref": "base",
+      "event_type": "TRUE_EXIT_BOUNDARY",
+      "tick": 190,
+      "title": "真正離開｜向北離開鏡頭覆蓋",
+      "reason": "凍結邊界點為最後可見 tick；下一 tick 起離開全部鏡頭，與 D1 對比。",
+      "display_cameras": [
+        "CAM_BRANCH",
+        "CAM_WIDE",
+        "CAM_W2"
+      ],
+      "map_bounds_xy_m": [
+        7,
+        21,
+        -2,
+        15.5
+      ]
+    }
+  ],
+  "revision": 2,
+  "coverage_definition": "Unchanged source GLB opaque triangles; calibrated 3D frustum + static occlusion at body heights 0.15/0.9/1.6 m, >=2 of 3 visible; 0.05 m grid. No dynamic-person occlusion. Separate from frozen scoring GT."
 }
