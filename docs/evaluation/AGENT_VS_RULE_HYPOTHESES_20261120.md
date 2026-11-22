@@ -47,9 +47,11 @@
 
 Issue [#672](https://github.com/Polalalabear/amidst/issues/672)。狀態：blocked，E3 凍結後才開始。
 
-**現況（以 main 為準）**
-- 系統端只追紅色，寫死於 `src/amidst/live_mode/tracker.py:88`、`advisor.py:224`、`scheduler.py:94`、`frontend/live-mode/src/hud.mjs:125`；`live_mode/color.py` 只輸出 `red`／`blue`／`none`。
-- LIVE 劇本固定為 `docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json`（A4-1、B4-1，各 4 人）：T 紅上衣＋背包＋胸章（目標）、A 與 T 同款紅上衣無背包、B 橘紅上衣（H 0.012，可能也被判 red）、C 藍上衣。操作者可選操作 T／A／B／C（`crowd.mjs` `actorId`），但被追蹤的永遠是紅色。
+**現況（以 main 為準，2026-11-22 核對）**
+- main 已有 LIVE 選目標功能（commit `df006515`「Add session-scoped LIVE target selection endpoints」）：`server.py` 的 `/track/start` 收 `color`（red／blue 色票）、`sentence`（句子解析）、`reselect`；`/track/candidates` 列候選；使用者可點選候選（`USER_PICK`）或單一候選自動種子（`AUTO_SINGLE`）。`tracker.py:65` 的 `LiveTracker` 有 `target_color` 參數（只接受 `COLORS`，即 red／blue），`tracker.py:130` 依 `self.target_color` 篩偵測；`hud.mjs:124` 顯示「目標：紅衣／藍衣」。
+- 仍寫死紅色：`advisor.py:229`（Agent 候選只收 `color == "red"`）、`scheduler.py:94`；`live_mode/color.py` 仍只分 red／blue／none。
+- LIVE 劇本固定為 `docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json`（A4-1、B4-1，各 4 人）：T 紅上衣＋背包＋胸章（目標）、A 與 T 同款紅上衣無背包、B 橘紅上衣（H 0.012，可能也被判 red）、C 藍上衣。
+- 所以：LIVE 已可選紅或藍為目標顏色，並可點選特定候選作為種子（追 C 在追蹤器路徑已可行）；但 (a) 追蹤器重新取得時只靠顏色＋位置連續，無法區分同為紅色的 T／A／B；(b) Agent 路徑（`advisor.py:229`）與排程（`scheduler.py:94`）仍只認紅色，Agent 模式下追藍衣不會問 Agent；(c) E3 主實驗只以 T 為目標。
 - 評分端 `src/amidst/evaluation/e3_scoring.py` 已收 `target` 參數，評分端有每個人物 GT，評分不用改。
 
 **設計（baseline／對誰做／用誰判斷）**
@@ -64,7 +66,7 @@ Issue [#672](https://github.com/Polalalabear/amidst/issues/672)。狀態：block
 GT 只在評分端；身分 UNCONFIRMED；非預先登記，結果只標探索性。
 
 **要做的事**
-1. 系統端把「紅色」常數改成「選定目標描述」（種子框的顏色與參考裁切），四個檔案＋HUD／UI 選人。
+1. 把 `advisor.py`、`scheduler.py` 的紅色常數改成 session 選定的 `target_color`／種子描述；Agent 請求的參考裁切改用使用者選定的種子；同色目標（A、B）需要外觀描述（背包、褲色）才能區分，顏色門檻做不到。
 2. B1 顏色跟著目標；目標 A／B 時寫明規則本來分不出。
 3. Agent 請求的參考裁切換成選定目標。
 4. 規則組用現有錄製重播（#617 輸入側確定），零成本；Agent 組要付費，每目標 K=3，走 ApiGuard。
