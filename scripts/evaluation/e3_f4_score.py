@@ -47,7 +47,8 @@ def missed_ticks(S, root: Path, case, a_log):
 
 def api_breakdown(calls):
     """Per run: applied / not applied (answer arrived but not executable) / expired (A3) / timeout / provider or format error /
-    budget denial. Error rate = (timeout + error) / calls; 'not applied' is a successful call (Opus #666) and is not an error."""
+    budget denial. §9 error rate = provider / format errors ÷ calls (D352: TIME_BUDGET -- timeout or answered but not applied --
+    is counted apart and not in the rate; 'not applied' is a successful call, Opus #666). Those decision points are scored as usual."""
     out = {'calls': len(calls), 'applied': 0, 'agent_not_applied': 0, 'expired': 0, 'timeout': 0, 'error': 0, 'budget_denied': 0,
            'answered_no_effect': 0, 'error_reasons': {}}
     for c in calls:
@@ -67,7 +68,7 @@ def api_breakdown(calls):
             out['error_reasons'][r] = out['error_reasons'].get(r, 0) + 1
         else:
             out['answered_no_effect'] += 1          # NOT_VISIBLE / STILL_HERE / OWN_BOX recorded: answered, no box change
-    out['error_rate'] = round((out['timeout'] + out['error']) / out['calls'], 4) if out['calls'] else 0.0
+    out['error_rate'] = round(out['error'] / out['calls'], 4) if out['calls'] else 0.0
     out['error_stop'] = out['error_rate'] > ERROR_CAP or out['budget_denied'] > 0
     return out
 

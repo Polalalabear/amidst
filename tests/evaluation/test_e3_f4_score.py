@@ -29,7 +29,8 @@ def test_api_breakdown_separates_not_applied_from_errors():
              {'applied': False, 'source': 'AGENT', 'fallback_reason': None, 'answer': 'NOT_VISIBLE'}]
     b = F4.api_breakdown(calls)
     assert (b['applied'], b['agent_not_applied'], b['timeout'], b['expired'], b['error'], b['answered_no_effect']) == (1, 1, 1, 1, 1, 1)
-    assert b['error_rate'] == round(2 / 6, 4) and b['error_stop'] is True and b['error_reasons'] == {'PROVIDER_UNAVAILABLE': 1}
+    assert b['error_rate'] == round(1 / 6, 4) and b['error_stop'] is True and b['error_reasons'] == {'PROVIDER_UNAVAILABLE': 1}
+    assert F4.api_breakdown([{'applied': False, 'fallback_reason': 'TIME_BUDGET', 'answer': None}] * 5)['error_stop'] is False   # D352
     assert F4.api_breakdown([{'applied': False, 'fallback_reason': 'CALL_BUDGET_EXHAUSTED'}] + [{'applied': True}] * 20)['error_stop'] is True
 
 
