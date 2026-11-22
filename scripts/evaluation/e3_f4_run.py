@@ -19,6 +19,7 @@ projected position is within 1.5 m of the estimate, same rule for every arm), ``
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import copy
 import hashlib
 import io
@@ -137,10 +138,45 @@ def live_scene_context(catalog_path: Path, cameras):
     return sx.build(g.region, g.camera, json.loads(raw), sorted(cameras), shas, g.tracking_scope, static=static)
 
 
+# ------------------------------------------------------------------------------------------------ A3 (preregistration §7)
+CHAIN_IOU = 0.3
+
+
+def box_iou(a, b) -> float:
+    ix, iy = max(0.0, min(a[2], b[2]) - max(a[0], b[0])), max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def chain_box(box, camera, history):
+    """§7.4/§7.5: follow the answered box from t_call through every later tick up to t_arrive in the same camera, each step to the
+    system detection with the highest IoU >= 0.3 with the previous box. ``history`` = [{camera: [bbox, ...]}, ...] for the ticks after
+    t_call, ending with the tick where the answer takes effect. Returns the chained box at that tick, or None (EXPIRED)."""
+    cur = list(box)
+    for dets in history:
+        best = max(dets.get(camera, []), key=lambda b: box_iou(cur, b), default=None)
+        if best is None or box_iou(cur, best) < CHAIN_IOU:
+            return None
+        cur = list(best)
+    return cur
+
+
 # ------------------------------------------------------------------------------------------------ deciders
 def make_decider(arm, transport, scene, clock):
     from amidst.live_mode.people import PeopleTracker
     from amidst.live_mode.service_decider import ServiceLiveDecider
+
+    class ChainPeople(PeopleTracker):
+        """Keeps the latest people list; for A3 the IoU chain (§7), not the 'contested' check, decides whether an answer applies."""
+        force = None
+
+        def update(self, t_s, cands):
+            self.latest = super().update(t_s, cands)
+            return self.latest
+
+        def contested_since(self, pid, t_s):
+            return False if pid is not None and pid == self.force else super().contested_since(pid, t_s)
 
     class Recording(ServiceLiveDecider):
         """Records every request's image SHA-256s (A1/A2 parity check) and, for A3, holds an answer until its measured latency passed."""
@@ -148,9 +184,25 @@ def make_decider(arm, transport, scene, clock):
         def __init__(self, *a, simulate_latency=False, **k):
             super().__init__(*a, **k)
             self.simulate_latency, self.calls_log, self.model_latency = simulate_latency, [], []
+            self._hist, self._call_boxes, self._expired, self.chain_log = [], {}, False, []
+
+        def step(self, tick, t_s, tracker, tracking, dets, frames):
+            if self.simulate_latency:                     # A3: system person detections of every tick, for the §7 IoU chain
+                self._hist.append({cam: [list(d['bbox']) for d in lst] for cam, lst in dets.items()})
+            self._expired = False
+            out = super().step(tick, t_s, tracker, tracking, dets, frames)
+            self.people.force = None
+            if self._expired:                             # §7.5: the stale answer is dropped and not shown
+                self.last.update(source='RULE_FALLBACK', fallback_reason='EXPIRED', applied=False)
+                self.records[-1].update(source='RULE_FALLBACK', fallback_reason='EXPIRED', applied=False)
+                out['decision_source'], out['fallback_reason'] = 'RULE_FALLBACK', 'EXPIRED'
+            return out
 
         def build_input(self, t_s, people, frames, tracking):
             inp, ids = super().build_input(t_s, people, frames, tracking)
+            if self.simulate_latency:
+                self._call_boxes = {(c.camera_id, c.id): list(c.box) for c in inp.candidates}
+                self._hist = []                           # chain starts at t_call
             self.calls_log.append({'t_s': round(t_s, 3), 'images': {cam: sha(b) for cam, b in inp.frames},
                                    'reference': sha(inp.reference_jpeg) if inp.reference_jpeg else None,
                                    'candidates': len(inp.candidates), 'scene': inp.include_scene})
@@ -164,9 +216,33 @@ def make_decider(arm, transport, scene, clock):
             res = super()._poll()
             if res is not None:
                 self.model_latency.append(None if rec is None else rec.latency_s)
+                if self.simulate_latency:
+                    res = self._chain(*res)
             return res
 
-    return Recording(transport, PeopleTracker(), scene if arm in ('A2', 'A3') else None, run_async=False, clock=clock,
+        def _chain(self, q, rec, ms):
+            """§7.4/§7.5 at t_arrive: SELECT / OWN_BOX applies only through an unbroken IoU chain from t_call; otherwise EXPIRED."""
+            ans = rec.answer if rec.agent_used else None
+            if ans is None or ans['answer'] not in ('SELECT', 'OWN_BOX'):
+                return q, rec, ms
+            cam = ans.get('camera_id')
+            box0 = self._call_boxes.get((cam, ans.get('detection_id'))) if ans['answer'] == 'SELECT' else ans.get('box_xyxy')
+            # _hist holds the ticks after t_call (reset when the question was asked) up to this tick, where the answer takes effect
+            end = chain_box(box0, cam, self._hist) if box0 is not None else None
+            pid = None
+            if end is not None:
+                pid = next((p['pid'] for p in getattr(self.people, 'latest', []) for c, d in p['dets'] if c == cam and list(d['bbox']) == end), None)
+            self.chain_log.append({'answer': ans['answer'], 'camera_id': cam, 'ticks_chained': len(self._hist),
+                                   'result': 'CHAINED' if pid is not None else 'EXPIRED'})
+            if pid is None:
+                self._expired = True
+                return q, dataclasses.replace(rec, answer={**ans, 'answer': 'SELECT', 'detection_id': None}), ms   # unmapped -> not applied
+            cid = '__chained__'
+            q = {**q, 'ids': {**q['ids'], (cam, cid): pid}}
+            self.people.force = pid
+            return q, dataclasses.replace(rec, answer={**ans, 'answer': 'SELECT', 'detection_id': cid, 'answer_original': ans['answer']}), ms
+
+    return Recording(transport, ChainPeople(), scene if arm in ('A2', 'A3') else None, run_async=False, clock=clock,
                      timeout_s=30.0 if arm == 'A3' else 1e9, simulate_latency=arm == 'A3', gate_m=CONFIG['gate_m'])
 
 
@@ -231,7 +307,7 @@ def replay(case, arm, catalog: Path, graph, scene, transport=None):
                      'events': [e for e in tr.get('events') or [] if e.get('type') in ('ADJUDICATED', 'ADJUDICATE_ASK', 'SWITCH', 'ACQUIRE')]})
     d = state.decider
     calls = [] if d is None else [dict(r, request=c, model_latency_s=m) for r, c, m in zip(d.records, d.calls_log, d.model_latency)]
-    return rows, calls, (None if d is None else {'asked': d.calls, 'answered': len(d.records)})
+    return rows, calls, (None if d is None else {'asked': d.calls, 'answered': len(d.records), 'a3_chain': d.chain_log})
 
 
 def main():
@@ -243,6 +319,7 @@ def main():
     ap.add_argument('--arms', nargs='+', default=list(ARMS), choices=ARMS)
     ap.add_argument('--k', type=int, default=3)
     ap.add_argument('--budget-usd', type=float, default=0.0, help='ApiGuard total cap for this invocation (A arms need > 0)')
+    ap.add_argument('--usage-dir', type=Path, default=None, help='ApiGuard ledger for this invocation (default <out>/usage); give each concurrent invocation its own, because the cap applies to the whole ledger')
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=True)
     graph_raw = (ROOT / 'configs/q1q5/graphs/r004/camera_graph_v3.json').read_bytes(); graph = json.loads(graph_raw)
@@ -250,7 +327,7 @@ def main():
     if any(x.startswith('A') for x in a.arms):
         if a.budget_usd <= 0:
             raise SystemExit('A arms need --budget-usd > 0 (ApiGuard)')
-        transport, guard = guarded_transport(a.budget_usd, a.out / 'usage')
+        transport, guard = guarded_transport(a.budget_usd, a.usage_dir or a.out / 'usage')
     src = {p: sha((ROOT / p).read_bytes()) for p in ['scripts/evaluation/e3_f4_run.py', 'src/amidst/live_mode/service_decider.py',
            'src/amidst/live_mode/server.py', 'src/amidst/live_mode/tracker.py', 'src/amidst/q1q5/agent_service.py', 'src/amidst/q1q5/scene_context.py']}
     for case_id in a.cases:
