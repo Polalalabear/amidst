@@ -16,6 +16,7 @@ from verify import verify
 
 GT_PIN_CONFIG = ROOT / "configs/evaluation/e3_reappearances_v1.json"
 BASE_MANIFEST_SHA = "853390e3dbecc8209c16c47d6e6a6cd5fc73d57bef2d1c4e11c757f8fa8b812e"
+BASE_RUNTIME_SHA = "4810734697a5b0cee292b3b7e4ca7e2592e5f2f26cc0b5c707eb7285a07e9cb8"
 
 
 def sha(path):
@@ -94,6 +95,8 @@ def release(root, base, assets):
     if count != freeze["new_reappearance_points"] or count < 30 or count + 38 < 40:
         raise ValueError("POINT_TARGET_NOT_MET")
     base_inputs_path = base / "RUNTIME_INPUTS.json"
+    if sha(base_inputs_path) != BASE_RUNTIME_SHA:
+        raise ValueError("BASE_RUNTIME_REGISTRY_CHANGED")
     base_inputs = read(base_inputs_path); check_safe_registry(base_inputs)
     runtime = {"role": "SHARED_PIXEL_INPUTS_ONLY", "runs": inputs,
                "policy": "All F4 arms use these exact PNGs and frozen detection_index; never redetect per arm."}

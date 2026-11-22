@@ -75,8 +75,23 @@ uv run --no-project --python "$E3_PYTHON" python -B -m pytest tests/evaluation/t
 git diff --check
 ```
 
-Use existing `LIVE_ASSETS`, `MODEL_ROOT`, `RUNTIME_DEPS` and `E3_PYTHON`.
-Rebuild into a new LOCAL directory; do not overwrite either frozen corpus.
+Set `AMIDST_REPO` to the pinned checkout and run source commands from the
+scratch clone. The delivered inputs use these LOCAL dependencies:
+
+```sh
+EVIDENCE_ROOT="${AMIDST_ARTIFACTS:-$AMIDST_REPO/local/evidence}"
+BASE_ROOT="$EVIDENCE_ROOT/e3-652-20261122"
+LIVE_ASSETS="$AMIDST_REPO/local/data/live-assets-20261115"
+MODEL_ROOT="$AMIDST_REPO/local/data/demo-owned-v1/models/rtdetr"
+RUNTIME_DEPS="$AMIDST_REPO/local/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps"
+E3_PYTHON="$AMIDST_REPO/.venv/bin/python"
+```
+
+For regeneration, choose a **new** LOCAL `NEW_ROOT`; do not overwrite either
+frozen corpus. The following are the production stages. Before indexing a new
+capture, commit its new GT definition under a new version and bind the release
+gate to that version. The current gate intentionally accepts only this
+release's committed freeze, and refuses to overwrite an existing MANIFEST.
 
 ```sh
 node scripts/evaluation/e3_cases/prepare_reappearances.mjs "$NEW_ROOT" "$LIVE_ASSETS"
@@ -104,22 +119,25 @@ The six already recorded cases and GT sidecars retain their original bytes;
 only point eligibility is revised before experiments, and C6 is an added case.
 There was no RT-DETR index or E3 group output when these definitions were frozen.
 
-| Case | Raw returns | Unique primary/H4 returns |
-| --- | ---: | ---: |
-| E3-B3 | 5 | 5 |
-| E3-B4 | 5 | 5 |
-| E3-B5 | 5 | 5 |
-| E3-C3 | 5 | 5 |
-| E3-C4 | 5 | 5 |
-| E3-C5 | 5 | 1 |
-| E3-C6 | 5 | 4 |
+| Case | Duration s | Indexed PNGs | Raw returns | Unique primary/H4 returns | Blind gaps s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| E3-B3 | 86.6 | 3,464 | 5 | 5 | 4.8–6.8 |
+| E3-B4 | 99.4 | 3,976 | 5 | 5 | 5.0–6.8 |
+| E3-B5 | 93.2 | 3,728 | 5 | 5 | 4.8–7.0 |
+| E3-C3 | 81.8 | 3,272 | 5 | 5 | 4.0–5.2 |
+| E3-C4 | 90.6 | 3,624 | 5 | 5 | 4.0–5.2 |
+| E3-C5 | 90.6 | 3,624 | 5 | 1 | 4.0 |
+| E3-C6 | 82.8 | 3,312 | 5 | 4 | 4.0–5.2 |
 
 The original corpus is now at canonical LOCAL
 `local/evidence/e3-652-20261122`; it is not in the scratch clone. Both base and
 extension input registries will be composed with explicit root references.
 The base evaluation catalog and its old baseline snapshots are not opened by
 this producer; base counts are the user's declared 3/38, with its manifest pin
-checked without parsing group outputs.
+checked without parsing group outputs. The clean base runtime registry matches
+its committed `E3_INPUTS_20261122.json` byte-for-byte (SHA-256
+`4810734697a5b0cee292b3b7e4ca7e2592e5f2f26cc0b5c707eb7285a07e9cb8`);
+the release gate also pins that registry.
 
 ## F4 input contract
 
