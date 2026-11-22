@@ -198,11 +198,16 @@ def validate_track_request(
 ) -> dict:
     """Validate and normalize a q-core.track-request.v1 payload."""
     _check_forbidden_keys(request)
-    allowed_top = {'schema_version', 'session_ref', 'scene_id', 'run_id', 'feature', 'region_ids', 'time', 'playback_now_us', 'switch_mode'}
+    allowed_top = {'schema_version', 'session_ref', 'scene_id', 'run_id', 'feature', 'region_ids', 'time', 'playback_now_us', 'switch_mode', 'manual_seed'}
     if not isinstance(request, Mapping) or not set(request) <= allowed_top:
         raise CoreRequestError('FORBIDDEN_INFERENCE_INPUT')
     if 'switch_mode' in request and request['switch_mode'] not in ('RULE_ONLY', 'AGENT_SEQUENTIAL'):   # F3 (#657); absent = RULE_ONLY
         raise CoreRequestError('FORBIDDEN_INFERENCE_INPUT')
+    if 'manual_seed' in request:   # F3 (#657): the operator re-selects the target (a local track, from a given time); identity stays UNCONFIRMED
+        ms = request['manual_seed']
+        if (not isinstance(ms, Mapping) or set(ms) != {'track_ref', 'at_us'} or not isinstance(ms['track_ref'], str) or not ms['track_ref']
+                or type(ms['at_us']) is not int or ms['at_us'] < 0):
+            raise CoreRequestError('FORBIDDEN_INFERENCE_INPUT')
 
     for req_field in ('schema_version', 'session_ref', 'scene_id', 'run_id', 'region_ids', 'time'):
         if req_field not in request:

@@ -9,6 +9,7 @@ import {
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, filterClasses, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, initialPlayheadUs, blindShare, floorPlan, trackStateChip, trackJournal,
   parseRoute, nextAfterCover, blindReacquire, reacquireMarker, stagePlan, classGroups, featuredClasses, CAMERA_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
+  multiTiles, manualCandidates, agentSummaryText,
 } from './ui-model.mjs';
 import {ZOOM_LEVELS, ZOOM_STORAGE_KEY, normalizeZoom, wallColumns} from './ui-zoom-model.mjs';
 import {PLAIN, cameraName, plainState, gapNote, lostNote, pendingNote, gapLiveNote, lostLiveNote, pendingLiveNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
@@ -491,12 +492,37 @@ export function mountUi(ctx) {
     const button = el('button', '停止追蹤', 'ui-btn ui-btn-ghost', {type: 'button'}); button.id = 'ui-stop-track'; button.disabled = disabled;
     button.title = '停止前端播放與追蹤顯示；不呼叫後端停止或變更來源'; button.addEventListener('click', stopTracking); return button;
   }
-  function manualChoice() {
+  // F3 (#657): the operator re-selects the target among the local tracks seen at the playhead; the backend continues from that track.
+  function manualChoice(live = false) {
     const card = el('div', undefined, 'ui-card'); card.id = 'ui-manual-choice';
-    const button = el('button', '改選目標', 'ui-btn ui-btn-ghost', {type: 'button'}); button.id = 'ui-manual-target'; button.disabled = true;
-    const note = el('p', presentOn() ? PLAIN.manualUnsupported : '目前追蹤起點由系統自動選取（自動種子），手動改選尚未支援', 'ui-note'); note.id = 'ui-manual-note';
+    card.append(el('span', '改選目標', 'ui-eyebrow'));
+    const list = el('div', undefined, 'ui-manual-list'); list.id = 'ui-manual-list';
+    const note = el('p', live ? '' : (presentOn() ? PLAIN.manualUnsupported : '目前追蹤起點由系統自動選取（自動種子），手動改選尚未支援'), 'ui-note'); note.id = 'ui-manual-note';
     const reopen = el('button', '回查詢窗重新輸入特徵', 'ui-linkbtn', {type: 'button'}); reopen.addEventListener('click', () => setQuery(true));
-    card.append(button, note, reopen); return card;
+    if (!live) { const button = el('button', '改選目標', 'ui-btn ui-btn-ghost', {type: 'button'}); button.id = 'ui-manual-target'; button.disabled = true; card.append(button); }   // D137: nothing to choose before a result
+    card.append(list, note, reopen); if (live) Object.assign(trackParts, {manualList: list, manualNote: note}); return card;
+  }
+  async function chooseTarget(c) {
+    store.dispatch({type: 'PAUSE'}); logEvent(`手動改選目標：${cameraName(c.cameraId)}（${c.trackRef}）`, 'UNKNOWN');
+    trackParts.manualNote.textContent = '改選中…';
+    const result = await ctx.submitCore('track', {...track.lastForm, manualSeed: {trackRef: c.trackRef, atUs: c.atUs}});
+    if (destroyed) return;
+    if (!result?.ok && trackParts.manualNote) trackParts.manualNote.textContent = ERROR_TEXT[result?.code] ?? result?.text ?? 'UNKNOWN';
+  }
+  function renderManual(resp, t) {
+    const P = trackParts; if (!P.manualList) return;
+    const supported = resp?.provenance?.producer === 'demo-cross-camera-local-linker';
+    const cands = supported ? manualCandidates(resp.single_view, resp.sightings, t) : [];
+    const key = JSON.stringify([supported, cands.map(c => c.trackRef), resp?.manual_seed ?? null]); if (P.manualKey === key) return; P.manualKey = key;
+    P.manualList.replaceChildren();
+    for (const c of cands) {
+      const b = el('button', `改追 ${cameraName(c.cameraId)} 的這個人`, 'ui-btn ui-btn-ghost ui-small', {type: 'button', title: c.trackRef});
+      b.dataset.trackRef = c.trackRef; b.addEventListener('click', () => chooseTarget({...c, atUs: Math.max(c.atUs, Math.trunc(store.getState().tUs))}));
+      P.manualList.append(b);
+    }
+    P.manualNote.textContent = !supported ? '這個場景的追蹤畫面還不能手動改選目標'
+      : resp.manual_seed ? `已手動改選：${resp.manual_seed.track_ref}（身分未確認）${cands.length ? '；可再改選' : ''}`
+      : cands.length ? '播放頭這一刻畫面裡的其他人；選一個，系統從這裡改追他（身分未確認）' : '播放頭這一刻沒有其他可改選的人；移動播放頭再試';
   }
   function buildCase2(s, resp, view, searching, p) {
     trackParts.loader?.dispose(); for (const part of trackParts.multi?.values() ?? []) part.loader?.dispose(); sCase2.replaceChildren(); for (const k of Object.keys(trackParts)) if (k !== 'key') delete trackParts[k];
@@ -530,7 +556,7 @@ export function mountUi(ctx) {
       main.append(stage);
     } else {
       const grid = el('div', undefined, 'ui-multi'); trackParts.multi = new Map();
-      for (const cam of view.multiView.cameras) {
+      for (const cam of multiTiles(s.activeRun?.camera_ids, resp.single_view, resp.sightings, view.currentTUs)) {   // F3: every camera of the run
         const tile = el('article', undefined, 'ui-multi-tile'), img = el('img', undefined, 'ui-img'); img.alt = `${cam.cameraId} 畫面`;
         const cap = el('div', undefined, 'ui-multi-cap'); cap.append(el('span', cameraName(cam.cameraId), 'ui-cam-name', {title: nameTitle(cam.cameraId)}), el('span', '', 'ui-chip ui-chip-neutral'));
         const empty = el('span', presentOn() ? (synthetic ? PLAIN.syntheticFrame : PLAIN.noFrame) : (synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得'), 'ui-media-note');
@@ -559,7 +585,7 @@ export function mountUi(ctx) {
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
-    Object.assign(trackParts, {plan, journal}); aside.append(plan, manualChoice(), journal);
+    Object.assign(trackParts, {plan, journal}); aside.append(plan, manualChoice(true), journal);
     layout.append(main, aside); sCase2.append(layout, bar);
     trackParts.built = true;
   }
@@ -587,13 +613,15 @@ export function mountUi(ctx) {
   function updateCase2(s, resp, view) {
     if (!trackParts.built) return;
     const cm = s.activeRun?.clock_mapping, [start] = playbackBounds(s), asOf = view.asOfUs, t = view.currentTUs;
-    const chip = trackStateChip(view); trackParts.stateChip.textContent = stateWord(chip.text); trackParts.stateChip.dataset.state = chip.text; trackParts.stateChip.className = `ui-chip ui-chip-${chip.tone}`;
-    const locked = view.singleView.segmentKind === 'ON_CAMERA';
-    trackParts.title.textContent = `${trackParts.klass} · ${locked ? '已鎖定' : view.singleView.segmentKind === 'GAP' ? (presentOn() ? '暫時不在畫面中' : '盲區中') : view.singleView.segmentKind === 'LOST' ? `已跟丟${view.singleView.lastObservedCameraId ? ` · 最後出現在 ${cameraName(view.singleView.lastObservedCameraId)} 鏡頭` : ''}` : view.singleView.segmentKind === 'PENDING' ? '尚未出現' : (presentOn() ? '狀態未明' : view.statusText)}`;
+    const sp = stagePlan(resp.single_view, t), kindNow = sp.kind;   // F3 (#657): one source for the title, chip, stage, tiles and plan
+    const chip = trackStateChip({singleView: {segmentKind: kindNow}}); trackParts.stateChip.textContent = stateWord(chip.text); trackParts.stateChip.dataset.state = chip.text; trackParts.stateChip.className = `ui-chip ui-chip-${chip.tone}`;
+    const locked = kindNow === 'ON_CAMERA';
+    trackParts.title.textContent = `${trackParts.klass} · ${locked ? '已鎖定' : kindNow === 'GAP' ? (presentOn() ? '暫時不在畫面中' : '盲區中') : kindNow === 'LOST' ? `已跟丟${sp.last ? ` · 最後出現在 ${cameraName(sp.last)} 鏡頭` : ''}` : kindNow === 'PENDING' ? '尚未出現' : (presentOn() ? '狀態未明' : view.statusText)}`;
+    trackParts.title.dataset.kind = kindNow;
     if (trackParts.range) { const win = queriedWindow(s, resp); trackParts.range.textContent = win ? `查詢時段 ${win}` : ''; trackParts.range.hidden = !win; }
     const clock = wallClockText(cm, t) ?? `${(t / 1e6).toFixed(2)} s`;
     if (trackParts.stage) {
-      const P = trackParts, sv = view.singleView, plan = stagePlan(resp.single_view, t), kind = sv.segmentKind, cam = plan.cam;
+      const P = trackParts, sv = view.singleView, plan = sp, kind = kindNow, cam = plan.cam;
       P.stage.dataset.kind = kind;
       const prev = [...sv.transitions].reverse().find(x => x.switch_at_us <= t && x.to_camera === sv.activeCameraId && x.from_camera);
       P.cur = {kind, cam, last: plan.last, t, cm, clock, chip, locked, observed: plan.observed, prev};
@@ -605,11 +633,13 @@ export function mountUi(ctx) {
       }
       paintStage();
     }
-    if (trackParts.multi) for (const cam of view.multiView.cameras) {
+    if (trackParts.multi) for (const cam of multiTiles(s.activeRun?.camera_ids, resp.single_view, resp.sightings, t)) {
       const part = trackParts.multi.get(cam.cameraId); if (!part) continue;
-      part.tile.dataset.active = String(cam.isActive); part.tile.dataset.current = String(cam.cameraId === stagePlan(resp.single_view, t).cam); part.cap.lastChild.textContent = cam.badge;
-      const ft = frameTUs(s.activeRun, cam.cameraId, t), fk = `${ft}|${cam.isActive}`; if (part.key === fk) continue; part.key = fk;
-      part.loader.request({cam: cam.cameraId, t: ft, seg: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE'});
+      const isActive = cam.role === 'current';
+      part.tile.dataset.active = String(isActive); part.tile.dataset.role = cam.role; part.tile.dataset.current = String(cam.cameraId === sp.cam);
+      part.cap.lastChild.textContent = cam.badge; part.cap.lastChild.className = `ui-chip ${isActive ? 'ui-chip-observed' : cam.role === 'candidate' ? 'ui-chip-inferred' : 'ui-chip-neutral'}`;
+      const ft = frameTUs(s.activeRun, cam.cameraId, t), fk = `${ft}|${isActive}`; if (part.key === fk) continue; part.key = fk;
+      part.loader.request({cam: cam.cameraId, t: ft, seg: isActive ? 'ON_CAMERA' : 'CANDIDATE'});
     }
     // camera timeline
     const tl = cameraTimeline(resp.single_view, {startUs: start, asOfUs: asOf, currentUs: t});
@@ -643,6 +673,7 @@ export function mountUi(ctx) {
     trackParts.scrub.min = String(start); trackParts.scrub.max = String(asOf); trackParts.scrub.value = String(s.tUs);
     // floor plan
     renderPlan(s, view, resp);
+    renderManual(resp, t);
     renderJournal(resp, cm);
   }
   const shownSpeedNote = () => { const note = ctx.legacy?.speedNote?.() ?? ''; return presentOn() ? speedNoteText(note) : note; };
@@ -683,9 +714,14 @@ export function mountUi(ctx) {
     if (reacq) { const note = el('p', reacquiredText(reacq), 'ui-note ui-reacq'); note.id = 'ui-blind-end'; note.dataset.camera = reacq.cameraId; note.dataset.atUs = String(reacq.atUs); box.append(note); }
   }
   function renderJournal(resp, cm) {
-    const merged = mergeFlicker(resp.single_view, JOURNAL_MERGE_GAP_US), rows = trackJournal(merged.segments, cm), key = JSON.stringify([rows, merged.merged]); if (trackParts.journalKey === key) return; trackParts.journalKey = key;
+    const merged = mergeFlicker(resp.single_view, JOURNAL_MERGE_GAP_US), rows = trackJournal(merged.segments, cm), key = JSON.stringify([rows, merged.merged, resp.output_sha256 ?? null]); if (trackParts.journalKey === key) return; trackParts.journalKey = key;
     const box = trackParts.journal; box.replaceChildren(el('span', '追蹤紀錄', 'ui-eyebrow'));
     if (merged.merged > 0 && presentOn()) { const n = el('p', `已合併 ${merged.merged} 次短暫離開（同一鏡頭 ${JOURNAL_MERGE_GAP_US / 1e6} 秒內離開又出現視為連續）`, 'ui-note ui-journal-merge'); n.id = 'ui-journal-merge'; box.append(n); }
+    const agentLine = agentSummaryText(resp.agent); if (agentLine) { const n = el('p', agentLine, 'ui-note ui-journal-agent'); n.id = 'ui-journal-agent'; box.append(n); }
+    for (const e of (resp.association_audit ?? []).filter(r => r.reason === 'AGENT_ASSOCIATION_HYPOTHESIS' || r.reason === 'OPERATOR_SELECTION')) {
+      const n = el('p', `${wallClockText(cm, e.timestamp_us) ?? `${(e.timestamp_us / 1e6).toFixed(2)} s`} ${e.reason === 'OPERATOR_SELECTION' ? '手動改選' : 'Agent 決定'}改追 ${cameraName(e.to_camera_id)}${e.rule_override ? '（規則原本不接受）' : ''}`, 'ui-mono ui-small ui-journal-decision');
+      n.dataset.reason = e.reason; box.append(n);
+    }
     if (!rows.length) box.append(el('p', presentOn() ? '這段時間內沒有觀測紀錄' : '時間窗內無觀測紀錄', 'ui-muted ui-small'));
     for (const r of rows) { const row = el('div', undefined, 'ui-journal-row'); row.append(el('span', `${r.t} ${r.text}`, 'ui-mono'), el('span', r.tone === 'missing' ? stateWord('LOST') : stateWord(r.state), `ui-chip ui-chip-${r.tone}`)); box.append(row); }
   }

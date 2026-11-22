@@ -38,6 +38,8 @@ export const ERROR_TEXT = Object.freeze({
   FORBIDDEN_DATA_SCOPE: '重試後仍被拒：伺服器拒絕這個請求；請重新整理頁面後再試',
   AUTOMATIC_SEED_PRESET_ONLY: '這段示範錄影只能追蹤「人物」、不指定顏色、從錄影開頭開始；請取消顏色或時間後再試',
   TIME_SCOPE: '時間超出這段錄影的範圍',
+  MANUAL_SEED_UNSUPPORTED: '這個場景的追蹤畫面還不能手動改選目標',
+  MANUAL_SEED_UNKNOWN: '選的對象不在這段錄影的追蹤結果裡，請在播放頭位置重新選一次',
 });
 
 // 2026-11-17: the demo server's HTTP layer answers every ValueError with 403 FORBIDDEN_DATA_SCOPE, which also hides

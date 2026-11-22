@@ -362,6 +362,15 @@ class Demo(P1):
             return {'session_ref': token, 'role': payload['role']}
         key = payload.get('scene_id'), payload.get('run_id')
         if action != 'q_core_track' or key not in self.cross:
+            if action == 'q_core_track' and isinstance(payload, dict):
+                # F3 (#657): manual re-selection and Agent mode on the main screen exist for the D124 runs only; never silently ignored.
+                require('manual_seed' not in payload, 'MANUAL_SEED_UNSUPPORTED')
+                if payload.get('switch_mode') == 'AGENT_SEQUENTIAL':
+                    doc = self.api.call(action, payload, self.authorize)
+                    doc['agent'] = {'switch_mode': 'AGENT_SEQUENTIAL', 'available': False, 'unavailable_reason': 'MAIN_SCREEN_AGENT_D124_RUNS_ONLY',
+                                    'decisions': 0, 'adopted': 0, 'fallbacks': 0, 'model_calls_total': 0, 'agent_used': False}
+                    doc['output_sha256'] = canonical_hash(doc, exclude=('output_sha256', 'stats'))
+                    return doc
             return self.api.call(action, payload, self.authorize)
         _safe_request(payload); self.authorize(payload['session_ref'], key[0]); run = self.api.runs[key]; b = run.bindings
         normalized = validate_track_request(payload, region_ids=run.catalog['region_ids'],
@@ -379,8 +388,14 @@ class Demo(P1):
         require(0 <= stamp <= b.clock.duration_us, 'TIME_SCOPE')
         agent_mode = normalized.get('switch_mode') == 'AGENT_SEQUENTIAL'
         decider, why = self.track_decider(key, run) if agent_mode else (None, None)
+        ms = normalized.get('manual_seed')
+        if ms is not None:
+            require(any(t.track_ref == ms['track_ref'] for t in self.cross[key]) and ms['at_us'] <= stamp, 'MANUAL_SEED_UNKNOWN')
         doc, _, _ = cross_response(self.cross[key], self.transitions, as_of_us=stamp,
-            parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256, decider=decider)
+            parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256, decider=decider,
+            manual=(ms['track_ref'], ms['at_us']) if ms else None)
+        if ms is not None:
+            doc['manual_seed'] = dict(ms, applied=any(r.get('reason') == 'OPERATOR_SELECTION' for r in doc['association_audit']))
         if agent_mode:   # F3 (#657): which decisions the Agent made and whether they were adopted (association_audit has every row)
             rows = [r for r in doc['association_audit'] if r.get('reason') == 'AGENT_SERVICE_DECISION']
             doc['agent'] = {'switch_mode': 'AGENT_SEQUENTIAL', 'available': decider is not None, 'unavailable_reason': why,

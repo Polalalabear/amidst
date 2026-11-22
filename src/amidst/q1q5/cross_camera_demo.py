@@ -105,7 +105,7 @@ def _continuation_runs(observations):
     return runs
 
 
-def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
+def associate(tracks, transitions, *, as_of_us, parameters, decider=None, manual=None):
     """Causal DEMO_DEFAULT associations, rescanning every indexed time after loss.
 
     Keep ambiguities in the audit and continue. A graph edge plus a <=6 s gap
@@ -116,6 +116,10 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
     ``handoff(ctx)`` and ``continuation(ctx)``; each returns ``(choice, audit_row)``.
     ``choice=None`` means "use the rule". With ``decider=None`` (the default) nothing
     below changes: output is byte-identical to the rule-only algorithm.
+
+    ``manual=(track_ref, at_us)`` (F3, #657): the operator re-selected the target. At the first sample of that local
+    track at or after ``at_us`` it becomes the current track (link_kind MANUAL_TARGET_SELECTION, reason
+    OPERATOR_SELECTION); the automatic rule / Agent continue from there. Identity stays UNCONFIRMED.
     """
     if type(as_of_us) is not int or as_of_us < 0:
         raise ValueError('AS_OF_INVALID')
@@ -143,7 +147,25 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
         return next((o.colors for o in reversed(track.observations)
                      if o.timestamp_us <= stamp and o.colors and o.evidence_kind != 'BOX_CONTINUATION'), frozenset())
 
+    manual_track = next((t for t in available if manual and t.track_ref == manual[0]), None)
+    manual_done = manual_track is None
+    anchor_at = 0
     for timestamp in times:
+        if not manual_done and timestamp >= manual[1] and timestamp in samples[manual_track.track_ref]:
+            manual_done = True
+            if current is None or current.track_ref != manual_track.track_ref:
+                row = {'from_camera_id': current.camera_id if current else None, 'to_camera_id': manual_track.camera_id,
+                       'timestamp_us': timestamp, 'transition_id': None, 'gap_us': None, 'link_kind': 'MANUAL_TARGET_SELECTION',
+                       'from_track_ref': current.track_ref if current else None, 'to_track_ref': manual_track.track_ref,
+                       'reason': 'OPERATOR_SELECTION', 'decided_by': 'USER', 'evidence_state': 'INFERRED', 'confidence': 'LOW',
+                       'identity_verdict': 'UNCONFIRMED'}
+                audit.append(row)
+                if current is not None:
+                    events.append(dict(row, first_grid_as_of_us=timestamp + parameters.sample_interval_us))
+                current = manual_track
+                chain.append((current, timestamp))
+                anchor_at = len(chain) - 1      # the re-selected person is the target from here (reference crop, colour of candidates)
+                continue
         if current is not None and timestamp in samples[current.track_ref]:
             for candidate in available:
                 if candidate.track_ref != current.track_ref and candidate.observations[0].timestamp_us == timestamp:
@@ -192,7 +214,7 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
                 'timestamp_us': timestamp, 'sample_interval_us': parameters.sample_interval_us,
                 'current': current, 'current_colors': known_colors(current, timestamp),
                 'considered': considered, 'transitions': transitions,
-                'known_colors': known_colors, 'anchor': chain[0][0] if chain else None})
+                'known_colors': known_colors, 'anchor': chain[anchor_at][0] if chain else None})
             if agent_audit is not None:
                 audit.append(agent_audit)
             if agent_mode and choice is not None:
@@ -276,8 +298,9 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
     selected = {(s['track_ref'], oid) for s in sightings for oid in s['observation_ids']}
     selected_links = {s['track_ref']: s['link_kind'] for s in sightings}
     if chain:
-        anchor, first_time = chain[0]
+        anchor, first_time = chain[anchor_at]
         anchor_colors = known_colors(anchor, first_time)
+        first_time = chain[0][1]
         all_sightings = []
         in_chain = {t.track_ref for t, _ in chain}   # F3: a track the Agent adopted over the colour gate stays (rule-only: same set)
         for track in available:
@@ -308,9 +331,9 @@ def associate(tracks, transitions, *, as_of_us, parameters, decider=None):
     return sightings, events, audit
 
 
-def response(tracks, transitions, *, as_of_us, parameters, clock_mapping_sha256, decider=None):
+def response(tracks, transitions, *, as_of_us, parameters, clock_mapping_sha256, decider=None, manual=None):
     sightings, events, audit = associate(tracks, transitions, as_of_us=as_of_us, parameters=parameters,
-                                         decider=decider)
+                                         decider=decider, manual=manual)
     single = single_view_sequence([s for s in sightings if s.get('selected_for_single_view', True)], as_of_us=as_of_us)
     status = 'NO_SIGHTING' if not single else 'LOST' if single[-1]['kind'] == 'LOST' else 'TRACKING'
     cameras = {}

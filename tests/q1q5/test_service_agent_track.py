@@ -136,3 +136,29 @@ def test_track_request_rejects_an_unknown_switch_mode():
     with pytest.raises(CoreRequestError) as exc:
         validate_track_request(track_request(switch_mode='AGENT_LIVE'), **CATALOG)
     assert exc.value.code == 'FORBIDDEN_INFERENCE_INPUT'
+
+
+def run_manual(tracks, manual, decider=None, now=1_600_000):
+    return response(tracks, EDGES, as_of_us=now, parameters=Parameters(), clock_mapping_sha256='a' * 64, decider=decider, manual=manual)
+
+
+def test_manual_selection_switches_to_the_chosen_track_and_records_the_operator():
+    tracks = [track('A', [0, 200_000, 400_000, 600_000]), track('C', [400_000, 600_000, 800_000], color='blue')]
+    result, events, audit = run_manual(tracks, ('synthetic:C', 400_000))
+    assert len(events) == 1 and events[0]['link_kind'] == 'MANUAL_TARGET_SELECTION' and events[0]['decided_by'] == 'USER'
+    assert events[0]['identity_verdict'] == 'UNCONFIRMED' and events[0]['timestamp_us'] == 400_000
+    assert [s['camera_id'] for s in result['single_view'] if s['kind'] == 'ON_CAMERA'] == ['A', 'C']
+
+
+def test_manual_selection_as_the_first_seed_and_none_is_unchanged():
+    tracks = [track('A', [0, 200_000]), track('C', [0, 200_000], color='blue')]
+    assert run_manual(tracks, None) == run(tracks)
+    result, events, audit = run_manual(tracks, ('synthetic:C', 0))
+    assert not events and [s['camera_id'] for s in result['single_view'] if s['kind'] == 'ON_CAMERA'] == ['C']
+
+
+@pytest.mark.parametrize('bad', [{'track_ref': 'x'}, {'track_ref': '', 'at_us': 0}, {'track_ref': 'x', 'at_us': -1},
+                                 {'track_ref': 'x', 'at_us': 1.5}, {'track_ref': 'x', 'at_us': 0, 'gt': 1}, 'x'])
+def test_track_request_rejects_malformed_manual_seed(bad):
+    with pytest.raises(CoreRequestError):
+        validate_track_request(track_request(manual_seed=bad), **CATALOG)
