@@ -349,7 +349,7 @@ D321 把原先的「離線合成軌跡檔」改成：**在真正的 LIVE A 端�
 - smoke 是規則模式（`--advisor off`）一次；沒有錄製劇本，沒有 terra／sol 的重播比較（等 #596）。「難題點前 3 s 跟對」只標了規則模式（`common_pre_by_mode.rules`）。
 - 判定讀法已決定用 graph（§1、§4.1）；`CAM_ENTRY` 的畫面仍會進後台偵測器，graph 讀法的空檔不等於系統完全看不到。
 - 「跟對」用 `scripts/live_ab_score.py` 的同一個分類（1.5 m、`TRACKING` 且 `lost_ticks = 0`），在 `hardset_check.mjs` 裡重寫一份，只算 T。
-- smoke **只用無頭 Chrome**（D331：不在使用者桌面開視窗）。`lib.mjs` 的 `launch()` 用 `headless: 'new'` 並關掉背景節流（`--disable-background-timer-throttling` 等），B 和 A 用 CDP `Target.createTarget` 開在同一個 browser context（B 放在另一個 context 收不到 A 的 BroadcastChannel，B 0 tick）。第二輪曾用 `HEADLESS=0` 的兩個並排視窗，那個選項已移除。
+- 歷史 smoke 曾用 `HEADLESS=0` 與並排視窗量測。現行 smoke 透過共用 launcher 預設無頭，A／B 在同一個 browser context 的兩個 page，保留 BroadcastChannel 通訊。固定步進的 capture barrier 讓推論耗時延緩牆鐘進度，擷取時刻仍是相同的模擬 tick。需要人工查看時明確傳 `--headful` 或 `AMIDST_HEADFUL=1`。
 
 ### 6.6 給 Codex 的介面問題（貼在 #596）
 

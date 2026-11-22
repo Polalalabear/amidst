@@ -18,11 +18,13 @@ CAND_RE = re.compile(r"([0-9a-f]{16})\.([0-9a-f]+)\.([0-9a-f]+)\.([0-9a-f]+)\.([
 
 
 class TrackRequestError(Exception):
-    def __init__(self, status, error, *, fields=None):
+    def __init__(self, status, error, *, fields=None, next_tick=None):
         self.status = status
         self.response = {"error": error}
         if fields is not None:
             self.response["fields"] = fields
+        if next_tick is not None:
+            self.response["next_tick"] = next_tick
         super().__init__(error)
 
 

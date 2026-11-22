@@ -1,3 +1,4 @@
+import {headlessMode} from './browser_options.mjs';
 // An isolated ephemeral HTTP server and headless Chrome; never touches port 8785.
 import http from 'node:http';
 import fs from 'node:fs/promises';
@@ -26,9 +27,11 @@ if(options.serve==='true'){
   console.log(`N6 isolated viewer: http://127.0.0.1:${port}/viewer/index.html (Ctrl-C to stop)`);
   await new Promise(()=>{});
 }
-const browser=await chromium.launch({executablePath:options.chrome||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,
+let browser;
+try {
+browser=await chromium.launch({executablePath:options.chrome||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:headlessMode(),
   args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-background-networking']});
-try{
+
   await fs.mkdir(options.out,{recursive:true});
   const page=await browser.newPage({viewport:{width:960,height:660},deviceScaleFactor:1});
   const errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -54,4 +57,4 @@ try{
   if(errors.length)throw new Error(JSON.stringify(errors));
   await fs.writeFile(path.join(options.out,'VIEWER_REPORT.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
-}finally{await browser.close();await new Promise(r=>server.close(r));}
+}finally{try{await browser?.close();}finally{await new Promise(r=>{server.close(r);server.closeAllConnections?.();});}}

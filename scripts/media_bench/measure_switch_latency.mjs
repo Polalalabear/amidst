@@ -1,3 +1,4 @@
+import {headlessMode} from '../browser_options.mjs';
 import {readFile,writeFile,mkdir,statfs} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import os from 'node:os';
@@ -14,7 +15,7 @@ const recorded=JSON.parse(recordingRaw),response=typeof recorded.response==='str
 const change=response.timeline.find(s=>s.kind==='ON_CAMERA'&&s.entered_by==='SWITCH');
 const observed=change.observation_ids.map(id=>recorded.observations[id]).sort((a,b)=>a.timestamp_us-b.timestamp_us)[0];
 await mkdir(args.output,{recursive:false});
-const headful=args.visible==='true';
+const headful=!headlessMode();
 const browser=await chromium.launch({headless:!headful,executablePath:args.chrome,args:['--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows']});
 const trials=[];const count=Number(args.repeats??30);
 const quantile=(v,p)=>v.length?[...v].sort((a,b)=>a-b)[Math.ceil(p*v.length)-1]:null;

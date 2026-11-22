@@ -266,7 +266,7 @@ def crowd_statistics(a):
         raise ValueError("INVALID_CROWD_CONFIG")
     forced = unique_events(a, "forced_overlap")
     counts, details = forced_overlap_report(forced)
-    raw = adjusted = total = separate = excluded = missing = invalid_forced = 0
+    raw = adjusted = total = separate = excluded = missing = invalid_forced = raw_separate = 0
     valid_forced = {
         frozenset([e.get("i"), e.get("j")])
         for e in forced
@@ -298,6 +298,7 @@ def crowd_statistics(a):
             for other in names[i + 1 :]:
                 pair = frozenset([name, other])
                 d = math.dist(aa[name]["xy"], aa[other]["xy"])
+                raw_separate += d >= 2 * radius - eps
                 if (
                     index == 0
                     and d < 2 * radius
@@ -342,15 +343,52 @@ def crowd_statistics(a):
         if isinstance(pauses, dict)
         else {}
     )
+    pass_ends = unique_events(a, "pass_end")
+    active_passes = final.get("active_passes", [])
+    active_passes = [p for p in active_passes if isinstance(p, dict)] if isinstance(active_passes, list) else []
+    all_passes = pass_ends + active_passes
+    reasons = Counter(e.get("reason") for e in pass_ends if isinstance(e.get("reason"), str))
+    crowd_errors = a.get("crowd_error")
+    if not isinstance(crowd_errors, list):
+        crowd_errors = [
+            e for row in a["ticks"] if isinstance(row.get("crowd_error"), list)
+            for e in row["crowd_error"]
+        ]
     return {
         "raw_player_penetrations": raw,
         "player_penetrations": adjusted,
         "separation": separate / total if total else None,
+        "separation_excluding_passes": separate / total if total else None,
+        "separation_including_passes": raw_separate / (total + excluded) if total + excluded else None,
         "forced_pair_samples_excluded": excluded,
         "invalid_forced_pair_samples": invalid_forced,
         "unknown_samples": missing,
         "forced_overlap": counts,
         "forced_overlap_events": details,
+        "pass_end": {
+            "count": len(pass_ends),
+            "by_reason": {reason: reasons[reason] for reason in ("hidden", "separated", "receded", "timeout")},
+            "exempt_steps": sum(
+                e["exempt_steps"] for e in pass_ends
+                if type(e.get("exempt_steps")) is int and e["exempt_steps"] >= 0
+            ),
+            "lingering": sum(e.get("lingering") is True for e in all_passes),
+            "lingering_steps": sum(
+                e["lingering_steps"] for e in all_passes
+                if type(e.get("lingering_steps")) is int and e["lingering_steps"] >= 0
+            ),
+            "max_duration_s": max(
+                (e["duration_s"] for e in all_passes if finite(e.get("duration_s")) and e["duration_s"] >= 0),
+                default=None,
+            ),
+        },
+        "active_passes": active_passes,
+        "crowd_error_count": sum(isinstance(e, dict) and e.get("type") == "crowd_error" for e in crowd_errors),
+        "crowd_error_occurrences": sum(
+            e.get("count", 1) for e in crowd_errors
+            if isinstance(e, dict) and e.get("type") == "crowd_error"
+            and type(e.get("count", 1)) is int and e.get("count", 1) > 0
+        ),
         "spawn_adjusted": spawn,
         "block_wait_total_s": ended_wait + active_wait,
         "pause_total_i": pauses,
@@ -519,11 +557,13 @@ def score_logs(a, b):
                 "undeclared": declared[None],
             },
         )
+    result["crowd"] = crowd_statistics(a)
+    if result["crowd"]["crowd_error_count"]:
+        result["unknown_reasons"].append("CROWD_ERROR")
     result["unknown_reasons"] = sorted(set(result["unknown_reasons"]))
     if result["unknown_reasons"]:
         result["status"] = "PARTIAL"
     result["latency"] = latency(ordered)
-    result["crowd"] = crowd_statistics(a)
     return result
 
 

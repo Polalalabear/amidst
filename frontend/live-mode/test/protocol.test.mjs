@@ -72,6 +72,7 @@ test('advisor.last.cleared (answer 0, none of them) passes the whitelist; GT-lik
 
 const forbidden = ['actor_id', 'role', 'variant', 'person_id', 'operator_xy', 'player_xy', 'gt',
   'gt_visible', 'waypoints', 's_i', 'script_clock', 'pause_player_i', 'forced_overlap',
+  'phase_offset_s', 'pass_end', 'crowd_error', 'active_passes',
   'spawn_adjusted', 'run_id', 'view_yaw', 'view_pitch', 'session', 'session_id'];
 
 function safeMessage() {
@@ -113,6 +114,19 @@ test('sender removes disallowed nested keys and nonfinite coordinates and timing
   assert.equal(JSON.stringify(sanitized).includes('sentinel'), false);
   assert.throws(() => buildSystemMessage({ tick: Infinity, tCaptureMs: 5000, frames: [], result: dirty }),
     /INVALID_FRAME_ENVELOPE/);
+});
+
+test('operator crowd events cannot be sent to B as tracking events', () => {
+  const msg = safeMessage();
+  const trackingEvents = [...msg.tracking.events];
+  msg.tracking.events.push(
+    {type: 'crowd_error', code: 'CROWD_UNRESOLVED_PAIR', tick: 2, t_sim: 0.2},
+    {type: 'pass_end', tick: 2, t_sim: 0.2, i: 'T', j: 'A', reason: 'timeout'},
+  );
+  assert.ok(validateSystemMessage(msg).length);
+  const sanitized = buildSystemMessage({tick: 2, tCaptureMs: 5000, frames: [], result: msg});
+  assert.deepEqual(sanitized.tracking.events, trackingEvents);
+  assert.deepEqual(validateSystemMessage(sanitized), []);
 });
 
 test('known event details survive with typed fields, unknown shapes fail', () => {

@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Legacy RGB compatibility gate (53); the new UI real gate is ../ui-redesign/real-e2e.mjs.
 import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
@@ -9,15 +10,17 @@ const {chromium}=await import(pathToFileURL(moduleId).href);
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 const out=process.env.INTEGRATION_OUTPUT??owned.evidenceRoot+'/real';await mkdir(out+'/screenshots',{recursive:true});
-const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const errors=[],http=[],results=[],playbacks=[];let checks=0;const check=(x,msg)=>{assert.ok(x,msg);checks++;};
+const browser=await chromium.launch({headless:headlessMode(),executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+try {
 const page=await browser.newPage({viewport:{width:1600,height:1100},deviceScaleFactor:1});
 await page.addInitScript(()=>localStorage.clear());
-const errors=[],http=[],results=[],playbacks=[];let checks=0;const check=(x,msg)=>{assert.ok(x,msg);checks++;};
+
 page.on('pageerror',e=>errors.push(String(e)));
 page.on('response',r=>{if(r.url().includes('/api/')&&r.status()!==200)http.push({status:r.status(),path:new URL(r.url()).pathname});});
 const shot=async(name,extra={})=>{await page.screenshot({path:out+'/screenshots/'+name+'.png',fullPage:true});const b=await readFile(out+'/screenshots/'+name+'.png'); const row={name,url:page.url(),sha256:createHash('sha256').update(b).digest('hex'),bytes:b.length,...extra};results.push(row); console.log(JSON.stringify(row));};
 const seek=async t=>{await page.locator('#q-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);};
-try{
+
 for(const event of ['B-05','A4-1','B4-1']){
   await page.goto(baseUrl+'/workbench-v2/?ui=legacy&run='+event,{waitUntil:'domcontentloaded'});
   await page.locator('#q-core-class option[value=person]').waitFor({state:'attached'});
@@ -77,5 +80,5 @@ await shot(name,{feedback:await page.locator('#q-core-feedback').innerText(),car
 }
 check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
 }finally{
-await writeFile(out+'/browser-results.json',JSON.stringify({checks,results,playbacks,errors,http},null,2));console.log(JSON.stringify({checks,errors,http}));await browser.close();
+try { await writeFile(out+'/browser-results.json',JSON.stringify({checks,results,playbacks,errors,http},null,2));console.log(JSON.stringify({checks,errors,http}));} finally { await browser.close(); }
 }

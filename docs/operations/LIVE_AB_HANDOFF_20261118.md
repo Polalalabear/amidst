@@ -379,3 +379,170 @@ scheduling tests exercise clock behavior independently of target selection.
 The preview passed 102 LIVE Node cases, including both browser fixtures,
 and 177 Python cases covering LIVE, Q3 parsing and offline scoring.
 LOCAL `local/evidence/cx610-d315-final-20261118/MANIFEST.json` SHA-256 `ac1d2b2dda7b3fb4c55258dfa141c5db7b74db55da971758c2ecd032a4a28aff`, 16 files / 838,750 bytes. Regenerate by running the above tests on the merged content, with the existing N6 and owned fixtures.
+
+## D323 bounded passes and resolver errors
+
+The [Opus decision](https://github.com/Polalalabear/amidst/pull/610#issuecomment-6974004318)
+keeps taint for the entire run. Each script crossing records
+`phase_offset_s = pause_total_i − pause_total_j` after that step. The 100 s
+headless trials verify the phase offset, the equivalence of taint and a
+positive pause time, and the final candidate's equality to the starting pose.
+
+The default `pass_max_s` is 3 s. Each expired or completed pass records
+`pass_end` with a reason, elapsed time and exempt solver steps. Ordinary pair
+checks resume on the next step. The solver count includes the step that ends
+the pass, while C-2 counts pairs in the post-step snapshot. The offline scorer
+reports both separation rates and summarizes pass ends by reason.
+
+The live A operator skips the entire step on either resolver invariant error
+and displays a HUD warning. The A log records each occurrence as
+`crowd_error`. The offline scorer marks the report partial and preserves its
+tracking scores. Headless calls still raise by default. B's frame protocol
+rejects the private crowd events and phase offset.
+
+Within a capture session, the backend rejects repeated or regressing
+`/infer` ticks with 409 `NON_MONOTONIC_TICK` before detector, tracker or
+scheduler calls. The response includes `next_tick` so A can continue after a
+lost response. Reset starts a fresh sequence. The pointer-lock retry threshold
+is 3 CSS pixels and the synthetic tests cover DPR 1 and 2.
+
+Standard LIVE startup uses Q3 RULES. Under §4.2, paid Q3 parsing requires the
+effective #563 switch and its own approved sentence guard. The advisor guard
+does not enable it. The integration test uses a fake budget to check this
+boundary without creating a client.
+
+### Current fixed trials after D327
+
+| Run | Player | C-2 excluding passes | C-2 including passes | Excluded samples | Lingering passes | Lingering steps | Longest pass |
+|---|---|---:|---:|---:|---:|---:|---|
+| A4-1 | T | 100% | 99.863% | 7 | 0 | 0 | completed below 3 s |
+| A4-1 | A | 100% | 99.825% | 10 | 0 | 0 | completed below 3 s |
+| A4-1 | B | 100% | 99.612% | 23 | 0 | 0 | completed below 3 s |
+| A4-1 | C | 100% | 99.532% | 27 | 0 | 0 | completed below 3 s |
+| B4-1 | T | 100% | 85.454% | 783 | 1 | 753 | 78.2 s, still active |
+| B4-1 | A | 100% | 100% | 0 | 0 | 0 | none |
+| B4-1 | B | 100% | 99.910% | 5 | 0 | 0 | completed below 3 s |
+| B4-1 | C | 100% | 99.874% | 6 | 0 | 0 | completed below 3 s |
+
+Both no-player baselines produced zero crossings. The pressure trials
+produced zero player penetrations and zero pure-script crossings. There were
+11 player phase-shift crossings, including two chain crossings. The fixed
+A4-1 player T C→B crossing still occurs at 78.7 s.
+
+The superseded D323 cap ended B4-1 T's B→A pass at 24.8 s, leaving
+753 nonseparated pair samples and C-2 at 85.933%. In the separate stationary
+fixture, it ended C→A at 13.1 s and left A blocked by C after T moved away.
+D327 keeps entered passes active. A advances from s_i=4.1 s to 4.2 s at
+60.1 s, in the first release step. B→A in the pressure trial stays active
+from 21.8 s through 100 s. Its 78.2 s overlap is explicitly reported.
+Lingering counts include a separation step if that step is at or beyond
+the 3 s mark.
+
+Set `AMIDST_LIVE_ASSETS` using the existing N6 base and `$OUT` to an
+evidence directory. Run the following from the checkout with the existing
+Python and Node dependencies and Chrome installed.
+
+```sh
+python -B -m pytest tests/live_mode tests/q1q5/test_nl_query_parse.py tests/evaluation/test_live_ab_score.py -o addopts= -q -p no:cacheprovider
+LIVE_AB_BROWSER=1 LIVE_AB_TEST_OUTPUT="$OUT/browser" AMIDST_TEST_EVIDENCE="$OUT" node --test frontend/live-mode/test/*.test.mjs
+git diff --check
+python -B scripts/check_local_artifact_refs.py --strict --files docs/operations/LIVE_AB_HANDOFF_20261118.md
+```
+
+At the superseded D323 checkpoint, Python passed 182 tests and Node passed
+112 with two failures. D327 restored both failures, with 116 passes and zero skips. The stationary comparison runs the
+C-6 fixture's B4-1 player T sequence on base and head with 600 stationary
+steps followed by 20 steps away at 0.1 s each. The evidence contains this
+comparison as `b4-stationary-release.json` and the pressure counts as
+`crowd-stress.json`. The commands regenerate the test receipts, with variable
+wall-clock timings and browser captures.
+
+LOCAL `local/evidence/cx-live-d323-20261118/MANIFEST.json` SHA-256 `f1f8666bcbadfdd8444b6bb4d365f7aab63d3ae8dbfa275c5bd19c19b86face4`, 11 files / 807,624 bytes.
+
+## D327 pass correction
+
+The [revised Opus decision](https://github.com/Polalalabear/amidst/pull/617#issuecomment-6979242886)
+keeps an entered pass exempt until separation or hiding. An unentered pass
+still times out after 3 s. Entered passes gain `lingering` and
+`lingering_steps` at the 3 s mark. Ended passes carry these fields in
+`pass_end`. Active passes are recorded in A's private `active_passes`
+snapshot so unfinished crossings are included in the duration and lingering
+totals. The scorer exposes these active records as well.
+
+The D323 trace showed C→A losing its exemption at 13.1 s while the two were
+still overlapping. Once the player left, A waited for C. With the correction,
+the pass remains active at 13.1 s. At 60.1 s A advances from script time
+4.1 s to 4.2 s in one step, with no blocker. Its distance from T is 0.7604 m.
+This restores C-6 with the original scenario and original 20-step test.
+
+In the eight fixed pressure trials C-2 excluding passes is 100% for every
+trial. B4 player T has 5,383 pair samples and 783 exempt samples, 783 solver
+exemptions, one lingering pass and 753 lingering steps. Separation including
+passes is 85.4542%. The B→A pass starts at 21.8 s and remains active at
+100 s, with duration 78.2 s. The other seven trials have zero lingering
+steps and retain the D323 pair counts. All trials still have zero player
+penetrations, zero pure-script violations and eleven player phase-shift
+crossings, including two chain crossings. Both no-player baselines have zero
+crossings. The 78.7 s A4 player T regression remains covered.
+
+Repeated resolver errors at the same `(code, tick)` update the existing
+`crowd_error.count`. A's cumulative log refreshes the count even without
+a new event entry. The scorer reports distinct error entries and their total
+occurrences. The strict-mode behavior and whole-step rollback remain covered.
+
+Using the D323 commands, with `LIVE_AB_B_OUTPUT="$OUT/b"` also set to save
+B's receipt, Node passes 116 tests including both browser flows with zero
+skips. Python passes 182 tests. Architecture guard and diff check pass.
+Physical pointer-lock feel, production inference and the 8785 gate remain
+unverified in this checkpoint.
+
+LOCAL `local/evidence/cx617-d327-20261118/MANIFEST.json` SHA-256 `a3efe8a6217592b7c7ef66731a423d58c532bf7d781978c76b4847a1ffc64321`, 15 files / 846,548 bytes. Regenerate with the focused commands above. Browser timestamps and screenshots can vary.
+
+## D331 main integration
+
+Merge commit a3998b71 joins main 7393bf62 with the LIVE A/B branch.
+Both schema registrations are retained. Main's script menu and route
+operator remain available. Script recording selects keys from the route
+operator and advances with the recording capture barrier. Nonrecorded
+script mode retains its original fixed stepper.
+
+The combined suite passed 128 Node tests including A/B browser flows and
+the script-to-record-to-two-replays fixture, with zero skips. Python passed
+182 LIVE, Q3 and scoring tests. B4 T still reports 100% separation excluding
+passes, 85.454% including passes, one lingering pass and 753 lingering steps.
+The current fixed-trial table above reflects these results.
+
+Q6's full advisor decision receipts remain a follow-up for #597. The
+78.2 s pressure-fixture overlap is reported separately from the nine route
+fixtures, which use their own input sequences. The answer table's exclusions
+remain an offline decision for the hardset owner.
+
+LOCAL `local/evidence/cx617-d331-20261118/MANIFEST.json` SHA-256 `bd659770cb1cf2b9267a7e55470666a599e9a726e18b5008a1bd1242e9e997eb`, 32 files / 2,065,107 bytes. Regenerate with the documented focused commands.
+
+## 2026-11-20 main integration (#654 / #617)
+
+Merge commit `f51c5362` includes main `8290f190`, retaining the common LIVE
+style and the recording/crowd changes. The detect sweep keeps both variant
+and REGION parameters with finally cleanup. Hardset smoke keeps A/B in
+one headless browser, two pages, and clears its progress timer on failure.
+The registry retains live-ab.case.v1 alongside the main schemas. D340,
+D341 and W2 authority pins remain intact, and the current product document
+matches its W2-S1 SHA; the audit records the merged file hashes.
+
+Final focused results: 133 Node tests including browser, 185 LIVE/Q3/scorer
+Python tests, and 3 actual headless launcher tests pass with zero skips.
+The initial browser fixtures lacked CSS routes/MIME types after the main
+style migration; they now load the real styles and assert grid layout,
+without changing production style or weakening interaction checks.
+The B4 T stress metrics remain separation 100% excluding passes, 85.4542%
+including passes, 783 exempt solver steps, 1 lingering pass / 753 steps,
+78.2 s active at the end; no player penetrations or baseline forced overlaps.
+
+E3 readiness and deterministic scope are explicit in
+LIVE_AB_RECORDING_20261118.md: 8 configured cameras, 5 designed similar-color
+multi-person cases plus 1 single-distractor control; 15 route prefixes
+replayed twice, A4/B4 80-second input cases replayed twice, and a short
+browser H1-1 record/two replays. No full new E3 corpus or paired Agent
+experiment was run. Model output and wall-clock timing remain unverified.
+
+LOCAL `local/evidence/cx617-main-20261120/MANIFEST.json` SHA-256 `dde8dddd7a4505e7676ef1555a3b5184cd2bdf278e9c075551bbf5c9ea042a9f`, 30 files / 1,237,143 bytes. Reproduction commands and variable screenshot/clock fields are documented in LIVE_AB_RECORDING_20261118.md. Claude reviews the Draft; user merges and approves the later 8785 pin.
