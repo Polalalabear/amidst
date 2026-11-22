@@ -286,7 +286,7 @@ export async function start(body) {
       <button type="button" id="system-download">下載 B 記錄</button>
       <div id="llmset"><b>設定</b> <span class="kv">（預設關閉）</span>
         <label><input type="checkbox" id="llmon"> LLM 決策</label>
-        <select id="llmmode"><option value="review">LLM 覆核</option><option value="lead">LLM 主導</option></select>
+        <select id="llmmode"><option value="review">LLM 覆核</option><option value="lead">LLM 主導</option><option value="agent">Agent 決策</option></select>
         <select id="llmmodel"></select>
         <div id="llmstat" class="v"></div><div id="llmdet" class="s"></div></div>
       <div id="events"></div></div></div>`);

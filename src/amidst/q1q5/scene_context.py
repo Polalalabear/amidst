@@ -122,14 +122,24 @@ def camera_geometry(entry: dict, region=((-10.0, 40.0), (-10.0, 30.0)), walls=No
 STATIC_GEOMETRY_FIELDS = ('occluders_full_height', 'door_openings')   # D346: the only geometry fields allowed into inference
 
 
-def static_geometry(raw: bytes) -> dict:
+def static_geometry(raw: bytes, gate_raw: bytes, source: str) -> dict:
     """D346: take only ``occluders_full_height`` and ``door_openings`` from the r004 scene geometry file (bytes, so the SHA-256 is of
-    exactly what was read). Refuses a file without the D346 exception. Everything else in the file is ignored."""
+    exactly what was read). Refuses a file without the D346 exception. Everything else in the file is ignored.
+    ``gate_raw`` is ``docs/evaluation/F2_WALL_GATE_20261122.json`` (wall projection checked against real frames of ``source``,
+    'r004' or 'live'); only its VALIDATED cameras are clipped, and the gate must have been run on these exact geometry bytes."""
     doc = json.loads(raw)
     exc = [e for e in doc.get('must_not_enter_exceptions', []) if str(e.get('decision_ref', '')).startswith('D346')]
     if not exc or set(exc[0].get('allowed_fields', [])) != set(STATIC_GEOMETRY_FIELDS):
         raise ValueError('STATIC_GEOMETRY_NOT_AUTHORIZED: geometry file lacks the D346 must_not_enter exception')
-    return {'source_sha256': hashlib.sha256(raw).hexdigest(), 'decision_ref': 'D346',
+    gate = json.loads(gate_raw)
+    sha = hashlib.sha256(raw).hexdigest()
+    if gate.get('geometry_sha256') != sha:
+        raise ValueError('WALL_GATE_GEOMETRY_MISMATCH: gate was run on other geometry bytes')
+    if source not in gate.get('sources', {}):
+        raise ValueError(f'WALL_GATE_SOURCE_UNKNOWN: {source}')
+    validated = sorted(c for c, v in gate['sources'][source]['cameras'].items() if v['verdict'] == 'VALIDATED')
+    return {'source_sha256': sha, 'decision_ref': 'D346', 'gate_sha256': hashlib.sha256(gate_raw).hexdigest(), 'gate_source': source,
+            'validated_cameras': validated,
             'walls': [(o['a'][0], o['a'][1], o['b'][0], o['b'][1]) for o in doc['occluders_full_height']],
             'door_openings': {k: {f: v[f] for f in ('center_xy', 'normal_xy', 'width_m', 'height_m') if f in v}
                               for k, v in sorted(doc['door_openings'].items())}}
@@ -143,7 +153,8 @@ def build(region_graph: dict, camera_graph: dict, catalog: dict, camera_ids=None
     walls = static['walls'] if static else None
     cat = {c['camera_id']: c for c in catalog['cameras']}
     ids = sorted(camera_ids) if camera_ids else sorted(cat)
-    geo = {cid: camera_geometry(cat[cid], walls=walls) for cid in ids}
+    clip = set(static['validated_cameras']) if static else set()
+    geo = {cid: camera_geometry(cat[cid], walls=walls if cid in clip else None) for cid in ids}
     overlap = []
     for i, a in enumerate(ids):
         for b in ids[i + 1:]:
@@ -181,10 +192,13 @@ def build(region_graph: dict, camera_graph: dict, catalog: dict, camera_ids=None
         'overlaps': overlap,
         'sources': dict(sorted({**(source_sha256 or {}), **({'R004_SCENE_GEOMETRY_2D_V1.json#occluders_full_height,door_openings':
                                                                static['source_sha256']} if static else {})}.items())),
-        'incomplete': (['PEOPLE_OCCLUSION_NOT_MODELLED'] if walls is not None else ['OCCLUSION_NOT_MODELLED', 'WALL_GEOMETRY_NOT_IN_CONTEXT']) + (['SCENE_CONTEXT_INCOMPLETE:NO_SOURCE_HASHES'] if not source_sha256 else []),
+        'incomplete': (['PEOPLE_OCCLUSION_NOT_MODELLED'] if walls is not None else ['OCCLUSION_NOT_MODELLED', 'WALL_GEOMETRY_NOT_IN_CONTEXT'])
+        + ['SCENE_CONTEXT_INCOMPLETE:WALLS_NOT_VALIDATED:' + c for c in ids if walls is not None and c not in clip] + (['SCENE_CONTEXT_INCOMPLETE:NO_SOURCE_HASHES'] if not source_sha256 else []),
     }
     if static:
         ctx['static_geometry'] = {'decision_ref': static['decision_ref'], 'source_sha256': static['source_sha256'],
+                                  'wall_gate_sha256': static['gate_sha256'], 'wall_gate_source': static['gate_source'],
+                                  'wall_clipped_cameras': [c for c in ids if c in clip],
                                   'wall_segments': len(static['walls']), 'door_openings': static['door_openings']}
     missing = [c for c in ids if c not in gcams]
     if missing:

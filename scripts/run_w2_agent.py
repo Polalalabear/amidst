@@ -53,6 +53,7 @@ GROUPS = {'A': dict(images=True, scene=True), 'B': dict(images=False, scene=True
 
 # --------------------------------------------------------------------------------------------- scene + detections
 GEOMETRY = REPO / 'docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json'
+WALL_GATE = REPO / 'docs/evaluation/F2_WALL_GATE_20261122.json'
 
 
 def scene_for(label, with_static=False):
@@ -61,7 +62,7 @@ def scene_for(label, with_static=False):
     sha = {n: hashlib.sha256(open(GRAPH_DIR / n, 'rb').read()).hexdigest() for n in docs}
     sha['camera_catalog.json'] = hashlib.sha256(open(CATALOG, 'rb').read()).hexdigest()
     return sx.build(docs['region_graph_v3_1.json'], docs['camera_graph_v3_1.json'], json.load(open(CATALOG)), sorted(sc.cams_of(label)),
-                    sha, docs['tracking_scope_v3_1.json'], static=sx.static_geometry(GEOMETRY.read_bytes()) if with_static else None)
+                    sha, docs['tracking_scope_v3_1.json'], static=sx.static_geometry(GEOMETRY.read_bytes(), WALL_GATE.read_bytes(), 'r004') if with_static else None)
 
 
 def all_detections(label):

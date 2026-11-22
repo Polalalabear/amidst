@@ -113,7 +113,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  const first=track.sightings[0],t=first.range_us[0]+Math.floor((first.range_us[1]-first.range_us[0])/2);await seek(p,t);await decoded(p,'#ui-case2 .ui-stage-img',1);
  check(await p.locator('#ui-play').isEnabled(),event+' source playback enabled');
  check(await p.locator('#ui-stop-track').isEnabled(),'front-end stop available');
- check(await p.locator('#ui-manual-target').isDisabled()&&(await p.locator('#ui-manual-note').innerText())==='追蹤起點由系統自動選擇，目前還不能手動改選目標','D137 manual seed disabled with plain explanation (D139)');
+ check(event==='B-05'?(await p.locator('#ui-manual-note').innerText())==='這個場景的追蹤畫面還不能手動改選目標':await p.locator('#ui-manual-list').count()===1,'F3 manual re-selection offered on D124 runs, disclosed elsewhere (#657)');
  const singleBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleBar.y+singleBar.height-viewportHeight)<2,'single bar at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const singleScrolled=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleScrolled.y+singleScrolled.height-viewportHeight)<2&&await p.locator('#ui-v1').evaluate(el=>el.scrollTop===0),'single bar fixed while only content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
  await capture(p,event+'-case2-single',{bar:singleBar,barAfterScroll:singleScrolled,status:track.status,reasons:track.reasons,current:await p.locator('#ui-scrub').inputValue()});

@@ -12,6 +12,7 @@ from amidst.q1q5 import scene_context as sx
 ROOT = Path(__file__).resolve().parents[2]
 GEOM_PATH = ROOT / 'docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json'
 GEOM = json.loads(GEOM_PATH.read_text())
+GATE_PATH = ROOT / 'docs/evaluation/F2_WALL_GATE_20261122.json'
 WALLS = cp.walls_of(GEOM)
 
 
@@ -62,7 +63,7 @@ def test_scene_context_default_unclipped_and_static_option():
     assert sx.serialize(plain) == sx.serialize(again)
     assert 'WALL_GEOMETRY_NOT_IN_CONTEXT' in plain['incomplete'] and 'static_geometry' not in plain
     raw = GEOM_PATH.read_bytes()
-    st = sx.static_geometry(raw)
+    st = sx.static_geometry(raw, GATE_PATH.read_bytes(), 'r004')
     assert st['walls'] == WALLS and set(st['door_openings']) == set(GEOM['door_openings'])
     clipped = sx.build(REGION, CAMG, _catalog(), None, {'g.json': '0' * 64}, static=st)
     sx.assert_no_forbidden(clipped)
@@ -73,13 +74,19 @@ def test_scene_context_default_unclipped_and_static_option():
     assert 'visible_area_polygon_xy_m' in text and 'WALL_CLIPPED' in text
     for banned in ('clearance_segments', 'floors', 'render_camera_sets', 'note'):   # only the two D346 fields enter
         assert banned not in text
+    clipped_ids = clipped['static_geometry']['wall_clipped_cameras']
+    assert set(clipped_ids) == set(st['validated_cameras']) & {c['camera_id'] for c in _catalog()['cameras']}
+    for cam in clipped['cameras']:
+        assert ('visible_area_polygon_xy_m' in cam) == (cam['camera_id'] in clipped_ids)
+        if cam['camera_id'] not in clipped_ids:
+            assert 'SCENE_CONTEXT_INCOMPLETE:WALLS_NOT_VALIDATED:' + cam['camera_id'] in clipped['incomplete']
 
 
 def test_static_geometry_refuses_file_without_d346_exception():
     doc = json.loads(GEOM_PATH.read_text())
     doc.pop('must_not_enter_exceptions')
     with pytest.raises(ValueError, match='STATIC_GEOMETRY_NOT_AUTHORIZED'):
-        sx.static_geometry(json.dumps(doc).encode())
+        sx.static_geometry(json.dumps(doc).encode(), GATE_PATH.read_bytes(), 'r004')
 
 
 def test_simplified_polygon_stays_within_tolerance():
@@ -88,3 +95,17 @@ def test_simplified_polygon_stays_within_tolerance():
         simp = cp.simplify_polygon(poly, 0.1)
         assert len(simp) <= len(poly) and simp[0] == poly[0] and simp[-1] == poly[-1]
         assert abs(_area(simp) - _area(poly)) <= 0.05 * _area(poly) + 0.5
+
+
+def test_wall_gate_binds_geometry_bytes_and_live_has_no_validated_camera():
+    gate = json.loads(GATE_PATH.read_text())
+    assert gate['geometry_sha256'] == __import__('hashlib').sha256(GEOM_PATH.read_bytes()).hexdigest()
+    with pytest.raises(ValueError, match='WALL_GATE_GEOMETRY_MISMATCH'):
+        sx.static_geometry(GEOM_PATH.read_bytes(), json.dumps({**gate, 'geometry_sha256': '0' * 64}).encode(), 'r004')
+    with pytest.raises(ValueError, match='WALL_GATE_SOURCE_UNKNOWN'):
+        sx.static_geometry(GEOM_PATH.read_bytes(), GATE_PATH.read_bytes(), 'nope')
+    live = sx.static_geometry(GEOM_PATH.read_bytes(), GATE_PATH.read_bytes(), 'live')
+    assert live['validated_cameras'] == []          # strict gate on 320-px LIVE frames: nothing is clipped
+    ctx = sx.build(REGION, CAMG, {'cameras': GEOM['cameras']}, None, {'g.json': '0' * 64}, static=live)
+    assert all('visible_area_polygon_xy_m' not in c for c in ctx['cameras'])
+    assert sum(x.startswith('SCENE_CONTEXT_INCOMPLETE:WALLS_NOT_VALIDATED:') for x in ctx['incomplete']) == len(GEOM['cameras'])

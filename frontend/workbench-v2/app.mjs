@@ -1,6 +1,7 @@
 // Q composition root. Review code has a separate dynamic boundary and receives
 // immutable state/read-only subscriptions, never the API object or query dispatch.
 import {createStore,initialState} from './store.mjs';
+import {agentSwitchView} from './agent-switch-model.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {responseKind,contentHash} from './q-validate.mjs';
@@ -210,6 +211,8 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     if(!run||!api.getSession?.()){const text='UNKNOWN · 來源或 session 未就緒';if(coreFeedback)coreFeedback.textContent=text;return {ok:false,text};}
     try{
       const request=kind==='search'?buildCoreSearchRequest(run,api.getSession(),override??coreFormDom(),coreMenus(run)):buildCoreTrackRequest(run,api.getSession(),override??coreFormDom(),coreMenus(run),store.getState().tUs);
+      if(kind==='track'&&agentSwitchView(run,store.getState().switchMode).effective==='AGENT_SEQUENTIAL')request.switch_mode='AGENT_SEQUENTIAL';   // F3 #657; rule requests stay unchanged
+      if(kind==='track'&&override?.manualSeed)request.manual_seed={track_ref:String(override.manualSeed.trackRef),at_us:Math.trunc(override.manualSeed.atUs)};   // F3 #657: operator re-selection
       const result=await execute(request);
       const text=result.ok?`${kind==='search'?'查找':'追蹤'}回應：${result.data.status}`:failureText(result.error?.code);if(coreFeedback)setRefusalFeedback(coreFeedback,text,result.ok?null:result.error?.code);return {ok:Boolean(result.ok),text,code:result.ok?null:result.error?.code??'REQUEST_FAILED'};
     }catch(error){const text=ERROR_TEXT[error.message]??`UNKNOWN · ${error.message}`;if(coreFeedback)coreFeedback.textContent=text;return {ok:false,text,code:error.message};}

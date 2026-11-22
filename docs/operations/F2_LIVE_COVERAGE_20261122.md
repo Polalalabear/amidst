@@ -27,6 +27,62 @@
 
 LOCAL：`local/evidence/f2-coverage-20261122/wallcheck/`（`wallcheck.json` `165d676e27dc8619c25fe66536f68e25df867e04cd82e3e0fb048d13c057d1e8`、6 張疊圖＋1 張放大圖、`SHA256SUMS`），可用上面的腳本重新產生。`wallcheck_CAM_ENTRY.png` 是第一次執行留下的（0 個取樣點）。
 
+## E3 前閘門：每台鏡頭、標準量法＋最近邊＋位移對照組（#664 Opus 裁決）
+
+工具：`scripts/f2_validate_wall_projection.py`（重寫成閘門）。每台鏡頭、每組多幀合併：
+- **標準量法**：搜尋窗（960 px 等效 ±20 px）內最強邊離投影線多遠；
+- **最近邊**：強度過門檻的最近峰值（平行門框之類的強邊會贏過標準量法）；
+- **位移對照組**：同一量法，但把鏡頭往右平移 0.3 m。量法若分不出 0.3 m 的誤差，就什麼都證明不了；
+- 1.5 m 高的車輛（`R004_ENV_*`）擋住的牆腳線不取樣：只用在量測上，車輛不會裁切覆蓋範圍。這一項是看到 CAM_EXT_CAR 的疊圖之後才加的，如實揭露。
+
+**閘門**（在跑之前寫進腳本）：取樣 ≥ 30、標準量法中位數 ≤ 2 px、≥ 80% 在 3 px 內（960 px 等效），而且對照組中位數 ≥ 3 px 且 ≥ 標準量法的 2 倍。同一來源的每組幀都要通過才算 VALIDATED。沒通過的鏡頭在 scene_context 不做牆面裁切，並標 `SCENE_CONTEXT_INCOMPLETE:WALLS_NOT_VALIDATED:<鏡頭>`。
+
+幀組：r004 `A4-1` 第 0／60／120／180／240 幀、`B4-1` 第 0／100／200 幀（960×540）；LIVE #663 `E3-A1` 第 0／80／160／240 幀、`E3-C1` 第 0／100／200 幀（320×180，MANIFEST `853390e3…`）。
+
+| 鏡頭 | 幀組 | 取樣 | 標準 中位數 px | 標準 ≤3 px | 最近邊 ≤3 px | 對照組 中位數 px | 對照組 ≤3 px | 原生 px 中位數（實際／對照） | 原生 ≤2 px | 閘門（該來源） |
+|---|---|---|---|---|---|---|---|---|---|---|
+| CAM_BRANCH | r004A | 925 | 0.0 | 99.5% | 99.5% | 2.0 | 100.0% | 0.0 / 2.0 | 99.4% | NOT_VALIDATED CONTROL_NOT_DISCRIMINATING |
+| CAM_BRANCH | r004B | 555 | 0.0 | 98.0% | 99.3% | 2.0 | 95.6% | 0.0 / 2.0 | 97.8% | NOT_VALIDATED CONTROL_NOT_DISCRIMINATING |
+| CAM_ENTRY | r004A | 0 | None | — | — | None | — | None / None | — | NOT_VALIDATED TOO_FEW_SAMPLES |
+| CAM_ENTRY | r004B | 0 | None | — | — | None | — | None / None | — | NOT_VALIDATED TOO_FEW_SAMPLES |
+| CAM_EXT_CAR | r004A | 1870 | 1.0 | 74.1% | 99.9% | 8.0 | 16.8% | 1.0 / 8.0 | 73.3% | NOT_VALIDATED MISALIGNED |
+| CAM_EXT_CAR | r004B | 1122 | 1.0 | 76.6% | 100.0% | 8.0 | 18.0% | 1.0 / 8.0 | 75.8% | NOT_VALIDATED MISALIGNED |
+| CAM_EXT_CLEAR | r004A | 3600 | 1.0 | 97.8% | 99.9% | 4.0 | 45.3% | 1.0 / 4.0 | 84.4% | VALIDATED  |
+| CAM_EXT_CLEAR | r004B | 2160 | 1.0 | 98.3% | 99.9% | 4.0 | 45.3% | 1.0 / 4.0 | 85.0% | VALIDATED  |
+| CAM_R101_IN | r004A | 925 | 0.0 | 99.2% | 100.0% | 10.5 | 2.8% | 0.0 / 10.5 | 99.2% | VALIDATED  |
+| CAM_R101_IN | r004B | 555 | 0.0 | 95.9% | 100.0% | 11.0 | 3.2% | 0.0 / 11.0 | 95.7% | VALIDATED  |
+| CAM_W1 | r004A | 1530 | 1.0 | 86.7% | 99.4% | 13.0 | 1.0% | 1.0 / 13.0 | 85.8% | NOT_VALIDATED MISALIGNED |
+| CAM_W1 | r004B | 918 | 1.0 | 79.7% | 97.5% | 12.0 | 1.0% | 1.0 / 12.0 | 78.1% | NOT_VALIDATED MISALIGNED |
+| CAM_W2 | r004A | 2240 | 1.0 | 81.1% | 99.3% | 13.0 | 23.4% | 1.0 / 13.0 | 80.2% | VALIDATED  |
+| CAM_W2 | r004B | 1344 | 0.0 | 96.5% | 99.6% | 13.0 | 18.2% | 0.0 / 13.0 | 96.5% | VALIDATED  |
+| CAM_WIDE | r004A | 2155 | 1.0 | 63.3% | 94.7% | 9.0 | 31.4% | 1.0 / 9.0 | 62.4% | NOT_VALIDATED MISALIGNED |
+| CAM_WIDE | r004B | 1293 | 1.0 | 61.6% | 94.5% | 10.0 | 29.9% | 1.0 / 10.0 | 60.6% | NOT_VALIDATED MISALIGNED |
+| CAM_BRANCH | liveA1 | 740 | 3.0 | 74.2% | 84.7% | 3.0 | 56.6% | 1.0 / 1.0 | 99.5% | NOT_VALIDATED MISALIGNED |
+| CAM_BRANCH | liveC1 | 555 | 3.0 | 74.2% | 84.7% | 3.0 | 56.9% | 1.0 / 1.0 | 99.6% | NOT_VALIDATED MISALIGNED |
+| CAM_ENTRY | liveA1 | 0 | None | — | — | None | — | None / None | — | NOT_VALIDATED TOO_FEW_SAMPLES |
+| CAM_ENTRY | liveC1 | 0 | None | — | — | None | — | None / None | — | NOT_VALIDATED TOO_FEW_SAMPLES |
+| CAM_EXT_CAR | liveA1 | 1496 | 3.0 | 55.6% | 82.4% | 3.0 | 59.5% | 1.0 / 1.0 | 89.0% | NOT_VALIDATED MISALIGNED |
+| CAM_EXT_CAR | liveC1 | 1122 | 3.0 | 55.6% | 82.4% | 3.0 | 59.5% | 1.0 / 1.0 | 89.0% | NOT_VALIDATED MISALIGNED |
+| CAM_EXT_CLEAR | liveA1 | 2880 | 3.0 | 88.1% | 96.0% | 6.0 | 49.5% | 1.0 / 2.0 | 95.1% | NOT_VALIDATED MISALIGNED |
+| CAM_EXT_CLEAR | liveC1 | 2160 | 3.0 | 88.1% | 96.0% | 6.0 | 49.5% | 1.0 / 2.0 | 95.1% | NOT_VALIDATED MISALIGNED |
+| CAM_R101_IN | liveA1 | 736 | 3.0 | 66.4% | 87.4% | 12.0 | 3.6% | 1.0 / 4.0 | 99.2% | NOT_VALIDATED MISALIGNED |
+| CAM_R101_IN | liveC1 | 552 | 3.0 | 63.0% | 87.0% | 9.0 | 4.4% | 1.0 / 3.0 | 96.0% | NOT_VALIDATED MISALIGNED |
+| CAM_W1 | liveA1 | 1224 | 6.0 | 28.7% | 90.7% | 9.0 | 12.5% | 2.0 / 3.0 | 86.6% | NOT_VALIDATED MISALIGNED |
+| CAM_W1 | liveC1 | 918 | 6.0 | 28.0% | 89.9% | 9.0 | 13.9% | 2.0 / 3.0 | 79.7% | NOT_VALIDATED MISALIGNED |
+| CAM_W2 | liveA1 | 1783 | 3.0 | 72.7% | 93.9% | 15.0 | 10.8% | 1.0 / 5.0 | 89.8% | NOT_VALIDATED MISALIGNED |
+| CAM_W2 | liveC1 | 1338 | 3.0 | 78.3% | 94.7% | 15.0 | 10.0% | 1.0 / 5.0 | 96.8% | NOT_VALIDATED MISALIGNED |
+| CAM_WIDE | liveA1 | 1712 | 3.0 | 69.2% | 87.6% | 12.0 | 19.7% | 1.0 / 4.0 | 90.1% | NOT_VALIDATED MISALIGNED |
+| CAM_WIDE | liveC1 | 1284 | 3.0 | 71.0% | 88.4% | 12.0 | 20.2% | 1.0 / 4.0 | 92.3% | NOT_VALIDATED MISALIGNED |
+
+**結果（嚴格依閘門）**：r004 通過 CAM_EXT_CLEAR、CAM_R101_IN、CAM_W2；**LIVE 沒有任何鏡頭通過**，所以 E3（LIVE 案例）的 scene_context **不做牆面裁切**，8 台都標 WALLS_NOT_VALIDATED。
+
+**D348（協調者，2026-11-22）**：維持嚴格閘門。因此 E3 假設 H4 的「空間資訊」只指鏡頭圖、可行走連通、FOV（由校正投影的地面覆蓋，不做牆面裁切）與靜態門洞，**不含牆面裁切**。上面「車輛擋住的牆腳線不取樣」是看過疊圖之後才加的（見閘門量法第 3 點），照實揭露。
+- **LIVE 未通過的主因是解析度**：320 px 的 1 個原生像素＝960 等效的 3 px，「中位數 ≤ 2 px」實際上要求 0 誤差。以原生像素看，CAM_W1 中位數 2 px，其餘 6 台 1 px；≤ 2 px 的比例在 80–100%，對照組大多更差。疊圖上投影線就落在牆腳上。
+- CAM_ENTRY：任何幀都看不到可量的牆腳線。CAM_BRANCH：0.3 m 平移幾乎不移動它看到的牆線，所以對照組分不出差異。CAM_EXT_CAR、CAM_WIDE：旁邊更強的平行邊（車身、門框）贏過標準量法（最近邊 ≥ 94.5%）。
+- 是否改用「原生像素」版門檻（例如中位數 ≤ 1 原生 px、≥ 85% 在 2 原生 px 內、對照組中位數 ≥ 2 倍且 ≥ 2 原生 px），是**看過驗證數據之後**的選擇，交給協調者決定（#93）。在決定之前，程式預設用嚴格結果。
+
+摘要檔（進版控）：`docs/evaluation/F2_WALL_GATE_20261122.json`，綁定幾何 SHA。`scene_context.static_geometry(raw, gate_raw, source)` 會核對閘門跑的是同一份幾何位元組，只裁切 VALIDATED 的鏡頭。LOCAL：`local/evidence/f2-coverage-20261122/gate/`（`gate.json` SHA 寫在摘要檔、每組每台一張疊圖），可用腳本重新產生。
+
 ## 如何重現
 ```bash
 cd frontend/live-mode && npm ci --offline --ignore-scripts && node --test test/*.test.mjs

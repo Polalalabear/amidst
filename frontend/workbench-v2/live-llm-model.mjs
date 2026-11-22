@@ -1,7 +1,7 @@
 // 工作台 v2 後台設定的「即時模式 LLM 決策」開關（D265、D267）。由瀏覽器直接讀寫 live 伺服器的 /config（只讀寫 advisor、advisor_model）。8785 後端的稽核掛鉤禁止任何 socket.connect，所以不能在後端做代理；live 伺服器只對指定的本機來源開 CORS。
 // 純函式加兩個 fetch 包裝，沒有 DOM 依賴（畫面在 admin-ui.mjs），方便用 node 測。
 // 預設關閉；連不上 live 伺服器時一律顯示「不可用」和原因，開關不會看起來是開的。
-export const MODE_LABEL = { review: 'LLM 覆核', lead: 'LLM 主導' };
+export const MODE_LABEL = { review: 'LLM 覆核', lead: 'LLM 主導', agent: 'Agent 決策' };   // agent：F3 #657 agent_service
 
 // resp：reduceConfig 的結果，或 null（還沒讀到）。
 export function liveLlmView(resp) {
@@ -23,7 +23,7 @@ export function liveLlmView(resp) {
 }
 
 export function liveLlmRequest(checked, mode, model) {
-  const body = { advisor: checked && (mode === 'review' || mode === 'lead') ? mode : 'off' };
+  const body = { advisor: checked && Object.hasOwn(MODE_LABEL, mode) ? mode : 'off' };
   if (model) body.advisor_model = model;
   return body;
 }
