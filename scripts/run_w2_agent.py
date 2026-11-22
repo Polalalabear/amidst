@@ -52,12 +52,16 @@ GROUPS = {'A': dict(images=True, scene=True), 'B': dict(images=False, scene=True
 
 
 # --------------------------------------------------------------------------------------------- scene + detections
-def scene_for(label):
+GEOMETRY = REPO / 'docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json'
+
+
+def scene_for(label, with_static=False):
+    """``with_static`` (D346): add wall-clipped coverage from the static occluders/doors. Off by default so W2 stays reproducible."""
     docs = {n: json.load(open(GRAPH_DIR / n)) for n in ('region_graph_v3_1.json', 'camera_graph_v3_1.json', 'tracking_scope_v3_1.json')}
     sha = {n: hashlib.sha256(open(GRAPH_DIR / n, 'rb').read()).hexdigest() for n in docs}
     sha['camera_catalog.json'] = hashlib.sha256(open(CATALOG, 'rb').read()).hexdigest()
     return sx.build(docs['region_graph_v3_1.json'], docs['camera_graph_v3_1.json'], json.load(open(CATALOG)), sorted(sc.cams_of(label)),
-                    sha, docs['tracking_scope_v3_1.json'])
+                    sha, docs['tracking_scope_v3_1.json'], static=sx.static_geometry(GEOMETRY.read_bytes()) if with_static else None)
 
 
 def all_detections(label):

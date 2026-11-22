@@ -544,6 +544,14 @@
       "sha256": "f8ba8c96321378188102962d67fb71f20f0f1d4b8e9cbc326e3e55c2fa9c7914",
       "status": "現行；§2 資料流加 Agent 模式、§4.3 ApiGuard 路徑／G7／H1–H6 證據、§8 U-9 關閉與 U-18；2026-11-22：G7 已修正（4f665d55）、U-18 關閉、§4.4 記 #608／#617 已合併",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D346-G1",
+      "path": "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json",
+      "ref": "claude/feat-e3@a8470a66",
+      "sha256": "f654c9935c1aed58c2215dfadddc92590dec554f81fce453ad9e7c84f9269342",
+      "status": "現行；D346：只有 occluders_full_height 與 door_openings 可進推論（scene_context.static_geometry，附來源 SHA-256），其餘欄位仍為 DESIGN_FEASIBILITY_ONLY；放行前牆投影驗證見 docs/operations/F2_LIVE_COVERAGE_20261122.md",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -875,6 +883,13 @@
       "requires_commit": "6b1206d3819ff059dd471af2354b5436b4e1cea3",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "D342 修正輪（#653 Sonnet NEEDS_CHANGES）：G7 已由 #655 修正（4f665d55），改寫為「已修正：所有付費呼叫經 ApiGuard」；補 #608（cfbfe4e9）、#617（1742ed06）現況與 PROGRESS #651–#655。只改文件敘述，規則不變"
+    },
+    {
+      "path": "docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json",
+      "sha256": "f654c9935c1aed58c2215dfadddc92590dec554f81fce453ad9e7c84f9269342",
+      "requires_commit": "a8470a667d4dcb60530642d1b6dfa07518e92f1d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-7074936803",
+      "reason": "D346: must_not_enter_exceptions for occluders_full_height + door_openings into scene_context (coordinator decision 2026-11-22); wall projection check passed (F2 #656, PR #664)."
     }
   ]
 }

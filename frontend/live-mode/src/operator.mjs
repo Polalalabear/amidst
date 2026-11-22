@@ -14,6 +14,9 @@ import {RECORD_DT, captureStride, hashBinding, validateCase, createInputRecordin
 
 import {createScriptOperator, createFixedStepper, SCRIPT_DT} from './script_operator.mjs';
 import {HARDSET_ROUTES} from './hardset_routes.mjs';
+import {coverageOf, wallsOf} from './coverage.mjs';
+import {drawCoverageMap, cameraColors} from './coverage_map.mjs';
+import {buildCoverageOverlay} from './coverage_overlay.mjs';
 
 const RUNS = ['A4-1-v2-4actor', 'B4-1-v2-4actor'];
 function runId(value) {
@@ -222,37 +225,52 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
   } catch (error) { status.textContent = `載入失敗：${error.message}。請重新載入。`; }
 }
 
-// N6 shares one baked material across floor/walls. Clone only the wall assignment in memory,
-// then restore all view-only properties synchronously before any virtual camera capture.
-export function makeOperatorView(world) {
+export const XRAY_NOTICE = '操作者透視視角，鏡頭看不到';
+// N6 shares one baked material across floor/walls. Clone only the wall assignment in memory.
+// Default (#656): the operator sees opaque walls, exactly like the virtual cameras. X-ray is an explicit operator
+// toggle; when on, walls turn 18% opaque and the ceiling hides for that one render only. The coverage overlay
+// (camera icons, FOV, blind cells) is shown only inside the operator render. Everything is restored synchronously
+// in finally, before any virtual camera capture can run.
+export function makeOperatorView(world, {overlay = null, xray = false} = {}) {
   const materials = [...world.wallMats], ceiling = world.scene.getObjectByName('CEILING_STATIC_LIVE');
   world.scene.getObjectByName('WALL_JOINED_SHELL_LIVE')?.traverse(object => {
     if (!object.isMesh) return;
     const cloned = (Array.isArray(object.material) ? object.material : [object.material]).map(material => material.clone());
     object.material = Array.isArray(object.material) ? cloned : cloned[0]; materials.push(...cloned);
   });
-  return render => {
+  if (overlay) { overlay.visible = false; world.scene.add(overlay); }
+  const draw = render => {
     const previous = materials.map(m => ({transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite}));
     const visible = ceiling?.visible;
     try {
-      if (ceiling) ceiling.visible = false;
-      for (const m of materials) { m.transparent = true; m.opacity = .18; m.depthWrite = false; }
+      if (overlay) overlay.visible = true;
+      if (xray) {
+        if (ceiling) ceiling.visible = false;
+        for (const m of materials) { m.transparent = true; m.opacity = .18; m.depthWrite = false; }
+      }
       render();
     } finally {
+      if (overlay) overlay.visible = false;
       if (ceiling) ceiling.visible = visible;
       materials.forEach((m, i) => Object.assign(m, previous[i]));
     }
   };
+  draw.setXray = on => { xray = !!on; return xray; };
+  Object.defineProperty(draw, 'xray', {get: () => xray});
+  return draw;
 }
 
 async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase}) {
-  body.insertAdjacentHTML('beforeend', `<div id="op"><canvas id="view"></canvas><div id="panel"><h2>A · 操作端</h2>
+  body.insertAdjacentHTML('beforeend', `<div id="op"><div id="view-wrap"><canvas id="view"></canvas><div id="xray-notice" role="status" hidden>${XRAY_NOTICE}</div></div><div id="panel"><h2>A · 操作端</h2>
     <p>WASD 移動 · Shift 跑 · 點畫布鎖定滑鼠（Esc 釋放）；不支援鎖定時按住左鍵拖曳。</p>
     <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p>
+    <h3>鏡頭覆蓋</h3><canvas id="cover-map" width="320" height="320" aria-label="鏡頭位置、可視範圍與盲區小地圖"></canvas>
+    <p class="kv">色塊：各鏡頭被牆裁切後的可視範圍；紅格：所有鏡頭都看不到的盲區；紅點：你。</p>
+    <button id="xray-toggle" aria-pressed="false">透視：關</button>
     <p id="crowd-warning" role="status" hidden>人群模擬錯誤（已跳過該步）</p></div></div>`);
   if (P.record) body.querySelector('#panel').insertAdjacentHTML('beforeend',
     '<button id="record-stop">結束錄製</button> <button id="case-download">下載重播劇本</button><p><label>附加同局 B 紀錄 <input id="case-actions" type="file" accept=".json"></label></p><button id="replay-system-download">下載重播系統紀錄</button>');
-  const {scenario, world, cams, n6, config} = await setupWorld(P, {scenario: true});
+  const {scenario, world, cams, n6, config, geometry} = await setupWorld(P, {scenario: true});
   if (gltf) world.characterGltf = gltf;
   const run = scenario.runs.find(r => r.run_id === session.run_id), camIds = P.cams || Object.keys(cams);
   const crowd = createCrowd(run, {actorId: session.actor_id, segments: world.segments, auto: !!P.auto,
@@ -317,7 +335,17 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
     link.href = url; link.download = `live-ab-a-${session.session_id}.json`; link.click(); URL.revokeObjectURL(url);
   };
   const cap = makeCapture(world, cams, P.w, P.h, P.quality), chan = new BroadcastChannel(CHANNEL);
-  const drawOperator = makeOperatorView(world); let last = performance.now();
+  // #656: wall-clipped coverage of the run's cameras (static geometry + calibration only), on the 3D view and the minimap.
+  const coverage = coverageOf(geometry, camIds), colors = cameraColors(camIds), walls = wallsOf(geometry);
+  const drawOperator = makeOperatorView(world, {overlay: buildCoverageOverlay(coverage, colors), xray: false}); let last = performance.now();
+  const coverMap = body.querySelector('#cover-map'), coverCtx = coverMap.getContext('2d'), xrayNotice = body.querySelector('#xray-notice');
+  const xrayButton = body.querySelector('#xray-toggle');
+  xrayButton.onclick = () => {
+    const on = drawOperator.setXray(!drawOperator.xray);
+    xrayButton.textContent = on ? '透視：開' : '透視：關'; xrayButton.setAttribute('aria-pressed', String(on)); xrayNotice.hidden = !on; xrayButton.blur();
+  };
+  window.__opView = Object.freeze({get xray() { return drawOperator.xray; }, setXray: on => { if (!!on !== drawOperator.xray) xrayButton.onclick(); return drawOperator.xray; },
+    coverage: Object.freeze({cameras: coverage.cameras.map(c => ({camera_id: c.camera_id, vertices: c.polygon.length})), blind_cells: coverage.blind.length})});
   const crowdWarning = body.querySelector('#crowd-warning');
   let recordedEvents = 0, capturedEvents = 0;
   function frame(tn) {
@@ -361,6 +389,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
     vcam.position.set(p.x - 4.5 * Math.sin(yaw), 2.1, -p.y + 4.5 * Math.cos(yaw));
     vcam.lookAt(vcam.position.x + Math.sin(yaw) * Math.cos(pitch), vcam.position.y + Math.sin(pitch), vcam.position.z - Math.cos(yaw) * Math.cos(pitch));
     drawOperator(() => renderer.render(world.scene, vcam));
+    drawCoverageMap(coverCtx, {geometry, walls, coverage, colors, player: p, w: coverMap.width, h: coverMap.height});
     if (P.record && !inflight && !finished && !stopped && snapshot.tick === tick * stride) void captureTick();
     if (P.record && (stopped || playback?.done) && !inflight) {
       finished = true; window.__recordingDone = true;
