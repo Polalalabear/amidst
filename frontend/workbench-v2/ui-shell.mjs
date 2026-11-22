@@ -521,7 +521,7 @@ export function mountUi(ctx) {
       P.manualList.append(b);
     }
     P.manualNote.textContent = !supported ? '這個場景的追蹤畫面還不能手動改選目標'
-      : resp.manual_seed ? `已手動改選：${resp.manual_seed.track_ref}（身分未確認）${cands.length ? '；可再改選' : ''}`
+      : resp.manual_seed ? `已手動改選 ${cameraName((resp.sightings ?? []).find(x => x.track_ref === resp.manual_seed.track_ref)?.camera_id ?? '') || '所選'} 的人（身分未確認）${cands.length ? '；可再改選' : ''}`
       : cands.length ? '播放頭這一刻畫面裡的其他人；選一個，系統從這裡改追他（身分未確認）' : '播放頭這一刻沒有其他可改選的人；移動播放頭再試';
   }
   function buildCase2(s, resp, view, searching, p) {
@@ -850,8 +850,10 @@ export function mountUi(ctx) {
     // every new track result (re-track, other event): the playhead starts at the first appearance; the timeline still shows the full window
     if (s.coreTrackResponse && s.coreTrackResponse !== prev?.coreTrackResponse) {
       const [startUs, asOfUs] = playbackBounds(s), first = initialPlayheadUs(s.coreTrackResponse.single_view, {startUs, asOfUs});
-      jumpUs = first.jumped ? first.us : null;
-      if (s.tUs !== first.us) store.dispatch({type: 'SET_T_US', tUs: first.us});
+      const manualAt = s.coreTrackResponse.manual_seed?.at_us;   // F3: after a manual re-selection stay (paused) where the operator chose
+      jumpUs = manualAt == null && first.jumped ? first.us : null;
+      const to = manualAt ?? first.us; if (manualAt != null && s.playing) store.dispatch({type: 'PAUSE'});
+      if (s.tUs !== to) store.dispatch({type: 'SET_T_US', tUs: to});
     }
     if (s.coreTrackResponse && s.coreTrackResponse !== prev?.coreTrackResponse && track.startedAt && track.logged !== s.coreTrackResponse) {
       track.logged = s.coreTrackResponse; const ms = performance.now() - track.startedAt;

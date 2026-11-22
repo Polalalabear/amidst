@@ -144,7 +144,9 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
       const expected=kind==='search'?'q-core.search':'q-core.track';
       need(source==='SERVER'&&origin==='LIVE','CORE_LIVE_ONLY');
       need(session&&request?.schema_version===expected+'-request.v1'&&request.session_ref===session,'CORE_REQUEST');
-      need(Object.keys(request).every(k=>['schema_version','session_ref','scene_id','run_id','time','region_ids','feature','playback_now_us'].includes(k)),'CORE_REQUEST_FIELDS');
+      need(Object.keys(request).every(k=>['schema_version','session_ref','scene_id','run_id','time','region_ids','feature','playback_now_us',...(kind==='track'?['switch_mode','manual_seed']:[])].includes(k)),'CORE_REQUEST_FIELDS');   // F3 #657: track only
+      if(kind==='track'&&'switch_mode' in request)need(['RULE_ONLY','AGENT_SEQUENTIAL'].includes(request.switch_mode),'CORE_REQUEST_FIELDS');
+      if(kind==='track'&&'manual_seed' in request)need(typeof request.manual_seed?.track_ref==='string'&&Number.isSafeInteger(request.manual_seed?.at_us)&&request.manual_seed.at_us>=0&&Object.keys(request.manual_seed).length===2,'CORE_REQUEST_FIELDS');
       noPrivate(request);
       const run=bootstrapData?.runs.find(r=>r.scene_id===request.scene_id&&r.run_id===request.run_id);
       need(run&&run.clock_mapping?.content_sha256&&Array.isArray(request.region_ids)&&request.region_ids.every(x=>typeof x==='string'),'CORE_REQUEST_SCOPE');
