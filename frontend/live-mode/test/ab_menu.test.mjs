@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as THREE from 'three';
-import {createSessionGate, menuOptions, variantSwatches, privateTick, makeOperatorView} from '../src/operator.mjs';
+import {createSessionGate, menuOptions, variantSwatches, privateTick, makeOperatorView, start} from '../src/operator.mjs';
 import {createCrowd} from '../src/crowd.mjs';
 import {headlessMode} from '../../../scripts/browser_options.mjs';
 import {buildInferHeader,buildSystemMessage} from '../src/protocol.mjs';
@@ -39,6 +39,49 @@ test('variant fallback colors come from GLB material metadata, including linear-
  const bytes=new TextEncoder().encode(JSON.stringify(json));const size=Math.ceil(bytes.length/4)*4;const buf=new ArrayBuffer(20+size);const dv=new DataView(buf);dv.setUint32(0,0x46546c67,true);dv.setUint32(4,2,true);dv.setUint32(8,buf.byteLength,true);dv.setUint32(12,size,true);dv.setUint32(16,0x4e4f534a,true);new Uint8Array(buf,20).fill(32);new Uint8Array(buf,20,bytes.length).set(bytes);
  const colors=variantSwatches(buf);assert.equal(Object.keys(colors).length,4);assert.notEqual(colors.T,colors.C);assert.match(colors.T,/^#[0-9a-f]{6}$/);assert.throws(()=>variantSwatches(new ArrayBuffer(20)),/GLB/);
 });
+// Exercises start() and its real click handlers without a server, browser, WebGL or source assets.
+test('menu hint follows unselected, selected and scene-reset states', async t => {
+ const previousLocation = globalThis.location;
+ globalThis.location = {search: ''};
+ t.after(() => { if (previousLocation === undefined) delete globalThis.location; else globalThis.location = previousLocation; });
+ const element = () => ({
+  dataset: {}, style: {setProperty() {}}, children: [], attrs: {}, textContent: '',
+  append(child) { this.children.push(child); },
+  setAttribute(name, value) { this.attrs[name] = String(value); },
+  querySelector(selector) { assert.equal(selector, 'small'); return this.small ??= {textContent: ''}; },
+ });
+ const nodes = Object.fromEntries(['ab-menu', 'ab-runs', 'ab-actors', 'ab-begin', 'ab-status'].map(id => [id, element()]));
+ const body = {ownerDocument: {createElement: element}, insertAdjacentHTML() {},
+  querySelector(selector) { return nodes[selector.slice(1)]; }};
+ // Unreferenced mesh metadata supplies the swatches; the empty scene needs no files or renderer.
+ const json = {asset: {version: '2.0'}, scene: 0, scenes: [{nodes: []}],
+  extensions: {KHR_materials_variants: {variants: ['T', 'A', 'B', 'C'].map(name => ({name}))}},
+  materials: [{name: 'SHIRT', pbrMetallicRoughness: {baseColorFactor: [.1, .02, .01, 1]}}],
+  meshes: [{primitives: [{material: 0, attributes: {}}]}]};
+ const bytes = new TextEncoder().encode(JSON.stringify(json)), size = Math.ceil(bytes.length / 4) * 4;
+ const buffer = new ArrayBuffer(20 + size), view = new DataView(buffer);
+ for (const [offset, value] of [[0, 0x46546c67], [4, 2], [8, buffer.byteLength], [12, size], [16, 0x4e4f534a]]) view.setUint32(offset, value, true);
+ new Uint8Array(buffer, 20).fill(32); new Uint8Array(buffer, 20, bytes.length).set(bytes);
+ const requests = [];
+ await start(body, {query: '', preview: () => () => {}, fetcher: async url => {
+  requests.push(url);
+  if (url === '/data/scenario.json') return {ok: true, json: async () => scenario};
+  assert.equal(url, '/data/character.glb'); return {ok: true, arrayBuffer: async () => buffer};
+ }});
+ const status = nodes['ab-status'], begin = nodes['ab-begin'];
+ assert.equal(status.textContent, '請選角色'); assert.equal(begin.disabled, true);
+ const actor = nodes['ab-actors'].children.find(card => card.dataset.actor === 'T');
+ actor.onclick();
+ assert.equal(status.textContent, '已選角色 T，可按「開始」'); assert.equal(begin.disabled, false);
+ // Clicking the current scene is not a scene change and preserves the selection.
+ nodes['ab-runs'].children.find(button => button.dataset.run === 'A4-1-v2-4actor').onclick();
+ assert.equal(begin.disabled, false); assert.equal(actor.attrs['aria-pressed'], 'true');
+ nodes['ab-runs'].children.find(button => button.dataset.run === 'B4-1-v2-4actor').onclick();
+ assert.equal(status.textContent, '請選角色'); assert.equal(begin.disabled, true);
+ assert.equal(actor.attrs['aria-pressed'], 'false');
+ assert.deepEqual(requests, ['/data/scenario.json', '/data/character.glb']);
+});
+
 test('selected actor is sole player; all actors and visibility stay in private log, never header/channel',()=>{
  for(const run of scenario.runs)for(const actorId of ['T','A','B','C']){
   const crowd=createCrowd(run,{actorId});const snap=crowd.step({},.1);const row=privateTick(snap,0,100,(a)=>a.present?['CAM_TEST']:[]);

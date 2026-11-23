@@ -40,7 +40,12 @@ export function createSessionGate(scenario, options, fetcher) {
   let run_id = options.run_id, actor_id = options.actor_id, locked = false;
   const editable = () => { if (locked) throw new Error('SESSION_LOCKED'); };
   return Object.freeze({
-    chooseRun(value) { editable(); run_id = runId(value); },
+    chooseRun(value) {
+      editable();
+      const next = runId(value);
+      if (next !== run_id) actor_id = null;
+      run_id = next;
+    },
     chooseActor(value) { editable(); if (!VARIANTS.includes(value)) throw new Error('ACTOR_UNKNOWN'); actor_id = value; },
     snapshot: () => ({run_id, actor_id, locked}),
     async begin() {
@@ -185,39 +190,43 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
     return enter(body, P, session, {fetcher, mouse: options.mouse, gltf, recordedCase});
   }
   if (options.skip) return begin();
-  body.insertAdjacentHTML('beforeend', `<main id="ab-menu" style="box-sizing:border-box;min-height:100%;padding:4vh 5vw;max-width:1200px;margin:auto">
-    <h1>A · 選擇場景與角色</h1><h2>1 · 場景</h2><div id="ab-runs" style="display:flex;gap:16px"></div>
-    <h2>2 · 角色</h2><div id="ab-actors" style="display:flex;gap:16px;flex-wrap:wrap"></div>
+  body.insertAdjacentHTML('beforeend', `<main id="ab-menu" class="ab-menu">
+    <h1>A · 選擇場景與角色</h1><h2>1 · 場景</h2><div id="ab-runs" class="ab-runs"></div>
+    <h2>2 · 角色</h2><div id="ab-actors" class="ab-actors"></div>
     <p>WASD 移動 · Shift 跑 · 滑鼠轉視角。開始後只能重新載入來換場景或角色。</p>
-    <button id="ab-begin" disabled style="padding:12px 36px">開始</button> <span id="ab-status" role="status">載入外觀…</span></main>`);
+    <button id="ab-begin" disabled>開始</button> <span id="ab-status" role="status">載入外觀…</span></main>`);
   const doc = body.ownerDocument, runButtons = [], cards = [];
-  let menuReady = false;
+  let menuReady = false, previewUnavailable = false;
   const beginButton = body.querySelector('#ab-begin'), status = body.querySelector('#ab-status');
   function update() {
     const selected = gate.snapshot(), run = scenario.runs.find(r => r.run_id === selected.run_id);
-    for (const b of runButtons) { const active = b.dataset.run === selected.run_id; b.setAttribute('aria-pressed', active); b.style.outline = active ? '3px solid #f5a623' : ''; }
+    for (const b of runButtons) { const active = b.dataset.run === selected.run_id; b.setAttribute('aria-pressed', active); }
     for (const card of cards) {
       const id = card.dataset.actor, a = run.actors.find(a => a.actor_id === id);
       card.querySelector('small').textContent = `${(a.waypoints[0].t_us / 1e6).toFixed(1)}–${(a.waypoints.at(-1).t_us / 1e6).toFixed(1)} s`;
-      const active = id === selected.actor_id; card.setAttribute('aria-pressed', active); card.style.outline = active ? '3px solid #f5a623' : '';
+      const active = id === selected.actor_id; card.setAttribute('aria-pressed', active);
     }
     beginButton.disabled = !menuReady || !selected.actor_id;
+    if (menuReady) {
+      status.textContent = selected.actor_id ? `已選角色 ${selected.actor_id}，可按「開始」` : '請選角色';
+      if (previewUnavailable) status.textContent += '（預覽無法顯示，可依色塊選角色）';
+    }
   }
   for (const id of RUNS) {
     const b = doc.createElement('button'); b.dataset.run = id; b.textContent = `${id.replace('-v2-4actor', '')} · ${scenario.runs.find(r => r.run_id === id).duration_us / 1e6} s`;
-    b.style.cssText = 'padding:18px 36px'; b.onclick = () => { gate.chooseRun(id); update(); }; body.querySelector('#ab-runs').append(b); runButtons.push(b);
+    b.className = 'ab-run'; b.onclick = () => { gate.chooseRun(id); update(); }; body.querySelector('#ab-runs').append(b); runButtons.push(b);
   }
   try {
     const asset = await fetcher('/data/character.glb'); if (!asset.ok) throw new Error('CHARACTER_LOAD_FAILED');
     const buffer = await asset.arrayBuffer(), colors = variantSwatches(buffer);
     for (const id of VARIANTS) {
-      const card = doc.createElement('button'); card.dataset.actor = id; card.style.cssText = 'width:180px;padding:10px;background:#242b35;color:inherit;border:1px solid #687380;border-radius:8px';
-      card.innerHTML = `<canvas data-preview="${id}" width="160" height="170" hidden></canvas><p><span style="display:inline-block;width:18px;height:18px;background:${colors[id]}"></span> <b>角色 ${id}</b></p><small></small>`;
+      const card = doc.createElement('button'); card.dataset.actor = id; card.className = 'ab-actor'; card.style.setProperty('--actor-swatch', colors[id]);
+      card.innerHTML = `<canvas data-preview="${id}" width="160" height="170" hidden></canvas><p><span class="actor-swatch"></span> <b>角色 ${id}</b></p><small></small>`;
       card.onclick = () => { gate.chooseActor(id); update(); }; body.querySelector('#ab-actors').append(card); cards.push(card);
     }
-    update(); status.textContent = '請選角色';
+    update();
     // GLB parse/render failure keeps the metadata-derived swatches and usable selection.
-    try { gltf = await makeLoader().parseAsync(buffer, '/data/'); cleanup = preview(body, gltf); } catch { status.textContent = '預覽無法顯示；可依色塊選角色'; }
+    try { gltf = await makeLoader().parseAsync(buffer, '/data/'); cleanup = preview(body, gltf); } catch { previewUnavailable = true; }
     menuReady = true; update();
     beginButton.onclick = async () => {
       beginButton.disabled = true; runButtons.forEach(b => { b.disabled = true; }); cards.forEach(b => { b.disabled = true; }); status.textContent = '開始…';
@@ -270,7 +279,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
         <p>WASD 移動 · Shift 跑 · 點畫面鎖定滑鼠（Esc 釋放，再按 Esc 返回）</p>
         <button id="ab-download">下載 A 紀錄</button><button id="xray-toggle" aria-pressed="false">透視：關</button>
         <p id="crowd-warning" role="status" hidden>人群模擬錯誤（已跳過該步）</p></div></details></div>
-    <div id="hud-tr"><button id="map-toggle" type="button" aria-pressed="true" class="hud-card" style="padding:.2em .9em">小地圖：開</button>
+    <div id="hud-tr"><button id="map-toggle" type="button" aria-pressed="true" class="hud-card map-toggle">小地圖：開</button>
       <div id="map-wrap"><canvas id="cover-map" width="320" height="320" aria-label="鏡頭位置、可視範圍與盲區小地圖"></canvas></div></div></div>`);
   const stats = body.querySelector('#stats') || body.querySelector('#hud-status');
   body.querySelector('#op-back').onclick = () => { location.assign(backUrl()); };
