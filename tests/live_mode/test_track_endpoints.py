@@ -413,3 +413,53 @@ def test_lost_transitive_candidate_group_ids_do_not_change_selection_state(live_
     state._diagnose_detections(out, {'state': 'TRACKING', 'lost_ticks': 1}, set('ABC'), [0, 0], 1)
     assert {d['cand_id'] for ds in out.values() for d in ds} == {candidate['cand_id']}
     assert state.selection.state() == before
+
+
+@pytest.mark.parametrize('color', ['red', 'blue'])
+def test_agent_offline_request_uses_selected_target_and_applies_far_candidate(live_server, monkeypatch, color):
+    from amidst.live_mode.service_decider import ServiceLiveDecider
+    from amidst.live_mode.people import PeopleTracker
+    state, request, infer = live_server
+    seen = []
+    def transport(body):
+        seen.append(body)
+        return {'text': json.dumps({'answer': 'SELECT', 'camera_id': 'left', 'detection_id': 'D1',
+                                    'reason_codes': [], 'reason': 'synthetic'}), 'usage': {}, 'latency_s': 0}
+    def factory(_context):
+        return ServiceLiveDecider(transport, PeopleTracker(), {'schema_version': 'SYNTHETIC', 'cameras': [{'camera_id': c} for c in CAMERAS]},
+                                  run_async=False, min_interval_s=100, clock=lambda: 0)
+    monkeypatch.setattr(state, '_live_scene_context', lambda: {'schema_version': 'SYNTHETIC'})
+    monkeypatch.setattr(state, '_new_service_decider', factory)
+    assert request('/config', {'advisor': 'agent'})[1]['effective'] == 'agent'
+    request('/track/start', {'color': color, 'session_id': state.selection.session_id})
+    infer(1, (8,), colors=(color, color))
+    assert seen
+    text = seen[0]['input'][1]['content'][0]['text']
+    assert f'labels: {color}' in text
+    assert 'SCENE_CONTEXT=' in seen[0]['input'][0]['content'][0]['text']
+    out = infer(2, (8,), colors=(color, color))['tracking']
+    assert out['decision_source'] == 'AGENT' and out['advisor']['last']['applied']
+    assert out['identity_verdict'] == 'UNCONFIRMED'
+    # After the response is consumed, a lost-phase reply may override the 3 m rule gate.
+    state.decider._last_end = -1e9
+    state.decider.last_t = -1e9
+    state.decider.lost_n = 1
+    far = infer(3, (70,), colors=(color, color))['tracking']
+    assert far['lost_ticks'] == 1
+    result = infer(4, (70,), colors=(color, color))['tracking']
+    assert result['decision_source'] == 'AGENT' and result['lost_ticks'] == 0
+    assert result['advisor']['last']['applied']
+
+
+def test_startup_agent_without_authorization_uses_rules(live_server, monkeypatch):
+    state, _request, _infer = live_server
+    from amidst.live_mode.server import State
+    import copy
+    for key in ('AMIDST_API_ENABLED', 'AMIDST_API_MAX_USD_TOTAL', 'AMIDST_API_CONFIG_FILE', 'OPENAI_API_KEY'):
+        monkeypatch.delenv(key, raising=False)
+    args = copy.copy(state.args)
+    args.advisor, args.advisor_provider = 'agent', 'openai'
+    denied = State(args)
+    assert denied.args.advisor == 'off' and denied.decider is None and denied.guard is None
+    assert denied.llm_switch['requested'] == 'agent'
+    assert denied.llm_switch['reason'] == 'GUARD_NOT_APPROVED'
