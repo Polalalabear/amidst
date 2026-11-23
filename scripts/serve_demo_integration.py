@@ -398,8 +398,10 @@ class Demo(P1):
             _safe_request(payload); self.authorize(payload['session_ref'], key[0])
             run = self.api.runs[key]
             decider, why = self.track_decider(key, run) if payload.get('switch_mode') == 'AGENT_SEQUENTIAL' else (None, None)
-            return core_track(payload, run, decider=decider, unavailable_reason=why,
-                              demo_default=key[1] == EIGHTCAM_RUN, display_positions=self.positions.get(key))
+            doc = core_track(payload, run, decider=decider, unavailable_reason=why,
+                             demo_default=key[1] in {s['run_id'] for s in RUN_SPECS.values()},
+                             display_positions=self.positions.get(key))
+            return self.with_estimate(key, doc)
         if action != 'q_core_track' or key not in self.cross:
             if action == 'q_core_track':
                 require('manual_seed' not in payload, 'MANUAL_SEED_UNSUPPORTED')

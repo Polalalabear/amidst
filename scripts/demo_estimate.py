@@ -29,7 +29,12 @@ def estimate_track(
     as_of = response["as_of_us"]
     cameras = {c["camera_id"]: c for c in catalog["cameras"]}
     projector = Projector(list(cameras.values()))
-    wanted = {(s["camera_id"], oid) for s in response["sightings"] for oid in s["observation_ids"]}
+    wanted = {
+        (s["camera_id"], oid)
+        for s in response["sightings"]
+        if s.get("selected_for_single_view", True)
+        for oid in s["observation_ids"]
+    }
     selected = response["single_view"]
     points = defaultdict(dict)
     for row in records:
@@ -51,6 +56,9 @@ def estimate_track(
             x1, y1, x2, y2 = det["bbox_xyxy_px"]
             if not all(math.isfinite(v) for v in (x1, y1, x2, y2)):
                 continue
+            if y2 >= calibration["height"] - 1:
+                points[stamp][(camera, oid)] = None
+                continue
             xy = projector.ground(
                 camera, (x1 + x2) / 2, y2, calibration["width"], calibration["height"]
             )
@@ -59,6 +67,8 @@ def estimate_track(
     if not points:
         return unknown("NO_PROJECTABLE_SELECTED_OBSERVATION")
     latest = max(points)
+    if any(xy is None for xy in points[latest].values()):
+        return unknown("FOOT_TRUNCATED_AT_FRAME_BOTTOM")
     if len(points[latest]) != 1:
         return unknown("AMBIGUOUS_SELECTED_OBSERVATIONS")
     xy = next(iter(points[latest].values()))

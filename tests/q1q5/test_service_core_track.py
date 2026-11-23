@@ -95,6 +95,7 @@ def test_demo_server_limits_core_adapter_to_registered_runs(monkeypatch):
     app.api = SimpleNamespace(runs={k: object() for k in keys}, call=lambda *args: {'generic': True})
     app.authorize = lambda *args: None
     app.track_decider = lambda *args: (None, 'OFF')
+    app.with_estimate = lambda key, doc: dict(doc, estimate={'est_xy': 'UNKNOWN'})
     monkeypatch.setattr(service_core_track, 'core_track', lambda *args, **kw: kw)
     for key in keys:
         out = app.call('q_core_track', {'session_ref': 'S', 'scene_id': key[0], 'run_id': key[1]})

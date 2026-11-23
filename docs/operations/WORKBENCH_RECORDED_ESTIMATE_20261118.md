@@ -81,3 +81,35 @@ No new detector, Agent call or asset render is performed. Full 3D visual
 acceptance and the 8785 pin remain with Claude and the user.
 
 LOCAL `local/evidence/cx623-main-20261120/MANIFEST.json` SHA-256 `280ba887a7cf432c4fe3f1ce54ba9b984002bfc39d065f0aff8f45d6bcb8f9a2`, 12 files / 2,306,108 bytes. Contains the final tests, main pin audit, smoke receipts and four screenshots. Rebuild with WORKBENCH_8CAM_D302_20261118.md's focused commands, adding test_agent_service.py to pytest. Screenshot clocks and tokens vary.
+
+## 2026-11-24 integration
+
+`estimate` is an additional display-only field outside contract B; contract B
+is not edited. UI and documentation call `uncertainty_m` the 速度上限可達半徑.
+The current main-screen core-track adapter receives the same estimate callback
+for both A4-1-8CAM and B4-1-8CAM, with the existing rule-mode seed policy. Ambiguous default selection stays UNKNOWN;
+a manual selection can supply a concrete projection.
+The estimate is attached after the adapter returns, then its response hash is
+recomputed. A selected foot touching the last image row produces UNKNOWN /
+FOOT_TRUNCATED_AT_FRAME_BOTTOM rather than projecting a clipped body.
+
+The active main-screen UI does not render this optional estimate or radius;
+the legacy 3D consumer is not an accepted visible feature. This delivery
+verifies API estimates and camera walls, not visible 3D estimate acceptance.
+
+Focused verification: `pytest tests/q1q5/test_demo_estimate.py
+tests/q1q5/test_demo_eightcam.py tests/q1q5/test_service_core_track.py
+-o addopts= -q -p no:cacheprovider` with the pinned 8CAM root: 25 passed,
+7 skipped (owned service input opt-in omitted). Separate pinned A4/B4
+projection replay: 1 passed; A4 229 INFERRED / 21 UNKNOWN, B4 182 / 28.
+The older counts above are historical; bottom clipping now yields UNKNOWN.
+Node model/name tests: 53 passed. Architecture guard and diff check passed.
+The broader service-enabled attempt had 18 failures / 80 passes / 6 errors:
+22 failures/errors came from the existing 8 GiB disk gate; two code/test
+issues were corrected and covered by the focused run. Dependency smoke and
+headless browser startup also returned DISK_BELOW_8_GIB (about 5.5 GiB free).
+The 8 GiB gate was not changed or bypassed. No 8785/8791 service was touched.
+
+LOCAL `local/evidence/codex-w-20261124/a1/MANIFEST.json`, SHA-256 `2cbf881c0dc0d6cfb6f65cef1cc1ab443a52fb3b0429653d2081ec6dba8f26fd`, 12 files / 437,796 bytes. Reproduce with
+the commands above and the existing owned demo / pinned safe bundle; no
+rendering, inference or paid calls are needed.

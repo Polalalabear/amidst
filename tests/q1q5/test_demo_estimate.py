@@ -74,7 +74,7 @@ def test_foot_projection_last_position_and_speed_radius_never_read_future():
     assert first["est_xy"] == pytest.approx([1, -2])
     assert first["uncertainty_m"] == 1
     assert first["last_observed_us"] == 0
-    records[1]["detections"][0]["bbox_xyxy_px"] = [90, 90, 99, 99]
+    records[1]["detections"][0]["bbox_xyxy_px"] = [90, 90, 98, 98]
     assert estimate(records, response) == first
     assert records[0] == before[0]
     response["as_of_us"] = 2_000_000
@@ -253,3 +253,20 @@ def test_normal_recorded_entry_supplies_a_bound_estimate_or_unknown(label, reque
         assert estimate["source_clock_id"] == run.bindings.clock.clock_id
         assert estimate["source_index_sha256"] == run.bindings.index_sha256
         assert estimate["uncertainty_m"] >= 0
+
+
+def test_bottom_clipped_foot_is_unknown_even_after_an_earlier_projection():
+    records, response = fixture()
+    records[1]["detections"][0]["bbox_xyxy_px"] = [5, 0, 15, 99]
+    response["as_of_us"] = 2_000_000
+    response["single_view"][0]["range_us"][1] = 2_000_000
+    assert estimate(records, response)["reason"] == "FOOT_TRUNCATED_AT_FRAME_BOTTOM"
+
+
+def test_unassociated_candidate_in_same_camera_does_not_make_selected_point_ambiguous():
+    records, response = fixture()
+    records[0]["detections"].append({"observation_id": "other", "bbox_xyxy_px": [30, 0, 40, 20]})
+    response["sightings"].append(
+        {"camera_id": "top", "observation_ids": ["other"], "selected_for_single_view": False}
+    )
+    assert estimate(records, response)["est_xy"] == pytest.approx([1, -2])
