@@ -119,4 +119,3 @@ LOCAL查證快照（各1檔，按同命令及文件字串搜尋可重建；來�
 
 - `local/evidence/codex-w-20261124/c3/changed-paths.json`，8179 bytes，SHA-256 `3062db52b5953345e1027ac8b2c6b19d450f81df4853d74dbdb66513624aac31`。
 - `local/evidence/codex-w-20261124/c3/mapping-final.json`，16192 bytes，SHA-256 `0c6a9111bb77220d39bad1cb8fded6c84a5f12fb4fc665cb27e8b604c63d7040`。
-
