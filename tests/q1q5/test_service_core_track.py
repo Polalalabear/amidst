@@ -121,3 +121,17 @@ def test_manual_candidates_preserve_a_different_coloured_person_on_the_same_came
     out = core_track(track_request(run, manual_seed={'track_ref': ref, 'at_us': 0}), run)
     assert out['manual_seed']['applied'] is True
     assert len({s['track_ref'] for s in out['sightings']}) == 2
+
+
+def test_blind_display_prediction_uses_selected_target_only(monkeypatch):
+    from amidst.q1q5 import service_core_track as module
+    run = bound_run({'A': {0: 'STRONG', 1: None, 2: None, 3: None}}, frames=4)
+    calls = []
+    def predict(run, sightings, stamp, positions):
+        calls.append((sightings, positions))
+        return {'status': 'UNAVAILABLE', 'reason': 'PREDICTION_UNAVAILABLE', 'estimate': None}
+    monkeypatch.setattr(module, '_blind_for_track', predict)
+    out = core_track(track_request(run), run, display_positions={'A': {'xy_m': [0, 1]}})
+    assert out['single_view'][-1]['kind'] == 'LOST'
+    assert calls and all(s.get('selected_for_single_view') for s in calls[-1][0])
+    assert calls[-1][1] == {'A': {'xy_m': [0, 1]}}

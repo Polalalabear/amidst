@@ -3,7 +3,7 @@
 Only the demo server opts in. Parameter/status/source hashes are retained; no
 approval is manufactured. The shared ServiceTrackDecider owns M1 and caching.
 """
-from amidst.q1q5.core_query import execute_core_track, validate_track_request, CoreRequestError, _blind_for_track
+from amidst.q1q5.core_query import execute_core_track, validate_track_request, CoreRequestError, _blind_for_track, _GT_READ
 from amidst.q1q5.cross_camera_demo import Observation, Track, Parameters, response
 from amidst.q1q5.service_agent_q5 import colors_of
 from amidst.q1q5.store import canonical_hash
@@ -62,9 +62,10 @@ def core_track(payload, run, *, decider=None, unavailable_reason=None, demo_defa
         if manual:
             doc['manual_seed'] = dict(manual, applied=any(r.get('reason') == 'OPERATOR_SELECTION' for r in doc['association_audit']))
         if doc['single_view'] and doc['single_view'][-1]['kind'] in {'GAP', 'LOST'}:
-            doc['blind'] = _blind_for_track(run, doc['sightings'], doc['as_of_us'], display_positions)
+            selected = [s for s in doc['sightings'] if s.get('selected_for_single_view')]
+            doc['blind'] = _blind_for_track(run, selected, doc['as_of_us'], display_positions)
         base = doc
-    base['provenance'] = {'producer': 'demo-core-agent-track', 'gt_read': False, 'formal_eligible': False,
+    base['provenance'] = {'producer': 'demo-core-agent-track', _GT_READ: False, 'formal_eligible': False,
                           'parameter_mode': run.bindings.parameter_set['approval']['status'],
                           'parameter_set_sha256': run.bindings.parameter_sha256,
                           'association_scope': 'UNCONFIRMED_CROSS_CAMERA_HYPOTHESES'}
