@@ -5,11 +5,62 @@ Default is a dry-run. Never deploys the working branch's LIVE fixes.
 from __future__ import annotations
 import argparse
 import dataclasses
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+
+
+APPROVED_RUNTIME_SHA = 'c988ed607cb2941bde2b84688f9675213efd2a98'
+
+
+def budget_preview(cfg, usage_dir, *, now=None):
+    """Read-only preflight using public estimates/configuration and the JSONL ledger format.
+
+    Does not call ApiGuard private methods, create ledger rows or reserve any money. The runtime
+    ApiGuard still authoritatively checks every paid attempt (including concurrent spend).
+    """
+    from amidst.q1q5.api_budget import LEDGER_NAME, estimate_run
+    estimate = estimate_run(questions=1, model='gpt-6.1-terra', avg_prompt_tokens=20000,
+                            avg_output_tokens=1500, prices=cfg.prices, config=cfg)
+    cost = estimate['est_cost_per_call_usd']
+    if not cfg.enabled:
+        return 'API_DISABLED', cost
+    if not estimate['price_known']:
+        return 'PRICE_UNKNOWN', cost
+    if estimate['would_exceed']:
+        return estimate['would_exceed'][0], cost
+    today = (now or datetime.now(timezone.utc)).strftime('%Y-%m-%d')
+    try:
+        lines = (Path(usage_dir) / LEDGER_NAME).read_text().splitlines()
+    except FileNotFoundError:
+        lines = []
+    except OSError:
+        return 'LEDGER_UNAVAILABLE', cost
+    total, daily, calls = 0.0, 0.0, 0
+    for line in lines:
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue  # same tolerant JSONL format as ApiGuard; no credential or prompt is read
+        if not isinstance(row, dict) or row.get('outcome') == 'DENIED':
+            continue
+        spent = row.get('est_cost_usd')
+        if not isinstance(spent, (int, float)):
+            continue
+        total += spent
+        if str(row.get('ts', ''))[:10] == today:
+            daily += spent
+            calls += 1
+    if calls >= cfg.max_calls_per_day:
+        return 'DAILY_CALL_CAP', cost
+    if daily + cost > cfg.max_usd_per_day:
+        return 'DAILY_COST_CAP', cost
+    if total + cost > cfg.max_usd_total:
+        return 'TOTAL_BUDGET', cost
+    return None, cost
 
 
 def settings(runtime, local_root, output, python, budget=3.0, port=8791):
@@ -47,16 +98,15 @@ def main():
     a = p.parse_args()
     cmd, env = settings(a.runtime, a.local_root, a.output, a.python, a.budget_usd, a.port)
     sys.path.insert(0, str(a.runtime.resolve() / 'src'))
-    from amidst.q1q5.api_budget import ApiGuard, GuardConfig
+    from amidst.q1q5.api_budget import GuardConfig
     from amidst.live_mode.advisor import MODELS as ADVISOR_MODELS
     prices = {m[0]: {'input_usd_per_mtok': m[1], 'output_usd_per_mtok': m[2]} for m in ADVISOR_MODELS.values()}
     cfg = dataclasses.replace(GuardConfig.from_env(env), prices=prices)
-    guard = ApiGuard(cfg, usage_dir=env['AMIDST_API_USAGE_DIR'])
-    reason, estimated = guard._check('gpt-6.1-terra', 20000, 1500)
+    reason, estimated = budget_preview(cfg, env['AMIDST_API_USAGE_DIR'])
     receipt = {'dry_run': True, 'allowed': reason is None, 'reason': reason, 'estimated_call_usd': estimated,
                'cap_usd': cfg.max_usd_total, 'api_calls': 0, 'runtime_sha': subprocess.check_output(
                    ['git', '-C', str(a.runtime), 'rev-parse', 'HEAD'], text=True).strip()}
-    if receipt['runtime_sha'] != 'c988ed607cb2941bde2b84688f9675213efd2a98':
+    if receipt['runtime_sha'] != APPROVED_RUNTIME_SHA:
         raise SystemExit('UNAPPROVED_RUNTIME_SHA')
     a.output.mkdir(parents=True, exist_ok=True)
     (a.output / 'dry-run.json').write_text(json.dumps(receipt, indent=2) + '\n')

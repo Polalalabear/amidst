@@ -29,3 +29,23 @@ Node 收據使用 #617 的真實 `createInputRecording`／`createPlayback` 模�
 全部新產物在本分支 scratch clone 的 `local/evidence/cx-live-fixes-20261123/`；不轉存 pinned checkout。4份列入收據的 JSON（before、after、recording-fixture、recording-fixture-after）合計392,578 bytes。MANIFEST SHA-256 `09a385fc35485472089fc13720a7426c2798db473b68488fbe32b07646ea56cb`，逐檔 SHA/bytes 在 MANIFEST。before 由分支 base `aeb9b915` 的原程式生成；其餘按上列命令再生。原檔／設定與媒體均未更動。
 
 未驗證原事件根因、實體場域、身分、模型效果或遠距自動接回；無付費API、Blender render、影片或原始資料修改。這是有邊界的定位與顏色傳遞修正提案，等待 Claude 審查。
+
+
+## #677／#695 後台診斷欄位（接續 #690，未部署）
+
+- `/config.gate_m` 是設定的基本 gate；`max_gate_m`、`gate_growth_m_s` 同時回報上限與增長設定。
+- `/infer.tracking.gate_m_effective` 是本 tick **更新前**依 Tracker 同一公式計算的實際 gate，
+  因此成功接回重設 `t_seen` 也不會把這次已使用的 gate 錯報成基本 gate。
+- 每筆 `dets` 加 `reject_reason`：依序為未排程 `CAM_NOT_SCHEDULED`、異色 `COLOR_MISMATCH`、
+  超過 gate `OUT_OF_GATE`，否則 null。這是規則診斷，不是 Agent 否決門檻；null 不表示人物身分確認。
+  位置投影不可得時不能判定距離；未排程鏡頭仍不推論、不新增空偵測，實際回應通常不會出現
+  `CAM_NOT_SCHEDULED`（診斷函式保留此分類，供已知觀測對照 schedule）。
+- 失聯包含 `lost_ticks>0` 的短缺口，不必等 tracker 正式 LOST。當期同色候選的既有簽章
+  `cand_id` 會附在偵測上；同一 selection 連通群的多個鏡頭／框共用代表候選 ID。
+  不變更 selection epoch、目標、門檻或改選／pick 狀態檢查；UI 改選仍走既有明確 reselect 流程。
+- scheduler 內部 `recent_candidate_s`／`_recent_candidates` 改用中性命名；`/config.schedule_policy`
+  新增 `recent_candidate_s`，暫留同值的 `recent_red_s` 輸出鍵相容既有讀取端；歷史 replay_schedule 的舊常數／keyword 也保留薄別名，未改 B1 呼叫端。
+
+以上只在輸出組裝後補資訊，紅色、advisor off 的追蹤結果／事件／排程必須維持原狀。
+雖然不變更 B1 行為，server.py／scheduler.py 的來源 SHA 和快照 SHA 會變；
+**#690 仍等 E5 結束才合併，本次不部署／重啟8791，也不改凍結E3／E5輸入。**

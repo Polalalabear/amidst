@@ -104,7 +104,7 @@ def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations
 
 
 def test_recent_pixel_red_camera_survives_active_neighborhood_switch_then_expires():
-    s = CameraScheduler(graph(), recent_red_s=2.0)
+    s = CameraScheduler(graph(), recent_candidate_s=2.0)
     s.observe({"A": [{"color": "red"}], "B": [{"color": "blue"}]}, 10.0)
     assert s.plan("E", 0, list("ABCDE"), t_s=11.0)["camera_ids"] == list("ADE")
     assert s.plan("E", 0, list("BCDE"), t_s=11.0)["camera_ids"] == list("DE")
@@ -129,3 +129,13 @@ def test_camera_memory_is_bounded_to_registered_ids_and_does_not_invent_graph_ed
     assert s.plan("E", 0, list("ABCDE"), t_s=1.0)["camera_ids"] == list("DE")
     assert s.adj["E"] == {"D"}
     assert s.plan("ENTRY", 0, list("ABCDE") + ["ENTRY"], t_s=1.0)["reason"] == "GRAPH_SCOPE_UNKNOWN"
+
+
+
+def test_renamed_candidate_memory_keeps_historical_replay_call_compatible():
+    from amidst.live_mode.scheduler import DEFAULT_RECENT_RED_S, DEFAULT_RECENT_CANDIDATE_S
+    assert DEFAULT_RECENT_RED_S == DEFAULT_RECENT_CANDIDATE_S == 2.0
+    s = CameraScheduler(graph(), recent_red_s=5.0)
+    assert s.recent_candidate_s == 5.0 and not hasattr(s, '_recent_red')
+    s.observe({'A': [{'color': 'red'}]}, 1.0)
+    assert s.plan('E', 0, list('ABCDE'), t_s=5.0)['camera_ids'] == list('ADE')

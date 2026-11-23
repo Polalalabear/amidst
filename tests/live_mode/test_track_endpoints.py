@@ -115,11 +115,11 @@ def test_idle_preview_is_read_only_and_start_with_no_infer_autolocks_once(live_s
     assert set(out) == {"tick", "dets", "tracking", "timing_ms", "schedule"}
     assert out["tracking"] == {
         "state": "IDLE", "active_cam": None, "seen_cams": [], "est_xy": None, "events": [],
-        "lost_ticks": 0, "target": {"color": None, "mode": "IDLE"},
+        "lost_ticks": 0, "target": {"color": None, "mode": "IDLE"}, "gate_m_effective": 3.0,
     }
     assert out["schedule"]["camera_ids"] == list(CAMERAS)
     for detections in out["dets"].values():
-        assert set(detections[0]) == {"bbox", "score", "color", "red_ratio", "blue_ratio", "est_xy"}
+        assert set(detections[0]) == {"bbox", "score", "color", "red_ratio", "blue_ratio", "est_xy", "reject_reason"}
     preview = request("/track/candidates")[1]
     assert {c["color"] for c in preview["candidates"]} == {"red", "blue"}
     assert all(set(c) == CANDIDATE_KEYS for c in preview["candidates"])
@@ -325,3 +325,91 @@ def test_reset_during_parse_leaves_the_new_session_idle(live_server):
             release.set()
         assert pending.result(timeout=3) == (409, {"error": "SESSION_MISMATCH"})
     assert request("/track/state")[1]["mode"] == "IDLE"
+
+
+
+def test_config_reports_gate_settings_and_neutral_memory_name(live_server):
+    state, request, _ = live_server
+    state.args.advisor_model = 'terra6.1'
+    code, cfg = request('/config')
+    assert code == 200
+    assert (cfg['gate_m'], cfg['max_gate_m'], cfg['gate_growth_m_s']) == (3.0, 8, 0)
+    assert cfg['schedule_policy']['recent_candidate_s'] == cfg['schedule_policy']['recent_red_s'] == 2.0
+
+
+def test_lost_candidates_have_signed_ids_and_rule_rejection_reason(live_server):
+    state, request, infer = live_server
+    session = state.selection.session_id
+    request('/track/start', {'color': 'red', 'session_id': session})
+    infer(0, (8,))
+    out = infer(1, (52,))  # +4.4 m from seed, outside gate=3, but still a manual candidate
+    assert out['tracking']['lost_ticks'] == 1 and out['tracking']['gate_m_effective'] == 3
+    candidate = request('/track/candidates')[1]['candidates'][0]
+    for cam in CAMERAS:
+        assert out['dets'][cam][0]['reject_reason'] == 'OUT_OF_GATE'
+        assert out['dets'][cam][0]['cand_id'] == candidate['cand_id']
+    # Exposing an ID is not permission to bypass explicit reselect and session/epoch validation.
+    assert state.selection.mode == 'TRACKING'
+    assert request('/track/pick', {'session_id': session, 'cand_id': candidate['cand_id']})[0] == 409
+    wrong = infer(2, (8,), colors=('blue', 'blue'))
+    assert all(d['reject_reason'] == 'COLOR_MISMATCH' and 'cand_id' not in d for ds in wrong['dets'].values() for d in ds)
+    recovered = infer(3, (10,))
+    assert recovered['tracking']['lost_ticks'] == 0
+    assert all(d['reject_reason'] is None for ds in recovered['dets'].values() for d in ds)
+
+
+def test_effective_gate_is_value_used_before_reacquisition_resets_seen_time(live_server):
+    state, request, infer = live_server
+    request('/track/start', {'color': 'red', 'session_id': state.selection.session_id})
+    infer(0, (8,))
+    state.tracker.growth = 2.0
+    assert infer(1)['tracking']['gate_m_effective'] == 4.0
+    recovered = infer(2, (52,))  # 4.4m now fits gate=5, despite being outside the base 3m
+    assert recovered['tracking']['gate_m_effective'] == 5.0 and recovered['tracking']['lost_ticks'] == 0
+    assert recovered['dets']['left'][0]['reject_reason'] is None
+    assert state.tracker.t_seen == 1.0
+    assert infer(3)['tracking']['gate_m_effective'] == 4.0
+    assert infer(20)['tracking']['gate_m_effective'] == 8.0
+
+
+def test_response_diagnostics_leave_red_advisor_off_tracking_and_schedule_unchanged(live_server, monkeypatch):
+    state, request, infer = live_server
+    def run():
+        request('/reset', {})
+        request('/track/start', {'color': 'red', 'session_id': state.selection.session_id})
+        rows = [infer(0, (8,)), infer(1), infer(2, (52,), colors=('blue', 'blue')), infer(3, (52,)), infer(4, (10,))]
+        for row in rows:
+            row.pop('timing_ms')
+            for ds in row['dets'].values():
+                for det in ds:
+                    det.pop('reject_reason', None)
+                    det.pop('cand_id', None)
+        return rows
+    with_diagnostics = run()
+    monkeypatch.setattr(state, '_diagnose_detections', lambda *args: None)
+    assert run() == with_diagnostics
+
+
+def test_diagnostic_classification_precedence_and_projection_unknown(live_server):
+    state, _, _ = live_server
+    state.selection.color = 'red'
+    dets = {'A': [{'color': 'red', 'est_xy': [3, 0]}, {'color': 'red', 'est_xy': [3.1, 0]},
+                  {'color': 'blue', 'est_xy': [10, 0]}, {'color': 'red', 'est_xy': None}],
+            'B': [{'color': 'blue', 'est_xy': [0, 0]}]}
+    state._diagnose_detections(dets, None, {'A'}, [0, 0], 3)
+    assert [d['reject_reason'] for d in dets['A']] == [None, 'OUT_OF_GATE', 'COLOR_MISMATCH', None]
+    assert dets['B'][0]['reject_reason'] == 'CAM_NOT_SCHEDULED'
+
+
+
+def test_lost_transitive_candidate_group_ids_do_not_change_selection_state(live_server):
+    state, _, _ = live_server
+    state.selection.start('red', False)
+    out = {cam: [{'bbox': (i, 0, i + 1, 3), 'est_xy': [i * 1.2, 0], 'color': 'red', 'score': .9 - i / 10}]
+           for i, cam in enumerate('ABC')}
+    state.selection.observe(1, .5, out)
+    before = state.selection.state()
+    candidate = state.selection.snapshot('red')['candidates'][0]
+    state._diagnose_detections(out, {'state': 'TRACKING', 'lost_ticks': 1}, set('ABC'), [0, 0], 1)
+    assert {d['cand_id'] for ds in out.values() for d in ds} == {candidate['cand_id']}
+    assert state.selection.state() == before

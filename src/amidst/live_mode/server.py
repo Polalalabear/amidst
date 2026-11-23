@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import io
 import json
+import math
 import mimetypes
 import os
 import struct
@@ -24,7 +25,7 @@ import numpy as np
 from PIL import Image
 
 from .advisor import MODELS as ADVISOR_MODELS, Advisor, LiveDecider, OpenAIAdjudicator
-from .candidates import COLORS, TrackRequestError, TrackSelection, finite_point
+from .candidates import COLORS, SAME_PERSON_M, TrackRequestError, TrackSelection, finite_point
 from .color import judge
 from .detector import DEFAULT_CAMERA_MIN_SCORES, DEFAULT_MIN_SCORE, LiveDetector
 from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, host_ok, resolve as resolve_llm
@@ -299,6 +300,54 @@ class State:
         tracking["target"] = {"color": self.selection.color, "mode": self.selection.mode}
         return tracking
 
+    def _effective_gate(self, t_s):
+        """Read-only mirror of Tracker.update's gate, before the tick can change t_seen."""
+        tracker = self.tracker
+        gate = getattr(tracker, "gate", getattr(self.args, "gate_m", None))
+        if gate is None:
+            return None
+        growth = getattr(tracker, "growth", 0.0)
+        seen = getattr(tracker, "t_seen", None)
+        if growth and seen is not None:
+            return min(tracker.max_gate, gate + growth * max(0.0, t_s - seen))
+        return gate
+
+    def _diagnose_detections(self, out, tracking, scheduled, last_est, gate):
+        """Response metadata only. Never feeds back into tracking, scheduling or selection.
+
+        Unscheduled cameras have no fresh detections and remain omitted from /infer. If an
+        observation outside the supplied schedule is inspected here, mark it explicitly.
+        Candidate IDs are existing signed selection-group handles, never identity confirmations.
+        """
+        color = self.selection.color
+        for cam, dets in out.items():
+            for det in dets:
+                det.pop("cand_id", None)
+                point = det.get("est_xy")
+                det["reject_reason"] = (
+                    "CAM_NOT_SCHEDULED" if cam not in scheduled else
+                    "COLOR_MISMATCH" if color in ("red", "blue") and det.get("color") != color else
+                    "OUT_OF_GATE" if last_est is not None and point is not None and gate is not None
+                    and math.dist(point, last_est) > gate else None
+                )
+        if not tracking or not (tracking.get("lost_ticks") or tracking.get("state") == "LOST"):
+            return
+        # Match every member of a connected selection group to its signed representative.
+        # This mirrors group_candidates' same-colour <1.5m connected components; it never
+        # creates IDs, changes epochs or relaxes the explicit reselect/pick endpoint guards.
+        pool = [(cam, d) for cam, ds in out.items() for d in ds
+                if d.get("color") in ("red", "blue") and finite_point(d.get("est_xy"), 2)]
+        for candidate in self.selection.snapshot(color or "any")["candidates"]:
+            members = [d for cam, d in pool if cam == candidate["cam"] and list(d["bbox"]) == candidate["bbox"]]
+            while members:
+                current = members.pop()
+                current["cand_id"] = candidate["cand_id"]
+                for _, other in pool:
+                    if "cand_id" not in other and other.get("color") == current.get("color") and math.dist(other["est_xy"], current["est_xy"]) < SAME_PERSON_M:
+                        members.append(other)
+                        # Mark on enqueue so cycles do not duplicate work.
+                        other["cand_id"] = candidate["cand_id"]
+
     def infer(self, header: dict, jpegs: dict, track: bool) -> dict:
         t0 = time.perf_counter()
         with self.lock:  # one inference at a time on the device
@@ -316,7 +365,7 @@ class State:
             available = [c for c in dict.fromkeys(available) if c in registered]
             scheduler = getattr(self,'scheduler',None) if track else None
             t_s = float(header.get('t_capture_ms') or 0) / 1000.0
-            # No capture clock in the header: the red-candidate memory is skipped (t_mem None), never stamped with a made-up 0 (#559 P2-1).
+            # No capture clock in the header: the session-colour candidate memory is skipped (t_mem None), never stamped with a made-up 0 (#559 P2-1).
             t_mem = t_s if header.get('t_capture_ms') is not None else None
             plan = scheduler.plan(self.tracker.active,self.tracker.lost,available,t_s=t_mem) if scheduler else None
             wanted = set(plan['camera_ids']) if plan else set(jpegs)
@@ -351,7 +400,13 @@ class State:
             t3 = time.perf_counter()
             tracking = None
             if track:
+                gate = self._effective_gate(t_s)
+                last_est = list(self.tracker.est) if getattr(self.tracker, "est", None) is not None else None
                 tracking = self._infer_tracking(tick, t_s, out, dict(zip(cams, imgs)), imgs[0].size)
+                tracking["gate_m_effective"] = gate
+                self._diagnose_detections(out, tracking, set(cams), last_est, gate)
+            else:
+                self._diagnose_detections(out, None, set(cams), None, None)
             t4 = time.perf_counter()
             schedule = None
             if scheduler:
@@ -451,11 +506,15 @@ def make_handler(state: State):
                 return self._send(200, json.dumps({"device": state.args.device, "threads": state.args.threads,
                                                    "det_resize_mode": state.args.det_resize_mode,
                                                    "min_score": state.args.min_score,
+                                                   "gate_m": getattr(state.args, "gate_m", None),
+                                                   "max_gate_m": getattr(state.args, "max_gate", None),
+                                                   "gate_growth_m_s": getattr(state.args, "gate_growth", 0.0),
                                                    "camera_min_scores": state.args.camera_min_scores,
                                                    "det_size": [state.args.det_width, state.args.det_height],
                                                    "schedule_mode":state.args.schedule,
                                                    "schedule_policy":{"expand_every":state.args.expand_every,
-                                                                      "recent_red_s":getattr(state.scheduler,"recent_red_s",0) if hasattr(state,"scheduler") else 0,
+                                                                      "recent_candidate_s":getattr(state.scheduler,"recent_candidate_s",0) if hasattr(state,"scheduler") else 0,
+                                                                      "recent_red_s":getattr(state.scheduler,"recent_candidate_s",0) if hasattr(state,"scheduler") else 0,
                                                                       **state.graph_meta},
                                                    "glb": state.n6, "n6": state.n6,
                                                    "advisor": state.args.advisor, "advisor_model": state.args.advisor_model if state.args.advisor != "off" else None,
