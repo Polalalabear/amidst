@@ -265,3 +265,28 @@ def test_agent_answer_ends_occluded_hold(frames, kind):
     else:
         assert row['tracking']['box'] == BOX and d.neutral.target['hold_until'] is None
         assert row['neutral_status'] == 'FOLLOWING'
+
+
+def test_urlerror_wrapped_timeout_keeps_existing_provider_error_category(frames):
+    from urllib.error import URLError
+    d = new(URLError(TimeoutError('timed out')))
+    d.neutral.adopt(-1, 'A', BOX, 'AGENT_SELECT')
+    step(d, frames, 0)
+    row = step(d, frames, 1)
+    assert d.calls[0]['fallback_reason'] == 'PROVIDER_ERROR'
+    assert d.calls[0]['source'] == 'NEUTRAL' and not d.calls[0]['applied']
+    assert row['tracking']['active_cam'] == 'A'
+
+
+def test_internal_parser_exception_keeps_existing_provider_error_category(frames, monkeypatch):
+    from amidst.live_mode.aopen import decider
+    def broken_parser(*args):
+        raise RuntimeError('synthetic parser fault')
+    monkeypatch.setattr(decider, 'parse_answer', broken_parser)
+    d = new(answer())
+    d.neutral.adopt(-1, 'A', BOX, 'AGENT_SELECT')
+    step(d, frames, 0)
+    row = step(d, frames, 1)
+    assert d.calls[0]['fallback_reason'] == 'PROVIDER_ERROR'
+    assert d.calls[0]['source'] == 'NEUTRAL' and not d.calls[0]['applied']
+    assert row['tracking']['active_cam'] == 'A'
