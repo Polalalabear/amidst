@@ -86,6 +86,9 @@ class State:
                                 resize_mode=args.det_resize_mode)
         self.assets = assets_dir(args.assets)
         self.n6 = bool(self.assets and all((self.assets / f).is_file() for f in N6_FILES.values()))
+        requested = args.advisor
+        switch = resolve_llm(requested, args.advisor_provider)
+        args.advisor = switch["effective"]
         self.guard = None
         if args.advisor != "off" and args.advisor_provider == "openai":   # paid: server-side opt-in only (AMIDST_API_* env)
             import dataclasses
@@ -97,12 +100,12 @@ class State:
         # LIVE A/B §4.2 reserves a separately approved budget for Q3 sentences.
         self.sentence_parser = TrackSentenceParser(guard=track_sentence_guard)
         self.reset()
-        self.llm_switch = self._scene_context_gate({"requested": args.advisor, "effective": args.advisor, "available": True, "reason": None,
-                                                    "reason_code": None, "reason_text": None})
+        self.llm_switch = self._scene_context_gate(switch)
 
     def set_llm_mode(self, requested: str, model: str | None = None) -> dict:
         """Workbench switch (llm_switch.py). Off or an unusable provider leaves the decider None: the rule-only path."""
-        res = resolve_llm(requested, self.args.advisor_provider)
+        res = resolve_llm(requested, self.args.advisor_provider,
+                          guard_cfg=self.guard.config if self.guard is not None else None)
         with self.lock:
             if isinstance(model, str) and model in ADVISOR_MODELS:
                 self.args.advisor_model = model
@@ -296,6 +299,7 @@ class State:
                 tracking["state"] = "TRACKING"
             elif self.decider is not None and (self.selection.color == "red" or getattr(self.decider, "any_color", False)):
                 # Each decider declares whether it supports the selected session colour.
+                tracking["target"] = {"color": self.selection.color, "mode": self.selection.mode}
                 tracking = self.decider.step(tick, t_s, self.tracker, tracking, out, frames)
         tracking["target"] = {"color": self.selection.color, "mode": self.selection.mode}
         return tracking
@@ -610,7 +614,7 @@ def main():
                     help="ports of the workbench page(s) allowed to read and set /config from the browser (loopback origins only; default 8785)")
     ap.add_argument("--advisor", default="off", choices=["off", "review", "lead", "agent"],
                     help="image adjudication (advisor.py); agent = agent_service decider (service_decider.py, F3 #657); off = rule tracker only")
-    ap.add_argument("--advisor-model", default="sol6.1", choices=sorted(ADVISOR_MODELS))
+    ap.add_argument("--advisor-model", default="terra6.1", choices=sorted(ADVISOR_MODELS))
     ap.add_argument("--advisor-provider", default="openai", choices=["openai", "fake"], help="fake = no network, no cost, always answers 1")
     ap.add_argument("--advisor-timeout-s", type=float, default=5.0)
     ap.add_argument("--advisor-fake-delay-s", type=float, default=2.5)

@@ -1,0 +1,210 @@
+{
+  "schema_version": "live.track-fields-example.v1",
+  "synthetic": true,
+  "notice": "Synthetic observations, not the original 23.5 s event. cand_id is illustrative, not a valid runtime signature. UNKNOWN is a UI display value, never a new reject_reason enum.",
+  "examples": [
+    {
+      "name": "lost_fixed_gate",
+      "config": {
+        "gate_m": 4.0,
+        "gate_growth_m_s": 0.0,
+        "max_gate_m": 8.0
+      },
+      "response": {
+        "tick": 48,
+        "tracking": {
+          "state": "LOST",
+          "active_cam": "CAM_W2",
+          "lost_ticks": 47,
+          "target": {
+            "color": "blue",
+            "mode": "TRACKING"
+          },
+          "gate_m_effective": 4.0
+        },
+        "dets": {
+          "CAM_W2": [
+            {
+              "bbox": [
+                420,
+                140,
+                470,
+                300
+              ],
+              "score": 0.91,
+              "color": "blue",
+              "est_xy": [
+                5.25,
+                0
+              ],
+              "reject_reason": "OUT_OF_GATE",
+              "cand_id": "0123456789abcdef.1.30.0.0123456789abcdef"
+            },
+            {
+              "bbox": [
+                100,
+                140,
+                150,
+                300
+              ],
+              "score": 0.82,
+              "color": "red",
+              "est_xy": [
+                1,
+                0
+              ],
+              "reject_reason": "COLOR_MISMATCH"
+            },
+            {
+              "bbox": [
+                250,
+                100,
+                300,
+                250
+              ],
+              "score": 0.7,
+              "color": "blue",
+              "est_xy": null,
+              "reject_reason": null
+            }
+          ]
+        }
+      },
+      "expected_display": {
+        "effective_gate": "4 m",
+        "missing_projection_reason": "UNKNOWN",
+        "identity": "UNCONFIRMED"
+      }
+    },
+    {
+      "name": "accepted_distance_is_not_identity",
+      "response": {
+        "tick": 49,
+        "tracking": {
+          "state": "TRACKING",
+          "lost_ticks": 0,
+          "gate_m_effective": 4.0
+        },
+        "dets": {
+          "CAM_W2": [
+            {
+              "bbox": [
+                420,
+                140,
+                470,
+                300
+              ],
+              "score": 0.91,
+              "color": "blue",
+              "est_xy": [
+                1.5,
+                0
+              ],
+              "reject_reason": null
+            }
+          ]
+        }
+      },
+      "expected_display": {
+        "reject_reason": "未觸發已記錄的規則拒絕；是否接回請讀 tracking",
+        "cand_id": "UNKNOWN"
+      }
+    },
+    {
+      "name": "older_backend_fields_absent",
+      "config": {},
+      "response": {
+        "tick": 50,
+        "tracking": {
+          "state": "LOST",
+          "lost_ticks": 48
+        },
+        "dets": {
+          "CAM_W2": [
+            {
+              "bbox": [
+                420,
+                140,
+                470,
+                300
+              ],
+              "score": 0.91,
+              "color": "blue"
+            }
+          ]
+        }
+      },
+      "expected_display": {
+        "effective_gate": "UNKNOWN",
+        "reject_reason": "UNKNOWN",
+        "cand_id": "UNKNOWN"
+      }
+    },
+    {
+      "name": "non_tracking_or_unknown_gate",
+      "response": {
+        "tick": 51,
+        "tracking": null,
+        "dets": {
+          "CAM_W2": [
+            {
+              "bbox": [
+                420,
+                140,
+                470,
+                300
+              ],
+              "score": 0.91,
+              "color": "blue",
+              "reject_reason": null
+            }
+          ]
+        }
+      },
+      "expected_display": {
+        "effective_gate": "UNKNOWN",
+        "tracking": "UNKNOWN",
+        "cand_id": "UNKNOWN"
+      }
+    },
+    {
+      "name": "diagnostic_only_unscheduled_observation",
+      "origin": "Direct diagnostic helper example; fresh /infer omits unscheduled cameras instead of inventing observations.",
+      "diagnostic": {
+        "CAM_OTHER": [
+          {
+            "bbox": [
+              1,
+              1,
+              20,
+              40
+            ],
+            "color": "blue",
+            "est_xy": [
+              1,
+              0
+            ],
+            "reject_reason": "CAM_NOT_SCHEDULED"
+          }
+        ]
+      },
+      "expected_display": {
+        "reject_reason": "鏡頭未排程"
+      }
+    },
+    {
+      "name": "explicit_unknown_gate",
+      "response": {
+        "tick": 52,
+        "tracking": {
+          "state": "LOST",
+          "gate_m_effective": null
+        },
+        "dets": {}
+      },
+      "expected_display": {
+        "effective_gate": "UNKNOWN"
+      }
+    }
+  ]
+}

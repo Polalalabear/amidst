@@ -14,6 +14,7 @@ tracker (RULE_FALLBACK + fallback_reason). Identity stays UNCONFIRMED; only came
 """
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import math
@@ -51,7 +52,11 @@ def guarded_responses_transport(guard, api_model: str, timeout_s: float, *, env=
     def transport(body):
         est = max(500, sum(len(p.get('text', '')) for it in body['input'] for p in it['content'] if p.get('type') == 'input_text') // 3
                   + 1100 * sum(1 for it in body['input'] for p in it['content'] if p.get('type') == 'input_image'))
-        box = {}
+        from amidst.q1q5.api_budget import estimate_run
+        cfg = getattr(guard, 'config', None)
+        transport.last_estimate = estimate_run(questions=1, model=api_model, avg_prompt_tokens=est,
+                                               avg_output_tokens=body['max_output_tokens'],
+                                               prices=cfg.prices if cfg is not None else None, config=cfg)
 
         def fn():
             key = env.get('OPENAI_API_KEY', '').strip()
@@ -63,7 +68,6 @@ def guarded_responses_transport(guard, api_model: str, timeout_s: float, *, env=
             with opener(req, timeout=timeout_s) as resp:
                 out = ag.parse_response(json.loads(resp.read()))
             out['latency_s'] = round(time.time() - t0, 3)
-            box['r'] = out
             return out, out['usage'].get('input_tokens'), out['usage'].get('output_tokens')
         g = guard.run('live_agent', api_model, est, body['max_output_tokens'], fn)
         if not g.allowed:
@@ -129,12 +133,18 @@ class ServiceLiveDecider:
             self._work(*args)
 
     def _work(self, seq, inp):
+        request_sha = None
+        def recorded_transport(body):
+            nonlocal request_sha
+            request_sha = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode()).hexdigest()
+            return self.transport(body)
         try:
-            rec = ag.decide(inp, mode='AGENT', transport=self.transport, model=self.model)
+            rec = ag.decide(inp, mode='AGENT', transport=recorded_transport, model=self.model)
         except Exception as exc:  # noqa: BLE001 - never break tracking
             rec = ag.DecisionRecord('RULE', True, False, True, 'TRANSPORT:' + type(exc).__name__, None, None, error=str(exc)[:200])
         with self._lock:
             if self._pending is not None and self._pending['seq'] == seq:
+                self._pending['request_sha256'] = request_sha
                 self._done = rec
 
     def _poll(self):
@@ -144,9 +154,9 @@ class ServiceLiveDecider:
         with self._lock:
             rec, self._done = self._done, None
         elapsed = self.clock() - p['t0']
-        if rec is None:
-            if elapsed <= self.timeout_s:
-                return None
+        if rec is None and elapsed <= self.timeout_s:
+            return None
+        if elapsed > self.timeout_s:
             rec = ag.DecisionRecord('RULE', True, False, True, 'TIME_BUDGET', None, None)
         self._pending = None
         self._last_end = self.clock()
@@ -207,7 +217,8 @@ class ServiceLiveDecider:
             self.last = {'kind': q['kind'], 'answer': ans and ans['answer'], 'camera_id': ans and ans.get('camera_id'),
                          'next_camera_hint': ans and ans.get('next_camera_hint'), 'reason': ans and ans.get('reason'),
                          'reason_codes': ans and ans.get('reason_codes'), 'latency_ms': ms, 'applied': applied, 'model': self.model,
-                         'source': source, 'fallback_reason': reason}
+                         'source': source, 'fallback_reason': reason, 'request_sha256': q.get('request_sha256'),
+                         'identity_verdict': 'UNCONFIRMED'}
             self.last_t = t_s
             self.records.append({'tick': tick, **self.last, 'usage': rec.usage, 'scene_context_sha256': rec.scene_context_sha256})
             events.append({'tick': tick, 'type': 'ADJUDICATED', 'cam': ans and ans.get('camera_id'),
@@ -239,6 +250,7 @@ class ServiceLiveDecider:
         out['fallback_reason'] = self.last['fallback_reason'] if fresh and self.last['source'] == 'RULE_FALLBACK' else None
         pm = None if self._pending is None else round((self.clock() - self._pending['t0']) * 1000)
         out['advisor'] = {'state': 'ASKING' if self.busy() else 'IDLE', 'pending_ms': pm, 'last': self.last, 'next_camera_hint': self.next_camera_hint}
+        out['identity_verdict'] = 'UNCONFIRMED'
         out['events'] = events
         if out.get('est_xy'):
             self.prev_est = out['est_xy']

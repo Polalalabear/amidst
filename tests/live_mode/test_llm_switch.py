@@ -52,7 +52,7 @@ def test_off_after_on_goes_back_to_the_exact_rule_path():
     ({}, GuardConfig(enabled=True, max_usd_total=1.0), "NO_API_KEY"),                                 # approved but no key
 ])
 def test_on_without_usable_provider_falls_back_to_rules_with_a_reason(env, cfg, reason):
-    for mode in ("review", "lead"):
+    for mode in ("review", "lead", "agent"):
         r = resolve(mode, "openai", env=env, guard_cfg=cfg)
         assert r["requested"] == mode and r["effective"] == "off" and r["available"] is False
         assert r["reason"] == reason and r["reason_text"]
@@ -180,3 +180,14 @@ def test_agent_mode_starts_when_the_scene_context_builds(monkeypatch):
     monkeypatch.setattr(server.State, "_live_scene_context", lambda self: (setattr(self, "scene_context_error", None), {"scene": 1})[1])
     r = st.set_llm_mode("agent")
     assert r["effective"] == "agent" and st.decider is not None and st.decider.scene_context == {"scene": 1}
+
+
+def test_mode_switch_checks_existing_guard_configuration(monkeypatch):
+    st = make_state()
+    st.guard = types.SimpleNamespace(config=GuardConfig(enabled=False, max_usd_total=0))
+    monkeypatch.setenv('AMIDST_API_ENABLED', '1')
+    monkeypatch.setenv('AMIDST_API_MAX_USD_TOTAL', '5')
+    monkeypatch.setenv('OPENAI_API_KEY', 'synthetic-key')
+    r = st.set_llm_mode('agent')
+    assert r['effective'] == 'off' and r['reason'] == 'GUARD_NOT_APPROVED'
+    assert st.decider is None
