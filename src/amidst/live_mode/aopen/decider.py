@@ -197,7 +197,6 @@ class AOpenDecider:
         r.update(tick=tick, applied_tick=tick, pending_at_end=False)
         if r['fallback_reason'] is not None:
             return r
-        self.ranking = list(r['next_camera_ranking'])
         ans, cam = r['answer'], r['camera_id']
         if ans in ('SELECT', 'OWN_BOX'):
             box = (next(list(c.box) for c in inp.candidates if c.camera_id == cam and c.id == r['detection_id'])
@@ -217,6 +216,9 @@ class AOpenDecider:
             r['applied'] = self.neutral.occlude(tick, cam)
             if not r['applied']:
                 r.update(source='NEUTRAL', fallback_reason='OCCLUDED_NO_TARGET')
+        # EXPIRED returned above: only accepted answers can steer later requests.
+        # OCCLUDED_NO_TARGET remains a valid call, as specified by the Opus ruling.
+        self.ranking = list(r['next_camera_ranking'])
         return r
 
     def step(self, tick, dets, frames, rule_state):
