@@ -86,7 +86,7 @@ def test_config_exposes_both_detection_and_scheduling_contracts():
     state = SimpleNamespace(
         args=args,
         graph_meta={"graph_sha256": "a" * 64},
-        scheduler=SimpleNamespace(recent_red_s=2.0),
+        scheduler=SimpleNamespace(recent_candidate_s=2.0),
         llm_switch={"requested": "off", "effective": "off"},
         n6=True,
     )
@@ -100,7 +100,7 @@ def test_config_exposes_both_detection_and_scheduling_contracts():
         assert cfg["camera_min_scores"] == {"CAM_ENTRY": 0.05} and cfg["det_size"] == [320, 180]
         assert cfg["schedule_mode"] == "adaptive" and cfg["schedule_policy"]["expand_every"] == 1
         assert cfg["schedule_policy"]["graph_sha256"] == "a" * 64
-        assert cfg["schedule_policy"]["recent_red_s"] == 2.0
+        assert cfg["schedule_policy"]["recent_candidate_s"] == 2.0
         assert cfg["advisor"] == "off" and cfg["llm_switch"]["effective"] == "off"
     finally:
         server.shutdown()
@@ -114,7 +114,7 @@ def test_missing_t_capture_ms_skips_red_memory_instead_of_stamping_zero():
     state.selection = TrackSelection()
     state.registered_cameras = ["CAM_ENTRY", "CAM_WIDE"]
     graph = {"cameras": [{"camera_id": "CAM_WIDE"}], "transitions": []}
-    state.scheduler = CameraScheduler(graph, recent_red_s=5.0)
+    state.scheduler = CameraScheduler(graph, recent_candidate_s=5.0)
     state.args = SimpleNamespace(det_width=320, det_height=180, min_score=0.15, camera_min_scores={})
     state.lock = threading.Lock()
     state.decider = None
@@ -124,6 +124,6 @@ def test_missing_t_capture_ms_skips_red_memory_instead_of_stamping_zero():
     Image.new("RGB", (320, 180), "red").save(data, format="JPEG")
     frames = {c: data.getvalue() for c in state.registered_cameras}
     state.infer({"tick": 0, "available_cameras": state.registered_cameras}, frames, True)
-    assert state.scheduler._recent_red == {} and state.scheduler._clock is None
+    assert state.scheduler._recent_candidates == {} and state.scheduler._clock is None
     state.infer({"tick": 1, "t_capture_ms": 2000, "available_cameras": state.registered_cameras}, frames, True)
     assert state.scheduler._clock == 2.0

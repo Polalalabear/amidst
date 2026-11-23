@@ -14,7 +14,9 @@ DEFAULT_GRAPH = (
 )
 DEFAULT_GRAPH_SHA256 = "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e"
 DEFAULT_EXPAND_EVERY = 1
-DEFAULT_RECENT_RED_S = 2.0
+DEFAULT_RECENT_CANDIDATE_S = 2.0
+# Historical replay_schedule imports remain supported; internal state is colour neutral.
+DEFAULT_RECENT_RED_S = DEFAULT_RECENT_CANDIDATE_S
 
 
 def load_graph(path, expected_sha256, catalog_sha256, camera_ids):
@@ -47,13 +49,23 @@ class CameraScheduler:
         expand_every=DEFAULT_EXPAND_EVERY,
         mode="adaptive",
         graph_sha256=None,
-        recent_red_s=DEFAULT_RECENT_RED_S,
+        recent_candidate_s=DEFAULT_RECENT_CANDIDATE_S,
+        target_color="red",
+        **legacy,
     ):
+        # Preserve the existing replay entry point without editing frozen B1 callers.
+        if legacy:
+            if set(legacy) != {"recent_red_s"}:
+                raise TypeError("UNKNOWN_SCHEDULE_ARGUMENT")
+            recent_candidate_s = legacy["recent_red_s"]
         if expand_every < 1 or mode not in ("adaptive", "all"):
             raise ValueError("INVALID_SCHEDULE_POLICY")
-        if not math.isfinite(recent_red_s) or recent_red_s < 0:
-            raise ValueError("INVALID_RECENT_RED_WINDOW")
-        self.recent_red_s = recent_red_s
+        if not math.isfinite(recent_candidate_s) or recent_candidate_s < 0:
+            raise ValueError("INVALID_RECENT_CANDIDATE_WINDOW")
+        self.recent_candidate_s = recent_candidate_s
+        if target_color not in ("red", "blue"):
+            raise ValueError("INVALID_TARGET_COLOR")
+        self.target_color = target_color
         self.reset()
         self.adj = {c["camera_id"]: set() for c in graph["cameras"]}
         for edge in graph["transitions"]:
@@ -65,8 +77,15 @@ class CameraScheduler:
             self.adj[b].add(a)
         self.expand_every, self.mode, self.graph_sha256 = expand_every, mode, graph_sha256
 
+    def set_target_color(self, color):
+        if color not in ("red", "blue"):
+            raise ValueError("INVALID_TARGET_COLOR")
+        if color != self.target_color:
+            self.target_color = color
+            self.reset()
+
     def reset(self):
-        self._recent_red = {}
+        self._recent_candidates = {}
         self._clock = None
 
     def _advance(self, t_s):
@@ -77,22 +96,22 @@ class CameraScheduler:
         if self._clock is not None and t_s < self._clock:
             self.reset()
         self._clock = t_s
-        self._recent_red = {
-            cam: seen for cam, seen in self._recent_red.items() if t_s - seen <= self.recent_red_s
+        self._recent_candidates = {
+            cam: seen for cam, seen in self._recent_candidates.items() if t_s - seen <= self.recent_candidate_s
         }
         return t_s
 
     def observe(self, detections, t_s):
-        """Retain cameras with any pixel-derived red candidate, not a confirmed identity.
+        """Retain cameras with a pixel-derived session-colour candidate, not a confirmed identity.
 
         No position, GT, actor, scene or graph-edge inference enters this memory.
         The server supplies only registered cameras it actually inferred this round.
         """
         self._advance(t_s)
-        if self.recent_red_s:
+        if self.recent_candidate_s:
             for cam, rows in detections.items():
-                if any(row.get("color") == "red" for row in rows):
-                    self._recent_red[cam] = t_s
+                if any(row.get("color") == self.target_color for row in rows):
+                    self._recent_candidates[cam] = t_s
 
     def plan(self, active, lost_rounds, available, *, t_s=None):
         self._advance(t_s)
@@ -118,7 +137,7 @@ class CameraScheduler:
                 front = {n for c in front for n in self.adj[c]} - selected
                 selected.update(front)
             # Candidate coverage supplements graph adjacency without inventing topology.
-            selected.update(self._recent_red)
+            selected.update(self._recent_candidates)
             reason = "LOST_EXPAND" if radius > 1 else "ACTIVE_NEIGHBORS"
         return {
             "mode": self.mode,
