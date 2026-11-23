@@ -47,6 +47,7 @@
 | 2026-11-20 | W2／[#645](https://github.com/Polalalabear/amidst/issues/645) | `CODE_DOC_MAP.md` 加 §4.3 主動 Agent 決策器；`Q1Q5_PRODUCT_SPEC.md` §4.3 加 Agent 請求結構；新增 `W2_ACTIVE_AGENT_20261120.md`；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §4.1 加現況對照 | W2 PR（Draft，見 #645） |
 | 2026-11-20 | D342 | #648 合併後的全面文件同步：`CODE_DOC_MAP.md` §1 加 `camera_projection.py`、付費護欄與 G7、假設評估（W1、先導、W2）三列；規格 §2 資料流加 Agent 模式、§4.3 補 `ApiGuard` 路徑、G7、H1–H6 目前證據，§8 U-9 關閉、新增 U-18；假設文件新增 §0 目前證據狀態；W1 文件主結果改為多數決並補 `rule_nocolor` 說明（#647 Opus 後續 2、3）；README、AGENTS.md 來源文件清單；`Q1Q5_PROGRESS.md` 補到 #650；authority pin 補登 `docs/specs/DEVELOPMENT_RULES.md` | 本 PR |
 | 2026-11-22 | D344／F1 [#660](https://github.com/Polalalabear/amidst/issues/660) | 新增 `E3_PREREGISTRATION_20261122.md`、`E3_SCORER_RECOMPUTE_20261122.md`；`CODE_DOC_MAP.md` 加 E3 統一評分器一列。W2 文件與假設文件 §0 的「IoU 準則 0.761、錯人 6.3 s」依重算結果待後續修正（本 PR 不改） | 本 PR |
+| 2026-11-23 | D358／[#674](https://github.com/Polalalabear/amidst/issues/674) | 引用更新到 2026-11-23：`CODE_DOC_MAP.md` §1 補 E3 實驗執行與報告（F4 #678）、E3 困難劇本（#663、#665）、E3 論文圖材（#670），E3 評分列補 `verdict_h*` 與修訂紀錄；`AGENT_VS_RULE_HYPOTHESES_20261120.md` 新增 §0.3（E3 結果、E4 暫停、E5）；`CLAUDE.md`／`AGENTS.md` 交接指向 `20261123`、補 F4 報告與 E5 預先登記；`Q1Q5_PROGRESS.md` 補列 #656–#686 | claude/docs-refs-20261123（Draft） |
 
 ## 論文素材
 
