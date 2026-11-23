@@ -13,7 +13,7 @@ merge `1742ed06535a588e3cec96acd9ef345f9a57263e`。現在Codex交付server路由
 ## 已交付
 
 - `/shared/tokens.css` 直接讀取版本控制中的 `frontend/workbench-v2/tokens.css`。
-  LIVE index改載此路徑；相容 `/src/tokens.css` 也讀同一來源，不讀LIVE鏡像。
+  LIVE index保留相容 `/src/tokens.css`，此URL也讀同一來源，不讀LIVE鏡像。
   只開單檔路由，不提供workbench目錄；路徑穿越／其他shared檔案404。
   shared檔缺少時404，不悄悄改用舊鏡像。
 - LIVE operator的A/B選單尺寸／排版／選取外框與map toggle改class／CSS。
@@ -27,8 +27,10 @@ merge `1742ed06535a588e3cec96acd9ef345f9a57263e`。現在Codex交付server路由
 本次沒有修改 `frontend/workbench-v2/` 任何檔案，共用token值與ui.css不用改。
 舊 `frontend/live-mode/src/tokens.css` 已不被LIVE index／server讀取，但暫留檔案，
 因 `frontend/workbench-v2/tokens-css-mirror.test.mjs` 還把兩份全文相同當成契約。
+首次CI指出它也硬認index的/src/tokens.css；現保留此URL並由後端alias共用原檔，未修改workbench測試。
 Claude後續應以「LIVE server兩個URL回共同來源」取代鏡像契約，再依使用者刪檔規則退役舊鏡像；
-若 `ui-model.test.mjs` 仍有舊路徑斷言，同行檢查調整。這兩個workbench測試屬禁止修改範圍，
+後續若要改URL，再由Claude同步更新 `tokens-css-mirror.test.mjs`／相關 `ui-model.test.mjs` 斷言。
+這些workbench測試屬禁止修改範圍，
 未在本PR編輯；不宣稱鏡像已從Git刪除。#633整項先不關閉，仍待Claude與UI確認。
 
 ## focused verification
