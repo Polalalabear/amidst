@@ -232,3 +232,61 @@ def test_strict_arrival_at_nonzero_call_time(frames):
 
 def test_bad_own_box_huge_integer_is_format_rejection(inp):
     assert parse_answer(json.dumps(answer('OWN_BOX', box_xyxy=[0, 0, 10**500, 10])), inp)[1] == 'BAD_OWN_BOX'
+
+
+def test_aol_expired_keeps_last_valid_ranking_in_rows_and_next_request(frames):
+    d = AOpenDecider(transport(answer('NOT_VISIBLE', next_camera_ranking=['A']),
+                              answer(next_camera_ranking=['C']), answer('UNCERTAIN'), latency=0.4),
+                    SCENE, Projection(), mode='simlive', call_cap=3)
+    rows = []
+    for tick in range(11):
+        rows.append(step(d, frames, tick, detections={'A': [], 'B': dets()['B']} if tick == 6 else dets()))
+    assert d.calls[1]['fallback_reason'] == 'EXPIRED'
+    assert rows[8]['ranking'] == ['A'] and rows[10]['ranking'] == ['A']
+    req = d.calls[2]['request']
+    assert list(req['images']) == ['A', 'B', 'C', 'D']
+    assert json.loads(req['variable_text'].split('AO_STATE=')[1])['ranking'] == ['A']
+
+
+@pytest.mark.parametrize('kind', ['SELECT', 'OWN_BOX', 'NOT_VISIBLE'])
+def test_agent_answer_ends_occluded_hold(frames, kind):
+    d = new(answer('STILL_HERE_OCCLUDED'), answer(kind))
+    d.neutral.adopt(-1, 'A', BOX, 'AGENT_SELECT')
+    step(d, frames, 0)
+    step(d, frames, 1)
+    assert d.neutral.status == 'OCCLUDED_HOLD'
+    # Ask the second question while still inside the hold, rather than on its expiry tick.
+    d.poll_s = 1.0
+    for tick in range(2, 7):
+        row = step(d, frames, tick)
+    assert d.calls[1]['applied'] is True
+    if kind == 'NOT_VISIBLE':
+        assert row['tracking']['state'] == 'LOST' and d.neutral.target is None
+    else:
+        assert row['tracking']['box'] == BOX and d.neutral.target['hold_until'] is None
+        assert row['neutral_status'] == 'FOLLOWING'
+
+
+def test_urlerror_wrapped_timeout_keeps_existing_provider_error_category(frames):
+    from urllib.error import URLError
+    d = new(URLError(TimeoutError('timed out')))
+    d.neutral.adopt(-1, 'A', BOX, 'AGENT_SELECT')
+    step(d, frames, 0)
+    row = step(d, frames, 1)
+    assert d.calls[0]['fallback_reason'] == 'PROVIDER_ERROR'
+    assert d.calls[0]['source'] == 'NEUTRAL' and not d.calls[0]['applied']
+    assert row['tracking']['active_cam'] == 'A'
+
+
+def test_internal_parser_exception_keeps_existing_provider_error_category(frames, monkeypatch):
+    from amidst.live_mode.aopen import decider
+    def broken_parser(*args):
+        raise RuntimeError('synthetic parser fault')
+    monkeypatch.setattr(decider, 'parse_answer', broken_parser)
+    d = new(answer())
+    d.neutral.adopt(-1, 'A', BOX, 'AGENT_SELECT')
+    step(d, frames, 0)
+    row = step(d, frames, 1)
+    assert d.calls[0]['fallback_reason'] == 'PROVIDER_ERROR'
+    assert d.calls[0]['source'] == 'NEUTRAL' and not d.calls[0]['applied']
+    assert row['tracking']['active_cam'] == 'A'
