@@ -9,7 +9,7 @@ import {
   validateSearchForm, validateTrackForm, trackWindow, wallClockText, classDisplay, filterClasses, colorDisplay,
   stagesModel, wallCards, cardChips, cameraTimeline, initialPlayheadUs, blindShare, floorPlan, trackStateChip, trackJournal,
   parseRoute, nextAfterCover, blindReacquire, reacquireMarker, stagePlan, classGroups, featuredClasses, CAMERA_COUNT_NOTE, timeRangeText, homeScreen, mergeFlicker, JOURNAL_MERGE_GAP_US, startPlaceholder, endPlaceholder, recordingWindow,
-  multiTiles, manualCandidates, agentSummaryText,
+  multiTiles, manualCandidates, manualSelectionSupported, agentSummaryText,
 } from './ui-model.mjs';
 import {ZOOM_LEVELS, ZOOM_STORAGE_KEY, normalizeZoom, wallColumns} from './ui-zoom-model.mjs';
 import {PLAIN, cameraName, plainState, gapNote, lostNote, pendingNote, gapLiveNote, lostLiveNote, pendingLiveNote, planHeadText, reacquiredText, speedNoteText, techSummary} from './ui-present.mjs';
@@ -511,7 +511,7 @@ export function mountUi(ctx) {
   }
   function renderManual(resp, t) {
     const P = trackParts; if (!P.manualList) return;
-    const supported = resp?.provenance?.producer === 'demo-cross-camera-local-linker';
+    const supported = manualSelectionSupported(resp);
     const cands = supported ? manualCandidates(resp.single_view, resp.sightings, t) : [];
     const key = JSON.stringify([supported, cands.map(c => c.trackRef), resp?.manual_seed ?? null]); if (P.manualKey === key) return; P.manualKey = key;
     P.manualList.replaceChildren();
