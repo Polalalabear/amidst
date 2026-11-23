@@ -17,6 +17,7 @@ import {HARDSET_ROUTES} from './hardset_routes.mjs';
 import {coverageOf, wallsOf} from './coverage.mjs';
 import {drawCoverageMap, cameraColors} from './coverage_map.mjs';
 import {buildCoverageOverlay} from './coverage_overlay.mjs';
+import {backUrl, isBackKey} from './ui_state.mjs';
 
 const RUNS = ['A4-1-v2-4actor', 'B4-1-v2-4actor'];
 function runId(value) {
@@ -261,14 +262,25 @@ export function makeOperatorView(world, {overlay = null, xray = false} = {}) {
 }
 
 async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase}) {
-  body.insertAdjacentHTML('beforeend', `<div id="op"><div id="view-wrap"><canvas id="view"></canvas><div id="xray-notice" role="status" hidden>${XRAY_NOTICE}</div></div><div id="panel"><h2>A · 操作端</h2>
-    <p>WASD 移動 · Shift 跑 · 點畫布鎖定滑鼠（Esc 釋放）；不支援鎖定時按住左鍵拖曳。</p>
-    <p>換場景或角色請重新載入。</p><button id="ab-download">下載 A 紀錄</button><p id="stats" class="kv"></p>
-    <h3>鏡頭覆蓋</h3><canvas id="cover-map" width="320" height="320" aria-label="鏡頭位置、可視範圍與盲區小地圖"></canvas>
-    <p class="kv">色塊：各鏡頭被牆裁切後的可視範圍；紅格：所有鏡頭都看不到的盲區；紅點：你。</p>
-    <button id="xray-toggle" aria-pressed="false">透視：關</button>
-    <p id="crowd-warning" role="status" hidden>人群模擬錯誤（已跳過該步）</p></div></div>`);
-  if (P.record) body.querySelector('#panel').insertAdjacentHTML('beforeend',
+  body.insertAdjacentHTML('beforeend', `<div id="op"><div id="view-wrap"><canvas id="view"></canvas><div id="xray-notice" role="status" hidden>${XRAY_NOTICE}</div></div>
+    <div id="hud-tl"><button id="op-back" type="button" title="回到場景選單（Esc）">← 返回</button>
+      <div id="hud-card" class="hud-card"><dl id="hud-info"><dt>場景</dt><dd id="hud-run"></dd><dt>角色</dt><dd id="hud-actor"></dd><dt>追蹤鏡頭</dt><dd id="hud-cam">—</dd>
+        <dt>模式</dt><dd id="hud-mode"></dd><dt>延遲</dt><dd id="hud-lat">—</dd></dl><p id="hud-status" class="kv"></p></div>
+      <details id="hud-tools" class="hud-card" open><summary>工具</summary><div class="tools-body">
+        <p>WASD 移動 · Shift 跑 · 點畫面鎖定滑鼠（Esc 釋放，再按 Esc 返回）</p>
+        <button id="ab-download">下載 A 紀錄</button><button id="xray-toggle" aria-pressed="false">透視：關</button>
+        <p id="crowd-warning" role="status" hidden>人群模擬錯誤（已跳過該步）</p></div></details></div>
+    <div id="hud-tr"><button id="map-toggle" type="button" aria-pressed="true" class="hud-card" style="padding:.2em .9em">小地圖：開</button>
+      <div id="map-wrap"><canvas id="cover-map" width="320" height="320" aria-label="鏡頭位置、可視範圍與盲區小地圖"></canvas></div></div></div>`);
+  const stats = body.querySelector('#stats') || body.querySelector('#hud-status');
+  body.querySelector('#op-back').onclick = () => { location.assign(backUrl()); };
+  addEventListener('keydown', e => { if (isBackKey(e, body.ownerDocument)) location.assign(backUrl()); });
+  const mapToggle = body.querySelector('#map-toggle'), mapWrap = body.querySelector('#map-wrap');
+  mapToggle.onclick = () => { const on = mapWrap.hidden; mapWrap.hidden = !on; mapToggle.setAttribute('aria-pressed', String(on)); mapToggle.textContent = on ? '小地圖：開' : '小地圖：關'; mapToggle.blur(); };
+  body.querySelector('#hud-run').textContent = session.run_id.replace('-v2-4actor', '');
+  body.querySelector('#hud-actor').textContent = session.actor_id;
+  body.querySelector('#hud-mode').textContent = P.record ? '錄製' : P.script ? `劇本 ${P.script}` : P.auto ? '自動' : '手動';
+  if (P.record) body.querySelector('#hud-tools .tools-body').insertAdjacentHTML('beforeend',
     '<button id="record-stop">結束錄製</button> <button id="case-download">下載重播劇本</button><p><label>附加同局 B 紀錄 <input id="case-actions" type="file" accept=".json"></label></p><button id="replay-system-download">下載重播系統紀錄</button>');
   const {scenario, world, cams, n6, config, geometry} = await setupWorld(P, {scenario: true});
   if (gltf) world.characterGltf = gltf;
@@ -292,7 +304,7 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
   const playback = recordedCase ? createPlayback(recordedCase, crowd, bindings) : null;
   const people = new Map();
   for (const actor of run.actors) people.set(actor.actor_id, await makePerson(P.model, world, actor.actor_id === 'C' ? 'blue' : actor.actor_id === 'B' ? 'orange' : 'red', actor.actor_id));
-  const view = body.querySelector('#view'), stats = body.querySelector('#stats');
+  const view = body.querySelector('#view');
   const renderer = new THREE.WebGLRenderer({canvas: view, antialias: true}), vcam = new THREE.PerspectiveCamera(55, 1, .1, 200);
   function resize() { renderer.setSize(view.clientWidth, view.clientHeight, false); vcam.aspect = view.clientWidth / view.clientHeight; vcam.updateProjectionMatrix(); }
   resize(); addEventListener('resize', resize);
@@ -435,6 +447,8 @@ async function runOperator(body, P, session, {fetcher, mouse, gltf, recordedCase
       capturedEvents = snap.events.length;
       log.ticks.push({...row, t_infer_capture_ms: header.t_capture_ms, t_send: tSend, t_resp: tResp, t_post: now(), timing: res.timing_ms,
         active: res.tracking?.active_cam, state: res.tracking?.state, schedule: res.schedule});
+      body.querySelector('#hud-cam').textContent = res.tracking?.active_cam?.replace('CAM_', '') || '—';
+      body.querySelector('#hud-lat').textContent = `${(tResp - tSend).toFixed(0)} ms`;
       log.sent++; stats.textContent = `tick ${tick} · sent ${log.sent} · dropped ${log.dropped} · round-trip ${(tResp - tSend).toFixed(0)} ms`; tick++;
     } catch (error) { if (P.record) { finished = true; window.__recordingError = error.message; } stats.textContent = `擷取失敗：${error.message}`; log.errors ||= []; log.errors.push({tick, error: error.message}); }
     finally { inflight = false; }
