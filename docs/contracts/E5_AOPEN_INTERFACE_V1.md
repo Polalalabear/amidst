@@ -1,6 +1,6 @@
 # E5 A-open 介面契約 v1
 
-狀態：**待 Codex 確認**（Claude 起草，2026-11-23，#684）。Codex 確認後才開始實作（D357）。
+狀態：**待 Codex 確認**（Claude 起草，2026-11-23，#684）。Codex 在 PR #685 上寫「契約確認」之後，PR 才合併，Codex 也才開始實作（D357）。確認後的細節，可以在試跑之前用預登的修訂紀錄補進來；試跑開始以後，契約凍結（預登 §0.1）。`e5.b-log.v1` 已在 `configs/architecture/schema_registry_v1.json` 登記（`PROPOSED_LITERAL_ONLY_NOT_ADOPTION`）。
 預先登記：`docs/evaluation/E5_PREREGISTRATION_20261123.md`（以下寫「預登 §n」）。契約和預登不一致時，以預登為準，並回報 Claude 修正契約。
 
 身分一律 `UNCONFIRMED`。GT、渲染軌跡、可見性和深度不得進入本契約的任何推論路徑：E3 預登 §5.2 列的欄位，推論端不得讀取或 import。
@@ -145,7 +145,7 @@ python -B scripts/evaluation/e5_run.py --root <E3 root> --cameras <cameras.catal
 - E3 和 B1：`scripts/evaluation/e3_f4_run.py`、`scripts/evaluation/e3_f4_score.py`、`src/amidst/evaluation/e3_scoring.py`（評分器 `acacce39…`）。
 - 規則路徑：`src/amidst/live_mode/tracker.py`、`src/amidst/live_mode/people.py`，以及 `src/amidst/live_mode/server.py` 的 `_infer_tracking`／`_new_tracker`。B1 要固定在 E3 版本（#676 等 E5 結束後才合併）。
 - 共用的 Agent 程式：`src/amidst/q1q5/agent_service.py`、`src/amidst/q1q5/scene_context.py`、`src/amidst/live_mode/service_decider.py`。E5 要用自己的模組；需要擴充時，以子類或包裝的方式做（像 E4 的 `E5_EXTRA`）。
-- E3 和 E4 的資料：`local/evidence/f4-658-20261122/`、`local/evidence/e4-681-20261123/`、`local/evidence/e3-*`，只讀。
+- E3 和 E4 的資料只讀：`local/evidence/f4-658-20261122/`（MANIFEST.sha256 SHA-256 `86899282f5e1d14a17a998c933d8f1407cc165042e0997b0d5ca414b66bc13a5`）、`local/evidence/e4-681-20261123/`（MANIFEST.sha256 SHA-256 `cbcc9c12b72409ee69d08c15fe41587303dcd2f40fb0d68af582618c5d1a6c60`）、`local/evidence/e3-*`（E3 案例輸入，SHA 見 F4 報告 §10）。
 - 預登和本契約：要改的話，回報 Claude。
 
 ## 9. 驗收（Codex 交付時）
