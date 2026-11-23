@@ -385,6 +385,8 @@ class Demo(P1):
             return core_track(payload, run, decider=decider, unavailable_reason=why,
                               demo_default=key[1] == EIGHTCAM_RUN, display_positions=self.positions.get(key))
         if action != 'q_core_track' or key not in self.cross:
+            if action == 'q_core_track':
+                require('manual_seed' not in payload, 'MANUAL_SEED_UNSUPPORTED')
             return self.api.call(action, payload, self.authorize)
         _safe_request(payload); self.authorize(payload['session_ref'], key[0]); run = self.api.runs[key]; b = run.bindings
         normalized = validate_track_request(payload, region_ids=run.catalog['region_ids'],

@@ -135,3 +135,22 @@ def test_blind_display_prediction_uses_selected_target_only(monkeypatch):
     assert out['single_view'][-1]['kind'] == 'LOST'
     assert calls and all(s.get('selected_for_single_view') for s in calls[-1][0])
     assert calls[-1][1] == {'A': {'xy_m': [0, 1]}}
+
+
+def test_demo_fallback_rejects_manual_seed_without_silently_delegating():
+    import sys
+    from pathlib import Path
+    from types import SimpleNamespace
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
+    from serve_demo_integration import Demo
+    app = Demo.__new__(Demo)
+    app.core_track_keys, app.cross = set(), {}
+    calls = []
+    app.api = SimpleNamespace(call=lambda *args: calls.append(args) or {'generic': True})
+    app.authorize = lambda *args: None
+    payload = {'session_ref': 'S', 'scene_id': 'new-scene', 'run_id': 'new-run'}
+    with pytest.raises(ValueError, match='MANUAL_SEED_UNSUPPORTED'):
+        app.call('q_core_track', dict(payload, manual_seed={'track_ref': 'local:A', 'at_us': 0}))
+    assert calls == []
+    assert app.call('q_core_track', payload) == {'generic': True}
+    assert calls == [('q_core_track', payload, app.authorize)]
