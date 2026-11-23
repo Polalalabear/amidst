@@ -149,7 +149,8 @@ class State:
                 return {"choice": 1, "reason": "假模型：固定回答 1", "prompt_tokens": 0, "completion_tokens": 0, "api_model": "fake"}
             model_id = "fake"
         return LiveDecider(a.advisor, Advisor(provider, self.guard, model_id, timeout_s=a.advisor_timeout_s), PeopleTracker(),
-                           gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply)
+                           gate_m=a.gate_m, lost_min_candidates=a.advisor_lost_min_candidates, apply=a.advisor_apply,
+                           target_color=getattr(getattr(self, "selection", None), "color", None) or "red")
 
     def _new_service_decider(self, scene_context):
         from .service_decider import ServiceLiveDecider, guarded_responses_transport
@@ -196,6 +197,8 @@ class State:
         return {"ok": True, "session_id": self.selection.session_id}
 
     def _clear_target(self):
+        if getattr(self, "scheduler", None):
+            self.scheduler.set_target_color(self.selection.color or "red")
         self.tracker = self._new_tracker(self.selection.color or "red")
         self.decider = self._new_decider()
         self.pending_acquire = []
@@ -291,7 +294,7 @@ class State:
             if self.selection.reselecting:
                 tracking["state"] = "TRACKING"
             elif self.decider is not None and (self.selection.color == "red" or getattr(self.decider, "any_color", False)):
-                # The current image-advisor shortlist is red-only. Blue keeps the rule track.
+                # Each decider declares whether it supports the selected session colour.
                 tracking = self.decider.step(tick, t_s, self.tracker, tracking, out, frames)
         tracking["target"] = {"color": self.selection.color, "mode": self.selection.mode}
         return tracking

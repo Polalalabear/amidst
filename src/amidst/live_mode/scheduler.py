@@ -48,12 +48,16 @@ class CameraScheduler:
         mode="adaptive",
         graph_sha256=None,
         recent_red_s=DEFAULT_RECENT_RED_S,
+        target_color="red",
     ):
         if expand_every < 1 or mode not in ("adaptive", "all"):
             raise ValueError("INVALID_SCHEDULE_POLICY")
         if not math.isfinite(recent_red_s) or recent_red_s < 0:
             raise ValueError("INVALID_RECENT_RED_WINDOW")
         self.recent_red_s = recent_red_s
+        if target_color not in ("red", "blue"):
+            raise ValueError("INVALID_TARGET_COLOR")
+        self.target_color = target_color
         self.reset()
         self.adj = {c["camera_id"]: set() for c in graph["cameras"]}
         for edge in graph["transitions"]:
@@ -64,6 +68,13 @@ class CameraScheduler:
             self.adj[a].add(b)
             self.adj[b].add(a)
         self.expand_every, self.mode, self.graph_sha256 = expand_every, mode, graph_sha256
+
+    def set_target_color(self, color):
+        if color not in ("red", "blue"):
+            raise ValueError("INVALID_TARGET_COLOR")
+        if color != self.target_color:
+            self.target_color = color
+            self.reset()
 
     def reset(self):
         self._recent_red = {}
@@ -83,7 +94,7 @@ class CameraScheduler:
         return t_s
 
     def observe(self, detections, t_s):
-        """Retain cameras with any pixel-derived red candidate, not a confirmed identity.
+        """Retain cameras with a pixel-derived session-colour candidate, not a confirmed identity.
 
         No position, GT, actor, scene or graph-edge inference enters this memory.
         The server supplies only registered cameras it actually inferred this round.
@@ -91,7 +102,7 @@ class CameraScheduler:
         self._advance(t_s)
         if self.recent_red_s:
             for cam, rows in detections.items():
-                if any(row.get("color") == "red" for row in rows):
+                if any(row.get("color") == self.target_color for row in rows):
                     self._recent_red[cam] = t_s
 
     def plan(self, active, lost_rounds, available, *, t_s=None):

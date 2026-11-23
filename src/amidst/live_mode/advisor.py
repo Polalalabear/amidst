@@ -194,10 +194,15 @@ class Advisor:
 class LiveDecider:
     """Glue between the rule tracker, the people tracker and the advisor. One ``step`` per inference tick."""
 
+    any_color = True  # session-colour candidates; server may invoke review/lead for blue too
+
     def __init__(self, mode: str, advisor: Advisor, people, gate_m: float = 3.0, lock_keep_s: float = 1.5, lost_ticks_before_ask: int = 2,
                  max_candidates: int = 4, recheck_s: float = 4.0, fallback_show_s: float = 3.0, lost_min_candidates: int = 2,
-                 apply: str = "lock", *, predict_horizon_s: float = 0.0):
+                 apply: str = "lock", *, predict_horizon_s: float = 0.0, target_color: str = "red"):
         assert mode in ("review", "lead") and apply in ("lock", "reseed")
+        if target_color not in ("red", "blue"):
+            raise ValueError("INVALID_TARGET_COLOR")
+        self.target_color = target_color
         self.mode, self.advisor, self.people = mode, advisor, people
         self.gate, self.keep, self.lost_n, self.max_c, self.recheck, self.show = gate_m, lock_keep_s, lost_ticks_before_ask, max_candidates, recheck_s, fallback_show_s
         # With a single candidate the model tends to say "yes": in the first live runs all 10 wrong answers were
@@ -226,7 +231,7 @@ class LiveDecider:
 
     def step(self, tick: int, t_s: float, tracker, tracking: dict, dets: dict, frames: dict) -> dict:
         out = dict(tracking); events = list(tracking.get("events") or [])
-        cands = [(cam, d, d["est_xy"]) for cam, lst in dets.items() for d in lst if d.get("color") == "red" and d.get("est_xy")]
+        cands = [(cam, d, d["est_xy"]) for cam, lst in dets.items() for d in lst if d.get("color") == self.target_color and d.get("est_xy")]
         people = self.people.update(t_s, cands)
         by_pid = {p["pid"]: p for p in people}
         # reference crop at first lock
