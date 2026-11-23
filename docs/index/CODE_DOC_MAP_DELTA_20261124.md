@@ -115,4 +115,8 @@ Refs #704；Draft #702。這是唯讀增量清單，不修改 `CODE_DOC_MAP.md`�
 
 `git diff --name-status ea31b64396b555a49cc6b9b06ff11f0536c2aa06..d52ce2f0` 與清單逐項核對，缺漏0、重複0；所有已列文件連結存在。`git diff --check`通過。未執行程式測試，因為本項只新增文件，未變更任何程式。
 
-LOCAL查證快照：`local/evidence/codex-w-20261124/c3/changed-paths.json` 與 `mapping-final.json`；來源與每個檔案對應均綁在上述Git區間，按同命令及文件字串搜尋可重建清單。
+LOCAL查證快照（各1檔，按同命令及文件字串搜尋可重建；來源與對應綁在上述Git區間）：
+
+- `local/evidence/codex-w-20261124/c3/changed-paths.json`，8179 bytes，SHA-256 `3062db52b5953345e1027ac8b2c6b19d450f81df4853d74dbdb66513624aac31`。
+- `local/evidence/codex-w-20261124/c3/mapping-final.json`，16192 bytes，SHA-256 `0c6a9111bb77220d39bad1cb8fded6c84a5f12fb4fc665cb27e8b604c63d7040`。
+
