@@ -1,0 +1,282 @@
+{
+ "schema_version": "e3-f4.rerun-list.v1",
+ "runs_folder": "runs-formal",
+ "rule": "any CALL_BUDGET_EXHAUSTED -> rerun all K",
+ "budget_denied": [
+  {
+   "case_id": "E3-A3",
+   "arm": "A2",
+   "runs": [
+    {
+     "file": "A2.k1.json",
+     "budget_denied_calls": 2,
+     "calls": 16
+    },
+    {
+     "file": "A2.k2.json",
+     "budget_denied_calls": 19,
+     "calls": 19
+    },
+    {
+     "file": "A2.k3.json",
+     "budget_denied_calls": 19,
+     "calls": 19
+    }
+   ]
+  },
+  {
+   "case_id": "E3-A3",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 19,
+     "calls": 19
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 19,
+     "calls": 19
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 19,
+     "calls": 19
+    }
+   ]
+  },
+  {
+   "case_id": "E3-C1",
+   "arm": "A1",
+   "runs": [
+    {
+     "file": "A1.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 34
+    },
+    {
+     "file": "A1.k2.json",
+     "budget_denied_calls": 5,
+     "calls": 33
+    },
+    {
+     "file": "A1.k3.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    }
+   ]
+  },
+  {
+   "case_id": "E3-C1",
+   "arm": "A2",
+   "runs": [
+    {
+     "file": "A2.k1.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    },
+    {
+     "file": "A2.k2.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    },
+    {
+     "file": "A2.k3.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    }
+   ]
+  },
+  {
+   "case_id": "E3-C1",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 36,
+     "calls": 36
+    }
+   ]
+  },
+  {
+   "case_id": "E3-D2",
+   "arm": "A2",
+   "runs": [
+    {
+     "file": "A2.k1.json",
+     "budget_denied_calls": 6,
+     "calls": 28
+    },
+    {
+     "file": "A2.k2.json",
+     "budget_denied_calls": 30,
+     "calls": 30
+    },
+    {
+     "file": "A2.k3.json",
+     "budget_denied_calls": 30,
+     "calls": 30
+    }
+   ]
+  },
+  {
+   "case_id": "E3-D2",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 30,
+     "calls": 30
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 30,
+     "calls": 30
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 30,
+     "calls": 30
+    }
+   ]
+  }
+ ],
+ "a3_section7": [
+  {
+   "case_id": "E3-A1",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 7
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 0,
+     "calls": 9
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 0,
+     "calls": 8
+    }
+   ]
+  },
+  {
+   "case_id": "E3-A2",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 4
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 0,
+     "calls": 5
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 0,
+     "calls": 4
+    }
+   ]
+  },
+  {
+   "case_id": "E3-B1",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 8
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 0,
+     "calls": 8
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 0,
+     "calls": 8
+    }
+   ]
+  },
+  {
+   "case_id": "E3-B2",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 5
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 0,
+     "calls": 6
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 0,
+     "calls": 7
+    }
+   ]
+  },
+  {
+   "case_id": "E3-C2",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 4
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 0,
+     "calls": 4
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 0,
+     "calls": 5
+    }
+   ]
+  },
+  {
+   "case_id": "E3-D1",
+   "arm": "A3",
+   "runs": [
+    {
+     "file": "A3.k1.json",
+     "budget_denied_calls": 0,
+     "calls": 7
+    },
+    {
+     "file": "A3.k2.json",
+     "budget_denied_calls": 0,
+     "calls": 6
+    },
+    {
+     "file": "A3.k3.json",
+     "budget_denied_calls": 0,
+     "calls": 7
+    }
+   ]
+  }
+ ]
+}
