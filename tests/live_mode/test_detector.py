@@ -62,6 +62,7 @@ def test_entry_threshold_does_not_lower_other_camera_thresholds():
     import threading
     from types import SimpleNamespace
     from amidst.live_mode.server import State
+    from amidst.live_mode.tracker import Tracker
 
     state = object.__new__(State)
     state.selection = TrackSelection()
@@ -72,13 +73,17 @@ def test_entry_threshold_does_not_lower_other_camera_thresholds():
     state.det = SimpleNamespace(
         detect=lambda ims: ([[{"bbox": [0, 0, 20, 40], "score": 0.08}] for im in ims], {})
     )
-    state._infer_tracking = lambda *args: None
+    # Keep State's real tracking/diagnostic contract; only calibration and detection are synthetic.
+    state.tracker = Tracker(SimpleNamespace(ground=lambda *_: None), gate_m=4.0)
     state.decider = None
     data = io.BytesIO()
     Image.new("RGB", (320, 180), "red").save(data, format="JPEG")
     out = state.infer({"tick": 0}, {"CAM_ENTRY": data.getvalue(), "CAM_W1": data.getvalue()}, True)
     assert len(out["dets"]["CAM_ENTRY"]) == 1
     assert out["dets"]["CAM_W1"] == []
+    assert out["tracking"]["state"] == "IDLE"
+    assert out["tracking"]["gate_m_effective"] == 4.0
+    assert out["dets"]["CAM_ENTRY"][0]["reject_reason"] is None
 
 
 def test_camera_threshold_override_validates_values():
