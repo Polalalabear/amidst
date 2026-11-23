@@ -30,6 +30,7 @@ MUTED = '#536877'
 BG = '#ffffff'
 TEAL = '#007b82'
 ORANGE = '#b45100'
+D348_CAPTION = '僅為示意；E3 推論未使用牆面裁切（D348）。Agent 沒有拿到這張圖。'
 
 
 def sha(data):
@@ -202,7 +203,7 @@ def draw_panel(im, box, bounds, camera, mask, segments, painter, ticks=None, poi
 
 def minimap(out, point, gt, cameras, window, painter, fields, sections):
     ticks=gt['ticks'];lo=max(0,point['tick']+window[0]);hi=min(len(ticks)-2,point['tick']+window[1])
-    im=Image.new('RGB',(2700,1500),BG);d=ImageDraw.Draw(im)
+    im=Image.new('RGB',(2700,1550),BG);d=ImageDraw.Draw(im)
     painter.text(d,(50,28),f"{point['figure_id']}  {point['title']}",48)
     painter.text(d,(50,105),'GT，評分端',38,'#a01b70')
     painter.text(d,(370,110),f"{point['case_id']}　錨點 {point['tick']/5:.1f} s　軌跡 {lo/5:.1f}–{hi/5:.1f} s",31)
@@ -214,10 +215,11 @@ def minimap(out, point, gt, cameras, window, painter, fields, sections):
     painter.text(d,(50,1345),f"① 前 {point['tick']/5-1:.1f} s　② 決策錨點 {point['tick']/5:.1f} s　③ 後 {point['tick']/5+1:.1f} s",30,'#a01b70')
     painter.text(d,(50,1401),'可見區：原始靜態 GLB＋校正，人體 0.15／0.9／1.6 m 三高度至少兩點可見；網格 0.05 m。',27,MUTED)
     painter.text(d,(50,1445),'不含移動人物遮擋；青色區域與凍結評分 GT 分別呈現，未改寫 GT。身分未確認，實體導航／碰撞 UNKNOWN。',25,MUTED)
+    painter.text(d,(50,1490),D348_CAPTION,28,INK)
     return {**save_png(im,out/f"{point['figure_id']}_map.png"),'kind':'evaluation_gt_map','figure_id':point['figure_id'],'case_id':point['case_id'],
             'gt_label':'GT，評分端','actor_id':'T','time_window_us':[lo*200000,hi*200000],
             'anchor_timestamp_us':point['tick']*200000,'cameras':point['display_cameras'],'panels':panels,
-            'occlusion_clipped':True,'coverage_source':'COVERAGE.json','gt_path':f"gt-boxes/{point['case_id']}.a-log.json",'root_ref':point['root_ref'],
+            'd348_caption':D348_CAPTION,'occlusion_clipped':True,'coverage_source':'COVERAGE.json','gt_path':f"gt-boxes/{point['case_id']}.a-log.json",'root_ref':point['root_ref'],
             'trajectory_interpolation':False,'gt_trajectory_color':'#a01b70'}
 
 
@@ -231,7 +233,8 @@ def coverage_atlas(out,cameras,fields,sections,painter):
     d=ImageDraw.Draw(im)
     painter.text(d,(50,2260),'深色圓點＝鏡頭位置　箭頭＝真實校正朝向　灰色＝原場景 0.9 m 高度剖面　青色＝靜態人體可見區',30)
     painter.text(d,(50,2320),'人體高度採 0.15／0.9／1.6 m，至少兩點可見；0.05 m 網格。不含人物間遮擋，非實體場域驗證。',27,MUTED)
-    return {**save_png(im,out/'camera_coverage_atlas.png'),'kind':'camera_coverage_atlas','cameras':[c['camera_id'] for c in cameras],'panels':panels,'coverage_source':'COVERAGE.json'}
+    painter.text(d,(50,2360),D348_CAPTION,28,INK)
+    return {**save_png(im,out/'camera_coverage_atlas.png'),'kind':'camera_coverage_atlas','d348_caption':D348_CAPTION,'cameras':[c['camera_id'] for c in cameras],'panels':panels,'coverage_source':'COVERAGE.json'}
 
 
 def overview(out,cases,painter):

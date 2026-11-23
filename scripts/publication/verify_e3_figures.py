@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageFilter
 
-from e3_figures import ROOT_PINS
+from e3_figures import D348_CAPTION, ROOT_PINS
 from e3_coverage import BOUNDS, CELL, HEIGHTS, SCENE_SHA, camera_position, load_triangles, segment_blocked
 
 
@@ -59,6 +59,8 @@ def verify(output, evidence, assets):
                 actual=im.crop((x,y,x+640,y+360))
                 assert np.array_equal(np.array(actual),np.array(source)), (art['path'],rec['camera_id'])
                 pixels+=1
+        if art['kind'] in {'evaluation_gt_map','camera_coverage_atlas'}:
+            assert art['d348_caption']==D348_CAPTION
         if art['kind']=='evaluation_gt_map':
             assert art['gt_label']=='GT，評分端' and art['occlusion_clipped']
             assert len(art['panels'])==3 and art['gt_trajectory_color']=='#a01b70'
