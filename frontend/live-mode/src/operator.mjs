@@ -40,7 +40,12 @@ export function createSessionGate(scenario, options, fetcher) {
   let run_id = options.run_id, actor_id = options.actor_id, locked = false;
   const editable = () => { if (locked) throw new Error('SESSION_LOCKED'); };
   return Object.freeze({
-    chooseRun(value) { editable(); run_id = runId(value); },
+    chooseRun(value) {
+      editable();
+      const next = runId(value);
+      if (next !== run_id) actor_id = null;
+      run_id = next;
+    },
     chooseActor(value) { editable(); if (!VARIANTS.includes(value)) throw new Error('ACTOR_UNKNOWN'); actor_id = value; },
     snapshot: () => ({run_id, actor_id, locked}),
     async begin() {
@@ -191,7 +196,7 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
     <p>WASD 移動 · Shift 跑 · 滑鼠轉視角。開始後只能重新載入來換場景或角色。</p>
     <button id="ab-begin" disabled>開始</button> <span id="ab-status" role="status">載入外觀…</span></main>`);
   const doc = body.ownerDocument, runButtons = [], cards = [];
-  let menuReady = false;
+  let menuReady = false, previewUnavailable = false;
   const beginButton = body.querySelector('#ab-begin'), status = body.querySelector('#ab-status');
   function update() {
     const selected = gate.snapshot(), run = scenario.runs.find(r => r.run_id === selected.run_id);
@@ -202,6 +207,10 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
       const active = id === selected.actor_id; card.setAttribute('aria-pressed', active);
     }
     beginButton.disabled = !menuReady || !selected.actor_id;
+    if (menuReady) {
+      status.textContent = selected.actor_id ? `已選角色 ${selected.actor_id}，可按「開始」` : '請選角色';
+      if (previewUnavailable) status.textContent += '（預覽無法顯示，可依色塊選角色）';
+    }
   }
   for (const id of RUNS) {
     const b = doc.createElement('button'); b.dataset.run = id; b.textContent = `${id.replace('-v2-4actor', '')} · ${scenario.runs.find(r => r.run_id === id).duration_us / 1e6} s`;
@@ -215,9 +224,9 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
       card.innerHTML = `<canvas data-preview="${id}" width="160" height="170" hidden></canvas><p><span class="actor-swatch"></span> <b>角色 ${id}</b></p><small></small>`;
       card.onclick = () => { gate.chooseActor(id); update(); }; body.querySelector('#ab-actors').append(card); cards.push(card);
     }
-    update(); status.textContent = '請選角色';
+    update();
     // GLB parse/render failure keeps the metadata-derived swatches and usable selection.
-    try { gltf = await makeLoader().parseAsync(buffer, '/data/'); cleanup = preview(body, gltf); } catch { status.textContent = '預覽無法顯示；可依色塊選角色'; }
+    try { gltf = await makeLoader().parseAsync(buffer, '/data/'); cleanup = preview(body, gltf); } catch { previewUnavailable = true; }
     menuReady = true; update();
     beginButton.onclick = async () => {
       beginButton.disabled = true; runButtons.forEach(b => { b.disabled = true; }); cards.forEach(b => { b.disabled = true; }); status.textContent = '開始…';
