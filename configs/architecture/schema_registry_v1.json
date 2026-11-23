@@ -2646,6 +2646,14 @@
       ],
       "issue_ref": "#597",
       "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "e5.b-log.v1",
+      "source_paths": [
+        "docs/contracts/E5_AOPEN_INTERFACE_V1.md"
+      ],
+      "issue_ref": "#684",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }
