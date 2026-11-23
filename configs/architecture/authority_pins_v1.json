@@ -552,6 +552,30 @@
       "sha256": "f654c9935c1aed58c2215dfadddc92590dec554f81fce453ad9e7c84f9269342",
       "status": "現行；D346：只有 occluders_full_height 與 door_openings 可進推論（scene_context.static_geometry，附來源 SHA-256），其餘欄位仍為 DESIGN_FEASIBILITY_ONLY；放行前牆投影驗證見 docs/operations/F2_LIVE_COVERAGE_20261122.md",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D358-A2",
+      "path": "AGENTS.md",
+      "ref": "claude/docs-refs-20261123@3c73dbe8aef9af7b29035d46325d06ea6ace8c0d（D358）",
+      "sha256": "f6101a7e4bee48c9eec48a77374a9fa7aa25a0a5f8d171995f72c9079ac9e575",
+      "status": "現行（D358：交接指向 2026-11-23；來源文件加 F4 E3 報告與 E5 預先登記 Draft #685）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D358-A3",
+      "path": "CLAUDE.md",
+      "ref": "claude/docs-refs-20261123@3c73dbe8aef9af7b29035d46325d06ea6ace8c0d（D358）",
+      "sha256": "143c41321259a2c8bc54d7861db056de5b4e47b8dca917ceb7ff8c40fe5ae3ea",
+      "status": "現行（D358：交接指向 2026-11-23）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D358-P1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/docs-refs-20261123@3c73dbe8aef9af7b29035d46325d06ea6ace8c0d（D358）",
+      "sha256": "fe14c672896f4067ca1da70b30fd099a163ac252908ea6a4bff01a1ea26809b6",
+      "status": "現行；進度導覽補到 #686（D358，D91-4）；#645、#646、#588、#596、#652、#653 移到已完成",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -890,6 +914,27 @@
       "requires_commit": "a8470a667d4dcb60530642d1b6dfa07518e92f1d",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-7074936803",
       "reason": "D346: must_not_enter_exceptions for occluders_full_height + door_openings into scene_context (coordinator decision 2026-11-22); wall projection check passed (F2 #656, PR #664)."
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "f6101a7e4bee48c9eec48a77374a9fa7aa25a0a5f8d171995f72c9079ac9e575",
+      "requires_commit": "3c73dbe8aef9af7b29035d46325d06ea6ace8c0d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D358 引用更新：交接指向 COORDINATOR_HANDOFF_20261123；來源文件清單補 F4 E3 報告（#678 `3c436357`）與 E5 預先登記（Draft #685）。只改文件敘述，規則不變"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "143c41321259a2c8bc54d7861db056de5b4e47b8dca917ceb7ff8c40fe5ae3ea",
+      "requires_commit": "3c73dbe8aef9af7b29035d46325d06ea6ace8c0d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D358 引用更新：交接指向 COORDINATOR_HANDOFF_20261123（快照 2026-11-23）。只改文件敘述，規則不變"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "fe14c672896f4067ca1da70b30fd099a163ac252908ea6a4bff01a1ea26809b6",
+      "requires_commit": "3c73dbe8aef9af7b29035d46325d06ea6ace8c0d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "D358 批次補列 #656–#686（D91-4），更新總數與快照；#645、#646、#588、#596、#652、#653 移到已完成。只改導覽內容"
     }
   ]
 }
