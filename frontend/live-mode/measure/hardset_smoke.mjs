@@ -12,25 +12,18 @@ if (!HARDSET_ROUTES[caseId]) throw new Error(`unknown case ${caseId}`);
 const out = process.env.OUT || 'out';
 fs.mkdirSync(out, {recursive: true});
 const steps = HARDSET_ROUTES[caseId].steps.length;
-// Headless only (D331: no windows on the user's desktop). lib.mjs launches headless 'new' with background
-// throttling disabled, so animation frames are not slowed by occlusion.
+// Shared launcher is headless by default. A and B are pages in the same browser context.
 const browser = await launch();
-async function openWindow() {
-  const cdp = await browser.target().createCDPSession();
-  const {targetId} = await cdp.send('Target.createTarget', {url: 'about:blank', newWindow: true});
-  const target = await browser.waitForTarget(t => t._targetId === targetId || t._getTargetInfo?.().targetId === targetId);
-  return target.page();
-}
+let progress;
 try {
   const errors = {a: [], b: []};
-  // B in its own (headless) window of the same context: A sends frames to B over a BroadcastChannel (same
-  // storage partition).
-  const b = await openWindow();
+  // Both pages share the storage partition needed by BroadcastChannel.
+  const b = await browser.newPage();
   b.on('pageerror', e => errors.b.push(e.message));
   await b.goto(`${BASE}/?role=system`);
   await b.waitForFunction('window.__ready === true', {timeout: 120000});
   console.error('B ready');
-  const a = await openWindow();
+  const a = await browser.newPage();
   a.on('pageerror', e => errors.a.push(e.message));
   await a.goto(`${BASE}/?script=${encodeURIComponent(caseId)}&${extra}`);
   await a.waitForFunction('window.__ready === true', {timeout: 120000});
@@ -41,11 +34,10 @@ try {
   if (llmOn) throw new Error('B_LLM_SWITCH_ON');
   await b.click('[data-target-color="red"]');
   await b.click('#target-start');
-  await a.bringToFront();
   console.error('B started');
   const tStart = await a.evaluate(() => window.__log.ticks.at(-1)?.t_sim ?? 0);
   const t0 = Date.now();
-  const progress = setInterval(async () => {
+  progress = setInterval(async () => {
     try {
       const p = await a.evaluate(() => ({t: window.__log.ticks.at(-1)?.t_sim, n: window.__log.ticks.length, done: (window.__log.script_events || []).filter(e => e.type === 'script_step_done').length, sim: window.__op?.t_sim}));
       console.error('progress', JSON.stringify(p));
@@ -68,5 +60,6 @@ try {
   console.log(caseId, 'session', session, 'A ticks', aLog.ticks.length, 'dropped', aLog.dropped, 'B ticks', bLog.ticks.length,
     'B actions', (bLog.actions || []).map(x => `${x.type}:${x.mode}`).join(','), 'B start t_sim', tStart.toFixed(2), 'errors', errors.a.length, errors.b.length);
 } finally {
+  clearInterval(progress);
   await browser.close();
 }

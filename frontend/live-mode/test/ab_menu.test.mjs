@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import * as THREE from 'three';
 import {createSessionGate, menuOptions, variantSwatches, privateTick, makeOperatorView} from '../src/operator.mjs';
 import {createCrowd} from '../src/crowd.mjs';
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 import {buildInferHeader,buildSystemMessage} from '../src/protocol.mjs';
 const scenario=JSON.parse(fs.readFileSync(new URL('../../../docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json',import.meta.url)));
 test('scene defaults, legacy and short URL bypasses and role validation',()=>{
@@ -59,7 +60,7 @@ test('selected actor is sole player; all actors and visibility stay in private l
 test('operator transparency restores opaque virtual-camera materials even after render failure',()=>{
  const scene=new THREE.Scene(),shared=new THREE.MeshBasicMaterial(),wall=new THREE.Mesh(new THREE.BoxGeometry(),shared),floor=new THREE.Mesh(new THREE.PlaneGeometry(),shared),ceiling=new THREE.Group();
  wall.name='WALL_JOINED_SHELL_LIVE';ceiling.name='CEILING_STATIC_LIVE';scene.add(wall,floor,ceiling);
- const draw=makeOperatorView({scene,wallMats:[]});assert.notEqual(wall.material,shared);
+ const draw=makeOperatorView({scene,wallMats:[]},{xray:true});assert.notEqual(wall.material,shared);
  assert.throws(()=>draw(()=>{assert.equal(wall.material.opacity,.18);assert.equal(floor.material.opacity,1);assert.equal(ceiling.visible,false);throw new Error('render failed');}),/render failed/);
  assert.equal(wall.material.opacity,1);assert.equal(wall.material.transparent,false);assert.equal(wall.material.depthWrite,true);assert.equal(ceiling.visible,true);
 });
@@ -83,17 +84,22 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};
   if(url==='/config')return json({n6:true,schedule_mode:'all'});
   if(url==='/reset')return json({ok:true,session_id:'0123456789abcdef'});
+  if(url==='/track/start')return json({mode:'TRACKING',color:'red',candidates:[
+   {tick:0,cand_id:'fresh',est_xy:[4,1]}]});
+  if(url==='/track/stop')return json({mode:'IDLE'});
   if(url==='/infer'){
    const chunks=[];for await(const c of req)chunks.push(c);const b=Buffer.concat(chunks);headers.push(JSON.parse(b.subarray(4,4+b.readUInt32LE(0)).toString()));
+   if(headers.length===1){res.statusCode=409;return json({error:'NON_MONOTONIC_TICK',next_tick:1});}
    return json({tracking:{state:'SEARCHING',lost_ticks:0},events:[],timing_ms:{server_total:0}});
   }
   const file=files[url]||(url.startsWith('/src/')?path.join(root,url.slice(1)):url.startsWith('/vendor/three/')?path.join(root,'node_modules/three',url.slice('/vendor/three/'.length)):null);
   if(!file||!fs.existsSync(file)){res.statusCode=404;return res.end();}
-  res.setHeader('Content-Type',file.endsWith('.mjs')||file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':file.endsWith('.json')?'application/json':'model/gltf-binary');fs.createReadStream(file).pipe(res);
+  res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.mjs')||file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':file.endsWith('.json')?'application/json':'model/gltf-binary');fs.createReadStream(file).pipe(res);
  });
  await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
  try{
-  browser=await puppeteer.launch({executablePath:process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--use-angle=metal','--ignore-gpu-blocklist'],defaultViewport:{width:1440,height:1000}});
+  browser=await puppeteer.launch({executablePath:process.env.CHROME||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:headlessMode(),args:['--use-angle=metal','--ignore-gpu-blocklist'],defaultViewport:{width:1440,height:1000}});
+  if(headlessMode())assert.ok(browser.process().spawnargs.some(arg=>arg==='--headless=new'||arg==='--headless'));
   const page=await browser.newPage();page.on('pageerror',e=>errors.push(e.message));const base=`http://127.0.0.1:${server.address().port}`;
   await page.goto(`${base}/?mouse=drag&fps=2`);await page.waitForSelector('[data-actor="C"]');
   await page.waitForFunction(()=>document.querySelector('#ab-status')?.textContent!=='載入外觀…');
@@ -102,6 +108,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   await page.waitForFunction(()=>!document.querySelector('#ab-begin').disabled);
   await page.screenshot({path:path.join(out,'menu.png')});await page.click('#ab-begin');
   await page.waitForFunction(()=>window.__ready===true,{timeout:60000});await page.waitForFunction(()=>window.__log?.ticks.length>0);
+  assert.equal(await page.$eval('#op',el=>getComputedStyle(el).display),'grid','shared LIVE styles load in fixture');
   assert.equal(await page.$('#ab-menu'),null);assert.equal(await page.$('#sentence'),null);assert.equal(await page.$('#who'),null);
   const initial=await page.evaluate(()=>({p:__op.P0,keys:Object.keys(__op),run:__log.run_id,actor:__log.actor_id,session:__log.session_id}));
   assert.deepEqual(initial.keys,['P0']);assert.equal(initial.run,'B4-1-v2-4actor');assert.equal(initial.actor,'T');
@@ -115,7 +122,11 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const log=await page.evaluate(()=>__log);assert.equal(log.schema_version,'live-ab.a-log.v1');assert.equal(log.session_id,initial.session);assert.ok(log.ticks.every(t => !('gt_visible' in t) && t.actors.length === 4
     && t.actors.every(actor => Array.isArray(actor.gt_visible))
     && Object.keys(t.pause_player_i).length === 3 && Object.keys(t.pause_script_i).length === 3
-    && Array.isArray(t.forced_overlap) && Array.isArray(t.spawn_adjusted) && Array.isArray(t.block_wait)));
+    && Array.isArray(t.forced_overlap) && Array.isArray(t.spawn_adjusted) && Array.isArray(t.block_wait)
+    && Array.isArray(t.pass_end) && Array.isArray(t.crowd_error)));
+  assert.deepEqual(headers.slice(0,2).map(h=>h.tick),[0,1]);
+  assert.equal(log.ticks[0].tick,1);
+  assert.deepEqual(log.errors,[{tick:0,error:'NON_MONOTONIC_TICK'}]);
   fs.writeFileSync(path.join(out,'a-browser.json'),JSON.stringify(log,null,2));
   const downloads=path.join(out,'downloads');fs.mkdirSync(downloads,{recursive:true});
   const cdp=await page.createCDPSession();await cdp.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:downloads});
@@ -134,6 +145,53 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
   const automatic=await browser.newPage();automatic.on('pageerror',e=>errors.push(e.message));await automatic.goto(`${base}/?run=A4-1&actor=C&auto=A4&mouse=drag&fps=1`);
   await automatic.waitForFunction(()=>window.__ready===true,{timeout:60000});assert.equal(await automatic.$('#ab-menu'),null);
   const selected=await automatic.evaluate(()=>({actor:__log.actor_id,run:__log.run_id,mouse:__log.config.view.mouse}));assert.deepEqual(selected,{actor:'C',run:'A4-1-v2-4actor',mouse:'off'});
+  await Promise.all([page.close(),fallback.close(),automatic.close()]);
+  const recorder=await browser.newPage();
+  recorder.on('pageerror',e=>{errors.push(e.message);fs.writeFileSync(path.join(out,'record-errors.json'),JSON.stringify(errors));});
+  await recorder.goto(base+'/?script=H1-1&record=1&fps=5&mouse=off');
+  try { await recorder.waitForFunction(()=>window.__log?.ticks.length>=6,{timeout:20000}); }
+  catch (error) {
+   fs.writeFileSync(path.join(out,'record-debug.json'),JSON.stringify(await recorder.evaluate(()=>({
+    ready:window.__ready,error:window.__recordingError,log:window.__log,
+    case:window.__case?.(),text:document.body.innerText})),null,2));
+   throw error;
+  }
+  await recorder.evaluate(()=>__setKeys({w:true}));
+  await recorder.waitForFunction(()=>window.__log?.ticks.length>=19,{timeout:60000});
+  await recorder.click('#record-stop');
+  await recorder.waitForFunction(()=>window.__recordingDone===true);
+  const caseData=await recorder.evaluate(()=>__case());
+  assert.equal(caseData.script_id,'H1-1');
+  assert.ok(caseData.inputs.some(row=>row.keys.w));
+  caseData.actions=[{tick:0,action:'start',color:'red'},
+   {tick:Math.floor(caseData.inputs.length/4),action:'stop'}];
+  const caseFile=path.join(out,'browser.case.json');
+  fs.writeFileSync(caseFile,JSON.stringify(caseData,null,2));
+  await recorder.close();
+  const sequences=[];
+  for(let repeat=0;repeat<2;repeat++){
+   const replay=await browser.newPage();
+   await replay.goto(base+'/?auto=recorded');
+   await replay.waitForSelector('#case-file');
+   await (await replay.$('#case-file')).uploadFile(caseFile);
+   await replay.waitForFunction(()=>window.__recordingDone===true||window.__recordingError,{timeout:60000});
+   const result=await replay.evaluate(()=>({error:window.__recordingError,a:__log,b:__replayLog,recorded:__case()}));
+   assert.equal(result.error,undefined);
+   assert.deepEqual(result.recorded.expected,caseData.expected);
+   assert.ok(result.a.ticks.every(row=>Math.abs(row.t_sim-row.tick/5)<1e-9));
+   assert.equal(result.b.actions.length,2);
+   assert.doesNotMatch(JSON.stringify(result.b),/gt_visible|actor_id|pause_total|expected|bindings/);
+   sequences.push(result.a.ticks.map(row=>({tick:row.tick,t_sim:row.t_sim,actors:row.actors,
+    pause_total_i:row.pause_total_i,t_infer_capture_ms:row.t_infer_capture_ms})));
+   const aFile=path.join(out,'replay-'+repeat+'-a.json'),bFile=path.join(out,'replay-'+repeat+'-b.json');
+   fs.writeFileSync(aFile,JSON.stringify(result.a,null,2));fs.writeFileSync(bFile,JSON.stringify(result.b,null,2));
+   const {spawnSync}=await import('node:child_process');
+   const scored=spawnSync(path.join(repo,'.venv/bin/python'),['-B','scripts/live_ab_score.py',
+    '--operator-json',aFile,'--system-json',bFile,'--out',path.join(out,'replay-'+repeat+'-score.json')],{cwd:repo,encoding:'utf8'});
+   assert.equal(scored.status,0,scored.stderr);
+   await replay.close();
+  }
+  assert.deepEqual(sequences[0],sequences[1]);
   assert.equal(errors.length,0,errors.join('\n'));fs.writeFileSync(path.join(out,'browser-receipt.json'),JSON.stringify({initial,afterLook,afterMove,selected,headers,requests,errors},null,2));
  }finally{await browser?.close();await new Promise(r=>server.close(r));}
 });

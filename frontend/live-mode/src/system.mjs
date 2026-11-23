@@ -5,6 +5,7 @@
 import { CHANNEL, now } from './common.mjs';
 import { TRACK_MODES, validateSystemMessage } from './protocol.mjs';
 import { switchView, buildRequest, hudModeNote } from './llm_switch.mjs';
+import { defaultModel, clampSideWidth, loadPanelPrefs, savePanelPrefs, lostHint, sameColorCount, sameColorNotice } from './ui_state.mjs';
 import { createHudState, recordLatency, reduce, view as hudView, pickTarget } from './hud.mjs';
 
 const TYPE_ZH = { ACQUIRE: '鎖定目標', SWITCH: '切鏡', TARGET_OUT_OF_VIEW: '目標離開視野', LOST: '失聯', REACQUIRE: '重新找到',
@@ -255,7 +256,7 @@ export async function start(body) {
   if (new URLSearchParams(location.search).get('view') === 'grid') return (await import('./system_grid.mjs')).start(body);
   const geometry = await fetch('/data/geometry.json').then((r) => r.json());
   const cfg = await fetch('/config').then((r) => r.json()).catch(() => ({}));
-  body.insertAdjacentHTML('beforeend', `<div id="bs"><div id="bmain">
+  body.insertAdjacentHTML('beforeend', `<div id="bs"><button type="button" id="side-toggle" aria-expanded="true" aria-controls="bside" title="收合／展開系統面板">系統 ▸</button><div id="bmain">
     <div id="hud">
       <div class="cell"><h4>目前鏡頭・追蹤</h4><div class="v" id="h1v"></div><div class="s" id="h1s"></div></div>
       <div class="cell"><h4>決策來源</h4><div class="v" id="h2v"></div><div class="s" id="h2s"></div></div>
@@ -277,27 +278,54 @@ export async function start(body) {
       </form>
     </details>
     <div id="stage"><canvas id="fcv"></canvas><div id="camname"></div><div id="banner"></div>
-      <div id="center"><b id="cb"></b><span id="cs"></span></div>
+      <div id="same-color" role="status" hidden></div>
+      <div id="center"><b id="cb"></b><span id="cs"></span><div id="lost-hint" hidden></div></div>
       <div id="candidate-frames" hidden></div></div>
     <div id="bar"></div></div>
-    <div id="bside"><b>系統</b> <span class="kv">（只看鏡頭像素）</span>
+    <div id="bside"><div id="side-resize" role="separator" aria-orientation="vertical" aria-label="拖拉調整系統面板寬度" tabindex="0"></div><b>系統</b> <span class="kv">（只看鏡頭像素）</span>
       <canvas id="map" width="320" height="288" style="width:320px;height:288px"></canvas>
       <ol id="target-candidates" aria-label="追蹤候選" hidden></ol>
       <button type="button" id="system-download">下載 B 記錄</button>
       <div id="llmset"><b>設定</b> <span class="kv">（預設關閉）</span>
         <label><input type="checkbox" id="llmon"> LLM 決策</label>
-        <select id="llmmode"><option value="review">LLM 覆核</option><option value="lead">LLM 主導</option></select>
+        <select id="llmmode"><option value="review">LLM 覆核</option><option value="lead">LLM 主導</option><option value="agent">Agent 決策</option></select>
         <select id="llmmodel"></select>
         <div id="llmstat" class="v"></div><div id="llmdet" class="s"></div></div>
       <div id="events"></div></div></div>`);
   const $ = (id) => document.getElementById(id);
   const stage = $('stage'), cv = $('fcv'), ctx = cv.getContext('2d');
+  // #677 後台面板：可收合、可拖拉寬度，狀態存 localStorage（讀寫都包 try/catch，壞掉就用預設）。
+  const prefs = loadPanelPrefs();
+  const bs = $('bs');
+  const applyPrefs = () => {
+    bs.style.setProperty('--side-w', `${clampSideWidth(prefs.width, Math.floor(innerWidth * .6))}px`);
+    bs.classList.toggle('side-collapsed', prefs.collapsed);
+    $('side-toggle').setAttribute('aria-expanded', String(!prefs.collapsed));
+    $('side-toggle').textContent = prefs.collapsed ? '◂ 系統' : '系統 ▸';
+    window.dispatchEvent(new Event('resize'));
+  };
+  $('side-toggle').onclick = () => { prefs.collapsed = !prefs.collapsed; savePanelPrefs(prefs); applyPrefs(); };
+  $('side-resize').addEventListener('pointerdown', event => {
+    event.preventDefault();
+    const move = e => { prefs.width = clampSideWidth(innerWidth - e.clientX, Math.floor(innerWidth * .6)); applyPrefs(); };
+    const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); savePanelPrefs(prefs); };
+    addEventListener('pointermove', move); addEventListener('pointerup', up);
+  });
+  $('side-resize').addEventListener('keydown', event => {
+    const step = event.key === 'ArrowLeft' ? 20 : event.key === 'ArrowRight' ? -20 : 0;
+    if (!step) return;
+    prefs.width = clampSideWidth(prefs.width + step, Math.floor(innerWidth * .6)); savePanelPrefs(prefs); applyPrefs();
+  });
+  addEventListener('resize', () => { if (!prefs.collapsed) bs.style.setProperty('--side-w', `${clampSideWidth(prefs.width, Math.floor(innerWidth * .6))}px`); });
+  applyPrefs();
+  let lastDets = {};
   const newLog = session_id => ({ schema_version: 'live-ab.b-log.v1', session_id,
     ticks: [], actions: [], hud_latency: [], displays: [], violations: [] });
   let log = newLog(null);
   window.__log = log;
   const st = createHudState();
   window.__hud = { st, cfg, view: null };
+  window.__hud.setDets = d => { lastDets = d || {}; drawMap(st.tr, controller.state.candidates, ghostCandidates()); };   // screenshot/test hook: replaces the detections the hints read (display only)
 
   // map (same drawing as the grid view, smaller)
   const mapCv = $('map'), mctx = mapCv.getContext('2d');
@@ -307,7 +335,7 @@ export async function start(body) {
   const mx = (x) => (x - minX) * sc, my = (y) => 288 - (y - minY) * sc;
   const trail = [];
   let mapHits = [];
-  function drawMap(tr, candidates = []) {
+  function drawMap(tr, candidates = [], ghosts = []) {
     mctx.clearRect(0, 0, 320, 288);
     mctx.fillStyle = '#2a303a';
     for (const f of geometry.floors) mctx.fillRect(mx(f.x_m[0]), my(f.y_m[1]), (f.x_m[1] - f.x_m[0]) * sc, (f.y_m[1] - f.y_m[0]) * sc);
@@ -325,6 +353,11 @@ export async function start(body) {
       trail.forEach((p, i) => (i ? mctx.lineTo(mx(p[0]), my(p[1])) : mctx.moveTo(mx(p[0]), my(p[1])))); mctx.stroke();
       mctx.fillStyle = (tr.lost_ticks || 0) > 0 ? '#8b93a0' : '#e5484d'; mctx.beginPath(); mctx.arc(mx(tr.est_xy[0]), my(tr.est_xy[1]), 5, 0, 7); mctx.fill();
     }
+    for (const g of ghosts) {   // 失聯時的候選：空心圈，不可點（改選請用「改選目標」）
+      mctx.strokeStyle = g.same ? '#ffd370' : '#8b93a0'; mctx.lineWidth = 2; mctx.beginPath();
+      mctx.arc(mx(g.est_xy[0]), my(g.est_xy[1]), 8, 0, 2 * Math.PI); mctx.stroke();
+    }
+    mctx.lineWidth = 1;
     mapHits = candidates.map(candidate => {
       const x = mx(candidate.est_xy[0]), y = my(candidate.est_xy[1]);
       mctx.fillStyle = '#ffd370'; mctx.beginPath(); mctx.arc(x, y, 10, 0, 2 * Math.PI); mctx.fill();
@@ -359,11 +392,15 @@ export async function start(body) {
       if (event.type !== 'FRAME') {
         render();
         renderCandidates();
-        drawMap(st.tr, state.candidates);
+        drawMap(st.tr, state.candidates, ghostCandidates());
       }
     },
     onAction(action) { log.actions.push(action); },
   });
+  const ghostCandidates = () => {
+    const h = lostHint(st.tr, lastDets, cfg);
+    return h ? h.candidates.map(c => ({ est_xy: c.est_xy, same: c.color === h.color })) : [];
+  };
   const setCell = (id, text, sub, tone) => {
     const v = $(id + 'v'); v.textContent = text; v.className = `v tone-${tone || 'rule'}`; $(id + 's').textContent = sub || '';
   };
@@ -506,6 +543,20 @@ export async function start(body) {
       $('cb').style.color = kind === 'lost' ? '#e5484d' : kind === 'searching' ? 'var(--muted)' : 'var(--accent)';
       $('cs').textContent = kind === 'adjudicating' ? '畫面停在原鏡頭，等 LLM 回答' : kind === 'searching' ? '' : `最後鎖定的鏡頭：${v.cam}`;
     } else c.style.display = 'none';
+    const hint = lostHint(shown.tr, lastDets, cfg), hintBox = $('lost-hint');
+    hintBox.hidden = !hint;
+    if (hint) {
+      const lines = hint.candidates.length ? hint.candidates.map(c => `候選 ${c.number}（${c.color}）：${c.reason}`) : [`原因：${hint.reason}`];
+      const key = lines.join('\n');
+      if (hintBox.dataset.key !== key) { hintBox.dataset.key = key; hintBox.replaceChildren(...lines.map(l => Object.assign(document.createElement('div'), { textContent: l }))); }
+    }
+    const n = sameColorCount(lastDets, state.color), notice = state.session && (state.mode === 'TRACKING') ? sameColorNotice(n) : '';
+    const sc = $('same-color');
+    sc.hidden = !notice;
+    if (notice && sc.dataset.n !== String(n)) {
+      sc.dataset.n = String(n); sc.replaceChildren(document.createTextNode(notice + ' '));
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = '改選目標'; b.onclick = () => controller.act('reselect'); sc.append(b);
+    } else if (!notice) delete sc.dataset.n;
     const bar = $('bar');
     bar.textContent = v.status.text;
     bar.className = `tone-${v.status.tone}`;
@@ -522,7 +573,8 @@ export async function start(body) {
     const sv = switchView(cfg), models = (cfg.llm_switch && cfg.llm_switch.models) || [];
     $('llmon').checked = sv.checked; $('llmmode').value = sv.mode;
     const ms = $('llmmodel'); if (!ms.options.length) ms.innerHTML = models.map((m) => `<option>${m}</option>`).join('');
-    if (cfg.llm_switch && cfg.llm_switch.model) ms.value = cfg.llm_switch.model;
+    // D237：關閉時預設選 terra6.1；開啟後以後台回報的實際模型為準。
+    ms.value = defaultModel(models, sv.checked && !sv.fake ? (cfg.llm_switch && cfg.llm_switch.model) : null) || ms.value;
     $('llmmodel').disabled = $('llmmode').disabled = sv.fake;
     const stat = $('llmstat'); stat.textContent = sv.text; stat.className = `v tone-${sv.tone}`; $('llmdet').textContent = sv.detail;
   };
@@ -569,7 +621,7 @@ export async function start(body) {
     }
     const isCurrent = msg.t_capture_ms >= state.applyAt && tr.target?.mode === state.mode && tr.target?.color === state.color;
     const prevCam = st.cam;
-    if (isCurrent) reduce(st, msg, received);
+    if (isCurrent) { reduce(st, msg, received); lastDets = msg.dets || {}; }
     const showTrack = isCurrent && (state.mode === 'TRACKING' || state.reselecting);
     const f = showTrack && tr.active_cam && msg.frames.find(x => x.cam === tr.active_cam);
     if (f) {
@@ -602,7 +654,7 @@ export async function start(body) {
       if (trail.length > 60) trail.shift();
     }
     renderCandidates();
-    drawMap(st.tr, controller.state.candidates);
+    drawMap(st.tr, controller.state.candidates, ghostCandidates());
     if (isCurrent) {
       for (const e of tr.events || []) events.unshift(`#${e.tick} ${TYPE_ZH[e.type] || e.type} ${e.cam || ''}`);
     }

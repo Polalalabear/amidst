@@ -131,6 +131,7 @@ def main(argv=None):
         'status': 'DESIGN_FEASIBILITY_ONLY_NOT_RUNTIME_AUTHORITY',
         'decision_ref': 'D207 (issue #93); Codex #516 feasibility comment 6761965932',
         'must_not_enter': ['RUNTIME_INFERENCE', 'CANDIDATE_RANKING', 'DETECTION_INDEX', 'RECONSTRUCTION', 'SAFE_BUNDLE'],
+        'must_not_enter_exceptions': [{'decision_ref': 'D346 (issue #93, 2026-11-22)', 'allowed_fields': ['occluders_full_height', 'door_openings'], 'allowed_into': ['RUNTIME_INFERENCE', 'CANDIDATE_RANKING'], 'via': 'amidst.q1q5.scene_context (serialized, with this file SHA-256)', 'not_allowed': 'every other field (clearance_segments, floors, cameras as geometry authority, render sets); any person, trajectory, visibility or depth data', 'validation': 'docs/operations/F2_LIVE_COVERAGE_20261122.md (wall projection vs RGB, 5 cameras)'}],   # D346
         'provenance': {
             'source_blend': {'path': 'local/data/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend',
                              'sha256': scene['sha256'], 'storage': 'LOCAL'},

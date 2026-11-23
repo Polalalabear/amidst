@@ -9,6 +9,7 @@ from types import SimpleNamespace
 
 from PIL import Image
 
+from amidst.live_mode.candidates import TrackSelection
 from amidst.live_mode.scheduler import CameraScheduler
 from amidst.live_mode.server import State as InferenceState
 from amidst.live_mode.server import make_handler
@@ -23,6 +24,7 @@ class State(InferenceState):
 
 def test_scheduled_batches_keep_entry_override_and_do_not_fabricate_skipped_observations():
     state = object.__new__(State)
+    state.selection = TrackSelection()
     state.registered_cameras = ["CAM_ENTRY", "CAM_WIDE", "CAM_W1", "CAM_W2"]
     graph = {
         "cameras": [{"camera_id": c} for c in state.registered_cameras if c != "CAM_ENTRY"],
@@ -109,6 +111,7 @@ def test_config_exposes_both_detection_and_scheduling_contracts():
 def test_missing_t_capture_ms_skips_red_memory_instead_of_stamping_zero():
     """#559 P2-1: a header without t_capture_ms must not write t=0 into the scheduler's red-candidate memory."""
     state = object.__new__(State)
+    state.selection = TrackSelection()
     state.registered_cameras = ["CAM_ENTRY", "CAM_WIDE"]
     graph = {"cameras": [{"camera_id": "CAM_WIDE"}], "transitions": []}
     state.scheduler = CameraScheduler(graph, recent_red_s=5.0)

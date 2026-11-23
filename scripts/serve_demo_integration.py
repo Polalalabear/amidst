@@ -184,7 +184,8 @@ class Demo(P1):
         base = list(self.api.runs.values())[0]
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
         self.rgb = Media(self.rgb, self.authorize)
-        self.cross = {}; self.transitions = {}; self.positions = {}
+        self.core_track_keys = {(base.catalog['scene_id'], base.catalog['run_id'])}
+        self.cross = {}; self.transitions = {}; self.positions = {}; agent_scenes = {}
         self.calibrations = {}
         job = resolve_job(loads(pinned(job_path, job_pin)), owned_root)
         graph = loads(read_pin(job['graph']))
@@ -211,6 +212,7 @@ class Demo(P1):
             run = qrun(index, clock, g, params, spec['label'] + ' · D124 · ACTUAL_BLENDER · 自動種子', 'ACTUAL_BLENDER')
             runs.append(run); key = m['scene_id'], m['run_id']; self.cross[key] = tracks; self.positions[key] = positions
             self.calibrations[key] = (catalog, job['graph_binding']['catalog_sha256'])
+            agent_scenes[key] = (catalog, manifest['files']['provenance/camera_catalog.json'])
             rel = 'runs/' + spec['label'] + '.json'; data = loads(pinned(media_root/rel, manifest['files'][rel]))
             require(data['run_id'] == m['run_id'] and data['catalog_sha256'] == job['graph_binding']['catalog_sha256'], 'RGB_INDEX_BINDING')
             by_camera = {c: {} for c in data['camera_ids']}
@@ -225,8 +227,7 @@ class Demo(P1):
         self.eightcam_status = {'run_id': EIGHTCAM_RUN, 'status': 'UNKNOWN', 'reason': eightcam_reason}
         if eightcam is not None:
             try:
-                loaded = [(source, *self.load_eightcam(source, graphs),
-                           source.document('provenance/camera_catalog.json'))
+                loaded = [(source, *self.load_eightcam(source, graphs))
                           for source in eightcam.sources]
             except (ValueError, OSError, TypeError, KeyError) as exc:
                 if eightcam_required:
@@ -236,17 +237,16 @@ class Demo(P1):
                 for source, added, frames, camera_positions, calibration in loaded:
                     key = (added.catalog['scene_id'], source.run_id)
                     runs.append(added)
+                    self.core_track_keys.add(key)
                     self.rgb.frames[key] = frames
                     self.positions[key] = camera_positions
-                    self.calibrations[key] = (calibration, source.pins['provenance/camera_catalog.json'])
+                    self.calibrations[key] = calibration
+                    agent_scenes[key] = calibration
                 self.eightcam_status.update(status='READY', reason=None)
         runs = [bind_annotations(run, REPO / "configs/q1q5/scene_annotations_v1.json") for run in runs]
         if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
             from amidst.q1q5.openai_gateway import configure_environment
-            runs = list(configure_environment(runs, agent_queue))
-            if runs[0].agent_factory is not None:   # CL-B16 (#620): B-05 (runs[0]) has no Agent decision point
-                from amidst.q1q5.openai_gateway import NotApplicableAgent
-                runs[0] = replace(runs[0], agent_factory=NotApplicableAgent())
+            runs = list(configure_environment(runs, agent_queue, service=self.agent_service(graphs, agent_scenes)))
         self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb,
                         camera_display_positions=self.positions, track_estimator=self.estimate)
         self.scenes = {r.catalog['scene_id'] for r in runs}
@@ -268,7 +268,58 @@ class Demo(P1):
                              'basis_sha256': c['calibration_sha256']}
             for c in catalog['cameras']
         }
-        return run, frames, positions
+        return run, frames, positions, (catalog, settings['catalog_sha256'])
+
+    def track_decider(self, key, run):
+        """One ServiceTrackDecider per run (its answer cache makes replays free). None + reason when the Agent cannot run."""
+        from amidst.q1q5.openai_gateway import agent_status
+        from amidst.q1q5.service_agent_q5 import ServiceAgentFactory
+        from amidst.q1q5.service_agent_track import ServiceTrackDecider
+        factory = run.agent_factory
+        if not isinstance(factory, ServiceAgentFactory):
+            return None, 'AGENT_NOT_CONFIGURED'
+        ok, reason = agent_status(run)
+        if not ok:
+            return None, reason
+        cache = self.__dict__.setdefault('track_deciders', {})
+        if key not in cache:
+            cache[key] = ServiceTrackDecider(factory.transport, run.bindings.index.records, scene_context=factory.scene_context,
+                                             frame_reader=factory.frame_reader, model=factory.model)
+        return cache[key], None
+
+    def agent_service(self, graphs, agent_scenes):
+        """F3 (#657): per-run agent_service inputs. scene_context from the pinned r004 graphs + the run's catalog + D346 walls; frames from
+        the server's pinned RGB table. A run without a catalog gets no scene_context (requests say SCENE_CONTEXT_INCOMPLETE)."""
+        from amidst.q1q5.service_agent_q5 import pinned_frame_reader, r004_scene_context
+
+        def service(run):
+            key = (run.catalog['scene_id'], run.catalog['run_id'])
+            out = {}
+            if key in agent_scenes:
+                catalog, catalog_sha = agent_scenes[key]
+                ids = {x['camera_id'] for x in run.bindings.index.manifest['sampling']['per_camera']} & {c['camera_id'] for c in catalog['cameras']}
+                out['scene_context'] = r004_scene_context(graphs, catalog, catalog_sha, ids, REPO)
+            if key in self.rgb.frames:
+                out['frame_reader'] = pinned_frame_reader(self.rgb.frames[key][1])
+            elif key == (self.rgb.p1.run.manifest['scene_id'], self.rgb.p1.run.manifest['run_id']):
+                # B-05 uses its existing hash-checked RGB reader. Its synthetic
+                # graph exists, but calibrated geometry is unavailable: disclose it.
+                from amidst.q1q5 import scene_context as sx
+                b = run.bindings
+                ctx = sx.build(b.graphs.region, b.graphs.camera, {'cameras': []},
+                               source_sha256={'region_graph.content_sha256': b.region_graph_sha256,
+                                              'camera_graph.content_sha256': b.camera_graph_sha256})
+                ctx['cameras'] = [{'camera_id': cid, 'position_xyz_m': 'UNKNOWN', 'yaw_deg_0_is_plus_x': 'UNKNOWN',
+                                   'fov_h_deg': 'UNKNOWN', 'ground_footprint_polygon_xy_m': 'UNKNOWN',
+                                   'entry_zones': c.get('entry_zones', []), 'exit_zones': [
+                                       {k: z[k] for k in ('exit_zone_id', 'roi_polygon_px', 'leads_to_edge_ids')} for z in c.get('exit_zones', [])]}
+                                  for cid in run.catalog['camera_ids'] for c in b.graphs.camera['cameras'] if c['camera_id'] == cid]
+                ctx['incomplete'].extend(['SCENE_CONTEXT_INCOMPLETE:CALIBRATION_POSITION_HEADING_FOV_FOOTPRINT_OVERLAPS:' + cid
+                                          for cid in run.catalog['camera_ids']])
+                sx.assert_no_forbidden(ctx)
+                out.update(scene_context=ctx, frame_reader=self.rgb.p1.run.read_rgb)
+            return out
+        return service
 
     def add_static(self, artifacts, runs):
         report = loads(pinned(artifacts/'d129-464-r005-probe-20261105-a/report.json', REPORT_PIN))
@@ -342,7 +393,16 @@ class Demo(P1):
             token = secrets.token_urlsafe(32); self.sessions[token] = self.scenes
             return {'session_ref': token, 'role': payload['role']}
         key = payload.get('scene_id'), payload.get('run_id')
+        if action == 'q_core_track' and key in self.core_track_keys:
+            from amidst.q1q5.service_core_track import core_track
+            _safe_request(payload); self.authorize(payload['session_ref'], key[0])
+            run = self.api.runs[key]
+            decider, why = self.track_decider(key, run) if payload.get('switch_mode') == 'AGENT_SEQUENTIAL' else (None, None)
+            return core_track(payload, run, decider=decider, unavailable_reason=why,
+                              demo_default=key[1] == EIGHTCAM_RUN, display_positions=self.positions.get(key))
         if action != 'q_core_track' or key not in self.cross:
+            if action == 'q_core_track':
+                require('manual_seed' not in payload, 'MANUAL_SEED_UNSUPPORTED')
             return self.api.call(action, payload, self.authorize)
         _safe_request(payload); self.authorize(payload['session_ref'], key[0]); run = self.api.runs[key]; b = run.bindings
         normalized = validate_track_request(payload, region_ids=run.catalog['region_ids'],
@@ -358,8 +418,22 @@ class Demo(P1):
             require(bool(resolved.ranges) and resolved.ranges[0].range_us[0] == 0, 'AUTOMATIC_SEED_PRESET_ONLY')
             stamp = resolved.ranges[0].range_us[1]
         require(0 <= stamp <= b.clock.duration_us, 'TIME_SCOPE')
+        agent_mode = normalized.get('switch_mode') == 'AGENT_SEQUENTIAL'
+        decider, why = self.track_decider(key, run) if agent_mode else (None, None)
+        ms = normalized.get('manual_seed')
+        if ms is not None:
+            require(any(t.track_ref == ms['track_ref'] for t in self.cross[key]) and ms['at_us'] <= stamp, 'MANUAL_SEED_UNKNOWN')
         doc, _, _ = cross_response(self.cross[key], self.transitions, as_of_us=stamp,
-            parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256)
+            parameters=self.cross_params, clock_mapping_sha256=b.clock_sha256, decider=decider,
+            manual=(ms['track_ref'], ms['at_us']) if ms else None)
+        if ms is not None:
+            doc['manual_seed'] = dict(ms, applied=any(r.get('reason') == 'OPERATOR_SELECTION' for r in doc['association_audit']))
+        if agent_mode:   # F3 (#657): which decisions the Agent made and whether they were adopted (association_audit has every row)
+            rows = [r for r in doc['association_audit'] if r.get('reason') == 'AGENT_SERVICE_DECISION']
+            doc['agent'] = {'switch_mode': 'AGENT_SEQUENTIAL', 'available': decider is not None, 'unavailable_reason': why,
+                            'decisions': len(rows), 'adopted': sum(1 for r in rows if r.get('adopted_track_ref')),
+                            'fallbacks': sum(1 for r in rows if r.get('fallback_reason')), 'model_calls_total': decider.calls if decider else 0,
+                            'agent_used': any(e.get('reason') == 'AGENT_ASSOCIATION_HYPOTHESIS' for e in doc['association_audit'])}
         doc['resolved_scope'] = {'scene_id': key[0], 'run_id': key[1], 'detection_index_sha256': b.index_sha256}
         doc['provenance'] = {'producer': 'demo-cross-camera-local-linker', 'gt_read': False,
             'parameter_mode': 'DEMO_DEFAULT', 'formal_eligible': False, 'seed_policy': 'AUTOMATIC_EARLIEST_LOCAL_SEED',

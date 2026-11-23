@@ -1,0 +1,267 @@
+{
+  "policy": "Both arms use these exact PNGs and detection indexes; no per-arm redetection.",
+  "role": "SHARED_PIXEL_INPUTS_ONLY",
+  "runs": [
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-A1-5hz-v1",
+      "duration_us": 54200000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "b3dee2408c42abc58d39baae185d8a346048a45d145a6130804311b712567c37",
+      "index_file_sha256": "cb273734c3cb1560045db7947be81c5a8e96446293346c56b5fc4a74c144554b",
+      "index_path": "indexes/E3-A1/detection_index.json",
+      "records_file_sha256": "d4bd8d1c1ed217ac270c604f516e5b6cc36074bc336c232f9a1a6d3e58d9fda8",
+      "records_path": "indexes/E3-A1/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-A1/rgb_index.json",
+      "rgb_index_sha256": "7b3b2a23808751caa150294b07a976ce67602edae6362bbb3a685d2c3773ad71",
+      "run_id": "E3-A1",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-A2-5hz-v1",
+      "duration_us": 40200000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "13c31251439bf14cb062c69480da68b7e635e7408eecae4204481869e0d5063c",
+      "index_file_sha256": "af74cf8d5489a8c19934dca318ebd41678d5b0f3b132af36b82b09e78c700cf3",
+      "index_path": "indexes/E3-A2/detection_index.json",
+      "records_file_sha256": "cfb492dd7d97bdc4e4873a63d9508c0bce20cf9fae21c410c664681623c0966a",
+      "records_path": "indexes/E3-A2/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-A2/rgb_index.json",
+      "rgb_index_sha256": "60a7692ffe98681b89a7e376b3ab0322b2d959f6bf19b25fae0428349f1b2cf1",
+      "run_id": "E3-A2",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-A3-5hz-v1",
+      "duration_us": 26000000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "feaea0725be22c51136fe978793d2c30fdf2b2c82a28cdd62fb1bb859628ddaa",
+      "index_file_sha256": "3937edac85be2924dd64a1c0a86b180820d20c1f272de7e069080f552b6ad6c3",
+      "index_path": "indexes/E3-A3/detection_index.json",
+      "records_file_sha256": "f796cad15ab6d0bf77c9921c491d0d48fb4188ebe6363492ad6c5bfacfbc8fde",
+      "records_path": "indexes/E3-A3/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-A3/rgb_index.json",
+      "rgb_index_sha256": "a0fa2ffa8e2f4c5f6921791515e3a2d15df528d9d5a80c4afa69988e3c4f3df5",
+      "run_id": "E3-A3",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-B1-5hz-v1",
+      "duration_us": 52800000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "290a36259e00075757a73157304187db41a0cbe222a944002bcc7f8f47c409bb",
+      "index_file_sha256": "7e2de005884e716e2dffe8c4be3f207c9252ab6f7b756aaa41549e96596f8aca",
+      "index_path": "indexes/E3-B1/detection_index.json",
+      "records_file_sha256": "e0f9a0fa8685d4e303e7d6cbee23a7e9c0d7b15d44e6aa6cc35320ae856d1f50",
+      "records_path": "indexes/E3-B1/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-B1/rgb_index.json",
+      "rgb_index_sha256": "2cee97dc4e9cb6221a1647ecc50aff2c6898a074ab9588af7f64a69981e55de3",
+      "run_id": "E3-B1",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-B2-5hz-v1",
+      "duration_us": 47400000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "710b554e2706b6eb6e5b5345fadf426282adcf6b97b73b750e5d59e305cf1f08",
+      "index_file_sha256": "84546d0f692a388016e73228e0c571ce6ccb8bb251b515889e4e83e6f432fcc0",
+      "index_path": "indexes/E3-B2/detection_index.json",
+      "records_file_sha256": "72bb33eb95fb6c8bfc064e3dd826c263d51dda60ab7f732253143bee1588809d",
+      "records_path": "indexes/E3-B2/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-B2/rgb_index.json",
+      "rgb_index_sha256": "ba3fa08444e78ec4d3f0993734b3a8c2999212985be434ef79a3d840115b3032",
+      "run_id": "E3-B2",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-C1-5hz-v1",
+      "duration_us": 60200000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "d4fe9f4fc147096dd998ebc0ef4d1a4f7ef935ec8ca60336c1075359dfcba241",
+      "index_file_sha256": "b060562dadcbeaf4c52edc01f95dfdbb15c939792b7f65c8af205ecab2cfa660",
+      "index_path": "indexes/E3-C1/detection_index.json",
+      "records_file_sha256": "eb8cbcf2ad93b7343fc801741d680b62964512db300086e83749d1c5f9b5fa09",
+      "records_path": "indexes/E3-C1/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-C1/rgb_index.json",
+      "rgb_index_sha256": "d0f931a7788d32cb7f5c19ac02f44082760767b4e5758733897163c42ee3837d",
+      "run_id": "E3-C1",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-C2-5hz-v1",
+      "duration_us": 40200000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "6cbeef846b94b88af0a3ebe3139d496dd8d1e120fdf803d3b580dcb95e008aa4",
+      "index_file_sha256": "f9f9e9899d2f27dfeb0e10c40dfe77a083b53f7e619577b730c1ca34a1864542",
+      "index_path": "indexes/E3-C2/detection_index.json",
+      "records_file_sha256": "b621e6c3361a794d76a07cef120f9cf8dca75869505521f0a51dc0eeebc36dfd",
+      "records_path": "indexes/E3-C2/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-C2/rgb_index.json",
+      "rgb_index_sha256": "acecf474a8a76bd447664f137ecd449b3f3b9975e125673296892c51aa3e4d87",
+      "run_id": "E3-C2",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-D1-5hz-v1",
+      "duration_us": 51600000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "35cf8552963a1689749c9732a5dd1f5189bbbac03c94830ef127230b5a9e6548",
+      "index_file_sha256": "4820aa94b009f67e7d3341338522e77a5a5ae5c2a953e9aa58741f12e14dfa57",
+      "index_path": "indexes/E3-D1/detection_index.json",
+      "records_file_sha256": "c888199dd1bf286ee7d5301d7fe8f4e99bafb8f2d1fb61e9f6b0ab8ef4540833",
+      "records_path": "indexes/E3-D1/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-D1/rgb_index.json",
+      "rgb_index_sha256": "af0e86d566537bfe7c56a8c80681179f6b1fff3d4159b19369e592db8ee19ce5",
+      "run_id": "E3-D1",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    },
+    {
+      "camera_ids": [
+        "CAM_BRANCH",
+        "CAM_ENTRY",
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "clock_id": "live-E3-D2-5hz-v1",
+      "duration_us": 47000000,
+      "frame_interval_us": 200000,
+      "image_size_px": [
+        320,
+        180
+      ],
+      "index_content_sha256": "f58ee2fc944a909c3868bcf768e485daa9c523f9a7c34b44bd70d49c872cee63",
+      "index_file_sha256": "3a86e4a464675c2e1d6f08515be4a0d152cf76240d652f50de93ac43159126bf",
+      "index_path": "indexes/E3-D2/detection_index.json",
+      "records_file_sha256": "57879b65e0ad564b4af69782eccb2da8baab0f8af39562f81755d36c41392e56",
+      "records_path": "indexes/E3-D2/detection_index.records.jsonl",
+      "rgb_index_path": "rgb/E3-D2/rgb_index.json",
+      "rgb_index_sha256": "d5acfb18c60a5233b7b6b96237bc8cb9775c5add06ab1893e42e99b170081639",
+      "run_id": "E3-D2",
+      "scene_id": "r004-live-n6",
+      "scene_revision": "r004-live-e3-v1"
+    }
+  ]
+}

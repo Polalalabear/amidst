@@ -161,3 +161,22 @@ def test_post_config_rejects_a_foreign_host_header_but_local_curl_still_works(mo
         assert post(f"127.0.0.1:{port}", origin=f"http://127.0.0.1:{port}") == 200   # the live page itself
     finally:
         srv.shutdown()
+
+
+def test_agent_mode_does_not_start_silently_without_a_scene_context(tmp_path, capsys):
+    """#666 M3: a scene context that cannot be built is reported (llm_switch, log), never a silent Agent run without spatial information."""
+    st = make_state(provider="fake")
+    st.args.cameras = str(tmp_path / "missing.catalog.json")
+    st.registered_cameras = []
+    r = st.set_llm_mode("agent")
+    assert r["requested"] == "agent" and r["effective"] == "off" and r["available"] is False
+    assert r["reason_code"].startswith("SCENE_CONTEXT_UNAVAILABLE:") and "SCENE_CONTEXT_UNAVAILABLE" in r["reason_text"]
+    assert st.decider is None and st.args.advisor == "off" and st.llm_switch == r
+    assert "SCENE_CONTEXT_UNAVAILABLE" in capsys.readouterr().out
+
+
+def test_agent_mode_starts_when_the_scene_context_builds(monkeypatch):
+    st = make_state(provider="fake")
+    monkeypatch.setattr(server.State, "_live_scene_context", lambda self: (setattr(self, "scene_context_error", None), {"scene": 1})[1])
+    r = st.set_llm_mode("agent")
+    assert r["effective"] == "agent" and st.decider is not None and st.decider.scene_context == {"scene": 1}

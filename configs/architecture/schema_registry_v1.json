@@ -2632,12 +2632,28 @@
       "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
     },
     {
+      "value": "live-ab.case.v1",
+      "source_paths": [
+        "frontend/live-mode/src/recording.mjs"
+      ],
+      "issue_ref": "#596",
+      "status": "PROPOSED"
+    },
+    {
       "value": "live-hardset.answer-table.v1",
       "source_paths": [
         "configs/evaluation/live_hardset_v1.json"
       ],
       "issue_ref": "#597",
       "status": "LIVE_AB_PRIVATE_OFFLINE_EVALUATION_ONLY"
+    },
+    {
+      "value": "e5.b-log.v1",
+      "source_paths": [
+        "docs/contracts/E5_AOPEN_INTERFACE_V1.md"
+      ],
+      "issue_ref": "#684",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }

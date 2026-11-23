@@ -49,3 +49,10 @@ test('the switch adds nothing to the B-screen protocol whitelist: switch/GT/key 
   const bad = validateSystemMessage(dirty); const text = JSON.stringify(bad);
   assert.match(text, /llm_switch/); assert.match(text, /gt_xy/);
 });
+
+test('F3 #657: agent mode is a selectable advisor mode; unknown modes still send off', () => {
+  assert.deepEqual(buildRequest(true, 'agent', 'terra6.1'), { advisor: 'agent', advisor_model: 'terra6.1' });
+  assert.deepEqual(buildRequest(true, 'toString'), { advisor: 'off' });
+  const v = switchView({ advisor: 'agent', llm_switch: { requested: 'agent', effective: 'agent', provider: 'openai', model: 'terra6.1' } });
+  assert.equal(v.mode, 'agent'); assert.match(v.text, /Agent 決策/);
+});

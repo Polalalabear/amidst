@@ -15,7 +15,7 @@ from __future__ import annotations
 import os
 from collections.abc import Mapping
 
-MODES = ("off", "review", "lead")
+MODES = ("off", "review", "lead", "agent")   # agent: F3 (#657) agent_service decider (service_decider.py)
 
 # reason -> (code, text shown to the operator). Codes reuse the advisor's fallback_reason vocabulary where one exists.
 REASONS = {

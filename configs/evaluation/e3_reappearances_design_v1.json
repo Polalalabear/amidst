@@ -1,0 +1,2373 @@
+{
+  "status": "GT_ONLY_DESIGN_BEFORE_CAPTURE",
+  "policy": {
+    "min_blind_s": 3,
+    "max_blind_s": 10,
+    "pre_visible_s": 3,
+    "post_visible_s": 3,
+    "points_per_gap": 1,
+    "window_s": 3,
+    "minimum_new_points": 27,
+    "base_declared_reappearance_points": 3,
+    "base_declared_primary_points": 38,
+    "selection": "SCRIPT_AND_GT_ONLY_NO_AGENT_OR_RULE_OUTPUTS",
+    "c_requirement": "different visible camera sets before and after gap; no claim about top3 without experiment outputs"
+  },
+  "cases": [
+    {
+      "case_id": "E3-B3",
+      "family": "B",
+      "route": {
+        "run_id": "A4-1",
+        "start_xy": [
+          -10,
+          -0.4
+        ],
+        "family": "B",
+        "tail_s": 1,
+        "steps": [
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "hold_until",
+            "t_s": 22
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -3.35,
+              -0.25
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 5
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          }
+        ]
+      },
+      "planned_points": [
+        {
+          "gap_start_tick": 159,
+          "last_visible_tick": 158,
+          "return_tick": 183,
+          "blind_duration_s": 4.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 183,
+          "timestamp_us": 36600000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            36600000,
+            39600000
+          ],
+          "source_ref": "ticks[183]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 209,
+          "last_visible_tick": 208,
+          "return_tick": 241,
+          "blind_duration_s": 6.4,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 241,
+          "timestamp_us": 48200000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            48200000,
+            51200000
+          ],
+          "source_ref": "ticks[241]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 267,
+          "last_visible_tick": 266,
+          "return_tick": 301,
+          "blind_duration_s": 6.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 301,
+          "timestamp_us": 60200000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            60200000,
+            63200000
+          ],
+          "source_ref": "ticks[301]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 327,
+          "last_visible_tick": 326,
+          "return_tick": 357,
+          "blind_duration_s": 6,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 357,
+          "timestamp_us": 71400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            71400000,
+            74400000
+          ],
+          "source_ref": "ticks[357]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 383,
+          "last_visible_tick": 382,
+          "return_tick": 407,
+          "blind_duration_s": 4.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 407,
+          "timestamp_us": 81400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            81400000,
+            84400000
+          ],
+          "source_ref": "ticks[407]",
+          "h4_reappearance": true
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case_id": "E3-B4",
+      "family": "B",
+      "route": {
+        "run_id": "A4-1",
+        "start_xy": [
+          -10,
+          -0.4
+        ],
+        "family": "B",
+        "tail_s": 1,
+        "steps": [
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "hold_until",
+            "t_s": 25
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -3.35,
+              -0.25
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              4.35,
+              1.1
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              4.35,
+              1.1
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 5
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              4.35,
+              1.1
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              4.35,
+              1.1
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              4.35,
+              1.1
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          }
+        ]
+      },
+      "planned_points": [
+        {
+          "gap_start_tick": 174,
+          "last_visible_tick": 173,
+          "return_tick": 203,
+          "blind_duration_s": 5.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 203,
+          "timestamp_us": 40600000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            40600000,
+            43600000
+          ],
+          "source_ref": "ticks[203]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 239,
+          "last_visible_tick": 238,
+          "return_tick": 273,
+          "blind_duration_s": 6.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 273,
+          "timestamp_us": 54600000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            54600000,
+            57600000
+          ],
+          "source_ref": "ticks[273]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 308,
+          "last_visible_tick": 307,
+          "return_tick": 342,
+          "blind_duration_s": 6.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 342,
+          "timestamp_us": 68400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            68400000,
+            71400000
+          ],
+          "source_ref": "ticks[342]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 377,
+          "last_visible_tick": 376,
+          "return_tick": 402,
+          "blind_duration_s": 5,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 402,
+          "timestamp_us": 80400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            80400000,
+            83400000
+          ],
+          "source_ref": "ticks[402]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 437,
+          "last_visible_tick": 436,
+          "return_tick": 466,
+          "blind_duration_s": 5.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 466,
+          "timestamp_us": 93200000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            93200000,
+            96200000
+          ],
+          "source_ref": "ticks[466]",
+          "h4_reappearance": true
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case_id": "E3-B5",
+      "family": "B",
+      "route": {
+        "run_id": "A4-1",
+        "start_xy": [
+          -10,
+          -0.4
+        ],
+        "family": "B",
+        "tail_s": 1,
+        "steps": [
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "hold_until",
+            "t_s": 28
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -3.35,
+              -0.25
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 5
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 5
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              2,
+              -1.35
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              3.4,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          }
+        ]
+      },
+      "planned_points": [
+        {
+          "gap_start_tick": 189,
+          "last_visible_tick": 188,
+          "return_tick": 223,
+          "blind_duration_s": 6.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 223,
+          "timestamp_us": 44600000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            44600000,
+            47600000
+          ],
+          "source_ref": "ticks[223]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 249,
+          "last_visible_tick": 248,
+          "return_tick": 274,
+          "blind_duration_s": 5,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 274,
+          "timestamp_us": 54800000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            54800000,
+            57800000
+          ],
+          "source_ref": "ticks[274]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 300,
+          "last_visible_tick": 299,
+          "return_tick": 329,
+          "blind_duration_s": 5.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 329,
+          "timestamp_us": 65800000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            65800000,
+            68800000
+          ],
+          "source_ref": "ticks[329]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 355,
+          "last_visible_tick": 354,
+          "return_tick": 390,
+          "blind_duration_s": 7,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 390,
+          "timestamp_us": 78000000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            78000000,
+            81000000
+          ],
+          "source_ref": "ticks[390]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 416,
+          "last_visible_tick": 415,
+          "return_tick": 440,
+          "blind_duration_s": 4.8,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 440,
+          "timestamp_us": 88000000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            88000000,
+            91000000
+          ],
+          "source_ref": "ticks[440]",
+          "h4_reappearance": true
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case_id": "E3-C3",
+      "family": "C",
+      "route": {
+        "run_id": "B4-1",
+        "start_xy": [
+          4,
+          1
+        ],
+        "family": "C",
+        "tail_s": 1,
+        "steps": [
+          {
+            "mode": "hold",
+            "seconds": 0.5
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              0.35,
+              1.7
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -2.5,
+              1.2
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -3.35,
+              0.2
+            ]
+          },
+          {
+            "mode": "hold_until",
+            "t_s": 14
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -2.5,
+              1.2
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              0.35,
+              1.7
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              4,
+              1
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              8,
+              0.6
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              11.4,
+              1.3
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          }
+        ]
+      },
+      "planned_points": [
+        {
+          "gap_start_tick": 127,
+          "last_visible_tick": 126,
+          "return_tick": 147,
+          "blind_duration_s": 4,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 147,
+          "timestamp_us": 29400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            29400000,
+            32400000
+          ],
+          "source_ref": "ticks[147]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 187,
+          "last_visible_tick": 186,
+          "return_tick": 213,
+          "blind_duration_s": 5.2,
+          "from_cameras": [
+            "CAM_BRANCH"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 213,
+          "timestamp_us": 42600000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            42600000,
+            45600000
+          ],
+          "source_ref": "ticks[213]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 241,
+          "last_visible_tick": 240,
+          "return_tick": 262,
+          "blind_duration_s": 4.2,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 262,
+          "timestamp_us": 52400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            52400000,
+            55400000
+          ],
+          "source_ref": "ticks[262]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 302,
+          "last_visible_tick": 301,
+          "return_tick": 328,
+          "blind_duration_s": 5.2,
+          "from_cameras": [
+            "CAM_BRANCH"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 328,
+          "timestamp_us": 65600000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            65600000,
+            68600000
+          ],
+          "source_ref": "ticks[328]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 356,
+          "last_visible_tick": 355,
+          "return_tick": 377,
+          "blind_duration_s": 4.2,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 377,
+          "timestamp_us": 75400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            75400000,
+            78400000
+          ],
+          "source_ref": "ticks[377]",
+          "h4_reappearance": true
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case_id": "E3-C4",
+      "family": "C",
+      "route": {
+        "run_id": "B4-1",
+        "start_xy": [
+          4,
+          1
+        ],
+        "family": "C",
+        "tail_s": 1,
+        "steps": [
+          {
+            "mode": "hold",
+            "seconds": 0.5
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              0.35,
+              1.7
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -2.5,
+              1.2
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -3.35,
+              0.2
+            ]
+          },
+          {
+            "mode": "hold_until",
+            "t_s": 22
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -2.5,
+              1.2
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              0.35,
+              1.7
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              4,
+              1
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              8,
+              0.6
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              11.4,
+              1.3
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          }
+        ]
+      },
+      "planned_points": [
+        {
+          "gap_start_tick": 167,
+          "last_visible_tick": 166,
+          "return_tick": 192,
+          "blind_duration_s": 5,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 192,
+          "timestamp_us": 38400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            38400000,
+            41400000
+          ],
+          "source_ref": "ticks[192]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 232,
+          "last_visible_tick": 231,
+          "return_tick": 252,
+          "blind_duration_s": 4,
+          "from_cameras": [
+            "CAM_BRANCH"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 252,
+          "timestamp_us": 50400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            50400000,
+            53400000
+          ],
+          "source_ref": "ticks[252]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 281,
+          "last_visible_tick": 280,
+          "return_tick": 306,
+          "blind_duration_s": 5,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 306,
+          "timestamp_us": 61200000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            61200000,
+            64200000
+          ],
+          "source_ref": "ticks[306]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 346,
+          "last_visible_tick": 345,
+          "return_tick": 367,
+          "blind_duration_s": 4.2,
+          "from_cameras": [
+            "CAM_BRANCH"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 367,
+          "timestamp_us": 73400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            73400000,
+            76400000
+          ],
+          "source_ref": "ticks[367]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 394,
+          "last_visible_tick": 393,
+          "return_tick": 420,
+          "blind_duration_s": 5.2,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 420,
+          "timestamp_us": 84000000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            84000000,
+            87000000
+          ],
+          "source_ref": "ticks[420]",
+          "h4_reappearance": true
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case_id": "E3-C5",
+      "family": "C",
+      "route": {
+        "run_id": "B4-1",
+        "start_xy": [
+          4,
+          1
+        ],
+        "family": "C",
+        "tail_s": 1,
+        "steps": [
+          {
+            "mode": "hold",
+            "seconds": 0.5
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              0.35,
+              1.7
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -2.5,
+              1.2
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -3.35,
+              0.2
+            ]
+          },
+          {
+            "mode": "hold_until",
+            "t_s": 21
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              -2.5,
+              1.2
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              0.35,
+              1.7
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              4,
+              1
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              8,
+              0.6
+            ]
+          },
+          {
+            "mode": "run",
+            "to_xy": [
+              11.4,
+              1.3
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 5
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              11.4,
+              0.6
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              13.75,
+              0.5
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 4
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              14.6,
+              0.5
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              15.5,
+              1.1
+            ]
+          },
+          {
+            "mode": "walk",
+            "to_xy": [
+              16.7,
+              1.8
+            ]
+          },
+          {
+            "mode": "hold",
+            "seconds": 3.2
+          }
+        ]
+      },
+      "planned_points": [
+        {
+          "gap_start_tick": 162,
+          "last_visible_tick": 161,
+          "return_tick": 182,
+          "blind_duration_s": 4,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 182,
+          "timestamp_us": 36400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            36400000,
+            39400000
+          ],
+          "source_ref": "ticks[182]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 222,
+          "last_visible_tick": 221,
+          "return_tick": 252,
+          "blind_duration_s": 6,
+          "from_cameras": [
+            "CAM_BRANCH"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 252,
+          "timestamp_us": 50400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            50400000,
+            53400000
+          ],
+          "source_ref": "ticks[252]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 281,
+          "last_visible_tick": 280,
+          "return_tick": 306,
+          "blind_duration_s": 5,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 306,
+          "timestamp_us": 61200000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            61200000,
+            64200000
+          ],
+          "source_ref": "ticks[306]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 346,
+          "last_visible_tick": 345,
+          "return_tick": 367,
+          "blind_duration_s": 4.2,
+          "from_cameras": [
+            "CAM_BRANCH"
+          ],
+          "to_cameras": [
+            "CAM_W2"
+          ],
+          "tick": 367,
+          "timestamp_us": 73400000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_W2"
+          ],
+          "evaluation_window_us": [
+            73400000,
+            76400000
+          ],
+          "source_ref": "ticks[367]",
+          "h4_reappearance": true
+        },
+        {
+          "gap_start_tick": 394,
+          "last_visible_tick": 393,
+          "return_tick": 420,
+          "blind_duration_s": 5.2,
+          "from_cameras": [
+            "CAM_W2"
+          ],
+          "to_cameras": [
+            "CAM_BRANCH"
+          ],
+          "tick": 420,
+          "timestamp_us": 84000000,
+          "type": "REAPPEAR",
+          "expected": "REACQUIRE_T_WITHIN_3S",
+          "cameras": [
+            "CAM_BRANCH"
+          ],
+          "evaluation_window_us": [
+            84000000,
+            87000000
+          ],
+          "source_ref": "ticks[420]",
+          "h4_reappearance": true
+        }
+      ],
+      "diagnostics": []
+    }
+  ],
+  "new_reappearance_points": 30,
+  "combined_reappearance_points": 33,
+  "combined_primary_points": 68,
+  "producer_files": {
+    "reappearance_routes.mjs": "20f941915c2f0328e526dc4736a41dc98af0b0b1579bd7428d32d1f025b0d678",
+    "reappearance_events.mjs": "47b393391d8d5cf5ab6ac8085c6c7f6bd516fe97614bc48792ce02a69e715c8f",
+    "prepare_reappearances.mjs": "0663910a2ef3063e03cf90d3e0b8728f741798a611996d7d06f6d92729160ea7",
+    "generate.mjs": "7330549d5ea4842bbebc53ef10494e16fc7d9d771d237752ad7bf70af61e0ca0"
+  }
+}

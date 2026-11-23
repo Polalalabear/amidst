@@ -97,7 +97,7 @@ test('D139 static wiring: one speed dropdown, one timeline, ⓘ for tags, concre
   assert.match(shell, /ui-speed'/); assert.doesNotMatch(shell, /data-speed/); assert.doesNotMatch(shell, /ui-speeds/);
   assert.match(shell, /trackWindow\(form\.start, form\.end, run\?\.clock_mapping\)/);
   assert.match(shell, /ui-scrub-overlay/); assert.match(shell, /ui-info/); assert.match(shell, /ui-blind-end/); assert.match(shell, /ui-track-range/);
-  assert.match(shell, /ui-manual-target/); assert.match(shell, /button\.disabled = true|disabled = true/);   // D137 button stays disabled
+  assert.match(shell, /ui-manual-target/); assert.match(shell, /button\.disabled = true|disabled = true/);   // D137: disabled before a result (F3 #657: candidates once tracking)
   // The negative source-word check lives in tests/q1q5/test_ui_d139_boundary.py (the guard scans this folder for those words).
 });
 

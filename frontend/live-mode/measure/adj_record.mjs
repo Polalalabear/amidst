@@ -6,7 +6,9 @@ import fs from 'node:fs';
 import { launch, BASE, sleep } from './lib.mjs';
 const [label, query, secs = '41'] = process.argv.slice(2);
 const out = `${process.env.OUT || 'out'}/${label}`; fs.mkdirSync(out, { recursive: true });
+let data;
 const b = await launch();
+try {
 const op = await b.newPage(); op.on('pageerror', (e) => console.log('[op err]', e.message));
 await op.evaluateOnNewDocument(() => {
   window.__adj = { rows: [], frames: [], hi: null, n: 0 };
@@ -42,9 +44,11 @@ await op.evaluate(async () => {
   window.__adj.hi = makeCapture(window.__op.world, window.__op.cams, 960, 540, 0.9);
 });
 await sleep(Number(secs) * 1000);
-const data = await op.evaluate(() => ({ cfg: { ...__log.config, n6: !!__log.config.n6 }, t0: __log.fpsStart, dropped: __log.dropped,
+data = await op.evaluate(() => ({ cfg: { ...__log.config, n6: !!__log.config.n6 }, t0: __log.fpsStart, dropped: __log.dropped,
   ticks: __log.ticks.map((t) => ({ tick: t.tick, t_capture: t.t_capture, gt_visible: t.gt_visible })), rows: __adj.rows, frames: __adj.frames }));
-await b.close();
+} finally {
+  await b.close();
+}
 for (const fr of data.frames) fs.writeFileSync(`${out}/${String(fr.idx).padStart(3, '0')}_${fr.cam}.jpg`, Buffer.from(fr.b64, 'base64'));
 fs.writeFileSync(`${out}/raw.json`, JSON.stringify({ label, query, secs: Number(secs), cfg: data.cfg, t0: data.t0, dropped: data.dropped, ticks: data.ticks,
   rows: data.rows, frames: data.frames.map((f) => ({ idx: f.idx, cam: f.cam })) }));

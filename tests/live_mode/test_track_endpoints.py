@@ -14,6 +14,7 @@ import pytest
 from PIL import Image
 
 from amidst.live_mode import server as live
+from amidst.q1q5.api_budget import GuardConfig
 
 CANDIDATE_KEYS = {"cand_id", "tick", "cam", "bbox", "score", "color", "est_xy"}
 CAMERAS = ("left", "right")
@@ -66,7 +67,7 @@ def live_server(monkeypatch, tmp_path):
         Image.new("RGB", (96, 60), color).save(data, format="JPEG")
         jpeg[color] = data.getvalue()
 
-    def infer(tick, left=(), colors=("red", "red"), path="/infer"):
+    def infer(tick, left=(), colors=("red", "red"), path="/infer", *, status=200):
         boxes[:] = [
             {"bbox": [x, 0, x + 10, 30], "score": 0.9, "actor_id": "never-serialized"}
             for x in left
@@ -77,7 +78,7 @@ def live_server(monkeypatch, tmp_path):
             "frames": [{"cam": cam, "bytes": len(data)} for cam, data in frames],
         }).encode()
         code, body = request(path, raw=struct.pack("<I", len(header)) + header + b"".join(data for _, data in frames))
-        assert code == 200
+        assert code == status, body
         return body
 
     try:
@@ -127,6 +128,42 @@ def test_idle_preview_is_read_only_and_start_with_no_infer_autolocks_once(live_s
         409, {"error": "TRACK_MODE_CONFLICT"}
     )
     assert state.tracker.est is None
+
+
+def test_non_monotonic_infer_leaves_tracking_and_scheduler_untouched(live_server):
+    state, request, infer = live_server
+    infer(1, (8,))
+    request("/track/start", {"color": "red", "session_id": state.selection.session_id})
+    assert infer(3, (8,))["tracking"]["state"] == "TRACKING"
+    state.det.detect = Mock(wraps=state.det.detect)
+    state.scheduler.plan = Mock(wraps=state.scheduler.plan)
+    state.scheduler.observe = Mock(wraps=state.scheduler.observe)
+    state.tracker.update = Mock(wraps=state.tracker.update)
+    latest = state.selection.latest
+    for tick in (3, 2):
+        assert infer(tick, (42,), status=409) == {"error": "NON_MONOTONIC_TICK", "next_tick": 4}
+    assert infer(-1, status=400) == {"error": "INVALID_TICK"}
+    state.det.detect.assert_not_called()
+    state.scheduler.plan.assert_not_called()
+    state.scheduler.observe.assert_not_called()
+    state.tracker.update.assert_not_called()
+    assert state.selection.latest is latest
+
+    assert infer(2, (42,), path="/detect")["tracking"] is None
+    assert state.selection.latest is latest
+    assert infer(4, (8,))["tick"] == 4
+    assert request("/reset", {})[0] == 200
+    assert infer(0)["tracking"]["state"] == "IDLE"
+
+
+def test_advisor_budget_does_not_enable_live_sentence_api(live_server):
+    state, request, _ = live_server
+    state.guard = SimpleNamespace(config=GuardConfig(enabled=True, max_usd_total=1))
+    state.llm_switch["effective"] = "review"
+    state.sentence_parser.client_factory = Mock()
+    code, body = request("/track/start", {"session_id": state.selection.session_id, "sentence": "找紅衣"})
+    assert code == 200 and body["parse"]["parser"] == "RULES"
+    state.sentence_parser.client_factory.assert_not_called()
 
 
 def test_initial_needs_pick_is_latched_through_single_detection(live_server):

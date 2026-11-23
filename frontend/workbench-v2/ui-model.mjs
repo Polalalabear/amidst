@@ -294,6 +294,9 @@ export function blindReacquire(singleView, currentTUs, clockMapping) {
   let gap = -1; list.forEach((x, i) => { if (x.kind === 'GAP' && x.range_us[0] <= currentTUs) gap = i; });
   const next = gap >= 0 ? list[gap + 1] : null;
   if (!next || next.kind !== 'ON_CAMERA' || next.range_us[0] > currentTUs) return null;
+  // F3 (#657): only while the playhead is inside that re-acquired segment, so the plan never says "observed again" while the
+  // stage and the title say the target is lost / in a later gap (one source: the segment under the playhead).
+  if (next !== list.at(-1) && currentTUs >= next.range_us[1]) return null;
   const atUs = next.range_us[0], atText = wallClockText(clockMapping, atUs) ?? `${(atUs / 1e6).toFixed(2)} s`;
   return { cameraId: next.camera_id, atUs, atText };
 }
@@ -375,4 +378,37 @@ export function stagePlan(singleView, t) {
   let last = null; for (const x of list) if (x.kind === 'ON_CAMERA' && x.range_us[0] <= t) last = x.camera_id;
   const kind = ['GAP', 'LOST'].includes(seg.kind) ? seg.kind : 'UNKNOWN';
   return { kind, cam: last ?? first?.camera_id ?? null, observed: false, last };
+}
+
+// ---- F3 (#657): multi view = every camera of the run; manual re-selection candidates -----------------------------
+// role: 'current' = the tracked target is observed on this camera at the playhead (stagePlan, the same source as the single
+// view and the plan); 'candidate' = an unassociated local track (same colour as the target) is seen there now; else 'none'.
+export const TILE_BADGE = Object.freeze({ current: '目前追蹤', candidate: '候選', none: '未見目標' });
+export function multiTiles(cameraIds, singleView, sightings, t) {
+  const plan = stagePlan(singleView, t), list = Array.isArray(sightings) ? sightings : [];
+  const ids = [...new Set([...(Array.isArray(cameraIds) ? cameraIds : []), ...list.map(x => x.camera_id)])].filter(Boolean);
+  return ids.map(cameraId => {
+    const role = plan.observed && plan.cam === cameraId ? 'current'
+      : list.some(x => x.camera_id === cameraId && x.selected_for_single_view === false && x.range_us[0] <= t && t < x.range_us[1]) ? 'candidate' : 'none';
+    return { cameraId, role, badge: TILE_BADGE[role] };
+  });
+}
+export function manualSelectionSupported(response) {
+  return ['demo-cross-camera-local-linker', 'demo-core-agent-track'].includes(response?.provenance?.producer);
+}
+// Local tracks the operator can switch to at the playhead: every sighting covering t that is not the tracked one now.
+export function manualCandidates(singleView, sightings, t) {
+  const plan = stagePlan(singleView, t), out = [], seen = new Set();
+  for (const x of Array.isArray(sightings) ? sightings : []) {
+    if (!x.track_ref || seen.has(x.track_ref) || !(x.range_us[0] <= t && t < x.range_us[1])) continue;
+    if (x.selected_for_single_view !== false && plan.observed && plan.cam === x.camera_id) continue;
+    seen.add(x.track_ref); out.push({ trackRef: x.track_ref, cameraId: x.camera_id, atUs: Math.max(x.range_us[0], Math.trunc(t)) });
+  }
+  return out.sort((a, b) => a.cameraId.localeCompare(b.cameraId) || a.trackRef.localeCompare(b.trackRef));
+}
+// One line for the journal: what the Agent did on this response (doc.agent from q_core_track).
+export function agentSummaryText(agent) {
+  if (!agent || agent.switch_mode !== 'AGENT_SEQUENTIAL') return null;
+  if (!agent.available) return agent.unavailable_reason === 'MAIN_SCREEN_AGENT_D124_RUNS_ONLY' ? 'Agent 模式：此場景的主畫面尚未接 Agent，以規則結果顯示' : `Agent 模式：Agent 不可用（${agent.unavailable_reason ?? 'UNKNOWN'}），以規則結果顯示`;
+  return `Agent 模式：決策 ${agent.decisions} 次、採用 ${agent.adopted} 次、退回規則 ${agent.fallbacks} 次`;
 }

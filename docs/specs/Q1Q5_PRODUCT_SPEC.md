@@ -5,6 +5,7 @@
 - **本文不新增規範。**每項敘述都只轉述既有決策（[#93](https://github.com/Polalalabear/amidst/issues/93) 的 D 編號）、契約與計畫，並附來源；查不到的寫 `UNKNOWN`。本文與來源不一致時，以來源為準。
 - 規則以 [DEVELOPMENT_RULES](DEVELOPMENT_RULES.md) 為準，本文不改它。
 - 即時狀態以 [#93](https://github.com/Polalalabear/amidst/issues/93) 與 [進度導覽](../operations/Q1Q5_PROGRESS.md) 為準；本文只寫範圍、組成與介面。
+- **2026-11-20 更新（D342，全面文件同步）**：§2 資料流加入 Agent 模式（`agent_service.py`、`scene_context.py`、`camera_projection.py`、`ApiGuard`）；§4.3 補付費路徑與 `ApiGuard`、G7、假設 H1–H6 的目前證據；§8 U-9 關閉、新增 U-18（G7）。2026-11-22 補：G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）（#655）；§4.4 記 #608（重新取得 R1，`cfbfe4e9`）與 #617（錄製重播，`1742ed06`）已合併。原則不變：只轉述既有決策與文件。
 - **2026-11-20 更新（D340，issue [#641](https://github.com/Polalalabear/amidst/issues/641)）**：Agent 模式依 D340 放寬（§1.2、§3 表、§4.3），加入 H6 全模式可切換。
 - **2026-11-19 更新（D338，issue [#631](https://github.com/Polalalabear/amidst/issues/631)）**：依 D319 第一輪檢索（[`docs/index/SWEEP_D319_PASS1_20261119.md`](../index/SWEEP_D319_PASS1_20261119.md)）補上 LIVE 即時模式（新 §4.4）、預錄 Agent 開關與 3D 視圖（§4.2、§4.3）、外部模型例外（§1.2）、鏡頭數（§5.1）、決策索引到 D334（§6），並修正整合分支與契約版本的敘述、§1.3／§7 P-5／U-14 的 3D 敘述、關閉 U-1、U-13。原則不變：只轉述既有決策與文件。程式碼與文件的對應見 [`docs/index/CODE_DOC_MAP.md`](../index/CODE_DOC_MAP.md)。
 
@@ -74,6 +75,17 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
    候選鏡頭＝兩層圖＋D28 決定性排序（§5.4）
    RULE_ONLY／AGENT_SEQUENTIAL（§8.1）；Agent 經 typed tools（§8.4）讀 Q4 證據（§8.3）
    ─→ Q2 回應與逐步紀錄、journal（§8.7、§8.2）
+
+Agent 模式（D340，預設關；§4.3，W2 #645／PR #648）：
+已提交的圖設定（camera_graph_v3_1、region_graph_v3_1）＋鏡頭標定目錄
+  └─ camera_projection.py（標定 → 地面覆蓋多邊形）
+  └─ scene_context.py（連通、鏡頭邊與核定等級、位置／朝向／FOV／覆蓋／重疊、來源 SHA-256）→ 固定前綴
+規則顯示與答案＋偵測索引（含低分、非人物類別，附 gate）＋渲染影格／參考裁切
+  └─ agent_service.decide(mode=RULE|AGENT)
+       RULE：不建請求、不呼叫模型（預設）
+       AGENT：三層請求 → transport → ApiGuard（api_budget.py，帳本）→ OpenAI Responses API
+              無效回應／逾時／ApiGuard 拒絕 → 退回規則答案＋fallback_reason
+GT／visibility／depth 只在評分端（gt_scoring_r004.py 等評估腳本），q1q5 模組不 import amidst.evaluation
 輸出凍結 ─→ 評估端（§9、§9.1；D79 決策窗）
 ```
 
@@ -85,7 +97,8 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 | Q5 兩種模式 | `RULE_ONLY`、`AGENT_SEQUENTIAL`；超過上限由決定性規則兜底，兜底接手整段 session | 契約 §8.1、§8.6；D71、D73 |
 | 參數 | D65／D67 初值，依帶 hash 的 parameter_set 生效 | 契約 §11；D65、D67 |
 | 儲存 | 第一版不用 PG；版本化 JSON＋JSONL／manifest（優先）或 SQLite；薄 provider 直連 Ollama | 契約 §10、§13 Q-13 |
-| GT 隔離 | 人物設定、事件腳本、GT 軌跡／mask／visibility／depth 不進索引、圖、查詢、Agent 或 prompt | 契約 §9；[DEVELOPMENT_RULES](DEVELOPMENT_RULES.md) |
+| Agent 模式 | 規則／Agent 可切換（H6），預設規則；Agent 請求三層＋前綴快取，場景上下文只取已提交設定與標定；付費一律經 `ApiGuard` | D340；§4.3；`src/amidst/q1q5/agent_service.py`、`scene_context.py`、`camera_projection.py`、`api_budget.py` |
+| GT 隔離 | 人物設定、事件腳本、GT 軌跡／mask／visibility／depth 不進索引、圖、查詢、Agent 或 prompt；`src/amidst/q1q5/` 不 import `amidst.evaluation`（測試 `test_q1q5_modules_do_not_import_evaluation_package`） | 契約 §9；[DEVELOPMENT_RULES](DEVELOPMENT_RULES.md)；#648 |
 | 評估 | Q2／Q5 輸出先凍結，評估端再讀獨立 hash-pinned 劇本，以逐事件決策窗評分 | 契約 §9；D71、D73、D75、D79；[Q5 決策窗](../evaluation/Q5_DECISION_WINDOW_D79.md) |
 
 ---
@@ -150,11 +163,13 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
   - 設定裡已有的其他鏡頭屬性（例如 `covered_regions`、`entry_zones`、`exit_zones`）。
   來源只限已提交的設定檔或標定資料，每項附來源 SHA-256；不可用渲染真值、GT、visibility 或 depth（覆蓋分析中以 GT 評分的部分不送）。草稿圖也要提供，並標明核定等級。這是對 Agent 的基本輸入，不是選配；圖上的連通仍只是配置宣告，實體可通行是 `UNKNOWN`。
 - **Agent 請求結構（W2 #645，`src/amidst/q1q5/agent_service.py`、`scene_context.py`；2026-11-20）**：Agent 模式的請求分三層，靠前綴提示快取減少重複傳送；規則模式（`decision_mode=RULE`，預設）不建請求、不呼叫模型。
-  1. **固定前綴**：系統指示＋整份 `scene_context`（區域與出口區、區域邊與核定等級、鏡頭邊、被排除的鏡頭對與原因、每台鏡頭的位置／朝向／俯角／FOV／地面覆蓋多邊形／`covered_regions`／`entry_zones`／`exit_zones`、鏡頭兩兩重疊、各來源 SHA-256、`incomplete` 缺項清單）。穩定序列化（鍵排序、數值 3 位小數、無空白），`scene_context_sha256` 同時是 `prompt_cache_key`。覆蓋多邊形由標定投影（地面 z=0、0.5 m 格、最遠 14 m；遮擋與牆面不建模，列在 `incomplete`）。測試確認不含 GT、visibility、depth 欄位。
+  1. **固定前綴**：系統指示＋整份 `scene_context`（區域與出口區、區域邊與核定等級、鏡頭邊、被排除的鏡頭對與原因、每台鏡頭的位置／朝向／俯角／FOV／地面覆蓋多邊形／`covered_regions`／`entry_zones`／`exit_zones`、鏡頭兩兩重疊、各來源 SHA-256、`incomplete` 缺項清單）。穩定序列化（鍵排序、數值 3 位小數、無空白），`scene_context_sha256` 同時是 `prompt_cache_key`。覆蓋多邊形由標定投影（`src/amidst/q1q5/camera_projection.py`；地面 z=0、0.5 m 格、最遠 14 m；遮擋與牆面不建模，列在 `incomplete`）。測試確認不含 GT、visibility、depth 欄位。
   2. **每次追蹤固定**：參考裁切圖（首次鎖定的觀測）與外觀（系統顏色標籤）。
   3. **每次變動**：時間、規則的顯示與答案（資訊）、該事件所有鏡頭的所有偵測（含低分與非人物類別，分數索引下限 0.3；每個偵測附 `gate={rule_eligible, reasons[]}`，重疊鏡頭標 `overlap_with_last_camera`）、當下各鏡頭影格（偵測畫成編號框）。只用鏡頭 ID 指向前綴，不重送鏡頭屬性。
   - **回答**：`SELECT`（任何偵測；選 `rule_eligible=false` 者記 `RULE_OVERRIDE:<原因>`）、`OWN_BOX`、`STILL_HERE_OCCLUDED`、`NOT_VISIBLE`（附 `next_camera_hint`）。`reason_codes` 超過 4 個先截斷，不是退回理由。無效回應、傳輸失敗或 ApiGuard 拒絕時退回規則答案並記 `fallback_reason`。
-  - **記錄**：每次呼叫的輸入 token、`cached_tokens`、`cache_write_tokens`、輸出 token、延遲，付費走 `ApiGuard`。結果與快取策略比較見 [`W2_ACTIVE_AGENT_20261120.md`](../evaluation/W2_ACTIVE_AGENT_20261120.md)。8785 開關改接這個介面是 #645 第二步（待 Codex #623）。
+  - **記錄**：每次呼叫的輸入 token、`cached_tokens`、`cache_write_tokens`、輸出 token、延遲，付費走 `ApiGuard`（`src/amidst/q1q5/api_budget.py`；`agent_service.decide` 不自己連網，呼叫端傳入的 `transport` 要在 `ApiGuard.run` 內呼叫，例如 `scripts/run_w2_agent.py` 的 `make_transport`；帳本在 `AMIDST_API_USAGE_DIR`）。結果與快取策略比較見 [`W2_ACTIVE_AGENT_20261120.md`](../evaluation/W2_ACTIVE_AGENT_20261120.md)。8785 開關改接這個介面是 #645 第二步（待 Codex #623）。
+- **付費路徑與 `ApiGuard`（[`AGENT_API_WIRING_AUDIT_20261120.md`](../engineering/AGENT_API_WIRING_AUDIT_20261120.md)，#643）**：8785 預錄 gateway（`openai_gateway.py`）、LIVE 裁決、W1／先導／W2 評估腳本、WP5 runner 的付費呼叫都經 `ApiGuard`。**G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）**：#655（issue #651）讓 `scripts/agent_decision/run_provider.py` 的 OPENAI 每次嘗試、`OpenAIPredictionAdapter`（`openai_prediction.py`）的每次傳輸嘗試都先經 `ApiGuard.run`，DENIED 時不呼叫 provider，重試重新檢查；兩者仍預設關閉，adapter 仍未接到 8785（[`PAID_API_G7_20261120.md`](../operations/PAID_API_G7_20261120.md)）。見 §8 U-18。
+- **假設 H1–H6 的目前證據**（[`AGENT_VS_RULE_HYPOTHESES_20261120.md`](../evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md) §0；W1 #647、W2 #648）：H5 有條件成立、H2 有條件成立（部分）、H1 尚無數據、即時增益 0（延遲 p50 約 4.3 s）、H3 在兩個簡單事件上無害也無可見好處、H4 只有描述性訊號，不支持、H6 部分完成。條件：渲染合成、預錄、A4-1／B4-1 兩事件、單一目標、DRAFT 圖。
 - 契約 B（`Q1_Q2_FIRST_DEMO_V1.md`，不手改）的 §1、§8.4 仍寫 D64 時期的覆核者定義與 `q-demo.agent-decision.v2` 請求欄位；D340 的實作（請求加影格、空間資訊、閘門資訊）要另開契約版本，在新版契約確認前，舊欄位只代表規則模式與歷史重播。
 - typed tools 與 `q-demo.agent-decision.v2`：契約 §8.4。Agent 不能掃描檔案、跑任意 SQL 或 shell，也不能產生新的鏡頭、區域或觀測 ID（契約 §1）。
 - 預算：D65 原核准值與 D67 六項初值，見契約 §11（[D65](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)、[D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288)）。D73 維持 D65 預算（契約 §0.1）。
@@ -163,7 +178,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 - recorded replay：不連模型也能重播（[驗收計畫 AC1、AC7](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)）。
 - **預錄模式（8785）的 Agent 開關**（#601 → PR #604，2026-11-18 合併；D306、D313）：設定「追蹤方式：規則／Agent」；Agent 可接 OpenAI，預設關，要另開 gateway 程序（`start_agent_gateway.command`，只有它有網路與 key，每次呼叫過 ApiGuard），8785 程序本身不開 socket。逾時預設每輪 8000 ms、總共 24000 ms、最多 3 輪（D313）。不可用時選項反灰並寫原因（`GATEWAY_OFFLINE`、`GUARD_NOT_APPROVED`、`NO_API_KEY`、`MODEL_NOT_ENABLED`）；執行中失敗退回規則並記 `fallback_reason`。操作見 [`RECORDED_AGENT_OPENAI.md`](../operations/RECORDED_AGENT_OPENAI.md)。
   - **已修正**：A4-1、B4-1、B-05 上開關曾回 `TRACKING_SCOPE_MISSING`（D328-2，issue [#620](https://github.com/Polalalabear/amidst/issues/620)，已關閉）。PR #625 已於 2026-11-19 合併（merge `1d322837`）：`scene_projection` 保留已驗證的 tracking scope；A4-1／B4-1 的 Q5 參數集在 8785 demo 視為 APPROVED（使用者 2026-11-19 選 A，**只限 demo，不代表研究驗收**，`configs/q1q5/parameter_set_v1.json` 仍是 PROPOSED）；B-05 沒有 Agent 決策點，回 `agent_available=false`、`NOT_APPLICABLE_NO_DECIDER`，workbench-v2 選單顯示「Agent（不適用：此事件沒有 Agent 決策點）」。
-  - **後續**：修正後 A4-1、B4-1 規則與 Agent 模式都能跑完，但 Q5 controller 每一輪的候選都是 0 個，Agent 一次都沒被呼叫；原因調查是 issue [#629](https://github.com/Polalalabear/amidst/issues/629)（`ready`）。
+  - **後續**：修正後 A4-1、B4-1 規則與 Agent 模式都能跑完，但 Q5 controller 每一輪的候選都是 0 個，Agent 一次都沒被呼叫。原因已查明（#629 已關閉，PR #635：`transition_candidates` 的 `GRAPH_NOT_APPROVED` 閘門）；修法是把 8785 開關改接 `agent_service`（#645 第二步，等 Codex #623；D341）。
   - **規則 vs LLM 的預錄結果**（D325、D328）：A4-1、B4-1 上 terra／sol 與規則相同（跟對率 0.970／0.906），34 個決策點中規則只有 0 或 1 個合格候選，LLM 沒有可勝出的題目；見 [`RECORDED_RULE_VS_LLM_D325_20261118.md`](../evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)。因此 LLM 價值的評估移到 LIVE 難題集（§4.4）。
     - **更正（2026-11-20）**：上述結果只適用於「LLM 覆核、不看圖」的架構，不能推論 LLM 無效；「34 個決策點」（以決策點計數；LLM 請求列有 35 筆，因 A4-1 37.4 s 重複一次）中只有 0／1 個合格候選的是 32 個（另 2 個是同一人在重疊鏡頭 W1／W2），見 PR [#637](https://github.com/Polalalabear/amidst/pull/637)（merge `3cdbbfc9`）。看圖 Agent 的先導結果見 PR [#647](https://github.com/Polalalabear/amidst/pull/647)；#629 的結論（候選被 `GRAPH_NOT_APPROVED` 擋成 0）見 [`AGENT_ZERO_CANDIDATES_629.md`](../evaluation/AGENT_ZERO_CANDIDATES_629.md)。
 
@@ -189,17 +204,17 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 - B（系統端，`?role=system`；除錯格狀版 `?role=system&view=grid`）：和 8785 追蹤模式相同的選目標流程，只用鏡頭畫面，不能從 A 拿身分（GT 隔離）；B 的句子接 Q3 解析器（`src/amidst/q1q5/nl_query_parse.py`，不花錢）。
 - 人物不碰撞：腳本人物彼此不穿過；玩家擋路時腳本人物一直等（D279）；玩家造成的相位延後另外計數，不算失敗（D282 第 3 項）。
 - 腳本操作者 `?script=`：難題集的玩家動作全部由腳本產生（D321、D322、D331），報告要聲明沒有真人的不可預測性。
-- 已合併：PR #551（B 畫面 HUD）、#563（LLM 開關）、#584（crowd、角色選單、離線評分）、#610（session 範圍的選目標與 B 控制）、#615（難題集事件表與腳本操作者）、#618（A 選單改工作台風格）、#624（難題集比較工具，不付費）。未合併：#617（固定步長錄製與 pass 稽核）；傘狀 issue #566、#574 仍開著。
+- 已合併：PR #551（B 畫面 HUD）、#563（LLM 開關）、#584（crowd、角色選單、離線評分）、#610（session 範圍的選目標與 B 控制）、#615（難題集事件表與腳本操作者）、#618（A 選單改工作台風格）、#624（難題集比較工具，不付費）、#617（固定步長錄製重播與 D327 pass 稽核，2026-11-22 合併 `1742ed06`；輸入側確定性成立，完整 E3 corpus 為 0，輸出側確定性未驗）。傘狀 issue #566、#574 仍開著。
 
 **關聯與重新取得。**
 
 - 關聯範圍預設 4 m（D244）；已知限制：只在 A4／B4 路線調過，範圍越大越容易被同色的另一人搶走。
-- 重新取得 R1（D282 第 2 項）：短失聯在門檻內自動接回；超過門檻放寬搜尋、接回需外觀確認、多候選標待確認；不設硬性上限；門檻秒數由重播量測。契約 `LIVE_MODE_RELOCK_V1`（PR #587 已合併）；R-5 改寫為 R-5a（規則不新增錯接）與 R-5b（移到 #597）（D326）。**實作 PR #608（issue #588）尚未合併**，`main` 上的 `tracker.py` 仍是固定 gate 的舊行為。
+- 重新取得 R1（D282 第 2 項）：短失聯在門檻內自動接回；超過門檻放寬搜尋、接回需外觀確認、多候選標待確認；不設硬性上限；門檻秒數由重播量測。契約 `LIVE_MODE_RELOCK_V1`（PR #587 已合併）；R-5 改寫為 R-5a（規則不新增錯接）與 R-5b（移到 #597）（D326）。實作 PR #608（issue #588）已於 2026-11-22 合併（`cfbfe4e9`）：`RelockConfig` 門檻全部預設 `None`，未設定時 `Tracker` 走原固定 gate 行為（**預設關閉**）；`t_short_s`、`tau_app`、`margin_app` 在兩個固定場景量測依據不足，值為 `UNKNOWN`，只有 `v_walk` 有量測（#608 審查）。
 - 覆蓋缺口：室外 x < −13 只有 CAM_ENTRY（不在追蹤圖）、y > 5.7 無鏡頭（issue [#630](https://github.com/Polalalabear/amidst/issues/630)）。
 
 **LLM 決策開關**（#563，D242 第 3 項）：設定 → 即時模式：關／LLM 覆核／LLM 主導，預設關；失敗退回規則並寫原因；付費呼叫另外核准。
 
-**難題集**（#597，CL-B11；D304、D330、D331）：長時間失聯後遠處再出現、相似人物交錯、不照路線、跳過相鄰鏡頭、目標不在候選，共 15 段（H1–H5），加 A4／B4／r005 基準組；同一劇本重播兩次以上（只用規則／LLM 覆核），GT 只用於評分。H1、H4 以 graph 讀法（不計 CAM_ENTRY）為正式判定（D330 (a)）。機器可讀答案表 `configs/evaluation/live_hardset_v1.json`。**實跑等 #588／#608 合併、#596（錄製與重播）與使用者核准付費金額。**
+**難題集**（#597，CL-B11；D304、D330、D331）：長時間失聯後遠處再出現、相似人物交錯、不照路線、跳過相鄰鏡頭、目標不在候選，共 15 段（H1–H5），加 A4／B4／r005 基準組；同一劇本重播兩次以上（只用規則／LLM 覆核），GT 只用於評分。H1、H4 以 graph 讀法（不計 CAM_ENTRY）為正式判定（D330 (a)）。機器可讀答案表 `configs/evaluation/live_hardset_v1.json`。原 #597 已併入 W3 #646（D341）；前置 #608、#617 已於 2026-11-22 合併，E3 劇本前提見 #652；付費依 D339 額度並先 dry-run。
 
 ---
 
@@ -317,6 +332,7 @@ Q2 同鏡頭 IoU 連接（§8.2）─失聯→ Q5 狀態機（§8.6）
 | D334 | 協作規範：瀏覽器測試無頭、每項工作有 issue 且以 PR 交付、相近工作共用分支、狀態隨時更新 | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6998419780) |
 | D338 | 依 D319 第一輪檢索更新規格、文件與索引（本次更新） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7003589354) |
 | D340 | 放寬 Agent 模式（取代 D64）：Agent 可看影格、從所有偵測選人、回答仍在／不在／下一台、讀圖的邊與核定等級；每個請求必附場景上下文（連通性、鏡頭圖、覆蓋範圍、位置、朝向、FOV、重疊）；閘門改成資訊；GT 隔離、ApiGuard、身分未確認照舊硬擋；全模式可切換（H6） | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7016410023)、[#641](https://github.com/Polalalabear/amidst/issues/641) |
+| D341 | 依 D340 與假設 H1–H6 重整工作清單：W1 #644、W2 #645、W3 #646；#639、#597、#489 併入 | [#93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-7016748858) |
 
 原 2026-10-27 寫的「下一個編號：D93」已過時；下一個編號以 #93 最新留言為準。
 
@@ -357,7 +373,7 @@ PRD 其他章節（Phase 1 研究閉環、Blender GT、NavMesh、評估指標等
 | U-6 | A4-c2 是否計分（EXT_CAR 的 `t_L` 靜態投影確認） | 待 Codex 確認 | D92 第 1 項 |
 | U-7 | 第二版範圍的最終名單 | 暫定，等 #247 漏檢診斷與 #253 可行性 | D90 第 4 項 |
 | U-8 | Line 1／Line 2 各里程碑日期 | `UNKNOWN`，待使用者核定 | 兩條線計畫 §5 |
-| U-9 | D64 外部 API 例外（OpenAI 比較組） | 之後由使用者決定 | [驗收計畫 §5](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) |
+| U-9 | D64 外部 API 例外（OpenAI 比較組） | **已關閉（2026-11-20）**：D128、D306 允許 OpenAI（預設關、經 `ApiGuard`），D340 取代 D64 | [驗收計畫 §5](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)；D128、D306、D340 |
 | U-10 | 最後是否更新 `main` | 使用者決定 | D72；[驗收計畫 §4](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) |
 | U-11 | Q1–Q5 專用 pipeline 圖 | `UNKNOWN`（未找到） | 本文 §2 |
 | U-12 | 後端 API 各 action 的正式介面文件 | `UNKNOWN`（未找到；只有 staging 的 `api.py`） | 本文 §4.1 |
@@ -366,3 +382,4 @@ PRD 其他章節（Phase 1 研究閉環、Blender GT、NavMesh、評估指標等
 | U-15 | PRD P-7／P-8「Phase 2 只保留 interface」與 Q1–Q5 已實作偵測與 API 的關係 | `UNKNOWN`（本文不決定；需要時由使用者決定是否修規則） | 本文 §7 |
 | U-16 | D66 的內容 | `UNKNOWN`（未找到原文） | 本文 §6 |
 | U-17 | `R004_SCENE_CHANGE_PROPOSAL.md` 是否被 staging 的 `R004_REVIEW_V2` 取代 | `UNKNOWN` | [#263](https://github.com/Polalalabear/amidst/issues/263)「分類」 |
+| U-18 | G7：`run_provider.py`、`OpenAIPredictionAdapter` 繞過 `ApiGuard` | **已修正：所有付費呼叫經 ApiGuard（4f665d55）**（#655，issue #651 已關閉；`docs/operations/PAID_API_G7_20261120.md`） | 本文 §4.3；[`AGENT_API_WIRING_AUDIT_20261120.md`](../engineering/AGENT_API_WIRING_AUDIT_20261120.md) G7 |

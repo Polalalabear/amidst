@@ -198,9 +198,16 @@ def validate_track_request(
 ) -> dict:
     """Validate and normalize a q-core.track-request.v1 payload."""
     _check_forbidden_keys(request)
-    allowed_top = {'schema_version', 'session_ref', 'scene_id', 'run_id', 'feature', 'region_ids', 'time', 'playback_now_us'}
+    allowed_top = {'schema_version', 'session_ref', 'scene_id', 'run_id', 'feature', 'region_ids', 'time', 'playback_now_us', 'switch_mode', 'manual_seed'}
     if not isinstance(request, Mapping) or not set(request) <= allowed_top:
         raise CoreRequestError('FORBIDDEN_INFERENCE_INPUT')
+    if 'switch_mode' in request and request['switch_mode'] not in ('RULE_ONLY', 'AGENT_SEQUENTIAL'):   # F3 (#657); absent = RULE_ONLY
+        raise CoreRequestError('FORBIDDEN_INFERENCE_INPUT')
+    if 'manual_seed' in request:   # F3 (#657): the operator re-selects the target (a local track, from a given time); identity stays UNCONFIRMED
+        ms = request['manual_seed']
+        if (not isinstance(ms, Mapping) or set(ms) != {'track_ref', 'at_us'} or not isinstance(ms['track_ref'], str) or not ms['track_ref']
+                or type(ms['at_us']) is not int or ms['at_us'] < 0):
+            raise CoreRequestError('FORBIDDEN_INFERENCE_INPUT')
 
     for req_field in ('schema_version', 'session_ref', 'scene_id', 'run_id', 'region_ids', 'time'):
         if req_field not in request:
@@ -766,7 +773,7 @@ def execute_core_search(
     return response
 
 
-def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int) -> tuple[list[dict], list[str], bool]:
+def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int, *, allow_demo_default=False) -> tuple[list[dict], list[str], bool]:
     """Keep independent camera-local hypotheses; never join boxes by time alone."""
     b = run.bindings
     if b.index is None:
@@ -805,7 +812,7 @@ def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int)
             parameters[cid] = LinkParameters.from_document(
                 b.parameter_set, expected_sha256=b.parameter_sha256,
                 scene_revision=m['scene_revision'], run_id=m['run_id'],
-                index_id=m['index_id'], index_interval_us=step,
+                index_id=m['index_id'], index_interval_us=step, allow_demo_default=allow_demo_default,
             )
         except LinkError as exc:
             if exc.code in {'PARAMETERS_NOT_APPROVED', 'PARAMETER_GRID_MISMATCH'}:
@@ -1001,6 +1008,7 @@ def execute_core_track(
     *,
     physical_prediction_available: bool = False,
     display_positions: Mapping | None = None,
+    allow_demo_default: bool = False,
 ) -> dict:
     """Execute q_core_track against a bound QRun."""
     b = getattr(run, 'bindings')
@@ -1087,7 +1095,7 @@ def execute_core_track(
         blocking.append('CLOCK_MAPPING_MISSING')
         all_sightings = []
     else:
-        all_sightings, link_reasons, linker_used = _linked_sightings(run, feat, window_start, as_of_us)
+        all_sightings, link_reasons, linker_used = _linked_sightings(run, feat, window_start, as_of_us, allow_demo_default=allow_demo_default)
         reasons.extend(link_reasons)
         blocking.extend(reason for reason in link_reasons if reason in {
             'INDEX_NOT_AVAILABLE', 'PARAMETERS_NOT_APPROVED', 'PARAMETER_GRID_MISMATCH'})

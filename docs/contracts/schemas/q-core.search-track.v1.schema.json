@@ -103,7 +103,11 @@
         "feature": {"$ref": "#/$defs/feature"},
         "region_ids": {"$ref": "#/$defs/regionIds"},
         "time": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/wallTime"}]},
-        "playback_now_us": {"$ref": "#/$defs/sourceUs"}
+        "playback_now_us": {"$ref": "#/$defs/sourceUs"},
+        "switch_mode": {"enum": ["RULE_ONLY", "AGENT_SEQUENTIAL"], "x-default": "RULE_ONLY", "x-added": "F3 #657 / D340, optional, backward compatible"},
+        "manual_seed": {"type": "object", "additionalProperties": false, "required": ["track_ref", "at_us"],
+          "properties": {"track_ref": {"$ref": "#/$defs/nonEmptyString"}, "at_us": {"$ref": "#/$defs/sourceUs"}},
+          "x-added": "F3 #657 / D340, optional; operator re-selection, identity stays UNCONFIRMED"}
       },
       "x-rule": "time null requires playback_now_us (422 NOW_REQUIRED); feature missing/null -> 422 FEATURE_REQUIRED"
     },

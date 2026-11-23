@@ -1,3 +1,4 @@
+import {headlessMode} from '../../../scripts/browser_options.mjs';
 // Real server acceptance: only visible UI controls, source-bound API, and decoded RGB.
 import assert from 'node:assert/strict';
 import {cameraName as __camName} from '../../../frontend/workbench-v2/place-names.mjs';
@@ -11,9 +12,10 @@ import {execFileSync} from 'node:child_process';
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_CORE_MODULE??owned.playwrightModule).href);
 const out=process.env.UI_QA_OUTPUT??owned.evidenceRoot+'/ui-real';await mkdir(out+'/screenshots',{recursive:true});
 const base=new URL('/workbench-v2/',process.env.UI_QA_BASE_URL??process.env.CORE_BASE_URL??'http://127.0.0.1:8785').href;
-const b=await chromium.launch({headless:true,executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const b=await chromium.launch({headless:headlessMode(),executablePath:process.env.CHROME_EXECUTABLE??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const viewportHeight=Number(process.env.UI_QA_HEIGHT??900);
 const results=[],errors=[],http=[],playbacks=[],backendStopRequests=[],blindReview=[],d146Review=[],assertions=[],observerErrors=[];let checks=0;const check=(ok,text)=>{assert.ok(ok,text);checks++;assertions.push(text);};
+try {
 const capture=async(p,name,data={})=>{const file=out+'/screenshots/'+name+'.png';await p.screenshot({path:file,fullPage:true});const raw=await readFile(file);const r={name,url:p.url(),bytes:raw.length,sha256:createHash('sha256').update(raw).digest('hex'),...data};results.push(r);console.log(JSON.stringify(r));};
 // D139: blank times select the full recording. A later snapshot must stay hidden at an earlier playhead; endpoint persistence is recorded separately as a review finding.
 const seek=async(p,t)=>{await p.locator('#ui-scrub').evaluate((el,t)=>{el.value=String(t);el.dispatchEvent(new Event('input',{bubbles:true}));},t);check(Number(await p.locator('#ui-scrub').inputValue())===t,'range input preserves requested timestamp');};
@@ -73,7 +75,7 @@ const continuous=async(p,event,track,frames)=>{
  const review={event,kind:'continuous',sample,frameResponses:served.map(({mediaUrl,...f})=>f)};d146Review.push(review);
  await capture(p,event+'-continuous-end',{sampledRenders:sample.total,missing:sample.missing,notDecodedRenders:sample.notDecoded});
 };
-try{
+
 for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','14:00:00','14:00:50',4],['B4-1','14:10:00','14:10:42',5]]){
  const ctx=await b.newContext({viewport:{width:1440,height:viewportHeight},deviceScaleFactor:1}),p=await ctx.newPage(),frames=[],frameJobs=[];
  p.on('response',r=>{if(r.url().endsWith('/api/q_frames')&&r.status()===200)frameJobs.push(r.json().then(doc=>{for(const tile of doc.tiles??[])frames.push({tUs:doc.t_us,cam:tile.camera_id,status:tile.status,frameIndex:tile.frame_index,sourceTimeS:tile.timestamp_s,servedSha256:tile.served_sha256,mediaUrl:tile.media_url});}).catch(error=>observerErrors.push({event,error:String(error),kind:'RESPONSE_BODY_CAPTURE_UNAVAILABLE'})));});
@@ -111,7 +113,7 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  const first=track.sightings[0],t=first.range_us[0]+Math.floor((first.range_us[1]-first.range_us[0])/2);await seek(p,t);await decoded(p,'#ui-case2 .ui-stage-img',1);
  check(await p.locator('#ui-play').isEnabled(),event+' source playback enabled');
  check(await p.locator('#ui-stop-track').isEnabled(),'front-end stop available');
- check(await p.locator('#ui-manual-target').isDisabled()&&(await p.locator('#ui-manual-note').innerText())==='追蹤起點由系統自動選擇，目前還不能手動改選目標','D137 manual seed disabled with plain explanation (D139)');
+ check(event==='B-05'?(await p.locator('#ui-manual-note').innerText())==='這個場景的追蹤畫面還不能手動改選目標':await p.locator('#ui-manual-list').count()===1,'F3 manual re-selection offered on D124 runs, disclosed elsewhere (#657)');
  const singleBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleBar.y+singleBar.height-viewportHeight)<2,'single bar at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const singleScrolled=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(singleScrolled.y+singleScrolled.height-viewportHeight)<2&&await p.locator('#ui-v1').evaluate(el=>el.scrollTop===0),'single bar fixed while only content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
  await capture(p,event+'-case2-single',{bar:singleBar,barAfterScroll:singleScrolled,status:track.status,reasons:track.reasons,current:await p.locator('#ui-scrub').inputValue()});
@@ -130,11 +132,11 @@ for(const [event,start,end,cameras]of[['B-05','13:00:00','13:00:08',2],['A4-1','
  for(const speed of ['0.5','1','1.5','2']){await p.locator('#ui-speed').selectOption(speed);check(await p.locator('#ui-speed').inputValue()===speed,'source speed '+speed);}
  await p.locator('#ui-play').click();await p.waitForFunction(cam=>document.querySelector('#ui-case2 .ui-stamp')?.textContent.includes(cam),__camName(next.camera_id),{timeout:15000});
  await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-stage-img',1);check(true,event+' automatic camera switch');playbacks.push({event,camera:next.camera_id,tUs:Number(await p.locator('#ui-scrub').inputValue())});
- await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);
- const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',track.multi_view.length);check(true,event+' multi-view playback advances with decoded source RGB');
+ await p.locator('#ui-layout [data-layout=multi]').click();await decoded(p,'#ui-case2 .ui-multi-tile img',cameras);check(await p.locator('#ui-case2 .ui-multi-tile').count()===cameras,event+' F3 multi view shows every camera of the run ('+cameras+')');
+ const multiStart=Number(await p.locator('#ui-scrub').inputValue());await p.locator('#ui-play').click();await p.waitForFunction(t=>Number(document.querySelector('#ui-scrub')?.value)>=t+200000,multiStart,{timeout:15000});await p.locator('#ui-play').click();await decoded(p,'#ui-case2 .ui-multi-tile img',cameras);check(true,event+' multi-view playback advances with decoded source RGB');
  const multiBar=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiBar.y+multiBar.height-viewportHeight)<2,'multi bar at viewport bottom');
  await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=el.scrollHeight;});const multiScrolled=await p.locator('#ui-track-bar').boundingBox();check(Math.abs(multiScrolled.y+multiScrolled.height-viewportHeight)<2&&await p.locator('#ui-v1').evaluate(el=>el.scrollTop===0),'multi bar fixed while only content scrolls');await p.locator('.ui-screens').evaluate(el=>{el.scrollTop=0;});
- await capture(p,event+'-case2-multi',{tiles:track.multi_view.length,decoded:track.multi_view.length,bar:multiBar,barAfterScroll:multiScrolled});
+ await capture(p,event+'-case2-multi',{tiles:cameras,decoded:cameras,trackMultiView:track.multi_view.length,bar:multiBar,barAfterScroll:multiScrolled});
  await p.locator('#ui-layout [data-layout=single]').click();
  const stamp=event==='A4-1'?9400000:event==='B4-1'?2100000:3000000;await seek(p,stamp);
  // Empty start/end now mean a concrete full-recording WALL window, not playback_now.
@@ -186,4 +188,4 @@ if (eightcam) {
  await capture(p, 'b4-8cam-wall', b4Eightcam);
 }
 await extra.close();check(errors.length===0,'no page errors');check(http.length===0,'no failed API responses');
-}finally{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));await b.close();}
+}finally{try{await writeFile(out+'/browser-results.json',JSON.stringify({source_head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),test_script_sha256:createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),viewport:{width:1440,height:viewportHeight},checks,assertions,results,playbacks,blindReview,d146Review,observerErrors,errors,http},null,2));console.log(JSON.stringify({checks,screenshots:results.length,errors,http}));}finally{await b.close();}}

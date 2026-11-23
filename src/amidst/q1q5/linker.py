@@ -54,8 +54,12 @@ class LinkParameters:
 
     @classmethod
     def from_document(cls, document, *, expected_sha256, scene_revision, run_id, index_id,
-                      index_interval_us):
+                      index_interval_us, allow_demo_default=False):
         """Validate explicit parameters; missing or unapproved values never become defaults.
+
+        ``allow_demo_default`` is a trusted recorded-demo adapter opt-in. It
+        accepts explicit DEMO_DEFAULT values without changing their hash/status;
+        PROPOSED/UNKNOWN/REJECTED remain refused. Ordinary inference stays strict.
 
         This selected-seed component checks its camera grid. The Q2 controller must
         check every camera in resolved_scope before choosing any seed (§8.2).
@@ -67,7 +71,8 @@ class LinkParameters:
                 or doc.get("parameter_set_id") != "pset:q-demo:" + digest[:16]):
             raise LinkError("Parameter hash/schema mismatch")
         approval = doc.get("approval", {})
-        if (approval.get("status") != "APPROVED" or not approval.get("approval_ref")
+        engineering = allow_demo_default and approval.get("status") == "DEMO_DEFAULT"
+        if not engineering and (approval.get("status") != "APPROVED" or not approval.get("approval_ref")
                 or not approval.get("approved_by")):
             raise LinkError("Parameter set not approved", "PARAMETERS_NOT_APPROVED")
         scope = doc["applies_to"]
@@ -86,7 +91,8 @@ class LinkParameters:
         if not required <= params.keys():
             raise LinkError("Missing linker parameters", "PARAMETERS_NOT_APPROVED")
         for name in required | ({"link_max_gap_samples"} & params.keys()):
-            if params[name].get("status") != "APPROVED" or not params[name].get("proposal_ref"):
+            if (params[name].get("status") not in ({"APPROVED", "DEMO_DEFAULT"} if engineering else {"APPROVED"})
+                    or not params[name].get("proposal_ref")):
                 raise LinkError("Unapproved linker parameter", "PARAMETERS_NOT_APPROVED")
         p = {name: item["value"] for name, item in params.items()}
         gap = _integer(p["link_max_gap_us"], "link_max_gap_us", 1)

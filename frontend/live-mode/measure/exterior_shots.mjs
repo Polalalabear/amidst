@@ -5,7 +5,9 @@
 import fs from 'node:fs';
 import { launch, BASE, sleep } from './lib.mjs';
 const out = process.argv[2]; fs.mkdirSync(out, { recursive: true });
+const detCount = {};
 const b = await launch();
+try {
 async function operatorShot(name, ext, start, dir) {
   const op = await b.newPage(); await op.setViewport({ width: 1280, height: 720 });
   await op.setRequestInterception(true);
@@ -34,7 +36,7 @@ for (const ext of process.env.DET_ONLY ? [] : [0, 1]) {
 // system camera tile + detection candidates. The scripted clock is frozen (as in n6_ceiling_compare) so the
 // ext on/off captures show the same actors at the same poses; candidates = all detections returned per camera frame.
 const CLOCK = 'const tSec = (tn - t0) / 1000;', DELTA = 'const dt = Math.min(0.1, (tn - last) / 1000); last = tn;';
-const detCount = {};
+
 for (const frozen of [12, 30]) for (const ext of [0, 1]) {
   const sys = await b.newPage(); await sys.setViewport({ width: 1600, height: 900 });
   await sys.goto(`${BASE}/?role=system&view=grid`); await sys.waitForFunction('window.__ready === true');
@@ -60,6 +62,8 @@ for (const frozen of [12, 30]) for (const ext of [0, 1]) {
   detCount[`t${frozen}_ext_${ext ? 'on' : 'off'}`] = stats;
   await op.close(); await sys.close();
 }
-await b.close();
+} finally {
+  await b.close();
+}
 fs.writeFileSync(`${out}/detection_candidates.json`, JSON.stringify(detCount, null, 1));
 console.log(JSON.stringify(detCount));
