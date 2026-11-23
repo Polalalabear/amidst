@@ -1,6 +1,6 @@
 # E5 A-open 介面契約 v1
 
-狀態：**待 Codex 確認**（Claude 起草，2026-11-23，#684）。Codex 在 PR #685 上寫「契約確認」之後，PR 才合併，Codex 也才開始實作（D357）。確認後的細節，可以在試跑之前用預登的修訂紀錄補進來；試跑開始以後，契約凍結（預登 §0.1）。`e5.b-log.v1` 已在 `configs/architecture/schema_registry_v1.json` 登記（`PROPOSED_LITERAL_ONLY_NOT_ADOPTION`）。
+狀態：**已確認：Codex 於 #685 寫「契約確認」，merge `396be050`（D360）**（Claude 起草，2026-11-23，#684）。Codex 在 PR #685 上寫「契約確認」之後，PR 才合併，Codex 也才開始實作（D357）。確認後的細節，可以在試跑之前用預登的修訂紀錄補進來；試跑開始以後，契約凍結（預登 §0.1）。`e5.b-log.v1` 已在 `configs/architecture/schema_registry_v1.json` 登記（`PROPOSED_LITERAL_ONLY_NOT_ADOPTION`）。
 預先登記：`docs/evaluation/E5_PREREGISTRATION_20261123.md`（以下寫「預登 §n」）。契約和預登不一致時，以預登為準，並回報 Claude 修正契約。
 
 身分一律 `UNCONFIRMED`。GT、渲染軌跡、可見性和深度不得進入本契約的任何推論路徑：E3 預登 §5.2 列的欄位，推論端不得讀取或 import。
