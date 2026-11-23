@@ -283,7 +283,7 @@ export async function start(body) {
       <div id="candidate-frames" hidden></div></div>
     <div id="bar"></div></div>
     <div id="bside"><div id="side-resize" role="separator" aria-orientation="vertical" aria-label="拖拉調整系統面板寬度" tabindex="0"></div><b>系統</b> <span class="kv">（只看鏡頭像素）</span>
-      <canvas id="map" width="320" height="288" style="width:320px;height:288px"></canvas>
+      <canvas id="map" width="320" height="288"></canvas>
       <ol id="target-candidates" aria-label="追蹤候選" hidden></ol>
       <button type="button" id="system-download">下載 B 記錄</button>
       <div id="llmset"><b>設定</b> <span class="kv">（預設關閉）</span>

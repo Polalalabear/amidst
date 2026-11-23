@@ -35,6 +35,7 @@ from .track_sentence import TrackSentenceParser
 
 REPO = Path(__file__).resolve().parents[3]
 FRONT = REPO / "frontend" / "live-mode"
+SHARED_TOKENS = REPO / "frontend" / "workbench-v2" / "tokens.css"
 GEOMETRY = REPO / "docs" / "evaluation" / "R004_SCENE_GEOMETRY_2D_V1.json"
 SCENARIO = REPO / "docs" / "evaluation" / "R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json"
 
@@ -432,6 +433,9 @@ def make_handler(state: State):
                 return self._track_api(p)
             if p in ("/", "/index.html"):
                 return self._file(FRONT / "index.html")
+            if p in ("/shared/tokens.css", "/src/tokens.css"):
+                # One explicit shared asset; never expose the workbench directory.
+                return self._file(SHARED_TOKENS, root=SHARED_TOKENS.parent)
             if p.startswith("/src/"):
                 return self._file(FRONT / p[1:], root=FRONT)
             if p.startswith("/vendor/three/"):

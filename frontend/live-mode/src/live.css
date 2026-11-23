@@ -1,4 +1,4 @@
-/* LIVE mode UI in the workbench-v2 front-desk language. Tokens come from tokens.css (shared, not copied).
+/* LIVE mode UI in the workbench-v2 front-desk language. Tokens are served from /shared/tokens.css (the workbench source, not the LIVE mirror).
    Applies to <body class="amidst-ui">. 3D scene materials are untouched; only the UI around them is styled here. */
 html,body{margin:0;height:100%}
 body.amidst-ui{background:var(--bg);color:var(--text);font:13px/1.45 var(--sans)}
@@ -54,7 +54,7 @@ body.amidst-ui h4{font-family:var(--mono)}
 #lost-hint{margin-top:6px;text-align:left;font:clamp(11px,.95vw,15px)/1.5 var(--sans);color:var(--text);pointer-events:none}
 #lost-hint[hidden]{display:none}
 #side,#bside{padding:12px;overflow:auto;background:var(--surface);border-left:1px solid var(--line)}
-#map{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;width:100%!important;height:auto!important;aspect-ratio:320/288;display:block;margin-bottom:8px}
+#map{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;width:100%;height:auto;aspect-ratio:320/288;display:block;margin-bottom:8px}
 #bs{display:grid;grid-template-columns:minmax(0,1fr) var(--side-w,360px);height:100%}
 #bmain{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-width:0;min-height:0}
 #target-controls{padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -90,35 +90,34 @@ body.amidst-ui h4{font-family:var(--mono)}
 #bar{display:flex;align-items:center;gap:8px;padding:0 16px;height:clamp(32px,3.2vw,48px);font:clamp(12px,1.05vw,17px)/1.4 var(--sans);border-top:1px solid var(--line);background:var(--surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #llmset{margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)} #llmset label{display:flex;align-items:center;gap:10px;margin:8px 0} #llmset select{margin:2px 6px 2px 0} #llmstat{margin-top:8px}
 #events{font:12px var(--mono);max-height:260px;overflow:auto;color:var(--muted)}
-/* A menu (#ab-*): built by operator.mjs with inline styles, so these rules still need !important.
-   STAGE 2 (after #617 merges): move the inline styles in operator.mjs to classes and delete everything below. */
+/* A menu (#633 stage 2): static presentation lives here; selection uses aria-pressed. */
 body:has(#ab-menu){overflow:auto}
 body:has(#ab-menu)::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:url(/src/menu-bg.svg) center/cover no-repeat;opacity:.2}
- #ab-menu{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--text);font:15px/1.5 var(--sans);margin:0 auto!important;padding:56px 32px 64px!important;max-width:1100px!important}
+ #ab-menu{box-sizing:border-box;min-height:100%;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--text);font:15px/1.5 var(--sans);margin:0 auto;padding:56px 32px 64px;max-width:1100px}
  #ab-menu::before{content:"AMIDST · 即時模式";font:12px var(--mono);letter-spacing:.14em;color:var(--accent);margin-bottom:10px}
  #ab-menu h1{margin:0 0 36px;font:400 clamp(26px,3vw,48px)/1.2 var(--serif);letter-spacing:-.01em}
  #ab-menu h2{margin:0 0 16px;font:12px var(--mono);letter-spacing:.1em;color:var(--faint)}
  #ab-menu #ab-actors+p{margin:0}
- #ab-menu button{font:inherit;color:var(--text);cursor:pointer;outline:0!important;transition:background .15s,border-color .15s,transform .15s,box-shadow .15s}
- #ab-menu button:focus-visible{outline:2px solid var(--accent)!important;outline-offset:3px}
+ #ab-menu button{font:inherit;color:var(--text);cursor:pointer;outline:0;transition:background .15s,border-color .15s,transform .15s,box-shadow .15s}
+ #ab-menu button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
  #ab-runs,#ab-actors{justify-content:center;width:100%}
- #ab-runs{gap:12px!important;margin-bottom:40px}
- #ab-runs button{padding:12px 28px!important;font:500 15px var(--sans);font-variant-numeric:tabular-nums;color:var(--text);background:var(--surface)!important;border:1px solid var(--line-strong)!important;border-radius:999px!important}
- #ab-runs button:hover{border-color:var(--accent)!important}
- #ab-runs button[aria-pressed=true]{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff;box-shadow:0 0 22px rgba(217,119,87,.35)}
- #ab-actors{display:grid!important;grid-template-columns:repeat(4,clamp(140px,14vw,230px));gap:clamp(10px,1.4vw,20px)!important;margin-bottom:36px}
- #ab-actors button{width:100%!important;box-sizing:border-box;padding:16px!important;display:flex;flex-direction:column;align-items:center;background:rgba(31,30,29,.8)!important;border:1px solid var(--line-strong)!important;border-radius:16px!important}
- #ab-actors button:hover{border-color:var(--accent)!important;transform:translateY(-3px);background:rgba(36,35,33,.9)!important}
+ #ab-runs{display:flex;gap:12px;margin-bottom:40px}
+ #ab-runs button{padding:12px 28px;font:500 15px var(--sans);font-variant-numeric:tabular-nums;color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:999px}
+ #ab-runs button:hover{border-color:var(--accent)}
+ #ab-runs button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 22px rgba(217,119,87,.35)}
+ #ab-actors{display:grid;grid-template-columns:repeat(4,clamp(140px,14vw,230px));gap:clamp(10px,1.4vw,20px);margin-bottom:36px}
+ #ab-actors button{width:100%;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;align-items:center;background:rgba(31,30,29,.8);border:1px solid var(--line-strong);border-radius:16px}
+ #ab-actors button:hover{border-color:var(--accent);transform:translateY(-3px);background:rgba(36,35,33,.9)}
  #ab-actors canvas{display:block;border-radius:10px;background:#0e0e0d}
  #ab-actors p{margin:12px 0 4px;font-family:var(--serif);font-size:20px}
  #ab-actors p b{font-weight:400}
  #ab-actors small{font:12px var(--mono);color:var(--muted)}
- #ab-actors button[aria-pressed=true]{background:rgba(42,37,35,.92)!important;border:2px solid var(--accent)!important;padding:15px!important;box-shadow:0 0 0 4px rgba(217,119,87,.18),0 10px 30px rgba(0,0,0,.45);transform:translateY(-3px)}
+ #ab-actors button[aria-pressed=true]{background:rgba(42,37,35,.92);border:2px solid var(--accent);padding:15px;box-shadow:0 0 0 4px rgba(217,119,87,.18),0 10px 30px rgba(0,0,0,.45);transform:translateY(-3px)}
  #ab-actors button[aria-pressed=true] small{color:var(--accent)}
  #ab-menu>p{margin:0 0 20px;color:var(--faint);font-size:14px}
- #ab-begin{padding:14px 44px!important;font:500 16px var(--sans);background:var(--accent)!important;border:0!important;border-radius:999px!important;color:#fff!important}
- #ab-begin:hover:not(:disabled){background:var(--accent-hover)!important}
- #ab-begin:disabled{background:var(--surface-2)!important;color:var(--dim)!important;cursor:default}
+ #ab-begin{padding:14px 44px;font:500 16px var(--sans);background:var(--accent);border:0;border-radius:999px;color:#fff}
+ #ab-begin:hover:not(:disabled){background:var(--accent-hover)}
+ #ab-begin:disabled{background:var(--surface-2);color:var(--dim);cursor:default}
  #ab-status{display:block;margin-top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--muted)}
 /* v2-style controls: native checkbox/select keep their API (.checked/.value/change) but look like .ui-toggle and the v2 dropdown. */
 body.amidst-ui input[type=checkbox]{appearance:none;-webkit-appearance:none;width:40px;height:22px;padding:0;margin:0;border:0;border-radius:999px;background:var(--line-strong);position:relative;flex-shrink:0;cursor:pointer}
@@ -129,3 +128,6 @@ body.amidst-ui input[type=checkbox]:disabled{opacity:.4;cursor:not-allowed}
 body.amidst-ui select{appearance:none;-webkit-appearance:none;padding:6px 30px 6px 12px;border-radius:999px;cursor:pointer;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b0aea5' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 12px center}
 body.amidst-ui select:hover:not(:disabled){border-color:var(--accent)}
 body.amidst-ui select:disabled{opacity:.45;cursor:not-allowed}
+
+.actor-swatch{display:inline-block;width:18px;height:18px;background:var(--actor-swatch)}
+#map-toggle{padding:.2em .9em}
