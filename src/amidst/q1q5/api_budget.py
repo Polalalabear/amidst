@@ -11,11 +11,12 @@ Environment (all server side):
   AMIDST_API_MAX_USD_PER_CALL   default 0.05     AMIDST_API_MAX_TOKENS_PER_CALL default 4000 (prompt + max output)
   AMIDST_API_MAX_CALLS_PER_MIN  default 10
   AMIDST_API_PRICES_FILE        JSON {"models": {id: {"input_usd_per_mtok": x, "output_usd_per_mtok": y}}}
+                                Optional cached_input_usd_per_mtok discounts only validated response cache hits.
                                 (same shape as the ``price_table`` in agent_decision params); no price -> PRICE_UNKNOWN -> denied
   AMIDST_API_USAGE_DIR          ledger dir (default <repo>/local/evidence/api-usage)
 
 Ledger rows (JSONL, ``usage.jsonl``) hold only: ts, caller, model, outcome, reason, prompt_tokens, completion_tokens,
-est_cost_usd. Never a key, header, prompt or response. Unknown usage is charged at the worst-case estimate.
+cached_tokens, est_cost_usd. Never a key, header, prompt or response. Unknown usage is charged at the worst-case estimate.
 """
 from __future__ import annotations
 
@@ -92,7 +93,8 @@ class GuardConfig:
             return cls()
 
 
-def estimate_cost(prices: Mapping | None, model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
+def estimate_cost(prices: Mapping | None, model: str, prompt_tokens: int, completion_tokens: int,
+                  cached_tokens: int | None = None) -> float | None:
     """USD for the tokens at the table's USD-per-million-token prices; None when the model, a price or a token count is unusable
     (missing, non-numeric, negative, NaN or infinite) so a bad table can never make a call look free."""
     price = (prices or {}).get(model) if isinstance(prices, Mapping) else None
@@ -100,10 +102,42 @@ def estimate_cost(prices: Mapping | None, model: str, prompt_tokens: int, comple
         pin, pout = float(price['input_usd_per_mtok']), float(price['output_usd_per_mtok'])
         if not (isinstance(prompt_tokens, int) and isinstance(completion_tokens, int) and prompt_tokens >= 0 and completion_tokens >= 0):
             return None
-        cost = (prompt_tokens * pin + completion_tokens * pout) / 1e6
+        # Missing/bad cache metadata or prices keep the full input charge (including dry-run).
+        cached, pcache = 0, pin
+        if type(cached_tokens) is int and 0 <= cached_tokens <= prompt_tokens:
+            try:
+                candidate = float(price['cached_input_usd_per_mtok'])
+                if math.isfinite(candidate) and 0 <= candidate <= pin:
+                    cached, pcache = cached_tokens, candidate
+            except (TypeError, KeyError, ValueError, OverflowError):
+                pass
+        cost = ((prompt_tokens - cached) * pin + cached * pcache + completion_tokens * pout) / 1e6
     except (TypeError, KeyError, ValueError):
         return None
     return cost if math.isfinite(cost) and pin >= 0 and pout >= 0 else None
+
+
+def response_cached_tokens(value: object, prompt_tokens: int | None) -> int | None:
+    """Read only response usage (Responses, parsed Responses, or Chat); never retain the body.
+
+    Adapters that discard usage may return a fourth tuple element to ``run`` instead.
+    Missing or malformed cache counts are unknown, not a claimed zero/hit.
+    """
+    if isinstance(value, (str, bytes, bytearray)):
+        try:
+            value = json.loads(value)
+        except (ValueError, TypeError, UnicodeError):
+            return None
+    if not isinstance(value, Mapping) or not isinstance(value.get('usage'), Mapping):
+        return None
+    usage = value['usage']
+    details = usage.get('input_tokens_details', usage.get('prompt_tokens_details'))
+    cached = details.get('cached_tokens') if isinstance(details, Mapping) else usage.get('cached_tokens')
+    return _valid_cached_tokens(cached, prompt_tokens)
+
+
+def _valid_cached_tokens(cached, prompt_tokens) -> int | None:
+    return cached if type(cached) is int and type(prompt_tokens) is int and 0 <= cached <= prompt_tokens else None
 
 
 @dataclass(frozen=True)
@@ -157,9 +191,9 @@ class ApiGuard:
             if row.get('outcome') != 'DENIED':
                 self._unpersisted.append(row)
 
-    def _row(self, caller, model, outcome, reason, pt, ct, cost) -> dict:
+    def _row(self, caller, model, outcome, reason, pt, ct, cost, cached=None) -> dict:
         return {'ts': datetime.fromtimestamp(self._clock(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'caller': caller, 'model': model,
-                'outcome': outcome, 'reason': reason, 'prompt_tokens': pt, 'completion_tokens': ct,
+                'outcome': outcome, 'reason': reason, 'prompt_tokens': pt, 'completion_tokens': ct, 'cached_tokens': cached,
                 'est_cost_usd': None if cost is None else round(cost, 9)}
 
     # -- gate -------------------------------------------------------------------------------------------------
@@ -202,9 +236,10 @@ class ApiGuard:
         return None, cost
 
     def run(self, caller: str, model: str, est_prompt_tokens: int, max_output_tokens: int,
-            fn: Callable[[], tuple[object, int | None, int | None]]) -> GuardResult:
+            fn: Callable[[], tuple[object, int | None, int | None] | tuple[object, int | None, int | None, int | None]]) -> GuardResult:
         """Gate and run one paid call. ``fn`` returns ``(value, prompt_tokens, completion_tokens)`` (None = unknown, charged at
-        the worst-case estimate). A denial returns ``allowed=False``; an exception from ``fn`` is charged at the estimate and re-raised."""
+        the worst-case estimate). Optional fourth element: cached_tokens; otherwise read response usage from value.
+        A denial returns ``allowed=False``; an exception from ``fn`` is charged at the estimate and re-raised."""
         if not (isinstance(caller, str) and _CALLER.fullmatch(caller) and isinstance(model, str) and _MODEL.fullmatch(model)):
             raise ValueError('invalid caller or model')
         est_prompt, max_out = max(0, int(est_prompt_tokens)), max(0, int(max_output_tokens))
@@ -216,18 +251,24 @@ class ApiGuard:
             self._starts.append(self._clock())
             self._pending_usd += cost
             self._pending_calls += 1
-        value, pt, ct, outcome, error = None, None, None, 'OK', None
+        value, pt, ct, cached, outcome, error = None, None, None, None, 'OK', None
         try:
-            value, pt, ct = fn()
+            result = fn()
+            if len(result) == 4:
+                value, pt, ct, reported_cache = result
+                cached = _valid_cached_tokens(reported_cache, pt)
+            else:
+                value, pt, ct = result
+                cached = response_cached_tokens(value, pt)
         except BaseException as exc:  # noqa: BLE001
             outcome, error = 'ERROR', exc
-        actual = estimate_cost(self.config.prices, model, pt, ct) if isinstance(pt, int) and isinstance(ct, int) else None
+        actual = estimate_cost(self.config.prices, model, pt, ct, cached) if isinstance(pt, int) and isinstance(ct, int) else None
         charged = cost if actual is None else actual
         with self._lock:
             self._pending_usd = max(0.0, self._pending_usd - cost)
             self._pending_calls = max(0, self._pending_calls - 1)
             self._append(self._row(caller, model, outcome, None, pt if isinstance(pt, int) else None,
-                                   ct if isinstance(ct, int) else None, charged))
+                                   ct if isinstance(ct, int) else None, charged, cached))
         if error is not None:
             raise error
         return GuardResult(True, None, value, charged)

@@ -95,7 +95,7 @@ def test_ledger_has_no_key_or_prompt_and_only_whitelisted_fields(tmp_path):
     text = g.ledger_path.read_text()
     assert FAKE_KEY not in text
     for line in text.splitlines():
-        assert set(json.loads(line)) == {'ts', 'caller', 'model', 'outcome', 'reason', 'prompt_tokens', 'completion_tokens', 'est_cost_usd'}
+        assert set(json.loads(line)) == {'ts', 'caller', 'model', 'outcome', 'reason', 'prompt_tokens', 'completion_tokens', 'cached_tokens', 'est_cost_usd'}
     with pytest.raises(ValueError):
         g.run('bad caller with key ' + FAKE_KEY, 'astra6', 1, 1, ok())
 
@@ -211,3 +211,87 @@ def _unwritable(d):
         return True
     (d / 'probe').unlink()
     return False
+
+
+CACHE_PRICES = {'astra6': {**PRICES['astra6'], 'cached_input_usd_per_mtok': 0.05}}
+
+
+@pytest.mark.parametrize('usage', [
+    {'prompt_tokens_details': {'cached_tokens': 700}},
+    {'input_tokens_details': {'cached_tokens': 700}},
+    {'cached_tokens': 700},
+])
+@pytest.mark.parametrize('encoded', [False, True])
+def test_response_usage_cache_discount_and_ledger(tmp_path, usage, encoded):
+    value = {'usage': usage, 'text': FAKE_KEY}
+    if encoded:
+        value = json.dumps(value).encode()
+    g = guard(tmp_path, prices=CACHE_PRICES)
+    out = g.run('t', 'astra6', 1000, 100, lambda: (value, 1000, 100))
+    assert out.value == value
+    assert out.est_cost_usd == pytest.approx((300 + 700 * 0.05 + 100 * 2) / 1e6)
+    row = json.loads(g.ledger_path.read_text())
+    assert row['cached_tokens'] == 700
+    assert row['prompt_tokens'] == 1000
+    assert FAKE_KEY not in g.ledger_path.read_text()
+
+
+@pytest.mark.parametrize('cached', [None, -1, 1001, True, 700.0, '700', {}, []])
+def test_invalid_cache_count_keeps_uncached_price(tmp_path, cached):
+    g = guard(tmp_path, prices=CACHE_PRICES)
+    out = g.run('t', 'astra6', 1000, 100, lambda: ('v', 1000, 100, cached))
+    assert out.est_cost_usd == pytest.approx(0.0012)
+    assert json.loads(g.ledger_path.read_text())['cached_tokens'] is None
+
+
+@pytest.mark.parametrize('price', [None, -1, float('nan'), float('inf'), 2, 'bad'])
+def test_missing_invalid_cache_price_keeps_uncached_price(tmp_path, price):
+    prices = {'astra6': {**PRICES['astra6'], 'cached_input_usd_per_mtok': price}}
+    g = guard(tmp_path, prices=prices)
+    out = g.run('t', 'astra6', 1000, 100, lambda: ('v', 1000, 100, 700))
+    assert out.est_cost_usd == pytest.approx(0.0012)
+    assert json.loads(g.ledger_path.read_text())['cached_tokens'] == 700
+
+
+@pytest.mark.parametrize('cached', [0, 1000])
+def test_cache_zero_and_full_boundaries(tmp_path, cached):
+    g = guard(tmp_path, prices=CACHE_PRICES)
+    out = g.run('t', 'astra6', 1000, 100, lambda: ('v', 1000, 100, cached))
+    assert out.est_cost_usd == pytest.approx(((1000-cached) + cached*0.05 + 200)/1e6)
+
+
+def test_dry_run_and_preflight_ignore_potential_cache(tmp_path):
+    cfg = ab.GuardConfig(enabled=True, max_usd_total=10, max_usd_per_call=0.001, prices=CACHE_PRICES)
+    estimate = ab.estimate_run(questions=1, model='astra6', avg_prompt_tokens=1000, avg_output_tokens=100,
+                               prices=CACHE_PRICES, config=cfg)
+    assert estimate['est_cost_per_call_usd'] == pytest.approx(0.0012)
+    assert estimate['would_exceed'] == ['PER_CALL_COST_CAP']
+    g = ab.ApiGuard(cfg, usage_dir=tmp_path)
+    assert g.run('t', 'astra6', 1000, 100, lambda: pytest.fail('must not call')).reason == 'PER_CALL_COST_CAP'
+
+
+def test_mixed_old_and_cache_ledger_restart_keeps_historical_cost(tmp_path):
+    g = guard(tmp_path, prices=CACHE_PRICES, max_usd_total=0.002)
+    old = {'ts': '2027-01-15T08:00:00Z', 'outcome': 'OK', 'est_cost_usd': 0.0006}
+    old_line = json.dumps(old) + '\n'
+    g.ledger_path.write_text(old_line)
+    assert g.run('t', 'astra6', 1000, 100, lambda: ('v', 1000, 100, 700)).allowed
+    restarted = guard(tmp_path, prices=CACHE_PRICES, max_usd_total=0.002)
+    assert restarted.run('t', 'astra6', 1000, 100, ok()).reason == 'TOTAL_BUDGET'
+    assert g.ledger_path.read_text().startswith(old_line)
+
+
+def test_unknown_usage_and_errors_stay_worst_case_with_cache_prices(tmp_path):
+    g = guard(tmp_path, prices=CACHE_PRICES)
+    result = g.run('t', 'astra6', 1000, 100, lambda: ({'usage': {'cached_tokens': 700}}, None, None))
+    assert result.est_cost_usd == pytest.approx(0.0012)
+    def boom():
+        raise RuntimeError('provider failed')
+    with pytest.raises(RuntimeError):
+        g.run('t', 'astra6', 1000, 100, boom)
+    assert json.loads(g.ledger_path.read_text().splitlines()[-1])['est_cost_usd'] == pytest.approx(0.0012)
+
+
+@pytest.mark.parametrize('value', [None, 'not json', b'\xff', {'usage': []}, {'usage': {'input_tokens_details': []}}])
+def test_malformed_response_usage_is_unknown(value):
+    assert ab.response_cached_tokens(value, 1000) is None
