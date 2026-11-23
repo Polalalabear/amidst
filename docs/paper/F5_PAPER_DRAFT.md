@@ -2,7 +2,7 @@
 
 - 狀態：草稿，只寫 **E3 章節**。E5 章節與 E4 附錄等 E5 結果（D356），目前只有標題與佔位。Issue [#659](https://github.com/Polalalabear/amidst/issues/659)。
 - 依據：main @`396be050`（#685 合併）。依 D351，數字與判定的正本是 main 上的原始文件；本稿只引用，不另算。每個數字的出處見文末「數字對照表」；來源沒有的寫 `UNKNOWN`。
-- 論文路徑原本是 `UNKNOWN`：main 上沒有論文 md（`docs/report/CH5_CONCLUSION_DRAFT.md` 是課程報告第五章，不是本論文）。W2 之前的舊論文只在 LOCAL `local/evidence/final-package-20261120/report/amidst_paper_20261120.md`（未進 git），本稿沒有沿用它的內容，新建於此。
+- 論文路徑原本是 `UNKNOWN`：main 上沒有論文 md（`docs/report/CH5_CONCLUSION_DRAFT.md` 是課程報告第五章，不是本論文）。W2 之前的舊論文只在 LOCAL `local/evidence/final-package-20261120/report/amidst_paper_20261120.md`（未進 git；SHA-256 `6c83b2558f59a5c310da1c72db6f8d7fb606d4f54b7d1cdc9903c2fe16a7992d`，2026-11-23 撰稿時量），本稿沒有沿用它的內容，新建於此。
 - 身分一律 `UNCONFIRMED`：「對」只表示顯示的框或估計位置落在 GT 目標上。可行走連通是圖上的宣告，實體導航與碰撞是 `UNKNOWN`。
 - Model / effort（本稿）：Claude Opus 5.5 / medium。
 
