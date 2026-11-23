@@ -39,8 +39,7 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) — replaces the archived PRD, system design, data schema and interfaces; §2 data flow and §4.3 Agent request structure (`agent_service.py`, `scene_context.py`, `camera_projection.py`)
 - [Agent vs rule hypotheses H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md) (D340/D341) — §0 current evidence; results in [W1 frame evaluation](docs/evaluation/W1_FRAME_EVAL_20261120.md), [W2 active Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md) and the [vision-agent pilot](docs/evaluation/VISION_AGENT_RECORDED_20261120.md)
 - [Agent API wiring audit](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md) — every model call path, ApiGuard coverage; G7 fixed in #655 (`4f665d55`)
-- [E3 report (F4)](docs/operations/F4_E3_REPORT_658.md) — Agent vs rule on hard LIVE cases, [#678](https://github.com/Polalalabear/amidst/pull/678) (`3c436357`): H1, H2 and H4 are "not supported" for this dependent integration (LIVE decider applying every SELECT as a hard reset); H5 not judged; H3 descriptive only. Not "vision Agents are worse than rules in general"
-- E5 preregistration — Draft [#685](https://github.com/Polalalabear/amidst/pull/685) (issue [#684](https://github.com/Polalalabear/amidst/issues/684)); the path is added here once it merges
+- [E3 report (F4)](docs/operations/F4_E3_REPORT_658.md) — [#678](https://github.com/Polalalabear/amidst/pull/678) (`3c436357`): H1, H2 and H4 not supported for this dependent integration (D354)
 - [Code ↔ document map](docs/index/CODE_DOC_MAP.md) and [index](docs/index/README.md)
 
 ## Git workflow
