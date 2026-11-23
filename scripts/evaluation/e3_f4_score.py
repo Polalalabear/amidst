@@ -143,6 +143,21 @@ def diagnostics(S, case, ticks, b1_class, missed):
     return out
 
 
+def iou_conservative(S, ticks):
+    """Robustness only (Opus #678 M2; never feeds a verdict). The pinned ``metrics(..., 'iou')`` is unavailable for a run as soon as one
+    displayed tick is positional without a box. Here every such tick counts as an IoU miss (in the visible denominator, never CORRECT),
+    the same conservative rule for every arm. Returns the fields ``seg`` reads, plus the number of no-box display ticks."""
+    sec = TICK_US / 1e6
+    cls = [S.classify(t, 'iou') for t in ticks]
+    nobox = sum(c is None for c in cls)
+    vis = sum(c in S.VISIBLE_CLASSES for c in cls) + nobox
+    n = lambda *k: sum(c in k for c in cls)
+    return {'criterion': 'iou_conservative', 'available': True, 'nobox_display_ticks': nobox, 'visible_ticks': vis,
+            'follow_rate': n('CORRECT') / vis if vis else None, 'wrong_person_s': round(n(*BAD) * sec, 3),
+            'lost_s': round(n('LOST') * sec, 3), 'false_lock_s': round(n('FALSE_LOCK') * sec, 3), 'gt_unknown_stop': False,
+            'reacquire': {'median_s': None}}
+
+
 def load_scorer(path: Path):
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != SCORER_SHA:
@@ -177,7 +192,7 @@ def run_scores(S, case, a_log, b_doc, b1_class=None, missed=frozenset()):
                             'random1': S.random_topk(N_CAMS, len(vis[first]), 1) if first is not None else None}
         dps.append(item)
     calls = b_doc.get('calls') or []
-    return {'primary': prim, 'iou': iou, 'decision_points': dps, 'n_ticks': len(ticks), 'k': b_doc.get('k'),
+    return {'primary': prim, 'iou': iou, 'iou_conservative': iou_conservative(S, ticks), 'decision_points': dps, 'n_ticks': len(ticks), 'k': b_doc.get('k'),
             'classes': {t.t_us // TICK_US: S.classify(t) for t in ticks},
             'diag': diagnostics(S, case, ticks, b1_class or {}, missed), 'api_breakdown': api_breakdown(calls), 'h3': h3_overrides(S, ticks, calls),
             'images': {c['request']['t_s']: c['request']['images'] for c in calls if c.get('request')},
@@ -315,6 +330,15 @@ def main():
             report['comparisons'][f'{x}-{y}'] = compare(x, y)
             report['comparisons'][f'{x}-{y}|iou'] = compare(x, y, 'iou')
     cmp = report['comparisons']
+    report['robustness_iou_conservative'] = {'label': 'ROBUSTNESS ONLY (Opus #678 M2); verdicts unchanged', 'comparisons': {}, 'nobox_display_ticks': {}}
+    for x, y in [('A2', 'B1'), ('A1', 'B1'), ('A2', 'B2'), ('A3', 'B1')]:
+        if x in arms and y in arms:
+            r = compare(x, y, 'iou_conservative')
+            report['robustness_iou_conservative']['comparisons'][f'{x}-{y}'] = {k: r[k] for k in ('follow_diff', 'follow_diff_ci', 'wp_diff', 'wp_diff_ci', 'n_segments')}
+    for arm in arms:
+        rs = [r['iou_conservative'] for c in cases if has(c['case_id'], arm) for r in per[(c['case_id'], arm)]]
+        report['robustness_iou_conservative']['nobox_display_ticks'][arm] = {'runs': len(rs), 'sum': sum(r['nobox_display_ticks'] for r in rs),
+                                                                          'visible_ticks': sum(r['visible_ticks'] for r in rs)}
     if 'A2-B1' in cmp:
         c = cmp['A2-B1']; ci = cmp.get('A2-B1|iou') or {}
         report['verdicts']['H1'] = S.verdict_h1(c['wp_diff_ci'], c['follow_diff_ci'], c['mcnemar'], c['n_points'], c['n_segments'], ci.get('follow_diff'))

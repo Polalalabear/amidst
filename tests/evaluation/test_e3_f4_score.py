@@ -57,3 +57,15 @@ def test_diagnostics_occlusion_rescue_exit_and_switches():
     assert d['switches'] == {'total': 3, 'wrong': 1}
     assert [e['type'] for e in d['exit']] == ['TRUE_EXIT_BOUNDARY'] and d['exit'][0]['stale_old_camera_s'] == 0.0
     assert d['exit'][0]['correct'] is True and d['exit'][0]['window_ticks'] == 2       # correct then not shown: no false claim
+
+
+@pytest.mark.skipif(not SCORER.is_file(), reason='e3_scoring.py (PR #662) not in this checkout')
+def test_iou_conservative_counts_positional_display_as_miss():
+    S = load('e3_scoring', SCORER)
+    B = (10, 10, 40, 90)
+    ticks = [S.Tick(0, 'W2', boxes=(B,), visible=frozenset({'W2'}), body=B, size=F4.SIZE, tick_us=F4.TICK_US),       # IoU hit
+             S.Tick(F4.TICK_US, 'W2', visible=frozenset({'W2'}), size=F4.SIZE, pos_hit=True, tick_us=F4.TICK_US),     # positional, no box
+             S.Tick(2 * F4.TICK_US, None, visible=frozenset(), size=F4.SIZE, tick_us=F4.TICK_US)]                     # blind, nothing shown
+    assert S.metrics(ticks, 'iou', F4.TICK_US)['available'] is False
+    r = F4.iou_conservative(S, ticks)
+    assert r['nobox_display_ticks'] == 1 and r['visible_ticks'] == 2 and r['follow_rate'] == 0.5 and r['wrong_person_s'] == 0.0
