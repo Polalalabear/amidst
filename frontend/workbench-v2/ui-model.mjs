@@ -393,6 +393,9 @@ export function multiTiles(cameraIds, singleView, sightings, t) {
     return { cameraId, role, badge: TILE_BADGE[role] };
   });
 }
+export function manualSelectionSupported(response) {
+  return ['demo-cross-camera-local-linker', 'demo-core-agent-track'].includes(response?.provenance?.producer);
+}
 // Local tracks the operator can switch to at the playhead: every sighting covering t that is not the tracked one now.
 export function manualCandidates(singleView, sightings, t) {
   const plan = stagePlan(singleView, t), out = [], seen = new Set();

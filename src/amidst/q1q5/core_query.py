@@ -773,7 +773,7 @@ def execute_core_search(
     return response
 
 
-def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int) -> tuple[list[dict], list[str], bool]:
+def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int, *, allow_demo_default=False) -> tuple[list[dict], list[str], bool]:
     """Keep independent camera-local hypotheses; never join boxes by time alone."""
     b = run.bindings
     if b.index is None:
@@ -812,7 +812,7 @@ def _linked_sightings(run: object, feature: Mapping, start_us: int, end_us: int)
             parameters[cid] = LinkParameters.from_document(
                 b.parameter_set, expected_sha256=b.parameter_sha256,
                 scene_revision=m['scene_revision'], run_id=m['run_id'],
-                index_id=m['index_id'], index_interval_us=step,
+                index_id=m['index_id'], index_interval_us=step, allow_demo_default=allow_demo_default,
             )
         except LinkError as exc:
             if exc.code in {'PARAMETERS_NOT_APPROVED', 'PARAMETER_GRID_MISMATCH'}:
@@ -1008,6 +1008,7 @@ def execute_core_track(
     *,
     physical_prediction_available: bool = False,
     display_positions: Mapping | None = None,
+    allow_demo_default: bool = False,
 ) -> dict:
     """Execute q_core_track against a bound QRun."""
     b = getattr(run, 'bindings')
@@ -1094,7 +1095,7 @@ def execute_core_track(
         blocking.append('CLOCK_MAPPING_MISSING')
         all_sightings = []
     else:
-        all_sightings, link_reasons, linker_used = _linked_sightings(run, feat, window_start, as_of_us)
+        all_sightings, link_reasons, linker_used = _linked_sightings(run, feat, window_start, as_of_us, allow_demo_default=allow_demo_default)
         reasons.extend(link_reasons)
         blocking.extend(reason for reason in link_reasons if reason in {
             'INDEX_NOT_AVAILABLE', 'PARAMETERS_NOT_APPROVED', 'PARAMETER_GRID_MISMATCH'})

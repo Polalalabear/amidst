@@ -1,7 +1,7 @@
 // F3 (#657): one playhead source for title / stage / plan; multi view = every run camera; manual re-selection candidates.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {blindReacquire, stagePlan, multiTiles, manualCandidates, agentSummaryText, TILE_BADGE} from './ui-model.mjs';
+import {blindReacquire, stagePlan, multiTiles, manualCandidates, manualSelectionSupported, agentSummaryText, TILE_BADGE} from './ui-model.mjs';
 
 const SV = [
   {kind: 'ON_CAMERA', camera_id: 'CAM_A', range_us: [0, 10e6]},
@@ -42,4 +42,10 @@ test('F3: agent summary line', () => {
   assert.equal(agentSummaryText(null), null);
   assert.equal(agentSummaryText({switch_mode: 'AGENT_SEQUENTIAL', available: true, decisions: 3, adopted: 2, fallbacks: 1}), 'Agent 模式：決策 3 次、採用 2 次、退回規則 1 次');
   assert.match(agentSummaryText({switch_mode: 'AGENT_SEQUENTIAL', available: false, unavailable_reason: 'MAIN_SCREEN_AGENT_D124_RUNS_ONLY'}), /尚未接 Agent/);
+});
+
+test('CX-H6: registered core tracking supports manual selection, unavailable/generic responses do not', () => {
+  for (const producer of ['demo-cross-camera-local-linker','demo-core-agent-track']) assert.equal(manualSelectionSupported({provenance:{producer}}),true);
+  assert.equal(manualSelectionSupported({provenance:{producer:'q-core-track'}}),false);
+  assert.equal(manualSelectionSupported(null),false);
 });

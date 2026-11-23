@@ -183,6 +183,7 @@ class Demo(P1):
         base = list(self.api.runs.values())[0]
         runs = [replace(base, title='B-05 · P1 v4 · SYNTHETIC RGB')]
         self.rgb = Media(self.rgb, self.authorize)
+        self.core_track_keys = {(base.catalog['scene_id'], base.catalog['run_id'])}
         self.cross = {}; self.transitions = {}; self.positions = {}; agent_scenes = {}
         job = resolve_job(loads(pinned(job_path, job_pin)), owned_root)
         graph = loads(read_pin(job['graph']))
@@ -231,6 +232,7 @@ class Demo(P1):
             else:
                 key = (added.catalog['scene_id'], EIGHTCAM_RUN)
                 runs.append(added)
+                self.core_track_keys.add(key)
                 self.rgb.frames[key] = frames
                 self.positions[key] = camera_positions
                 agent_scenes[key] = eight_catalog
@@ -239,9 +241,6 @@ class Demo(P1):
         if agent_queue is not None:   # #601: default off; AMIDST_RECORDED_AGENT=openai binds the OpenAI-gateway Agent (no socket in this process)
             from amidst.q1q5.openai_gateway import configure_environment
             runs = list(configure_environment(runs, agent_queue, service=self.agent_service(graphs, agent_scenes)))
-            if runs[0].agent_factory is not None:   # CL-B16 (#620): B-05 (runs[0]) has no Agent decision point
-                from amidst.q1q5.openai_gateway import NotApplicableAgent
-                runs[0] = replace(runs[0], agent_factory=NotApplicableAgent())
         self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb, camera_display_positions=self.positions)
         self.scenes = {r.catalog['scene_id'] for r in runs}
 
@@ -295,6 +294,23 @@ class Demo(P1):
                 out['scene_context'] = r004_scene_context(graphs, catalog, catalog_sha, ids, REPO)
             if key in self.rgb.frames:
                 out['frame_reader'] = pinned_frame_reader(self.rgb.frames[key][1])
+            elif key == (self.rgb.p1.run.manifest['scene_id'], self.rgb.p1.run.manifest['run_id']):
+                # B-05 uses its existing hash-checked RGB reader. Its synthetic
+                # graph exists, but calibrated geometry is unavailable: disclose it.
+                from amidst.q1q5 import scene_context as sx
+                b = run.bindings
+                ctx = sx.build(b.graphs.region, b.graphs.camera, {'cameras': []},
+                               source_sha256={'region_graph.content_sha256': b.region_graph_sha256,
+                                              'camera_graph.content_sha256': b.camera_graph_sha256})
+                ctx['cameras'] = [{'camera_id': cid, 'position_xyz_m': 'UNKNOWN', 'yaw_deg_0_is_plus_x': 'UNKNOWN',
+                                   'fov_h_deg': 'UNKNOWN', 'ground_footprint_polygon_xy_m': 'UNKNOWN',
+                                   'entry_zones': c.get('entry_zones', []), 'exit_zones': [
+                                       {k: z[k] for k in ('exit_zone_id', 'roi_polygon_px', 'leads_to_edge_ids')} for z in c.get('exit_zones', [])]}
+                                  for cid in run.catalog['camera_ids'] for c in b.graphs.camera['cameras'] if c['camera_id'] == cid]
+                ctx['incomplete'].extend(['SCENE_CONTEXT_INCOMPLETE:CALIBRATION_POSITION_HEADING_FOV_FOOTPRINT_OVERLAPS:' + cid
+                                          for cid in run.catalog['camera_ids']])
+                sx.assert_no_forbidden(ctx)
+                out.update(scene_context=ctx, frame_reader=self.rgb.p1.run.read_rgb)
             return out
         return service
 
@@ -361,16 +377,14 @@ class Demo(P1):
             token = secrets.token_urlsafe(32); self.sessions[token] = self.scenes
             return {'session_ref': token, 'role': payload['role']}
         key = payload.get('scene_id'), payload.get('run_id')
+        if action == 'q_core_track' and key in self.core_track_keys:
+            from amidst.q1q5.service_core_track import core_track
+            _safe_request(payload); self.authorize(payload['session_ref'], key[0])
+            run = self.api.runs[key]
+            decider, why = self.track_decider(key, run) if payload.get('switch_mode') == 'AGENT_SEQUENTIAL' else (None, None)
+            return core_track(payload, run, decider=decider, unavailable_reason=why,
+                              demo_default=key[1] == EIGHTCAM_RUN, display_positions=self.positions.get(key))
         if action != 'q_core_track' or key not in self.cross:
-            if action == 'q_core_track' and isinstance(payload, dict):
-                # F3 (#657): manual re-selection and Agent mode on the main screen exist for the D124 runs only; never silently ignored.
-                require('manual_seed' not in payload, 'MANUAL_SEED_UNSUPPORTED')
-                if payload.get('switch_mode') == 'AGENT_SEQUENTIAL':
-                    doc = self.api.call(action, payload, self.authorize)
-                    doc['agent'] = {'switch_mode': 'AGENT_SEQUENTIAL', 'available': False, 'unavailable_reason': 'MAIN_SCREEN_AGENT_D124_RUNS_ONLY',
-                                    'decisions': 0, 'adopted': 0, 'fallbacks': 0, 'model_calls_total': 0, 'agent_used': False}
-                    doc['output_sha256'] = canonical_hash(doc, exclude=('output_sha256', 'stats'))
-                    return doc
             return self.api.call(action, payload, self.authorize)
         _safe_request(payload); self.authorize(payload['session_ref'], key[0]); run = self.api.runs[key]; b = run.bindings
         normalized = validate_track_request(payload, region_ids=run.catalog['region_ids'],
