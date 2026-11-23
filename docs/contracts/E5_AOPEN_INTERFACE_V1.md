@@ -45,14 +45,14 @@ JSON 物件：
  "reason": "..."}
 ```
 
-| answer | 必填 | 驗證（不合格 → `INVALID_RESPONSE:<code>`，當作沒有回答） |
+| answer | 必填 | 驗證（不合格就當作沒有回答，`fallback_reason` 寫下表的代碼；不是 JSON 或回答種類不對寫 `FORMAT_INVALID`） |
 |---|---|---|
 | SELECT | `camera_id`、`detection_id` | 這次請求裡要有這個 (`camera_id`, `detection_id`)，否則 `UNKNOWN_DETECTION` |
 | OWN_BOX | `camera_id`、`box_xyxy` | 座標以請求影像的實際像素為單位（`service_decider._jpeg` 不縮放，E3 劇本是 320×180），0 ≤ x0 < x1 ≤ W、0 ≤ y0 < y1 ≤ H；鏡頭要在這次請求裡。否則 `BAD_OWN_BOX`。注意：`agent_service.parse_answer` 用 960×540 檢查，E5 要用自己的驗證 |
 | STILL_HERE_OCCLUDED | `camera_id` | 鏡頭要在這次請求裡，否則 `BAD_CAMERA` |
 | NOT_VISIBLE、UNCERTAIN | 無 | — |
 
-- `next_camera_ranking`：每種回答都要給，最多 3 台，濾掉未知鏡頭和重複。沒給時，用 `next_camera_hint`（如果有）當單一候選，並記 `ranking_supplied=false`。
+- `next_camera_ranking`：每種回答都要給，最多 3 台，濾掉未知鏡頭和重複。沒給，或過濾後是空的，就記 `ranking_supplied=false`，排序是空的；**不拿 `next_camera_hint` 補**。回答裡如果有 `next_camera_hint`，只原樣記在 `calls[].next_camera_hint_raw`。
 - `reason_codes` 最多保留 4 個，多的截掉，不算格式錯誤。
 
 ## 4. 軌跡建立和接管語意
@@ -63,10 +63,15 @@ A-open 的狀態：`target = {camera_id, box(320×180 像素), est_xy, source, s
 |---|---|
 | SELECT | `target` 設成那個偵測框（偵測索引的像素座標，E3 劇本就是 320×180），`source=AGENT_SELECT`。不論之前有沒有目標、在哪台鏡頭，一律接管。 |
 | OWN_BOX | `target` 設成 Agent 畫的框（請求影像的像素座標，不換算），`source=AGENT_OWN_BOX`。中性追蹤器從這個框開始延續。 |
-| STILL_HERE_OCCLUDED | 保留鏡頭和最後的 `est_xy`，`box=None`，最多 `occluded_hold_s = 2.0` s，之後 `target=None`。 |
+| STILL_HERE_OCCLUDED | 只有**目前有目標、而且 `camera_id` 和目前目標同一台**時才有效；否則 `applied=false`、`fallback_reason=OCCLUDED_NO_TARGET`，狀態不變。有效時進入保留：留在原鏡頭，`box=None`，以最後一個框的位置（`est_xy`，最後一個框底邊中點的地面投影）顯示，保留期是 [生效 tick, 生效 tick＋`occluded_hold_s` = 2.0 s)，共 10 個 tick，到期那個 tick 變成 LOST（`target=None`）。 |
 | NOT_VISIBLE | `target=None`，記下排序。 |
 | UNCERTAIN、沒有回答（錯誤、逾時、格式不合、達到呼叫上限） | 不改 `target`，中性追蹤器繼續。 |
 
+- 保留期間（OCCLUDED）：
+  - UNCERTAIN 和沒有回答都**不延長**保留期；
+  - 新的有效 OCCLUDED 從新的生效 tick 重新計時；
+  - SELECT／OWN_BOX 結束保留並接管；NOT_VISIBLE 結束保留並清掉目標；
+  - 中性追蹤器**不**自動接回（保留期間不做 IoU 關聯）。
 - 規則不否決：規則的狀態不會改變 `target`，也不會擋任何回答。
 - 一開始：規則第一次 ACQUIRE 時截取參考截圖（同 E3），第一次提問就在那個 tick。在 Agent 第一次 SELECT／OWN_BOX 之前，AO 不顯示任何東西。
 - 模擬即時（AO-L）：答案在「提問 tick 的時間＋實測延遲」之後的第一個 tick 生效。SELECT／OWN_BOX 生效前，要把提問時的框用 IoU ≥ 0.3，在同一台鏡頭裡逐 tick 串到生效那個 tick（每個 tick 取 IoU 最大、且 ≥ 0.3 的系統偵測框；同 `e3_f4_run.chain_box`）。串不上就記 `EXPIRED`，不套用。同一時間只有一個問題在途。
@@ -95,7 +100,7 @@ NeutralTracker.step(tick, target, dets_by_cam) -> (target', status)
 | `neutral_iou`、`coast_ticks`、`occluded_hold_s` | 0.3、2、2.0 | 寫死，不開 CLI |
 | 模式 | `offline`（AO）或 `simlive`（AO-L） | `--mode` |
 
-達到呼叫上限之後不再提問，記 `CALL_CAP_REACHED` 一次，中性追蹤器繼續。
+達到呼叫上限之後不再提問，中性追蹤器繼續。`CALL_CAP_REACHED` 是**控制事件，不是錯誤**：在達到上限的那個 tick，於 `rows[].events` 記一筆 `{"type": "CALL_CAP_REACHED"}`；不新增 `calls[]` 列、不計入呼叫數，也不計入 provider 錯誤率。報告另外列達到上限的次數。
 
 ## 7. 離線重播入口和輸出檔格式
 
@@ -117,12 +122,14 @@ python -B scripts/evaluation/e5_run.py --root <E3 root> --cameras <cameras.catal
  "prompt_extra_sha256": "...", "identity": "UNCONFIRMED", "wall_s": 0.0,
  "rows": [{"tick": 0,
            "tracking": {"state": "TRACKING" | "LOST", "active_cam": "CAM_W2" | null, "est_xy": [x, y] | null, "lost_ticks": 0, "box": [x0, y0, x1, y1] | null},
-           "ranking": ["CAM_W2"], "decision_source": "AGENT" | "NEUTRAL" | "NONE", "neutral_status": "FOLLOWING" | "COASTING" | "LOST" | null,
-           "events": [{"tick": 0, "type": "ADJUDICATE_ASK" | "ADJUDICATED" | "SWITCH" | "ACQUIRE", "cam": null, "detail": {}}]}],
+           "ranking": ["CAM_W2"], "decision_source": "AGENT" | "NEUTRAL" | "NONE", "neutral_status": "FOLLOWING" | "COASTING" | "LOST" | "OCCLUDED_HOLD" | null,
+           "events": [{"tick": 0, "type": "ADJUDICATE_ASK" | "ADJUDICATED" | "SWITCH" | "ACQUIRE" | "CALL_CAP_REACHED", "cam": null, "detail": {}}]}],
  "calls": [{"tick": 0, "kind": "POLL" | "LOST_EARLY" | "FIRST",
             "answer": "SELECT", "camera_id": "...", "detection_id": "...", "box_xyxy": null, "next_camera_ranking": [], "ranking_supplied": true,
+            "next_camera_hint_raw": null,
             "confidence": "medium", "reason_codes": [], "reason": "...",
-            "applied": true, "source": "AGENT" | "RULE_FALLBACK", "fallback_reason": null | "PROVIDER_TIMEOUT" | "INVALID_RESPONSE" | "CALL_BUDGET_EXHAUSTED" | "PROVIDER_UNAVAILABLE" | "EXPIRED" | "CALL_CAP_REACHED",
+            "applied": true, "source": "AGENT" | "NEUTRAL",
+            "fallback_reason": null | "PROVIDER_TIMEOUT" | "PROVIDER_ERROR" | "FORMAT_INVALID" | "UNKNOWN_DETECTION" | "BAD_OWN_BOX" | "BAD_CAMERA" | "CALL_BUDGET_EXHAUSTED" | "EXPIRED" | "OCCLUDED_NO_TARGET",
             "latency_ms": 0, "model_latency_s": 0.0, "usage": {"input_tokens": 0, "output_tokens": 0}, "scene_context_sha256": "...",
             "request": {"t_s": 0.0, "images": {"CAM_W2": "<sha256>"}, "reference": "<sha256>", "candidates": 0,
                         "candidate_list": [{"detection_id": "D1", "camera_id": "CAM_W2", "box": [0, 0, 0, 0], "score": 0.0, "class_label": "person", "colors": []}],
@@ -133,11 +140,20 @@ python -B scripts/evaluation/e5_run.py --root <E3 root> --cameras <cameras.catal
 各欄位語意：
 - **`tracking`（評分只看這一欄）**：
   - 顯示中：`state=TRACKING`、`lost_ticks=0`，`active_cam` 和 `est_xy` 都非空，`box` 是 320×180 像素。
-  - STILL_HERE_OCCLUDED：`box=null`，只顯示位置。
+  - OCCLUDED 保留期間：`box=null`，只顯示位置（`est_xy` 保留最後一個框的值），`neutral_status=OCCLUDED_HOLD`。
   - 不顯示：`state=LOST`，`active_cam=null`。
-- **`ranking`**：最近一次回答的 `next_camera_ranking`（H8c 取前一個 tick 的值），在第一次回答之前是空的。
-- **`calls[].applied`**：`true` 表示這次回答改了 `target`（SELECT／OWN_BOX 生效、NOT_VISIBLE 清掉目標、OCCLUDED 開始保留）。UNCERTAIN 是 `false`、`fallback_reason=null`。
-- **`fallback_reason`**：用 `e3_f4_score.api_breakdown` 認得的值；`CALL_CAP_REACHED` 也照實寫進去（評分端會分開計算，不算 provider 錯誤）。
+- **`ranking`**：永遠等於**最近一次有效回答**的 `next_camera_ranking`（H8c 取前一個 tick 的值）。最近一次有效回答沒給排序，就是空的 `[]`，不沿用更早的排序，也不拿 hint 補。第一次有效回答之前也是空的。`run_scores` 讀到空排序就算未命中（預登 §5 H8c）。
+- **`calls[].applied`**：`true` 表示這次回答改了 `target`（SELECT／OWN_BOX 生效、NOT_VISIBLE 清掉目標、有效的 OCCLUDED 開始或重新開始保留）。UNCERTAIN 是 `false`、`fallback_reason=null`。
+- **`source` 和 `fallback_reason`**：E5 **不用 `RULE_FALLBACK`**。有效回答是 `source=AGENT`；其他情況是 `source=NEUTRAL`（由中性追蹤器延續），`fallback_reason` 直接寫實際原因。分類如下，由 Claude 的 E5 評分包裝程式（`e5_score.py`）統一正規化，不改 `e3_f4_score.api_breakdown`：
+
+  | 類別 | `fallback_reason` | 用途 |
+  |---|---|---|
+  | provider 錯誤 | `PROVIDER_TIMEOUT`、`PROVIDER_ERROR` | 預登 §7 的 10% 停止條件（照 D352 算缺漏資料） |
+  | 格式退回 | `FORMAT_INVALID`、`UNKNOWN_DETECTION`、`BAD_OWN_BOX`、`BAD_CAMERA` | 試跑的 20% 退回率門檻 |
+  | 預算拒絕 | `CALL_BUDGET_EXHAUSTED` | D352 重跑規則 |
+  | 模擬即時過期 | `EXPIRED` | 只出現在 AO-L |
+  | 無效的 OCCLUDED | `OCCLUDED_NO_TARGET` | 有效呼叫，不算錯誤 |
+  | 控制事件（不是 `calls[]` 列） | `CALL_CAP_REACHED` 記在 `rows[].events` | 不計入呼叫數或錯誤率 |
 - **`candidate_list` 和 `detection_id`**：補齊 E3 缺的欄位（Opus #678 裁決的後續）。影像本身不存，可以由凍結輸入和 SHA-256 重建。
 
 ## 8. 不能動的檔案
@@ -153,17 +169,22 @@ python -B scripts/evaluation/e5_run.py --root <E3 root> --cameras <cameras.catal
 - 單元測試（不連網、沒有模型、沒有 GT）：
   - SELECT 和 OWN_BOX 的接管；
   - 中性追蹤器的 FOLLOWING／COASTING／LOST 和不換鏡頭；
-  - NOT_VISIBLE／UNCERTAIN／OCCLUDED 的語意；
-  - 呼叫上限；
+  - NOT_VISIBLE／UNCERTAIN／OCCLUDED 的語意，包括 OCCLUDED_NO_TARGET（沒有目標、跨鏡頭）、保留期 10 個 tick 到期變 LOST、UNCERTAIN 不延長、新的 OCCLUDED 重新計時、SELECT／OWN_BOX 接管、NOT_VISIBLE 清除、保留期間不自動接回；
+  - 缺排名時 `rows[].ranking=[]`、hint 只記在 `next_camera_hint_raw`；
+  - 呼叫上限（只在 `rows[].events` 記一筆，不新增 `calls[]` 列）；
   - AO-L 的串接和 EXPIRED；
   - 每種格式錯誤；
   - 輸出檔能被 `e3_f4_score.run_scores` 讀取（用合成資料）。
 - 試跑只能在 Claude 審查和預登合併之後進行（預登 §3）。Codex 交付時不付費執行。
 - PR 照 AGENTS.md 的實際產出模板，連結 #684。
 
-## 待 Codex 確認的問題
+## Codex 的問題和裁決
 
-1. §1 的路徑。
-2. 用 `State._infer_tracking` 只取參考截圖時刻和規則資訊，會不會和 AO 狀態耦合；若會，改成另跑一份 B1 狀態。
+Codex 對原本四個問題的回覆，協調者全部接受（#685）：
+
+1. §1 的路徑：照 Codex 的回覆。
+2. 規則資訊和參考截圖時刻由一份**獨立的 B1 sidecar 狀態**提供，不和 AO 狀態耦合。
 3. OWN_BOX 用請求影像的實際像素（320×180），不用 `SYSTEM_TEXT` 的 960×540；`E5_EXTRA` 要覆寫這一句。E3 的 OWN_BOX 只記錄、不套用，所以這個不一致在 E3 沒有影響。
-4. AO-L 的在途問題在 `_poll` 的實作（參考 `e3_f4_run.Recording._poll`）。
+4. AO-L 同一時間只有一個在途問題。
+
+協調者另外裁決了三項：API 分類（§7）、缺排名（§3、§7）、OCCLUDED（§4），已經寫進上面各節。Codex 確認後在 PR #685 寫「契約確認」。
