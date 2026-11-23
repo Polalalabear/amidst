@@ -74,7 +74,7 @@ def test_foot_projection_last_position_and_speed_radius_never_read_future():
     assert first["est_xy"] == pytest.approx([1, -2])
     assert first["uncertainty_m"] == 1
     assert first["last_observed_us"] == 0
-    records[1]["detections"][0]["bbox_xyxy_px"] = [90, 90, 98, 98]
+    records[1]["detections"][0]["bbox_xyxy_px"] = [90, 90, 95, 95]
     assert estimate(records, response) == first
     assert records[0] == before[0]
     response["as_of_us"] = 2_000_000
@@ -129,7 +129,7 @@ def test_projection_reads_only_explicit_observation_fields_and_preserves_output_
         }
     )
     doc = demo.with_estimate(("scene", "run"), dict(response))
-    assert doc["estimate"] == result
+    assert doc["display_estimate"] == result
     assert doc["output_sha256"] == canonical_hash(doc, exclude=("output_sha256", "stats"))
 
 
@@ -208,7 +208,9 @@ def test_api_saves_the_estimate_with_its_final_response_hash():
     from test_api import TOKEN, api_fixture, authorize
 
     api, run = api_fixture()
-    api.track_estimator = lambda *_: {"est_xy": [1, 2], "uncertainty_m": 0.4}
+    records, response = fixture()
+    expected = estimate(records, response)
+    api.track_estimator = lambda *_: expected
     result = api.call(
         "q_core_track",
         {
@@ -223,7 +225,8 @@ def test_api_saves_the_estimate_with_its_final_response_hash():
         },
         authorize,
     )
-    assert result["estimate"] == {"est_xy": [1, 2], "uncertainty_m": 0.4}
+    assert result["display_estimate"] == expected
+    assert "estimate" not in result
     assert api.responses[(TOKEN, result["output_sha256"])]["response"] == result
 
 
@@ -245,7 +248,7 @@ def test_normal_recorded_entry_supplies_a_bound_estimate_or_unknown(label, reque
             "playback_now_us": run.bindings.clock.duration_us,
         },
     )
-    estimate = result["estimate"]
+    estimate = result["display_estimate"]
     if label in ("B-05", "r005"):
         assert estimate["reason"] == "CALIBRATION_MISSING"
     else:
@@ -270,3 +273,156 @@ def test_unassociated_candidate_in_same_camera_does_not_make_selected_point_ambi
         {"camera_id": "top", "observation_ids": ["other"], "selected_for_single_view": False}
     )
     assert estimate(records, response)["est_xy"] == pytest.approx([1, -2])
+
+
+def latest_fixture():
+    records, response = fixture()
+    response["as_of_us"] = 2_000_000
+    response["single_view"][0]["range_us"][1] = 2_000_000
+    return records, response
+
+
+def horizon_catalog():
+    catalog = copy.deepcopy(CATALOG)
+    catalog["cameras"][0]["camera_to_world"] = [
+        [1, 0, 0, 0],
+        [0, 0, -1, 0],
+        [0, 1, 0, 10],
+        [0, 0, 0, 1],
+    ]
+    return catalog
+
+
+def test_foot_within_four_pixel_margin_is_unknown():
+    records, response = latest_fixture()
+    records[1]["detections"][0]["bbox_xyxy_px"][3] = CATALOG["cameras"][0]["height"] - 3
+    assert estimate(records, response)["reason"] == "FOOT_TRUNCATED_AT_FRAME_BOTTOM"
+
+
+def test_latest_above_horizon_observation_does_not_reuse_earlier_point():
+    records, response = latest_fixture()
+    catalog = horizon_catalog()
+    assert isinstance(estimate(records[:1], response, catalog)["est_xy"], list)
+    records[1]["detections"][0]["bbox_xyxy_px"] = [5, -40, 15, -20]
+    result = estimate(records, response, catalog)
+    assert result["est_xy"] == "UNKNOWN"
+    assert result["reason"] == "GROUND_PROJECTION_UNDEFINED"
+    assert "last_observed_us" not in result
+
+
+def test_one_undefined_observation_at_latest_time_invalidates_valid_peer():
+    records, response = latest_fixture()
+    records[1]["detections"].append(
+        {"observation_id": "undefined", "bbox_xyxy_px": [5, -40, 15, -20]}
+    )
+    response["sightings"][0]["observation_ids"].append("undefined")
+    result = estimate(records, response, horizon_catalog())
+    assert result["reason"] == "GROUND_PROJECTION_UNDEFINED"
+    assert result["est_xy"] == "UNKNOWN"
+
+
+@pytest.mark.parametrize("invalid", ["bbox_nan", "ground_none", "ground_infinite"])
+def test_latest_invalid_projection_is_recorded_as_undefined(invalid, monkeypatch):
+    records, response = latest_fixture()
+    if invalid == "bbox_nan":
+        records[1]["detections"][0]["bbox_xyxy_px"][0] = float("nan")
+    else:
+        from demo_estimate import Projector
+
+        monkeypatch.setattr(
+            Projector, "ground", lambda *_: None if invalid == "ground_none" else [float("inf"), 0]
+        )
+    assert estimate(records, response)["reason"] == "GROUND_PROJECTION_UNDEFINED"
+
+
+def test_clipped_foot_reason_wins_over_undefined_projection():
+    records, response = latest_fixture()
+    records[1]["detections"] = [
+        {"observation_id": "one", "bbox_xyxy_px": [5, -40, 15, -20]},
+        {"observation_id": "clipped", "bbox_xyxy_px": [5, 0, 15, 97]},
+    ]
+    response["sightings"][0]["observation_ids"].append("clipped")
+    assert (
+        estimate(records, response, horizon_catalog())["reason"] == "FOOT_TRUNCATED_AT_FRAME_BOTTOM"
+    )
+
+
+def test_no_selected_observation_reason_is_not_used_for_projection_failure():
+    records, response = fixture()
+    response["sightings"] = []
+    assert estimate(records, response)["reason"] == "NO_PROJECTABLE_SELECTED_OBSERVATION"
+
+
+def test_display_estimate_schema_covers_values_unknowns_and_optional_attachment():
+    from test_api import TOKEN, api_fixture, authorize
+    from test_service_agent_track import schema_ok
+
+    from amidst.q1q5.store import canonical_hash
+
+    schema = json.loads(
+        (
+            Path(__file__).resolve().parents[2]
+            / "docs/contracts/schemas/q-core.search-track.v1.schema.json"
+        ).read_text()
+    )
+    definition = schema["$defs"]["displayEstimate"]
+    assert schema["$defs"]["trackResponse"]["properties"]["display_estimate"] == {
+        "$ref": "#/$defs/displayEstimate"
+    }
+    assert "display_estimate" not in schema["$defs"]["trackResponse"]["required"]
+    records, response = fixture()
+    known = estimate(records, response)
+    assert schema_ok(known, definition)
+    assert known["schema_version"] == "q-core.display-estimate.v1"
+    for reason in schema["$defs"]["displayEstimate"]["properties"]["reason"]["enum"]:
+        assert schema_ok(
+            {
+                "schema_version": "q-core.display-estimate.v1",
+                "est_xy": "UNKNOWN",
+                "uncertainty_m": "UNKNOWN",
+                "reason": reason,
+            },
+            definition,
+        )
+    assert not schema_ok(dict(known, schema_version="q-core.blind-estimate.v1"), definition)
+    assert not schema_ok(
+        {
+            "schema_version": "q-core.display-estimate.v1",
+            "est_xy": "UNKNOWN",
+            "uncertainty_m": "UNKNOWN",
+            "reason": "OTHER",
+        },
+        definition,
+    )
+    api, run = api_fixture()
+    payload = {
+        "schema_version": "q-core.track-request.v1",
+        "session_ref": TOKEN,
+        "scene_id": run.catalog["scene_id"],
+        "run_id": run.catalog["run_id"],
+        "feature": {"class_label": "person", "color_label": None},
+        "region_ids": [],
+        "time": None,
+        "playback_now_us": run.bindings.clock.duration_us,
+    }
+    plain = api.call("q_core_track", payload, authorize)
+    track_schema = schema["$defs"]["trackResponse"]
+    assert schema_ok(plain, track_schema)
+    assert "display_estimate" not in plain
+
+    def attach(_run, doc):
+        assert "display_estimate" not in doc
+        assert doc == plain
+        return known
+
+    api.track_estimator = attach
+    augmented = api.call("q_core_track", payload, authorize)
+    assert schema_ok(augmented, track_schema)
+    assert augmented["display_estimate"] == known
+    assert augmented["blind"] == plain["blind"]
+    assert augmented["output_sha256"] != plain["output_sha256"]
+    assert augmented["output_sha256"] == canonical_hash(
+        augmented, exclude=("output_sha256", "stats")
+    )
+    api.track_estimator = None
+    assert api.call("q_core_track", payload, authorize) == plain

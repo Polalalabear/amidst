@@ -159,13 +159,13 @@ def test_both_eightcam_runs_are_registered_with_estimates_and_missing_sources_un
                 "playback_now_us": 9_400_000,
             },
         )
-        assert "estimate" in result
-        if result["estimate"]["est_xy"] != "UNKNOWN":
+        assert "display_estimate" in result
+        if result["display_estimate"]["est_xy"] != "UNKNOWN":
             assert (
-                result["estimate"]["calibration_sha256"]
+                result["display_estimate"]["calibration_sha256"]
                 == bundle.pins["provenance/camera_catalog.json"]
             )
-            assert result["estimate"]["last_observed_us"] <= 9_400_000
+            assert result["display_estimate"]["last_observed_us"] <= 9_400_000
         from amidst.q1q5.store import canonical_hash
 
         assert result["output_sha256"] == canonical_hash(result, exclude=("output_sha256", "stats"))
@@ -209,9 +209,9 @@ def test_pinned_eightcam_core_adapter_produces_selected_projection_without_servi
     )
     assert result["manual_seed"]["applied"]
     assert result["single_view"]
-    assert len(result["estimate"]["est_xy"]) == 2, result["estimate"]
-    assert result["estimate"]["calibration_sha256"] == calibration[1]
-    assert result["estimate"]["last_observed_us"] <= 9_400_000
+    assert len(result["display_estimate"]["est_xy"]) == 2, result["display_estimate"]
+    assert result["display_estimate"]["calibration_sha256"] == calibration[1]
+    assert result["display_estimate"]["last_observed_us"] <= 9_400_000
     assert result["output_sha256"] == canonical_hash(result, exclude=("output_sha256", "stats"))
     output = os.environ.get("AMIDST_TEST_EVIDENCE")
     if output:

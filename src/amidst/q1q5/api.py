@@ -746,7 +746,7 @@ class QAPI:
                 else:response=execute_core_track(payload,run,physical_prediction_available=True,display_positions=self.camera_display_positions.get((run.catalog['scene_id'],run.catalog['run_id']))or self.camera_display_positions.get(run.catalog['scene_id']))
             except CoreRequestError as exc:raise APIError(exc.code,422) from None
             if action == 'q_core_track' and self.track_estimator is not None:
-                response['estimate'] = self.track_estimator(run, response)
+                response['display_estimate'] = self.track_estimator(run, response)
                 response['output_sha256'] = canonical_hash(response, exclude=('output_sha256', 'stats'))
             self._save_response(payload['session_ref'],self._bundle(payload,response,run))
             return response

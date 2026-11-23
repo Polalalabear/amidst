@@ -8,6 +8,9 @@ from collections import defaultdict
 from amidst.live_mode.tracker import Projector
 from amidst.q1q5.physical_prediction import DEFAULT_PARAMS
 
+FOOT_EDGE_MARGIN_PX = 4
+DISPLAY_ESTIMATE_SCHEMA = "q-core.display-estimate.v1"
+
 DEFAULT_MAX_SPEED_M_S = DEFAULT_PARAMS.speed_range_m_s[-1]
 
 
@@ -22,7 +25,12 @@ def estimate_track(
     max_speed_m_s=DEFAULT_MAX_SPEED_M_S,
 ):
     def unknown(reason):
-        return {"est_xy": "UNKNOWN", "uncertainty_m": "UNKNOWN", "reason": reason}
+        return {
+            "schema_version": DISPLAY_ESTIMATE_SCHEMA,
+            "est_xy": "UNKNOWN",
+            "uncertainty_m": "UNKNOWN",
+            "reason": reason,
+        }
 
     if catalog is None:
         return unknown("CALIBRATION_MISSING")
@@ -39,7 +47,7 @@ def estimate_track(
     points = defaultdict(dict)
     for row in records:
         stamp, camera = row["timestamp_us"], row["camera_id"]
-        if stamp > as_of or camera not in cameras:
+        if stamp > as_of:
             continue
         if not any(
             s["kind"] == "ON_CAMERA"
@@ -48,32 +56,47 @@ def estimate_track(
             for s in selected
         ):
             continue
-        calibration = cameras[camera]
+        calibration = cameras.get(camera)
         for det in row["detections"] or []:
             oid = det["observation_id"]
             if (camera, oid) not in wanted:
                 continue
+            key = (camera, oid)
+            if calibration is None:
+                points[stamp][key] = "CALIBRATION_MISSING"
+                continue
             x1, y1, x2, y2 = det["bbox_xyxy_px"]
             if not all(math.isfinite(v) for v in (x1, y1, x2, y2)):
+                points[stamp][key] = "GROUND_PROJECTION_UNDEFINED"
                 continue
-            if y2 >= calibration["height"] - 1:
-                points[stamp][(camera, oid)] = None
+            if y2 >= calibration["height"] - FOOT_EDGE_MARGIN_PX:
+                points[stamp][key] = "FOOT_TRUNCATED_AT_FRAME_BOTTOM"
                 continue
             xy = projector.ground(
                 camera, (x1 + x2) / 2, y2, calibration["width"], calibration["height"]
             )
-            if xy is not None and all(math.isfinite(v) for v in xy):
-                points[stamp][(camera, oid)] = xy
+            points[stamp][key] = (
+                xy
+                if xy is not None and all(math.isfinite(v) for v in xy)
+                else "GROUND_PROJECTION_UNDEFINED"
+            )
     if not points:
         return unknown("NO_PROJECTABLE_SELECTED_OBSERVATION")
     latest = max(points)
-    if any(xy is None for xy in points[latest].values()):
-        return unknown("FOOT_TRUNCATED_AT_FRAME_BOTTOM")
+    reasons = {value for value in points[latest].values() if isinstance(value, str)}
+    for reason in (
+        "FOOT_TRUNCATED_AT_FRAME_BOTTOM",
+        "GROUND_PROJECTION_UNDEFINED",
+        "CALIBRATION_MISSING",
+    ):
+        if reason in reasons:
+            return unknown(reason)
     if len(points[latest]) != 1:
         return unknown("AMBIGUOUS_SELECTED_OBSERVATIONS")
     xy = next(iter(points[latest].values()))
     elapsed_s = (as_of - latest) / 1_000_000
     return {
+        "schema_version": DISPLAY_ESTIMATE_SCHEMA,
         "est_xy": xy,
         "uncertainty_m": max_speed_m_s * elapsed_s,
         "last_observed_us": latest,

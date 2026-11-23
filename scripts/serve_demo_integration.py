@@ -447,7 +447,7 @@ class Demo(P1):
 
     def with_estimate(self, key, doc):
         run = self.api.runs[key]
-        doc['estimate'] = self.estimate(run, doc)
+        doc['display_estimate'] = self.estimate(run, doc)
         doc['output_sha256'] = canonical_hash(doc, exclude=('output_sha256', 'stats'))
         return doc
 

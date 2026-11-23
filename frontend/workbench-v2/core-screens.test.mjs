@@ -1544,3 +1544,15 @@ test('workbench, event viewer and index code never reference the #442 receipt or
     assert.doesNotMatch(text, /RERENDER_RECEIPT|first_static_witness|9\.6518|9651833/, f.pathname);
   }
 });
+
+
+test('tracking model consumes display_estimate independently of blind.estimate', () => {
+  const display = { schema_version: 'q-core.display-estimate.v1', est_xy: [1, 2], uncertainty_m: 0.8 };
+  const response = { ...SYNTHETIC_TRACK_RESPONSE, display_estimate: display };
+  const model = buildCoreTrackingViewModel(response, { tUs: 5000000 });
+  assert.deepEqual(model.topdown.est_xy, [1, 2]);
+  assert.equal(model.topdown.estimate, display);
+  assert.equal(response.blind, SYNTHETIC_TRACK_RESPONSE.blind);
+  const legacy = buildCoreTrackingViewModel({ ...SYNTHETIC_TRACK_RESPONSE, estimate: display }, { tUs: 5000000 });
+  assert.equal(legacy.topdown.est_xy, 'UNKNOWN');
+});

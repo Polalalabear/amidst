@@ -160,6 +160,124 @@
          "properties": {"status": {"const": "ESTIMATED"}, "reason": {"type": "null"}, "estimate": {"$ref": "#/$defs/blindEstimate"}}}
       ]
     },
+    "displayEstimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "est_xy",
+        "uncertainty_m"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "q-core.display-estimate.v1"
+        },
+        "est_xy": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            {
+              "const": "UNKNOWN"
+            }
+          ]
+        },
+        "uncertainty_m": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "const": "UNKNOWN"
+            }
+          ]
+        },
+        "reason": {
+          "enum": [
+            "CALIBRATION_MISSING",
+            "NO_PROJECTABLE_SELECTED_OBSERVATION",
+            "AMBIGUOUS_SELECTED_OBSERVATIONS",
+            "FOOT_TRUNCATED_AT_FRAME_BOTTOM",
+            "GROUND_PROJECTION_UNDEFINED"
+          ]
+        },
+        "last_observed_us": {
+          "$ref": "#/$defs/sourceUs"
+        },
+        "method": {
+          "const": "BOX_FOOT_TO_Z0_LAST_POSITION"
+        },
+        "uncertainty_basis": {
+          "const": "SPEED_ONLY_REACHABLE_RADIUS"
+        },
+        "max_speed_m_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_clock_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_index_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "calibration_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "est_xy": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "uncertainty_m": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "last_observed_us",
+            "method",
+            "uncertainty_basis",
+            "max_speed_m_s",
+            "source_clock_id",
+            "source_index_sha256",
+            "calibration_sha256"
+          ],
+          "not": {
+            "required": [
+              "reason"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "est_xy": {
+              "const": "UNKNOWN"
+            },
+            "uncertainty_m": {
+              "const": "UNKNOWN"
+            }
+          },
+          "required": [
+            "reason"
+          ]
+        }
+      ]
+    },
     "trackResponse": {
       "type": "object",
       "required": ["schema_version", "status", "reasons", "as_of_us", "resolved_time", "sightings", "multi_view", "single_view",
@@ -178,6 +296,7 @@
         "multi_view": {"type": "array", "items": {"type": "object", "required": ["camera_id", "first_us", "last_us"]}},
         "single_view": {"type": "array", "items": {"$ref": "#/$defs/singleViewSegment"}},
         "blind": {"$ref": "#/$defs/blind"},
+        "display_estimate": {"$ref": "#/$defs/displayEstimate"},
         "identity_verdict": {"const": "UNCONFIRMED"},
         "physical_navigation": {"const": "UNKNOWN"},
         "provenance": {"type": "object", "required": ["producer", "gt_read"], "properties": {"gt_read": {"const": false}}},

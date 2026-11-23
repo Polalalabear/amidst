@@ -193,21 +193,48 @@ SCHEMA = json.loads((Path(__file__).resolve().parents[2] / 'docs/contracts/schem
 
 
 def schema_ok(value, sub):
-    """The JSON-Schema subset trackRequest uses for these fields (no jsonschema dependency in the checkout)."""
+    """The JSON-Schema subset used by the core request/display response contract tests."""
+    import math
+    import re
+
     if '$ref' in sub:
         return schema_ok(value, SCHEMA['$defs'][sub['$ref'].rsplit('/', 1)[1]])
+    if 'const' in sub and value != sub['const']:
+        return False
     if 'enum' in sub and value not in sub['enum']:
         return False
-    if sub.get('type') == 'string' and not (isinstance(value, str) and len(value) >= sub.get('minLength', 0)):
+    if 'oneOf' in sub and sum(schema_ok(value, branch) for branch in sub['oneOf']) != 1:
         return False
-    if sub.get('type') == 'integer' and not (type(value) is int and value >= sub.get('minimum', value)):
+    if 'not' in sub and schema_ok(value, sub['not']):
         return False
-    if sub.get('type') == 'object':
-        if not isinstance(value, dict) or not set(sub.get('required', ())) <= set(value):
+    kind = sub.get('type')
+    if kind == 'null' and value is not None:
+        return False
+    if kind == 'string' and not (isinstance(value, str) and len(value) >= sub.get('minLength', 0)):
+        return False
+    if isinstance(value, str) and 'pattern' in sub and not re.search(sub['pattern'], value):
+        return False
+    if kind == 'integer' and not (type(value) is int and value >= sub.get('minimum', value)):
+        return False
+    if kind == 'number' and not (type(value) in (int, float) and math.isfinite(value)
+                                 and value >= sub.get('minimum', value)):
+        return False
+    if kind == 'object' and not isinstance(value, dict):
+        return False
+    if isinstance(value, dict):
+        if not set(sub.get('required', ())) <= set(value):
             return False
         if sub.get('additionalProperties') is False and not set(value) <= set(sub['properties']):
             return False
-        return all(schema_ok(v, sub['properties'][k]) for k, v in value.items() if k in sub.get('properties', {}))
+        if not all(schema_ok(v, sub['properties'][k]) for k, v in value.items() if k in sub.get('properties', {})):
+            return False
+    if kind == 'array':
+        if not isinstance(value, list) or not sub.get('minItems', 0) <= len(value) <= sub.get('maxItems', len(value)):
+            return False
+        if 'items' in sub and not all(schema_ok(v, sub['items']) for v in value):
+            return False
+        if not all(schema_ok(v, rule) for v, rule in zip(value, sub.get('prefixItems', []))):
+            return False
     return True
 
 
