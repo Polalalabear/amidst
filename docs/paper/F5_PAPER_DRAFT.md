@@ -389,7 +389,7 @@ A2、B2 只是附報對照，沒有重跑也沒有判定；AO 與 A2 的錯人�
 |---|---|---|
 | H4 重現點數 33（來源矛盾） | 來源矛盾段 | `docs/operations/E3_REAPPEARANCES_20261122.md`:24 |
 | H4 重現點數 33（來源矛盾） | 來源矛盾段 | `docs/operations/E3_FIGURES_20261123.md`:160 |
-| F1 出處更正（交接 §3.3） | — | `docs/agents/COORDINATOR_HANDOFF_20261124.md`:55 |
+| F1 出處更正（交接 §3.3） | — | `docs/agents/COORDINATOR_HANDOFF_20261124.md`:53 |
 | W1 主準則 F1 0.957 對 0.523；差 +0.433 [0.324, 0.566] | 1、5 | `docs/evaluation/W1_FRAME_EVAL_20261120.md`:82 |
 | W1 主準則 看圖 0.957／規則 0.523 | 1、5 | `docs/evaluation/W1_FRAME_EVAL_20261120.md`:65 |
 | W1 看圖 F1／precision／recall 0.957／0.953／0.960 | 1 | `docs/evaluation/W1_FRAME_EVAL_20261120.md`:79 |
