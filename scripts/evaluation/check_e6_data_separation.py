@@ -8,10 +8,14 @@ Zero-cost, offline verification for #718 (D377):
 - Verifies 12 distinct openings, 6 similar / 6 non-similar balance,
   unique valid decision points >= 40 (no duplicate dp_id or per-case timestamp,
   finite and within [0, duration_s)), and effective independent units >= 8.
-- Supports --mode draft (pre-recording; still rejects FROZEN with null/missing SHA)
-  and --mode formal (post-recording freeze gate; requires all 12 cases FROZEN with
-  complete unique 64-hex SHAs, frozen scorable actual_decision_points >= 40, and
-  optional --artifact-root byte-for-byte SHA-256 verification on disk).
+- Supports:
+  - --mode draft: pre-recording manifest check (still rejects FROZEN with null/missing SHA).
+  - --mode formal --artifact-root <dir>: mandatory post-recording freeze gate.
+    Requires --artifact-root, hashes and verifies every formal case_path and gt_path
+    byte-for-byte on disk, loads each frozen GT A-log, verifies every actual DP's tick
+    matches the 5 Hz clock (t_actual_s), lies within recording duration, has complete
+    3.0 s evaluation window GT rows, and matches the GT-derived gt_regime
+    (VISIBLE / FULL_BLIND / TRUE_DEPARTURE). Only scorable unique DPs count toward >= 40.
 """
 
 from __future__ import annotations
@@ -28,9 +32,11 @@ from typing import Any
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 OLD_E3_OPENING_COORDS = {(-10.0, -0.4), (4.0, 1.0)}
 VALID_GT_REGIMES = {"VISIBLE", "FULL_BLIND", "TRUE_DEPARTURE"}
+DEFAULT_FPS_HZ = 5
+WINDOW_S = 3.0
 
 
-def _load_json(path: Path) -> dict[str, Any]:
+def _load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -46,6 +52,58 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def _extract_gt_ticks_by_index(gt_doc: Any, cid: str, errors: list[str]) -> dict[int, dict[str, Any]] | None:
+    rows = gt_doc.get("ticks") if isinstance(gt_doc, dict) else gt_doc
+    if not isinstance(rows, list) or len(rows) == 0:
+        errors.append(f"FORMAL_GT_MISSING_TICKS: {cid} has no GT ticks array")
+        return None
+    by_tick: dict[int, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("tick"), int) or isinstance(row.get("tick"), bool):
+            errors.append(f"FORMAL_GT_INVALID_TICK_ROW: {cid}")
+            return None
+        t = row["tick"]
+        if t in by_tick:
+            errors.append(f"FORMAL_GT_DUPLICATE_TICK: {cid} tick={t}")
+            return None
+        by_tick[t] = row
+    return by_tick
+
+
+def _derive_gt_regime(
+    *,
+    gt_by_tick: dict[int, dict[str, Any]],
+    start_tick: int,
+    window_ticks: int,
+    target_id: str,
+) -> tuple[str | None, str | None]:
+    any_visible = False
+    any_present = False
+    for tk in range(start_tick, start_tick + window_ticks):
+        row = gt_by_tick.get(tk)
+        if row is None:
+            return None, f"missing GT tick {tk} in [{start_tick}, {start_tick + window_ticks})"
+        actors = row.get("actors")
+        if not isinstance(actors, list):
+            return None, f"GT tick {tk} missing actors list"
+        target = next((a for a in actors if isinstance(a, dict) and a.get("id") == target_id), None)
+        if target is None:
+            return None, f"GT tick {tk} missing target actor {target_id!r}"
+        present = bool(target.get("present"))
+        vis = target.get("gt_visible") or []
+        if not isinstance(vis, list):
+            return None, f"GT tick {tk} invalid gt_visible"
+        if present:
+            any_present = True
+            if len(vis) > 0:
+                any_visible = True
+    if any_visible:
+        return "VISIBLE", None
+    if not any_present:
+        return "TRUE_DEPARTURE", None
+    return "FULL_BLIND", None
+
+
 def _validate_decision_points(
     *,
     cid: str,
@@ -53,10 +111,13 @@ def _validate_decision_points(
     duration_s: Any,
     time_key: str,
     require_formal_fields: bool,
+    fps_hz: int,
+    gt_by_tick: dict[int, dict[str, Any]] | None,
+    target_id: str,
     global_dp_ids: set[str],
     errors: list[str],
 ) -> int:
-    if not isinstance(duration_s, (int, float)) or not math.isfinite(duration_s) or duration_s <= 0:
+    if not isinstance(duration_s, (int, float)) or isinstance(duration_s, bool) or not math.isfinite(duration_s) or duration_s <= 0:
         errors.append(f"FORMAL_INVALID_DURATION: {cid} duration={duration_s!r}")
         return 0
     if not isinstance(dps, list) or len(dps) < 1:
@@ -66,6 +127,8 @@ def _validate_decision_points(
     case_times: set[float] = set()
     case_ticks: set[int] = set()
     valid_unique = 0
+    max_ticks = int(round(float(duration_s) * fps_hz))
+    window_ticks = int(round(WINDOW_S * fps_hz))
 
     for idx, dp in enumerate(dps):
         if not isinstance(dp, dict):
@@ -100,8 +163,36 @@ def _validate_decision_points(
             if not isinstance(tick, int) or isinstance(tick, bool) or tick < 0:
                 errors.append(f"FORMAL_DP_INVALID_TICK: {dp_id} tick={tick!r}")
                 continue
+            if tick >= max_ticks or (tick + window_ticks) > max_ticks:
+                errors.append(
+                    f"FORMAL_DP_TICK_OUT_OF_RANGE: {dp_id} tick={tick} window={window_ticks} max_ticks={max_ticks}"
+                )
+                continue
+            expected_t_s = tick / float(fps_hz)
+            if abs(float(t_val) - expected_t_s) > 1e-3:
+                errors.append(
+                    f"FORMAL_DP_TICK_TIME_MISMATCH: {dp_id} tick={tick} ({expected_t_s}s) != {time_key}={t_val}s"
+                )
+                continue
             if tick in case_ticks:
                 errors.append(f"FORMAL_DP_DUPLICATE_TICK: {cid} tick={tick}")
+                continue
+            if gt_by_tick is None:
+                errors.append(f"FORMAL_DP_UNVERIFIED_GT: {dp_id} missing loaded GT ticks")
+                continue
+            derived_regime, gt_err = _derive_gt_regime(
+                gt_by_tick=gt_by_tick,
+                start_tick=tick,
+                window_ticks=window_ticks,
+                target_id=target_id,
+            )
+            if gt_err is not None:
+                errors.append(f"FORMAL_DP_GT_WINDOW_INVALID: {dp_id} {gt_err}")
+                continue
+            if derived_regime != regime:
+                errors.append(
+                    f"FORMAL_DP_REGIME_MISMATCH: {dp_id} declared={regime} gt_derived={derived_regime}"
+                )
                 continue
             case_ticks.add(tick)
 
@@ -124,6 +215,13 @@ def validate_e6_spec(
         return [f"INVALID_MODE: {mode!r}"]
 
     errors: list[str] = []
+    fps_hz = int(spec.get("capture_spec", {}).get("fps_hz", DEFAULT_FPS_HZ))
+
+    if mode == "formal":
+        if artifact_root is None:
+            errors.append("FORMAL_ARTIFACT_ROOT_REQUIRED: --mode formal requires --artifact-root")
+        elif not artifact_root.is_dir():
+            errors.append(f"FORMAL_ARTIFACT_ROOT_MISSING: {artifact_root}")
 
     # 1. Build ground-truth lookup of the 16 old E3 cases from committed catalogs
     catalog_old: dict[str, dict[str, str]] = {}
@@ -244,29 +342,11 @@ def validate_e6_spec(
         if mode == "formal" and gt_status != "FROZEN":
             errors.append(f"FORMAL_NOT_FROZEN: {cid} actual_gt_status={gt_status!r}")
 
-        # Validate decision points (planned in draft mode; frozen actual in formal mode)
-        if mode == "formal":
-            total_unique_valid_dps += _validate_decision_points(
-                cid=cid,
-                dps=c.get("actual_decision_points"),
-                duration_s=c.get("actual_duration_s"),
-                time_key="t_actual_s",
-                require_formal_fields=True,
-                global_dp_ids=global_dp_ids,
-                errors=errors,
-            )
-        else:
-            total_unique_valid_dps += _validate_decision_points(
-                cid=cid,
-                dps=c.get("planned_decision_points"),
-                duration_s=c.get("planned_duration_s"),
-                time_key="t_plan_s",
-                require_formal_fields=False,
-                global_dp_ids=global_dp_ids,
-                errors=errors,
-            )
-
+        # Verify SHAs and (in formal mode) load & verify physical artifacts on disk
+        gt_by_tick: dict[int, dict[str, Any]] | None = None
+        target_id = str(c.get("target_actor", "T"))
         require_shas = mode == "formal" or gt_status == "FROZEN"
+
         for key, path_key in (("case_sha256", "case_path"), ("gt_sha256", "gt_path")):
             sha = c.get(key)
             if sha is None:
@@ -284,10 +364,12 @@ def validate_e6_spec(
                 errors.append(f"FORMAL_SHA_DUPLICATE: {cid}.{key}={sha}")
             formal_shas.add(sha)
 
-            if mode == "formal" and artifact_root is not None:
+            if mode == "formal":
                 rel = c.get(path_key)
                 if not isinstance(rel, str) or not rel.strip():
                     errors.append(f"FORMAL_MISSING_PATH: {cid}.{path_key}")
+                    continue
+                if artifact_root is None or not artifact_root.is_dir():
                     continue
                 target = artifact_root / rel
                 if not target.is_file():
@@ -296,6 +378,42 @@ def validate_e6_spec(
                 actual_sha = _sha256_file(target)
                 if actual_sha != sha:
                     errors.append(f"FORMAL_ARTIFACT_SHA_MISMATCH: {cid}.{path_key} expected {sha} got {actual_sha}")
+                    continue
+                try:
+                    loaded = _load_json(target)
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"FORMAL_ARTIFACT_INVALID_JSON: {cid}.{path_key}: {exc}")
+                    continue
+                if key == "gt_sha256":
+                    gt_by_tick = _extract_gt_ticks_by_index(loaded, cid, errors)
+
+        # Validate decision points (planned in draft mode; frozen GT-verified in formal mode)
+        if mode == "formal":
+            total_unique_valid_dps += _validate_decision_points(
+                cid=cid,
+                dps=c.get("actual_decision_points"),
+                duration_s=c.get("actual_duration_s"),
+                time_key="t_actual_s",
+                require_formal_fields=True,
+                fps_hz=fps_hz,
+                gt_by_tick=gt_by_tick,
+                target_id=target_id,
+                global_dp_ids=global_dp_ids,
+                errors=errors,
+            )
+        else:
+            total_unique_valid_dps += _validate_decision_points(
+                cid=cid,
+                dps=c.get("planned_decision_points"),
+                duration_s=c.get("planned_duration_s"),
+                time_key="t_plan_s",
+                require_formal_fields=False,
+                fps_hz=fps_hz,
+                gt_by_tick=None,
+                target_id=target_id,
+                global_dp_ids=global_dp_ids,
+                errors=errors,
+            )
 
     if similar_count != 6 or nonsimilar_count != 6:
         errors.append(
@@ -337,13 +455,13 @@ def main(argv: list[str] | None = None) -> int:
         "--mode",
         choices=("draft", "formal"),
         default="draft",
-        help="draft allows PENDING_RECORDING null SHAs; formal enforces complete FROZEN SHAs and frozen DPs.",
+        help="draft checks pre-recording spec; formal enforces physical artifact_root SHA and GT tick/regime verification.",
     )
     parser.add_argument(
         "--artifact-root",
         type=Path,
         default=None,
-        help="Optional root directory in formal mode to hash and verify case_path/gt_path on disk.",
+        help="Required in formal mode: root directory containing case_path and gt_path files to hash and verify.",
     )
     args = parser.parse_args(argv)
 
