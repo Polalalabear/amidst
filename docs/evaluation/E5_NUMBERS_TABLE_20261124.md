@@ -1,6 +1,6 @@
 # E5 數字總表（唯讀摘錄，2026-11-24）
 
-Refs #684、#704；Draft #702。只摘錄已存在的評分輸出與費用記錄，不重算、不四捨五入，不加入判定或結論。`UNKNOWN（來源未提供）`表示該來源沒有該欄位；不是0。`null`、原始陣列與布林值照抄。
+Refs #684、#704；Draft #702。2026-11-24 增補 AO-L（§6）與 W1 F1 兩準則（§7），原 §1–§5 與 S1–S3 不改。只摘錄已存在的評分輸出與費用記錄，不重算、不四捨五入，不加入判定或結論。`UNKNOWN（來源未提供）`表示該來源沒有該欄位；不是0。`null`、原始陣列與布林值照抄。
 
 ## 1. 來源
 
@@ -9,6 +9,12 @@ Refs #684、#704；Draft #702。只摘錄已存在的評分輸出與費用記錄
 | S1 | `local/evidence/e5-20261123/report.json` | `f000830e7023e5e8beb3338d230386967e3e700b3e54c93dd38ff012812c1bee` | 65229 |
 | S2 | `local/evidence/e5-20261123/report-skeleton.md` | `47a9b0378b38b396345c856bb9c65a8b66ae88d41912e224560d6b424ac59b14` | 7892 |
 | S3 | `docs/operations/E5_REPORT_20261123.md` | `1e00733fde385c72e4ee2261f0c7ff7672c30b17d085181fd8206d398fb6d7d6` | 9393 |
+
+| S4 | `local/evidence/e5-aol-20261124/report.json` | `edf988df08ac48c421086fa1c37394b285a4c34335e2aa23c0091a0e5439f3ad` | 81901 |
+| S5 | `local/evidence/e5-aol-20261124/report-skeleton.md` | `07ff4dd108df0415beff6d8005ef9e2280637073d5ab5ea5216e60188f40114b` | 9302 |
+| S6 | `docs/operations/E5_REPORT_20261123.md`（main `6afb4f76` 現行版，含 #706 的 §9 AO-L） | `4833adb7f608973194f24da9e54ea20742f3b6be31c208cf8bec024c638828eb` | 14919 |
+
+S3 是 #698 版（舊），S6 是 #706 之後的現行版，兩者為同一路徑的不同版本，各自保留。S4／S5 含 AO 與 AO-L；S4 的 AO 部分與 S1 相同（見 §6），因此 §2–§5 仍引用 S1／S2。費用帳本欄位引用 S6 §5、§9.3。
 
 S1／S2 是 LOCAL 兩檔。S3 是 main `d52ce2f0` 中已合併 #698 的文件；不更改該文件。每個 S1／S2／S3 引用均對應上表的相對路徑與 SHA-256。原始 AO 執行需要付費才能重做；本表可從現有檔案只讀重建，不會呼叫模型或評分器。
 
@@ -1980,3 +1986,592 @@ S2「逐段」表已含每段跟對率與決策點對／總數；本次直接複
 AO 的實際花費估算約 USD 7.5（範圍 2.6–19.1）：用 OpenAI 帳單 2026-11-08～11-23 的 USD 35.72 反推輸入快取命中約 70% 得到，無法由帳單單獨驗證。
 
 S1 `cost_usd` 本身維持原始 UNKNOWN，不以S3費用回填。CI與逐段費用若未提供則UNKNOWN。
+
+## 6. AO-L 補充（2026-11-24；新增來源 S4–S6，舊來源 S1–S3 不改）
+
+AO-L ＝ 模擬即時，K=1，預登記 H8d。以下只摘錄 S4（新 `report.json`）、S5（新 `report-skeleton.md`）中 AO-L 的欄位與 S6 §9 的文字；不重算、不四捨五入。已逐欄比對：S4 的 `per_arm` A1／A2／A3／AO／B1／B2、這些組別的 `per_case`、`comparisons`（AO-B1 四個鍵、B2-B1）、`verdicts` H8a／H8b／H8c 與 `stop`，和 S1 完全相同。唯一不同：`/verdicts/H8d`（S1：`verdict`＝`UNKNOWN`、`reasons`＝`{reason: NOT_RUN}`、`note`＝`未執行`；S4 見 §6.5），以及 S4 新增的 `AOL` 組別、`E3-*|AOL` 的 16 個 `per_case` 鍵與 `AOL-B1` 的比較。
+
+### 6.1 AO-L 組別合計（S5「組別合計」，原樣）
+
+| 組 | 段數 | 錯人秒 | 跟對率 | 失聯秒 | 盲區誤鎖秒 | 決策點對 | top-1 | top-3 | 有排名點 | 延遲 p50／p95 ms | 輸入／輸出 token |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AOL | 16 | 110.20 | 0.248 | 510.60 | 31.80 | 6/68 | 6/37 | 18/37 | 36 | 4784／10524 | 1750652／37076 |
+| B1 | 16 | 114.00 | 0.759 | 85.00 | 109.40 | 28/68 | 11/37 | 25/37 | 36 | —／— | 0／0 |
+
+### 6.2 AO-L 呼叫分類（S5「呼叫分類（契約 §7）」，原樣）
+
+| 組 | 呼叫 | 有效 | 套用 | provider 錯誤（逾時／其他） | 錯誤率 | 格式退回 | 退回率 | 預算拒絕 | EXPIRED | OCCLUDED_NO_TARGET | CALL_CAP_REACHED | 回答分佈 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| AOL | 186 | 186 | 72 | 0（0／0） | 0.0000 | 0 | 0.0000 | 0 | 98 | 0 | 0 | {"SELECT": 176, "OWN_BOX": 4, "UNCERTAIN": 1, "NOT_VISIBLE": 5} |
+
+### 6.3 AO-L 逐段（S5「逐段」中 AOL 與 B1 的列，原樣；來源沒有逐段 95% CI）
+
+| 段 | 組 | K | 錯人秒 | 跟對率 | 失聯秒 | 盲區誤鎖秒 | 決策點對（多數決） | CALL_CAP_REACHED（各次合計） |
+|---|---|---|---|---|---|---|---|---|
+| E3-A1 | AOL | 1 | 0.20 | 0.435 | 30.40 | 0.00 | 1/5 | 0 |
+| E3-A1 | B1 | 1 | 11.80 | 0.631 | 8.20 | 0.00 | 1/5 | — |
+| E3-A2 | AOL | 1 | 0.20 | 0.144 | 34.20 | 0.00 | 0/5 | 0 |
+| E3-A2 | B1 | 1 | 0.20 | 0.935 | 2.40 | 0.00 | 4/5 | — |
+| E3-A3 | AOL | 1 | 0.00 | 0.800 | 5.20 | 0.00 | 5/5 | 0 |
+| E3-A3 | B1 | 1 | 0.00 | 1.000 | 0.00 | 0.00 | 5/5 | — |
+| E3-B1 | AOL | 1 | 0.20 | 0.426 | 24.60 | 0.00 | 0/2 | 0 |
+| E3-B1 | B1 | 1 | 3.20 | 0.921 | 0.00 | 4.80 | 1/2 | — |
+| E3-B2 | AOL | 1 | 0.20 | 0.466 | 20.40 | 0.00 | 0/1 | 0 |
+| E3-B2 | B1 | 1 | 0.00 | 1.000 | 0.00 | 0.20 | 1/1 | — |
+| E3-C1 | AOL | 1 | 4.60 | 0.048 | 51.60 | 0.00 | 0/5 | 0 |
+| E3-C1 | B1 | 1 | 25.20 | 0.420 | 9.00 | 0.00 | 0/5 | — |
+| E3-C2 | AOL | 1 | 0.00 | 0.000 | 39.80 | 0.00 | 0/5 | 0 |
+| E3-C2 | B1 | 1 | 0.00 | 1.000 | 0.00 | 0.40 | 5/5 | — |
+| E3-D1 | AOL | 1 | 0.20 | 0.380 | 29.80 | 0.00 | 0/5 | 0 |
+| E3-D1 | B1 | 1 | 1.00 | 0.971 | 0.40 | 0.20 | 5/5 | — |
+| E3-D2 | AOL | 1 | 15.60 | 0.042 | 16.00 | 0.00 | 0/5 | 0 |
+| E3-D2 | B1 | 1 | 3.60 | 0.891 | 0.00 | 7.00 | 0/5 | — |
+| E3-B3 | AOL | 1 | 0.20 | 0.329 | 38.60 | 0.00 | 0/5 | 0 |
+| E3-B3 | B1 | 1 | 6.40 | 0.799 | 5.20 | 13.60 | 0/5 | — |
+| E3-B4 | AOL | 1 | 7.20 | 0.355 | 37.40 | 0.80 | 0/5 | 0 |
+| E3-B4 | B1 | 1 | 12.00 | 0.636 | 13.20 | 14.80 | 0/5 | — |
+| E3-B5 | AOL | 1 | 3.60 | 0.382 | 35.80 | 1.80 | 0/5 | 0 |
+| E3-B5 | B1 | 1 | 8.20 | 0.740 | 8.40 | 19.00 | 0/5 | — |
+| E3-C3 | AOL | 1 | 27.60 | 0.010 | 30.80 | 8.60 | 0/5 | 0 |
+| E3-C3 | B1 | 1 | 11.40 | 0.688 | 7.00 | 13.20 | 1/5 | — |
+| E3-C4 | AOL | 1 | 19.40 | 0.196 | 34.60 | 11.00 | 0/5 | 0 |
+| E3-C4 | B1 | 1 | 10.00 | 0.673 | 12.00 | 12.00 | 2/5 | — |
+| E3-C5 | AOL | 1 | 10.00 | 0.199 | 43.00 | 5.40 | 0/1 | 0 |
+| E3-C5 | B1 | 1 | 11.00 | 0.649 | 12.20 | 11.80 | 1/1 | — |
+| E3-C6 | AOL | 1 | 21.00 | 0.010 | 38.40 | 4.20 | 0/4 | 0 |
+| E3-C6 | B1 | 1 | 10.00 | 0.717 | 7.00 | 12.40 | 2/4 | — |
+
+### 6.4 S4 `per_arm/AOL`、`per_case`（AOL）原始欄位
+
+| JSON pointer（S4） | 點估計／原值 | 95% CI（原值） | 樣本數／K（原欄位） |
+|---|---|---|---|
+| `/per_arm/AOL/segments` | `[E3-A1, E3-A2, E3-A3, E3-B1, E3-B2, E3-C1, E3-C2, E3-D1, E3-D2, E3-B3, E3-B4, E3-B5, E3-C3, E3-C4, E3-C5, E3-C6]` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/wrong_person_s` | `110.2` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/follow_rate` | `0.2481` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/lost_s` | `510.6` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/false_lock_s` | `31.8` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/dp_correct` | `6` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/dp_total` | `68` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/top1` | `[6, 37]` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/top3` | `[18, 37]` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/random_top1` | `0.125` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/ranked_points` | `36` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/latency_ms_p50` | `4784` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/latency_ms_p95` | `10524` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/input_tokens` | `1750652` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/output_tokens` | `37076` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/cost_usd` | `UNKNOWN (not in the run log; read the ApiGuard ledger)` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/calls` | `186` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/provider_error` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/provider_errors` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/format_rejected` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/budget_denied` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/expired` | `98` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/applied` | `72` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/valid_calls` | `186` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/answer_counts/SELECT` | `176` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/answer_counts/OWN_BOX` | `4` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/answer_counts/UNCERTAIN` | `1` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_arm/AOL/e5_calls/answer_counts/NOT_VISIBLE` | `5` | `UNKNOWN（來源未提供）` | dp_total=68 |
+| `/per_case/E3-A1&#124;AOL/family` | `A` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/primary/wp_s` | `0.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/primary/correct` | `117.99340000000001` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/primary/visible` | `271.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/primary/lost_s` | `30.4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/dp_majority` | `[false, false, false, false, true]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/calls` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/expired` | `3` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/applied` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/valid_calls` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/answer_counts/SELECT` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A1&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/family` | `A` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/primary/wp_s` | `0.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/primary/correct` | `29.0043` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/primary/visible` | `201.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/primary/lost_s` | `34.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/calls` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/expired` | `4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/applied` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/valid_calls` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/answer_counts/SELECT` | `4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/answer_counts/OWN_BOX` | `2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A2&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/family` | `A` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/primary/wp_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/primary/correct` | `104.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/primary/visible` | `130.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/primary/lost_s` | `5.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/dp_majority` | `[true, true, true, true, true]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/calls` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/expired` | `2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/applied` | `3` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/valid_calls` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/answer_counts/SELECT` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-A3&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/family` | `B` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/primary/wp_s` | `0.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/primary/correct` | `91.9944` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/primary/visible` | `216.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/primary/lost_s` | `24.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/dp_majority` | `[false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/calls` | `8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/expired` | `2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/applied` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/valid_calls` | `8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/answer_counts/SELECT` | `7` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/answer_counts/UNCERTAIN` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B1&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/family` | `B` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/primary/wp_s` | `0.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/primary/correct` | `89.99589999999999` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/primary/visible` | `193.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/primary/lost_s` | `20.4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/dp_majority` | `[false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/calls` | `8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/expired` | `2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/applied` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/valid_calls` | `8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/answer_counts/SELECT` | `8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B2&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/family` | `C` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/primary/wp_s` | `4.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/primary/correct` | `14.0125` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/primary/visible` | `295.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/primary/lost_s` | `51.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/calls` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/expired` | `7` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/applied` | `2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/valid_calls` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/answer_counts/SELECT` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C1&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/family` | `C` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/primary/wp_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/primary/correct` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/primary/visible` | `199.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/primary/lost_s` | `39.8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/calls` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/expired` | `4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/applied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/valid_calls` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/answer_counts/SELECT` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C2&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/family` | `D` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/primary/wp_s` | `0.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/primary/correct` | `92.0084` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/primary/visible` | `242.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/primary/lost_s` | `29.8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/calls` | `12` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/expired` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/applied` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/valid_calls` | `12` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/answer_counts/SELECT` | `12` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D1&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/family` | `D` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/primary/wp_s` | `15.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/primary/correct` | `6.996` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/primary/visible` | `165.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/primary/lost_s` | `16.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/calls` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/expired` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/applied` | `3` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/valid_calls` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/answer_counts/SELECT` | `9` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/answer_counts/NOT_VISIBLE` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-D2&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/family` | `B` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/primary/wp_s` | `0.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/primary/correct` | `94.9943` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/primary/visible` | `289.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/primary/lost_s` | `38.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/primary/false_lock_s` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/calls` | `17` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/expired` | `9` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/applied` | `7` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/valid_calls` | `17` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/answer_counts/SELECT` | `15` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/answer_counts/NOT_VISIBLE` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/answer_counts/OWN_BOX` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B3&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/family` | `B` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/primary/wp_s` | `7.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/primary/correct` | `123.003` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/primary/visible` | `346.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/primary/lost_s` | `37.4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/primary/false_lock_s` | `0.8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/calls` | `19` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/expired` | `7` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/applied` | `11` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/valid_calls` | `19` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/answer_counts/SELECT` | `18` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/answer_counts/NOT_VISIBLE` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B4&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/family` | `B` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/primary/wp_s` | `3.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/primary/correct` | `121.9856` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/primary/visible` | `319.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/primary/lost_s` | `35.8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/primary/false_lock_s` | `1.8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/calls` | `17` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/expired` | `6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/applied` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/valid_calls` | `17` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/answer_counts/SELECT` | `15` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/answer_counts/NOT_VISIBLE` | `2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-B5&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/family` | `C` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/primary/wp_s` | `27.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/primary/correct` | `3.0090000000000003` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/primary/visible` | `295.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/primary/lost_s` | `30.8` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/primary/false_lock_s` | `8.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/calls` | `14` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/expired` | `10` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/applied` | `3` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/valid_calls` | `14` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/answer_counts/SELECT` | `14` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C3&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/family` | `C` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/primary/wp_s` | `19.4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/primary/correct` | `65.9904` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/primary/visible` | `336.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/primary/lost_s` | `34.6` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/primary/false_lock_s` | `11.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/dp_majority` | `[false, false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/calls` | `16` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/expired` | `11` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/applied` | `4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/valid_calls` | `16` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/answer_counts/SELECT` | `16` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C4&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/family` | `C` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/primary/wp_s` | `10.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/primary/correct` | `66.0014` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/primary/visible` | `331.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/primary/lost_s` | `43.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/primary/false_lock_s` | `5.4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/dp_majority` | `[false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/calls` | `15` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/expired` | `9` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/applied` | `5` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/valid_calls` | `15` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/answer_counts/SELECT` | `15` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C5&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/family` | `C` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/k` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/primary/wp_s` | `21.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/primary/correct` | `3.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/primary/visible` | `300.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/primary/lost_s` | `38.4` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/primary/false_lock_s` | `4.2` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/primary/gt_unknown_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/dp_majority` | `[false, false, false, false]` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/calls` | `13` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/provider_timeout` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/provider_error` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/format_rejected` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/budget_denied` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/expired` | `11` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/occluded_no_target` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/applied` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/valid_calls` | `13` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/answer_counts/SELECT` | `12` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/answer_counts/OWN_BOX` | `1` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/provider_errors` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/call_cap_reached` | `0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/provider_error_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/format_return_rate` | `0.0` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/provider_error_stop` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/format_return_flag` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+| `/per_case/E3-C6&#124;AOL/e5_calls/0/rerun_needed_budget` | `false` | `UNKNOWN（來源未提供）` | k=1 |
+
+### 6.5 AO-L vs B1：全部 comparisons（H8d）與敏感度
+
+`|topk`＝top-k 附報；`|iou_conservative`＝IoU 保守準則敏感度；`|iou` 在來源為 null。
+
+| JSON pointer（S4） | 點估計／原值 | 95% CI（原值） | 樣本數／K（原欄位） |
+|---|---|---|---|
+| `/comparisons/AOL-B1/wp_diff` | `-3.8` | `[-76.2, 68.4]` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/false_lock_diff` | `-77.6` | `[-122.39999999999999, -36.4]` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/follow_diff` | `-0.5106` | `[-0.6165477150880776, -0.4197736739130435]` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/mcnemar/agent_only` | `0` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/mcnemar/baseline_only` | `22` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/mcnemar/p` | `4.76837158203125e-07` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/mcnemar/favours` | `baseline` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/n_points` | `68` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/n_segments` | `16` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1/segments` | `[E3-A1, E3-A2, E3-A3, E3-B1, E3-B2, E3-B3, E3-B4, E3-B5, E3-C1, E3-C2, E3-C3, E3-C4, E3-C5, E3-C6, E3-D1, E3-D2]` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/top1_diff` | `-0.1351` | `[-0.4, 0.1111111111111111]` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/x_top1` | `0.16216216216216217` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/y_top1` | `0.2972972972972973` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/x_top3` | `0.4864864864864865` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/y_top3` | `0.6756756756756757` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/x_points` | `37` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/y_points` | `37` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/x_random_top1` | `0.125` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;topk/n_segments` | `13` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;iou` | `null` | `UNKNOWN（來源未提供）` | `UNKNOWN（來源未提供）` |
+| `/comparisons/AOL-B1&#124;iou_conservative/follow_diff` | `-0.4952` | `[-0.601091540560655, -0.4065853658536585]` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;iou_conservative/wp_diff` | `-0.4` | `[-70.80000000000001, 71.6]` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+| `/comparisons/AOL-B1&#124;iou_conservative/n_segments` | `16` | `UNKNOWN（來源未提供）` | 見該列欄位（n_points／n_segments／x_points／y_points） |
+
+### 6.6 S4 `/verdicts/H8d`
+
+| JSON pointer（S4） | 點估計／原值 | 95% CI（原值） | 樣本數／K（原欄位） |
+|---|---|---|---|
+| `/verdicts/H8d/verdict` | `NOT_SUPPORTED` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/verdict_zh` | `不成立` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/reasons/wrong_person` | `zero` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/reasons/follow_lower` | `-0.6165477150880776` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/reasons/follow_upper` | `-0.4197736739130435` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/reasons/mcnemar_p` | `4.76837158203125e-07` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/reasons/mcnemar_favours` | `baseline` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/robustness` | `DEPENDS_ON_BOX_CRITERION` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/n_points` | `68` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/n_segments` | `16` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+| `/verdicts/H8d/note` | `K=1 (preregistration §5 H8d); judged apart from AO` | `UNKNOWN（來源未提供）` | n_points=68; n_segments=16 |
+
+### 6.7 延遲、EXPIRED、決策點、token 與費用（S4 欄位與 S6 §9 原文）
+
+| 項目 | 值 | 來源 |
+|---|---|---|
+| 模型延遲 p50／p95（ms） | 4784／10524 | S4 `/per_arm/AOL/latency_ms_p50`、`/latency_ms_p95`；S6 §9.2 |
+| 呼叫／EXPIRED／套用 | 186／98／72 | S4 `/per_arm/AOL/e5_calls/calls`、`/expired`、`/applied`；S6 §9.2 寫「98 次（52.7%）答案過期、72 次被套用」（52.7% 是 S6 文字，S4 沒有此欄） |
+| 回答種類 | SELECT 176、OWN_BOX 4、NOT_VISIBLE 5、UNCERTAIN 1（全部 OK） | S4 `/per_arm/AOL/e5_calls/answer_counts`；S6 §9.3 |
+| provider 錯誤／逾時／格式退回／預算拒絕／達到呼叫上限 | 0／0／0／0／0（段數 0） | S4 `/per_arm/AOL/e5_calls`；S6 §9.3 |
+| 決策點對 | 6/68（B1 28/68） | S4 `/per_arm/AOL/dp_correct`、`/dp_total` |
+| token（輸入／輸出） | 1,750,652／37,076 | S4 `/per_arm/AOL/input_tokens`、`/output_tokens`；S6 §9.3 |
+| 帳本花費（ApiGuard `est_cost_usd` 增量） | USD 1.931（兩本帳本逐列加總 1.936） | S6 §9.3；**未計快取折扣的上界**，輸入大多為快取命中，實際扣款更低 |
+| dry-run 估價 | USD 8.147（791 次，以每段呼叫上限當分母） | S6 §9.3 |
+| 帳本累計（執行前→後，同一掃描） | 78.25 → 80.18 | S6 §9.3、§5；上界；期間其他行程可能新增花費，不全是 E5 |
+| OpenAI 帳單 | 35.72（2026-11-08～11-23）；S6 §9.3 寫「約 35.72 加本次」 | S6 §5、§9.3；原始截圖查不到，S4 無此欄 |
+| 費用上限 | 預登記 USD 7 → 執行時 USD 8.5（使用者在協調者對話決定） | S6 §9.4 |
+
+S4 `/per_arm/AOL/cost_usd` 維持原始 `UNKNOWN (not in the run log; read the ApiGuard ledger)`，不以 S6 費用回填。
+
+## 7. W1 F1 兩個準則
+
+W1 是 r004 兩事件的 422 格分層樣本；以下摘錄兩份既有文件，不重算。
+
+| 準則 | 看圖 Agent（terra_vision_free，K=3 多數決） | 規則 | 差與 95% 區間 | 來源 |
+|---|---|---|---|---|
+| **主準則**（框中心在 GT 身體框內，或 IoU ≥ 0.3；K=3 多數決，主結果） | 0.957 | 0.523 | +0.433 [0.324, 0.566] | `docs/evaluation/W1_FRAME_EVAL_20261120.md` §3b（第 79、82 行；規則 0.523 見第 65 行）；`docs/evaluation/E3_SCORER_RECOMPUTE_20261122.md`「W1 整體（422 格）F1」表第 84、88 行 |
+| IoU 準則（統一評分器，IoU ≥ 0.3） | 0.887 | 0.518 | UNKNOWN（來源未提供；沒有重算區間） | `docs/evaluation/E3_SCORER_RECOMPUTE_20261122.md` 第 84、88 行 |

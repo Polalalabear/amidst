@@ -584,6 +584,22 @@
       "sha256": "3e49cb0976de43dd519aeaa3829ab4b1e269cf8d38bce29267532eac400250df",
       "status": "現行（交接指向 COORDINATOR_HANDOFF_20261123c）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D358-A6",
+      "path": "AGENTS.md",
+      "ref": "claude/feat-f5-paper@8271237d5416a70d0dc671e864966eee3fca011d（#715，交接 20261124）",
+      "sha256": "0d6f050340b6ba75564823989eec81db3f26a2454a406cf4551fca1cc35a6f02",
+      "status": "現行（交接指向 COORDINATOR_HANDOFF_20261124；登記不等於核准，由使用者在 PR 審查時決定）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D358-A7",
+      "path": "CLAUDE.md",
+      "ref": "claude/feat-f5-paper@8271237d5416a70d0dc671e864966eee3fca011d（#715，交接 20261124）",
+      "sha256": "8cd3518de3b067de5dc16d8b458ab1fe654e29c572d74d433476737b51e0ede7",
+      "status": "現行（交接指向 COORDINATOR_HANDOFF_20261124；登記不等於核准，由使用者在 PR 審查時決定）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -950,6 +966,20 @@
       "requires_commit": "691ace2b9ce3ef36b113a98f436d5714c2ce6231",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "交接指向改成 COORDINATOR_HANDOFF_20261123c（PR #697）。只改文件敘述，規則不變"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "0d6f050340b6ba75564823989eec81db3f26a2454a406cf4551fca1cc35a6f02",
+      "requires_commit": "8271237d5416a70d0dc671e864966eee3fca011d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261124（PR #715，使用者交接：文件 PR 更新交接指向）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "8cd3518de3b067de5dc16d8b458ab1fe654e29c572d74d433476737b51e0ede7",
+      "requires_commit": "8271237d5416a70d0dc671e864966eee3fca011d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261124（PR #715，使用者交接：文件 PR 更新交接指向）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }
