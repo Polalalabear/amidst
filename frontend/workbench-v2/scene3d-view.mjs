@@ -28,11 +28,18 @@ export function mountScene3dView({ host, base = SCENE3D_BASE, fetchImpl = (...a)
   const labelLayer = document.createElement('div'); labelLayer.className = 'q-scene3d-labels';
   const canvas = document.createElement('canvas'); canvas.className = 'q-scene3d-canvas';
   host.append(canvas, labelLayer);
-  const labels = [];
+  const labels = [], roomMaterials = new Set();
+  function disposeDynamic() {
+    if (!dyn) return;
+    const geometries = new Set(), materials = new Set();
+    dyn.traverse(o => { if (o.geometry) geometries.add(o.geometry); for (const m of (Array.isArray(o.material) ? o.material : [o.material])) if (m) materials.add(m); });
+    for (const g of geometries) g.dispose(); for (const m of materials) m.dispose();
+    scene.remove(dyn); dyn = null;
+  }
 
   const ground = (xy, h = 0) => new ctx.THREE.Vector3(xy[0], h, -xy[1]);
   function clearDynamic() {
-    if (dyn) { scene.remove(dyn); dyn.traverse(o => { o.geometry?.dispose?.(); o.material?.dispose?.(); }); }
+    disposeDynamic();
     dyn = new ctx.THREE.Group(); scene.add(dyn); labels.length = 0; labelLayer.replaceChildren();
   }
   function label(text, v, cls = '') {
@@ -119,7 +126,15 @@ export function mountScene3dView({ host, base = SCENE3D_BASE, fetchImpl = (...a)
     const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(5, 20, 8); scene.add(sun);
     const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 2.6); // hide the roof (y > 2.6 m)
     const room = a.gltf.scene.clone(true);
-    room.traverse(o => { if (o.isMesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach(mt => { mt.clippingPlanes = [clip]; }); });
+    const copies = new Map();
+    room.traverse(o => {
+      if (!o.isMesh) return;
+      const own = material => {
+        if (!copies.has(material)) { const copy = material.clone(); copy.clippingPlanes = [clip]; copies.set(material, copy); roomMaterials.add(copy); }
+        return copies.get(material);
+      };
+      o.material = Array.isArray(o.material) ? o.material.map(own) : own(o.material);
+    });
     scene.add(room);
     camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 300); camera.position.set(-4, 30, 26); camera.lookAt(1, 0, -1.5);
     controls = new a.OrbitControls(camera, canvas); controls.target.set(1, 0, -1.5); controls.addEventListener('change', render); controls.update();
@@ -131,6 +146,13 @@ export function mountScene3dView({ host, base = SCENE3D_BASE, fetchImpl = (...a)
     ready,
     cameraAsset: () => ctx?.cameraAsset ?? null,
     update(model) { latest = model; draw(); },
-    destroy() { destroyed = true; controls?.dispose(); renderer?.dispose(); canvas.remove(); labelLayer.remove(); },
+    destroy() {
+      if (destroyed) return;
+      destroyed = true; controls?.dispose(); disposeDynamic();
+      for (const material of roomMaterials) material.dispose(); roomMaterials.clear();
+      // Static geometry belongs to the page-wide asset cache, not this view's GL context.
+      renderer?.dispose(); renderer?.forceContextLoss(); canvas.remove(); labelLayer.remove();
+      latest = null; ctx = null; scene = null; camera = null; controls = null; renderer = null;
+    },
   };
 }

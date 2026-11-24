@@ -105,6 +105,11 @@ export function readTransitions(transitions, currentTUs) {
   return { switches, blind };
 }
 
+export function scene3dStateText(view) {
+  if (view?.status === 'NO_SIGHTING') return '目前沒有觀測紀錄';
+  return ({ON_CAMERA: '追蹤中', GAP: '盲區（未見目標）', LOST: '目標遺失', PENDING: '目標尚未出現'})[view?.singleView?.segmentKind] ?? '追蹤狀態 UNKNOWN';
+}
+
 export function buildScene3dModel({ view = null, cameraAsset = null, estimate = null } = {}) {
   const single = view?.singleView ?? {};
   const currentTUs = Number.isFinite(view?.currentTUs) ? view.currentTUs : 0;
@@ -130,6 +135,7 @@ export function buildScene3dModel({ view = null, cameraAsset = null, estimate = 
     catalogSha256: cameraAsset?.source_catalog_sha256 ?? SCENE3D_UNKNOWN,
     currentTUs,
     segmentKind: kind,
+    stateText: scene3dStateText(view),
     activeCameraId: single.activeCameraId ?? null,
     lastObservedCameraId: single.lastObservedCameraId ?? null,
     cameras,

@@ -268,7 +268,7 @@ export function blindShare(singleView) {
 // plan says UNKNOWN instead of drawing a made-up layout.
 export function floorPlan(topdown, { settings = DEFAULT_SETTINGS, singleView = null, currentTUs = 0 } = {}) {
   const nodes = topdown?.nodes ?? [];
-  if (!nodes.length) return { available: false, nodes: [], observed: [], blind: [], blindVisible: false, current: null };
+  if (!nodes.length && !topdown?.estimate_marker) return { available: false, nodes: [], observed: [], blind: [], blindVisible: false, current: null };
   const at = new Map(nodes.map(n => [n.cameraId, n]));
   const observed = (topdown.observed_cameras ?? []).map(c => at.get(typeof c === 'string' ? c : c?.camera_id ?? c?.cameraId)).filter(Boolean).map(n => [n.x, n.y]);
   const curve = topdown.blind_curve;
@@ -277,7 +277,7 @@ export function floorPlan(topdown, { settings = DEFAULT_SETTINGS, singleView = n
   if (blindVisible && topdown.last_observed_us != null && currentTUs - topdown.last_observed_us > settings.keepBlindSec * 1e6) blindVisible = false;
   const activeNode = nodes.find(n => n.isActive) ?? null;
   const current = activeNode ? [activeNode.x, activeNode.y] : (observed.at(-1) ?? null);
-  return { available: true, nodes, observed, blind: blindVisible ? curve.svgPoints : [], blindVisible, dash: curve?.stroke_dasharray ?? '6 6', current };
+  return { available: true, estimate: topdown?.estimate_marker ?? null, nodes, observed, blind: blindVisible ? curve.svgPoints : [], blindVisible, dash: curve?.stroke_dasharray ?? '6 6', current };
 }
 // D139: where the blind interval ends. The newest GAP before the playhead; when the very next segment is ON_CAMERA and
 // the playhead has reached it, the target has reappeared: returns that camera and the real observation time.

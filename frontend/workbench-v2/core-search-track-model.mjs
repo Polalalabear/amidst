@@ -768,15 +768,17 @@ export function projectTopdown(topdown, cameraPositions, activeCameraId = null, 
     // display_estimate present but UNKNOWN: carry its reason code (raw string) for the UI; absent field -> null (older backend).
     estimate_reason: !ok && estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && typeof estimate.reason === 'string' && estimate.reason ? estimate.reason : null,
   };
-  const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId);
+  const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId, ok ? estimate : null);
   return { ...base, ...est };
 }
 
-function projectTopdownNodes(topdown, cameraPositions, activeCameraId) {
+function projectTopdownNodes(topdown, cameraPositions, activeCameraId, estimate = null) {
   const positions = Object.entries(cameraPositions ?? {}).filter(([, p]) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite));
   const segment = topdown?.blind?.usable ? (topdown.blind.curve_segments ?? [])[0] : null;
   const curvePoints = segment && Array.isArray(segment.points) && segment.points.length > 1 ? segment.points : [];
-  const all = [...positions.map(([, p]) => p), ...curvePoints];
+  const xy = estimate?.est_xy, radius = estimate?.uncertainty_m;
+  const extent = xy ? [xy, ...(Number.isFinite(radius) && radius >= 0 ? [[xy[0] - radius, xy[1] - radius], [xy[0] + radius, xy[1] + radius]] : [])] : [];
+  const all = [...positions.map(([, p]) => p), ...curvePoints, ...extent].filter(p => Array.isArray(p) && p.every(Number.isFinite));
   if (all.length === 0) return { ...topdown, nodes: [], blind_curve: { visible: false, points: [], svgPoints: [] } };
   const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
   const minX = Math.min(...xs), minY = Math.min(...ys);
@@ -788,6 +790,7 @@ function projectTopdownNodes(topdown, cameraPositions, activeCameraId) {
   return {
     ...topdown,
     nodes,
+    estimate_marker: xy ? {xy: map(xy), radius: Number.isFinite(radius) && radius >= 0 ? radius * scale : null} : null,
     blind_curve: {
       visible: svgPoints.length > 1,
       points: curvePoints,

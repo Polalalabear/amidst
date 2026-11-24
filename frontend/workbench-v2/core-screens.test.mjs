@@ -841,6 +841,23 @@ test('DOM: topdown 3D ready draws HUD with 估計位置 UNKNOWN and feeds the vi
   }
 });
 
+test('DOM: t=1s NO_SIGHTING is not labelled tracking in the shared 3D HUD (#710)', async () => {
+  setupDoc();
+  let view;
+  try {
+    const host = new MockElement('div');
+    view = mountCoreTrackingView({container: host, scene3dFactory: () => ({ready: Promise.resolve(),
+      cameraAsset: () => ({cameras: []}), destroy() {}, update() {}})});
+    view.update(buildCoreTrackingViewModel({...SYNTHETIC_TRACK_RESPONSE, status: 'NO_SIGHTING',
+      as_of_us: 1e6, single_view: [], sightings: [], display_estimate: {est_xy: 'UNKNOWN', reason: 'NO_PROJECTABLE_SELECTED_OBSERVATION'}}, {tUs: 1e6}));
+    findByClass(host, 'q-topdown-mode-btn').find(b => b.dataset.mode === '3d').click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const hud = findByClass(host, 'q-scene3d-hud')[0];
+    assert.ok(hud.children.some(c => c.textContent === '目前沒有觀測紀錄'));
+    assert.ok(!hud.children.some(c => c.textContent === '追蹤中'));
+  } finally { view?.destroy(); tearDownDoc(); }
+});
+
 test('projectTopdown: est_xy / uncertainty_m are UNKNOWN without a system estimate and never taken from GT keys (#605)', () => {
   const none = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A');
   assert.equal(none.est_xy, 'UNKNOWN'); assert.equal(none.uncertainty_m, 'UNKNOWN');
