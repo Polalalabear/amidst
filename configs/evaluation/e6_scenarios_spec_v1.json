@@ -35,7 +35,11 @@
     "bootstrap_B": 10000,
     "permutation_seed": 20261124,
     "bootstrap_seed": 20261124,
-    "prng": "python.random.Random"
+    "prng": "python.random.Random",
+    "c3_primary_endpoint": "full_track_dp_acc_k3_majority",
+    "single_decision_pairing_role": "secondary_diagnostic_k1_rn_uncertain_prior",
+    "sign_flip_null_hypothesis": "symmetric_null_sign_invariance_hemerik_goeman_2018",
+    "skew_sensitivity_abs_threshold": 1.0
   },
   "budget_usd": {
     "diagnostic_cap": 10.0,
@@ -218,25 +222,29 @@
           "dp_id": "E6-S01-DP1",
           "t_plan_s": 6.0,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S01-DP2",
           "t_plan_s": 13.0,
           "type": "SIMILAR_CROSSING",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S01-DP3",
           "t_plan_s": 20.0,
           "type": "POST_SPLIT_REACQUIRE",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S01-DP4",
           "t_plan_s": 25.5,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -261,25 +269,29 @@
           "dp_id": "E6-S02-DP1",
           "t_plan_s": 7.5,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S02-DP2",
           "t_plan_s": 14.0,
           "type": "SIMILAR_PARALLEL_SPLIT",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S02-DP3",
           "t_plan_s": 21.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S02-DP4",
           "t_plan_s": 27.0,
           "type": "DISTRACTOR_STILL_VISIBLE_KEEP_T",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -304,25 +316,29 @@
           "dp_id": "E6-S03-DP1",
           "t_plan_s": 6.5,
           "type": "PORTAL_EXIT_BLIND",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "FULL_BLIND"
         },
         {
           "dp_id": "E6-S03-DP2",
           "t_plan_s": 12.0,
           "type": "BLIND_REAPPEAR_WITH_SIMILAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S03-DP3",
           "t_plan_s": 19.0,
           "type": "SIMILAR_CROSSING",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S03-DP4",
           "t_plan_s": 25.0,
           "type": "CORNER_BRANCH_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -347,25 +363,29 @@
           "dp_id": "E6-S04-DP1",
           "t_plan_s": 6.0,
           "type": "SIMILAR_CROSSING",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S04-DP2",
           "t_plan_s": 13.0,
           "type": "BLIND_ABSTAIN_DISTRACTOR_PRESENT",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "FULL_BLIND"
         },
         {
           "dp_id": "E6-S04-DP3",
           "t_plan_s": 19.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S04-DP4",
           "t_plan_s": 26.0,
           "type": "POST_REAPPEAR_STABILITY",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -390,25 +410,29 @@
           "dp_id": "E6-S05-DP1",
           "t_plan_s": 7.0,
           "type": "OCCLUSION_BLIND_WITH_SIMILAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "FULL_BLIND"
         },
         {
           "dp_id": "E6-S05-DP2",
           "t_plan_s": 13.5,
           "type": "BRANCH_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S05-DP3",
           "t_plan_s": 20.5,
           "type": "SIMILAR_CROSSING",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S05-DP4",
           "t_plan_s": 26.5,
           "type": "POST_SPLIT_REACQUIRE",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -433,25 +457,29 @@
           "dp_id": "E6-S06-DP1",
           "t_plan_s": 5.5,
           "type": "SIMILAR_CROSSING",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S06-DP2",
           "t_plan_s": 12.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S06-DP3",
           "t_plan_s": 19.0,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S06-DP4",
           "t_plan_s": 25.0,
           "type": "TRUE_DEPARTURE_OR_KEEP_T",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -476,25 +504,29 @@
           "dp_id": "E6-S07-DP1",
           "t_plan_s": 8.0,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S07-DP2",
           "t_plan_s": 14.5,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S07-DP3",
           "t_plan_s": 20.5,
           "type": "NON_SIMILAR_CROSSING",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S07-DP4",
           "t_plan_s": 25.5,
           "type": "PORTAL_REACQUIRE",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -519,25 +551,29 @@
           "dp_id": "E6-S08-DP1",
           "t_plan_s": 7.0,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S08-DP2",
           "t_plan_s": 13.5,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S08-DP3",
           "t_plan_s": 20.0,
           "type": "SCREEN_OCCLUSION_RETURN",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S08-DP4",
           "t_plan_s": 25.5,
           "type": "POST_RETURN_STABILITY",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -562,25 +598,29 @@
           "dp_id": "E6-S09-DP1",
           "t_plan_s": 7.5,
           "type": "SCREEN_OCCLUSION_RETURN",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S09-DP2",
           "t_plan_s": 14.0,
           "type": "BRANCH_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S09-DP3",
           "t_plan_s": 20.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S09-DP4",
           "t_plan_s": 26.0,
           "type": "POST_RETURN_STABILITY",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -605,25 +645,29 @@
           "dp_id": "E6-S10-DP1",
           "t_plan_s": 6.5,
           "type": "PORTAL_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S10-DP2",
           "t_plan_s": 13.0,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S10-DP3",
           "t_plan_s": 19.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S10-DP4",
           "t_plan_s": 25.5,
           "type": "OUTDOOR_REACQUIRE",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -648,25 +692,29 @@
           "dp_id": "E6-S11-DP1",
           "t_plan_s": 7.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S11-DP2",
           "t_plan_s": 14.0,
           "type": "CAMERA_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S11-DP3",
           "t_plan_s": 20.0,
           "type": "TRUE_DEPARTURE_ABSTAIN",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "TRUE_DEPARTURE"
         },
         {
           "dp_id": "E6-S11-DP4",
           "t_plan_s": 25.0,
           "type": "POST_DEPARTURE_ABSTAIN",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "TRUE_DEPARTURE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",
@@ -691,25 +739,29 @@
           "dp_id": "E6-S12-DP1",
           "t_plan_s": 6.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S12-DP2",
           "t_plan_s": 13.0,
           "type": "PORTAL_HANDOFF",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S12-DP3",
           "t_plan_s": 19.5,
           "type": "BLIND_REAPPEAR",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         },
         {
           "dp_id": "E6-S12-DP4",
           "t_plan_s": 25.5,
           "type": "BRANCH_REACQUIRE",
-          "expected_window_s": 3.0
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
         }
       ],
       "actual_gt_status": "PENDING_RECORDING",

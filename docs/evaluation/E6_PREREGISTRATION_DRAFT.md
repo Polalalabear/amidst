@@ -90,15 +90,23 @@
 - **跟對率**（`follow_rate`）：`CORRECT_ticks / GT_visible_ticks`。
 - **盲區誤鎖秒**（`blind_false_lock_s`）：目標於全 8 台鏡頭皆不可見（GT blind）時，系統仍顯示鎖定他人的總秒數。
 - **失聯／不顯示秒**（`lost_s`）：GT 可見時系統未顯示目標之總秒數，**必另報**，避免靠大幅提高不顯示時間壓低錯人秒。
-- **固定決策點正確率（完整追蹤）**：對每個固定決策點 $t_{\text{dp}}$，評估窗 $[t_{\text{dp}}, t_{\text{dp}} + 3.0\text{ s}]$ 內至少 1 個 `CORRECT` tick 且 0 個錯人／錯鏡頭 tick（K=3 取多數決）。
+- **固定決策點正確率（完整追蹤，`full_track_dp_acc`，為 §4.2 元件 C3 之唯一主終點）**：對每個凍結固定決策點 $t_{\text{dp}}$（評估窗 $[t_{\text{dp}}, t_{\text{dp}} + 3.0\text{ s}]$），依錄製後由 Chrome GT 凍結之 `gt_regime` 採用下表判分（Agent 組 K=3 逐點取多數決，B1／R-N 為 K=1 確定性輸出）。API 錯誤、逾時或格式退回一律計為錯誤，不排除於分母之外。
 
-### 3.2 固定決策點單次配對（Fixed-DP Single-Decision Pairing）
+### 3.2 固定決策點單次配對（`single_dp_acc`，獨立次要診斷，不併入 C3）
 
 - E3／E5 中，AO 的提問時點由其自身追蹤狀態決定，與規則並非配對設計（#684 2026-11-24 留言 7133185638，未預登、未核對）。
-- E6 正式 12 段增設**單次決策配對驗收**：
-  1. 決策點清單（每段 4 點，共 48 點 $\ge 40$ 點）於錄製前由劇本規格指定（§6），錄製後由 Chrome GT 確認實際 timestamp 與可見集合並釘 SHA-256，**不看任何組別輸出**。
-  2. 在每個固定決策點，規則決策轉接層與各 Agent 組讀取**同一份凍結影像、凍結偵測候選與凍結先驗狀態（來自中性追蹤器或統一快照，不含 GT）**，各獨立回答一次（K=1 或 K=3 多數決），單獨計算「單次決策正確率」。
-  3. 完整追蹤與單次配對決策**分開報告**，不混為單一指標。
+- E6 正式 12 段增設**單次決策配對驗收**（與完整追蹤分開報告，**不併入 C3 主判定**）：
+  1. **決策點與 K 值寫死**：沿用批 2 由 Chrome GT 凍結並釘 SHA 之同一批唯一決策點（$N_{\text{dp}} \ge 40$），規則轉接層與各 Agent 組皆固定跑 **K=1** 單次回答（零重試）。
+  2. **共用先驗快照生成方式寫死**：在每個固定決策點 $t_{\text{dp}}$，所有組別讀取**同一份確定性凍結快照**——由 `R-N` 主版本（`UNCERTAIN` 變體）在 $t_{\text{dp}}$ 前一 tick 產出之中性追蹤狀態（僅含 `last_known_cam`、`last_known_xy`、`lost_ticks`、`last_box_xyxy`、`frozen_detections_at_t_dp`、`frozen_rgb_at_t_dp`、`seed_reference_crop`，**嚴禁包含任何 GT 欄位**）。
+  3. **完整判分真值表（完整追蹤與單次配對共用三種 GT 情境；`e3_scoring.py` 本體不改）**：
+
+| `gt_regime`（由 Chrome GT 決定） | 完整追蹤窗 $[t_{\text{dp}}, t_{\text{dp}} + 3.0\text{ s}]$（**C3 主終點**） | 單次配對回答（於 $t_{\text{dp}}$，**次要診斷**） |
+| --- | --- | --- |
+| **`VISIBLE`**（窗內至少 1 tick 目標可見；單次配對為 $t_{\text{dp}}$ 可見） | **對**：窗內至少 1 個 `CORRECT` tick（主準則：框中心在 GT 身體框內或 $\text{IoU} \ge 0.3$）**且** 0 個錯人／錯鏡頭 tick；否則 **錯**（同 E3／E5） | **對**：`SELECT` 或 `OWN_BOX` 且鏡頭在 `gt_visible` 並命中 GT 目標框；**錯**：`NOT_VISIBLE`、`UNCERTAIN`、`STILL_HERE_OCCLUDED`、選錯框／錯鏡頭或錯誤退回 |
+| **`FULL_BLIND`**（窗內全部 tick 目標全鏡不可見但仍在場，如 `E6-S04-DP2`、`E6-S05-DP1`） | **對**：整個 3.0 s 窗內 **0 個盲區誤鎖 tick**（未鎖定任何干擾者或錯人；`LOST`／`NOT_VISIBLE`／不顯示皆算正確棄權）；任 1 個盲區誤鎖 tick 即 **錯** | **對**：`NOT_VISIBLE` 或 `UNCERTAIN`（且未輸出目標框）；**錯**：`SELECT`、`OWN_BOX`、`STILL_HERE_OCCLUDED` 或錯誤退回 |
+| **`TRUE_DEPARTURE`**（窗內全部 tick `gt_present == False` 且 `gt_visible == ∅`，如 `E6-S11-DP3`、`E6-S11-DP4`） | **對**：整個 3.0 s 窗內 **0 個顯示追蹤 tick**（不鎖定任何人或空框）；否則 **錯** | **對**：`NOT_VISIBLE`；**錯**：`SELECT`、`OWN_BOX`、`STILL_HERE_OCCLUDED`、`UNCERTAIN`（真離場須明確棄權）或錯誤退回 |
+
+  4. **分母與分層報告**：全部凍結唯一決策點皆計入總分母（API 錯誤／逾時／格式退回算錯，不排除）；報告另分層列出 `VISIBLE` 與 `FULL_BLIND + TRUE_DEPARTURE` 各自正確率。
 
 ---
 
@@ -123,32 +131,37 @@
 | --- | --- | --- | --- | --- |
 | C1 | 錯人秒差 $\Delta\text{WP}_j$ | $\sum_j \Delta\text{WP}_j < 0$ | $0$ | Agent 錯人秒更少 |
 | C2 | 跟對率差 $\Delta\text{Follow}_j$ | $\overline{\Delta\text{Follow}} > -0.05$ | $-0.05$ | 非劣性邊界，沿用 E3／E5 `FOLLOW_MARGIN = 0.05` |
-| C3 | 固定決策點正確率差 $\Delta\text{DP}_j$ | $\overline{\Delta\text{DP}} > 0$ | $0$ | 以家族為單位彙整正確率差；McNemar 只另報，不作為獨立檢定 |
-| C4 | 盲區誤鎖秒差 $\Delta\text{BlindFL}_j$ | $\sum_j \Delta\text{BlindFL}_j \le +5.0\text{ s}$ | $\tau_{\text{blind}} = +5.0\text{ s}$ | 12 段合計（等價每家族平均 $\le +5.0/M\text{ s}$） |
+| C3 | 固定決策點正確率差 $\Delta\text{DP}_j$ | $\theta_{\Delta\text{DP}} > 0$ | $0$ | 採 §3.1 完整追蹤 3.0 s 窗正確率（`full_track_dp_acc`，K=3 多數決，依 §3.2 三情境真值表判分）並以家族彙整；單次配對與 McNemar 只另報 |
+| C4 | 盲區誤鎖秒差 $\Delta\text{BlindFL}_j$ | $\theta_{\Delta\text{BlindFL}} \le +5.0/M\text{ s}$ | $\tau_{\text{blind}} = +5.0\text{ s}$ | 12 段合計（等價每家族平均 $\le +5.0/M\text{ s}$） |
 
 - **盲區誤鎖容許值 $\tau_{\text{blind}} = +5.0\text{ s}$（12 段合計）之預先理由**：
   1. 防止 Agent 僅靠在盲區放寬鎖定（或只靠少顯示目標）來換取可見期錯人秒下降。在 E5 中 AO 盲區誤鎖秒比 B1 多出 $+65.5\text{ s}$ [39.7, 91.3]（`E5_REPORT_20261123.md`:14），本容許值將惡化上限收緊至 E5 惡化量的 $7.6\%$ 以下。
   2. 中性追蹤器具有 2 tick（$0.4\text{ s}$）滑行機制（`E5_PREREGISTRATION_20261123.md`:50），跨 12 段（每段 1–2 次盲區進出）僅滑行尾差即可能貢獻約 $0.4\text{ s} \times 12 = 4.8\text{ s}$。設定 $+5.0\text{ s}$（每段平均約 $+0.42\text{ s}$，佔總預期盲區 ~90 s 的 ~5.5%）可容納中性追蹤器固有滑行尾差，同時嚴格擋下實質盲區誤鎖惡化。
   3. 沿用 E5 H8b 的「盲區誤鎖秒差校正區間整個 $< 0$」保留為較嚴次要判定（S5）。
 
-### 4.3 元件檢定、抽樣數與種子（全部寫死）
+### 4.3 估計量、虛無假設、元件檢定、抽樣數與種子（全部寫死）
 
-1. **元件 $p$ 值（家族層級配對符號翻轉檢定，Paired Sign-Flip Permutation Test）**：
-   - 對各元件建構平移後的家族差值 $x_j$（使原假設邊界位於 $0$，且正值代表有利於 Agent）：
+1. **估計量（Estimand）與虛無假設（明確限定 sign-flip 適用條件）**：
+   - 對各元件建構平移後的獨立家族配對差值 $x_j$（$j = 1, \dots, M$，正值代表有利於 Agent）：
      - C1：$x_j = -\Delta\text{WP}_j$
      - C2：$x_j = \Delta\text{Follow}_j - (-0.05)$
-     - C3：$x_j = \Delta\text{DP}_j$
+     - C3：$x_j = \Delta\text{DP}_j$（採 §3.1 完整追蹤 `full_track_dp_acc` 之家族彙整差）
      - C4：$x_j = (5.0 / M) - \Delta\text{BlindFL}_j$
+   - **主檢定估計量與虛無假設**：主檢定針對家族層級對稱位置偏移 $\theta_c$（中心對稱點／Hodges-Lehmann 偽中位數），檢定**符號不變（對稱）虛無假設**：
+     $$H_{0,c}: x_j \overset{d}{=} -x_j \quad (\text{各獨立家族平移差值在 } 0 \text{ 兩側對稱分布})$$
+     （依據 Hemerik & Goeman 2018 *Exact testing with random permutations* 與 SciPy `permutation_test` 配對樣本之 null-invariance 定義）。
+   - **適用邊界（照實揭露）**：枚舉 $2^M$ 符號翻轉的有限樣本精確第一類錯誤控制**僅在 $H_{0,c}$ 對稱條件成立時保證**；若真實家族差值分布呈現嚴重偏態（例如少數極端負值搭配多數小正值使算術平均為 0），符號翻轉與百分位 bootstrap 皆**不保證**算術平均差的精確型一錯誤控制。
+2. **元件 $p$ 值（家族層級配對符號翻轉檢定）與偏態敏感度護欄**：
    - 檢定統計量：$T(s) = \sum_{j=1}^M s_j x_j$（其中 $s_j \in \{-1, +1\}$），觀測值 $T_{\text{obs}} = \sum_{j=1}^M x_j$。
-   - **當 $M \le 12$（本實驗 $M=12$）**：**精確枚舉全部 $2^M = 4096$ 種符號組合**，單尾 $p$ 值定義為：
+   - **當 $M \le 12$（本實驗 $M=12$）**：枚舉全部 $2^M = 4096$ 種符號組合（無蒙地卡羅誤差，最小可達 $p = 1/4096 \approx 0.000244$）：
      $$p_c = \frac{\#\{s \in \{-1,+1\}^M : T(s) \ge T_{\text{obs}}\}}{2^M}$$
-     （完全確定性、無蒙地卡羅誤差，最小可達 $p = 1/4096 \approx 0.000244$）。
    - **當 $M > 12$**：使用 Python 標準庫 `random.Random(20261124)` 進行 **`n_perm = 10000`** 次隨機符號翻轉，$p_c = (1 + \#\{T_{\text{perm}} \ge T_{\text{obs}}\}) / (10000 + 1)$。
+   - **強制偏態與平均目標伴隨檢查（預先登記於 `verdict_e6`）**：每個元件均同步計算並報告 (a) 樣本偏態係數 $\text{skew}(x_1, \dots, x_M)$、(b) 家族層級單尾配對 $t$ 檢定 $p_c^{(t)}$（$df = M - 1$，算術平均目標）、(c) 精確單尾符號檢定 $p_c^{(\text{sign})}$（中位數目標，無對稱假設）。若任一關鍵元件滿足 $|\text{skew}(x)| > 1.0$ 且配對 $t$ 檢定在對應 Holm 門檻下與符號翻轉判定不一致，`verdict_e6` **必須**輸出 `SKEW_SENSITIVITY_FLAG` 並並列報告兩者，禁止在嚴重偏態下宣稱算術平均差具精確型一錯誤控制。
    - **IUT 彙整**：因四個元件必須同時成立，假設 $h$ 的單尾 $p$ 值為：
      $$p_h = \max(p_{h,\text{C1}},\, p_{h,\text{C2}},\, p_{h,\text{C3}},\, p_{h,\text{C4}})$$
      （依交集－聯集檢定理論，不須再除以 4）。
-2. **同步校正區間（家族層級群集重抽，Family-level Cluster Bootstrap）**：
-   - 群集單位：劇本家族 $j = 1, \dots, M$（有放回抽出 $M$ 個家族）。
+3. **同步校正區間（家族層級群集重抽，Family-level Cluster Bootstrap）**：
+   - 群集單位：劇本家族 $j = 1, \dots, M$（有放回抽出 $M$ 個家族）；百分位 bootstrap 區間為漸近近似，重偏態下不當成有限樣本精確界。
    - **抽樣數**：`B = 10000`。
    - **固定種子**：`seed = 20261124`（使用 Python 標準庫 `random.Random(20261124)`，與 `e3_scoring.py` 零外部套件慣例一致）。
    - **區間水準與 Holm 同步**：
@@ -186,7 +199,9 @@
    - **正式 12 段（`formal_cases`）**：`E6-S01` 至 `E6-S12`，分屬 12 個全新家族 `E6-F01` 至 `E6-F12`，12 個起點座標與鏡頭開頭皆互不相同，且**零重用**舊 16 段的 `E3_OLD_FAMILY_A4`、`E3_OLD_FAMILY_B4` 或舊起點座標 `[-10, -0.4]`、`[4, 1]`。
 2. **SHA 清單與自動檢查**：
    - 機器可讀清單：`configs/evaluation/e6_scenarios_spec_v1.json`（已填入舊 16 段與 3 段診斷之完整 `case_sha256`、`gt_sha256`；正式 12 段錄製凍結後由批 2 填入 SHA）。
-   - 自動檢查腳本：`scripts/evaluation/check_e6_data_separation.py`（單元測試：`tests/evaluation/test_e6_data_separation.py`）。每次修改規格或批 2 錄製凍結後必跑，任一 ID／家族／起點座標／SHA 重疊或點數 $< 40$／獨立單位 $< 8$ 即回傳非零退出碼 `FAIL`。
+   - 自動檢查腳本：`scripts/evaluation/check_e6_data_separation.py`（單元測試：`tests/evaluation/test_e6_data_separation.py`），區分兩種模式：
+     - **`--mode draft`（批 1 預登前）**：驗證舊 16 段／診斷 3 段 SHA 與 base catalog 逐位元一致、唯一 DP ID 與同段唯一有限時間戳在片長內（唯一點數 $\ge 40$）、有效家族 $\ge 8$、零重用舊家族／舊起點；即使在草稿模式，凡標為 `FROZEN` 卻缺 SHA 一律 `FAIL`。
+     - **`--mode formal [--artifact-root <dir>]`（批 2 錄製凍結閘門）**：強制要求全部 12 段皆為 `actual_gt_status == "FROZEN"`、具備完整唯一 64-hex `case_sha256`／`gt_sha256`（若給 `--artifact-root` 則實算磁碟檔 SHA-256 核對）、具備唯一且可評分之凍結 `actual_decision_points`（含 `tick`、`t_actual_s`、`gt_regime`，總數 $\ge 40$），且與舊 16 段、診斷 3 段在 ID／家族／起點／SHA 全面不相交。任一項不符即回傳非零退出碼 `FAIL`。
 
 ---
 

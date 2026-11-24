@@ -1,4 +1,4 @@
-"""Check E6 data separation, family independence, and SHA manifest integrity.
+"""Check E6 data separation, unique decision points, and SHA manifest integrity.
 
 Zero-cost, offline verification for #718 (D377):
 - Verifies all 16 old E3 cases match committed catalogs byte-for-byte.
@@ -6,13 +6,20 @@ Zero-cost, offline verification for #718 (D377):
   (case_id, family_id, and SHA-256).
 - Verifies the 12 formal cases reuse zero old E3 families or old opening coordinates.
 - Verifies 12 distinct openings, 6 similar / 6 non-similar balance,
-  planned decision points >= 40, and effective independent units >= 8.
+  unique valid decision points >= 40 (no duplicate dp_id or per-case timestamp,
+  finite and within [0, duration_s)), and effective independent units >= 8.
+- Supports --mode draft (pre-recording; still rejects FROZEN with null/missing SHA)
+  and --mode formal (post-recording freeze gate; requires all 12 cases FROZEN with
+  complete unique 64-hex SHAs, frozen scorable actual_decision_points >= 40, and
+  optional --artifact-root byte-for-byte SHA-256 verification on disk).
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -20,6 +27,7 @@ from typing import Any
 
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 OLD_E3_OPENING_COORDS = {(-10.0, -0.4), (4.0, 1.0)}
+VALID_GT_REGIMES = {"VISIBLE", "FULL_BLIND", "TRUE_DEPARTURE"}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -30,11 +38,91 @@ def _coord_key(xy: list[float] | tuple[float, float]) -> tuple[float, float]:
     return (round(float(xy[0]), 3), round(float(xy[1]), 3))
 
 
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _validate_decision_points(
+    *,
+    cid: str,
+    dps: Any,
+    duration_s: Any,
+    time_key: str,
+    require_formal_fields: bool,
+    global_dp_ids: set[str],
+    errors: list[str],
+) -> int:
+    if not isinstance(duration_s, (int, float)) or not math.isfinite(duration_s) or duration_s <= 0:
+        errors.append(f"FORMAL_INVALID_DURATION: {cid} duration={duration_s!r}")
+        return 0
+    if not isinstance(dps, list) or len(dps) < 1:
+        errors.append(f"FORMAL_NO_DECISION_POINTS: {cid}")
+        return 0
+
+    case_times: set[float] = set()
+    case_ticks: set[int] = set()
+    valid_unique = 0
+
+    for idx, dp in enumerate(dps):
+        if not isinstance(dp, dict):
+            errors.append(f"FORMAL_DP_NOT_DICT: {cid}[{idx}]")
+            continue
+        dp_id = dp.get("dp_id")
+        if not isinstance(dp_id, str) or not dp_id.strip():
+            errors.append(f"FORMAL_DP_INVALID_ID: {cid}[{idx}]")
+            continue
+        if dp_id in global_dp_ids:
+            errors.append(f"FORMAL_DP_DUPLICATE_ID: {dp_id}")
+            continue
+
+        t_val = dp.get(time_key)
+        if not isinstance(t_val, (int, float)) or isinstance(t_val, bool) or not math.isfinite(t_val):
+            errors.append(f"FORMAL_DP_INVALID_TIME: {dp_id} {time_key}={t_val!r}")
+            continue
+        if t_val < 0.0 or t_val >= float(duration_s):
+            errors.append(f"FORMAL_DP_TIME_OUT_OF_RANGE: {dp_id} {time_key}={t_val} duration={duration_s}")
+            continue
+        t_key = round(float(t_val), 3)
+        if t_key in case_times:
+            errors.append(f"FORMAL_DP_DUPLICATE_TIME: {cid} {time_key}={t_val}")
+            continue
+
+        if require_formal_fields:
+            regime = dp.get("gt_regime")
+            if regime not in VALID_GT_REGIMES:
+                errors.append(f"FORMAL_DP_INVALID_REGIME: {dp_id} gt_regime={regime!r}")
+                continue
+            tick = dp.get("tick")
+            if not isinstance(tick, int) or isinstance(tick, bool) or tick < 0:
+                errors.append(f"FORMAL_DP_INVALID_TICK: {dp_id} tick={tick!r}")
+                continue
+            if tick in case_ticks:
+                errors.append(f"FORMAL_DP_DUPLICATE_TICK: {cid} tick={tick}")
+                continue
+            case_ticks.add(tick)
+
+        global_dp_ids.add(dp_id)
+        case_times.add(t_key)
+        valid_unique += 1
+
+    return valid_unique
+
+
 def validate_e6_spec(
     spec: dict[str, Any],
     e3_base_catalog: dict[str, Any],
     e3_ext_catalog: dict[str, Any],
+    *,
+    mode: str = "draft",
+    artifact_root: Path | None = None,
 ) -> list[str]:
+    if mode not in ("draft", "formal"):
+        return [f"INVALID_MODE: {mode!r}"]
+
     errors: list[str] = []
 
     # 1. Build ground-truth lookup of the 16 old E3 cases from committed catalogs
@@ -111,9 +199,10 @@ def validate_e6_spec(
     formal_families: set[str] = set()
     formal_openings: set[tuple[float, float]] = set()
     formal_shas: set[str] = set()
+    global_dp_ids: set[str] = set()
     similar_count = 0
     nonsimilar_count = 0
-    total_planned_dps = 0
+    total_unique_valid_dps = 0
 
     for c in formal_cases:
         cid = c.get("case_id", "")
@@ -151,25 +240,62 @@ def validate_e6_spec(
         else:
             errors.append(f"FORMAL_MISSING_SIMILAR_FLAG: {cid}")
 
-        dps = c.get("planned_decision_points", [])
-        if not isinstance(dps, list) or len(dps) < 1:
-            errors.append(f"FORMAL_NO_DECISION_POINTS: {cid}")
-        else:
-            total_planned_dps += len(dps)
+        gt_status = c.get("actual_gt_status")
+        if mode == "formal" and gt_status != "FROZEN":
+            errors.append(f"FORMAL_NOT_FROZEN: {cid} actual_gt_status={gt_status!r}")
 
-        for key in ("case_sha256", "gt_sha256"):
+        # Validate decision points (planned in draft mode; frozen actual in formal mode)
+        if mode == "formal":
+            total_unique_valid_dps += _validate_decision_points(
+                cid=cid,
+                dps=c.get("actual_decision_points"),
+                duration_s=c.get("actual_duration_s"),
+                time_key="t_actual_s",
+                require_formal_fields=True,
+                global_dp_ids=global_dp_ids,
+                errors=errors,
+            )
+        else:
+            total_unique_valid_dps += _validate_decision_points(
+                cid=cid,
+                dps=c.get("planned_decision_points"),
+                duration_s=c.get("planned_duration_s"),
+                time_key="t_plan_s",
+                require_formal_fields=False,
+                global_dp_ids=global_dp_ids,
+                errors=errors,
+            )
+
+        require_shas = mode == "formal" or gt_status == "FROZEN"
+        for key, path_key in (("case_sha256", "case_path"), ("gt_sha256", "gt_path")):
             sha = c.get(key)
-            if sha is not None:
-                if not isinstance(sha, str) or not HEX64_RE.match(sha):
-                    errors.append(f"FORMAL_INVALID_SHA: {cid}.{key}={sha!r}")
-                else:
-                    if sha in old_shas:
-                        errors.append(f"FORMAL_SHA_COLLIDES_OLD_E3: {cid}.{key}={sha}")
-                    if sha in diag_shas:
-                        errors.append(f"FORMAL_SHA_COLLIDES_DIAG: {cid}.{key}={sha}")
-                    if sha in formal_shas:
-                        errors.append(f"FORMAL_SHA_DUPLICATE: {cid}.{key}={sha}")
-                    formal_shas.add(sha)
+            if sha is None:
+                if require_shas:
+                    errors.append(f"FORMAL_MISSING_SHA: {cid}.{key} required when mode={mode} status={gt_status}")
+                continue
+            if not isinstance(sha, str) or not HEX64_RE.match(sha):
+                errors.append(f"FORMAL_INVALID_SHA: {cid}.{key}={sha!r}")
+                continue
+            if sha in old_shas:
+                errors.append(f"FORMAL_SHA_COLLIDES_OLD_E3: {cid}.{key}={sha}")
+            if sha in diag_shas:
+                errors.append(f"FORMAL_SHA_COLLIDES_DIAG: {cid}.{key}={sha}")
+            if sha in formal_shas:
+                errors.append(f"FORMAL_SHA_DUPLICATE: {cid}.{key}={sha}")
+            formal_shas.add(sha)
+
+            if mode == "formal" and artifact_root is not None:
+                rel = c.get(path_key)
+                if not isinstance(rel, str) or not rel.strip():
+                    errors.append(f"FORMAL_MISSING_PATH: {cid}.{path_key}")
+                    continue
+                target = artifact_root / rel
+                if not target.is_file():
+                    errors.append(f"FORMAL_ARTIFACT_MISSING: {cid}.{path_key}={target}")
+                    continue
+                actual_sha = _sha256_file(target)
+                if actual_sha != sha:
+                    errors.append(f"FORMAL_ARTIFACT_SHA_MISMATCH: {cid}.{path_key} expected {sha} got {actual_sha}")
 
     if similar_count != 6 or nonsimilar_count != 6:
         errors.append(
@@ -180,8 +306,8 @@ def validate_e6_spec(
     min_dps = int(thresholds.get("min_decision_points", 40))
     min_units = int(thresholds.get("min_effective_units", 8))
 
-    if total_planned_dps < min_dps:
-        errors.append(f"FORMAL_DP_BELOW_MIN: planned={total_planned_dps} < min={min_dps}")
+    if total_unique_valid_dps < min_dps:
+        errors.append(f"FORMAL_DP_BELOW_MIN: unique_valid={total_unique_valid_dps} < min={min_dps}")
     if len(formal_families) < min_units:
         errors.append(
             f"FORMAL_UNITS_BELOW_MIN: effective_units={len(formal_families)} < min={min_units}"
@@ -207,22 +333,41 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=Path("configs/evaluation/e3_reappearances_v1.json"),
     )
+    parser.add_argument(
+        "--mode",
+        choices=("draft", "formal"),
+        default="draft",
+        help="draft allows PENDING_RECORDING null SHAs; formal enforces complete FROZEN SHAs and frozen DPs.",
+    )
+    parser.add_argument(
+        "--artifact-root",
+        type=Path,
+        default=None,
+        help="Optional root directory in formal mode to hash and verify case_path/gt_path on disk.",
+    )
     args = parser.parse_args(argv)
 
     spec = _load_json(args.spec)
     e3_base = _load_json(args.e3_base)
     e3_ext = _load_json(args.e3_ext)
-    errors = validate_e6_spec(spec, e3_base, e3_ext)
+    errors = validate_e6_spec(
+        spec,
+        e3_base,
+        e3_ext,
+        mode=args.mode,
+        artifact_root=args.artifact_root,
+    )
     if errors:
         for e in errors:
             print(f"FAIL: {e}", file=sys.stderr)
         return 1
     formal_cases = spec["formal_cases"]
-    n_dps = sum(len(c["planned_decision_points"]) for c in formal_cases)
+    dp_key = "actual_decision_points" if args.mode == "formal" else "planned_decision_points"
+    n_dps = sum(len(c.get(dp_key) or []) for c in formal_cases)
     n_units = len({c["family_id"] for c in formal_cases})
     print(
-        f"PASS: E6 data separation verified (old_e3=16, diag=3, formal=12, "
-        f"planned_dps={n_dps}, effective_units={n_units}, similar=6/6)"
+        f"PASS: E6 data separation verified (mode={args.mode}, old_e3=16, diag=3, formal=12, "
+        f"unique_dps={n_dps}, effective_units={n_units}, similar=6/6)"
     )
     return 0
 
