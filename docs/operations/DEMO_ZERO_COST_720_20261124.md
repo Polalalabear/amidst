@@ -1,7 +1,12 @@
 # #720 零付費收尾（2026-11-24）
 
-狀態：Codex 已完成零付費檢查紀錄，待 Argon 互審與 Claude 第1批。Draft、不合併。
+狀態：Argon 互審 APPROVE，待 Claude 第1批。Draft、不合併。
 未驗證項目保留，不宣稱 demo gate 通過。GT 不進推論，身分 UNCONFIRMED。
+
+互審紀錄：[Argon APPROVE](https://github.com/Polalalabear/amidst/pull/725#issuecomment-7136562147)，
+受審 head `7a390e4ca12ebbbd55648fc85e10efca6bed0479`。
+Argon 只讀 GitHub，未重跑20題、檢視 LOCAL 截圖／MANIFEST／PPTX／PDF或正式 launcher。
+本次續作只同步審查狀態，不修改程式、預期答案、14/20結果或下列未驗證界線。
 
 ## 1. #714 正式 launcher 與截圖
 
