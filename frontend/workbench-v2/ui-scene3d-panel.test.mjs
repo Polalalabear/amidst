@@ -27,8 +27,9 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
 const cameraAsset = {cameras: [{camera_id: 'CAM_A', width: 960, height: 540, cy: 270, fy: 625,
   camera_to_world: [[1,0,0,0],[0,1,0,2],[0,0,1,0],[0,0,0,1]]}]};
 const response = estimate => ({status: 'TRACKING', as_of_us: 5e6, single_view: [{kind: 'ON_CAMERA', camera_id: 'CAM_A', range_us: [0, 5e6]}],
-  sightings: [], display_estimate: estimate});
-const model = estimate => buildCoreTrackingViewModel(response(estimate), {tUs: 1e6, displayPositions: {CAM_A: [0,0]}});
+  sightings: [], display_estimate: estimate == null ? estimate : {last_observed_us: 5e6, source_clock_id: 'C', ...estimate}});
+const cameraGraph = {layout: 'NODE_GRAPH', cameras: [{camera_id: 'CAM_A', display_position: {status: 'CALIBRATED_STATIC', xy_m: [0,0]}}, {camera_id: 'CAM_B', display_position: {status: 'CALIBRATED_STATIC', xy_m: [4,4]}}]};
+const model = estimate => buildCoreTrackingViewModel(response(estimate), {tUs: 5e6, cameraGraph, runClockId: 'C'});
 function setup() {
   const root = host(), views = [], flatModels = [];
   const panel = mountUiScene3dPanel({host: root, scene3dFactory: () => {
@@ -90,9 +91,28 @@ test('run change / teardown release instances; late ready callbacks cannot reviv
 test('metric 2D estimate and uncertainty use one projection, not the active camera node', () => {
   const view = model({est_xy: [2,1], uncertainty_m: 0.8}), plan = floorPlan(view.topdown);
   assert.notDeepEqual(plan.estimate.xy, [plan.nodes[0].x, plan.nodes[0].y]);
-  assert.ok(Math.abs(plan.estimate.radius - 0.8 * 80 / 2.8) < 1e-9); assert.ok(plan.estimate.xy.every(x => x > 0 && x < 100));
+  assert.ok(Math.abs(plan.estimate.radius - 0.8 * 80 / 4) < 1e-9); assert.ok(plan.estimate.xy.every(x => x > 0 && x < 100));
   const unknown = floorPlan(model({est_xy: 'UNKNOWN', reason: 'CALIBRATION_MISSING'}).topdown);
   assert.equal(unknown.estimate, null);
+});
+
+test('out-of-bounds estimate is not plotted or clamped; 2D summary says why without changing 3D coordinates', async () => {
+  const s = setup(), view = model({est_xy: [20, 20], uncertainty_m: 1}); s.update(view);
+  assert.equal(view.topdown.estimate_marker, null);
+  assert.match(s.root.textContent, /估計位置超出圖面/);
+  modeButton(s.root, '3d').click(); s.views[0].loading.resolve(); await flush();
+  assert.deepEqual(s.views[0].updates.at(-1).estimate.xy, [20,20]);
+  assert.doesNotMatch(s.root.textContent, /估計位置超出圖面/);
+  s.panel.destroy();
+});
+
+test('schematic coordinates leave only estimate text and explain why there is no metric 2D point', () => {
+  const s = setup(), view = buildCoreTrackingViewModel(response({est_xy: [2,1], uncertainty_m: 1}), {
+    tUs: 5e6, runClockId: 'C', displayPositions: {CAM_A: [0,0]}});
+  s.update(view);
+  assert.equal(view.topdown.estimate_marker, null);
+  assert.match(s.root.textContent, /沒有已校正鏡頭位置，2D 不畫估計點/);
+  s.panel.destroy();
 });
 
 test('t=1 s NO_SIGHTING and unobserved states never claim tracking', () => {
@@ -114,7 +134,7 @@ test('default UI wiring stays inside its own panel and legacy bridge; cleanup co
 
 test('3D follows the latest system estimate without mutating the response', async () => {
   const s = setup(), raw = response({est_xy: [2,1], uncertainty_m: 0.8}), before = JSON.stringify(raw);
-  s.update(buildCoreTrackingViewModel(raw, {tUs: 1e6})); modeButton(s.root, '3d').click(); s.views[0].loading.resolve(); await flush();
+  s.update(buildCoreTrackingViewModel(raw, {tUs: 5e6, runClockId: 'C'})); modeButton(s.root, '3d').click(); s.views[0].loading.resolve(); await flush();
   s.update(model({est_xy: [3,2], uncertainty_m: 1.2}));
   assert.deepEqual(s.views[0].updates.at(-1).estimate.xy, [3,2]);
   s.update(model({est_xy: 'UNKNOWN', reason: 'GROUND_PROJECTION_UNDEFINED'}));
@@ -144,7 +164,7 @@ test('clock-only ticks update the HUD without rebuilding unchanged 3D geometry',
   const s = setup(), view = model({est_xy: [2,1], uncertainty_m: 0.8}); s.update(view);
   modeButton(s.root, '3d').click(); s.views[0].loading.resolve(); await flush();
   const count = s.views[0].updates.length;
-  s.update({...view, currentTUs: 1.5e6});
-  assert.equal(s.views[0].updates.length, count); assert.match(s.root.textContent, /t = 1.5 s/);
+  s.update({...view, currentTUs: 5.5e6});
+  assert.equal(s.views[0].updates.length, count); assert.match(s.root.textContent, /t = 5.5 s/);
   s.panel.destroy();
 });

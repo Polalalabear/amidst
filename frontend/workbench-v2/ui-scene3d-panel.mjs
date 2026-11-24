@@ -1,5 +1,5 @@
 // Front-desk floor panel. Only shared system view models enter; no legacy DOM access.
-import {buildScene3dModel, estimateUnknownText} from './scene3d-model.mjs';
+import {buildScene3dModel} from './scene3d-model.mjs';
 import {mountScene3dView} from './scene3d-view.mjs';
 
 export function mountUiScene3dPanel({host, scene3dFactory = mountScene3dView} = {}) {
@@ -36,11 +36,11 @@ export function mountUiScene3dPanel({host, scene3dFactory = mountScene3dView} = 
     for (const [key, button] of buttons) button.setAttribute('aria-pressed', String(key === mode));
     note.textContent = message; note.hidden = !message;
     hud.replaceChildren(el('span', `t = ${(model.currentTUs / 1e6).toFixed(1)} s`), el('span', model.stateText),
-      el('span', `作用中鏡頭：${model.activeCameraId ?? '—'}`));
-    const estimate = model.estimate;
-    summary.textContent = estimate.status === 'INFERRED'
-      ? `系統估計（推論） · 不確定範圍 ${Number.isFinite(estimate.uncertaintyM) ? `${estimate.uncertaintyM} m` : 'UNKNOWN'} · 身分未確認`
-      : estimateUnknownText(estimate.reason);
+      el('span', `作用中鏡頭：${model.activeCameraId ?? '—'}`), el('span', `估計位置：${model.estimate.status}`));
+    const planReason = current.view?.topdown?.estimate_display_reason;
+    summary.textContent = model.estimateText + (mode === '2d' && model.estimate.status === 'INFERRED'
+      ? planReason === 'ESTIMATE_OUTSIDE_PLAN' ? ' · 估計位置超出圖面'
+        : planReason === 'CALIBRATED_CAMERA_POSITION_MISSING' ? ' · 沒有已校正鏡頭位置，2D 不畫估計點' : '' : '');
     flat.hidden = mode !== '2d'; spatial.hidden = mode !== '3d'; legend.hidden = mode !== '3d';
     if (mode === '2d') current.render2d(flat, model);
     if (mode === '3d' && ready) {

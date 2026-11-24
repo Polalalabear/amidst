@@ -479,7 +479,7 @@ export function mountUi(ctx) {
   disposers.push(() => { globalThis.removeEventListener?.('pagehide', onPageHide); releasePlan(); });
   function trackView() {
     const s = store.getState();
-    return s.coreTrackResponse ? (s.coreTrackingView ?? buildCoreTrackingViewModel(s.coreTrackResponse, {tUs: s.tUs, playbackMode: s.playbackMode, speed: s.speed, cameraGraph: s.cameraGraph, displayPositions: s.displayPositions})) : null;
+    return s.coreTrackResponse ? (s.coreTrackingView ?? buildCoreTrackingViewModel(s.coreTrackResponse, {tUs: s.tUs, playbackMode: s.playbackMode, speed: s.speed, cameraGraph: s.cameraGraph, displayPositions: s.displayPositions, runClockId: s.activeRun?.clock_mapping?.clock_id ?? s.activeRun?.clock_id ?? null})) : null;
   }
   function renderCase2() {
     const s = store.getState(), resp = trackStopped ? null : s.coreTrackResponse, view = trackStopped ? null : trackView(), p = phase.getState();
@@ -692,16 +692,18 @@ export function mountUi(ctx) {
   }
   const canPlayNow = s => !trackStopped && (s.playing || canPlay(s));
   function renderPlan(s, view, resp) {
+    trackParts.plan.hidden = !floorPlan(view.topdown).available;
     trackParts.scenePanel?.update({view, runKey: s.activeRun?.run_id, cameraIds: s.activeRun?.camera_ids,
       render2d: (box, model) => renderPlan2d(box, s, view, resp, model)});
   }
   function renderPlan2d(box, s, view, resp, model) {
     const plan = floorPlan(view.topdown, {settings, singleView: resp.single_view, currentTUs: view.currentTUs});
     const reacq = blindReacquire(resp.single_view, view.currentTUs, s.activeRun?.clock_mapping);
-    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.estimate, model.estimate.status, model.estimate.reason, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence, reacq, presentOn()]);
+    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.estimate, model.estimate.status, model.estimate.reason, view.topdown?.display_note, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence, reacq, presentOn()]);
     if (trackParts.planKey === key) return; trackParts.planKey = key;
     box.replaceChildren();
     if (!plan.available) { box.append(el('p', PLAIN.noPlan, 'ui-note')); return; }
+    if (view.topdown?.display_note) box.append(el('p', view.topdown.display_note, 'ui-note ui-plan-display-note'));
     const head = el('div', undefined, 'ui-card-head'); const conf = view.topdown?.blind_curve?.confidence ?? 'UNKNOWN', unavailable = view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown;
     const headText = reacq && presentOn() ? PLAIN.bothEndsObserved : plan.blindVisible ? (presentOn() ? planHeadText(conf) : `INFERRED · 信心 ${conf}`) : (unavailable ? (presentOn() ? PLAIN.noPrediction : 'UNKNOWN · 預測不可用') : '');
     const headChip = el('span', headText, plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small'); headChip.id = 'ui-plan-chip';

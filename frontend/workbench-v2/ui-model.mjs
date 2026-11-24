@@ -268,7 +268,7 @@ export function blindShare(singleView) {
 // plan says UNKNOWN instead of drawing a made-up layout.
 export function floorPlan(topdown, { settings = DEFAULT_SETTINGS, singleView = null, currentTUs = 0 } = {}) {
   const nodes = topdown?.nodes ?? [];
-  if (!nodes.length && !topdown?.estimate_marker) return { available: false, nodes: [], observed: [], blind: [], blindVisible: false, current: null };
+  if (!nodes.length) return { available: false, nodes: [], observed: [], blind: [], blindVisible: false, current: null };
   const at = new Map(nodes.map(n => [n.cameraId, n]));
   const observed = (topdown.observed_cameras ?? []).map(c => at.get(typeof c === 'string' ? c : c?.camera_id ?? c?.cameraId)).filter(Boolean).map(n => [n.x, n.y]);
   const curve = topdown.blind_curve;

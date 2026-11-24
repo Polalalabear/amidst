@@ -41,20 +41,30 @@ const asset={cameras:[{camera_id:'CAM_A',width:960,height:540,cy:270,fy:625,came
 test('mountUi at the default URL uses the new floor panel: estimate/UNKNOWN, toggle and route teardown', async t => {
   t.mock.method(globalThis,'setInterval',()=>0);t.mock.method(globalThis,'clearInterval',()=>{});
   const {doc,host}=documentFixture();
-  const run={run_id:'A4',scene_id:'S',camera_ids:['CAM_A'],clock_mapping:{wall_origin:'2026-11-24T00:00:00+08:00',t0_us:0,rate:1,source_duration_us:5e6}};
-  const response={status:'TRACKING',as_of_us:5e6,output_sha256:'synthetic',single_view:[{kind:'ON_CAMERA',camera_id:'CAM_A',range_us:[0,5e6]}],sightings:[],display_estimate:{est_xy:[2,1],uncertainty_m:0.8}};
+  const run={run_id:'A4',scene_id:'S',camera_ids:['CAM_A'],camera_map:{layout:'NODE_GRAPH',display_note:'示意圖，非實際座標',cameras:[{camera_id:'CAM_A',display_position:{status:'CALIBRATED_STATIC',xy_m:[0,0]}},{camera_id:'CAM_B',display_position:{status:'CALIBRATED_STATIC',xy_m:[4,4]}}]},clock_mapping:{clock_id:'C',wall_origin:'2026-11-24T00:00:00+08:00',t0_us:0,rate:1,source_duration_us:5e6}};
+  const response={status:'TRACKING',as_of_us:5e6,output_sha256:'synthetic',single_view:[{kind:'ON_CAMERA',camera_id:'CAM_A',range_us:[0,5e6]}],sightings:[],display_estimate:{est_xy:[2,1],uncertainty_m:0.8,last_observed_us:1e6,source_clock_id:'C'}};
   const store=createStore(initialState({activeRun:run,bootstrap:{runs:[run]},coreTrackResponse:response,
-    coreTrackingView:buildCoreTrackingViewModel(response,{tUs:1e6,displayPositions:{CAM_A:[0,0]}}),displayPositions:{CAM_A:[0,0]},tUs:1e6}));
-  let disposals=0, mounts=0;
+    coreTrackingView:buildCoreTrackingViewModel(response,{tUs:1e6,cameraGraph:run.camera_map,runClockId:'C'}),cameraGraph:run.camera_map,tUs:1e6}));
+  let disposals=0, mounts=0; const updates=[];
   const ui=mountUi({root:doc,store,url:doc.baseURI,coreCatalog:()=>({regions:[],classes:['person'],colors:[],aliases:{},run}),
-    scene3dFactory:()=>{mounts++;return {ready:Promise.resolve(),cameraAsset:()=>asset,update(){},destroy(){disposals++;}};}});
+    scene3dFactory:()=>{mounts++;return {ready:Promise.resolve(),cameraAsset:()=>asset,update(m){updates.push(m);},destroy(){disposals++;}};}});
   try {
     ui.go('case2');assert.equal(ui.screen,'case2');
     const plan=host.querySelector('#ui-floorplan');assert.ok(plan);assert.equal(plan.dataset.mode,'2d');
     assert.equal(plan.querySelectorAll('.ui-estimate-point').length,1);assert.equal(plan.querySelectorAll('.ui-estimate-range').length,1);
     assert.match(plan.textContent,/系統估計（推論）/);
+    assert.equal(plan.querySelectorAll('.cam.is-active').length,1);
+    assert.equal(plan.querySelector('.ui-plan-display-note').textContent,'示意圖，非實際座標');
     plan.querySelector('[data-mode="3d"]').click();await Promise.resolve();await Promise.resolve();
     assert.equal(plan.dataset.mode,'3d');assert.equal(mounts,1);
+    store.dispatch({type:'SET_T_US',tUs:0.5e6});
+    assert.equal(updates.at(-1).estimate.xy,null);assert.equal(updates.at(-1).estimate.uncertaintyM,null);
+    assert.match(plan.querySelector('.ui-estimate-summary').textContent,/ESTIMATE_IN_FUTURE/);
+    assert.match(plan.querySelector('.ui-scene3d-hud').textContent,/估計位置：UNKNOWN/);
+    plan.querySelector('[data-mode="2d"]').click();
+    assert.equal(plan.querySelectorAll('.ui-estimate-point').length,0);assert.equal(plan.querySelectorAll('.ui-estimate-range').length,0);
+    store.dispatch({type:'SET_T_US',tUs:1e6});
+    assert.equal(plan.querySelectorAll('.ui-estimate-point').length,1);
     ui.go('case1');assert.equal(disposals,1);ui.go('case2');
     assert.equal(host.querySelector('#ui-floorplan').dataset.mode,'2d');
     const unknown={...response,status:'NO_SIGHTING',single_view:[],output_sha256:'unknown',display_estimate:{est_xy:'UNKNOWN',uncertainty_m:'UNKNOWN',reason:'NO_PROJECTABLE_SELECTED_OBSERVATION'}};
@@ -65,4 +75,25 @@ test('mountUi at the default URL uses the new floor panel: estimate/UNKNOWN, tog
     next.querySelector('[data-mode="3d"]').click();await Promise.resolve();await Promise.resolve();
   } finally {ui.destroy();}
   assert.equal(disposals,2);assert.equal(host.children.length,0);
+});
+
+test('B-05: the entire #ui-floorplan is hidden without usable camera positions, even with a valid estimate', t => {
+  t.mock.method(globalThis,'setInterval',()=>0);t.mock.method(globalThis,'clearInterval',()=>{});
+  const {doc,host}=documentFixture();
+  const run={run_id:'B-05',scene_id:'S',camera_ids:['A'],clock_mapping:{clock_id:'C',source_duration_us:5e6},
+    camera_map:{layout:'NODE_GRAPH',cameras:[{camera_id:'A',display_position:{status:'UNKNOWN',xy_m:[0,0]}}]}};
+  const response={status:'TRACKING',as_of_us:5e6,output_sha256:'b05',single_view:[],sightings:[],
+    display_estimate:{est_xy:[2,1],uncertainty_m:1,last_observed_us:1e6,source_clock_id:'C'}};
+  const store=createStore(initialState({activeRun:run,bootstrap:{runs:[run]},cameraGraph:run.camera_map,tUs:1e6}));
+  store.dispatch({type:'SET_CORE_TRACK_RESPONSE',response});
+  let mounts=0;
+  const ui=mountUi({root:doc,store,url:doc.baseURI,coreCatalog:()=>({regions:[],classes:['person'],colors:[],aliases:{},run}),
+    scene3dFactory:()=>{mounts++;throw new Error('hidden floor plan must not mount 3D');}});
+  try {
+    ui.go('case2');
+    const plan=host.querySelector('#ui-floorplan');assert.ok(plan);assert.equal(plan.hidden,true);
+    assert.equal(plan.querySelectorAll('.ui-estimate-point').length,0);assert.equal(mounts,0);
+    store.dispatch({type:'SET_T_US',tUs:2e6});assert.equal(plan.hidden,true);
+    assert.equal(mounts,0);
+  } finally {ui.destroy();}
 });
