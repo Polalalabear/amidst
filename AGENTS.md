@@ -33,7 +33,7 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - [D79 decision-window document](docs/evaluation/Q5_DECISION_WINDOW_D79.md)
 - [A4/B4 scenario cards v1](https://github.com/Polalalabear/amidst/pull/253) (D89; `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md` once #253 merges)
 - [Progress guide](docs/operations/Q1Q5_PROGRESS.md)
-- [Latest coordinator handoff (2026-11-23, third)](docs/agents/COORDINATOR_HANDOFF_20261123c.md)
+- [Latest coordinator handoff (2026-11-24)](docs/agents/COORDINATOR_HANDOFF_20261124.md)
 - [Task board and decision log #93](https://github.com/Polalalabear/amidst/issues/93)
 - [Archive index](docs/archive/ARCHIVE_20261027.md) — superseded Office, 3D-line, Phase 1/2 and early Q1–Q5 documents (D91)
 - [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) — replaces the archived PRD, system design, data schema and interfaces; §2 data flow and §4.3 Agent request structure (`agent_service.py`, `scene_context.py`, `camera_projection.py`)
