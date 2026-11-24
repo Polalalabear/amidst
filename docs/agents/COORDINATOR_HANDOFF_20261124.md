@@ -39,7 +39,7 @@ E5 已結束並合併；Codex 的 demo 與 LIVE PR 都已合併。離驗收還�
 | --- | --- | --- |
 | 部署 #690／#695／#703／#705 到 8791 | 已合併，**都沒有部署** | 要使用者同意重啟 |
 | [#675](https://github.com/Polalalabear/amidst/issues/675) Agent | 離線程式完成 | 真實模型驗證未做；要使用者核准外傳影格 |
-| [#676](https://github.com/Polalalabear/amidst/issues/676) 藍衣失聯 | 修正與合成診斷已合併 | 原事件原因 UNKNOWN；遠距接回等 #589／R2 |
+| [#676](https://github.com/Polalalabear/amidst/issues/676) 藍衣失聯 | 修正與合成診斷已合併 | 原事件原因 UNKNOWN。E5 已結束，#589 的 E5 閘門已解除；剩 runtime 設定未核定：可由使用者核准契約 §4.5 的 UNKNOWN 回退（遠距候選走 NEEDS_CONFIRM，人工確認），見 `docs/operations/LIVE_RELOCK_R2_PLAN_20261124.md` |
 | [#633](https://github.com/Polalalabear/amidst/issues/633) | Codex 部分已合併 | 工具面板蓋住場景標籤；鏡像退役 |
 | #677 後續：前端讀 `gate_m_effective`／`reject_reason`／`cand_id` | 契約與 fixture 已在 main（#703） | 前端未接；#677 已關閉，要另開 issue |
 | [#589](https://github.com/Polalalabear/amidst/issues/589)、[#574](https://github.com/Polalalabear/amidst/issues/574)、[#566](https://github.com/Polalalabear/amidst/issues/566)、[#672](https://github.com/Polalalabear/amidst/issues/672) | blocked | 11-25 之後 |
@@ -47,10 +47,10 @@ E5 已結束並合併；Codex 的 demo 與 LIVE PR 都已合併。離驗收還�
 ### 3.3 研究紀錄、報告與發表
 | 工作 | 進度 | 卡在哪裡 |
 | --- | --- | --- |
-| 論文 [#659](https://github.com/Polalalabear/amidst/issues/659) | E3 章節完成；引言、方法、E5、結論是佔位 | **E5 已結束，還沒派人。** issue 標籤仍是 blocked，要更新 |
+| 論文 [#659](https://github.com/Polalalabear/amidst/issues/659) | E3 章節完成；引言、方法、E5、結論是佔位 | **E5 已結束，還沒派人。** issue 標籤仍是 blocked＋in-progress，要更新 |
 | 海報、簡報 | 版面完成，待填清單在 `local/evidence/presentation-pack-20261123/deliverable/README.md` 的「待填項目」 | **還沒派人**；封面的姓名、老師、系所要使用者提供；pptx 沒在 PowerPoint／Keynote 開過 |
 | 數字總表 `docs/evaluation/E5_NUMBERS_TABLE_20261124.md` | AO 已收 | AO-L 未收 |
-| 簡報的「F1 0.887 對 0.518」 | 沒有追到出處；和 W1 的 0.957 對 0.523 不同 | **填數字前先查出處**，查不到寫 UNKNOWN |
+| 簡報的「F1 0.887 對 0.518」 | 出處已查到：W1 的 IoU 準則（`docs/evaluation/E3_SCORER_RECOMPUTE_20261122.md`「W1 整體（422 格）F1」表，`terra_vision_free`／`rule` 多數決；E3 報告 §1 也引用）。0.957 對 0.523 是主準則 | 填數字時要寫明是哪個準則 |
 | README | 最後修改 2026-11-22，狀態段是 11-20 | 沒有 E3、E5 結論，W3／E3 的「下一步」過時，中英文都要改 |
 
 ### 3.4 8785 demo
@@ -72,13 +72,13 @@ E5 已結束並合併；Codex 的 demo 與 LIVE PR 都已合併。離驗收還�
 | #93 的 pin 列連結寫成 #702 | 應為 #700 | 下次同步改 |
 
 ### 3.6 Codex 與 Argon
-- **Codex-W**：gate 第三次（#700）。**Codex-L**：#710。其他：#680、#699、#704 的 issue 狀態待核對。
+- **Codex-W**：gate 第三次（#700）。**Codex-L**：#710。其他：#699（#701 已合併）、#704（#702 已合併，仍 needs-claude-review）、#680 仍 OPEN，#612／#594 仍帶 needs-claude-review，標籤待更新。
 - **Argon**：#479。
 
 ## 4. 資料要一次補齊嗎（協調者建議，使用者還沒決定）
 
 E5 數字已凍結，不會因 gate 或 #710 改變。所以分兩批：
-1. **現在**：先查 F1 出處、把 AO-L 補進數字總表，再由總表一次填論文、海報、簡報。
+1. **現在**：把 AO-L 補進數字總表（F1 的兩個準則寫清楚），再由總表一次填論文、海報、簡報。
 2. **gate 與 #710 定案後**：只補截圖、Demo 錄影、最後的 pin SHA 和 README 的 demo 段。
 
 `main` 每次合併就更新；8785 實際跑的是 pin。README 建議在論文數字定稿後開一個文件 PR。
@@ -114,4 +114,4 @@ E5 數字已凍結，不會因 gate 或 #710 改變。所以分兩批：
 | `local/evidence/gate-pin-20261124/` | gate 第二次；RESULT SHA-256 `693f7642e7541839dffc5ea43772238b1c84687e97002f7f202d7c76b053c365` |
 | `local/evidence/shots-demo-fixes-20261124/service/` | #709 服務畫面 3 張；雜湊在同資料夾 `SHA256SUMS`；可重拍 |
 | `local/evidence/shots-705-20261124/`、`local/evidence/shots-623-20261124/` | 截圖；雜湊在各自的 `SHA256SUMS`；可重拍 |
-| `local/evidence/presentation-pack-20261123/deliverable/` | 海報與簡報；README SHA-256 `9e731177cc361aa765910410b2d402a1aea90a63fb67b9fadbaadc9e322e8f55`（20261123c 記錄，本次未重算） |
+| `local/evidence/presentation-pack-20261123/deliverable/` | 海報與簡報；README SHA-256 `9e731177cc361aa765910410b2d402a1aea90a63fb67b9fadbaadc9e322e8f55`（2026-11-24 審查時重算相符） |
