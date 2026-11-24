@@ -1,0 +1,503 @@
+{
+  "scope": "20-rule-functional-questions; Q3 API then Q1 search or Q2 seed retrieval",
+  "scene_id": "controlled-l-corridor",
+  "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1",
+  "index_sha256": "1a6bfa206a1bb3b5c67e7f8dd9aabf1675bee70145b89772854f0dc83a7d55b1",
+  "clock_sha256": "885a051e370f5a318717c74a1e943d87832f8a97bc4e3165b2d0425da3943fac",
+  "parameter_sha256": "1c72d5825ab3619ad780106b25564429d08899051574ecb6fbac0a0246255d71",
+  "gt_read": false,
+  "questions": [
+    {
+      "id": 1,
+      "text": "找人",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": null,
+      "camera_ids": null,
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {
+          "CAM_EXT_CAR": [
+            [
+              27400000,
+              27800000
+            ]
+          ],
+          "CAM_EXT_CLEAR": [
+            [
+              5800000,
+              9000000
+            ],
+            [
+              28200000,
+              37000000
+            ]
+          ],
+          "CAM_W1": [
+            [
+              10200000,
+              10400000
+            ],
+            [
+              14800000,
+              15000000
+            ],
+            [
+              15400000,
+              17800000
+            ],
+            [
+              18200000,
+              21000000
+            ],
+            [
+              21400000,
+              22200000
+            ],
+            [
+              22600000,
+              22800000
+            ],
+            [
+              27400000,
+              27600000
+            ],
+            [
+              38200000,
+              38400000
+            ]
+          ]
+        },
+        "candidate_count": 93,
+        "candidate_keys_sha256": "a927e2e74dc91dce42f4a06ed0320dfb935608bc0e830dc14ba53347e5fe58be",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 2,
+      "text": "查詢紅衣人",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": "red",
+      "camera_ids": null,
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {
+          "CAM_EXT_CAR": [
+            [
+              27400000,
+              27800000
+            ]
+          ],
+          "CAM_EXT_CLEAR": [
+            [
+              5800000,
+              9000000
+            ],
+            [
+              28200000,
+              37000000
+            ]
+          ],
+          "CAM_W1": [
+            [
+              14800000,
+              15000000
+            ],
+            [
+              15400000,
+              17800000
+            ],
+            [
+              18200000,
+              21000000
+            ],
+            [
+              21400000,
+              22200000
+            ],
+            [
+              22600000,
+              22800000
+            ],
+            [
+              27400000,
+              27600000
+            ]
+          ]
+        },
+        "candidate_count": 91,
+        "candidate_keys_sha256": "62868b98e3d3f0307a36be63b10e7f9a32694cb87c636d29827584d2f57e5c89",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 3,
+      "text": "查詢藍衣人",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": "blue",
+      "camera_ids": null,
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {},
+        "candidate_count": 0,
+        "candidate_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 4,
+      "text": "找人CAM_W2",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": null,
+      "camera_ids": [
+        "CAM_W2"
+      ],
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {},
+        "candidate_count": 0,
+        "candidate_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 5,
+      "text": "找紅衣人CAM_W2",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": "red",
+      "camera_ids": [
+        "CAM_W2"
+      ],
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {},
+        "candidate_count": 0,
+        "candidate_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 6,
+      "text": "找人CAM_EXT_CAR",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": null,
+      "camera_ids": [
+        "CAM_EXT_CAR"
+      ],
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {
+          "CAM_EXT_CAR": [
+            [
+              27400000,
+              27800000
+            ]
+          ]
+        },
+        "candidate_count": 2,
+        "candidate_keys_sha256": "7b123cc41b3ee3dccc2dc3327ddd3cf1f651186361de882c1db6a35a88488bf1",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 7,
+      "text": "找車",
+      "expected_status": "PARSED",
+      "class_label": "car",
+      "color": null,
+      "camera_ids": null,
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {},
+        "candidate_count": 0,
+        "candidate_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 8,
+      "text": "找車CAM_W2",
+      "expected_status": "PARSED",
+      "class_label": "car",
+      "color": null,
+      "camera_ids": [
+        "CAM_W2"
+      ],
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {},
+        "candidate_count": 0,
+        "candidate_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 9,
+      "text": "追蹤人",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": null,
+      "camera_ids": null,
+      "intent": "Q2",
+      "expected_retrieval": {
+        "camera_time_segments_us": {
+          "CAM_EXT_CAR": [
+            [
+              27400000,
+              27800000
+            ]
+          ],
+          "CAM_EXT_CLEAR": [
+            [
+              5800000,
+              9000000
+            ],
+            [
+              28200000,
+              37000000
+            ]
+          ],
+          "CAM_W1": [
+            [
+              10200000,
+              10400000
+            ],
+            [
+              14800000,
+              15000000
+            ],
+            [
+              15400000,
+              17800000
+            ],
+            [
+              18200000,
+              21000000
+            ],
+            [
+              21400000,
+              22200000
+            ],
+            [
+              22600000,
+              22800000
+            ],
+            [
+              27400000,
+              27600000
+            ],
+            [
+              38200000,
+              38400000
+            ]
+          ]
+        },
+        "candidate_count": 93,
+        "candidate_keys_sha256": "a927e2e74dc91dce42f4a06ed0320dfb935608bc0e830dc14ba53347e5fe58be",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 10,
+      "text": "跟著紅衣人",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": "red",
+      "camera_ids": null,
+      "intent": "Q2",
+      "expected_retrieval": {
+        "camera_time_segments_us": {
+          "CAM_EXT_CAR": [
+            [
+              27400000,
+              27800000
+            ]
+          ],
+          "CAM_EXT_CLEAR": [
+            [
+              5800000,
+              9000000
+            ],
+            [
+              28200000,
+              37000000
+            ]
+          ],
+          "CAM_W1": [
+            [
+              14800000,
+              15000000
+            ],
+            [
+              15400000,
+              17800000
+            ],
+            [
+              18200000,
+              21000000
+            ],
+            [
+              21400000,
+              22200000
+            ],
+            [
+              22600000,
+              22800000
+            ],
+            [
+              27400000,
+              27600000
+            ]
+          ]
+        },
+        "candidate_count": 91,
+        "candidate_keys_sha256": "62868b98e3d3f0307a36be63b10e7f9a32694cb87c636d29827584d2f57e5c89",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 11,
+      "text": "跟著藍衣人",
+      "expected_status": "PARSED",
+      "class_label": "person",
+      "color": "blue",
+      "camera_ids": null,
+      "intent": "Q2",
+      "expected_retrieval": {
+        "camera_time_segments_us": {},
+        "candidate_count": 0,
+        "candidate_keys_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 12,
+      "text": "找自行車",
+      "expected_status": "PARSED",
+      "class_label": "bicycle",
+      "color": null,
+      "camera_ids": null,
+      "intent": "Q1",
+      "expected_retrieval": {
+        "camera_time_segments_us": {
+          "CAM_EXT_CLEAR": [
+            [
+              29000000,
+              36000000
+            ]
+          ],
+          "CAM_W1": [
+            [
+              16800000,
+              17000000
+            ]
+          ]
+        },
+        "candidate_count": 36,
+        "candidate_keys_sha256": "43db3eec5c75ef62ff86aa0f76f40ce558a01615587cd00b6d7eb617431db05f",
+        "query_min_score": 0.4,
+        "min_verdict": "STRONG",
+        "segment_merge_gap_us": 200000
+      }
+    },
+    {
+      "id": 13,
+      "text": "找他",
+      "expected_status": "NEEDS_CLARIFICATION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 14,
+      "text": "找紅或藍衣人",
+      "expected_status": "NEEDS_CLARIFICATION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 15,
+      "text": "不要紅衣人",
+      "expected_status": "NEEDS_CLARIFICATION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 16,
+      "text": "沒有人的鏡頭",
+      "expected_status": "NEEDS_CLARIFICATION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 17,
+      "text": "戴眼鏡的人",
+      "expected_status": "UNSUPPORTED_CONDITION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 18,
+      "text": "追蹤車",
+      "expected_status": "UNSUPPORTED_CONDITION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 19,
+      "text": "追蹤人CAM_W2",
+      "expected_status": "UNSUPPORTED_CONDITION",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    },
+    {
+      "id": 20,
+      "text": "人13:00:10到13:00:00",
+      "expected_status": "TIME_EXPRESSION_INVALID",
+      "class_label": null,
+      "color": null,
+      "camera_ids": null,
+      "intent": null
+    }
+  ]
+}
