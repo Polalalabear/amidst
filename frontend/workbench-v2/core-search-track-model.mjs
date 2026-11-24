@@ -765,6 +765,8 @@ export function projectTopdown(topdown, cameraPositions, activeCameraId = null, 
     est_xy: ok ? estimate.est_xy : 'UNKNOWN',
     uncertainty_m: ok && Number.isFinite(estimate.uncertainty_m) && estimate.uncertainty_m >= 0 ? estimate.uncertainty_m : 'UNKNOWN',
     estimate: ok ? estimate : null,
+    // display_estimate present but UNKNOWN: carry its reason code (raw string) for the UI; absent field -> null (older backend).
+    estimate_reason: !ok && estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && typeof estimate.reason === 'string' && estimate.reason ? estimate.reason : null,
   };
   const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId);
   return { ...base, ...est };
