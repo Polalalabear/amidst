@@ -37,6 +37,9 @@ jobs:
       - name: Install Python deps from uv.lock
         run: uv sync --frozen --all-groups --python "$(tr -d '[:space:]' < .python-version)"
 
+      - name: Install live-mode Node deps (three; lockfile, no scripts)
+        run: npm ci --prefix frontend/live-mode --ignore-scripts --no-audit --no-fund
+
       - name: Run checks
         shell: bash
         run: |
@@ -52,9 +55,13 @@ jobs:
           AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs > "$OUT/node.log" 2>&1
           n=$?; [ $n -ne 0 ] && fail=1
 
+          # LIVE node tests (#711). Browser tests skip unless LIVE_AB_BROWSER=1; N6 tests skip without LOCAL assets (explicit skip in the test files).
+          AMIDST_REQUIRE_IMPL=1 node --test frontend/live-mode/test/*.test.mjs > "$OUT/node_live.log" 2>&1
+          nl=$?; [ $nl -ne 0 ] && fail=1
+
           DESEL=()
           while IFS= read -r id; do DESEL+=(--deselect "$id"); done < <(grep -v '^#' .github/ci-linux-deselect.txt | grep -v '^$')
-          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations tests/unit/test_paths.py "${DESEL[@]}" -rfs --tb=short > "$OUT/pytest.log" 2>&1
+          .venv/bin/pytest tests/q1q5 tests/evaluation tests/operations tests/unit/test_paths.py tests/live_mode "${DESEL[@]}" -rfs --tb=short > "$OUT/pytest.log" 2>&1
           p=$?; [ $p -ne 0 ] && fail=1
 
           git diff --check "$BASE"...HEAD > "$OUT/diffcheck.log" 2>&1
@@ -67,10 +74,14 @@ jobs:
           node_pass=$(grep -E '^ℹ pass ' "$OUT/node.log" | awk '{print $3}')
           node_fail=$(grep -E '^ℹ fail ' "$OUT/node.log" | awk '{print $3}')
           node_skip=$(grep -E '^ℹ skipped ' "$OUT/node.log" | awk '{print $3}')
+          nl_pass=$(grep -E '^ℹ pass ' "$OUT/node_live.log" | awk '{print $3}')
+          nl_fail=$(grep -E '^ℹ fail ' "$OUT/node_live.log" | awk '{print $3}')
+          nl_skip=$(grep -E '^ℹ skipped ' "$OUT/node_live.log" | awk '{print $3}')
           py_line=$(tail -n 1 "$OUT/pytest.log")
           guard_status=$(.venv/bin/python -c 'import json,sys; r=json.load(open(sys.argv[1])); print(r["status"], {k: v["status"] for k, v in r["checks"].items()})' "$OUT/guard.log" 2>/dev/null || echo UNKNOWN)
           [ $g -eq 0 ] && G=PASS || G=FAIL
           [ $n -eq 0 ] && N=PASS || N=FAIL
+          [ $nl -eq 0 ] && NL=PASS || NL=FAIL
           [ $p -eq 0 ] && P=PASS || P=FAIL
           [ $d -eq 0 ] && D=PASS || D=FAIL
 
@@ -83,7 +94,8 @@ jobs:
             echo "| --- | --- | --- |"
             echo "| architecture guard | $G | $guard_status |"
             echo "| node --test (workbench-v2, event-viewer) | $N | pass ${node_pass:-?} / fail ${node_fail:-?} / skipped ${node_skip:-?} |"
-            echo "| pytest tests/q1q5 tests/evaluation tests/operations tests/unit/test_paths.py | $P | $py_line |"
+            echo "| node --test (frontend/live-mode) | $NL | pass ${nl_pass:-?} / fail ${nl_fail:-?} / skipped ${nl_skip:-?} |"
+            echo "| pytest tests/q1q5 tests/evaluation tests/operations tests/unit/test_paths.py tests/live_mode | $P | $py_line |"
             echo "| git diff --check | $D | exit $d |"
             echo "| LOCAL path + SHA refs (warning only) | WARN-ONLY | $(tail -n 1 "$OUT/localrefs.log") |"
             echo
@@ -99,6 +111,6 @@ jobs:
             echo "</details>"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          for f in guard node pytest diffcheck localrefs; do echo "::group::$f"; tail -n 60 "$OUT/$f.log"; echo "::endgroup::"; done
+          for f in guard node node_live pytest diffcheck localrefs; do echo "::group::$f"; tail -n 60 "$OUT/$f.log"; echo "::endgroup::"; done
           grep -E '^FAILED' "$OUT/pytest.log" | head -60
           exit $fail
