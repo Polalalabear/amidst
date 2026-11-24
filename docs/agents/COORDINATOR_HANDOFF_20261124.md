@@ -51,8 +51,6 @@ E5 已結束並合併；Codex 的 demo 與 LIVE PR 都已合併。離驗收還�
 | 海報、簡報 | 版面完成，待填清單在 `local/evidence/presentation-pack-20261123/deliverable/README.md` 的「待填項目」 | **還沒派人**；封面的姓名、老師、系所要使用者提供；pptx 沒在 PowerPoint／Keynote 開過 |
 | 數字總表 `docs/evaluation/E5_NUMBERS_TABLE_20261124.md` | AO 已收 | AO-L 未收 |
 | 簡報的「F1 0.887 對 0.518」 | 沒有追到出處；和 W1 的 0.957 對 0.523 不同 | **填數字前先查出處**，查不到寫 UNKNOWN |
-
-> 更正（2026-11-24，#659）：「F1 0.887 對 0.518」的出處已查到：`docs/evaluation/E3_SCORER_RECOMPUTE_20261122.md`「W1 整體（422 格）F1」表第 88、84 行（terra_vision_free 對 rule，新 IoU 準則、K=3 多數決）；它是 **IoU 準則**，沒有重算區間。主準則是 0.957 對 0.523，差 +0.433 [0.324, 0.566]（`docs/evaluation/W1_FRAME_EVAL_20261120.md` §3b）。兩者不是矛盾，是兩個準則；論文以主準則為主結果。
 | README | 最後修改 2026-11-22，狀態段是 11-20 | 沒有 E3、E5 結論，W3／E3 的「下一步」過時，中英文都要改 |
 
 ### 3.4 8785 demo
