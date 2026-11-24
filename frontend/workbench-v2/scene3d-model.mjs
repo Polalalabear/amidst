@@ -7,11 +7,25 @@ import { hasForbiddenKeys } from './topdown-model.mjs';
 
 export const SCENE3D_UNKNOWN = 'UNKNOWN';
 export const SCENE3D_LEGEND = Object.freeze({
-  estimateUnknown: '估計位置 UNKNOWN（預錄模式尚無系統估計來源）',
+  estimateAbsent: '沒有系統估計',
   noWalls: '不確定範圍為圓形，未考慮牆（UNKNOWN：可達區域資料缺少）',
   clipped: '不確定範圍已依牆線裁切（可達區域資料）',
   frustum: '視野錐長度僅為示意，不是實際可見範圍',
 });
+
+// Reason codes of display_estimate (docs/contracts/Q_CORE_SEARCH_TRACK_V1.md, 相容新增：display_estimate). Unknown codes are shown raw.
+export const ESTIMATE_REASON_TEXT = Object.freeze({
+  CALIBRATION_MISSING: '無對應校正，無法估計位置',
+  NO_PROJECTABLE_SELECTED_OBSERVATION: '目前時間點之前沒有被選中的觀測，無法估計位置',
+  AMBIGUOUS_SELECTED_OBSERVATIONS: '最新時間點有多個可投影的已選觀測，無法決定唯一位置',
+  FOOT_TRUNCATED_AT_FRAME_BOTTOM: '腳點被畫面底邊截斷，無法估計位置',
+  GROUND_PROJECTION_UNDEFINED: '地面投影無定義（框座標或投影結果不是有限數），無法估計位置',
+});
+export function estimateUnknownText(reason) {
+  if (reason == null || reason === 'ESTIMATE_SOURCE_MISSING') return SCENE3D_LEGEND.estimateAbsent;
+  const text = Object.hasOwn(ESTIMATE_REASON_TEXT, reason) ? ESTIMATE_REASON_TEXT[reason] : null;
+  return text ? `估計位置 UNKNOWN：${text}（${reason}）` : `估計位置 UNKNOWN（${reason}）`;
+}
 
 const isPair = v => Array.isArray(v) && v.length === 2 && v.every(Number.isFinite);
 const round = (n, d = 4) => Math.round(n * 10 ** d) / 10 ** d;
@@ -96,7 +110,11 @@ export function buildScene3dModel({ view = null, cameraAsset = null, estimate = 
   const currentTUs = Number.isFinite(view?.currentTUs) ? view.currentTUs : 0;
   const kind = single.segmentKind ?? SCENE3D_UNKNOWN;
   const { switches, blind } = readTransitions(single.transitions, currentTUs);
-  const est = readEstimate(estimate ?? view?.topdown?.estimate ?? null, currentTUs);
+  const topdownReason = view?.topdown?.estimate_reason;
+  const raw = estimate ?? view?.topdown?.estimate ?? null;
+  const est = raw == null && typeof topdownReason === 'string' && topdownReason
+    ? { status: SCENE3D_UNKNOWN, reason: topdownReason, xy: null, uncertaintyM: null, track: [], wallSegments: [] }
+    : readEstimate(raw, currentTUs);
   const cameras = buildCameraModels(cameraAsset?.cameras, {
     activeCameraId: single.activeCameraId ?? null,
     gapCameraId: kind === 'GAP' ? single.lastObservedCameraId ?? null : null,
@@ -105,7 +123,7 @@ export function buildScene3dModel({ view = null, cameraAsset = null, estimate = 
   const lastSwitch = switches.at(-1) ?? null;
   const clipped = est.status === 'INFERRED' && est.wallSegments.length > 0 && Number.isFinite(est.uncertaintyM);
   const legend = [SCENE3D_LEGEND.frustum];
-  if (est.status === SCENE3D_UNKNOWN) legend.push(SCENE3D_LEGEND.estimateUnknown);
+  if (est.status === SCENE3D_UNKNOWN) legend.push(estimateUnknownText(est.reason));
   else legend.push(clipped ? SCENE3D_LEGEND.clipped : SCENE3D_LEGEND.noWalls);
   return {
     available: cameras.length > 0,

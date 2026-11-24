@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildScene3dModel, buildCameraModels, clipUncertaintyFan, readEstimate, readTransitions, cameraGroundXy } from './scene3d-model.mjs';
+import { projectTopdown } from './core-search-track-model.mjs';
+import { buildScene3dModel, estimateUnknownText, ESTIMATE_REASON_TEXT, buildCameraModels, clipUncertaintyFan, readEstimate, readTransitions, cameraGroundXy } from './scene3d-model.mjs';
 
 const mat = (x, y, z) => [[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]];
 const asset = {
@@ -27,7 +28,7 @@ test('no estimate: UNKNOWN, no human/trail, legend says so; active frustum only'
   const m = buildScene3dModel({ view: view('ON_CAMERA', 'CAM_A', 5e6), cameraAsset: asset });
   assert.equal(m.estimate.status, 'UNKNOWN'); assert.equal(m.estimate.xy, null); assert.deepEqual(m.estimate.trail, []);
   assert.deepEqual(m.estimate.uncertaintyFan, []);
-  assert.ok(m.legend.some(l => l.includes('估計位置 UNKNOWN')));
+  assert.ok(m.legend.some(l => l === '沒有系統估計'));
   assert.equal(m.cameras.filter(c => c.isActive).length, 1); assert.equal(m.switchMarker, null);
 });
 
@@ -74,4 +75,35 @@ test('isolation: GT-like keys reject the estimate; output never carries GT field
   const text = JSON.stringify(m).toLowerCase();
   for (const word of [GT, REND, VIS, DEP, ['gt', '_position'].join('')]) assert.ok(!text.includes(word), word);
   assert.equal(m.estimate.xy, null);
+});
+
+const REASONS = ['CALIBRATION_MISSING', 'NO_PROJECTABLE_SELECTED_OBSERVATION', 'AMBIGUOUS_SELECTED_OBSERVATIONS', 'FOOT_TRUNCATED_AT_FRAME_BOTTOM', 'GROUND_PROJECTION_UNDEFINED'];
+const unknownView = reason => ({ ...view('ON_CAMERA', 'CAM_A', 5e6), topdown: projectTopdown({}, {}, 'CAM_A', { schema_version: 'q-core.display-estimate.v1', est_xy: 'UNKNOWN', uncertainty_m: 'UNKNOWN', reason }) });
+
+test('display_estimate UNKNOWN: each contract reason code gets its own Chinese text plus the code', () => {
+  assert.deepEqual(Object.keys(ESTIMATE_REASON_TEXT).sort(), [...REASONS].sort());
+  const seen = new Set();
+  for (const r of REASONS) {
+    const m = buildScene3dModel({ view: unknownView(r), cameraAsset: asset });
+    assert.equal(m.estimate.status, 'UNKNOWN'); assert.equal(m.estimate.reason, r); assert.equal(m.estimate.xy, null);
+    const line = m.legend.find(l => l.startsWith('估計位置 UNKNOWN'));
+    assert.ok(line && line.includes(`（${r}）`) && line.includes(ESTIMATE_REASON_TEXT[r]), r);
+    assert.ok(!m.legend.some(l => l.includes('預錄模式尚無系統估計來源')));
+    seen.add(line);
+  }
+  assert.equal(seen.size, REASONS.length);
+});
+
+test('display_estimate UNKNOWN: unknown reason code shown raw, no guessed meaning', () => {
+  const m = buildScene3dModel({ view: unknownView('SOMETHING_NEW'), cameraAsset: asset });
+  assert.ok(m.legend.includes('估計位置 UNKNOWN（SOMETHING_NEW）'));
+  assert.equal(estimateUnknownText('SOMETHING_NEW'), '估計位置 UNKNOWN（SOMETHING_NEW）');
+});
+
+test('display_estimate field absent (older backend): 沒有系統估計; UNKNOWN object without reason is not "absent"', () => {
+  const m = buildScene3dModel({ view: { ...view('ON_CAMERA', 'CAM_A', 5e6), topdown: projectTopdown({}, {}, 'CAM_A', null) }, cameraAsset: asset });
+  assert.ok(m.legend.includes('沒有系統估計'));
+  const noReason = projectTopdown({}, {}, 'CAM_A', { est_xy: 'UNKNOWN' });
+  assert.equal(noReason.estimate_reason, null);
+  assert.equal(projectTopdown({}, {}, 'CAM_A', null).estimate_reason, null);
 });
