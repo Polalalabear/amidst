@@ -80,13 +80,13 @@
 
 | 實驗／假設 | 條件與比較 | 正式判定 | 主要結果 |
 | --- | --- | --- | --- |
-| **W1**（H5 逐格辨識） | r004 兩事件 422 格，Blender 960×540，單一目標 | 有條件成立（探索性） | 主準則 F1 0.957 對規則 0.523（差 +0.433 [0.324, 0.566]）；目標不在畫面外時「不在」答對率 0.89 對 0.95（[W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)） |
+| **W1**（H5 逐格辨識） | r004 兩事件 422 格分層樣本，Blender 960×540，單一目標 | 有條件成立 | 主準則 F1 0.957 對規則 0.523（差 +0.433 [0.324, 0.566]）；目標不在畫面時（`neg_absent`，63 格）答對率 0.89 對 0.95（[W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)） |
 | **E3**（H1／H2／H4，依附規則整合） | 16 段 LIVE 困難劇本（68 點，320×180、5 Hz），A1／A2 vs B1／B2 | **H1、H2、H4 不成立**；H3 只做描述；H5 本次未判定 | 錯人秒差 A2 − B1 = +129.8 s [36.2, 218.5]，A1 − B1 = +145.1 s [58.7, 233.7]；H4 A2 top-1 3/111；A3（模擬即時，9 段 38 點）探索性（[E3 報告](docs/operations/F4_E3_REPORT_658.md)） |
 | **E5**（H8a–H8d，完全開放 A-open） | 同 16 段困難劇本，離線 AO（K=3）與模擬即時 AO-L（K=1）vs B1 | **H8a、H8b、H8d（K=1）不成立**；**H8c 無法判斷** | H8a 錯人秒差 +129.1 s [55.2, 193.1]、McNemar p = 0.019；H8b 盲區誤鎖秒差 +65.5 s [39.7, 91.3]；H8c top-1 差 +0.009 [−0.157, +0.172]；H8d（K=1）跟對率差 −0.511 [−0.617, −0.420]（[E5 報告](docs/operations/E5_REPORT_20261123.md)） |
 | **H6**（規則／Agent 切換） | 統一介面與 ApiGuard（G7 已修 `4f665d55`） | 部分完成 | 統一介面已有；8785 開關、查找獨立驗收（#720）進行中 |
 
 - **結論範圍**：E3 與 E5 顯示，**這兩種整合在外觀相似或目標不在時會認錯人**；結論僅限於各自的整合設計與 E3 這 16 段合成劇本，不主張「看圖 Agent 普遍較差或較好」，也不外推到真實影像。
-- **下一步（D377／E6 計畫）**：在不改 E3／E5 原判定的前提下，先完成零付費第 1 批（#717 16 段逐事件答案表與 R-N 中性底座對照、#718 E6 預先登記草稿與 12 段獨立新劇本規格、#719 論文與 README 收尾、#720 零付費 Q1–Q3 小驗收），待審查合併後再推進去錨定／結構化歷史／摘要實作與新劇本驗證（#721）。Demo 區段與截圖待下次換 pin 後再補。
+- **下一步（D377／E6 計畫）**：在不改 E3／E5 原判定的前提下，先完成零付費第 1 批（#717 16 段逐事件答案表與 R-N 中性底座對照、#718 E6 預先登記草稿與 12 段新劇本規格——依家族合併後有效獨立單位須 ≥ 8，待 #718 凍結與錄製核對、#719 論文與 README 收尾、#720 零付費 Q1–Q3 小驗收），待審查合併後再推進去錨定／結構化歷史／摘要實作與新劇本驗證（#721）。Demo 區段與截圖待下次換 pin 後再補。
 
 ### 開發環境
 
@@ -200,13 +200,13 @@ Formal judged results only (see the [paper draft](docs/paper/F5_PAPER_DRAFT.md),
 
 | Experiment / Hypothesis | Scope & comparison | Formal verdict | Key numbers |
 | --- | --- | --- | --- |
-| **W1** (H5 recognition) | 422 stratified frames from r004 A4-1/B4-1 (Blender 960×540, single target) | Holds with conditions (exploratory) | Primary F1 0.957 vs rule 0.523 (diff +0.433 [0.324, 0.566]); absent-target accuracy 0.89 vs 0.95 ([W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)) |
-| **E3** (H1/H2/H4, rule-attached integration) | 16 LIVE hard scenarios (68 decision points, 320×180, 5 Hz), A1/A2 vs B1/B2 | **H1, H2, H4 refuted**; H3 descriptive only; H5 not evaluated | Wrong-person seconds diff A2 − B1 = +129.8 s [36.2, 218.5], A1 − B1 = +145.1 s [58.7, 233.7]; H4 A2 top-1 3/111; A3 (simulated real-time, 9 segments / 38 points) exploratory ([E3 report](docs/operations/F4_E3_REPORT_658.md)) |
-| **E5** (H8a–H8d, open A-open integration) | Same 16 hard scenarios, offline AO (K=3) and simulated real-time AO-L (K=1) vs B1 | **H8a, H8b, H8d (K=1) refuted**; **H8c inconclusive** | H8a wrong-person seconds diff +129.1 s [55.2, 193.1], McNemar p = 0.019; H8b blind-zone false-lock diff +65.5 s [39.7, 91.3]; H8c top-1 diff +0.009 [−0.157, +0.172]; H8d (K=1) correct-tracking diff −0.511 [−0.617, −0.420] ([E5 report](docs/operations/E5_REPORT_20261123.md)) |
+| **W1** (H5 recognition) | 422 stratified frames from two events r004 A4-1/B4-1 (Blender 960×540, single target) | Holds with conditions | Primary F1 0.957 vs rule 0.523 (diff +0.433 [0.324, 0.566]); absent-target accuracy (`neg_absent`, 63 frames) 0.89 vs 0.95 ([W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)) |
+| **E3** (H1/H2/H4, rule-attached integration) | 16 LIVE hard scenarios (68 decision points, 320×180, 5 Hz), A1/A2 vs B1/B2 | **H1, H2, H4 not supported**; H3 descriptive only; H5 not evaluated | Wrong-person seconds diff A2 − B1 = +129.8 s [36.2, 218.5], A1 − B1 = +145.1 s [58.7, 233.7]; H4 A2 top-1 3/111; A3 (simulated real-time, 9 segments / 38 points) exploratory ([E3 report](docs/operations/F4_E3_REPORT_658.md)) |
+| **E5** (H8a–H8d, open A-open integration) | Same 16 hard scenarios, offline AO (K=3) and simulated real-time AO-L (K=1) vs B1 | **H8a, H8b, H8d (K=1) not supported**; **H8c inconclusive** | H8a wrong-person seconds diff +129.1 s [55.2, 193.1], McNemar p = 0.019; H8b blind-zone false-lock diff +65.5 s [39.7, 91.3]; H8c top-1 diff +0.009 [−0.157, +0.172]; H8d (K=1) correct-tracking diff −0.511 [−0.617, −0.420] ([E5 report](docs/operations/E5_REPORT_20261123.md)) |
 | **H6** (rules/Agent switch) | Shared interface and ApiGuard (G7 fixed `4f665d55`) | Partly done | Shared interface in place; 8785 switch and standalone Q1–Q3 check (#720) in progress |
 
 - **Scope of conclusions:** E3 and E5 show that **these two integrations misidentify the target when a visually similar person is present or when the target is absent**. The verdicts apply only to these specific integration designs on the 16 synthetic E3 scenarios; they do not claim that vision Agents are generally worse or better than rules, nor do they extrapolate to real footage.
-- **Next (D377 / E6 plan):** Leaving the E3/E5 verdicts unchanged, Batch 1 zero-cost work covers event-by-event answer tables and an R-N neutral-tracker baseline (#717), E6 preregistration and a new 12-segment independent scenario specification (#718), paper and README wrap-up (#719), and a zero-cost Q1–Q3 functional check (#720), followed after review and merge by de-anchoring/history/summary implementation and new-scenario evaluation (#721). Demo section updates and screenshots wait for the next pin.
+- **Next (D377 / E6 plan):** Leaving the E3/E5 verdicts unchanged, Batch 1 zero-cost work covers event-by-event answer tables and an R-N neutral-tracker baseline (#717), E6 preregistration and a new 12-segment scenario specification (effective independent units after family merging must be ≥ 8, pending #718 freeze and recording verification), paper and README wrap-up (#719), and a zero-cost Q1–Q3 functional check (#720), followed after review and merge by de-anchoring/history/summary implementation and new-scenario evaluation (#721). Demo section updates and screenshots wait for the next pin.
 
 ### Development setup
 
