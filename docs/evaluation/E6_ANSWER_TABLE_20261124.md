@@ -1,8 +1,14 @@
 # E6 答案表與錯誤拆解：獨立重算（#717）
 
-狀態：Codex 已完成，待 Argon 互審、Claude 第 1 批審查。全部為舊 16 段的事後描述；
+狀態：Argon 互審 APPROVE，待 Claude 第 1 批審查；Draft、不合併。全部為舊 16 段的事後描述；
 不改 E3/E5 判定，不作固定決策點公平配對，不宣稱身分確認。模型呼叫 0、費用 USD 0。
 計畫：#722 head `c03b6b37aa784c6f11ace3a0b6d0776b19e72f3d`；D377。
+
+互審紀錄：[Argon APPROVE](https://github.com/Polalalabear/amidst/pull/723#issuecomment-7136524799)。
+受審程式 head 為 `aa84cabb8afd4970b181e3ebc1ddab1506c73013`；審查留言的完整 SHA
+有轉錄誤植，已[請求校正](https://github.com/Polalalabear/amidst/pull/723#issuecomment-7136706925)。
+Argon 只讀 GitHub 程式、契約與提交順序，沒有重現 LOCAL 數字、MANIFEST 或影像抽樣。
+本次續作只同步審查狀態，不修改程式、輸入、結果、判定或原驗證限制。
 
 ## 獨立重算與定義
 
