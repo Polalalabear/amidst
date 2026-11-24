@@ -6,10 +6,11 @@
 
 | 短名稱 | 顯示 | run_id / recording_id | 描述出處 |
 | --- | --- | --- | --- |
-| B-05 | B-05 · 8 秒工程場景 | `ENGINEERING_DYNAMIC_RUN_20261025`（P1 v4 包，LOCAL：`/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試/data/registry/catalog.json`） | 同包 `README.txt`：「8秒／20fps工程場景」；標題 `scripts/serve_demo_integration.py:149` |
+| B-05 | B-05 · 8 秒工程場景 | `ENGINEERING_DYNAMIC_RUN_20261025`（P1 v4 包，LOCAL：`local/data/demo-owned-v1/data/p1-v4/data/registry/catalog.json`，SHA-256 `10d1d6f6660309ff96442225b74a0fc1450e6cab2ef9c8f8ee27314484412e9d`） | 同包 `README.txt`：「8秒／20fps工程場景」；標題 `scripts/serve_demo_integration.py:149` |
 | A4-1 | A4-1 · 室外→入口→走廊 | `ctrl-lcorr-s1-a4-5fps-v1-r004-d124-v1` | `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md` §2「A4（室外 → 入口 → 走廊）」；run_id 見 `tests/q1q5/test_d149_scene_annotation.py:22`、`docs/engineering/R004_D124_RERENDER_RECEIPT.md` |
 | A4-1-8CAM | A4-1-8CAM · 4 人／8 鏡頭 | `r004-4actor-natural-walk-eightcam-20261114-a4-1` | D302 #594；#529 safe bundle 的 A4-1 run 描述 |
 | B4-1 | B4-1 · 走廊→轉角→R101 | `ctrl-lcorr-s1-b4-5fps-v1-r004-d124-v1` | 同上 §3「B4（走廊 → 轉角 → R101）」；run_id 見 `frontend/workbench-v2/ui-d147.test.mjs` 與 `R004_D124_RERENDER_RECEIPT.md` |
+| B4-1-8CAM | B4-1-8CAM · 4 人／8 鏡頭 | `r004-4actor-natural-walk-eightcam-20261114-b4-1` | D326 #594；#529 safe bundle 的 B4-1 run 描述；來源與 pin 見 `WORKBENCH_8CAM_D302_20261118.md` |
 | r005 | r005 · 六張靜態圖 | `r005-static-reviewed-v2` | `scripts/serve_demo_integration.py:196,231`（標題「六張靜態圖」） |
 | B-05（預錄切鏡） | B-05 · 預錄切鏡 | recording `2777741d96ac9aff5bffb2f61a4d2938` | `frontend/workbench-v2/event-menu.mjs`（`B05B_RECORDING_ID`、B-05b「預錄切鏡」） |
 | B-05 / A4-1 / B4-1（測試替身） | 只有短名稱 | `SYNTHETIC_B05` / `SYNTHETIC_A4_1` / `SYNTHETIC_B4_1` | `tests/browser/core-preview/preview-server.mjs:37`（合成預覽伺服器，非真實事件） |

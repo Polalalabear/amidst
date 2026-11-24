@@ -173,11 +173,13 @@ def _is_multi_run_clarification(bundle):
 
 class QAPI:
     def __init__(self,runs=(),*,max_responses,max_media_refs,recording_store=None,recordings=(),rgb_api=None,
-                 camera_maps=(),camera_display_positions=None,openai_prediction_adapter=None,nl_clients=None):
+                 camera_maps=(),camera_display_positions=None,openai_prediction_adapter=None,nl_clients=None,
+                 track_estimator=None):
         check(type(max_responses) is int and max_responses>0 and type(max_media_refs) is int and max_media_refs>0,'DataIntegrityError',409)
         self.runs={};self.rgb_api=rgb_api;self.max_responses=max_responses;self.max_media_refs=max_media_refs
         self.camera_maps={};self.camera_display_positions=deepcopy(camera_display_positions or {})
         self.openai_prediction_adapter=openai_prediction_adapter;self.nl_clients=nl_clients
+        self.track_estimator = track_estimator
         self.recording_store=recording_store;self.recordings={};self.responses={};self.media_refs={};self._frame_refs={};self._active={};self._jobs={};self._recorded_responses={};self._expired=OrderedDict();self._lock=threading.RLock()
         for run in runs:
             _validate_title(run.title,optional=True)
@@ -743,6 +745,9 @@ class QAPI:
                     response=execute_core_search(payload,run,media_token_for_frame=lambda frame:self._media_ref(payload['session_ref'],run,frame))
                 else:response=execute_core_track(payload,run,physical_prediction_available=True,display_positions=self.camera_display_positions.get((run.catalog['scene_id'],run.catalog['run_id']))or self.camera_display_positions.get(run.catalog['scene_id']))
             except CoreRequestError as exc:raise APIError(exc.code,422) from None
+            if action == 'q_core_track' and self.track_estimator is not None:
+                response['display_estimate'] = self.track_estimator(run, response)
+                response['output_sha256'] = canonical_hash(response, exclude=('output_sha256', 'stats'))
             self._save_response(payload['session_ref'],self._bundle(payload,response,run))
             return response
         raise APIError('FORBIDDEN_DATA_SCOPE',403)

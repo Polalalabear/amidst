@@ -381,3 +381,33 @@ from_track_ref、to_track_ref、transition_id（同鏡頭為 null）及 gap_us�
 ### F3（#657，D340）：追蹤請求的兩個選填欄位（2026-11-22）
 
 `q-core.track-request.v1` 加上選填的 `switch_mode` 與 `manual_seed`（§3.1；schema `$defs/trackRequest`）。兩者都可省略，省略時行為與原本相同，屬相容新增，`schema_version` 不變，也不新增 pin。驗收測試：`tests/q1q5/test_service_agent_track.py`（schema 與 `core_query.validate_track_request` 對同一組請求的接受／拒絕一致）。本節由 Claude 依 #666 Opus 裁決 M2 補上；契約歸 Codex，已通知。
+
+### 相容新增：`display_estimate`（#612／#623，2026-11-24）
+
+`q-core.track-response.v1` 選填 `display_estimate`，物件內的
+`schema_version` 為 `q-core.display-estimate.v1`；不改原回應的
+`schema_version`，不新增 pin。它與 §4.4 的 `blind.estimate` 是不同欄位。
+
+- **只供顯示**：由已選偵測框腳點與同 run／clock 的 hash-bound 校正投到 z=0。
+  在追蹤回應產生後才附加，**不回灌 Agent、排序或重建**；不讀 GT、renderer
+  軌跡、visibility 或 depth，不確認身分或實體通行性。
+- 有值時包含 `est_xy: [x,y]`（公尺）、`uncertainty_m`、`last_observed_us`、
+  `method`、`uncertainty_basis`、`max_speed_m_s`、`source_clock_id`、
+  `source_index_sha256`、`calibration_sha256`。`uncertainty_m` 是從最後可投影觀測
+  到目前 source clock，在速度上限下的**可達半徑，不是誤差界**；不含校正或框誤差。
+- 無法估計時 `est_xy` 與 `uncertainty_m` 都為 `UNKNOWN`，`reason` 限以下五種：
+
+| reason | 語意 |
+|---|---|
+| `CALIBRATION_MISSING` | 無對應校正 |
+| `NO_PROJECTABLE_SELECTED_OBSERVATION` | `as_of_us` 前完全沒有被選中的觀測 |
+| `AMBIGUOUS_SELECTED_OBSERVATIONS` | 最新時間點有多個可投影的已選觀測，無唯一點 |
+| `FOOT_TRUNCATED_AT_FRAME_BOTTOM` | 最新已選觀測框底在畫面底邊4 px內 |
+| `GROUND_PROJECTION_UNDEFINED` | 最新已選觀測bbox非有限數、地面投影無定義或投影結果非有限數 |
+
+最新時間點只要有任一無法投影的觀測，就回對應 `UNKNOWN`，不退回較早的點，
+也不只取同時的另一個有效點。截腳與投影無定義同時出現時，截腳原因優先。
+
+`display_estimate` 會算進 `output_sha256`（仍排除 `output_sha256`、`stats`）；
+附加後重算hash再保存。未配置顯示估計callback時不附加此欄位，原回應與hash不變。
+schema `$defs/trackResponse.properties.display_estimate` 為選填；省略仍有效。

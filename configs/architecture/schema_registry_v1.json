@@ -2459,6 +2459,16 @@
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
+      "value": "q-core.display-estimate.v1",
+      "source_paths": [
+        "scripts/demo_estimate.py",
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+        "docs/contracts/schemas/q-core.search-track.v1.schema.json"
+      ],
+      "issue_ref": "#612",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "q-core.blind-estimate.v1",
       "source_paths": [
         "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
