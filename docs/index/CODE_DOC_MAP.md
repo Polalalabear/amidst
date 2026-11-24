@@ -24,6 +24,13 @@
 | §4.3 付費護欄（`ApiGuard`）與接線 | `docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md`；AGENTS.md（#537、D339）；規格 §4.3、U-18 | `src/amidst/q1q5/api_budget.py`（`ApiGuard`、帳本 `AMIDST_API_USAGE_DIR`）；G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）：`scripts/agent_decision/run_provider.py`、`src/amidst/q1q5/openai_prediction.py`（`OpenAIPredictionAdapter`）每次嘗試都經 `ApiGuard.run`（#655；`docs/operations/PAID_API_G7_20261120.md`） |
 | 假設 H1–H6 評估（W1、先導、W2） | `docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md` §0；`W1_FRAME_EVAL_20261120.md`（預先登記 `W1_FRAME_EVAL_PREREG_20261120.md`）；`VISION_AGENT_RECORDED_20261120.md`；`W2_ACTIVE_AGENT_20261120.md` | `src/amidst/evaluation/frame_eval.py`、`vision_agent.py`、`gt_scoring_r004.py`（GT 只在評分端）；`scripts/run_frame_eval.py`、`frame_eval_score.py`、`run_vision_agent.py`、`vision_agent_report.py`、`run_w2_agent.py`、`capture_agent_payloads.py`；`tests/evaluation/test_frame_eval.py`、`test_vision_agent.py`、`tests/q1q5/test_capture_agent_payloads.py` |
 | E3 統一評分器與預先登記（F1 #660） | `docs/evaluation/E3_PREREGISTRATION_20261122.md`；`E3_SCORER_RECOMPUTE_20261122.md`（凍結結果重算對照） | `src/amidst/evaluation/e3_scoring.py`（純函式；GT 由評分端傳入）；`scripts/e3_recompute_frozen.py`（不花 API，重算 D325／先導／W1／W2）；`tests/evaluation/test_e3_scoring.py`（含推論端不 import `amidst.evaluation`） |
+| E3 劇本與重現點錄製（#652、#663、#665） | `docs/operations/E3_CASES_20261122.md`、`E3_REAPPEARANCES_20261122.md` | `scripts/evaluation/e3_cases/`；`tests/evaluation/test_e3_cases.py`、`test_e3_reappearances.py` |
+| E3 各組執行、評分與獨立重算（F4 #658、#683） | `docs/operations/F4_E3_REPORT_658.md`；`docs/evaluation/F4_INDEPENDENT_RECOMPUTE_20261123.md` | `scripts/evaluation/e3_f4_run.py`、`e3_f4_score.py`、`e3_f4_rerun_select.py`、`e3_f4_gt_spotcheck.py`；`scripts/verification/f4_independent_recompute.py` |
+| F2 牆面裁切鏡頭覆蓋（#656、#664） | `docs/operations/F2_LIVE_COVERAGE_20261122.md` | `src/amidst/q1q5/camera_projection.py`、`scripts/f2_validate_wall_projection.py`；`frontend/live-mode/src/coverage.mjs`（`coverage_map.mjs`、`coverage_overlay.mjs` 的對應文件 `UNKNOWN`） |
+| F3 Agent 接管 8785／LIVE（#657、#666、#686） | `docs/operations/F3_AGENT_TAKEOVER_657.md`；`CX_H6_8CAM_20261123.md` | `src/amidst/q1q5/service_agent_q5.py`、`service_agent_track.py`、`service_core_track.py`；`src/amidst/live_mode/service_decider.py` |
+| E5 完全開放 Agent（#684、#685、#694） | `docs/evaluation/E5_PREREGISTRATION_20261123.md`；契約 `docs/contracts/E5_AOPEN_INTERFACE_V1.md`；報告 `docs/operations/E5_REPORT_20261123.md`；`E5_NUMBERS_TABLE_20261124.md` | `src/amidst/live_mode/aopen/decider.py`、`neutral.py`；`scripts/evaluation/e5_run.py`、`e5_score.py`；`tests/live_mode/test_aopen_*.py`、`tests/evaluation/test_e5_*.py` |
+| E6 去錨定、上下文、R-N（D377，**尚無程式**） | `docs/evaluation/E6_PLAN_20261124.md`、`DESIGN_QA_20261124.md`；預登由 #718 交 | 待 #717、#721 |
+| ApiGuard 快取計價（#699、#701） | `docs/operations/APIGUARD_CACHE_20261124.md` | `src/amidst/q1q5/api_budget.py` |
 | §4.3 預錄 Agent 開關（OpenAI） | `docs/operations/RECORDED_AGENT_OPENAI.md`；D306、D313 | `src/amidst/q1q5/openai_gateway.py`、`api_budget.py`、`scene_graphs.py`；`frontend/workbench-v2/shell-view.mjs`；`start_agent_gateway.command`（#625 修正 scope 與 B-05 不適用；候選 0 見 #629） |
 | §4.3 規則 vs LLM（預錄） | `docs/evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md` | 分析結果在 LOCAL（見該文件） |
 | §4.4 LIVE 即時模式 | `LIVE_MODE_AB_V1.md`（v2.1）、`LIVE_MODE_GAME_DESIGN_V2.md`、`LIVE_MODE_LLM_DECISION_V1.md` | 前端 `frontend/live-mode/src/`；後端 `src/amidst/live_mode/`；`start_live_mode.command`（8791） |
@@ -46,6 +53,8 @@
 | `src/amidst/live_mode/server.py` | `LIVE_MODE_AB_V1.md` §5.3–§5.4（`/reset`、`session_id`、`reselect`） | 8791 |
 | `src/amidst/live_mode/tracker.py`、`candidates.py`、`people.py`、`color.py` | `LIVE_MODE_RELOCK_V1.md`；`LIVE_MODE_TRACKER_20261116.md`、`LIVE_MODE_PEOPLE_GROUPING_20261117.md` | 關聯 4 m（D244） |
 | `src/amidst/live_mode/detector.py`、`scheduler.py` | `LIVE_SCHEDULE_20261117.md`、`LIVE_DETECTION_SCHEDULE_D273_20261118.md` | |
+| LIVE Agent 接線與重新取得 R2 證據（#675、#676、#703） | `docs/operations/LIVE_AGENT_675_20261123.md`、`LIVE_AGENT_OFFLINE_20261124.md`、`LIVE_COLOR_GATE_676_20261123.md`、`LIVE_COLOR_GATE_EVIDENCE_20261124.md`、`LIVE_RELOCK_R2_PLAN_20261124.md`；契約 `docs/contracts/LIVE_TRACK_FIELDS_20261124.md` | 8791 未部署 |
+| LIVE 共用樣式（#633、#705） | `docs/operations/LIVE_SHARED_STYLE_633_20261124.md` | |
 | `src/amidst/live_mode/track_sentence.py` | `NL_QUERY_PARSE_V1.md`（B 句子接 Q3，D279） | |
 | `frontend/live-mode/test/`、`tests/operations/test_live_launcher.py`、`tests/evaluation/test_live_ab_score.py` | `LIVE_AB_HANDOFF_20261118.md`（測試指令） | |
 
