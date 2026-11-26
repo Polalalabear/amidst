@@ -1,4 +1,4 @@
-"""Focused unit tests for E7 Colab notebook, decider GT isolation, and acceleration comparison."""
+"""Focused unit tests for E7 Colab notebook, D385 answer-table compliance, decider GT isolation, and acceleration comparison."""
 from __future__ import annotations
 
 import ast
@@ -47,27 +47,69 @@ def test_notebook_json_validity_and_cell_structure():
     nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
     assert nb["nbformat"] == 4
     cells = nb["cells"]
-    assert len(cells) >= 8
+    assert len(cells) >= 9
 
-    # Cell 1 (index 1): centralized configuration
+    # Cell 1 (index 1): centralized configuration + real HF IDs (no PIN_* placeholders) + PINNED_DEPS comment
     cfg_src = "".join(cells[1]["source"])
-    for token in ("PACK_ROOT", "DATASET_SCOPE", "MODEL_CONFIGS", "CPU_SAMPLE_CAP", "PINNED_DEPS"):
+    for token in (
+        "PACK_ROOT",
+        "DATASET_SCOPE",
+        "MODEL_CONFIGS",
+        "CPU_SAMPLE_CAP",
+        "PINNED_DEPS",
+        "GIT_REPO_URL",
+        "PINNED_GIT_COMMIT",
+        "SMOKE_MODE",
+    ):
         assert token in cfg_src, f"Missing config token {token} in Cell 1"
+    assert "PIN_REVISION_BEFORE_RUN" not in cfg_src
+    assert "PIN_AUDITED_COMMIT_BEFORE_RUN" not in cfg_src
+    assert "pyproject.toml" in cfg_src, "PINNED_DEPS compatibility comment missing"
 
-    # Hardware provenance cell, MANIFEST SHA-256 verification cell, decider cell, scoring cell
     all_code = ["".join(c["source"]) for c in cells if c["cell_type"] == "code"]
+    drive_idx = next(i for i, s in enumerate(all_code) if "drive.mount" in s and "git" in s)
     hw_idx = next(i for i, s in enumerate(all_code) if "collect_hardware_provenance" in s)
     mf_idx = next(i for i, s in enumerate(all_code) if "verify_manifest_sha256" in s)
     dec_idx = next(i for i, s in enumerate(all_code) if "run_acceleration_comparison" in s)
     score_idx = next(i for i, s in enumerate(all_code) if "score_e7_comparison" in s)
 
-    assert hw_idx < mf_idx < dec_idx < score_idx, "Run All cell order violated"
+    assert drive_idx < hw_idx < mf_idx < dec_idx < score_idx, "Run All cell order violated"
+
+    # Cell 6 wires real HF backend builders + smoke mode
+    dec_src = all_code[dec_idx]
+    for fn_name in (
+        "build_qwen_vl_inference_fn",
+        "build_laya_text_inference_fn",
+        "build_diffusion_vlm_inference_fn",
+        "build_smoke_inference_fn",
+    ):
+        assert fn_name in dec_src, f"Cell 6 missing backend builder {fn_name}"
 
     # ONLY the scoring cell may reference answer_table.json
     for idx, src in enumerate(all_code):
         if idx != score_idx:
             assert "answer_table.json" not in src, f"Non-scoring code cell {idx} references answer_table.json"
     assert "answer_table.json" in all_code[score_idx]
+
+
+def test_notebook_cell7_hard_fails_on_missing_answer_table(tmp_path: Path):
+    """P2-3: Cell 7 MUST raise FileNotFoundError on missing answer_table.json (no silent {} fallback)."""
+    nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    cell7 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-7-scoring")
+    src = "".join(cell7["source"])
+    assert "FileNotFoundError" in src
+    assert "else {}" not in src
+
+    # Execute Cell 7 with an empty PACK_ROOT and assert FileNotFoundError is raised immediately
+    env = {
+        "PACK_ROOT": tmp_path,
+        "RAW_COMPARISONS": [],
+        "HARDWARE_PROVENANCE": {},
+        "MANIFEST_VERIFICATION": {},
+        "DATASET_SCOPE": "e3_16_segments",
+    }
+    with pytest.raises(FileNotFoundError, match="MISSING_ANSWER_TABLE"):
+        exec(compile(src, "e7-cell-7-scoring", "exec"), env)
 
 
 def test_decider_gt_isolation_ast_and_signature():
@@ -95,6 +137,9 @@ def test_decider_gt_isolation_ast_and_signature():
         E7.LayaTextDecider.__init__,
         E7.QwenVLDecider.__init__,
         E7.DiffusionVLMDecider.__init__,
+        E7.build_qwen_vl_inference_fn,
+        E7.build_laya_text_inference_fn,
+        E7.build_diffusion_vlm_inference_fn,
         E7.run_acceleration_comparison,
     ):
         params = set(inspect.signature(fn).parameters.keys())
@@ -118,7 +163,7 @@ def test_manifest_verification_stops_on_mismatch(tmp_path: Path):
         E7.verify_manifest_sha256(tmp_path)
 
 
-def test_laya_custom_code_audit_gate():
+def test_laya_and_diffusion_custom_code_audit_gate():
     reqs = _make_synthetic_requests()
     un_audited = E7.LayaTextDecider(
         custom_code_audited=False,
@@ -126,6 +171,12 @@ def test_laya_custom_code_audit_gate():
     )
     with pytest.raises(E7.CustomCodeAuditError):
         un_audited.decide(reqs[0], accelerated=True)
+
+    with pytest.raises(E7.CustomCodeAuditError):
+        E7.build_laya_text_inference_fn(custom_code_audited=False)
+
+    with pytest.raises(E7.CustomCodeAuditError):
+        E7.build_diffusion_vlm_inference_fn(custom_code_audited=False)
 
     audited = E7.LayaTextDecider(
         custom_code_audited=True,
@@ -136,6 +187,110 @@ def test_laya_custom_code_audit_gate():
     assert out["fallback_reason"] is None
     assert out["parsed"]["answer"] == "NOT_VISIBLE"
     assert out["retries_attempted"] == 0
+
+
+def test_d385_answer_table_rejects_forbidden_gt_fields():
+    """P1-1: Answer tables containing gt_visible, gt_boxes, actors, etc. MUST be hard-rejected."""
+    dec_rec = {
+        "request_id": "E3-A1|t0",
+        "parsed": {"answer": "SELECT", "camera_id": "CAM_EXT_CAR", "detection_id": "D1"},
+    }
+    for bad_key, bad_val in (
+        ("gt_visible", ["CAM_EXT_CAR"]),
+        ("gt_boxes", {"CAM_EXT_CAR": [18.0, 58.0, 52.0, 132.0]}),
+        ("actors", []),
+        ("depth", {}),
+        ("visibility", {}),
+        ("trajectories", []),
+        ("world_xy", [1.0, 2.0]),
+        ("gt_body_box", [1.0, 2.0, 3.0, 4.0]),
+    ):
+        entry = {
+            "expected_answer": "SELECT",
+            "expected_camera_ids": ["CAM_EXT_CAR"],
+            "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+            bad_key: bad_val,
+        }
+        with pytest.raises(ValueError, match="D385_FORBIDDEN_GT_FIELD"):
+            E7S.score_single_decision(dec_rec, entry)
+
+        with pytest.raises(ValueError, match="D385_FORBIDDEN_GT_FIELD"):
+            E7S.validate_colab_answer_table({"E3-A1|t0": entry})
+
+    # Top-level forbidden key also rejected
+    with pytest.raises(ValueError, match="D385_FORBIDDEN_GT_FIELD"):
+        E7S.validate_colab_answer_table({"gt_boxes": {}})
+
+
+def test_d385_label_only_scoring_and_own_box_needs_mac_scoring():
+    """P1-1: Label-only answer tables score SELECT, NOT_VISIBLE, UNCERTAIN, STILL_HERE_OCCLUDED and mark OWN_BOX."""
+    # SELECT hit & miss
+    entry_select = {
+        "request_id": "R1",
+        "expected_answer": "SELECT",
+        "expected_camera_ids": ["CAM_EXT_CAR"],
+        "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+    }
+    assert E7S.score_single_decision(
+        {"request_id": "R1", "parsed": {"answer": "SELECT", "camera_id": "CAM_EXT_CAR", "detection_id": "D1"}},
+        entry_select,
+    )["outcome"] == "CORRECT"
+    assert E7S.score_single_decision(
+        {"request_id": "R1", "parsed": {"answer": "SELECT", "camera_id": "CAM_EXT_CAR", "detection_id": "D2"}},
+        entry_select,
+    )["outcome"] == "WRONG_PERSON"
+
+    # OWN_BOX -> NEEDS_MAC_SCORING (not inflated as correct)
+    own_res = E7S.score_single_decision(
+        {"request_id": "R1", "parsed": {"answer": "OWN_BOX", "camera_id": "CAM_EXT_CAR", "box_xyxy": [10, 10, 40, 80]}},
+        entry_select,
+    )
+    assert own_res["outcome"] == "NEEDS_MAC_SCORING"
+    assert own_res["correct"] is False
+
+    # NOT_VISIBLE
+    entry_nv = {
+        "request_id": "R2",
+        "expected_answer": "NOT_VISIBLE",
+        "expected_camera_ids": [],
+        "expected_detection_ids": {},
+    }
+    assert E7S.score_single_decision({"request_id": "R2", "parsed": {"answer": "NOT_VISIBLE"}}, entry_nv) == {
+        "outcome": "BLIND_OK",
+        "correct": True,
+    }
+    assert E7S.score_single_decision(
+        {"request_id": "R2", "parsed": {"answer": "SELECT", "camera_id": "CAM_EXT_CAR", "detection_id": "D1"}},
+        entry_nv,
+    ) == {"outcome": "FALSE_LOCK", "correct": False}
+
+    # UNCERTAIN
+    entry_unc = {
+        "request_id": "R3",
+        "expected_answer": "UNCERTAIN",
+        "expected_camera_ids": [],
+        "expected_detection_ids": {},
+    }
+    assert E7S.score_single_decision({"request_id": "R3", "parsed": {"answer": "UNCERTAIN"}}, entry_unc) == {
+        "outcome": "CORRECT",
+        "correct": True,
+    }
+
+    # STILL_HERE_OCCLUDED
+    entry_occ = {
+        "request_id": "R4",
+        "expected_answer": "STILL_HERE_OCCLUDED",
+        "expected_camera_ids": ["CAM_ENTRY"],
+        "expected_detection_ids": {},
+    }
+    assert E7S.score_single_decision(
+        {"request_id": "R4", "parsed": {"answer": "STILL_HERE_OCCLUDED", "camera_id": "CAM_ENTRY"}},
+        entry_occ,
+    ) == {"outcome": "CORRECT", "correct": True}
+    assert E7S.score_single_decision(
+        {"request_id": "R4", "parsed": {"answer": "STILL_HERE_OCCLUDED", "camera_id": "CAM_EXT_CAR"}},
+        entry_occ,
+    ) == {"outcome": "WRONG_CAMERA", "correct": False}
 
 
 def test_acceleration_comparison_scopes_and_no_retry_inflation():
@@ -149,6 +304,15 @@ def test_acceleration_comparison_scopes_and_no_retry_inflation():
             return "NOT VALID JSON {{"
         if req.tick == 20 and not accelerated:
             return json.dumps({"answer": "NOT_VISIBLE", "next_camera_ranking": ["CAM_ENTRY"]})
+        if req.tick == 30 and accelerated:
+            return json.dumps(
+                {
+                    "answer": "OWN_BOX",
+                    "camera_id": "CAM_EXT_CAR",
+                    "box_xyxy": [20.0, 60.0, 50.0, 130.0],
+                    "next_camera_ranking": ["CAM_EXT_CAR"],
+                }
+            )
         return json.dumps(
             {
                 "answer": "SELECT",
@@ -194,16 +358,21 @@ def test_acceleration_comparison_scopes_and_no_retry_inflation():
     assert res_e6["unaccelerated"]["sample_size"] == 2
     assert res_e6["decision_agreement_vs_unaccelerated"] == 1.0
 
-    # 3. Scoring bridge ONLY reads answer table
+    # 3. Scoring bridge ONLY reads D385 label-only answer table (no gt_visible / gt_boxes!)
     answer_table = {
         r.request_id: {
-            "gt_visible": ["CAM_EXT_CAR"],
-            "gt_boxes": {"CAM_EXT_CAR": [18.0, 58.0, 52.0, 132.0]},
-            "candidate_boxes": {"CAM_EXT_CAR|D1": [20.0, 60.0, 50.0, 130.0]},
+            "request_id": r.request_id,
+            "case_id": r.case_id,
+            "tick": r.tick,
+            "expected_answer": "SELECT",
+            "expected_camera_ids": ["CAM_EXT_CAR"],
+            "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
         }
         for r in reqs
     }
     scored = E7S.score_e7_comparison(res_e3, answer_table)
     assert scored["accelerated"]["n_decision_points"] == 4
-    assert scored["accelerated"]["decision_point_accuracy"] == 0.75  # 3/4 correct (1 format fallback)
+    # tick 0: SELECT (correct), tick 10: FALLBACK, tick 20: SELECT (correct), tick 30: OWN_BOX (NEEDS_MAC_SCORING, not inflated)
+    assert scored["accelerated"]["needs_mac_scoring_count"] == 1
+    assert scored["accelerated"]["decision_point_accuracy"] == 0.5  # 2/4
     assert scored["unaccelerated"]["decision_point_accuracy"] == round(2 / 3, 4)

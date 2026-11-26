@@ -1,4 +1,4 @@
-"""Focused unit tests for AO-L zero-latency rescoring and Unified Analysis Generator."""
+"""Focused unit tests for AO-L zero-latency rescoring (including replay calibration & UNCERTAIN split) and Unified Analysis Generator."""
 from __future__ import annotations
 
 import importlib.util
@@ -24,11 +24,12 @@ UNIFIED = _load_script("generate_unified_analysis", "scripts/evaluation/generate
 
 
 def test_aol_zero_latency_rescoring_synthetic():
-    """Verify an EXPIRED AO-L call is recovered at ask_tick and is_approximation is True."""
+    """Verify EXPIRED recovery, UNCERTAIN no-op split, replay calibration, and is_approximation=True."""
     target_box = [20.0, 60.0, 50.0, 130.0]
     dets_by_tick = {t: {"CAM_EXT_CAR": [{"bbox": target_box, "score": 0.9}]} for t in range(10)}
 
-    # Actual AO-L: asked at tick 0, EXPIRED at tick 5 -> LOST on all 10 ticks
+    # Actual AO-L: call 1 asked at tick 0, EXPIRED at tick 5 -> LOST on all 10 ticks
+    # Call 2 asked at tick 2, UNCERTAIN (no-op), applied=True at applied_tick=3
     aol_doc = {
         "case_id": "SYNTH-1",
         "arm": "AOL",
@@ -44,6 +45,7 @@ def test_aol_zero_latency_rescoring_synthetic():
             {
                 "ask_tick": 0,
                 "tick": 5,
+                "applied_tick": 5,
                 "answer": "SELECT",
                 "camera_id": "CAM_EXT_CAR",
                 "detection_id": "D1",
@@ -57,15 +59,37 @@ def test_aol_zero_latency_rescoring_synthetic():
                         {"detection_id": "D1", "camera_id": "CAM_EXT_CAR", "box": target_box, "score": 0.9}
                     ]
                 },
-            }
+            },
+            {
+                "ask_tick": 2,
+                "tick": 3,
+                "applied_tick": 3,
+                "answer": "UNCERTAIN",
+                "camera_id": None,
+                "detection_id": None,
+                "box_xyxy": None,
+                "next_camera_ranking": [],
+                "applied": True,
+                "fallback_reason": None,
+                "latency_ms": 200,
+                "request": {"candidate_list": []},
+            },
         ],
     }
 
     zl_rows, stats = RESCORE.replay_zero_latency_rows(aol_doc, dets_by_tick, RESCORE._FallbackProjector())
-    assert stats["total_calls"] == 1
+    assert stats["total_calls"] == 2
     assert stats["actual_expired_calls"] == 1
+    assert stats["zero_latency_replayed_calls"] == 2
+    assert stats["zero_latency_actionable_calls"] == 1
+    assert stats["zero_latency_uncertain_noop_calls"] == 1
     assert stats["zero_latency_applied_calls"] == 1
     assert stats["recovered_from_expired"] == 1
+
+    cal_rows, cal_stats = RESCORE.replay_applied_tick_calibration(aol_doc, dets_by_tick, RESCORE._FallbackProjector())
+    assert cal_stats["applied_calls_input"] == 1
+    assert cal_stats["applied_calls_actionable"] == 0
+    assert cal_stats["applied_calls_uncertain_noop"] == 1
 
     # Scoring side only: GT a-log
     a_log = {
@@ -91,15 +115,19 @@ def test_aol_zero_latency_rescoring_synthetic():
         "family": "A",
         "decision_points": [{"tick": 0, "timestamp_us": 0, "type": "START"}],
     }
-    scored = RESCORE.score_zero_latency_case(case, a_log, aol_doc, zl_rows)
+    scored = RESCORE.score_zero_latency_case(case, a_log, aol_doc, zl_rows, calibration_rows=cal_rows)
     assert scored["actual_aol"]["follow_rate"] == 0.0
+    assert scored["replay_calibration_aol"]["follow_rate"] == 0.0
     assert scored["zero_latency_aol"]["follow_rate"] == 1.0
     assert scored["actual_aol"]["dp_correct"] == 0
     assert scored["zero_latency_aol"]["dp_correct"] == 1
 
-    summary = RESCORE._aggregate_cases([scored], stats)
+    summary = RESCORE._aggregate_cases([scored], stats, cal_totals=cal_stats)
     assert summary["delta_follow_rate"] == 1.0
-    assert summary["calls"]["actual_expired_rate"] == 1.0
+    assert summary["calls"]["actual_expired_rate"] == 0.5
+    assert summary["replay_calibration"]["recorded_aol_follow_rate"] == 0.0
+    assert summary["replay_calibration"]["replayed_applied_tick_follow_rate"] == 0.0
+    assert summary["replay_calibration"]["calibration_delta_follow_rate"] == 0.0
 
 
 def test_unified_analysis_schema_and_source_preservation(tmp_path: Path):

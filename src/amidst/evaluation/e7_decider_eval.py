@@ -1,7 +1,9 @@
 """E7 Local / Colab Decider Evaluation — Inference & Acceleration Comparison (GT-Isolated).
 
-Implements #727 / #731 D384-D387 decider adapters, MANIFEST SHA-256 verification,
-hardware provenance collection, strict AO JSON parsing (no retry inflation), and
+Implements #727 / #731 D384-D387 decider adapters, real HuggingFace transformers
+inference backends (Qwen2.5-VL, Laya text-only, and Vision Diffusion LM with
+mandatory custom ``.py`` audit gate), MANIFEST SHA-256 verification, hardware
+provenance collection, strict AO JSON parsing (no retry inflation), and
 accelerated vs unaccelerated comparison.
 
 STRICT GT ISOLATION:
@@ -31,6 +33,30 @@ VALID_ANSWERS = frozenset({"SELECT", "OWN_BOX", "NOT_VISIBLE", "UNCERTAIN", "STI
 SUPPORTED_SCOPES = frozenset({"e3_16_segments", "e6_12_segments", "combined"})
 SUPPORTED_INPUT_MODES = frozenset({"image_text", "text_only"})
 DEFAULT_SIZE = (320, 180)
+
+# Pinned Colab dependency versions (D384).
+# NOTE: numpy==2.1.3 and Pillow==11.1.0 intentionally match Colab's preinstalled
+# runtime and are lower than pyproject.toml minimums (numpy>=2.5.3, pillow>=12.3).
+# This does not conflict because the notebook adds src/ directly to sys.path
+# without installing the amidst project wheel.
+PINNED_DEPS = (
+    "torch==2.5.1",
+    "transformers==4.49.0",
+    "accelerate==1.4.0",
+    "Pillow==11.1.0",
+    "numpy==2.1.3",
+    "matplotlib==3.10.0",
+)
+
+AO_SYSTEM_PROMPT = (
+    "You are an AO multi-camera target decider. Identity is UNCONFIRMED. "
+    "Return ONLY a single valid JSON object with keys: "
+    '"answer" (one of "SELECT", "OWN_BOX", "NOT_VISIBLE", "UNCERTAIN", "STILL_HERE_OCCLUDED"), '
+    '"camera_id" (string or null), "detection_id" (string or null), '
+    '"box_xyxy" ([x1,y1,x2,y2] or null), "next_camera_ranking" (list of up to 3 camera IDs), '
+    '"confidence" (0..1 float), "reason_codes" (list of short strings), "reason" (short string). '
+    "Do not wrap the JSON in extra prose."
+)
 
 
 class ManifestVerificationError(RuntimeError):
@@ -96,7 +122,7 @@ def verify_manifest_sha256(pack_root: Path, manifest_path: Path | None = None) -
     }
 
 
-# --------------------------------------------------------------------------- Hardware & Environment
+# --------------------------------------------------------------------------- Hardware & HF Provenance
 def _run_cmd_quiet(cmd: list[str], cwd: Path | None = None) -> str | None:
     try:
         out = subprocess.check_output(cmd, cwd=str(cwd) if cwd else None, stderr=subprocess.DEVNULL, text=True, timeout=5)
@@ -163,6 +189,49 @@ def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]
     }
 
 
+def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: str | None = None) -> dict[str, Any]:
+    """Resolve exact HF commit SHA and SHA-256 hashes of cached weight files at runtime.
+
+    Safe to call offline or without ``huggingface_hub`` installed; falls back to
+    ``resolved_commit_sha = "UNRESOLVED_OFFLINE"`` and empty weight map.
+    """
+    resolved_sha = "UNRESOLVED_OFFLINE"
+    weight_shas: dict[str, str] = {}
+    try:
+        from huggingface_hub import HfApi, scan_cache_dir
+
+        try:
+            info = HfApi().model_info(model_id, revision=revision)
+            if getattr(info, "sha", None):
+                resolved_sha = str(info.sha)
+        except Exception:
+            pass
+
+        try:
+            cache_info = scan_cache_dir(cache_dir=cache_dir)
+            for repo in cache_info.repos:
+                if repo.repo_id != model_id:
+                    continue
+                for rev in repo.revisions:
+                    if resolved_sha == "UNRESOLVED_OFFLINE" and rev.commit_hash:
+                        resolved_sha = str(rev.commit_hash)
+                    for f in rev.files:
+                        fp = Path(f.file_path)
+                        if fp.suffix in (".safetensors", ".bin", ".pt") and fp.is_file():
+                            weight_shas[fp.name] = sha256_file(fp)
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+    return {
+        "hf_repo_id": model_id,
+        "requested_revision": revision,
+        "resolved_commit_sha": resolved_sha,
+        "weight_files_sha256": weight_shas,
+    }
+
+
 # --------------------------------------------------------------------------- Request / Response Types
 @dataclass(frozen=True)
 class DeciderRequest:
@@ -192,6 +261,44 @@ class DeciderSpec:
     audited_commit: str | None = None
     audit_checklist: tuple[str, ...] = ()
     supported_modes: tuple[str, ...] = ("image_text", "text_only")
+
+
+def assemble_ao_prompt(req: DeciderRequest) -> str:
+    """Assemble the AO text prompt from an inference-only ``DeciderRequest``."""
+    cand_lines = []
+    for c in req.candidates:
+        cand_lines.append(
+            f"- {c.get('camera_id')}|{c.get('detection_id')}: box={c.get('box')} score={c.get('score')}"
+        )
+    cand_block = "\n".join(cand_lines) if cand_lines else "(none)"
+    return (
+        f"{AO_SYSTEM_PROMPT}\n\n"
+        f"CASE: {req.case_id} | TICK: {req.tick} | MODE: {req.input_mode}\n"
+        f"CAMERAS: {', '.join(req.camera_ids)}\n"
+        f"CONTEXT:\n{req.variable_text}\n"
+        f"CANDIDATES:\n{cand_block}\n"
+        "Respond with ONLY the JSON object."
+    )
+
+
+def _load_request_pil_images(req: DeciderRequest) -> list[tuple[str, Any]]:
+    """Load PIL RGB images referenced by ``req.image_paths`` in camera order."""
+    if req.input_mode != "image_text" or not req.image_paths:
+        return []
+    from PIL import Image
+
+    loaded: list[tuple[str, Any]] = []
+    ordered_cams = list(req.camera_ids) + [c for c in req.image_paths if c not in req.camera_ids]
+    seen: set[str] = set()
+    for cam in ordered_cams:
+        if cam in seen or cam not in req.image_paths:
+            continue
+        seen.add(cam)
+        p = Path(req.image_paths[cam])
+        if p.is_file():
+            with Image.open(p) as im:
+                loaded.append((cam, im.convert("RGB")))
+    return loaded
 
 
 def parse_ao_json_response(
@@ -266,6 +373,271 @@ def parse_ao_json_response(
     )
 
 
+# --------------------------------------------------------------------------- Real HF & Smoke Backends
+def build_smoke_inference_fn(party_id: str) -> Callable[[DeciderRequest, bool], str]:
+    """Deterministic offline synthetic backend for ``SMOKE_MODE=True`` dry-runs and CI (no GPU / HF download)."""
+
+    def _smoke(req: DeciderRequest, accelerated: bool) -> str:
+        if req.candidates:
+            c0 = req.candidates[0]
+            return json.dumps(
+                {
+                    "answer": "SELECT",
+                    "camera_id": c0.get("camera_id"),
+                    "detection_id": c0.get("detection_id"),
+                    "box_xyxy": None,
+                    "next_camera_ranking": list(req.camera_ids[:3]),
+                    "confidence": 0.5,
+                    "reason_codes": ["SMOKE_SYNTHETIC"],
+                    "reason": f"smoke:{party_id}:acc={accelerated}",
+                }
+            )
+        return json.dumps(
+            {
+                "answer": "NOT_VISIBLE",
+                "camera_id": None,
+                "detection_id": None,
+                "box_xyxy": None,
+                "next_camera_ranking": list(req.camera_ids[:3]),
+                "confidence": 0.5,
+                "reason_codes": ["SMOKE_SYNTHETIC"],
+                "reason": f"smoke:{party_id}:no_candidates",
+            }
+        )
+
+    return _smoke
+
+
+def build_qwen_vl_inference_fn(
+    model_id: str = "Qwen/Qwen2.5-VL-3B-Instruct",
+    revision: str = "main",
+    *,
+    device: str | None = None,
+    use_acceleration: bool = True,
+    max_new_tokens: int = 256,
+) -> Callable[[DeciderRequest, bool], str]:
+    """Build a real HuggingFace ``transformers`` Qwen2.5-VL inference callable.
+
+    Supports both accelerated (``cuda`` + ``bf16``) and unaccelerated (``cpu`` + ``fp32``)
+    execution based on the ``accelerated`` flag passed to the returned callable.
+    Lazy-loads ``torch`` and ``transformers`` so offline unit tests require neither.
+    """
+    cache: dict[str, Any] = {}
+
+    def _ensure_loaded(accelerated: bool):
+        import torch
+        from transformers import AutoModelForImageTextToText, AutoProcessor
+
+        use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
+        target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
+        dtype = torch.bfloat16 if target_device.startswith("cuda") else torch.float32
+        key = f"{target_device}:{dtype}"
+        if key not in cache:
+            processor = cache.get("processor")
+            if processor is None:
+                processor = AutoProcessor.from_pretrained(model_id, revision=revision)
+                cache["processor"] = processor
+            try:
+                model = AutoModelForImageTextToText.from_pretrained(
+                    model_id,
+                    revision=revision,
+                    torch_dtype=dtype,
+                )
+            except Exception:
+                from transformers import Qwen2_5_VLForConditionalGeneration
+
+                model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                    model_id,
+                    revision=revision,
+                    torch_dtype=dtype,
+                )
+            model.to(target_device)
+            model.eval()
+            cache[key] = (processor, model, target_device)
+        return cache[key]
+
+    def _infer(req: DeciderRequest, accelerated: bool) -> str:
+        import torch
+
+        processor, model, target_device = _ensure_loaded(accelerated)
+        prompt = assemble_ao_prompt(req)
+        pil_pairs = _load_request_pil_images(req)
+
+        content: list[dict[str, Any]] = []
+        images = []
+        for cam, im in pil_pairs:
+            content.append({"type": "text", "text": f"[CAMERA {cam}]"})
+            content.append({"type": "image"})
+            images.append(im)
+        content.append({"type": "text", "text": prompt})
+        messages = [{"role": "user", "content": content}]
+
+        chat_text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        proc_kwargs: dict[str, Any] = {"text": [chat_text], "padding": True, "return_tensors": "pt"}
+        if images:
+            proc_kwargs["images"] = images
+        inputs = processor(**proc_kwargs)
+        inputs = {k: v.to(target_device) if hasattr(v, "to") else v for k, v in inputs.items()}
+
+        with torch.no_grad():
+            generated = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
+
+        prompt_len = inputs["input_ids"].shape[1]
+        trimmed = generated[:, prompt_len:]
+        return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
+
+    return _infer
+
+
+def build_laya_text_inference_fn(
+    model_id: str = "convaiinnovations/laya",
+    revision: str = "main",
+    *,
+    custom_code_audited: bool = False,
+    audited_commit: str | None = None,
+    device: str | None = None,
+    use_acceleration: bool = True,
+    max_new_tokens: int = 256,
+) -> Callable[[DeciderRequest, bool], str]:
+    """Build a real HuggingFace ``transformers`` Laya text-only inference callable.
+
+    Enforces the mandatory custom ``.py`` audit gate BEFORE loading with
+    ``trust_remote_code=True``.
+    """
+    if not custom_code_audited or not audited_commit:
+        raise CustomCodeAuditError(
+            f"CUSTOM_CODE_NOT_AUDITED: laya_text ({model_id}) requires custom_code_audited=True "
+            "and a pinned audited_commit before trust_remote_code=True."
+        )
+
+    pinned_rev = audited_commit or revision
+    cache: dict[str, Any] = {}
+
+    def _ensure_loaded(accelerated: bool):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
+        target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
+        dtype = torch.bfloat16 if target_device.startswith("cuda") else torch.float32
+        key = f"{target_device}:{dtype}"
+        if key not in cache:
+            tokenizer = cache.get("tokenizer")
+            if tokenizer is None:
+                tokenizer = AutoTokenizer.from_pretrained(model_id, revision=pinned_rev, trust_remote_code=True)
+                cache["tokenizer"] = tokenizer
+            model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                revision=pinned_rev,
+                torch_dtype=dtype,
+                trust_remote_code=True,
+            )
+            model.to(target_device)
+            model.eval()
+            cache[key] = (tokenizer, model, target_device)
+        return cache[key]
+
+    def _infer(req: DeciderRequest, accelerated: bool) -> str:
+        import torch
+
+        tokenizer, model, target_device = _ensure_loaded(accelerated)
+        prompt = assemble_ao_prompt(req)
+        inputs = tokenizer(prompt, return_tensors="pt")
+        inputs = {k: v.to(target_device) if hasattr(v, "to") else v for k, v in inputs.items()}
+        with torch.no_grad():
+            generated = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
+        prompt_len = inputs["input_ids"].shape[1]
+        trimmed = generated[:, prompt_len:]
+        return tokenizer.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
+
+    return _infer
+
+
+def build_diffusion_vlm_inference_fn(
+    model_id: str = "GSAI-ML/LLaDA-V",
+    revision: str = "main",
+    *,
+    custom_code_audited: bool = False,
+    audited_commit: str | None = None,
+    device: str | None = None,
+    use_acceleration: bool = True,
+    max_new_tokens: int = 256,
+) -> Callable[[DeciderRequest, bool], str]:
+    """Build a real HuggingFace ``transformers`` Vision Diffusion LM inference callable.
+
+    Enforces the mandatory custom ``.py`` audit gate BEFORE loading with
+    ``trust_remote_code=True``.
+    """
+    if not custom_code_audited or not audited_commit:
+        raise CustomCodeAuditError(
+            f"CUSTOM_CODE_NOT_AUDITED: diffusion_vlm ({model_id}) requires custom_code_audited=True "
+            "and a pinned audited_commit before trust_remote_code=True."
+        )
+
+    pinned_rev = audited_commit or revision
+    cache: dict[str, Any] = {}
+
+    def _ensure_loaded(accelerated: bool):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoProcessor, AutoTokenizer
+
+        use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
+        target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
+        dtype = torch.bfloat16 if target_device.startswith("cuda") else torch.float32
+        key = f"{target_device}:{dtype}"
+        if key not in cache:
+            proc = cache.get("processor")
+            if proc is None:
+                try:
+                    proc = AutoProcessor.from_pretrained(model_id, revision=pinned_rev, trust_remote_code=True)
+                except Exception:
+                    proc = AutoTokenizer.from_pretrained(model_id, revision=pinned_rev, trust_remote_code=True)
+                cache["processor"] = proc
+            try:
+                from transformers import AutoModelForImageTextToText
+
+                model = AutoModelForImageTextToText.from_pretrained(
+                    model_id,
+                    revision=pinned_rev,
+                    torch_dtype=dtype,
+                    trust_remote_code=True,
+                )
+            except Exception:
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_id,
+                    revision=pinned_rev,
+                    torch_dtype=dtype,
+                    trust_remote_code=True,
+                )
+            model.to(target_device)
+            model.eval()
+            cache[key] = (proc, model, target_device)
+        return cache[key]
+
+    def _infer(req: DeciderRequest, accelerated: bool) -> str:
+        import torch
+
+        proc, model, target_device = _ensure_loaded(accelerated)
+        prompt = assemble_ao_prompt(req)
+        pil_pairs = _load_request_pil_images(req)
+        images = [im for _, im in pil_pairs]
+        proc_kwargs: dict[str, Any] = {"text": prompt, "return_tensors": "pt"}
+        if images and hasattr(proc, "image_processor"):
+            proc_kwargs["images"] = images
+        try:
+            inputs = proc(**proc_kwargs)
+        except TypeError:
+            inputs = proc(prompt, return_tensors="pt")
+        inputs = {k: v.to(target_device) if hasattr(v, "to") else v for k, v in inputs.items()}
+        with torch.no_grad():
+            generated = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
+        prompt_len = inputs["input_ids"].shape[1]
+        trimmed = generated[:, prompt_len:]
+        return proc.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
+
+    return _infer
+
+
 # --------------------------------------------------------------------------- Decider Adapters (NO GT)
 class BaseDeciderAdapter:
     """Base adapter for E7 local/Colab deciders. Never receives or reads GT / answer tables."""
@@ -317,7 +689,7 @@ class LayaTextDecider(BaseDeciderAdapter):
     def __init__(
         self,
         hf_repo_id: str = "convaiinnovations/laya",
-        hf_revision: str = "PIN_AUDITED_COMMIT_BEFORE_RUN",
+        hf_revision: str = "main",
         *,
         custom_code_audited: bool = False,
         audited_commit: str | None = None,
@@ -340,11 +712,14 @@ class LayaTextDecider(BaseDeciderAdapter):
 
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         self.validate_custom_code_gate()
-        if self._inference_fn is not None:
-            return self._inference_fn(req, accelerated)
-        raise RuntimeError(
-            "LayaTextDecider requires a loaded HF model backend in Colab (or injected inference_fn in tests)."
-        )
+        if self._inference_fn is None:
+            self._inference_fn = build_laya_text_inference_fn(
+                self.spec.hf_repo_id,
+                self.spec.hf_revision,
+                custom_code_audited=self.spec.custom_code_audited,
+                audited_commit=self.spec.audited_commit,
+            )
+        return self._inference_fn(req, accelerated)
 
 
 class QwenVLDecider(BaseDeciderAdapter):
@@ -353,7 +728,7 @@ class QwenVLDecider(BaseDeciderAdapter):
     def __init__(
         self,
         hf_repo_id: str = "Qwen/Qwen2.5-VL-3B-Instruct",
-        hf_revision: str = "PIN_REVISION_BEFORE_RUN",
+        hf_revision: str = "main",
         *,
         party_id: str = "qwen_vl",
         label: str = "Qwen2.5-VL-3B-Instruct",
@@ -372,11 +747,12 @@ class QwenVLDecider(BaseDeciderAdapter):
         self._inference_fn = inference_fn
 
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
-        if self._inference_fn is not None:
-            return self._inference_fn(req, accelerated)
-        raise RuntimeError(
-            "QwenVLDecider requires a loaded transformers VLM backend in Colab (or injected inference_fn in tests)."
-        )
+        if self._inference_fn is None:
+            self._inference_fn = build_qwen_vl_inference_fn(
+                self.spec.hf_repo_id,
+                self.spec.hf_revision,
+            )
+        return self._inference_fn(req, accelerated)
 
 
 class DiffusionVLMDecider(BaseDeciderAdapter):
@@ -385,7 +761,7 @@ class DiffusionVLMDecider(BaseDeciderAdapter):
     def __init__(
         self,
         hf_repo_id: str = "GSAI-ML/LLaDA-V",
-        hf_revision: str = "PIN_REVISION_BEFORE_RUN",
+        hf_revision: str = "main",
         *,
         party_id: str = "diffusion_vlm",
         label: str = "Vision Diffusion LM (LLaDA-V class)",
@@ -410,11 +786,14 @@ class DiffusionVLMDecider(BaseDeciderAdapter):
 
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         self.validate_custom_code_gate()
-        if self._inference_fn is not None:
-            return self._inference_fn(req, accelerated)
-        raise RuntimeError(
-            "DiffusionVLMDecider requires a loaded HF model backend in Colab (or injected inference_fn in tests)."
-        )
+        if self._inference_fn is None:
+            self._inference_fn = build_diffusion_vlm_inference_fn(
+                self.spec.hf_repo_id,
+                self.spec.hf_revision,
+                custom_code_audited=self.spec.custom_code_audited,
+                audited_commit=self.spec.audited_commit,
+            )
+        return self._inference_fn(req, accelerated)
 
 
 class StubDecider(BaseDeciderAdapter):
@@ -490,6 +869,7 @@ def run_acceleration_comparison(
     accelerated_label: str = "cuda_bf16",
     unaccelerated_label: str = "cpu",
     unaccelerated_sample_cap: int | None = 20,
+    hf_provenance: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Run BOTH accelerated and unaccelerated passes for one decider and compute agreement/differences."""
     if input_mode not in SUPPORTED_INPUT_MODES:
@@ -533,7 +913,12 @@ def run_acceleration_comparison(
         "category": decider.spec.category,
         "hf_repo_id": decider.spec.hf_repo_id,
         "hf_revision": decider.spec.hf_revision,
-        "weights_sha256": decider.spec.weights_sha256,
+        "hf_provenance": hf_provenance,
+        "weights_sha256": (
+            hf_provenance.get("weight_files_sha256")
+            if isinstance(hf_provenance, dict) and hf_provenance.get("weight_files_sha256")
+            else decider.spec.weights_sha256
+        ),
         "dataset_scope": dataset_scope,
         "input_mode": input_mode,
         "unaccelerated_sample_cap": unaccelerated_sample_cap,
