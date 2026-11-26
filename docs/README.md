@@ -34,6 +34,7 @@
 ### 評估
 
 - **Agent vs 規則（D340、D341，2026-11-20）**：[假設計畫 H1–H6](evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)（§0 目前證據狀態）、[W1 逐格評估](evaluation/W1_FRAME_EVAL_20261120.md)（[預先登記](evaluation/W1_FRAME_EVAL_PREREG_20261120.md)）、[看圖 Agent 先導](evaluation/VISION_AGENT_RECORDED_20261120.md)、[W2 主動 Agent 與快取比較](evaluation/W2_ACTIVE_AGENT_20261120.md)、[規則 vs LLM（預錄與 LIVE，覆核架構）](evaluation/RULE_VS_LLM_RECORDED_AND_LIVE_20261120.md)、[D325 預錄規則 vs LLM（含更正說明）](evaluation/RECORDED_RULE_VS_LLM_D325_20261118.md)
+- **E3／E5／E6（現行實驗線）**：E3 [預先登記](evaluation/E3_PREREGISTRATION_20261122.md)、[F4 報告](operations/F4_E3_REPORT_658.md)；E5 [預先登記](evaluation/E5_PREREGISTRATION_20261123.md)、[報告](operations/E5_REPORT_20261123.md)、[數字總表](evaluation/E5_NUMBERS_TABLE_20261124.md)；[E6 計畫（D377）](evaluation/E6_PLAN_20261124.md)；[設計問答](evaluation/DESIGN_QA_20261124.md)
 - [Agent 接線與 ApiGuard 檢查](engineering/AGENT_API_WIRING_AUDIT_20261120.md)：所有模型呼叫路徑、付費護欄覆蓋；G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）
 - [評估文件資料夾](evaluation/)：其他評估文件（D79 決策窗、LIVE 難題集等）。
 - [程式碼 ↔ 文件對應表](index/CODE_DOC_MAP.md)、[索引與檢索紀錄](index/README.md)
@@ -41,7 +42,7 @@
 ### 營運與交接
 
 - [C／#486 自有依賴與主線交接](operations/DEMO_OWNED_DEPENDENCIES_20261108.md)：單一設定、鎖定、manifest、舊路徑對照與驗證命令
-- [最新協調者交接（2026-11-18）](agents/COORDINATOR_HANDOFF_20261118.md)；之後的決策在 [#93](https://github.com/Polalalabear/amidst/issues/93)
+- [最新協調者交接（2026-11-26）](agents/COORDINATOR_HANDOFF_20261126.md)；之後的決策在 [#93](https://github.com/Polalalabear/amidst/issues/93)
 - [Q1–Q5 進度導覽](operations/Q1Q5_PROGRESS.md)：全部 PR 與 issue 的分類
 - [本機測試設定](operations/Q1Q5_LOCAL_TEST_SETUP.md)
 - [D133 LOCAL 播放代理與 Mac 切鏡量測](engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md)：#444／#479 的工程收據，無整合 merge
@@ -75,8 +76,9 @@ Two lines run in parallel (D87): **Line 1** is the r004 A4-1/B4-1 baseline (D89)
 - **Contract:** [Q1–Q5 first-demo contract](contracts/Q1_Q2_FIRST_DEMO_V1.md). The current version is on `codex/q1q5-staging` (contract B, [#237](https://github.com/Polalalabear/amidst/pull/237)); the mainline copy is not edited by hand.
 - **Line 1:** [baseline acceptance plan](agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md), [D79 decision-window document](evaluation/Q5_DECISION_WINDOW_D79.md), [A4/B4 scenario cards v1](https://github.com/Polalalabear/amidst/pull/253) (#253), [workbench v2 design](agents/WORKBENCH_V2_Q1Q5_DESIGN.md).
 - **Line 2:** [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (#252), [complex scenario cards v2](https://github.com/Polalalabear/amidst/pull/261) (#261) and the [Q5 scoring v2 design](https://github.com/Polalalabear/amidst/pull/258) (#258); all Draft PRs, not yet merged.
+- **Current experiments:** E3 [preregistration](evaluation/E3_PREREGISTRATION_20261122.md), E5 [report](operations/E5_REPORT_20261123.md), [E6 plan (D377)](evaluation/E6_PLAN_20261124.md).
 - **Evaluation (D340, D341):** [Agent vs rule hypotheses H1–H6](evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md) (§0 current evidence), [W1 frame evaluation](evaluation/W1_FRAME_EVAL_20261120.md), [vision-agent pilot](evaluation/VISION_AGENT_RECORDED_20261120.md), [W2 active Agent](evaluation/W2_ACTIVE_AGENT_20261120.md), [Agent wiring and ApiGuard audit](engineering/AGENT_API_WIRING_AUDIT_20261120.md), [code ↔ document map](index/CODE_DOC_MAP.md).
-- **Operations:** [latest coordinator handoff (2026-11-18)](agents/COORDINATOR_HANDOFF_20261118.md), [progress guide](operations/Q1Q5_PROGRESS.md), [local test setup](operations/Q1Q5_LOCAL_TEST_SETUP.md).
+- **Operations:** [latest coordinator handoff (2026-11-26)](agents/COORDINATOR_HANDOFF_20261126.md), [progress guide](operations/Q1Q5_PROGRESS.md), [local test setup](operations/Q1Q5_LOCAL_TEST_SETUP.md).
 
 ### Archive
 

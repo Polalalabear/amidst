@@ -34,6 +34,7 @@
 
 | 檔案 | 內容 |
 | --- | --- |
+| [CODE_DOC_MAP_DELTA_20261124.md](CODE_DOC_MAP_DELTA_20261124.md) | `ea31b643`..`d52ce2f0` 的逐檔差異（91 檔，UNKNOWN 20）；模組級對應已併入下一列 |
 | [CODE_DOC_MAP.md](CODE_DOC_MAP.md) | 程式碼 ↔ 規格／文件對應表（主規格章節、LIVE 模組、其他套件），以及第一輪檢索項目的處理結果 |
 
 ## 修改紀錄
@@ -47,6 +48,7 @@
 | 2026-11-20 | W2／[#645](https://github.com/Polalalabear/amidst/issues/645) | `CODE_DOC_MAP.md` 加 §4.3 主動 Agent 決策器；`Q1Q5_PRODUCT_SPEC.md` §4.3 加 Agent 請求結構；新增 `W2_ACTIVE_AGENT_20261120.md`；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §4.1 加現況對照 | W2 PR（Draft，見 #645） |
 | 2026-11-20 | D342 | #648 合併後的全面文件同步：`CODE_DOC_MAP.md` §1 加 `camera_projection.py`、付費護欄與 G7、假設評估（W1、先導、W2）三列；規格 §2 資料流加 Agent 模式、§4.3 補 `ApiGuard` 路徑、G7、H1–H6 目前證據，§8 U-9 關閉、新增 U-18；假設文件新增 §0 目前證據狀態；W1 文件主結果改為多數決並補 `rule_nocolor` 說明（#647 Opus 後續 2、3）；README、AGENTS.md 來源文件清單；`Q1Q5_PROGRESS.md` 補到 #650；authority pin 補登 `docs/specs/DEVELOPMENT_RULES.md` | 本 PR |
 | 2026-11-22 | D344／F1 [#660](https://github.com/Polalalabear/amidst/issues/660) | 新增 `E3_PREREGISTRATION_20261122.md`、`E3_SCORER_RECOMPUTE_20261122.md`；`CODE_DOC_MAP.md` 加 E3 統一評分器一列。W2 文件與假設文件 §0 的「IoU 準則 0.761、錯人 6.3 s」依重算結果待後續修正（本 PR 不改） | 本 PR |
+| 2026-11-24 | D377／[#722](https://github.com/Polalalabear/amidst/pull/722) | 新增 `E6_PLAN_20261124.md`；`CODE_DOC_MAP.md` 加 E3、F2、F3、E5、E6、ApiGuard 快取與 LIVE 對應；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §0 加 E5 結果與 E6 指向；`docs/README.md`、AGENTS.md、CLAUDE.md 改指 20261124b 交接；`Q1Q5_PROGRESS.md` 補到 #722。根目錄 `README.md` 由 #719 更新，本次不動 | [#722](https://github.com/Polalalabear/amidst/pull/722) |
 
 ## 論文素材
 

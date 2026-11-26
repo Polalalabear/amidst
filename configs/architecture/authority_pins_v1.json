@@ -600,6 +600,46 @@
       "sha256": "8cd3518de3b067de5dc16d8b458ab1fe654e29c572d74d433476737b51e0ede7",
       "status": "現行（交接指向 COORDINATOR_HANDOFF_20261124；登記不等於核准，由使用者在 PR 審查時決定）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "PR722-D377-1",
+      "path": "AGENTS.md",
+      "ref": "claude/docs-handoff-20261124b@99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
+      "sha256": "92fe7b00862b9299db56d37cc3b472e64abdac6ec4e818cccad6f82d69fde356",
+      "status": "現行；交接指向 20261124b（D377）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "PR722-D377-2",
+      "path": "CLAUDE.md",
+      "ref": "claude/docs-handoff-20261124b@99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
+      "sha256": "64067b392df16f6126f547aa8682d34b1f06c90ef7f99dbe384aeb756dcfd2a0",
+      "status": "現行；交接指向 20261124b（D377）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "PR722-D377-3",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/docs-handoff-20261124b@99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
+      "sha256": "c33dc6dc1ea96d46405ebedf52ae646c1f44ebab8e1c0dfd10421ca7ba537f3d",
+      "status": "現行；進度導覽補到 #722（D91-4）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "HANDOFF-20261126-1",
+      "path": "AGENTS.md",
+      "ref": "claude/docs-handoff-20261124b@4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "sha256": "0566d5b3817c498e55e7841127cf9252b41a17f64be06eeae0706912033c7590",
+      "status": "現行；交接指向 COORDINATOR_HANDOFF_20261126；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "HANDOFF-20261126-2",
+      "path": "CLAUDE.md",
+      "ref": "claude/docs-handoff-20261124b@4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "sha256": "1fea449690a0cef3ddac9cb081a47df73a1cb6cd7cc60040f25d6ed5598c9050",
+      "status": "現行；交接指向 COORDINATOR_HANDOFF_20261126；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -980,6 +1020,41 @@
       "requires_commit": "8271237d5416a70d0dc671e864966eee3fca011d",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "交接指向改成 COORDINATOR_HANDOFF_20261124（PR #715，使用者交接：文件 PR 更新交接指向）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "92fe7b00862b9299db56d37cc3b472e64abdac6ec4e818cccad6f82d69fde356",
+      "requires_commit": "99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261124b，來源文件清單加 E6 計畫（PR #722，D377）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "64067b392df16f6126f547aa8682d34b1f06c90ef7f99dbe384aeb756dcfd2a0",
+      "requires_commit": "99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261124b（PR #722）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "c33dc6dc1ea96d46405ebedf52ae646c1f44ebab8e1c0dfd10421ca7ba537f3d",
+      "requires_commit": "99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "進度導覽補到 #722（PR #722，D91-4）。登記不等於核准"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "0566d5b3817c498e55e7841127cf9252b41a17f64be06eeae0706912033c7590",
+      "requires_commit": "4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261126（PR #722）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "1fea449690a0cef3ddac9cb081a47df73a1cb6cd7cc60040f25d6ed5598c9050",
+      "requires_commit": "4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261126（PR #722）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }
