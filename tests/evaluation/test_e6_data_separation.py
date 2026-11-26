@@ -227,3 +227,37 @@ def test_formal_mode_rejects_empty_gt_ticks_and_wrong_gt_regime(tmp_path: Path):
     errors = checker.validate_e6_spec(frozen, e3_base, e3_ext, mode="formal", artifact_root=tmp_path)
     assert any("FORMAL_GT_MISSING_TICKS" in e for e in errors)
     assert any("FORMAL_DP_REGIME_MISMATCH" in e for e in errors)
+
+
+def test_formal_mode_mixed_present_then_departed_window_is_full_blind(tmp_path: Path):
+    """A 15-tick window with target invisible-but-present then departed derives FULL_BLIND."""
+    spec, e3_base, e3_ext = _load_all()
+    frozen = _build_valid_formal_fixture(spec, tmp_path)
+
+    case = frozen["formal_cases"][0]
+    dp = case["actual_decision_points"][0]
+    start_tick = dp["tick"]
+    gt_path = tmp_path / case["gt_path"]
+    gt_doc = json.loads(gt_path.read_text(encoding="utf-8"))
+
+    # First 7 ticks: present=True, gt_visible=[]; last 8 ticks: present=False, gt_visible=[]
+    for row in gt_doc["ticks"]:
+        tk = row["tick"]
+        if start_tick <= tk < start_tick + 7:
+            row["actors"] = [{"id": "T", "present": True, "xy": [0.0, 0.0], "gt_visible": []}]
+        elif start_tick + 7 <= tk < start_tick + 15:
+            row["actors"] = [{"id": "T", "present": False, "xy": [0.0, 0.0], "gt_visible": []}]
+
+    gt_bytes = (json.dumps(gt_doc) + "\n").encode("utf-8")
+    gt_path.write_bytes(gt_bytes)
+    case["gt_sha256"] = _sha256_bytes(gt_bytes)
+
+    # Declared FULL_BLIND -> MUST PASS
+    dp["gt_regime"] = "FULL_BLIND"
+    errors_ok = checker.validate_e6_spec(frozen, e3_base, e3_ext, mode="formal", artifact_root=tmp_path)
+    assert errors_ok == [], f"Expected FULL_BLIND mixed window to pass, got: {errors_ok}"
+
+    # Declared TRUE_DEPARTURE -> MUST FAIL with FORMAL_DP_REGIME_MISMATCH
+    dp["gt_regime"] = "TRUE_DEPARTURE"
+    errors_bad = checker.validate_e6_spec(frozen, e3_base, e3_ext, mode="formal", artifact_root=tmp_path)
+    assert any("FORMAL_DP_REGIME_MISMATCH" in e and "gt_derived=FULL_BLIND" in e for e in errors_bad)

@@ -103,8 +103,10 @@
 | `gt_regime`（由 Chrome GT 決定） | 完整追蹤窗 $[t_{\text{dp}}, t_{\text{dp}} + 3.0\text{ s}]$（**C3 主終點**） | 單次配對回答（於 $t_{\text{dp}}$，**次要診斷**） |
 | --- | --- | --- |
 | **`VISIBLE`**（窗內至少 1 tick 目標可見；單次配對為 $t_{\text{dp}}$ 可見） | **對**：窗內至少 1 個 `CORRECT` tick（主準則：框中心在 GT 身體框內或 $\text{IoU} \ge 0.3$）**且** 0 個錯人／錯鏡頭 tick；否則 **錯**（同 E3／E5） | **對**：`SELECT` 或 `OWN_BOX` 且鏡頭在 `gt_visible` 並命中 GT 目標框；**錯**：`NOT_VISIBLE`、`UNCERTAIN`、`STILL_HERE_OCCLUDED`、選錯框／錯鏡頭或錯誤退回 |
-| **`FULL_BLIND`**（窗內全部 tick 目標全鏡不可見但仍在場，如 `E6-S04-DP2`、`E6-S05-DP1`） | **對**：整個 3.0 s 窗內 **0 個盲區誤鎖 tick**（未鎖定任何干擾者或錯人；`LOST`／`NOT_VISIBLE`／不顯示皆算正確棄權）；任 1 個盲區誤鎖 tick 即 **錯** | **對**：`NOT_VISIBLE` 或 `UNCERTAIN`（且未輸出目標框）；**錯**：`SELECT`、`OWN_BOX`、`STILL_HERE_OCCLUDED` 或錯誤退回 |
-| **`TRUE_DEPARTURE`**（窗內全部 tick `gt_present == False` 且 `gt_visible == ∅`，如 `E6-S11-DP3`、`E6-S11-DP4`） | **對**：整個 3.0 s 窗內 **0 個顯示追蹤 tick**（不鎖定任何人或空框）；否則 **錯** | **對**：`NOT_VISIBLE`；**錯**：`SELECT`、`OWN_BOX`、`STILL_HERE_OCCLUDED`、`UNCERTAIN`（真離場須明確棄權）或錯誤退回 |
+| **`FULL_BLIND`**（窗內從未可見、且至少 1 tick 在場，包含先在場後離場之混合窗，如 `E6-S04-DP2`、`E6-S05-DP1`） | **對**：整個 3.0 s 窗內 **0 個盲區誤鎖 tick**（未鎖定任何干擾者或錯人；`LOST`／`NOT_VISIBLE`／不顯示皆算正確棄權）；任 1 個盲區誤鎖 tick 即 **錯** | **對**：`NOT_VISIBLE` 或 `UNCERTAIN`（且未輸出目標框）；**錯**：`SELECT`、`OWN_BOX`、`STILL_HERE_OCCLUDED` 或錯誤退回 |
+| **`TRUE_DEPARTURE`**（窗內全部 tick 不在場：`gt_present == False` 且 `gt_visible == ∅`，如 `E6-S11-DP3`、`E6-S11-DP4`） | **對**：整個 3.0 s 窗內 **0 個顯示追蹤 tick**（不鎖定任何人或空框）；否則 **錯** | **對**：`NOT_VISIBLE`；**錯**：`SELECT`、`OWN_BOX`、`STILL_HERE_OCCLUDED`、`UNCERTAIN`（真離場須明確棄權）或錯誤退回 |
+
+  - **混合窗判定規則**（與 `scripts/evaluation/check_e6_data_separation.py` 之 `_derive_gt_regime` 完全一致）：窗內至少 1 tick 目標可見 → `VISIBLE`；窗內從未可見、且至少 1 tick 在場（包含先在場後離場）→ `FULL_BLIND`；窗內全部 tick 不在場 → `TRUE_DEPARTURE`。錄製後由 GT 重新放置實際決策點的 tick（在任何組別輸出產生之前），不算偏離。
 
   4. **分母與分層報告**：全部凍結唯一決策點皆計入總分母（API 錯誤／逾時／格式退回算錯，不排除）；報告另分層列出 `VISIBLE` 與 `FULL_BLIND + TRUE_DEPARTURE` 各自正確率。
 
@@ -201,7 +203,7 @@
    - 機器可讀清單：`configs/evaluation/e6_scenarios_spec_v1.json`（已填入舊 16 段與 3 段診斷之完整 `case_sha256`、`gt_sha256`；正式 12 段錄製凍結後由批 2 填入 SHA）。
    - 自動檢查腳本：`scripts/evaluation/check_e6_data_separation.py`（單元測試：`tests/evaluation/test_e6_data_separation.py`），區分兩種模式：
      - **`--mode draft`（批 1 預登前）**：驗證舊 16 段／診斷 3 段 SHA 與 base catalog 逐位元一致、唯一 DP ID 與同段唯一有限時間戳在片長內（唯一點數 $\ge 40$）、有效家族 $\ge 8$、零重用舊家族／舊起點；即使在草稿模式，凡標為 `FROZEN` 卻缺 SHA 一律 `FAIL`。
-     - **`--mode formal --artifact-root <dir>`（批 2 錄製凍結閘門，必帶 `--artifact-root`）**：強制要求提供 `--artifact-root` 並實讀核對全部 12 段之實體 `case_path`／`gt_path` 檔案與唯一 64-hex `case_sha256`／`gt_sha256`（不給 root 或缺檔一律 `FAIL`）；載入各段凍結 GT `ticks` 核對每個 `actual_decision_points` 的 `tick` 與 5 Hz 時鐘（`t_actual_s`）一致、位於錄製片長內、3.0 s 評估窗（15 ticks）之 GT rows 存在且由 GT 推導之 `gt_regime` 與宣告相符，僅可評分唯一點計入 $\ge 40$ 門檻，且與舊 16 段、診斷 3 段在 ID／家族／起點／SHA 全面不相交。任一項不符即回傳非零退出碼 `FAIL`。
+     - **`--mode formal --artifact-root <dir>`（批 2 錄製凍結閘門，必帶 `--artifact-root`）**：強制要求提供 `--artifact-root` 並實讀核對全部 12 段之實體 `case_path`／`gt_path` 檔案與唯一 64-hex `case_sha256`／`gt_sha256`（不給 root 或缺檔一律 `FAIL`）；載入各段凍結 GT `ticks` 核對每個 `actual_decision_points` 的 `tick` 與 5 Hz 時鐘（`t_actual_s`）一致、位於錄製片長內、3.0 s 評估窗（15 ticks）之 GT rows 存在且由 GT 推導之 `gt_regime` 與宣告相符（推導規則與 `_derive_gt_regime` 一致：窗內至少 1 tick 目標可見 → `VISIBLE`；窗內從未可見、且至少 1 tick 在場（包含先在場後離場）→ `FULL_BLIND`；窗內全部 tick 不在場 → `TRUE_DEPARTURE`），僅可評分唯一點計入 $\ge 40$ 門檻，且與舊 16 段、診斷 3 段在 ID／家族／起點／SHA 全面不相交。任一項不符即回傳非零退出碼 `FAIL`。錄製後由 GT 重新放置實際決策點的 tick（在任何組別輸出產生之前），不算偏離。
 
 ---
 
