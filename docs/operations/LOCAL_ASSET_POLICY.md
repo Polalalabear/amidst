@@ -1,0 +1,93 @@
+# `local/` 大型資產盤點與分類規則（LOCAL Asset Policy）
+
+Refs: #729、#733、#598、D384、D386、D387、D171。
+
+## 1. 範圍與核心原則
+
+本規則適用於 repo 根目錄下已被 `.gitignore` 的 `local/`（`local/data`、`local/evidence`、`local/archive`），以及以唯讀資料包形式提供的同結構目錄（例如 `neon-datapack-20261126`）。
+
+- **嚴格唯讀**：盤點腳本 `scripts/inventory_local_assets.py` 只讀取檔案中繼資料、清單檔與 SHA-256，**絕不刪除、移動或修改 `local/` 內任何檔案**。
+- **人工核准後由使用者執行刪除**：工具輸出的刪除建議一律以註解或檢視清單呈現；任何刪除都必須先經使用者在對話中明確核准，再由使用者於自己的終端機執行（依 `AGENTS.md` 與 D387）。
+- **原始資產只列不刪**：所有原始 Blender 檔（`.blend`）、原始影片（`.mp4`/`.mov`/`.mkv`/`.avi`）、Ground Truth（`gt`、`gt_private`、`gt-boxes`、`ground_truth`）與校正檔（`calibration`）無論是否被文件引用，一律歸類為 `KEEP` 並標註「只列不刪」，**絕不列入可刪候選**。
+- **不破壞來源與雜湊**：不改動既有凍結證據與 `MANIFEST.sha256`。
+
+## 2. 引用反查來源
+
+盤點工具沿用並擴充 `scripts/check_local_artifact_refs.py` 的路徑正規表示式，反查 `main` 上已合併的以下來源：
+
+1. 文件（`docs/**/*.md`、`README.md`、`AGENTS.md`、`report/**/*.md` 等）中出現的 `local/{data,evidence,archive}/...` 與 `$AMIDST_ARTIFACTS/...`（對應至 `local/evidence/...`）。<!-- local-ref-ignore -->
+2. 設定檔（`configs/**/*.json`、`*.yaml`、`*.yml`、`*.toml`），特別包含：
+   - 8785 demo 依賴設定：`configs/demo_integration_local.json`、`configs/demo_dependencies_manifest_v1.json` 及（若存在）`local/demo-pin.json`。
+   - 舊路徑對應表：`configs/local_path_map_v1.json`（含 `generation`：`CURRENT`、`CITED`、`OBSOLETE`）。
+   - 重現包清單（#728）：`configs/reproduce/artifact_manifest_v1.json`。
+3. 程式碼與腳本（`src/`、`scripts/`、`frontend/`），包含 `src/amidst/paths.py` 的預設路徑常數。
+
+## 3. 分類規則
+
+每個盤點項目會被歸類至下列三種主分類之一，並附加布林旗標 `is_obviously_stale_or_broken`（D387 專用節）：
+
+### 3.1 `KEEP`（保留）
+
+符合下列任一條件者一律歸為 `KEEP`：
+
+1. **受保護原始資產（只列不刪）**：含 `.blend`、原始影片、GT／`gt_private`／`gt-boxes`、校正資料。
+2. **重現包清單必要項目（#728）**：列於 `configs/reproduce/artifact_manifest_v1.json` 的 `local_path` 及其父目錄／子項目。
+3. **8785 demo 依賴**：`local/data/demo-owned-v1`、`local/demo-pin.json` 及其明確鎖定的依賴項目（見 `configs/demo_dependencies_manifest_v1.json`，不適用單一雜湊）。
+4. **E3／E5／E7 凍結證據與報告引用**：被非封存（non-archive）之 repo 文件、設定、程式或報告引用的 `local/...` 項目。
+
+### 3.2 `DELETABLE_CANDIDATE`（可刪候選）
+
+不屬受保護原始資產、且未被活躍（non-archive）來源引用，符合下列任一條件者歸為 `DELETABLE_CANDIDATE`：
+
+1. **沒有任何引用**：反查不到任何 repo 文件、設定、程式、重現清單或 demo pin 引用。
+2. **已被新版取代**：同系列已有更新版本（如 `-v1` 已有 `-v2`，或同前綴已有較新日期 `YYYYMMDD`）且舊版無活躍引用；或在 `configs/local_path_map_v1.json` 標記為 `OBSOLETE`。
+3. **失敗或中止的執行**：空目錄、0 位元組壞檔，或名稱含明確失敗／中止／暫存標記（如 `failed`、`aborted`、`broken`、`corrupt`、`stale`、`tmp`）。
+4. **重複副本**：SHA-256 或 `MANIFEST.sha256` 與另一份已標為 `KEEP` 的資產完全相同。
+5. **可由腳本重建的暫存與快取**：如 `uv-cache`、`__pycache__`、`.pytest_cache`、`.DS_Store`、`*.tmp`、`*.part`、`*.bak`。
+
+### 3.3 `明顯過期或錯誤`（`OBVIOUSLY_STALE_OR_BROKEN`，D387 獨立專節）
+
+依 D387，Markdown 報告必須將「明顯過期或錯誤」獨立成節，優先呈現給使用者核准清理（例如為 #732 釋放渲染空間）。符合 `DELETABLE_CANDIDATE` 且滿足以下任一明確條件者，標記 `is_obviously_stale_or_broken: true`：
+
+- 空目錄或 0 位元組檔案（`empty_or_zero_byte`）。
+- 可重建快取或系統垃圾檔（`rebuildable_cache_or_temp`）。
+- 失敗／中止／損毀／明確過期標記（`failed_aborted_or_stale_marker`）。
+- `configs/local_path_map_v1.json` 標為 `OBSOLETE` 且無活躍引用（`local_path_map_obsolete`）。
+- 已被同系列新版取代且無活躍引用（`superseded_by_newer_version`）。
+
+此專節逐項列出：**路徑、大小、檔數、判斷理由、引用反查結果**，並在文末附上以 `#` 註解的「供使用者於自己終端機核對執行的刪除指令參考」，工具絕不自動執行。
+
+### 3.4 `UNCERTAIN`（不確定）
+
+不符合 `KEEP` 且不適合直接列為可刪候選者，一律歸為 `UNCERTAIN` 並附理由交由人工判斷：
+
+- 僅被 `docs/archive/` 封存文件引用（`referenced_only_in_archive_docs`）。
+- 在 `configs/local_path_map_v1.json` 標為 `CITED` 或 `CURRENT`，但現行檔案未反查到直接 `local/...` 引用（`path_map_cited_without_direct_ref`）。
+- 位於 `local/archive/` 且無法確認是否仍具對照價值（`archive_item_requires_human_review`）。
+- 符號連結（symlink）或權限異常項目（`symlink_or_unreadable`）。
+
+## 4. 使用方式
+
+```bash
+# 在 Mac / Linux 盤點 repo 內的 local/（輸出寫到 repo 外或 scratch，勿直接進 git）
+python3 scripts/inventory_local_assets.py \
+  --repo . \
+  --local-root ./local \
+  --json-out /path/to/scratch/local_inventory.json \
+  --md-out /path/to/scratch/local_inventory.md
+```
+
+Windows 以唯讀資料包試跑（不改動資料包）：
+
+```powershell
+python scripts/inventory_local_assets.py `
+  --repo . `
+  --local-root "C:\path\to\neon-datapack-20261126" `
+  --json-out "C:\path\to\scratch\datapack_inventory.json" `
+  --md-out "C:\path\to\scratch\datapack_inventory.md"
+```
+
+## 5. 與 #728 重現包及 #598 的銜接
+
+- 盤點確認為 `KEEP` 且屬實驗重現必要資產者，登記進 `configs/reproduce/artifact_manifest_v1.json`（#728）。
+- #598 的 `local/` 盤點步驟改用本工具產出報告，不再以人工零散估算。
