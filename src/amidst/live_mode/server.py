@@ -30,6 +30,7 @@ from .color import judge
 from .detector import DEFAULT_CAMERA_MIN_SCORES, DEFAULT_MIN_SCORE, LiveDetector
 from .llm_switch import MODES as LLM_MODES, allowed_origins, cors_headers, host_ok, resolve as resolve_llm
 from .people import PeopleTracker
+from .relock import RelockConfig
 from .tracker import Projector, Tracker, load_cameras, catalog_path
 from .scheduler import CameraScheduler, load_graph, DEFAULT_GRAPH, DEFAULT_GRAPH_SHA256, DEFAULT_EXPAND_EVERY
 from .track_sentence import TrackSentenceParser
@@ -134,8 +135,11 @@ class State:
 
     def _new_tracker(self, color="red"):
         a = self.args
+        # #589 R2: "off" (default) is the unchanged rule tracker. "fallback" enables the R1 state machine with every
+        # measured threshold UNKNOWN, i.e. LIVE_MODE_RELOCK_V1 4.5 (t_short = inf, R(u) = max_gate, tau_app UNKNOWN -> NEEDS_CONFIRM).
+        relock = RelockConfig() if getattr(a, "relock", "off") == "fallback" else None
         return Tracker(self.projector, gate_m=a.gate_m, gate_growth_m_s=a.gate_growth,
-                       max_gate_m=a.max_gate, target_color=color)
+                       max_gate_m=a.max_gate, target_color=color, relock=relock)
 
     def _new_decider(self):
         """None when the advisor is off, so the rule-only path is exactly what it was before."""
@@ -611,6 +615,10 @@ def main():
                          "target much less often in replay and in fresh runs (docs/evaluation/LIVE_MODE_TRACKER_20261116.md)")
     ap.add_argument("--gate-growth", type=float, default=0.0, help="metres per second the gate widens while the target is unseen (0 = fixed)")
     ap.add_argument("--max-gate", type=float, default=8.0)
+    ap.add_argument("--relock", choices=["off", "fallback"], default="off",
+                    help="#589 R2 long-distance reacquisition. off = current rule tracker (default, unchanged). fallback = LIVE_MODE_RELOCK_V1 "
+                         "state machine with the 4.5 UNKNOWN fallbacks: candidates inside the gate still re-lock, farther or ambiguous ones "
+                         "enter NEEDS_CONFIRM instead of being picked silently")
     ap.add_argument("--color-weak", type=float, default=COLOR_WEAK_DEFAULT, help="minimum clothing-colour share of the box crop for a red/blue label (#619)")
     ap.add_argument("--det-width", type=int, default=320, help="frames wider than this are shrunk to det-width x det-height for detection")
     ap.add_argument("--det-height", type=int, default=180)

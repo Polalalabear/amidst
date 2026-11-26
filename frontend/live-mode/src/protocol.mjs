@@ -35,7 +35,13 @@ const EVENT_DETAILS = {
   SWITCH: shape({ from: text, gap_ticks: integer, by: enumOf('AGENT') }, ['from']),
   TARGET_OUT_OF_VIEW: enumOf(null),
   LOST: enumOf(null),
-  REACQUIRE: enumOf(null),
+  REACQUIRE: nullable(shape({
+    mode: enumOf('short_gate', 'appearance', 'confirmed'), unseen_s: number, dist_m: number, d_app: number, by: enumOf('user', 'llm_hypothesis'),
+  }, ['mode'])),
+  NEEDS_CONFIRM: shape({
+    unseen_s: number, n_candidates: integer,
+    reason: enumOf('MULTIPLE_PASS', 'LOW_MARGIN', 'NO_APPEARANCE_REF', 'APPEARANCE_NOT_SEPARABLE'),
+  }),
   ADJUDICATE_ASK: shape({ kind: questionKind, candidates: integer }),
   ADJUDICATED: shape({
     choice: nullable(integer), applied: boolean, cleared: boolean, source, latency_ms: number,
@@ -58,9 +64,13 @@ const SCHEDULE = shape({
   graph_sha256: nullable(value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)),
 }, ['mode', 'camera_ids', 'next_camera_ids', 'reason', 'lost_rounds', 'radius']);
 const TIMINGS = ['decode', 'preprocess', 'forward', 'post', 'detect_total', 'color', 'track', 'server_total'];
+const CONFIRM_CANDIDATE = shape({
+  cand_id: text, cam: text, est_xy: point, bbox: list(number, 4), dist_m: number, d_app: nullable(number), rank: integer,
+}, ['cand_id', 'cam']);
 const TRACKING = shape({
   state: enumOf('IDLE', 'SEARCHING', 'NEEDS_PICK', 'TRACKING', 'LOST', 'ADJUDICATING',
-    'TARGET_OUT_OF_VIEW'),
+    'TARGET_OUT_OF_VIEW', 'NEEDS_CONFIRM'),
+  unseen_s: number, lost_phase: nullable(enumOf('short', 'long')), confirm_candidates: list(CONFIRM_CANDIDATE, undefined),
   active_cam: nullable(text), seen_cams: list(text), est_xy: point,
   events: list({ event: true }), lost_ticks: integer, target: TARGET_RULE,
   decision_source: source, fallback_reason: nullable(text),
