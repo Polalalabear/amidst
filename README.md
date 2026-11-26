@@ -6,9 +6,9 @@
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> **狀態（2026-11-20）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。目前在驗證研究假設 H1–H6：能看圖、又知道場景空間資訊的 Agent，在複雜情況下的切鏡決策和辨識是否比規則與 RT-DETR 好（D340、D341）。工作清單和決策紀錄在[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)。
+> **狀態（2026-11-24）：**研究原型，全部資料來自合成的受控場景（Blender 渲染與 LIVE WebGL 引擎），不是部署系統。已完成 W1（逐格辨識）、E3（依附規則整合）與 E5（完全開放 A-open）的預先登記評估，正依 D377 推進 E6 診斷與新劇本預先登記。工作清單和決策紀錄在[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)。
 >
-> **Status (2026-11-20):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. Current work tests research hypotheses H1–H6: whether an Agent that sees frames and knows the scene layout makes better camera-switching and recognition decisions than the rules and RT-DETR in hard cases (D340, D341). The work list and decision log are on [task board #93](https://github.com/Polalalabear/amidst/issues/93).
+> **Status (2026-11-24):** research prototype. All data comes from synthetic, controlled scenes (Blender renders and the LIVE WebGL engine); this is not a deployed system. Preregistered evaluations W1 (frame recognition), E3 (rule-attached integration), and E5 (open A-open integration) are complete, and E6 diagnostics and new-scenario preregistration are underway under D377. The work list and decision log are on [task board #93](https://github.com/Polalalabear/amidst/issues/93).
 
 ## 繁體中文
 
@@ -74,20 +74,19 @@
 | 來源追溯與 fail-closed | 每筆資料綁定來源、run、時鐘與 hash；不符就拒絕，缺資料只關閉該功能 |
 | 依賴自有 | 依賴、鎖定檔、啟動腳本、資料和模型的 manifest 都在 repo 裡，不借用舊環境（D133） |
 
-### 目前進度（2026-11-20）
+### 目前進度（2026-11-24）
 
-研究假設與目前證據（[假設計畫 §0](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)；條件：渲染合成、預錄、A4-1／B4-1 兩事件、單一目標、DRAFT 鏡頭圖）：
+以下只列已判定的正式結果（詳見[論文草稿](docs/paper/F5_PAPER_DRAFT.md)、[E3 報告](docs/operations/F4_E3_REPORT_658.md)、[E5 報告](docs/operations/E5_REPORT_20261123.md)與[假設計畫 §0](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)）：
 
-| 假設 | 內容 | 目前狀態 |
-| --- | --- | --- |
-| H5 辨識 | Agent 看圖判斷「這格有沒有目標」比 RT-DETR＋規則準 | 有條件成立：F1 0.52 → 0.96，增益集中在遮擋、遠小、沒有人物框的格子（[W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)） |
-| H2 機制 | 優勢來自看圖 | 有條件成立（部分）：不給圖就沒有優勢，但「不在」的判斷略差 |
-| H1 切換決策 | 複雜情況下 Agent 切鏡比規則好 | 尚無數據：兩個簡單事件只驗證可行（[W2](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)） |
-| 即時 | 模擬即時下的增益 | 0：單次延遲約 4.3 s，比失聯段長 |
-| H3、H4 | 閘門改資訊、依空間資訊主動找下一台 | H3 無害也無可見好處；H4 只有描述性訊號，不支持 |
-| H6 | 每個模式都能切規則／Agent | 部分完成：統一介面已有；8785 開關、LIVE Agent（W3）、查找待做 |
+| 實驗／假設 | 條件與比較 | 正式判定 | 主要結果 |
+| --- | --- | --- | --- |
+| **W1**（H5 逐格辨識） | r004 兩事件 422 格分層樣本，Blender 960×540，單一目標 | 有條件成立 | 主準則 F1 0.957 對規則 0.523（差 +0.433 [0.324, 0.566]）；目標不在畫面時（`neg_absent`，63 格）答對率 0.89 對 0.95（[W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)） |
+| **E3**（H1／H2／H4，依附規則整合） | 16 段 LIVE 困難劇本（68 點，320×180、5 Hz），A1／A2 vs B1／B2 | **H1、H2、H4 不成立**；H3 只做描述；H5 本次未判定 | 錯人秒差 A2 − B1 = +129.8 s [36.2, 218.5]，A1 − B1 = +145.1 s [58.7, 233.7]；H4 A2 top-1 3/111；A3（模擬即時，9 段 38 點）探索性（[E3 報告](docs/operations/F4_E3_REPORT_658.md)） |
+| **E5**（H8a–H8d，完全開放 A-open） | 同 16 段困難劇本，離線 AO（K=3）與模擬即時 AO-L（K=1）vs B1 | **H8a、H8b、H8d（K=1）不成立**；**H8c 無法判斷** | H8a 錯人秒差 +129.1 s [55.2, 193.1]、McNemar p = 0.019；H8b 盲區誤鎖秒差 +65.5 s [39.7, 91.3]；H8c top-1 差 +0.009 [−0.157, +0.172]；H8d（K=1）跟對率差 −0.511 [−0.617, −0.420]（[E5 報告](docs/operations/E5_REPORT_20261123.md)） |
+| **H6**（規則／Agent 切換） | 統一介面與 ApiGuard（G7 已修 `4f665d55`） | 部分完成 | 統一介面已有；8785 開關、查找獨立驗收（#720）進行中 |
 
-下一步：W3 LIVE 難題集（前置已合併：LIVE 重新取得 R1 #608 `cfbfe4e9`，門檻 UNKNOWN、預設關閉；錄製重播 #617 `1742ed06`）、E3 劇本（#652）、W4 複雜場景。G7 已修正：所有付費呼叫經 ApiGuard（4f665d55）。
+- **結論範圍**：E3 與 E5 顯示，**這兩種整合在外觀相似或目標不在時會認錯人**；結論僅限於各自的整合設計與 E3 這 16 段合成劇本，不主張「看圖 Agent 普遍較差或較好」，也不外推到真實影像。
+- **下一步（D377／E6 計畫）**：在不改 E3／E5 原判定的前提下，先完成零付費第 1 批（#717 16 段逐事件答案表與 R-N 中性底座對照、#718 E6 預先登記草稿與 12 段新劇本規格——依家族合併後有效獨立單位須 ≥ 8，待 #718 凍結與錄製核對、#719 論文與 README 收尾、#720 零付費 Q1–Q3 小驗收），待審查合併後再推進去錨定／結構化歷史／摘要實作與新劇本驗證（#721）。Demo 區段與截圖待下次換 pin 後再補。
 
 ### 開發環境
 
@@ -126,7 +125,7 @@ PYTHONPATH=src uv run --offline --no-project \
 - [核心功能契約：查找與追蹤](docs/contracts/Q_CORE_SEARCH_TRACK_V1.md)（`Q_CORE_SEARCH_TRACK_V1`）、[Demo UI 支援契約](docs/contracts/DEMO_UI_SUPPORT_V1.md)、[Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)（時鐘、偵測索引、兩層圖的定義沿用這份）
 - [Demo 腳本兼驗收清單](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md)、[依賴收編說明](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md)、[Python 3.12 鎖定同步](docs/operations/DEMO_PY312_LOCK_SYNC_20261108.md)
 - [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性、D340 Agent 模式）、[Q1–Q5 產品規格](docs/specs/Q1Q5_PRODUCT_SPEC.md)（§2 資料流、§4 介面）
-- [Agent vs 規則假設計畫 H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)、[W1 逐格評估](docs/evaluation/W1_FRAME_EVAL_20261120.md)、[W2 主動 Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)、[Agent 接線與 ApiGuard 檢查](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md)
+- [Agent vs 規則假設計畫 H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)、[W1 逐格評估](docs/evaluation/W1_FRAME_EVAL_20261120.md)、[W2 主動 Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)、[E3 報告](docs/operations/F4_E3_REPORT_658.md)、[E5 預先登記](docs/evaluation/E5_PREREGISTRATION_20261123.md)、[E5 報告](docs/operations/E5_REPORT_20261123.md)、[F5 論文草稿](docs/paper/F5_PAPER_DRAFT.md)、[Agent 接線與 ApiGuard 檢查](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md)
 - [程式碼 ↔ 文件對應表](docs/index/CODE_DOC_MAP.md)、[文件索引](docs/README.md)、[封存索引](docs/archive/ARCHIVE_20261027.md)
 - 工作清單在 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文（D281）；[進度導覽](docs/operations/Q1Q5_PROGRESS.md) 列出每個 PR 與 issue（批次補列到 #650）。
 - **給 AI agent：**依 [AGENTS.md](AGENTS.md) 工作；本 README 不重複其規則。
@@ -195,20 +194,19 @@ Source RGB frames ─▶ RT-DETR object detection ─▶ upper-body HSV color si
 | Provenance and fail-closed | Every record is bound to source, run, clock and hash. Mismatches are rejected; missing data disables only that feature |
 | Owned dependencies | Dependencies, lock files, launch scripts and data/model manifests live in the repository; no old environments are reused (D133) |
 
-### Progress (2026-11-20)
+### Progress (2026-11-24)
 
-Research hypotheses and current evidence ([hypothesis plan §0](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md); conditions: synthetic rendering, recorded footage, two events A4-1/B4-1, one target, DRAFT camera graph):
+Formal judged results only (see the [paper draft](docs/paper/F5_PAPER_DRAFT.md), [E3 report](docs/operations/F4_E3_REPORT_658.md), [E5 report](docs/operations/E5_REPORT_20261123.md), and [hypothesis plan §0](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md)):
 
-| Hypothesis | Claim | Current status |
-| --- | --- | --- |
-| H5 recognition | Looking at the frame, the Agent judges "is the target here" better than RT-DETR plus rules | Holds with conditions: F1 0.52 → 0.96, gains concentrated in occluded, small/distant and no-person-box frames ([W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)) |
-| H2 mechanism | The gain comes from seeing the image | Partly holds: without images there is no gain, but "not visible" answers are slightly worse |
-| H1 switching | In hard cases the Agent switches cameras better than the rules | No data yet: two simple events only show feasibility ([W2](docs/evaluation/W2_ACTIVE_AGENT_20261120.md)) |
-| Real time | Gain under simulated real time | Zero: one call takes about 4.3 s, longer than the lost spans |
-| H3, H4 | Gates as information; spatial reasoning to pick the next camera | H3 no harm and no visible benefit; H4 only a descriptive signal, not supported |
-| H6 | Every mode can switch rules/Agent | Partly done: the shared interface exists; 8785 switch, LIVE Agent (W3) and search remain |
+| Experiment / Hypothesis | Scope & comparison | Formal verdict | Key numbers |
+| --- | --- | --- | --- |
+| **W1** (H5 recognition) | 422 stratified frames from two events r004 A4-1/B4-1 (Blender 960×540, single target) | Holds with conditions | Primary F1 0.957 vs rule 0.523 (diff +0.433 [0.324, 0.566]); absent-target accuracy (`neg_absent`, 63 frames) 0.89 vs 0.95 ([W1](docs/evaluation/W1_FRAME_EVAL_20261120.md)) |
+| **E3** (H1/H2/H4, rule-attached integration) | 16 LIVE hard scenarios (68 decision points, 320×180, 5 Hz), A1/A2 vs B1/B2 | **H1, H2, H4 not supported**; H3 descriptive only; H5 not evaluated | Wrong-person seconds diff A2 − B1 = +129.8 s [36.2, 218.5], A1 − B1 = +145.1 s [58.7, 233.7]; H4 A2 top-1 3/111; A3 (simulated real-time, 9 segments / 38 points) exploratory ([E3 report](docs/operations/F4_E3_REPORT_658.md)) |
+| **E5** (H8a–H8d, open A-open integration) | Same 16 hard scenarios, offline AO (K=3) and simulated real-time AO-L (K=1) vs B1 | **H8a, H8b, H8d (K=1) not supported**; **H8c inconclusive** | H8a wrong-person seconds diff +129.1 s [55.2, 193.1], McNemar p = 0.019; H8b blind-zone false-lock diff +65.5 s [39.7, 91.3]; H8c top-1 diff +0.009 [−0.157, +0.172]; H8d (K=1) correct-tracking diff −0.511 [−0.617, −0.420] ([E5 report](docs/operations/E5_REPORT_20261123.md)) |
+| **H6** (rules/Agent switch) | Shared interface and ApiGuard (G7 fixed `4f665d55`) | Partly done | Shared interface in place; 8785 switch and standalone Q1–Q3 check (#720) in progress |
 
-Next: W3 on the LIVE hard set (prerequisites merged: LIVE relock R1 #608 `cfbfe4e9`, thresholds UNKNOWN and off by default; recording/replay #617 `1742ed06`), E3 scripts (#652) and W4 complex scenes. G7 is fixed: every paid call goes through `ApiGuard` (`4f665d55`).
+- **Scope of conclusions:** E3 and E5 show that **these two integrations misidentify the target when a visually similar person is present or when the target is absent**. The verdicts apply only to these specific integration designs on the 16 synthetic E3 scenarios; they do not claim that vision Agents are generally worse or better than rules, nor do they extrapolate to real footage.
+- **Next (D377 / E6 plan):** Leaving the E3/E5 verdicts unchanged, Batch 1 zero-cost work covers event-by-event answer tables and an R-N neutral-tracker baseline (#717), E6 preregistration and a new 12-segment scenario specification (effective independent units after family merging must be ≥ 8, pending #718 freeze and recording verification), paper and README wrap-up (#719), and a zero-cost Q1–Q3 functional check (#720), followed after review and merge by de-anchoring/history/summary implementation and new-scenario evaluation (#721). Demo section updates and screenshots wait for the next pin.
 
 ### Development setup
 
@@ -247,7 +245,7 @@ Then open `http://localhost:8785/workbench-v2/`. Details and moving to another m
 - [Core contract: search and track](docs/contracts/Q_CORE_SEARCH_TRACK_V1.md) (`Q_CORE_SEARCH_TRACK_V1`), [demo UI support contract](docs/contracts/DEMO_UI_SUPPORT_V1.md), [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) (still the source for clocks, the detection index and the two-layer graph)
 - [Demo script and acceptance checklist](docs/operations/DEMO_SCRIPT_ACCEPTANCE_V1.md), [owned-dependency notes](docs/operations/DEMO_OWNED_DEPENDENCIES_20261108.md), [Python 3.12 lock sync](docs/operations/DEMO_PY312_LOCK_SYNC_20261108.md)
 - [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty, D340 Agent mode), [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md) (§2 data flow, §4 interfaces)
-- [Agent vs rule hypotheses H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md), [W1 frame evaluation](docs/evaluation/W1_FRAME_EVAL_20261120.md), [W2 active Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md), [Agent wiring and ApiGuard audit](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md) (all in Traditional Chinese)
+- [Agent vs rule hypotheses H1–H6](docs/evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md), [W1 frame evaluation](docs/evaluation/W1_FRAME_EVAL_20261120.md), [W2 active Agent](docs/evaluation/W2_ACTIVE_AGENT_20261120.md), [E3 report](docs/operations/F4_E3_REPORT_658.md), [E5 preregistration](docs/evaluation/E5_PREREGISTRATION_20261123.md), [E5 report](docs/operations/E5_REPORT_20261123.md), [F5 paper draft](docs/paper/F5_PAPER_DRAFT.md), [Agent wiring and ApiGuard audit](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md) (all in Traditional Chinese)
 - [Code ↔ document map](docs/index/CODE_DOC_MAP.md), [document index](docs/README.md), [archive index](docs/archive/ARCHIVE_20261027.md)
 - The work list is the body of [#93](https://github.com/Polalalabear/amidst/issues/93) (D281); the [progress guide](docs/operations/Q1Q5_PROGRESS.md) lists every PR and issue (batch-updated to #650).
 - **For AI agents:** work by [AGENTS.md](AGENTS.md); this README does not repeat its rules.
