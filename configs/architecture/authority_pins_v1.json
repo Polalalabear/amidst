@@ -624,6 +624,22 @@
       "sha256": "c33dc6dc1ea96d46405ebedf52ae646c1f44ebab8e1c0dfd10421ca7ba537f3d",
       "status": "現行；進度導覽補到 #722（D91-4）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "HANDOFF-20261126-1",
+      "path": "AGENTS.md",
+      "ref": "claude/docs-handoff-20261124b@4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "sha256": "0566d5b3817c498e55e7841127cf9252b41a17f64be06eeae0706912033c7590",
+      "status": "現行；交接指向 COORDINATOR_HANDOFF_20261126；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "HANDOFF-20261126-2",
+      "path": "CLAUDE.md",
+      "ref": "claude/docs-handoff-20261124b@4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "sha256": "1fea449690a0cef3ddac9cb081a47df73a1cb6cd7cc60040f25d6ed5598c9050",
+      "status": "現行；交接指向 COORDINATOR_HANDOFF_20261126；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -1025,6 +1041,20 @@
       "requires_commit": "99fac604a442f97f92efbb0f13b0ee4bcb649d6d",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "進度導覽補到 #722（PR #722，D91-4）。登記不等於核准"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "0566d5b3817c498e55e7841127cf9252b41a17f64be06eeae0706912033c7590",
+      "requires_commit": "4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261126（PR #722）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "1fea449690a0cef3ddac9cb081a47df73a1cb6cd7cc60040f25d6ed5598c9050",
+      "requires_commit": "4d6125a4a5f26fecbdc82f5d95485ee7eea4fa5a",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "交接指向改成 COORDINATOR_HANDOFF_20261126（PR #722）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }
