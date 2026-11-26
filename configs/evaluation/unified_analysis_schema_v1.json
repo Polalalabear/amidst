@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amidst.local/schemas/unified_analysis_v1.json",
+  "title": "Unified Analysis Report v1",
+  "description": "Shared contract between #731 (generate_unified_analysis.py) and #734 (report/figures/). All numeric fields are read exclusively from source files.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at_utc",
+    "git_commit",
+    "datapack_manifest_sha256",
+    "identity_status",
+    "hardware_provenance",
+    "sources",
+    "five_way_comparison",
+    "latency_breakdown",
+    "e6_verdict",
+    "target_tracking_672"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "unified_analysis_v1"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "minLength": 10
+    },
+    "git_commit": {
+      "type": "string",
+      "minLength": 4
+    },
+    "datapack_manifest_sha256": {
+      "type": "string",
+      "minLength": 1
+    },
+    "identity_status": {
+      "const": "UNCONFIRMED"
+    },
+    "hardware_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "is_official_benchmark", "note"],
+      "properties": {
+        "platform": {
+          "type": "string",
+          "minLength": 1
+        },
+        "is_official_benchmark": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "kind", "path", "sha256", "status"],
+        "properties": {
+          "source_id": { "type": "string", "minLength": 1 },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "frozen_record",
+              "answer_table",
+              "e7_analysis",
+              "e6_verdict",
+              "aol_zero_latency",
+              "other"
+            ]
+          },
+          "path": { "type": "string" },
+          "sha256": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["LOADED", "MISSING", "PLACEHOLDER"]
+          }
+        }
+      }
+    },
+    "five_way_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset_scope", "entries"],
+      "properties": {
+        "dataset_scope": {
+          "type": "string",
+          "enum": ["e3_16_segments", "e6_12_segments", "combined"]
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "party_id",
+              "label",
+              "category",
+              "status",
+              "acceleration",
+              "metrics",
+              "provenance_source_id",
+              "notes"
+            ],
+            "properties": {
+              "party_id": { "type": "string", "minLength": 1 },
+              "label": { "type": "string", "minLength": 1 },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "reference",
+                  "rule",
+                  "api",
+                  "local_option",
+                  "local_vlm",
+                  "local_diffusion"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": ["AVAILABLE", "PLACEHOLDER", "MISSING"]
+              },
+              "acceleration": { "type": "string" },
+              "metrics": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "wrong_target_s",
+                  "blind_lock_s",
+                  "correct_rate",
+                  "decision_point_accuracy",
+                  "latency_p50_ms",
+                  "latency_p95_ms",
+                  "expired_rate",
+                  "format_fallback_rate",
+                  "n_segments",
+                  "n_decision_points"
+                ],
+                "properties": {
+                  "wrong_target_s": { "type": ["number", "null"] },
+                  "blind_lock_s": { "type": ["number", "null"] },
+                  "correct_rate": { "type": ["number", "null"] },
+                  "decision_point_accuracy": { "type": ["number", "null"] },
+                  "latency_p50_ms": { "type": ["number", "null"] },
+                  "latency_p95_ms": { "type": ["number", "null"] },
+                  "expired_rate": { "type": ["number", "null"] },
+                  "format_fallback_rate": { "type": ["number", "null"] },
+                  "n_segments": { "type": ["integer", "null"] },
+                  "n_decision_points": { "type": ["integer", "null"] }
+                }
+              },
+              "provenance_source_id": { "type": ["string", "null"] },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "latency_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "aol_zero_latency_approx", "per_model_latency_ms"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["AVAILABLE", "PLACEHOLDER", "MISSING"]
+        },
+        "aol_zero_latency_approx": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "is_approximation",
+            "approximation_note",
+            "api_aol_actual_correct_rate",
+            "api_aol_zero_latency_correct_rate",
+            "delta_correct_rate",
+            "api_aol_expired_calls",
+            "api_aol_total_calls",
+            "api_aol_expired_rate",
+            "api_ao_offline_wrong_target_s",
+            "b1_wrong_target_s"
+          ],
+          "properties": {
+            "is_approximation": { "const": true },
+            "approximation_note": { "type": "string", "minLength": 1 },
+            "api_aol_actual_correct_rate": { "type": ["number", "null"] },
+            "api_aol_zero_latency_correct_rate": { "type": ["number", "null"] },
+            "delta_correct_rate": { "type": ["number", "null"] },
+            "api_aol_expired_calls": { "type": ["integer", "null"] },
+            "api_aol_total_calls": { "type": ["integer", "null"] },
+            "api_aol_expired_rate": { "type": ["number", "null"] },
+            "api_ao_offline_wrong_target_s": { "type": ["number", "null"] },
+            "b1_wrong_target_s": { "type": ["number", "null"] }
+          }
+        },
+        "per_model_latency_ms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "party_id",
+              "acceleration",
+              "p50_ms",
+              "p95_ms",
+              "format_fallback_rate",
+              "decision_agreement_vs_unaccelerated",
+              "sample_size",
+              "hardware"
+            ],
+            "properties": {
+              "party_id": { "type": "string", "minLength": 1 },
+              "acceleration": {
+                "type": "string",
+                "enum": ["accelerated", "unaccelerated"]
+              },
+              "p50_ms": { "type": ["number", "null"] },
+              "p95_ms": { "type": ["number", "null"] },
+              "format_fallback_rate": { "type": ["number", "null"] },
+              "decision_agreement_vs_unaccelerated": { "type": ["number", "null"] },
+              "sample_size": { "type": ["integer", "null"] },
+              "hardware": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "e6_verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "preregistered_verdict_label",
+        "verbatim_verdict_text",
+        "effective_families",
+        "unique_decision_points",
+        "skew_sensitivity_flag",
+        "provenance_source_id"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING_PR726_AND_RUN", "AVAILABLE"]
+        },
+        "preregistered_verdict_label": { "type": "string" },
+        "verbatim_verdict_text": { "type": "string" },
+        "effective_families": { "type": ["integer", "null"] },
+        "unique_decision_points": { "type": ["integer", "null"] },
+        "skew_sensitivity_flag": { "type": ["boolean", "null"] },
+        "provenance_source_id": { "type": ["string", "null"] }
+      }
+    },
+    "target_tracking_672": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "targets"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING_676_AND_RUN", "AVAILABLE"]
+        },
+        "targets": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    }
+  }
+}
