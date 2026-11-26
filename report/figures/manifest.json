@@ -1,0 +1,46 @@
+{
+  "schema_version": "unified_analysis_v1",
+  "input_file": "report/figures/sample_placeholder_input.json",
+  "input_sha256": "a6f62e826f892c3ce0e39955e0ef1ace0b57270ff06d18b4db44445ab004109e",
+  "git_commit": "10a1384c9676875f92d3d9bf12c9f849f8bdfeba",
+  "datapack_manifest_sha256": "4eee05ba92ac954d4916f3000bd0d7c011297a75253ffe860605e74bca881b98",
+  "identity_status": "UNCONFIRMED",
+  "figures": [
+    {
+      "filename": "fig1_e3_e5_summary.svg",
+      "format": "svg",
+      "bytes": 21556,
+      "sha256": "af250c72843d199f2af7e13c0a28bf83c9ccbf64b23ecbf38a332cdc1bc5c45d"
+    },
+    {
+      "filename": "fig1_e3_e5_summary.png",
+      "format": "png",
+      "bytes": 155794,
+      "sha256": "9d62b26e4dd7209fa2db071e05a15277b10a2203d6278e87ded38ff4a1563423"
+    },
+    {
+      "filename": "fig2_five_way_comparison.svg",
+      "format": "svg",
+      "bytes": 16300,
+      "sha256": "4a41431ac24fef4b3514db631ff30676bb54655a7b6e87b83b7cd3d762a265e3"
+    },
+    {
+      "filename": "fig2_five_way_comparison.png",
+      "format": "png",
+      "bytes": 211382,
+      "sha256": "653fe7b3f6b2b8c97527f6a31f4c0c31fda3ea993314f420328ef8431f2eb5bd"
+    },
+    {
+      "filename": "fig3_latency_breakdown.svg",
+      "format": "svg",
+      "bytes": 25272,
+      "sha256": "d732b0b8bdd7bb87cbd1761419e383fc0fb434511ce94c0ec9f572fd08bbb5ee"
+    },
+    {
+      "filename": "fig3_latency_breakdown.png",
+      "format": "png",
+      "bytes": 236501,
+      "sha256": "5de8f4a6304314806b0ec589056fb35bbb829d343b99d23e2ecf73021e7a2748"
+    }
+  ]
+}

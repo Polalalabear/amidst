@@ -1,0 +1,302 @@
+{
+  "schema_version": "unified_analysis_v1",
+  "generated_at_utc": "2026-11-26T00:00:00Z",
+  "git_commit": "10a1384c9676875f92d3d9bf12c9f849f8bdfeba",
+  "datapack_manifest_sha256": "4eee05ba92ac954d4916f3000bd0d7c011297a75253ffe860605e74bca881b98",
+  "identity_status": "UNCONFIRMED",
+  "hardware_provenance": {
+    "platform": "Colab-Pro",
+    "is_official_benchmark": false,
+    "note": "Official numbers come only from Colab (E7) and Mac (#732); Windows RTX 3060 is smoke-test only. E7 Colab latency != local demo latency."
+  },
+  "sources": [
+    {
+      "source_id": "e5_report_md",
+      "kind": "frozen_record",
+      "path": "docs/operations/E5_REPORT_20261123.md",
+      "sha256": "4833adb7f608973194f24da9e54ea20742f3b6be31c208cf8bec024c638828eb",
+      "status": "LOADED"
+    },
+    {
+      "source_id": "e5_aol_report_json",
+      "kind": "frozen_record",
+      "path": "local/evidence/e5-aol-20261124/report.json",
+      "sha256": "edf988df08ac48c421086fa1c37394b285a4c34335e2aa23c0091a0e5439f3ad",
+      "status": "LOADED"
+    },
+    {
+      "source_id": "e7_analysis_pending",
+      "kind": "e7_analysis",
+      "path": "local/evidence/e7-pending/analysis.json",
+      "sha256": "UNKNOWN",
+      "status": "PLACEHOLDER"
+    },
+    {
+      "source_id": "e6_verdict_pending",
+      "kind": "e6_verdict",
+      "path": "local/evidence/e6-pending/verdict.json",
+      "sha256": "UNKNOWN",
+      "status": "PLACEHOLDER"
+    },
+    {
+      "source_id": "aol_zero_latency_pending",
+      "kind": "aol_zero_latency",
+      "path": "local/evidence/e5-aol-zero-latency-pending/diagnostic.json",
+      "sha256": "UNKNOWN",
+      "status": "PLACEHOLDER"
+    }
+  ],
+  "five_way_comparison": {
+    "dataset_scope": "e3_16_segments",
+    "entries": [
+      {
+        "party_id": "script_answer",
+        "label": "Script Answer (GT Ref)",
+        "category": "reference",
+        "status": "PLACEHOLDER",
+        "acceleration": "n/a",
+        "metrics": {
+          "wrong_target_s": null,
+          "blind_lock_s": null,
+          "correct_rate": null,
+          "decision_point_accuracy": null,
+          "latency_p50_ms": null,
+          "latency_p95_ms": null,
+          "expired_rate": null,
+          "format_fallback_rate": null,
+          "n_segments": 16,
+          "n_decision_points": 68
+        },
+        "provenance_source_id": "e7_analysis_pending",
+        "notes": "PLACEHOLDER (awaiting #732 answer table). GT is scoring-side reference only."
+      },
+      {
+        "party_id": "b1_rule",
+        "label": "B1 Rule (E3/E5)",
+        "category": "rule",
+        "status": "AVAILABLE",
+        "acceleration": "cpu",
+        "metrics": {
+          "wrong_target_s": 114.0,
+          "blind_lock_s": 109.4,
+          "correct_rate": 0.7587,
+          "decision_point_accuracy": 0.4118,
+          "latency_p50_ms": null,
+          "latency_p95_ms": null,
+          "expired_rate": 0.0,
+          "format_fallback_rate": 0.0,
+          "n_segments": 16,
+          "n_decision_points": 68
+        },
+        "provenance_source_id": "e5_report_md",
+        "notes": "Frozen E3/E5 rule baseline (28/68 decision points correct; lost 85.0s)."
+      },
+      {
+        "party_id": "api_ao",
+        "label": "API AO (Offline K=3)",
+        "category": "api",
+        "status": "AVAILABLE",
+        "acceleration": "api_remote",
+        "metrics": {
+          "wrong_target_s": 243.067,
+          "blind_lock_s": 174.867,
+          "correct_rate": 0.6515,
+          "decision_point_accuracy": 0.2206,
+          "latency_p50_ms": 4557,
+          "latency_p95_ms": 11052,
+          "expired_rate": 0.0,
+          "format_fallback_rate": 0.0,
+          "n_segments": 16,
+          "n_decision_points": 68
+        },
+        "provenance_source_id": "e5_report_md",
+        "notes": "Frozen E5 AO (gpt-6.1-terra, K=3; H8a/H8b not supported, H8c inconclusive; 15/68 DP)."
+      },
+      {
+        "party_id": "api_aol",
+        "label": "API AO-L (SimLive K=1)",
+        "category": "api",
+        "status": "AVAILABLE",
+        "acceleration": "api_remote",
+        "metrics": {
+          "wrong_target_s": 110.2,
+          "blind_lock_s": 31.8,
+          "correct_rate": 0.248,
+          "decision_point_accuracy": 0.0882,
+          "latency_p50_ms": 4784,
+          "latency_p95_ms": 10524,
+          "expired_rate": 0.5269,
+          "format_fallback_rate": 0.0,
+          "n_segments": 16,
+          "n_decision_points": 68
+        },
+        "provenance_source_id": "e5_report_md",
+        "notes": "Frozen E5 AO-L (K=1; H8d not supported; 98/186 calls EXPIRED = 52.7%; 6/68 DP)."
+      },
+      {
+        "party_id": "api_aol_zero_latency",
+        "label": "AO-L Zero-Latency (Approx)",
+        "category": "api",
+        "status": "PLACEHOLDER",
+        "acceleration": "api_remote",
+        "metrics": {
+          "wrong_target_s": null,
+          "blind_lock_s": null,
+          "correct_rate": null,
+          "decision_point_accuracy": null,
+          "latency_p50_ms": 0,
+          "latency_p95_ms": 0,
+          "expired_rate": 0.0,
+          "format_fallback_rate": null,
+          "n_segments": 16,
+          "n_decision_points": 68
+        },
+        "provenance_source_id": "aol_zero_latency_pending",
+        "notes": "PLACEHOLDER (awaiting #732 diagnostic). Approximation only; tracker state not re-simulated."
+      },
+      {
+        "party_id": "laya_text",
+        "label": "Local laya (Colab)",
+        "category": "local_option",
+        "status": "PLACEHOLDER",
+        "acceleration": "cuda_bf16",
+        "metrics": {
+          "wrong_target_s": null,
+          "blind_lock_s": null,
+          "correct_rate": null,
+          "decision_point_accuracy": null,
+          "latency_p50_ms": null,
+          "latency_p95_ms": null,
+          "expired_rate": null,
+          "format_fallback_rate": null,
+          "n_segments": null,
+          "n_decision_points": null
+        },
+        "provenance_source_id": "e7_analysis_pending",
+        "notes": "PLACEHOLDER (awaiting #732 E7 Colab Pro exploratory run). Colab latency != local demo latency."
+      },
+      {
+        "party_id": "qwen_vl",
+        "label": "Local Qwen-VL (Colab)",
+        "category": "local_vlm",
+        "status": "PLACEHOLDER",
+        "acceleration": "cuda_bf16",
+        "metrics": {
+          "wrong_target_s": null,
+          "blind_lock_s": null,
+          "correct_rate": null,
+          "decision_point_accuracy": null,
+          "latency_p50_ms": null,
+          "latency_p95_ms": null,
+          "expired_rate": null,
+          "format_fallback_rate": null,
+          "n_segments": null,
+          "n_decision_points": null
+        },
+        "provenance_source_id": "e7_analysis_pending",
+        "notes": "PLACEHOLDER (awaiting #732 E7 Colab Pro exploratory run). Colab latency != local demo latency."
+      },
+      {
+        "party_id": "diffusion_vlm",
+        "label": "Local Diffusion VLM (Colab)",
+        "category": "local_diffusion",
+        "status": "PLACEHOLDER",
+        "acceleration": "cuda_bf16",
+        "metrics": {
+          "wrong_target_s": null,
+          "blind_lock_s": null,
+          "correct_rate": null,
+          "decision_point_accuracy": null,
+          "latency_p50_ms": null,
+          "latency_p95_ms": null,
+          "expired_rate": null,
+          "format_fallback_rate": null,
+          "n_segments": null,
+          "n_decision_points": null
+        },
+        "provenance_source_id": "e7_analysis_pending",
+        "notes": "PLACEHOLDER (awaiting #732 E7 Colab Pro exploratory run). Colab latency != local demo latency."
+      }
+    ]
+  },
+  "latency_breakdown": {
+    "status": "PLACEHOLDER",
+    "aol_zero_latency_approx": {
+      "is_approximation": true,
+      "approximation_note": "Re-scored existing AO-L responses applied at query time; tracker state divergence is not re-simulated.",
+      "api_aol_actual_correct_rate": 0.248,
+      "api_aol_zero_latency_correct_rate": null,
+      "delta_correct_rate": null,
+      "api_aol_expired_calls": 98,
+      "api_aol_total_calls": 186,
+      "api_aol_expired_rate": 0.5269,
+      "api_ao_offline_wrong_target_s": 243.067,
+      "b1_wrong_target_s": 114.0
+    },
+    "per_model_latency_ms": [
+      {
+        "party_id": "api_ao",
+        "acceleration": "unaccelerated",
+        "p50_ms": 4557,
+        "p95_ms": 11052,
+        "format_fallback_rate": 0.0,
+        "decision_agreement_vs_unaccelerated": null,
+        "sample_size": 1848,
+        "hardware": "OpenAI API (Mac host, E5 AO offline)"
+      },
+      {
+        "party_id": "api_aol",
+        "acceleration": "unaccelerated",
+        "p50_ms": 4784,
+        "p95_ms": 10524,
+        "format_fallback_rate": 0.0,
+        "decision_agreement_vs_unaccelerated": null,
+        "sample_size": 186,
+        "hardware": "OpenAI API (Mac host, E5 AO-L simlive)"
+      },
+      {
+        "party_id": "laya_text",
+        "acceleration": "accelerated",
+        "p50_ms": null,
+        "p95_ms": null,
+        "format_fallback_rate": null,
+        "decision_agreement_vs_unaccelerated": null,
+        "sample_size": null,
+        "hardware": "PLACEHOLDER (Colab-Pro GPU; != local demo)"
+      },
+      {
+        "party_id": "qwen_vl",
+        "acceleration": "accelerated",
+        "p50_ms": null,
+        "p95_ms": null,
+        "format_fallback_rate": null,
+        "decision_agreement_vs_unaccelerated": null,
+        "sample_size": null,
+        "hardware": "PLACEHOLDER (Colab-Pro GPU; != local demo)"
+      },
+      {
+        "party_id": "diffusion_vlm",
+        "acceleration": "accelerated",
+        "p50_ms": null,
+        "p95_ms": null,
+        "format_fallback_rate": null,
+        "decision_agreement_vs_unaccelerated": null,
+        "sample_size": null,
+        "hardware": "PLACEHOLDER (Colab-Pro GPU; != local demo)"
+      }
+    ]
+  },
+  "e6_verdict": {
+    "status": "PENDING_PR726_AND_RUN",
+    "preregistered_verdict_label": "PENDING",
+    "verbatim_verdict_text": "PENDING (awaiting PR #726 merge and #732 Mac execution)",
+    "effective_families": null,
+    "unique_decision_points": null,
+    "skew_sensitivity_flag": null,
+    "provenance_source_id": "e6_verdict_pending"
+  },
+  "target_tracking_672": {
+    "status": "PENDING_676_AND_RUN",
+    "targets": []
+  }
+}
