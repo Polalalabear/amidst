@@ -168,8 +168,67 @@ def test_gitattributes_protects_data_and_evidence_hashes() -> None:
     gitattributes = REPO_ROOT / ".gitattributes"
     assert gitattributes.is_file()
     content = gitattributes.read_text(encoding="utf-8")
+    assert "* text=auto eol=lf" in content
+    assert content.index("* text=auto eol=lf") < content.index("*.json -text")
     for pattern in ("*.json -text", "*.jsonl -text", "*.csv -text", "*.sha256 -text", "*.png -text", "*.pth -text"):
         assert pattern in content
+
+
+def test_fetch_and_verify_dir_content_sha256_catches_1byte_same_size_mutation(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "configs" / "reproduce").mkdir(parents=True)
+    target_dir = repo / "local" / "evidence" / "scorer-run"
+    target_dir.mkdir(parents=True)
+
+    f1 = target_dir / "recompute.json"
+    f2 = target_dir / "SHA256SUMS"
+    orig_bytes = b'{"score": 114.0}\n'
+    f1.write_bytes(orig_bytes)
+    f2.write_bytes(b"abc  recompute.json\n")
+
+    # Compute expected content-based dir_content_sha256 over sorted <relpath>\0<file_sha256>\n
+    h = hashlib.sha256()
+    for rel, path in sorted([("recompute.json", f1), ("SHA256SUMS", f2)]):
+        h.update(f"{rel}\0{_sha256_bytes(path.read_bytes())}\n".encode("utf-8"))
+    expected_dir_sha = h.hexdigest()
+
+    manifest = {
+        "manifest_format": "amidst.reproduce-artifact-manifest.v1",
+        "format_version": 1,
+        "artifacts": [
+            {
+                "id": "scorer-run",
+                "local_path": "local/evidence/scorer-run",
+                "entry_type": "dir",
+                "size_bytes": len(orig_bytes) + len(b"abc  recompute.json\n"),
+                "file_count": 2,
+                "sha256": None,
+                "manifest_file": None,
+                "manifest_sha256": None,
+                "dir_content_sha256": expected_dir_sha,
+                "purpose": "synthetic dir_content_sha256 test",
+                "cloud_location": "",
+                "rebuildable": True,
+                "status": "FINAL",
+            }
+        ],
+    }
+    manifest_path = repo / "configs" / "reproduce" / "artifact_manifest_v1.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    # 1. Clean verify passes
+    res = run_fetch_and_verify(manifest_path, repo, verify_only=True)
+    assert res["status"] == "PASS"
+    assert res["results"][0]["hash_kind"] == "dir_content_sha256"
+    assert res["results"][0]["verified_hash"] == expected_dir_sha
+
+    # 2. Mutate 1 byte of content while keeping filename AND byte size identical
+    mutated_bytes = b'{"score": 115.0}\n'
+    assert len(mutated_bytes) == len(orig_bytes)
+    f1.write_bytes(mutated_bytes)
+
+    with pytest.raises(ReproduceError, match="DIR_CONTENT_SHA256_MISMATCH"):
+        run_fetch_and_verify(manifest_path, repo, verify_only=True)
 
 
 def test_tracked_symlinks_and_text_pointer_fallback(tmp_path: Path) -> None:

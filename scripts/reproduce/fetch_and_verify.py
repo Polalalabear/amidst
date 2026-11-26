@@ -36,10 +36,9 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _dir_listing_sha256(root: Path) -> tuple[str, int, int]:
-    lines: list[str] = []
-    file_count = 0
-    total_bytes = 0
+def _dir_content_sha256(root: Path) -> tuple[str, int, int]:
+    """Compute content-based SHA-256 over sorted ``<relpath>\\0<file_sha256>\\n`` entries."""
+    entries: list[tuple[str, Path]] = []
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
         dirnames.sort()
         filenames.sort()
@@ -49,11 +48,18 @@ def _dir_listing_sha256(root: Path) -> tuple[str, int, int]:
             if fpath.is_symlink():
                 continue
             f_rel = f"{d_rel}/{fname}" if d_rel != "." else fname
-            size = fpath.stat().st_size
-            lines.append(f"{f_rel}\t{size}")
-            file_count += 1
-            total_bytes += size
-    return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest(), file_count, total_bytes
+            entries.append((f_rel, fpath))
+    entries.sort(key=lambda item: item[0])
+
+    h = hashlib.sha256()
+    file_count = 0
+    total_bytes = 0
+    for f_rel, fpath in entries:
+        file_sha = _sha256_file(fpath)
+        h.update(f"{f_rel}\0{file_sha}\n".encode("utf-8"))
+        file_count += 1
+        total_bytes += fpath.stat().st_size
+    return h.hexdigest(), file_count, total_bytes
 
 
 def _validate_local_rel(local_path: str) -> PurePosixPath:
@@ -167,25 +173,25 @@ def verify_entry(entry: dict[str, Any], target_path: Path, deep: bool = False) -
                 "deep_files_checked": deep_checked,
                 "status": "VERIFIED",
             }
-        expected_listing = entry.get("dir_listing_sha256")
-        if expected_listing:
-            actual_listing, file_count, total_bytes = _dir_listing_sha256(target_path)
-            if actual_listing.lower() != expected_listing.lower():
+        expected_content = entry.get("dir_content_sha256")
+        if expected_content:
+            actual_content, file_count, total_bytes = _dir_content_sha256(target_path)
+            if actual_content.lower() != expected_content.lower():
                 raise ReproduceError(
-                    f"DIR_LISTING_SHA256_MISMATCH ({entry_id}): {target_path} "
-                    f"expected={expected_listing} actual={actual_listing}"
+                    f"DIR_CONTENT_SHA256_MISMATCH ({entry_id}): {target_path} "
+                    f"expected={expected_content} actual={actual_content}"
                 )
             return {
                 "id": entry_id,
                 "local_path": entry["local_path"],
                 "entry_type": "dir",
-                "verified_hash": actual_listing,
-                "hash_kind": "dir_listing_sha256",
+                "verified_hash": actual_content,
+                "hash_kind": "dir_content_sha256",
                 "file_count": file_count,
                 "size_bytes": total_bytes,
                 "status": "VERIFIED",
             }
-        raise ReproduceError(f"MANIFEST_NO_VERIFIABLE_HASH ({entry_id}): declare manifest_sha256 or dir_listing_sha256")
+        raise ReproduceError(f"MANIFEST_NO_VERIFIABLE_HASH ({entry_id}): declare manifest_sha256 or dir_content_sha256")
 
     raise ReproduceError(f"UNSUPPORTED_ENTRY_TYPE ({entry_id}): {entry_type!r}")
 

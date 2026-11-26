@@ -1,4 +1,8 @@
 # Cross-platform line-ending hygiene (#728, #733).
+# Keep text source/docs files LF across Linux, macOS, and Windows so
+# authority-pinned files (authority_pins_v1.json) do not drift to CRLF.
+* text=auto eol=lf
+
 # Prevent CRLF/LF conversion from altering SHA-256 hashes of data, evidence,
 # manifests, images, models, and archives across Linux, macOS, and Windows.
 

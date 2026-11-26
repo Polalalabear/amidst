@@ -52,7 +52,7 @@ uv sync --frozen --all-groups --python "$(tr -d '[:space:]' < .python-version)"
   --source-dir ~/Downloads/amidst-repro-download
 ```
 
-4. 若檔案已放置於 `local/`（或欲對唯讀資料包原位核對），使用 `--verify-only`（加 `--deep` 會連同 `MANIFEST.sha256` 內列出的每個檔案逐一驗 hash）：
+4. 若檔案已放置於 `local/`（或欲對唯讀資料包原位核對），使用 `--verify-only`（加 `--deep` 會連同 `MANIFEST.sha256` 內列出的每個檔案逐一驗 hash；無 `MANIFEST` 檔的目錄則以內容雜湊 `dir_content_sha256` 逐檔驗證內容 SHA-256）：
 
 ```bash
 .venv/bin/python scripts/reproduce/fetch_and_verify.py \
@@ -125,8 +125,9 @@ print(f"E5 VERIFIED: B1 wrong_person_s={b1}, AO wrong_person_s={ao}")
 
 ### 4.2 換行符號與 SHA-256（`.gitattributes`）
 
-- 本 repo 已新增 `.gitattributes`，將 `.json`、`.jsonl`、`.csv`、`.sha256`、影像、影片、權重與壓縮檔設為 `-text`，避免跨平台 `core.autocrlf` 改動檔案 bytes 導致 SHA-256 核對失敗。
+- 本 repo 已新增 `.gitattributes`，最上方設定 `* text=auto eol=lf`，使 `.md`、`.py`、`.mjs` 等文字檔在跨平台工作樹維持 LF，避免觸發 `configs/architecture/authority_pins_v1.json` 的 CRLF SHA 漂移；並將 `.json`、`.jsonl`、`.csv`、`.sha256`、影像、影片、權重與壓縮檔設為 `-text`，保留原始位元組。
 - Shell 腳本（`*.sh`、`*.command`）強制 `eol=lf`。
+- **Windows 使用者注意**：建議在 clone 或 checkout 前設定 `git config core.autocrlf false`（或全域 `git config --global core.autocrlf false`），避免工作樹轉換為 CRLF 導致 `authority_pins_v1.json` 檔案雜湊核對誤報。
 
 ### 4.3 3 個 Git 符號連結的跨平台退路
 

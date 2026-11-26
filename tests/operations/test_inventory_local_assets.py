@@ -213,3 +213,152 @@ def test_inventory_cli_writes_json_and_md(tmp_path: Path) -> None:
     parsed = json.loads(out_json.read_text(encoding="utf-8"))
     assert parsed["read_only"] is True
     assert parsed["summary"]["OBVIOUSLY_STALE_OR_BROKEN"]["item_count"] == 4
+    assert parsed["external_ref_scan"]["github_issues_prs_scanned"] is False
+    assert parsed["external_ref_scan"]["open_pr_branches_scanned"] is False
+    assert parsed["external_ref_scan"]["warning"]
+
+
+def test_ancestor_prefix_propagation_and_non_area_local_paths(tmp_path: Path) -> None:
+    """PR #738 P1-1: docs referencing local/X/child (e.g. local/runtime/live-main)
+    MUST classify local/X (local/runtime) as KEEP with active_reference_count >= 1,
+    along with local/manifests, local/logs, and local/.migration-d169.
+    """
+    repo = tmp_path / "repo"
+    local = tmp_path / "local"
+    (repo / "docs" / "agents").mkdir(parents=True)
+    (repo / "docs" / "operations").mkdir(parents=True)
+
+    # Doc under docs/agents/ references child paths under local/runtime, local/manifests, local/logs, local/.migration-d169
+    (repo / "docs" / "agents" / "COORDINATOR_HANDOFF_20261117.md").write_text(
+        "\n".join(
+            [
+                "- Live 8791 runtime lives at `local/runtime/live-main`.",
+                "- Manifests live under `~/amidst/local/manifests/run-01.json`.",
+                "- Logs written to `./local/logs/server.log`.",
+                "- Migration marker: `local/.migration-d169`.",
+                "- System path `/usr/local/bin/python3` is a system binary, not a repo asset.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # Create top-level entries in local/
+    (local / "runtime" / "live-main").mkdir(parents=True)
+    (local / "runtime" / "live-main" / "state.json").write_text("{}\n", encoding="utf-8")
+
+    (local / "manifests").mkdir(parents=True)
+    (local / "manifests" / "run-01.json").write_text("{}\n", encoding="utf-8")
+
+    (local / "logs").mkdir(parents=True)
+    (local / "logs" / "server.log").write_text("ok\n", encoding="utf-8")
+
+    (local / ".migration-d169").write_text("done\n", encoding="utf-8")
+
+    # Unreferenced sibling should still be DELETABLE_CANDIDATE
+    (local / "bin").mkdir(parents=True)
+    (local / "bin" / "unused.txt").write_text("nope\n", encoding="utf-8")
+
+    report = inventory_local_assets(repo, local)
+    by_path = {item["local_path"]: item for item in report["items"]}
+
+    for expected_keep in ("local/runtime", "local/manifests", "local/logs", "local/.migration-d169"):
+        assert by_path[expected_keep]["classification"] == "KEEP", expected_keep
+        assert by_path[expected_keep]["active_reference_count"] >= 1, expected_keep
+
+    # /usr/local/bin must NOT have falsely kept local/bin
+    assert by_path["local/bin"]["classification"] == "DELETABLE_CANDIDATE"
+    assert by_path["local/bin"]["active_reference_count"] == 0
+
+
+def test_github_refs_json_keeps_issue_and_pr_branch_referenced_items(tmp_path: Path) -> None:
+    """PR #738 P1-2: an item referenced ONLY in a GitHub issue/PR or open PR branch
+    via --github-refs-json MUST be classified as KEEP.
+    """
+    repo = tmp_path / "repo"
+    local = tmp_path / "local"
+    (repo / "docs").mkdir(parents=True)
+
+    # Item referenced ONLY in a GitHub issue (nowhere in repo checkout)
+    gh_only = local / "evidence" / "coordinator-20261109"
+    gh_only.mkdir(parents=True)
+    (gh_only / "audit.json").write_text('{"ok": true}\n', encoding="utf-8")
+
+    # Item referenced ONLY in an open PR branch
+    pr_only = local / "evidence" / "open-pr-experiment"
+    pr_only.mkdir(parents=True)
+    (pr_only / "metrics.json").write_text('{"ok": true}\n', encoding="utf-8")
+
+    # Truly unreferenced item
+    unref = local / "evidence" / "truly-unreferenced"
+    unref.mkdir(parents=True)
+    (unref / "x.txt").write_text("x\n", encoding="utf-8")
+
+    # Without GitHub refs: coordinator-20261109 is DELETABLE_CANDIDATE and warning is emitted
+    base_report = inventory_local_assets(repo, local)
+    base_by_path = {item["local_path"]: item for item in base_report["items"]}
+    assert base_by_path["local/evidence/coordinator-20261109"]["classification"] == "DELETABLE_CANDIDATE"
+    assert base_report["external_ref_scan"]["github_issues_prs_scanned"] is False
+    assert base_report["external_ref_scan"]["open_pr_branches_scanned"] is False
+    base_md = render_markdown(base_report)
+    assert "外部引用掃描未完整警示" in base_md
+    assert "刪除前必讀" in base_md
+
+    # With --github-refs-json: both issue-referenced and open-PR-referenced items become KEEP
+    gh_json = tmp_path / "gh_refs.json"
+    gh_json.write_text(
+        json.dumps(
+            {
+                "issues_and_prs": [
+                    {
+                        "source": "github:issue#729",
+                        "text": "Please keep local/evidence/coordinator-20261109/audit.json for audit.",
+                    }
+                ],
+                "open_pr_branches": [
+                    {
+                        "branch": "origin/codex/feat-exp",
+                        "source": "github:pr#740:docs/notes.md",
+                        "text": "Depends on local/evidence/open-pr-experiment/metrics.json",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out_json = tmp_path / "inv_gh.json"
+    out_md = tmp_path / "inv_gh.md"
+    script = Path(__file__).resolve().parents[2] / "scripts" / "inventory_local_assets.py"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--repo",
+            str(repo),
+            "--local-root",
+            str(local),
+            "--github-refs-json",
+            str(gh_json),
+            "--json-out",
+            str(out_json),
+            "--md-out",
+            str(out_md),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    gh_report = json.loads(out_json.read_text(encoding="utf-8"))
+    gh_by_path = {item["local_path"]: item for item in gh_report["items"]}
+
+    assert gh_report["external_ref_scan"]["github_issues_prs_scanned"] is True
+    assert gh_report["external_ref_scan"]["open_pr_branches_scanned"] is True
+    assert gh_report["external_ref_scan"]["warning"] == ""
+
+    assert gh_by_path["local/evidence/coordinator-20261109"]["classification"] == "KEEP"
+    assert gh_by_path["local/evidence/coordinator-20261109"]["active_reference_count"] >= 1
+    assert gh_by_path["local/evidence/open-pr-experiment"]["classification"] == "KEEP"
+    assert gh_by_path["local/evidence/open-pr-experiment"]["active_reference_count"] >= 1
+    assert gh_by_path["local/evidence/truly-unreferenced"]["classification"] == "DELETABLE_CANDIDATE"

@@ -18,23 +18,24 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import subprocess
 import sys
 from typing import Any
 
-# Reuse LOCAL path regex from check_local_artifact_refs.py when available.
-try:
-    from scripts.check_local_artifact_refs import GOOD as _LOCAL_REF_RE
-except ImportError:
-    try:
-        from check_local_artifact_refs import GOOD as _LOCAL_REF_RE  # type: ignore[no-redef]
-    except ImportError:
-        _LOCAL_REF_RE = re.compile(
-            r"(?<![\w/.-])(?:local/(?:data|evidence|archive)/|\$\{?AMIDST_ARTIFACTS\}?/)[^\s`\"'|)\]>,;]+"
-        )
+# Match ANY local/<relpath> (including local/runtime/..., local/manifests/..., local/logs/...,
+# local/.migration-d169, local/data/..., local/evidence/..., local/archive/..., ./local/...,
+# ~/amidst/local/..., and $AMIDST_ARTIFACTS/...) while avoiding system paths like /usr/local/bin.
+_LOCAL_REF_RE = re.compile(
+    r"(?:(?<![\w/.-])|(?<=~/amidst/)|(?<=\./))"
+    r"(?:local/[A-Za-z0-9._-]+(?:/[^\s`\"'|)\]>,;]*)?|\$\{?AMIDST_ARTIFACTS\}?/[^\s`\"'|)\]>,;]+)"
+)
 
 AREAS = ("data", "evidence", "archive")
-SKIP_REPO_DIRS = {".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", "local", ".local"}
-SCAN_TEXT_SUFFIXES = {".md", ".json", ".yaml", ".yml", ".toml", ".py", ".mjs", ".js", ".sh", ".ps1", ".command", ".txt"}
+SKIP_REPO_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "local", ".local"}
+SCAN_TEXT_SUFFIXES = {
+    ".md", ".json", ".yaml", ".yml", ".toml", ".py", ".mjs", ".js", ".ts", ".tsx", ".jsx",
+    ".sh", ".ps1", ".command", ".txt", ".cfg", ".ini", ".bat", ".cmd", ".html", ".css",
+}
 
 # Protected original asset patterns (NEVER mark deletable — list only, never delete).
 PROTECTED_EXTS = {".blend", ".blend1", ".blend2", ".mp4", ".mov", ".mkv", ".avi", ".webm"}
@@ -90,8 +91,8 @@ DATE_SERIES_RE = re.compile(r"^(?P<prefix>.+?)[-_](?P<date>20\d{6})(?:[-_].*)?$"
 
 
 def _norm_local_ref(raw: str) -> str | None:
-    """Normalize a matched reference into canonical ``local/<area>/...`` posix form."""
-    cleaned = raw.strip().rstrip(".,;:)'\"`")
+    """Normalize a matched reference into canonical ``local/...`` posix form."""
+    cleaned = raw.strip().rstrip(".,;:)'\"`/")
     if cleaned.startswith("$AMIDST_ARTIFACTS/"):
         cleaned = "local/evidence/" + cleaned[len("$AMIDST_ARTIFACTS/"):]
     elif cleaned.startswith("${AMIDST_ARTIFACTS}/"):
@@ -107,19 +108,250 @@ def _norm_local_ref(raw: str) -> str | None:
         if any(ch in part for ch in ("<", ">", "{", "}", "*", "…", "$")):
             break
         clean_parts.append(part)
-    if len(clean_parts) < 3:
+    if len(clean_parts) < 2:
+        return None
+    # Bare area roots (local/data, local/evidence, local/archive) are too broad to
+    # keep every child inside those areas; require at least local/<area>/<item>.
+    if clean_parts[1] in AREAS and len(clean_parts) < 3:
         return None
     return "/".join(clean_parts)
 
 
-def scan_repo_references(repo: Path) -> dict[str, Any]:
-    """Scan merged repo docs, configs, and code for all ``local/...`` references.
+def _ancestor_prefixes(norm: str) -> list[str]:
+    """Return ``norm`` and every valid non-area ancestor under ``local/``.
+
+    Ensures a reference to ``local/X/child`` propagates to ``local/X`` (e.g.
+    ``local/runtime/live-main`` -> ``["local/runtime/live-main", "local/runtime"]``),
+    while not collapsing ``local/evidence/run1`` into bare ``local/evidence``.
+    """
+    parts = PurePosixPath(norm).parts
+    if len(parts) < 2 or parts[0] != "local":
+        return []
+    min_len = 3 if parts[1] in AREAS else 2
+    return ["/".join(parts[:i]) for i in range(len(parts), min_len - 1, -1)]
+
+
+def _scan_text_for_refs(
+    text: str,
+    source_file: str,
+    add_ref_fn: Any,
+    *,
+    kind: str = "text_ref",
+    is_archive_doc: bool | None = None,
+) -> None:
+    for idx, line in enumerate(text.splitlines(), 1):
+        for match in _LOCAL_REF_RE.finditer(line):
+            add_ref_fn(match.group(0), source_file, idx, kind=kind, is_archive_doc=is_archive_doc)
+
+
+def _scan_github_refs_json(
+    json_path: Path,
+    add_ref_fn: Any,
+) -> tuple[bool, bool, list[str]]:
+    """Load pre-fetched or test-injected GitHub issue/PR & open-branch references."""
+    warnings: list[str] = []
+    try:
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return False, False, [f"Failed to read --github-refs-json ({json_path}): {exc}"]
+
+    issues_scanned = False
+    branches_scanned = False
+
+    def ingest_items(items: Any, default_prefix: str, kind: str) -> None:
+        if not isinstance(items, list):
+            return
+        for idx, item in enumerate(items, 1):
+            if isinstance(item, str):
+                _scan_text_for_refs(item, f"{default_prefix}#{idx}", add_ref_fn, kind=kind, is_archive_doc=False)
+                continue
+            if not isinstance(item, dict):
+                continue
+            src = str(item.get("source") or item.get("branch") or f"{default_prefix}#{item.get('number', idx)}")
+            for raw_p in item.get("paths") or []:
+                if isinstance(raw_p, str):
+                    add_ref_fn(raw_p, src, None, kind=kind, is_archive_doc=False)
+            text = item.get("text") or item.get("body") or ""
+            if isinstance(text, str) and text:
+                _scan_text_for_refs(text, src, add_ref_fn, kind=kind, is_archive_doc=False)
+
+    if isinstance(data, list):
+        issues_scanned = True
+        ingest_items(data, "github:issue", "github_issue_pr")
+    elif isinstance(data, dict):
+        for key in ("issues_and_prs", "issues", "prs", "references"):
+            if key in data:
+                issues_scanned = True
+                ingest_items(data[key], f"github:{key}", "github_issue_pr")
+        if "open_pr_branches" in data:
+            branches_scanned = True
+            ingest_items(data["open_pr_branches"], "github:pr-branch", "open_pr_branch")
+        if not issues_scanned and not branches_scanned:
+            warnings.append(f"--github-refs-json ({json_path}) contained no recognized keys.")
+
+    return issues_scanned, branches_scanned, warnings
+
+
+def _scan_git_branches(repo: Path, add_ref_fn: Any) -> tuple[bool, list[str]]:
+    """Scan local and remote git branches for ``local/...`` references (read-only)."""
+    warnings: list[str] = []
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(repo), "for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes/origin"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        return False, [f"git branch scan failed: {exc}"]
+    if proc.returncode != 0:
+        return False, [f"git for-each-ref failed: {proc.stderr.strip()}"]
+
+    branches = [
+        b.strip()
+        for b in proc.stdout.splitlines()
+        if b.strip() and b.strip() not in ("HEAD", "origin/HEAD")
+    ]
+    for branch in branches:
+        try:
+            gproc = subprocess.run(
+                ["git", "-C", str(repo), "grep", "-I", "-n", "-E", r"local/|AMIDST_ARTIFACTS", branch],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+                timeout=30,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            warnings.append(f"git grep on branch {branch} failed: {exc}")
+            continue
+        if gproc.returncode not in (0, 1):
+            continue
+        prefix = f"{branch}:"
+        for line in gproc.stdout.splitlines():
+            if not line.startswith(prefix):
+                continue
+            rest = line[len(prefix):]
+            parts = rest.split(":", 2)
+            if len(parts) < 3:
+                continue
+            rel_file, line_str, content = parts
+            if rel_file == "configs/local_path_map_v1.json":
+                continue
+            try:
+                lno = int(line_str)
+            except ValueError:
+                lno = None
+            is_arch = rel_file.startswith("docs/archive/") or rel_file.startswith("docs/history/")
+            for match in _LOCAL_REF_RE.finditer(content):
+                add_ref_fn(
+                    match.group(0),
+                    f"git-branch:{branch}:{rel_file}",
+                    lno,
+                    kind="open_pr_branch",
+                    is_archive_doc=is_arch,
+                )
+    return True, warnings
+
+
+def _scan_github_live(repo: Path, add_ref_fn: Any) -> tuple[bool, bool, list[str]]:
+    """Query GitHub issues/PRs (bodies + comments) and open PR branches via ``gh`` CLI."""
+    warnings: list[str] = []
+    issues_ok = False
+    branches_ok = False
+
+    def _run_gh(cmd: list[str]) -> tuple[bool, str, str]:
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=str(repo),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+                timeout=60,
+            )
+        except FileNotFoundError:
+            return False, "", "gh CLI not found in PATH"
+        except subprocess.SubprocessError as exc:
+            return False, "", f"gh CLI failed: {exc}"
+        if proc.returncode != 0:
+            return False, proc.stdout, proc.stderr.strip() or f"gh exited {proc.returncode}"
+        return True, proc.stdout, ""
+
+    ok_i, out_i, err_i = _run_gh(
+        ["gh", "issue", "list", "--state", "all", "--limit", "200", "--json", "number,title,body,comments"]
+    )
+    ok_p, out_p, err_p = _run_gh(
+        ["gh", "pr", "list", "--state", "all", "--limit", "200", "--json", "number,title,body,comments,headRefName,state"]
+    )
+
+    if ok_i:
+        try:
+            for issue in json.loads(out_i):
+                num = issue.get("number")
+                src = f"github:issue#{num}"
+                _scan_text_for_refs(f"{issue.get('title') or ''}\n{issue.get('body') or ''}", src, add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
+                for c in issue.get("comments") or []:
+                    _scan_text_for_refs(str(c.get("body") or ""), f"{src}:comment", add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
+        except ValueError as exc:
+            warnings.append(f"Failed to parse gh issue list JSON: {exc}")
+            ok_i = False
+    else:
+        warnings.append(f"GitHub issues scan unavailable ({err_i})")
+
+    open_prs: list[dict[str, Any]] = []
+    if ok_p:
+        try:
+            for pr in json.loads(out_p):
+                num = pr.get("number")
+                src = f"github:pr#{num}"
+                _scan_text_for_refs(f"{pr.get('title') or ''}\n{pr.get('body') or ''}", src, add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
+                for c in pr.get("comments") or []:
+                    _scan_text_for_refs(str(c.get("body") or ""), f"{src}:comment", add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
+                if str(pr.get("state") or "").upper() == "OPEN":
+                    open_prs.append(pr)
+        except ValueError as exc:
+            warnings.append(f"Failed to parse gh pr list JSON: {exc}")
+            ok_p = False
+    else:
+        warnings.append(f"GitHub PRs scan unavailable ({err_p})")
+
+    issues_ok = ok_i and ok_p
+
+    if ok_p:
+        branches_ok = True
+        for pr in open_prs:
+            num = pr.get("number")
+            head_ref = pr.get("headRefName") or ""
+            ok_d, out_d, err_d = _run_gh(["gh", "pr", "diff", str(num)])
+            if ok_d:
+                _scan_text_for_refs(out_d, f"github:pr#{num}:branch:{head_ref}", add_ref_fn, kind="open_pr_branch", is_archive_doc=False)
+            else:
+                warnings.append(f"Open PR #{num} ({head_ref}) diff scan failed: {err_d}")
+                branches_ok = False
+
+    return issues_ok, branches_ok, warnings
+
+
+def scan_repo_references(
+    repo: Path,
+    *,
+    include_github: bool = False,
+    github_refs_json: Path | None = None,
+    include_git_branches: bool = False,
+) -> dict[str, Any]:
+    """Scan merged repo docs, configs, code, and optional GitHub/branch sources for ``local/...`` references.
 
     Returns:
-      - refs_by_prefix: dict[local_rel_path, list[dict(file, line, is_archive_doc)]]
+      - refs_by_path: dict[local_rel_path, list[dict(file, line, kind, is_archive_doc, original_ref)]]
       - path_map_generations: dict[local_rel_path, str] from configs/local_path_map_v1.json
       - demo_pin_paths: set[str]
       - reproduce_manifest_paths: set[str]
+      - external_ref_scan: dict(github_issues_prs_scanned, open_pr_branches_scanned, warning)
     """
     repo = repo.resolve()
     refs_by_path: dict[str, list[dict[str, Any]]] = {}
@@ -127,20 +359,33 @@ def scan_repo_references(repo: Path) -> dict[str, Any]:
     demo_pin_paths: set[str] = {"local/data/demo-owned-v1"}
     reproduce_manifest_paths: set[str] = set()
 
-    def add_ref(local_path: str, source_file: str, line_no: int | None = None, kind: str = "text_ref") -> None:
+    def add_ref(
+        local_path: str,
+        source_file: str,
+        line_no: int | None = None,
+        kind: str = "text_ref",
+        is_archive_doc: bool | None = None,
+    ) -> None:
         norm = _norm_local_ref(local_path)
         if not norm:
             return
-        is_archive_doc = source_file.startswith("docs/archive/") or source_file.startswith("docs/history/")
+        arch = (
+            is_archive_doc
+            if is_archive_doc is not None
+            else (source_file.startswith("docs/archive/") or source_file.startswith("docs/history/"))
+        )
         entry = {
             "file": source_file,
             "line": line_no,
             "kind": kind,
-            "is_archive_doc": is_archive_doc,
+            "is_archive_doc": arch,
+            "original_ref": norm,
         }
-        bucket = refs_by_path.setdefault(norm, [])
-        if entry not in bucket:
-            bucket.append(entry)
+        # Propagate to norm AND every valid non-area ancestor (e.g. local/runtime/live-main -> local/runtime)
+        for prefix_path in _ancestor_prefixes(norm):
+            bucket = refs_by_path.setdefault(prefix_path, [])
+            if entry not in bucket:
+                bucket.append(entry)
 
     # 1. Structured configs: demo_integration_local.json
     demo_cfg = repo / "configs" / "demo_integration_local.json"
@@ -184,7 +429,7 @@ def scan_repo_references(repo: Path) -> dict[str, Any]:
         except (OSError, ValueError):
             pass
 
-    # 4. Walk repo text files for explicit local/... references
+    # 4. Walk ALL repo text files (docs/, docs/agents/, configs/, scripts/, src/, frontend/, tests/, root)
     for dirpath, dirnames, filenames in os.walk(repo):
         dirnames[:] = sorted(d for d in dirnames if d not in SKIP_REPO_DIRS)
         for fname in sorted(filenames):
@@ -201,15 +446,53 @@ def scan_repo_references(repo: Path) -> dict[str, Any]:
                 text = fpath.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            for idx, line in enumerate(text.splitlines(), 1):
-                for match in _LOCAL_REF_RE.finditer(line):
-                    add_ref(match.group(0), rel, idx, kind="text_ref")
+            _scan_text_for_refs(text, rel, add_ref, kind="text_ref")
+
+    # 5. Optional external reference scans: GitHub issues/PRs and open/git branches
+    github_issues_prs_scanned = False
+    open_pr_branches_scanned = False
+    ext_warnings: list[str] = []
+
+    if github_refs_json is not None:
+        gh_i, gh_b, warns = _scan_github_refs_json(github_refs_json, add_ref)
+        github_issues_prs_scanned = github_issues_prs_scanned or gh_i
+        open_pr_branches_scanned = open_pr_branches_scanned or gh_b
+        ext_warnings.extend(warns)
+
+    if include_github:
+        gh_i, gh_b, warns = _scan_github_live(repo, add_ref)
+        github_issues_prs_scanned = github_issues_prs_scanned or gh_i
+        open_pr_branches_scanned = open_pr_branches_scanned or gh_b
+        ext_warnings.extend(warns)
+
+    if include_git_branches:
+        gb_ok, warns = _scan_git_branches(repo, add_ref)
+        open_pr_branches_scanned = open_pr_branches_scanned or gb_ok
+        ext_warnings.extend(warns)
+
+    missing_scopes: list[str] = []
+    if not github_issues_prs_scanned:
+        missing_scopes.append("GitHub issues/PRs")
+    if not open_pr_branches_scanned:
+        missing_scopes.append("open PR branches")
+    if missing_scopes:
+        ext_warnings.append(
+            f"{' and '.join(missing_scopes)} were NOT scanned; human review or re-running with "
+            "--include-github --include-git-branches (or --github-refs-json) is required before deleting any candidate."
+        )
+
+    external_ref_scan = {
+        "github_issues_prs_scanned": github_issues_prs_scanned,
+        "open_pr_branches_scanned": open_pr_branches_scanned,
+        "warning": "; ".join(ext_warnings),
+    }
 
     return {
         "refs_by_path": refs_by_path,
         "path_map_generations": path_map_generations,
         "demo_pin_paths": sorted(demo_pin_paths),
         "reproduce_manifest_paths": sorted(reproduce_manifest_paths),
+        "external_ref_scan": external_ref_scan,
     }
 
 
@@ -437,15 +720,28 @@ def _stale_marker_match(local_path: str) -> str | None:
     return None
 
 
-def inventory_local_assets(repo: Path, local_root: Path) -> dict[str, Any]:
+def inventory_local_assets(
+    repo: Path,
+    local_root: Path,
+    *,
+    include_github: bool = False,
+    github_refs_json: Path | None = None,
+    include_git_branches: bool = False,
+) -> dict[str, Any]:
     """Run full read-only inventory and classification."""
     repo = repo.resolve()
     local_root = local_root.resolve()
-    ref_index = scan_repo_references(repo)
+    ref_index = scan_repo_references(
+        repo,
+        include_github=include_github,
+        github_refs_json=github_refs_json,
+        include_git_branches=include_git_branches,
+    )
     refs_by_path = ref_index["refs_by_path"]
     path_map_generations = ref_index["path_map_generations"]
     demo_pin_paths = set(ref_index["demo_pin_paths"])
     reproduce_manifest_paths = set(ref_index["reproduce_manifest_paths"])
+    external_ref_scan = ref_index["external_ref_scan"]
 
     # Also honor local/demo-pin.json if present inside local_root
     demo_pin_file = local_root / "demo-pin.json"
@@ -587,6 +883,7 @@ def inventory_local_assets(repo: Path, local_root: Path) -> dict[str, Any]:
         "generated_at_utc": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repo_root": str(repo),
         "local_root": str(local_root),
+        "external_ref_scan": external_ref_scan,
         "total_items": len(results),
         "total_files": sum(r["file_count"] for r in results),
         "total_bytes": sum(r["size_bytes"] for r in results),
@@ -619,13 +916,27 @@ def _fmt_refs(refs: list[dict[str, Any]], limit: int = 3) -> str:
 def render_markdown(report: dict[str, Any]) -> str:
     """Render human-readable Markdown report with dedicated D387 section."""
     s = report["summary"]
+    ext = report.get("external_ref_scan") or {
+        "github_issues_prs_scanned": False,
+        "open_pr_branches_scanned": False,
+        "warning": "GitHub issues/PRs and open PR branches were NOT scanned; human review is required before deleting any candidate.",
+    }
+    ext_incomplete = (not ext.get("github_issues_prs_scanned")) or (not ext.get("open_pr_branches_scanned"))
     lines: list[str] = [
         "# `local/` 資產盤點與分類報告（唯讀）",
         "",
         f"- 產生時間（UTC）：`{report['generated_at_utc']}`",
-        f"- 掃描模式：**STRICTLY READ-ONLY（未刪除、未移動、未修改任何檔案）**",
+        "- 掃描模式：**STRICTLY READ-ONLY（未刪除、未移動、未修改任何檔案）**",
+        f"- 外部引用反查：`github_issues_prs_scanned={ext.get('github_issues_prs_scanned')}`、`open_pr_branches_scanned={ext.get('open_pr_branches_scanned')}`",
         f"- 總計：{report['total_items']} 項、{report['total_files']} 檔、{_fmt_bytes(report['total_bytes'])}（{report['total_bytes']} bytes）",
         "",
+    ]
+    if ext_incomplete:
+        lines += [
+            f"> **⚠️ 外部引用掃描未完整警示**：{ext.get('warning') or 'GitHub issue/PR 或 open PR 分支未掃描，刪除任何候選項目之前必須由人工核對或補跑 `--include-github --include-git-branches`。'}",
+            "",
+        ]
+    lines += [
         "## 彙總",
         "",
         "| 分類 | 項目數 | 檔數 | 大小 |",
@@ -645,6 +956,11 @@ def render_markdown(report: dict[str, Any]) -> str:
         "> 本節依 D387 獨立列出明顯過期、損毀或可重建快取項目，附每項理由與引用反查結果。**本工具絕不自動刪除**；下列指令皆已註解，須由使用者核准後於自己的終端機手動執行。",
         "",
     ]
+    if ext_incomplete:
+        lines += [
+            f"> **⚠️ 刪除前必讀**：{ext.get('warning')}",
+            "",
+        ]
     if obvious:
         lines += [
             "| 路徑 | 大小 | 檔數 | 修改時間 (UTC) | 引用反查結果 | 理由 | SHA-256 / MANIFEST |",
@@ -674,6 +990,8 @@ def render_markdown(report: dict[str, Any]) -> str:
     def render_section(title: str, cls: str) -> None:
         subset = [i for i in report["items"] if i["classification"] == cls]
         lines.extend([f"## {title}", ""])
+        if cls == "DELETABLE_CANDIDATE" and ext_incomplete:
+            lines.extend([f"> **⚠️ 刪除前必讀**：{ext.get('warning')}", ""])
         if not subset:
             lines.extend(["（無項目）", ""])
             return
@@ -709,13 +1027,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--local-root", type=Path, required=True, help="Path to local/ (or compatible datapack root) to scan read-only")
     parser.add_argument("--json-out", type=Path, default=None, help="Optional output path for JSON report")
     parser.add_argument("--md-out", type=Path, default=None, help="Optional output path for Markdown report")
+    parser.add_argument(
+        "--include-github",
+        action="store_true",
+        help="Also query GitHub issues/PRs (bodies+comments) and open PR diffs via gh CLI",
+    )
+    parser.add_argument(
+        "--github-refs-json",
+        type=Path,
+        default=None,
+        help="Optional offline JSON snapshot of GitHub issue/PR and open-branch references",
+    )
+    parser.add_argument(
+        "--include-git-branches",
+        action="store_true",
+        help="Also scan local and remote git branches for local/ references via git grep",
+    )
     args = parser.parse_args(argv)
 
     if not args.local_root.is_dir():
         print(f"ERROR: local root does not exist or is not a directory: {args.local_root}", file=sys.stderr)
         return 2
 
-    report = inventory_local_assets(args.repo, args.local_root)
+    report = inventory_local_assets(
+        args.repo,
+        args.local_root,
+        include_github=args.include_github,
+        github_refs_json=args.github_refs_json,
+        include_git_branches=args.include_git_branches,
+    )
     md_text = render_markdown(report)
 
     if args.json_out is not None:
