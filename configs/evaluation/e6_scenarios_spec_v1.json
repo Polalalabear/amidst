@@ -1,0 +1,772 @@
+{
+  "spec_version": "e6-scenarios-spec-v1",
+  "status": "DRAFT_PRE_RECORDING_D377",
+  "issue_ref": "#718",
+  "decision_ref": "D377",
+  "capture_spec": {
+    "engine": "LIVE_WEBGL_N6_GLB",
+    "cameras": [
+      "CAM_BRANCH",
+      "CAM_ENTRY",
+      "CAM_EXT_CAR",
+      "CAM_EXT_CLEAR",
+      "CAM_R101_IN",
+      "CAM_W1",
+      "CAM_W2",
+      "CAM_WIDE"
+    ],
+    "fps_hz": 5,
+    "resolution_wh": [
+      320,
+      180
+    ],
+    "resolution_as_factor": false,
+    "identity": "UNCONFIRMED",
+    "gt_policy": "SCORING_ONLY_NEVER_INFERENCE"
+  },
+  "thresholds": {
+    "min_decision_points": 40,
+    "min_effective_units": 8,
+    "holm_alpha_one_sided": 0.025,
+    "holm_step1_alpha": 0.0125,
+    "holm_step2_alpha": 0.025,
+    "follow_noninferiority_margin": -0.05,
+    "blind_false_lock_tolerance_s": 5.0,
+    "bootstrap_B": 10000,
+    "permutation_seed": 20261124,
+    "bootstrap_seed": 20261124,
+    "prng": "python.random.Random",
+    "c3_primary_endpoint": "full_track_dp_acc_k3_majority",
+    "single_decision_pairing_role": "secondary_diagnostic_k1_rn_uncertain_prior",
+    "sign_flip_null_hypothesis": "symmetric_null_sign_invariance_hemerik_goeman_2018",
+    "skew_sensitivity_abs_threshold": 1.0
+  },
+  "budget_usd": {
+    "diagnostic_cap": 10.0,
+    "formal_cap": 32.0,
+    "reconciled_prior_spend_d375": 38.17,
+    "project_hard_cap": 90.0
+  },
+  "old_e3_cases": [
+    {
+      "case_id": "E3-A1",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "A",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "f4d40e0f9419e9c04edc17e2579f9b8c81172cd18805211d83025fe088935ea3",
+      "gt_sha256": "2e23368c4e39ba339bcac7520c37a609b6112a1f57be4dac01fe2c39fbcf9625"
+    },
+    {
+      "case_id": "E3-A2",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "A",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "ab10b2d642a9d1a8279123b00c71532a4d98a55c3cd5c897eb318a7e33d46097",
+      "gt_sha256": "201ea66ab2dd8e505754deff26e4087e03cbf8c82e2210d05f8a2742fc2fc130"
+    },
+    {
+      "case_id": "E3-A3",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "A",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "deab6db16aea007998b8a7c283073686f09947bff0dc432e215da3db954d2fec",
+      "gt_sha256": "c54de0d77e25b61eada54513aa0a88c0ebd91d99254a6beb571dd514f00aee2b"
+    },
+    {
+      "case_id": "E3-B1",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "B",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "062c6db0e2a8f530675818d576209b81a975c0be0e1d4e313d1594f5e24d8438",
+      "gt_sha256": "7924e79d37a7ea32821d50b8b02ff869c0c24ba46427b6c91d635c3171031c1c"
+    },
+    {
+      "case_id": "E3-B2",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "B",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "9640da4d22a314c092e0b7a2488a7097ecc1a5437a3dd175e6d4ae589500fd80",
+      "gt_sha256": "374d6d11c08c98f7ccde10cecc51763babafb24f5ac73b29fc145b119fc59380"
+    },
+    {
+      "case_id": "E3-C1",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "C",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "c19ffebd6c5e5bcf2568234657a86d11b349c32afdf7acd9f0bf46e335fd635c",
+      "gt_sha256": "919c376d2cae5ed0e318373d649e3127f965785c1b2879c41d9a6f6c45519a4a"
+    },
+    {
+      "case_id": "E3-C2",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "C",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "8561cbf1e6f736d7dcd092df0fa49f016d83003cacedce9ffc978b125193b246",
+      "gt_sha256": "b8050dfb883abad7d8275d849cfc43be43d2e988bdfbc94faf9d02aee0711b04"
+    },
+    {
+      "case_id": "E3-D1",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "D",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "5d942df7deae5f6fd7992cabe68bb8ff3b9e7cbe0dae02dfa24eb0069a45c7d5",
+      "gt_sha256": "867bb93d586500bfb8d5f8ef14f1109abbd0206a8a3012128a8144142db493de"
+    },
+    {
+      "case_id": "E3-D2",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "D",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "eea8be2e21f108c9c7af6b09f776f2d2de6b8d71058a5f1763595db9277054b1",
+      "gt_sha256": "33531a3e67f5ad44c6f4d5c6e44848ef59de3ee27c7eff7790d52d1ee863e677"
+    },
+    {
+      "case_id": "E3-B3",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "B",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "c432532e3ea9e6909e7e38c9adff0f9740723265b0f0c52f117e9ac97fecfe2e",
+      "gt_sha256": "dbaa58ebcfd4868aa20d82c5bf40587e9d51816f9da1a15a2983b6d9a1e7dcfc"
+    },
+    {
+      "case_id": "E3-B4",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "B",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "fff4b2fcf39654b4d0563626d094e3662a0cfbd7be402dfb1a14ca43bbf4117d",
+      "gt_sha256": "d51e470dce68039a5ecf5348f22a7d6065f511981101889b2597328221f29124"
+    },
+    {
+      "case_id": "E3-B5",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "legacy_category": "B",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "9105ff7298eff9888f000678cc96f7922abb4f2afb1f5f91b0062ad21280ac7b",
+      "gt_sha256": "da5613177a5f944b541d6ceb87f6aa5b7c045e21a0dd915ac52f377394ff7c98"
+    },
+    {
+      "case_id": "E3-C3",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "C",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "b410e61d74a24c3ed08a5c94d12d6f26c10113aad479dfcf4cb6116803e4a2ff",
+      "gt_sha256": "1fd9eb7c777a893f221a3427a2027b1f18b895f6e3cd90416bdce72b407542d0"
+    },
+    {
+      "case_id": "E3-C4",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "C",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "52a469c33f2410ca6cab5a653aaa80a1735d0aee9cad66027612840fe8789c14",
+      "gt_sha256": "3a321298d1cfb59450cec49f57a908a2cf16aa03dd57104d5de52ffde0aee9d6"
+    },
+    {
+      "case_id": "E3-C5",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "C",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "c66fa46a48dc4daccc3239eb452229c90b5d7e8910d8f4fd5d6c5dc5d97efd75",
+      "gt_sha256": "f023a148c1e7c635829b05cda370e3966e4eddd501c1252c19575eea3a31d03b"
+    },
+    {
+      "case_id": "E3-C6",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "legacy_category": "C",
+      "source_catalog": "configs/evaluation/e3_reappearances_v1.json",
+      "case_sha256": "cc746bbd9956af74edfc122334221f1fcbd17a1f9b7e7052ba614073299f3a8d",
+      "gt_sha256": "2550b1dcbda3e02b4aa9eb02937fa24b9d90f2522499a76b19539a1b252479c9"
+    }
+  ],
+  "diagnostic_cases": [
+    {
+      "case_id": "E3-A1",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "selection_role": "DEV_DIAGNOSTIC_ONLY_NOT_FOR_FORMAL_VERDICT",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "f4d40e0f9419e9c04edc17e2579f9b8c81172cd18805211d83025fe088935ea3",
+      "gt_sha256": "2e23368c4e39ba339bcac7520c37a609b6112a1f57be4dac01fe2c39fbcf9625"
+    },
+    {
+      "case_id": "E3-B1",
+      "family_id": "E3_OLD_FAMILY_A4",
+      "selection_role": "DEV_DIAGNOSTIC_ONLY_NOT_FOR_FORMAL_VERDICT",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "062c6db0e2a8f530675818d576209b81a975c0be0e1d4e313d1594f5e24d8438",
+      "gt_sha256": "7924e79d37a7ea32821d50b8b02ff869c0c24ba46427b6c91d635c3171031c1c"
+    },
+    {
+      "case_id": "E3-C1",
+      "family_id": "E3_OLD_FAMILY_B4",
+      "selection_role": "DEV_DIAGNOSTIC_ONLY_NOT_FOR_FORMAL_VERDICT",
+      "source_catalog": "configs/evaluation/e3_live_cases_v1.json",
+      "case_sha256": "c19ffebd6c5e5bcf2568234657a86d11b349c32afdf7acd9f0bf46e335fd635c",
+      "gt_sha256": "919c376d2cae5ed0e318373d649e3127f965785c1b2879c41d9a6f6c45519a4a"
+    }
+  ],
+  "formal_cases": [
+    {
+      "case_id": "E6-S01",
+      "family_id": "E6-F01",
+      "opening_region": "OUT_W",
+      "opening_camera": "CAM_EXT_CAR",
+      "start_xy": [
+        -13.2,
+        -1.2
+      ],
+      "has_similar_distractor": true,
+      "similar_distractor_source": "NEW_ACTOR_RED_VEST_CROSS",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "OUT_W (CAM_EXT_CAR) -> VEST_W blind 4.0 s -> CORR_W west (CAM_W1) crossing red distractor -> R101 door",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S01-DP1",
+          "t_plan_s": 6.0,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S01-DP2",
+          "t_plan_s": 13.0,
+          "type": "SIMILAR_CROSSING",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S01-DP3",
+          "t_plan_s": 20.0,
+          "type": "POST_SPLIT_REACQUIRE",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S01-DP4",
+          "t_plan_s": 25.5,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S02",
+      "family_id": "E6-F02",
+      "opening_region": "OUT_W",
+      "opening_camera": "CAM_EXT_CLEAR",
+      "start_xy": [
+        -12.5,
+        4.2
+      ],
+      "has_similar_distractor": true,
+      "similar_distractor_source": "NEW_ACTOR_RED_CORR_W_MEET",
+      "planned_duration_s": 32.0,
+      "planned_route_summary": "OUT_W north (CAM_EXT_CLEAR) -> VEST_W -> CORR_W (CAM_W1/CAM_W2) parallel walk with red distractor -> blind 5.0 s -> re-appear CAM_W2",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S02-DP1",
+          "t_plan_s": 7.5,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S02-DP2",
+          "t_plan_s": 14.0,
+          "type": "SIMILAR_PARALLEL_SPLIT",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S02-DP3",
+          "t_plan_s": 21.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S02-DP4",
+          "t_plan_s": 27.0,
+          "type": "DISTRACTOR_STILL_VISIBLE_KEEP_T",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S03",
+      "family_id": "E6-F03",
+      "opening_region": "R101",
+      "opening_camera": "CAM_R101_IN",
+      "start_xy": [
+        2.2,
+        -3.2
+      ],
+      "has_similar_distractor": true,
+      "similar_distractor_source": "NEW_ACTOR_RED_PORTAL_SWAP",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "R101 interior (CAM_R101_IN) -> exit portal blind 4.5 s while red distractor stays in CORR_W -> re-appear CORR_W east (CAM_W2)",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S03-DP1",
+          "t_plan_s": 6.5,
+          "type": "PORTAL_EXIT_BLIND",
+          "expected_window_s": 3.0,
+          "gt_regime": "FULL_BLIND"
+        },
+        {
+          "dp_id": "E6-S03-DP2",
+          "t_plan_s": 12.0,
+          "type": "BLIND_REAPPEAR_WITH_SIMILAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S03-DP3",
+          "t_plan_s": 19.0,
+          "type": "SIMILAR_CROSSING",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S03-DP4",
+          "t_plan_s": 25.0,
+          "type": "CORNER_BRANCH_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S04",
+      "family_id": "E6-F04",
+      "opening_region": "CORR_W",
+      "opening_camera": "CAM_W1",
+      "start_xy": [
+        -3.0,
+        1.4
+      ],
+      "has_similar_distractor": true,
+      "similar_distractor_source": "NEW_ACTOR_RED_COUNTERFLOW",
+      "planned_duration_s": 31.0,
+      "planned_route_summary": "CORR_W west-mid (CAM_W1) -> counterflow red distractor -> enter R101 blind 5.5 s -> exit west to CAM_W1",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S04-DP1",
+          "t_plan_s": 6.0,
+          "type": "SIMILAR_CROSSING",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S04-DP2",
+          "t_plan_s": 13.0,
+          "type": "BLIND_ABSTAIN_DISTRACTOR_PRESENT",
+          "expected_window_s": 3.0,
+          "gt_regime": "FULL_BLIND"
+        },
+        {
+          "dp_id": "E6-S04-DP3",
+          "t_plan_s": 19.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S04-DP4",
+          "t_plan_s": 26.0,
+          "type": "POST_REAPPEAR_STABILITY",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S05",
+      "family_id": "E6-F05",
+      "opening_region": "CORNER",
+      "opening_camera": "CAM_BRANCH",
+      "start_xy": [
+        12.2,
+        1.2
+      ],
+      "has_similar_distractor": true,
+      "similar_distractor_source": "NEW_ACTOR_RED_SCREEN_LOOP",
+      "planned_duration_s": 32.0,
+      "planned_route_summary": "CORNER west (CAM_BRANCH) -> screen occlusion blind 4.5 s while red distractor passes CAM_WIDE -> re-appear CORR_N (CAM_WIDE)",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S05-DP1",
+          "t_plan_s": 7.0,
+          "type": "OCCLUSION_BLIND_WITH_SIMILAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "FULL_BLIND"
+        },
+        {
+          "dp_id": "E6-S05-DP2",
+          "t_plan_s": 13.5,
+          "type": "BRANCH_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S05-DP3",
+          "t_plan_s": 20.5,
+          "type": "SIMILAR_CROSSING",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S05-DP4",
+          "t_plan_s": 26.5,
+          "type": "POST_SPLIT_REACQUIRE",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S06",
+      "family_id": "E6-F06",
+      "opening_region": "CORR_N",
+      "opening_camera": "CAM_WIDE",
+      "start_xy": [
+        16.4,
+        9.2
+      ],
+      "has_similar_distractor": true,
+      "similar_distractor_source": "NEW_ACTOR_RED_NORTH_EXIT",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "CORR_N north (CAM_WIDE) -> walk south past red distractor -> screen blind 4.0 s -> turn into CORNER (CAM_BRANCH) -> exit to CORR_W (CAM_W2)",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S06-DP1",
+          "t_plan_s": 5.5,
+          "type": "SIMILAR_CROSSING",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S06-DP2",
+          "t_plan_s": 12.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S06-DP3",
+          "t_plan_s": 19.0,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S06-DP4",
+          "t_plan_s": 25.0,
+          "type": "TRUE_DEPARTURE_OR_KEEP_T",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S07",
+      "family_id": "E6-F07",
+      "opening_region": "VEST_W",
+      "opening_camera": "CAM_ENTRY",
+      "start_xy": [
+        -7.2,
+        0.2
+      ],
+      "has_similar_distractor": false,
+      "similar_distractor_source": "NONE",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "VEST_W (CAM_ENTRY) -> long blind 6.0 s -> CORR_W (CAM_W1/CAM_W2) with non-red pedestrian -> R101 door",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S07-DP1",
+          "t_plan_s": 8.0,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S07-DP2",
+          "t_plan_s": 14.5,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S07-DP3",
+          "t_plan_s": 20.5,
+          "type": "NON_SIMILAR_CROSSING",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S07-DP4",
+          "t_plan_s": 25.5,
+          "type": "PORTAL_REACQUIRE",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S08",
+      "family_id": "E6-F08",
+      "opening_region": "CORR_W",
+      "opening_camera": "CAM_W2",
+      "start_xy": [
+        8.4,
+        0.6
+      ],
+      "has_similar_distractor": false,
+      "similar_distractor_source": "NONE",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "CORR_W east (CAM_W2) -> walk east into CORNER blind 5.0 s -> re-appear CAM_BRANCH -> north into CAM_WIDE",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S08-DP1",
+          "t_plan_s": 7.0,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S08-DP2",
+          "t_plan_s": 13.5,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S08-DP3",
+          "t_plan_s": 20.0,
+          "type": "SCREEN_OCCLUSION_RETURN",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S08-DP4",
+          "t_plan_s": 25.5,
+          "type": "POST_RETURN_STABILITY",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S09",
+      "family_id": "E6-F09",
+      "opening_region": "CORR_N",
+      "opening_camera": "CAM_WIDE",
+      "start_xy": [
+        16.2,
+        4.8
+      ],
+      "has_similar_distractor": false,
+      "similar_distractor_source": "NONE",
+      "planned_duration_s": 31.0,
+      "planned_route_summary": "CORR_N mid (CAM_WIDE) -> behind OBSTACLE_SCREEN_N blind 5.5 s -> south to CORNER (CAM_BRANCH) -> west to CORR_W (CAM_W2)",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S09-DP1",
+          "t_plan_s": 7.5,
+          "type": "SCREEN_OCCLUSION_RETURN",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S09-DP2",
+          "t_plan_s": 14.0,
+          "type": "BRANCH_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S09-DP3",
+          "t_plan_s": 20.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S09-DP4",
+          "t_plan_s": 26.0,
+          "type": "POST_RETURN_STABILITY",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S10",
+      "family_id": "E6-F10",
+      "opening_region": "R101",
+      "opening_camera": "CAM_R101_IN",
+      "start_xy": [
+        0.8,
+        -4.6
+      ],
+      "has_similar_distractor": false,
+      "similar_distractor_source": "NONE",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "R101 deep interior (CAM_R101_IN) -> exit to CORR_W (CAM_W1) -> walk west into VEST_W blind 4.5 s -> exit to OUT_W (CAM_EXT_CAR)",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S10-DP1",
+          "t_plan_s": 6.5,
+          "type": "PORTAL_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S10-DP2",
+          "t_plan_s": 13.0,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S10-DP3",
+          "t_plan_s": 19.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S10-DP4",
+          "t_plan_s": 25.5,
+          "type": "OUTDOOR_REACQUIRE",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S11",
+      "family_id": "E6-F11",
+      "opening_region": "CORNER",
+      "opening_camera": "CAM_BRANCH",
+      "start_xy": [
+        14.2,
+        1.8
+      ],
+      "has_similar_distractor": false,
+      "similar_distractor_source": "NONE",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "CORNER east (CAM_BRANCH) -> blind behind OBSTACLE_SCREEN_CORNER_N 6.0 s -> true departure north past CAM_WIDE FOV (absent >= 6 s)",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S11-DP1",
+          "t_plan_s": 7.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S11-DP2",
+          "t_plan_s": 14.0,
+          "type": "CAMERA_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S11-DP3",
+          "t_plan_s": 20.0,
+          "type": "TRUE_DEPARTURE_ABSTAIN",
+          "expected_window_s": 3.0,
+          "gt_regime": "TRUE_DEPARTURE"
+        },
+        {
+          "dp_id": "E6-S11-DP4",
+          "t_plan_s": 25.0,
+          "type": "POST_DEPARTURE_ABSTAIN",
+          "expected_window_s": 3.0,
+          "gt_regime": "TRUE_DEPARTURE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    },
+    {
+      "case_id": "E6-S12",
+      "family_id": "E6-F12",
+      "opening_region": "CORR_W",
+      "opening_camera": "CAM_W1",
+      "start_xy": [
+        0.5,
+        0.9
+      ],
+      "has_similar_distractor": false,
+      "similar_distractor_source": "NONE",
+      "planned_duration_s": 30.0,
+      "planned_route_summary": "CORR_W center (CAM_W1/CAM_W2) -> enter R101 blind 4.5 s -> re-appear CAM_R101_IN -> exit east to CAM_W2 -> blind 3.5 s -> CAM_BRANCH",
+      "planned_decision_points": [
+        {
+          "dp_id": "E6-S12-DP1",
+          "t_plan_s": 6.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S12-DP2",
+          "t_plan_s": 13.0,
+          "type": "PORTAL_HANDOFF",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S12-DP3",
+          "t_plan_s": 19.5,
+          "type": "BLIND_REAPPEAR",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        },
+        {
+          "dp_id": "E6-S12-DP4",
+          "t_plan_s": 25.5,
+          "type": "BRANCH_REACQUIRE",
+          "expected_window_s": 3.0,
+          "gt_regime": "VISIBLE"
+        }
+      ],
+      "actual_gt_status": "PENDING_RECORDING",
+      "case_sha256": null,
+      "gt_sha256": null
+    }
+  ]
+}
