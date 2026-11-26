@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amidst Q1–Q5 Research Poster (A0 Portrait)</title>
+  <style>
+    @page {
+      size: 841mm 1189mm;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #e2e8f0;
+      font-family: "Inter", "Noto Sans TC", "Segoe UI", system-ui, sans-serif;
+      color: #0f172a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .poster {
+      width: 841mm;
+      height: 1189mm;
+      margin: 0 auto;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      padding: 24mm 26mm 20mm;
+      gap: 16mm;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #f8fafc;
+      border-radius: 10mm;
+      padding: 18mm 22mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16mm;
+    }
+
+    .header h1 {
+      font-size: 34pt;
+      line-height: 1.15;
+      margin: 0 0 6mm;
+    }
+
+    .header p {
+      font-size: 16pt;
+      margin: 0;
+      color: #cbd5e1;
+    }
+
+    .header-meta {
+      min-width: 190mm;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 6mm;
+      padding: 8mm 10mm;
+      font-size: 12.5pt;
+      line-height: 1.55;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2mm 5mm;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 11pt;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-warn {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .badge-info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #60a5fa;
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #f87171;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14mm;
+      flex: 1;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 14mm;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8mm;
+      padding: 12mm 14mm;
+      box-shadow: 0 2mm 6mm rgba(15, 23, 42, 0.05);
+    }
+
+    .card h2 {
+      font-size: 20pt;
+      margin: 0 0 6mm;
+      color: #1e3a8a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 3mm;
+    }
+
+    .card p, .card li {
+      font-size: 13pt;
+      line-height: 1.55;
+    }
+
+    .card ul {
+      margin: 4mm 0 0;
+      padding-left: 8mm;
+    }
+
+    .figure-box {
+      margin-top: 6mm;
+      border: 1px solid #e2e8f0;
+      border-radius: 5mm;
+      padding: 5mm;
+      background: #ffffff;
+    }
+
+    .figure-box img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .figure-caption {
+      font-size: 11pt;
+      color: #475569;
+      margin-top: 4mm;
+      line-height: 1.45;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5mm;
+      font-size: 12pt;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 4mm 5mm;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .footer {
+      background: #0f172a;
+      color: #cbd5e1;
+      border-radius: 6mm;
+      padding: 8mm 14mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5pt;
+      gap: 10mm;
+    }
+
+    code {
+      font-family: "JetBrains Mono", "Consolas", monospace;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 0.5mm 2mm;
+      border-radius: 2mm;
+      font-size: 0.92em;
+    }
+
+    .footer code {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f8fafc;
+    }
+  </style>
+</head>
+<body>
+  <main class="poster">
+    <header class="header">
+      <div>
+        <h1>Amidst Q1–Q5: Traceable Multi-Camera Tracking &amp; Agent Handoff Evaluation</h1>
+        <p>Evidence-bound camera retrieval, person tracking, and pre-registered rule vs. LLM/VLM handoff benchmarks</p>
+      </div>
+      <div class="header-meta">
+        <div><strong>Identity Status:</strong> <code>UNCONFIRMED</code></div>
+        <div><strong>Physical Clearance:</strong> <code>UNKNOWN</code></div>
+        <div><strong>E6 / E7 Status:</strong> <code>PLACEHOLDER (awaiting #732)</code></div>
+        <div><strong>Issues:</strong> #734 · #730 · #659</div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="col">
+        <article class="card">
+          <h2>1. Problem &amp; Q1–Q5 System Architecture</h2>
+          <p>
+            Multi-camera surveillance across blind zones and look-alike distractors requires
+            verifiable handoff decisions. Amidst structures the workflow into five auditable stages:
+          </p>
+          <ul>
+            <li><strong>Q1:</strong> Filter candidate cameras by user-selected conditions.</li>
+            <li><strong>Q2:</strong> Locate matching visual appearances in footage.</li>
+            <li><strong>Q3:</strong> Parse structured workbench query selections (non-NL).</li>
+            <li><strong>Q4:</strong> Judge frame-level target presence with explicit uncertainty.</li>
+            <li><strong>Q5:</strong> Decide camera switching when the target exits the field of view.</li>
+          </ul>
+          <p style="margin-top: 6mm;">
+            <span class="badge badge-info">STRICT GT ISOLATION</span>
+            Ground Truth, renderer trajectories, visibility, and depth are excluded from inference,
+            ranking, and reconstruction. Every output preserves source frame, clock, run, and SHA-256 provenance.
+          </p>
+        </article>
+
+        <article class="card">
+          <h2>2. E3 &amp; E5 Frozen Verdicts (Unchanged)</h2>
+          <p>
+            Evaluated on 16 hard E3 segments (68 decision points) against frozen baseline <strong>B1 Rule</strong>
+            (source: <code>docs/operations/E5_REPORT_20261123.md</code>):
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Experiment / Hypothesis</th>
+                <th>Pre-registered Verdict</th>
+                <th>Key Evidence (AO / AO-L − B1)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>E3</strong> (Attached Integration)</td>
+                <td><span class="badge badge-danger">不成立 / Not Supported</span></td>
+                <td>Attached agent did not beat B1 rule baseline.</td>
+              </tr>
+              <tr>
+                <td><strong>E5 H8a</strong> (AO offline, K=3)</td>
+                <td><span class="badge badge-danger">不成立 / Not Supported</span></td>
+                <td>Wrong-target +129.1s [55.2, 193.1]; McNemar p=0.019 favors B1.</td>
+              </tr>
+              <tr>
+                <td><strong>E5 H8b</strong> (AO blind-lock)</td>
+                <td><span class="badge badge-danger">不成立 / Not Supported</span></td>
+                <td>Blind-lock +65.5s [39.7, 91.3] (AO higher).</td>
+              </tr>
+              <tr>
+                <td><strong>E5 H8c</strong> (AO top-1 reappearance)</td>
+                <td><span class="badge badge-warn">無法判斷 / Inconclusive</span></td>
+                <td>Top-1 diff +0.009 [-0.157, +0.172] includes 0 (34/111 vs 11/37).</td>
+              </tr>
+              <tr>
+                <td><strong>E5 H8d</strong> (AO-L simlive, K=1)</td>
+                <td><span class="badge badge-danger">不成立 / Not Supported</span></td>
+                <td>Correct rate -0.511 [-0.617, -0.420]; McNemar p=4.8e-7 favors B1.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="figure-box">
+            <img src="../figures/fig1_e3_e5_summary.svg" alt="Fig 1: E3 and E5 frozen evaluation summary" />
+            <div class="figure-caption">
+              <strong>Figure 1.</strong> Frozen E3/E5 comparison (B1 Rule vs. API AO offline K=3 vs. API AO-L simlive K=1).
+              Rendered directly from <code>unified_analysis_v1</code> JSON.
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="col">
+        <article class="card">
+          <h2>3. Latency Bottleneck &amp; Zero-Latency Diagnostic</h2>
+          <p>
+            In simulated real-time execution (<strong>AO-L</strong>, K=1), remote API latency
+            (p50 = 4,784 ms, p95 = 10,524 ms) caused <strong>98 / 186 calls (52.7%)</strong> to expire
+            before application, leaving 510.6 s in LOST state.
+          </p>
+          <div class="figure-box">
+            <img src="../figures/fig3_latency_breakdown.svg" alt="Fig 3: Per-model latency breakdown and AO-L zero-latency diagnostic" />
+            <div class="figure-caption">
+              <strong>Figure 3.</strong> Per-model p50/p95 latency and AO-L zero-latency diagnostic.
+              <strong>Approximation notice:</strong> zero-latency re-scores existing responses at query time
+              without re-simulating tracker divergence. E7 local latency slots are <code>PLACEHOLDER (awaiting #732)</code>.
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>4. Five-Way Comparison, E7 Hardware &amp; E6 Follow-up</h2>
+          <p>
+            <span class="badge badge-warn">PLACEHOLDER (AWAITING #732)</span>
+            <span class="badge badge-info">COLAB PRO LATENCY != LOCAL DEMO LATENCY</span>
+          </p>
+          <div class="figure-box">
+            <img src="../figures/fig2_five_way_comparison.svg" alt="Fig 2: Five-way comparison across reference, rule, API, and local models" />
+            <div class="figure-caption">
+              <strong>Figure 2.</strong> Five-way comparison (Script Answer, B1 Rule, API AO/AO-L,
+              Local <code>laya</code>, <code>Qwen-VL</code>, Diffusion VLM). Hatched bars denote
+              <code>PLACEHOLDER</code> slots awaiting #732. E7 is exploratory on Colab Pro GPUs;
+              Colab latency does not equal local demo hardware latency.
+            </div>
+          </div>
+          <ul style="margin-top: 6mm;">
+            <li><strong>E6 Pre-registered Follow-up:</strong> De-anchoring, bounded history, and compact summary on 12 segments — verdict <code>PENDING_PR726_AND_RUN</code>.</li>
+            <li><strong>Live Workbench Demo:</strong> Ports <code>8785</code> (pinned baseline) &amp; <code>8791</code> (comparison), 347 E2E browser checks passed.</li>
+            <li><strong>Limitations:</strong> Synthetic Blender scenes only; appearance-only matching (<code>UNCONFIRMED</code>); physical clearance <code>UNKNOWN</code>.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>
+        <strong>Provenance:</strong> Shared figures from <code>report/figures/</code> (<code>unified_analysis_v1</code>) ·
+        Datapack MANIFEST SHA-256: <code>4eee05ba92ac954d4916f3000bd0d7c011297a75253ffe860605e74bca881b98</code>
+      </div>
+      <div>
+        <strong>Identity:</strong> <code>UNCONFIRMED</code> · E3/E5 verdicts unchanged
+      </div>
+    </footer>
+  </main>
+</body>
+</html>

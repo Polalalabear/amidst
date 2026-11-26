@@ -1,0 +1,23 @@
+{
+  "name": "amidst-q1q5-report-slides",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Amidst Q1-Q5 Research Report Slide Deck built with open-slide (MIT)",
+  "scripts": {
+    "dev": "open-slide dev",
+    "build": "open-slide build",
+    "preview": "open-slide preview",
+    "export:pdf": "open-slide export --format pdf --out dist/amidst-q1q5-slides.pdf",
+    "export:pptx": "open-slide export --format pptx --out dist/amidst-q1q5-slides.pptx"
+  },
+  "dependencies": {
+    "@open-slide/core": "2.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@open-slide/cli": "2.0.0",
+    "@types/react": "19.0.0",
+    "typescript": "5.8.2"
+  }
+}
