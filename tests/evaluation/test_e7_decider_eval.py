@@ -376,3 +376,163 @@ def test_acceleration_comparison_scopes_and_no_retry_inflation():
     assert scored["accelerated"]["needs_mac_scoring_count"] == 1
     assert scored["accelerated"]["decision_point_accuracy"] == 0.5  # 2/4
     assert scored["unaccelerated"]["decision_point_accuracy"] == round(2 / 3, 4)
+
+
+def test_p1a_write_colab_answer_table_rejects_before_creating_file_and_pre_upload_gate(tmp_path: Path):
+    """P1-A: write_colab_answer_table validates BEFORE creating the file; verify_colab_pack_pre_upload gates packs."""
+    bad_path = tmp_path / "bad.json"
+    bad_table = {
+        "E3-A1|t0": {
+            "expected_answer": "SELECT",
+            "expected_camera_ids": ["CAM_EXT_CAR"],
+            "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+            "gt_visible": ["CAM_EXT_CAR"],
+        }
+    }
+    with pytest.raises(ValueError, match="D385_FORBIDDEN_GT_FIELD"):
+        E7S.write_colab_answer_table(bad_path, bad_table)
+    assert not bad_path.exists(), "Failed validation MUST NOT create output file"
+
+    # Build valid upload pack and verify pre-upload gate + MANIFEST
+    pack_root = tmp_path / "pack"
+    good_table = {
+        "E3-A1|t0": {
+            "request_id": "E3-A1|t0",
+            "case_id": "E3-A1",
+            "tick": 0,
+            "expected_answer": "SELECT",
+            "expected_camera_ids": ["CAM_EXT_CAR"],
+            "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+        }
+    }
+    ans_path = pack_root / "scoring_only" / "answer_table.json"
+    digest = E7S.write_colab_answer_table(ans_path, good_table)
+    assert ans_path.is_file()
+    assert digest == hashlib.sha256(ans_path.read_bytes()).hexdigest()
+
+    req_path = pack_root / "requests" / "e3_16_segments.jsonl"
+    req_path.parent.mkdir(parents=True, exist_ok=True)
+    req_path.write_text('{"request_id":"E3-A1|t0","case_id":"E3-A1","tick":0}\n', encoding="utf-8")
+    req_sha = hashlib.sha256(req_path.read_bytes()).hexdigest()
+    (pack_root / "MANIFEST.sha256").write_text(
+        f"{digest}  scoring_only/answer_table.json\n{req_sha}  requests/e3_16_segments.jsonl\n",
+        encoding="utf-8",
+    )
+
+    gate = E7S.verify_colab_pack_pre_upload(pack_root)
+    assert gate["status"] == "OK"
+    assert gate["answer_table_entries"] == 1
+    assert gate["manifest_verification"]["status"] == "OK"
+
+    # Forbidden GT file inside pack must be rejected
+    (pack_root / "a-log.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="D385_FORBIDDEN_PACK_FILE"):
+        E7S.verify_colab_pack_pre_upload(pack_root)
+
+
+def test_p1b_d392_gt_regime_rejected_and_strict_value_type_validation():
+    """P1-B / D392: gt_regime forbidden, numeric boxes in legal keys rejected, unknown non-forbidden keys rejected."""
+    # 1. gt_regime is now FORBIDDEN (D392)
+    with pytest.raises(ValueError, match="D385_FORBIDDEN_GT_FIELD"):
+        E7S.validate_colab_answer_table(
+            {
+                "E3-A1|t0": {
+                    "expected_answer": "SELECT",
+                    "expected_camera_ids": ["CAM_EXT_CAR"],
+                    "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+                    "gt_regime": "VISIBLE",
+                }
+            }
+        )
+
+    # 2. Legal key expected_detection_ids smuggling numeric bounding box -> D385_INVALID_ANSWER_VALUE
+    with pytest.raises(ValueError, match="D385_INVALID_ANSWER_VALUE"):
+        E7S.validate_colab_answer_table(
+            {
+                "E3-A1|t0": {
+                    "expected_answer": "SELECT",
+                    "expected_camera_ids": ["CAM_EXT_CAR"],
+                    "expected_detection_ids": {"CAM_X": [[18.0, 58.0, 52.0, 132.0]]},
+                }
+            }
+        )
+
+    # 3. Non-forbidden unknown key (box_xyxy) -> D385_DISALLOWED_ANSWER_FIELD
+    with pytest.raises(ValueError, match="D385_DISALLOWED_ANSWER_FIELD"):
+        E7S.validate_colab_answer_table(
+            {
+                "E3-A1|t0": {
+                    "expected_answer": "SELECT",
+                    "expected_camera_ids": ["CAM_EXT_CAR"],
+                    "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+                    "box_xyxy": [1, 2, 3, 4],
+                }
+            }
+        )
+
+    # 4. Invalid expected_answer enum, non-str expected_camera_ids, bool tick -> D385_INVALID_ANSWER_VALUE
+    with pytest.raises(ValueError, match="D385_INVALID_ANSWER_VALUE"):
+        E7S.validate_colab_answer_entry({"expected_answer": "OWN_BOX"}, key="R1")
+    with pytest.raises(ValueError, match="D385_INVALID_ANSWER_VALUE"):
+        E7S.validate_colab_answer_entry({"expected_answer": "SELECT", "expected_camera_ids": [123]}, key="R2")
+    with pytest.raises(ValueError, match="D385_INVALID_ANSWER_VALUE"):
+        E7S.validate_colab_answer_entry({"expected_answer": "SELECT", "tick": True}, key="R3")
+
+
+def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
+    """P2-1: Cell 6 records unaudited custom-code models as SKIPPED_UNAUDITED and completes Qwen runs."""
+    nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    cell1 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-1-config")
+    cell6 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-6-run-deciders")
+
+    env: dict = {}
+    exec(compile("".join(cell1["source"]), "e7-cell-1-config", "exec"), env)
+    env["SMOKE_MODE"] = True
+    env["REQUESTS"] = _make_synthetic_requests()
+    exec(compile("".join(cell6["source"]), "e7-cell-6-run-deciders", "exec"), env)
+
+    # Qwen (2 modes: image_text + text_only) ran cleanly; laya and diffusion_vlm were skipped as SKIPPED_UNAUDITED
+    assert len(env["RAW_COMPARISONS"]) == 2
+    assert all(r["party_id"] == "qwen_vl" for r in env["RAW_COMPARISONS"])
+    skipped = env["SKIPPED_MODELS"]
+    assert len(skipped) == 2
+    assert {s["party_id"] for s in skipped} == {"laya_text", "diffusion_vlm"}
+    assert all(s["status"] == "SKIPPED_UNAUDITED" for s in skipped)
+
+
+def test_p2_3_and_p2_4_warmup_excluded_from_latency_and_hardware_provenance_dtype():
+    """P2-3: warmup() runs before timed decide() loop and stores load_ms separately. P2-4: bf16/dtype provenance."""
+    import time
+
+    reqs = _make_synthetic_requests()[:2]
+    events: list[str] = []
+
+    def _fast_infer(req: E7.DeciderRequest, accelerated: bool) -> str:
+        events.append(f"infer:{req.request_id}:{accelerated}")
+        return json.dumps({"answer": "NOT_VISIBLE", "next_camera_ranking": ["CAM_EXT_CAR"]})
+
+    def _slow_warmup(accelerated: bool) -> float:
+        events.append(f"warmup:{accelerated}")
+        time.sleep(0.03)
+        return 30.0
+
+    _fast_infer.warmup = _slow_warmup  # type: ignore[attr-defined]
+    decider = E7.QwenVLDecider(inference_fn=_fast_infer)
+    res = E7.run_acceleration_comparison(decider, reqs, dataset_scope="e3_16_segments", input_mode="text_only")
+
+    # Warmup occurred BEFORE the first infer call for both accelerated and unaccelerated passes
+    assert events[0] == "warmup:True"
+    assert events[1].startswith("infer:")
+    assert "warmup:False" in events
+    assert events.index("warmup:False") < next(i for i, e in enumerate(events) if e.endswith(":False") and e.startswith("infer:"))
+
+    # load_ms recorded separately (>= 20 ms) while per-request latency_p95_ms stays tiny (< 20 ms)
+    assert res["accelerated"]["load_ms"] >= 20.0
+    assert res["unaccelerated"]["load_ms"] >= 20.0
+    assert res["accelerated"]["latency_p95_ms"] < 20.0
+    assert res["unaccelerated"]["latency_p95_ms"] < 20.0
+
+    # P2-4: Hardware provenance records cuda_bf16_supported (bool) and actual_accelerated_dtype
+    hw = E7.collect_hardware_provenance(REPO_ROOT)
+    assert isinstance(hw["cuda_bf16_supported"], bool)
+    assert hw["actual_accelerated_dtype"] in {"bf16", "fp16", "fp32"}

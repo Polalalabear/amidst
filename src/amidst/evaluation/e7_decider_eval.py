@@ -147,6 +147,8 @@ def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]
 
     cuda_version = None
     cudnn_version = None
+    cuda_available = False
+    cuda_bf16_supported = False
     packages: dict[str, str] = {}
     for pkg in ("torch", "transformers", "accelerate", "PIL", "numpy", "matplotlib"):
         try:
@@ -155,11 +157,23 @@ def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]
             if pkg == "torch":
                 cuda_version = getattr(getattr(mod, "version", None), "cuda", None)
                 try:
+                    cuda_available = bool(mod.cuda.is_available())
+                except Exception:
+                    cuda_available = False
+                try:
+                    cuda_bf16_supported = bool(
+                        cuda_available and hasattr(mod.cuda, "is_bf16_supported") and mod.cuda.is_bf16_supported()
+                    )
+                except Exception:
+                    cuda_bf16_supported = False
+                try:
                     cudnn_version = str(mod.backends.cudnn.version()) if mod.backends.cudnn.is_available() else None
                 except Exception:
                     cudnn_version = None
         except Exception:
             packages[pkg] = "NOT_INSTALLED"
+
+    actual_accelerated_dtype = "bf16" if (cuda_available and cuda_bf16_supported) else ("fp16" if cuda_available else "fp32")
 
     ram_gb = None
     try:
@@ -182,6 +196,8 @@ def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]
         "gpu_driver_version": driver_version or "NONE",
         "cuda_version": cuda_version or "NONE",
         "cudnn_version": cudnn_version or "NONE",
+        "cuda_bf16_supported": cuda_bf16_supported,
+        "actual_accelerated_dtype": actual_accelerated_dtype,
         "python_version": sys.version.split()[0],
         "packages": packages,
         "git_commit": git_commit,
@@ -430,7 +446,11 @@ def build_qwen_vl_inference_fn(
 
         use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
         target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
-        dtype = torch.bfloat16 if target_device.startswith("cuda") else torch.float32
+        if target_device.startswith("cuda"):
+            bf16_ok = bool(hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported())
+            dtype = torch.bfloat16 if bf16_ok else torch.float16
+        else:
+            dtype = torch.float32
         key = f"{target_device}:{dtype}"
         if key not in cache:
             processor = cache.get("processor")
@@ -455,6 +475,11 @@ def build_qwen_vl_inference_fn(
             model.eval()
             cache[key] = (processor, model, target_device)
         return cache[key]
+
+    def _warmup(accelerated: bool) -> float:
+        t0 = time.perf_counter()
+        _ensure_loaded(accelerated)
+        return round((time.perf_counter() - t0) * 1000.0, 3)
 
     def _infer(req: DeciderRequest, accelerated: bool) -> str:
         import torch
@@ -486,6 +511,7 @@ def build_qwen_vl_inference_fn(
         trimmed = generated[:, prompt_len:]
         return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
+    _infer.warmup = _warmup  # type: ignore[attr-defined]
     return _infer
 
 
@@ -519,7 +545,11 @@ def build_laya_text_inference_fn(
 
         use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
         target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
-        dtype = torch.bfloat16 if target_device.startswith("cuda") else torch.float32
+        if target_device.startswith("cuda"):
+            bf16_ok = bool(hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported())
+            dtype = torch.bfloat16 if bf16_ok else torch.float16
+        else:
+            dtype = torch.float32
         key = f"{target_device}:{dtype}"
         if key not in cache:
             tokenizer = cache.get("tokenizer")
@@ -537,6 +567,11 @@ def build_laya_text_inference_fn(
             cache[key] = (tokenizer, model, target_device)
         return cache[key]
 
+    def _warmup(accelerated: bool) -> float:
+        t0 = time.perf_counter()
+        _ensure_loaded(accelerated)
+        return round((time.perf_counter() - t0) * 1000.0, 3)
+
     def _infer(req: DeciderRequest, accelerated: bool) -> str:
         import torch
 
@@ -550,6 +585,7 @@ def build_laya_text_inference_fn(
         trimmed = generated[:, prompt_len:]
         return tokenizer.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
+    _infer.warmup = _warmup  # type: ignore[attr-defined]
     return _infer
 
 
@@ -583,7 +619,11 @@ def build_diffusion_vlm_inference_fn(
 
         use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
         target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
-        dtype = torch.bfloat16 if target_device.startswith("cuda") else torch.float32
+        if target_device.startswith("cuda"):
+            bf16_ok = bool(hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported())
+            dtype = torch.bfloat16 if bf16_ok else torch.float16
+        else:
+            dtype = torch.float32
         key = f"{target_device}:{dtype}"
         if key not in cache:
             proc = cache.get("processor")
@@ -614,6 +654,11 @@ def build_diffusion_vlm_inference_fn(
             cache[key] = (proc, model, target_device)
         return cache[key]
 
+    def _warmup(accelerated: bool) -> float:
+        t0 = time.perf_counter()
+        _ensure_loaded(accelerated)
+        return round((time.perf_counter() - t0) * 1000.0, 3)
+
     def _infer(req: DeciderRequest, accelerated: bool) -> str:
         import torch
 
@@ -635,6 +680,7 @@ def build_diffusion_vlm_inference_fn(
         trimmed = generated[:, prompt_len:]
         return proc.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
+    _infer.warmup = _warmup  # type: ignore[attr-defined]
     return _infer
 
 
@@ -652,6 +698,14 @@ class BaseDeciderAdapter:
                     f"CUSTOM_CODE_NOT_AUDITED: {self.spec.party_id} ({self.spec.hf_repo_id}) "
                     "requires auditing HF custom .py files and pinning audited_commit before loading."
                 )
+
+    def warmup(self, *, accelerated: bool) -> float:
+        """Pre-load weights/device outside the timed inference loop; returns ``load_ms``."""
+        fn = getattr(self, "_inference_fn", None)
+        warmup_fn = getattr(fn, "warmup", None)
+        if callable(warmup_fn):
+            return round(float(warmup_fn(accelerated)), 3)
+        return 0.0
 
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         raise NotImplementedError
@@ -710,6 +764,21 @@ class LayaTextDecider(BaseDeciderAdapter):
         super().__init__(spec)
         self._inference_fn = inference_fn
 
+    def warmup(self, *, accelerated: bool) -> float:
+        self.validate_custom_code_gate()
+        t0 = time.perf_counter()
+        if self._inference_fn is None:
+            self._inference_fn = build_laya_text_inference_fn(
+                self.spec.hf_repo_id,
+                self.spec.hf_revision,
+                custom_code_audited=self.spec.custom_code_audited,
+                audited_commit=self.spec.audited_commit,
+            )
+        warmup_fn = getattr(self._inference_fn, "warmup", None)
+        if callable(warmup_fn):
+            warmup_fn(accelerated)
+        return round((time.perf_counter() - t0) * 1000.0, 3)
+
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         self.validate_custom_code_gate()
         if self._inference_fn is None:
@@ -745,6 +814,18 @@ class QwenVLDecider(BaseDeciderAdapter):
         )
         super().__init__(spec)
         self._inference_fn = inference_fn
+
+    def warmup(self, *, accelerated: bool) -> float:
+        t0 = time.perf_counter()
+        if self._inference_fn is None:
+            self._inference_fn = build_qwen_vl_inference_fn(
+                self.spec.hf_repo_id,
+                self.spec.hf_revision,
+            )
+        warmup_fn = getattr(self._inference_fn, "warmup", None)
+        if callable(warmup_fn):
+            warmup_fn(accelerated)
+        return round((time.perf_counter() - t0) * 1000.0, 3)
 
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         if self._inference_fn is None:
@@ -784,6 +865,21 @@ class DiffusionVLMDecider(BaseDeciderAdapter):
         super().__init__(spec)
         self._inference_fn = inference_fn
 
+    def warmup(self, *, accelerated: bool) -> float:
+        self.validate_custom_code_gate()
+        t0 = time.perf_counter()
+        if self._inference_fn is None:
+            self._inference_fn = build_diffusion_vlm_inference_fn(
+                self.spec.hf_repo_id,
+                self.spec.hf_revision,
+                custom_code_audited=self.spec.custom_code_audited,
+                audited_commit=self.spec.audited_commit,
+            )
+        warmup_fn = getattr(self._inference_fn, "warmup", None)
+        if callable(warmup_fn):
+            warmup_fn(accelerated)
+        return round((time.perf_counter() - t0) * 1000.0, 3)
+
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         self.validate_custom_code_gate()
         if self._inference_fn is None:
@@ -822,7 +918,7 @@ def _percentile(values: list[float], q: float) -> float | None:
     return round(xs[lo] + (xs[hi] - xs[lo]) * (k - lo), 3)
 
 
-def _summarize_decisions(records: list[dict[str, Any]], accel_label: str) -> dict[str, Any]:
+def _summarize_decisions(records: list[dict[str, Any]], accel_label: str, *, load_ms: float = 0.0) -> dict[str, Any]:
     n = len(records)
     latencies = [float(r["latency_ms"]) for r in records]
     fallbacks = sum(1 for r in records if r["fallback_reason"] is not None)
@@ -833,6 +929,7 @@ def _summarize_decisions(records: list[dict[str, Any]], accel_label: str) -> dic
             ans_dist[a] = ans_dist.get(a, 0) + 1
     return {
         "acceleration_label": accel_label,
+        "load_ms": round(float(load_ms), 3),
         "sample_size": n,
         "latency_p50_ms": _percentile(latencies, 0.50),
         "latency_p95_ms": _percentile(latencies, 0.95),
@@ -878,8 +975,11 @@ def run_acceleration_comparison(
     scoped = filter_requests_by_scope(requests, dataset_scope)
     mode_reqs = [dataclasses.replace(r, input_mode=input_mode) for r in scoped]
 
+    # Warm up model/device BEFORE timed decide() loops so load time does not pollute per-request latency / p95.
+    acc_load_ms = decider.warmup(accelerated=True) if mode_reqs else 0.0
     acc_records = [decider.decide(r, accelerated=True) for r in mode_reqs]
     unacc_reqs = mode_reqs[:unaccelerated_sample_cap] if (unaccelerated_sample_cap and unaccelerated_sample_cap > 0) else mode_reqs
+    unacc_load_ms = decider.warmup(accelerated=False) if unacc_reqs else 0.0
     unacc_records = [decider.decide(r, accelerated=False) for r in unacc_reqs]
 
     acc_by_id = {r["request_id"]: r for r in acc_records}
@@ -922,8 +1022,8 @@ def run_acceleration_comparison(
         "dataset_scope": dataset_scope,
         "input_mode": input_mode,
         "unaccelerated_sample_cap": unaccelerated_sample_cap,
-        "accelerated": _summarize_decisions(acc_records, accelerated_label),
-        "unaccelerated": _summarize_decisions(unacc_records, unaccelerated_label),
+        "accelerated": _summarize_decisions(acc_records, accelerated_label, load_ms=acc_load_ms),
+        "unaccelerated": _summarize_decisions(unacc_records, unaccelerated_label, load_ms=unacc_load_ms),
         "compared_decision_points": compared,
         "decision_agreement_vs_unaccelerated": agreement_rate,
         "differences": differences,

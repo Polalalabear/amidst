@@ -233,3 +233,52 @@ def test_unified_analysis_schema_and_source_preservation(tmp_path: Path):
     bad = json.loads(json.dumps(doc))
     bad["identity_status"] = "CONFIRMED"
     assert UNIFIED.validate_against_schema(bad, schema)
+
+
+def test_run_all_stage1_budget_check_reads_apiguard_usage_jsonl_and_excludes_denied(tmp_path: Path):
+    """P2-2: run_all.sh Stage 1 reads real ApiGuard usage.jsonl est_cost_usd, excludes DENIED, and enforces cap."""
+    import re
+    import subprocess
+
+    script_text = (REPO_ROOT / "scripts" / "experiments" / "run_all.sh").read_text(encoding="utf-8")
+    m = re.search(r"BUDGET_CHECK_PY='\n(.*?)\n'", script_text, flags=re.S)
+    assert m is not None, "BUDGET_CHECK_PY snippet not found in scripts/experiments/run_all.sh"
+    budget_py = m.group(1)
+
+    usage_dir = tmp_path / "api-usage"
+    usage_dir.mkdir()
+    ledger = usage_dir / "usage.jsonl"
+
+    # Case 1: Under cap (base 38.17 + 12.50 = 50.67 <= 90.00); DENIED row with 100.0 MUST be excluded
+    rows_under = [
+        {"ts": "2026-11-26T10:00:00Z", "caller": "e6", "model": "gpt-4o-mini", "outcome": "OK", "est_cost_usd": 7.25},
+        {"ts": "2026-11-26T10:01:00Z", "caller": "e6", "model": "gpt-4o-mini", "outcome": "DENIED", "est_cost_usd": 100.0},
+        {"ts": "2026-11-26T10:02:00Z", "caller": "e6", "model": "gpt-4o-mini", "outcome": "ERROR", "est_cost_usd": 5.25},
+    ]
+    ledger.write_text("\n".join(json.dumps(r) for r in rows_under) + "\n", encoding="utf-8")
+
+    ok = subprocess.run(
+        [sys.executable, "-c", budget_py, "38.17", "90.00", str(usage_dir)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert ok.returncode == 0, f"Expected pass under cap, got rc={ok.returncode}: {ok.stdout} {ok.stderr}"
+    assert "new_ledger=12.5000" in ok.stdout
+    assert "total=50.6700" in ok.stdout
+    assert "1 DENIED excluded" in ok.stdout
+
+    # Case 2: Over cap (base 38.17 + 55.00 = 93.17 > 90.00) -> non-zero exit with BUDGET_CAP_EXCEEDED
+    rows_over = [
+        {"ts": "2026-11-26T10:00:00Z", "caller": "e6", "model": "gpt-4o-mini", "outcome": "OK", "est_cost_usd": 55.00},
+    ]
+    ledger.write_text("\n".join(json.dumps(r) for r in rows_over) + "\n", encoding="utf-8")
+
+    fail = subprocess.run(
+        [sys.executable, "-c", budget_py, "38.17", "90.00", str(usage_dir)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert fail.returncode != 0, "Expected non-zero exit when total exceeds cap"
+    assert "BUDGET_CAP_EXCEEDED" in (fail.stderr + fail.stdout)
