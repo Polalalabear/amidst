@@ -418,6 +418,7 @@ import {
 } from './topdown-model.mjs';
 
 export { buildTopdownView, readCameraPositions, hasForbiddenKeys };
+import { readEstimate } from './scene3d-model.mjs';
 
 export const SEARCH_RESULTS_STATUS_TEXT = Object.freeze({
   READY: '已找到符合條件的畫面與地點涵蓋',
@@ -593,6 +594,7 @@ export function buildCoreTrackingViewModel(trackResponse, {
   speed = 1,
   cameraGraph = null,
   displayPositions = null,
+  runClockId = null,
 } = {}) {
   if (trackResponse && hasForbiddenKeys(trackResponse)) {
     throw new Error('FORBIDDEN_INFERENCE_INPUT');
@@ -716,7 +718,10 @@ export function buildCoreTrackingViewModel(trackResponse, {
   });
 
   // 3. Topdown / Blind curve model integration
-  const cameraPositions = displayPositions ?? (cameraGraph ? readCameraPositions(cameraGraph) : {});
+  // Only declared CALIBRATED_STATIC camera-map entries can share the estimate's metre frame.
+  // Bare displayPositions remain a schematic-only compatibility input, never metric authority.
+  const calibratedPositions = Array.isArray(cameraGraph?.cameras) ? readCameraPositions(cameraGraph) : {};
+  const cameraPositions = cameraGraph ? calibratedPositions : readCameraPositions(displayPositions ?? {});
   const topdown = buildTopdownView({
     timeline: singleViewList.length > 0 ? singleViewList : sightings,
     blind: trackResponse.blind ?? null,
@@ -731,6 +736,7 @@ export function buildCoreTrackingViewModel(trackResponse, {
     statusText,
     asOfUs,
     currentTUs,
+    runClockId,
     playbackMode: validPlaybackMode,
     speed: validSpeed,
     speedLabel: `${validSpeed}×`,
@@ -750,44 +756,53 @@ export function buildCoreTrackingViewModel(trackResponse, {
     multiView: {
       cameras: multiCameras,
     },
-    topdown: projectTopdown(topdown, cameraPositions, activeCameraId, trackResponse.display_estimate ?? null),
+    topdown: {...projectTopdown(topdown, cameraPositions, activeCameraId, trackResponse.display_estimate ?? null,
+      {currentTUs, runClockId, calibratedPositions}), display_note: cameraGraph?.display_note ?? null},
     reasons: Array.isArray(trackResponse.reasons) ? trackResponse.reasons : [],
   };
 }
 
 // Projects camera display positions and the blind-interval curve (INFERRED, LOW) into the 0..100 SVG box the
-// tracking view draws. Display-only: positions are static-plan sketch coordinates, never measured paths.
+// tracking view draws. Calibrated camera-map positions are metres; bare sketch inputs cannot anchor an estimate.
 // `display_estimate` (optional response field, display only): { est_xy:[x,y] Blender m, uncertainty_m, track?, wall_segments_xy? }.
 // Missing or malformed -> est_xy / uncertainty_m = 'UNKNOWN'; never filled from Ground Truth or any renderer-side source (#605).
-export function projectTopdown(topdown, cameraPositions, activeCameraId = null, estimate = null) {
+export function projectTopdown(topdown, cameraPositions, activeCameraId = null, estimate = null, context = {}) {
   const ok = estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && Array.isArray(estimate.est_xy) && estimate.est_xy.length === 2 && estimate.est_xy.every(Number.isFinite);
+  const resolved = readEstimate(estimate, context.currentTUs, context.runClockId);
+  const inferred = resolved.status === 'INFERRED';
   const est = {
-    est_xy: ok ? estimate.est_xy : 'UNKNOWN',
-    uncertainty_m: ok && Number.isFinite(estimate.uncertainty_m) && estimate.uncertainty_m >= 0 ? estimate.uncertainty_m : 'UNKNOWN',
+    est_xy: inferred ? resolved.xy : 'UNKNOWN',
+    uncertainty_m: inferred ? resolved.uncertaintyM : 'UNKNOWN',
     estimate: ok ? estimate : null,
     // display_estimate present but UNKNOWN: carry its reason code (raw string) for the UI; absent field -> null (older backend).
-    estimate_reason: !ok && estimate && typeof estimate === 'object' && !hasForbiddenKeys(estimate) && typeof estimate.reason === 'string' && estimate.reason ? estimate.reason : null,
+    estimate_reason: estimate == null ? null : resolved.reason,
   };
-  const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId);
+  const metric = Object.keys(context.calibratedPositions ?? {}).length > 0;
+  const base = projectTopdownNodes(topdown, cameraPositions, activeCameraId, inferred && metric ? estimate : null);
+  base.estimate_display_reason = inferred && !metric ? 'CALIBRATED_CAMERA_POSITION_MISSING' : base.estimate_display_reason;
   return { ...base, ...est };
 }
 
-function projectTopdownNodes(topdown, cameraPositions, activeCameraId) {
+function projectTopdownNodes(topdown, cameraPositions, activeCameraId, estimate = null) {
   const positions = Object.entries(cameraPositions ?? {}).filter(([, p]) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite));
   const segment = topdown?.blind?.usable ? (topdown.blind.curve_segments ?? [])[0] : null;
   const curvePoints = segment && Array.isArray(segment.points) && segment.points.length > 1 ? segment.points : [];
-  const all = [...positions.map(([, p]) => p), ...curvePoints];
-  if (all.length === 0) return { ...topdown, nodes: [], blind_curve: { visible: false, points: [], svgPoints: [] } };
+  const xy = estimate?.est_xy, radius = estimate?.uncertainty_m;
+  const all = [...positions.map(([, p]) => p), ...curvePoints].filter(p => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite));
+  if (all.length === 0) return { ...topdown, nodes: [], estimate_marker: null, blind_curve: { visible: false, points: [], svgPoints: [] } };
   const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
-  const minX = Math.min(...xs), minY = Math.min(...ys);
-  const span = Math.max(Math.max(...xs) - minX, Math.max(...ys) - minY, 1e-9);
+  const minX = Math.min(...xs), minY = Math.min(...ys), maxX = Math.max(...xs), maxY = Math.max(...ys);
+  const span = Math.max(maxX - minX, maxY - minY, 1e-9);
   const scale = 80 / span;
-  const map = p => [Math.round((10 + (p[0] - minX) * scale) * 100) / 100, Math.round((10 + (p[1] - minY) * scale) * 100) / 100];
+  const map = p => [Math.round((10 + (p[0] - minX) * scale) * 100) / 100, Math.round((90 - (p[1] - minY) * scale) * 100) / 100];
+  const inBounds = xy && xy[0] >= minX && xy[0] <= maxX && xy[1] >= minY && xy[1] <= maxY;
   const nodes = positions.map(([cameraId, p]) => { const [x, y] = map(p); return { cameraId, x, y, isActive: cameraId === activeCameraId }; });
   const svgPoints = curvePoints.map(map);
   return {
     ...topdown,
     nodes,
+    estimate_marker: inBounds ? {xy: map(xy), radius: Number.isFinite(radius) && radius >= 0 ? radius * scale : null} : null,
+    estimate_display_reason: xy && !inBounds ? 'ESTIMATE_OUTSIDE_PLAN' : null,
     blind_curve: {
       visible: svgPoints.length > 1,
       points: curvePoints,
@@ -832,6 +847,7 @@ export function coreSearchTrackReducer(state, action) {
           speed: state.speed ?? 1,
           cameraGraph: action.cameraGraph ?? state.cameraGraph,
           displayPositions: action.displayPositions ?? state.displayPositions,
+          runClockId: state.activeRun?.clock_mapping?.clock_id ?? state.activeRun?.clock_id ?? null,
         }),
       };
 

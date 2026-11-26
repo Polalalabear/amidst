@@ -15,7 +15,7 @@ const T = [
   { from_kind: 'ON_CAMERA', from_camera: 'CAM_A', to_kind: 'GAP', to_camera: null, switch_at_us: 8e6 },
   { from_kind: 'GAP', from_camera: null, to_kind: 'ON_CAMERA', to_camera: 'CAM_B', switch_at_us: 13e6 },
 ];
-const view = (kind, active, t, last = null) => ({ currentTUs: t, singleView: { segmentKind: kind, activeCameraId: active, lastObservedCameraId: last, transitions: T } });
+const view = (kind, active, t, last = null) => ({ currentTUs: t, runClockId: 'C', singleView: { segmentKind: kind, activeCameraId: active, lastObservedCameraId: last, transitions: T } });
 
 test('camera ground xy converts three (x,z) to Blender (x,-z)', () => {
   assert.deepEqual(cameraGroundXy(asset.cameras[0]), [-10, 4]);
@@ -42,7 +42,7 @@ test('blind interval, last observed camera highlight and switch marker', () => {
 });
 
 test('estimate present: trail cut at current time, circle without walls says UNKNOWN walls', () => {
-  const est = { est_xy: [1, 2], uncertainty_m: 1.5, track: [{ t_us: 1e6, est_xy: [0, 0] }, { t_us: 20e6, est_xy: [9, 9] }] };
+  const est = { last_observed_us: 1e6, source_clock_id: 'C', est_xy: [1, 2], uncertainty_m: 1.5, track: [{ t_us: 1e6, est_xy: [0, 0] }, { t_us: 20e6, est_xy: [9, 9] }] };
   const m = buildScene3dModel({ view: view('ON_CAMERA', 'CAM_A', 5e6), cameraAsset: asset, estimate: est });
   assert.equal(m.estimate.status, 'INFERRED'); assert.deepEqual(m.estimate.trail, [[0, 0]]);
   assert.equal(m.estimate.clipped, false); assert.ok(m.legend.some(l => l.includes('未考慮牆')));
@@ -55,12 +55,12 @@ test('uncertainty fan is clipped by wall segments', () => {
   assert.deepEqual(fan[0], [1, 0]);
   const open = clipUncertaintyFan([0, 0], 2, [], 4);
   assert.deepEqual(open[0], [2, 0]);
-  const m = buildScene3dModel({ view: view('GAP', null, 10e6, 'CAM_A'), cameraAsset: asset, estimate: { est_xy: [0, 0], uncertainty_m: 2, wall_segments_xy: [[[1, -5], [1, 5]]] } });
+  const m = buildScene3dModel({ view: view('GAP', null, 10e6, 'CAM_A'), cameraAsset: asset, estimate: { last_observed_us: 1e6, source_clock_id: 'C', est_xy: [0, 0], uncertainty_m: 2, wall_segments_xy: [[[1, -5], [1, 5]]] } });
   assert.equal(m.estimate.clipped, true); assert.equal(m.estimate.uncertaintyFan.length, 48);
 });
 
 test('missing/invalid uncertainty stays UNKNOWN, bad est_xy stays UNKNOWN', () => {
-  assert.equal(readEstimate({ est_xy: [1, 2] }).uncertaintyM, 'UNKNOWN');
+  assert.equal(readEstimate({ est_xy: [1, 2], last_observed_us: 1e6, source_clock_id: 'C' }, 1e6, 'C').uncertaintyM, 'UNKNOWN');
   assert.equal(readEstimate({ est_xy: ['a', 2] }).status, 'UNKNOWN');
   assert.equal(readEstimate(null).reason, 'ESTIMATE_SOURCE_MISSING');
 });
@@ -104,6 +104,6 @@ test('display_estimate field absent (older backend): 沒有系統估計; UNKNOWN
   const m = buildScene3dModel({ view: { ...view('ON_CAMERA', 'CAM_A', 5e6), topdown: projectTopdown({}, {}, 'CAM_A', null) }, cameraAsset: asset });
   assert.ok(m.legend.includes('沒有系統估計'));
   const noReason = projectTopdown({}, {}, 'CAM_A', { est_xy: 'UNKNOWN' });
-  assert.equal(noReason.estimate_reason, null);
+  assert.equal(noReason.estimate_reason, 'EST_XY_MISSING');
   assert.equal(projectTopdown({}, {}, 'CAM_A', null).estimate_reason, null);
 });

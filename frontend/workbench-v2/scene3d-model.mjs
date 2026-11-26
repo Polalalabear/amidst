@@ -23,6 +23,15 @@ export const ESTIMATE_REASON_TEXT = Object.freeze({
 });
 export function estimateUnknownText(reason) {
   if (reason == null || reason === 'ESTIMATE_SOURCE_MISSING') return SCENE3D_LEGEND.estimateAbsent;
+  const displayReasons = {
+    LAST_OBSERVED_US_INVALID: '最後觀測時間缺少或無效',
+    CURRENT_TIME_INVALID: '播放時間缺少或無效',
+    ESTIMATE_IN_FUTURE: '播放時間早於最後觀測時間',
+    SOURCE_CLOCK_MISSING: '估計來源時鐘缺少',
+    RUN_CLOCK_MISSING: '目前 run 的時鐘缺少',
+    SOURCE_CLOCK_MISMATCH: '估計來源時鐘與目前 run 不符',
+  };
+  if (Object.hasOwn(displayReasons, reason)) return `估計位置 UNKNOWN：${displayReasons[reason]}（${reason}）`;
   const text = Object.hasOwn(ESTIMATE_REASON_TEXT, reason) ? ESTIMATE_REASON_TEXT[reason] : null;
   return text ? `估計位置 UNKNOWN：${text}（${reason}）` : `估計位置 UNKNOWN（${reason}）`;
 }
@@ -73,11 +82,17 @@ export function clipUncertaintyFan(center, radius, wallSegments, rays = 48) {
 }
 
 /** Validates the optional system estimate; anything malformed or GT-tainted becomes UNKNOWN. */
-export function readEstimate(estimate, currentTUs = null) {
+export function readEstimate(estimate, currentTUs = null, runClockId = null) {
   const unknown = reason => ({ status: SCENE3D_UNKNOWN, reason, xy: null, uncertaintyM: null, track: [], wallSegments: [] });
   if (estimate == null) return unknown('ESTIMATE_SOURCE_MISSING');
   if (hasForbiddenKeys(estimate)) return unknown('FORBIDDEN_KEYS_REJECTED');
-  if (!isPair(estimate.est_xy)) return unknown('EST_XY_MISSING');
+  if (!isPair(estimate.est_xy)) return unknown(estimate.reason || 'EST_XY_MISSING');
+  if (!Number.isFinite(estimate.last_observed_us) || estimate.last_observed_us < 0) return unknown('LAST_OBSERVED_US_INVALID');
+  if (!Number.isFinite(currentTUs) || currentTUs < 0) return unknown('CURRENT_TIME_INVALID');
+  if (typeof estimate.source_clock_id !== 'string' || !estimate.source_clock_id.trim()) return unknown('SOURCE_CLOCK_MISSING');
+  if (typeof runClockId !== 'string' || !runClockId.trim()) return unknown('RUN_CLOCK_MISSING');
+  if (estimate.source_clock_id !== runClockId) return unknown('SOURCE_CLOCK_MISMATCH');
+  if (currentTUs < estimate.last_observed_us) return unknown('ESTIMATE_IN_FUTURE');
   const u = estimate.uncertainty_m;
   const track = (Array.isArray(estimate.track) ? estimate.track : [])
     .filter(p => p && Number.isFinite(p.t_us) && isPair(p.est_xy) && (currentTUs == null || p.t_us <= currentTUs))
@@ -105,6 +120,17 @@ export function readTransitions(transitions, currentTUs) {
   return { switches, blind };
 }
 
+export function scene3dStateText(view) {
+  if (view?.status === 'NO_SIGHTING') return '目前沒有觀測紀錄';
+  return ({ON_CAMERA: '追蹤中', GAP: '盲區（未見目標）', LOST: '目標遺失', PENDING: '目標尚未出現'})[view?.singleView?.segmentKind] ?? '追蹤狀態 UNKNOWN';
+}
+
+export function estimateSummaryText(estimate) {
+  return estimate.status === 'INFERRED'
+    ? `系統估計（推論） · 不確定範圍 ${Number.isFinite(estimate.uncertaintyM) ? `${estimate.uncertaintyM} m` : 'UNKNOWN'} · 身分未確認`
+    : estimateUnknownText(estimate.reason);
+}
+
 export function buildScene3dModel({ view = null, cameraAsset = null, estimate = null } = {}) {
   const single = view?.singleView ?? {};
   const currentTUs = Number.isFinite(view?.currentTUs) ? view.currentTUs : 0;
@@ -114,7 +140,7 @@ export function buildScene3dModel({ view = null, cameraAsset = null, estimate = 
   const raw = estimate ?? view?.topdown?.estimate ?? null;
   const est = raw == null && typeof topdownReason === 'string' && topdownReason
     ? { status: SCENE3D_UNKNOWN, reason: topdownReason, xy: null, uncertaintyM: null, track: [], wallSegments: [] }
-    : readEstimate(raw, currentTUs);
+    : readEstimate(raw, view?.currentTUs, view?.runClockId);
   const cameras = buildCameraModels(cameraAsset?.cameras, {
     activeCameraId: single.activeCameraId ?? null,
     gapCameraId: kind === 'GAP' ? single.lastObservedCameraId ?? null : null,
@@ -130,6 +156,8 @@ export function buildScene3dModel({ view = null, cameraAsset = null, estimate = 
     catalogSha256: cameraAsset?.source_catalog_sha256 ?? SCENE3D_UNKNOWN,
     currentTUs,
     segmentKind: kind,
+    stateText: scene3dStateText(view),
+    estimateText: estimateSummaryText(est),
     activeCameraId: single.activeCameraId ?? null,
     lastObservedCameraId: single.lastObservedCameraId ?? null,
     cameras,

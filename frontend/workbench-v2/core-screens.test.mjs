@@ -841,10 +841,51 @@ test('DOM: topdown 3D ready draws HUD with 估計位置 UNKNOWN and feeds the vi
   }
 });
 
+test('DOM: t=1s NO_SIGHTING is not labelled tracking in the shared 3D HUD (#710)', async () => {
+  setupDoc();
+  let view;
+  try {
+    const host = new MockElement('div');
+    view = mountCoreTrackingView({container: host, scene3dFactory: () => ({ready: Promise.resolve(),
+      cameraAsset: () => ({cameras: []}), destroy() {}, update() {}})});
+    view.update(buildCoreTrackingViewModel({...SYNTHETIC_TRACK_RESPONSE, status: 'NO_SIGHTING',
+      as_of_us: 1e6, single_view: [], sightings: [], display_estimate: {est_xy: 'UNKNOWN', reason: 'NO_PROJECTABLE_SELECTED_OBSERVATION'}}, {tUs: 1e6}));
+    findByClass(host, 'q-topdown-mode-btn').find(b => b.dataset.mode === '3d').click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const hud = findByClass(host, 'q-scene3d-hud')[0];
+    assert.ok(hud.children.some(c => c.textContent === '目前沒有觀測紀錄'));
+    assert.ok(!hud.children.some(c => c.textContent === '追蹤中'));
+  } finally { view?.destroy(); tearDownDoc(); }
+});
+
+test('DOM: legacy 3D clears a future estimate and exposes the shared time/clock reason in its HUD', async () => {
+  setupDoc(); let view;
+  try {
+    const host = new MockElement('div'), updates = [];
+    view = mountCoreTrackingView({container: host, scene3dFactory: () => ({ready: Promise.resolve(),
+      cameraAsset: () => ({cameras: []}), destroy() {}, update(m) {updates.push(m);}})});
+    const response = {...SYNTHETIC_TRACK_RESPONSE, as_of_us: 5e6,
+      display_estimate: {est_xy: [1,2], uncertainty_m: 1, last_observed_us: 5e6, source_clock_id: 'C'}};
+    const model = (tUs, runClockId = 'C') => buildCoreTrackingViewModel(response, {tUs, runClockId});
+    view.update(model(5e6));
+    findByClass(host, 'q-topdown-mode-btn').find(b => b.dataset.mode === '3d').click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    assert.deepEqual(updates.at(-1).estimate.xy, [1,2]);
+    for (const [tUs, clock, reason] of [[1e6, 'C', 'ESTIMATE_IN_FUTURE'], [5e6, 'OTHER', 'SOURCE_CLOCK_MISMATCH']]) {
+      view.update(model(tUs, clock));
+      assert.equal(updates.at(-1).estimate.xy, null);
+      assert.equal(updates.at(-1).estimate.uncertaintyM, null);
+      const hud = findByClass(host, 'q-scene3d-hud')[0];
+      assert.ok(hud.children.some(n => n.textContent === '估計位置：UNKNOWN'));
+      assert.ok(hud.children.some(n => n.textContent.includes(reason)));
+    }
+  } finally {view?.destroy(); tearDownDoc();}
+});
+
 test('projectTopdown: est_xy / uncertainty_m are UNKNOWN without a system estimate and never taken from GT keys (#605)', () => {
   const none = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A');
   assert.equal(none.est_xy, 'UNKNOWN'); assert.equal(none.uncertainty_m, 'UNKNOWN');
-  const ok = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A', { est_xy: [1, 2], uncertainty_m: 0.8 });
+  const ok = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A', { est_xy: [1, 2], uncertainty_m: 0.8, last_observed_us: 1e6, source_clock_id: 'C' }, {currentTUs: 1e6, runClockId: 'C'});
   assert.deepEqual(ok.est_xy, [1, 2]); assert.equal(ok.uncertainty_m, 0.8);
   const tainted = projectTopdown({}, { CAM_A: [0, 0] }, 'CAM_A', { est_xy: [1, 2], uncertainty_m: 0.8, [['ground', '_truth'].join('')]: [5, 5] });
   assert.equal(tainted.est_xy, 'UNKNOWN');
@@ -1547,9 +1588,9 @@ test('workbench, event viewer and index code never reference the #442 receipt or
 
 
 test('tracking model consumes display_estimate independently of blind.estimate', () => {
-  const display = { schema_version: 'q-core.display-estimate.v1', est_xy: [1, 2], uncertainty_m: 0.8 };
+  const display = { schema_version: 'q-core.display-estimate.v1', est_xy: [1, 2], uncertainty_m: 0.8, last_observed_us: 5e6, source_clock_id: 'C' };
   const response = { ...SYNTHETIC_TRACK_RESPONSE, display_estimate: display };
-  const model = buildCoreTrackingViewModel(response, { tUs: 5000000 });
+  const model = buildCoreTrackingViewModel(response, { tUs: 5000000, runClockId: 'C' });
   assert.deepEqual(model.topdown.est_xy, [1, 2]);
   assert.equal(model.topdown.estimate, display);
   assert.equal(response.blind, SYNTHETIC_TRACK_RESPONSE.blind);

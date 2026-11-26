@@ -26,6 +26,7 @@ import {planFromParse} from './nl-spotlight-model.mjs';
 import {placeName, nameTitle} from './place-names.mjs';
 import {agentSwitchView} from './agent-switch-model.mjs';
 import {mountSpotlight} from './nl-spotlight-view.mjs';
+import {mountUiScene3dPanel} from './ui-scene3d-panel.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
 // Same range the player uses (app.mjs playbackBounds); kept here so this module does not import the composition root.
@@ -388,6 +389,7 @@ export function mountUi(ctx) {
       const wanted = EVENTS.find(e => e.id === settings.defaultEvent);
       if (wanted && available(wanted, cfg) && wanted.kind === 'page') { globalThis.location?.assign?.(case3Url(wanted)); return; }
     }
+    if (screen === 'case2' && next !== 'case2') releasePlan();
     screen = next; host.dataset.screen = next; host.dataset.chooser = String(next === 'choose');
     for (const [id, n] of [['case1', sCase1], ['case2', sCase2], ['case3', sCase3]]) n.hidden = id !== next;
     cover.dataset.on = String(next === 'cover'); choose.dataset.on = String(next === 'choose');
@@ -471,15 +473,19 @@ export function mountUi(ctx) {
 
   // ---- case 2: tracking -------------------------------------------------------------------------------------------
   const trackParts = {};
+  function releasePlan() { trackParts.scenePanel?.destroy(); trackParts.scenePanel = null; delete trackParts.key; }
+  const onPageHide = () => releasePlan();
+  globalThis.addEventListener?.('pagehide', onPageHide);
+  disposers.push(() => { globalThis.removeEventListener?.('pagehide', onPageHide); releasePlan(); });
   function trackView() {
     const s = store.getState();
-    return s.coreTrackResponse ? (s.coreTrackingView ?? buildCoreTrackingViewModel(s.coreTrackResponse, {tUs: s.tUs, playbackMode: s.playbackMode, speed: s.speed, cameraGraph: s.cameraGraph, displayPositions: s.displayPositions})) : null;
+    return s.coreTrackResponse ? (s.coreTrackingView ?? buildCoreTrackingViewModel(s.coreTrackResponse, {tUs: s.tUs, playbackMode: s.playbackMode, speed: s.speed, cameraGraph: s.cameraGraph, displayPositions: s.displayPositions, runClockId: s.activeRun?.clock_mapping?.clock_id ?? s.activeRun?.clock_id ?? null})) : null;
   }
   function renderCase2() {
     const s = store.getState(), resp = trackStopped ? null : s.coreTrackResponse, view = trackStopped ? null : trackView(), p = phase.getState();
     const searching = !trackStopped && p.phase === 'searching' && p.mode === 'track' && !resp;
     // Structure is rebuilt when the response, playback layout or loading state changes; the clock-driven parts update in place.
-    const key = `${resp?.output_sha256 ?? 'none'}|${s.playbackMode}|${searching}|${p.miss ? 'miss' : ''}|${s.error?.code ?? ''}`;
+    const key = `${s.activeRun?.run_id ?? 'none'}|${resp?.output_sha256 ?? 'none'}|${s.playbackMode}|${searching}|${p.miss ? 'miss' : ''}|${s.error?.code ?? ''}`;
     if (trackParts.key !== key) { trackParts.key = key; buildCase2(s, resp, view, searching, p); }
     if (resp && view) updateCase2(s, resp, view);
   }
@@ -525,7 +531,7 @@ export function mountUi(ctx) {
       : cands.length ? '播放頭這一刻畫面裡的其他人；選一個，系統從這裡改追他（身分未確認）' : '播放頭這一刻沒有其他可改選的人；移動播放頭再試';
   }
   function buildCase2(s, resp, view, searching, p) {
-    trackParts.loader?.dispose(); for (const part of trackParts.multi?.values() ?? []) part.loader?.dispose(); sCase2.replaceChildren(); for (const k of Object.keys(trackParts)) if (k !== 'key') delete trackParts[k];
+    trackParts.scenePanel?.destroy(); trackParts.loader?.dispose(); for (const part of trackParts.multi?.values() ?? []) part.loader?.dispose(); sCase2.replaceChildren(); for (const k of Object.keys(trackParts)) if (k !== 'key') delete trackParts[k];
     if (!resp || !view) {
       const wait = el('div', undefined, 'ui-empty');
       if (searching) { const cams = s.activeRun?.camera_ids?.length; wait.append(el('p', p.miss ? '尚未找到' : cams ? `在 ${cams} 台鏡頭中尋找目標…` : '尋找目標…', 'ui-h3'), el('p', p.miss ? missText(p.miss) : '第一次鎖定需要一點時間；鎖定後換鏡頭會立即切換。', 'ui-muted')); }
@@ -585,6 +591,7 @@ export function mountUi(ctx) {
     const bar = el('div', undefined, 'ui-bottombar'); bar.id = 'ui-track-bar'; bar.append(tl, ctl);   // stays at the bottom while the content scrolls
     // aside: floor plan + journal
     const plan = el('div', undefined, 'ui-card ui-plan'); plan.id = 'ui-floorplan'; const journal = el('div', undefined, 'ui-card ui-journal'); journal.id = 'ui-journal';
+    trackParts.scenePanel = mountUiScene3dPanel({host: plan, scene3dFactory: ctx.scene3dFactory});
     Object.assign(trackParts, {plan, journal}); aside.append(plan, manualChoice(true), journal);
     layout.append(main, aside); sCase2.append(layout, bar);
     trackParts.built = true;
@@ -685,17 +692,22 @@ export function mountUi(ctx) {
   }
   const canPlayNow = s => !trackStopped && (s.playing || canPlay(s));
   function renderPlan(s, view, resp) {
+    trackParts.plan.hidden = !floorPlan(view.topdown).available;
+    trackParts.scenePanel?.update({view, runKey: s.activeRun?.run_id, cameraIds: s.activeRun?.camera_ids,
+      render2d: (box, model) => renderPlan2d(box, s, view, resp, model)});
+  }
+  function renderPlan2d(box, s, view, resp, model) {
     const plan = floorPlan(view.topdown, {settings, singleView: resp.single_view, currentTUs: view.currentTUs});
     const reacq = blindReacquire(resp.single_view, view.currentTUs, s.activeRun?.clock_mapping);
-    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.current, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence, reacq, presentOn()]);
+    const key = JSON.stringify([plan.nodes, plan.observed, plan.blind, plan.blindVisible, plan.estimate, model.estimate.status, model.estimate.reason, view.topdown?.display_note, view.topdown?.blind_status, view.topdown?.blind_curve?.confidence, reacq, presentOn()]);
     if (trackParts.planKey === key) return; trackParts.planKey = key;
-    const box = trackParts.plan; box.replaceChildren();
-    box.hidden = !plan.available; if (!plan.available) return;   // no camera positions (e.g. B-05): the whole floor-plan panel is left out
+    box.replaceChildren();
+    if (!plan.available) { box.append(el('p', PLAIN.noPlan, 'ui-note')); return; }
+    if (view.topdown?.display_note) box.append(el('p', view.topdown.display_note, 'ui-note ui-plan-display-note'));
     const head = el('div', undefined, 'ui-card-head'); const conf = view.topdown?.blind_curve?.confidence ?? 'UNKNOWN', unavailable = view.topdown?.blind_status === 'UNAVAILABLE' || !view.topdown;
     const headText = reacq && presentOn() ? PLAIN.bothEndsObserved : plan.blindVisible ? (presentOn() ? planHeadText(conf) : `INFERRED · 信心 ${conf}`) : (unavailable ? (presentOn() ? PLAIN.noPrediction : 'UNKNOWN · 預測不可用') : '');
     const headChip = el('span', headText, plan.blindVisible ? 'ui-chip ui-chip-inferred' : 'ui-mono ui-faint ui-small'); headChip.id = 'ui-plan-chip';
-    head.append(el('span', '樓層俯視圖'), headChip); box.append(head);
-    if (!plan.available) { box.append(el('p', presentOn() ? PLAIN.noPlan : `UNKNOWN · 鏡頭位置未提供`, 'ui-muted ui-small')); return; }
+    head.append(headChip); box.append(head);
     const g = svg('svg', {viewBox: '0 0 100 100', class: 'ui-plan-svg', role: 'img', 'aria-label': '樓層俯視圖：實線為已觀察路線，虛線為推測路線'});
     const grid = svg('pattern', {id: 'ui-grid', width: 10, height: 10, patternUnits: 'userSpaceOnUse'}); grid.append(svg('path', {d: 'M10 0H0V10', fill: 'none', stroke: 'var(--grid)', 'stroke-width': 0.4}));
     const defs = svg('defs'); defs.append(grid); g.append(defs, svg('rect', {x: 1, y: 1, width: 98, height: 98, rx: 2, fill: 'url(#ui-grid)', stroke: 'var(--line-strong)', 'stroke-width': 0.8}));
@@ -705,7 +717,13 @@ export function mountUi(ctx) {
       g.append(svg('rect', {x: n.x - 2, y: n.y - 1.5, width: 4, height: 3, rx: 0.8, class: n.isActive ? 'cam is-active' : 'cam'}));
       const t = svg('text', {x: n.x, y: n.y - 3, 'text-anchor': 'middle', class: 'cam-label'}); t.textContent = n.cameraId.replace(/^CAM_/, ''); g.append(t);
     }
-    if (plan.current) { g.append(svg('circle', {cx: plan.current[0], cy: plan.current[1], r: 2.4, class: 'here'}), svg('circle', {cx: plan.current[0], cy: plan.current[1], r: 4, class: 'here-ring', fill: 'none'})); }
+    if (model.estimate.status === 'INFERRED' && plan.estimate) {
+      const {xy, radius} = plan.estimate;
+      if (Number.isFinite(radius)) g.append(svg('circle', {cx: xy[0], cy: xy[1], r: radius, class: 'ui-estimate-range'}));
+      g.append(svg('circle', {cx: xy[0], cy: xy[1], r: 1.5, class: 'ui-estimate-point'}));
+      const label = svg('text', {x: xy[0], y: xy[1] - 3, 'text-anchor': 'middle', class: 'ui-estimate-label'}); label.textContent = '系統估計（推論）'; g.append(label);
+      box.append(el('p', '不確定範圍為圓形，未考慮牆；身分未確認', 'ui-note'));
+    }
     const end = reacquireMarker(plan, reacq);
     if (end) {   // D139: the route's end is a real observation (from the tracked segment), the middle is inferred
       g.append(svg('circle', {cx: end[0], cy: end[1], r: 2.2, class: 'reacq-end', fill: 'none', 'stroke-width': 0.9}));

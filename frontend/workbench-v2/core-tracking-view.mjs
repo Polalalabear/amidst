@@ -332,7 +332,7 @@ export function mountCoreTrackingView({
         const m3 = buildScene3dModel({ view: model, cameraAsset: scene3d?.cameraAsset() });
         const hud = el('div', undefined, 'q-scene3d-hud');
         const blindNow = m3.segmentKind === 'GAP' || m3.segmentKind === 'LOST';
-        hud.append(el('span', `t = ${(m3.currentTUs / 1e6).toFixed(1)} s`), el('span', blindNow ? '盲區（無鏡頭看到）' : '追蹤中', blindNow ? 'q-scene3d-blind' : ''), el('span', `作用中鏡頭：${m3.activeCameraId ?? '—'}`), el('span', `估計位置：${m3.estimate.status}`));
+        hud.append(el('span', `t = ${(m3.currentTUs / 1e6).toFixed(1)} s`), el('span', m3.stateText, blindNow ? 'q-scene3d-blind' : ''), el('span', `作用中鏡頭：${m3.activeCameraId ?? '—'}`), el('span', `估計位置：${m3.estimate.status}`), el('span', m3.estimateText));
         topdownBox.append(hud);
         const legend = el('ul', undefined, 'q-scene3d-legend');
         for (const t of m3.legend) legend.append(el('li', t));
@@ -409,6 +409,9 @@ export function mountCoreTrackingView({
       tUs: s.tUs,
       playbackMode: s.playbackMode,
       speed: s.speed,
+      cameraGraph: s.cameraGraph,
+      displayPositions: s.displayPositions,
+      runClockId: s.activeRun?.clock_mapping?.clock_id ?? s.activeRun?.clock_id ?? null,
     }) : null);
     render(model);
 
@@ -421,6 +424,7 @@ export function mountCoreTrackingView({
         speed: state.speed,
         cameraGraph: state.cameraGraph,
         displayPositions: state.displayPositions,
+        runClockId: state.activeRun?.clock_mapping?.clock_id ?? state.activeRun?.clock_id ?? null,
       }) : null);
       render(nextModel);
     });

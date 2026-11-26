@@ -270,3 +270,11 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .live-entry-retry{font-size:12px;background:none;border:none;color:var(--faint);text-decoration:underline;cursor:pointer}
 
 .ui-modeswitch{display:flex;align-items:center;gap:10px}.ui-toggle:disabled{opacity:.4;cursor:not-allowed}.ui-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* #710 front-desk floor plan; shared scene renderer owns its canvas and labels. */
+.ui-plan-head{flex-wrap:wrap;gap:8px}.ui-plan-toggle{display:flex;gap:4px}
+.ui-plan-toggle [aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.ui-scene3d-hud{display:flex;flex-wrap:wrap;gap:8px;font:11px/1.5 var(--mono);color:var(--muted);margin:8px 0}
+.ui-estimate-summary,.ui-scene3d-note{font-size:12px}.ui-plan-flat .ui-card-head:empty{display:none}
+.ui-plan-svg .ui-estimate-range{fill:var(--inferred);fill-opacity:.18;stroke:var(--inferred);stroke-width:.5;stroke-dasharray:2 2}
+.ui-plan-svg .ui-estimate-point{fill:var(--inferred)}.ui-plan-svg .ui-estimate-label{fill:var(--inferred);font:3px var(--sans)}

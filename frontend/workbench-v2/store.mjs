@@ -177,6 +177,7 @@ export function reduce(state,action) {
           speed:next.speed??1,
           cameraGraph:next.cameraGraph,
           displayPositions:next.displayPositions,
+          runClockId:next.activeRun?.clock_mapping?.clock_id??next.activeRun?.clock_id??null,
         });
       }
       return next;
@@ -208,6 +209,7 @@ export function reduce(state,action) {
           speed:next.speed??1,
           cameraGraph:next.cameraGraph,
           displayPositions:next.displayPositions,
+          runClockId:next.activeRun?.clock_mapping?.clock_id??next.activeRun?.clock_id??null,
         });
       }
       return next;
@@ -225,6 +227,7 @@ export function reduce(state,action) {
           speed:next.speed??1,
           cameraGraph:next.cameraGraph,
           displayPositions:next.displayPositions,
+          runClockId:next.activeRun?.clock_mapping?.clock_id??next.activeRun?.clock_id??null,
         });
       }
       return next!==state&&next.tMs!==state.tMs?{...next,tUs:Math.round(next.tMs*1000)}:next;
