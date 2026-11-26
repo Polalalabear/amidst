@@ -19,14 +19,15 @@ Refs: #729、#733、#598、D384、D386、D387、D171。
 2. **結構化設定檔**：
    - 8785 demo 依賴設定：`configs/demo_integration_local.json`、`configs/demo_dependencies_manifest_v1.json` 及（若存在）`local/demo-pin.json`。
    - 舊路徑對應表：`configs/local_path_map_v1.json`（含 `generation`：`CURRENT`、`CITED`、`OBSOLETE`）。
+     - **`path_map_only` 定義**：若某項目**僅**出現在 `configs/local_path_map_v1.json`、而未在任何活躍或封存文件、程式、重現清單、demo pin、GitHub issue／PR 或 open PR 分支中被引用，則視為「歷史路徑對應表項目」（不計入活躍文件引用），工具會在 JSON 標記 `path_map_only_reference: true`，並在 Markdown 表格標註 `[path_map_only]`，方便人工區分歷史封存項目（例如 `local/archive/*`）與現行活躍引用後決定保留或清理。<!-- local-ref-ignore -->
    - 重現包清單（#728）：`configs/reproduce/artifact_manifest_v1.json`。
 3. **祖先／前綴傳遞規則（Ancestor/Prefix Propagation）**：
    - 只要任一處引用指向子路徑 `local/X/child/...`（例如 `local/runtime/live-main`），則該子路徑與其所有非區段祖先（例如 `local/runtime`）都會繼承該引用並歸類為 **`KEEP`**（`active_reference_count >= 1`）。<!-- local-ref-ignore -->
    - 單純的區段根目錄名稱（`local/data`、`local/evidence`、`local/archive`）不向上展開成整區保留，以免覆蓋未引用子項。
-4. **GitHub issue／PR 與 open PR 分支反查（提交刪除清單前必做）**：
-   - 僅掃描單一 checkout 無法看到只出現在 GitHub issue／PR 本文、留言或尚未合併之 open PR 分支上的引用。
-   - **提交任何刪除清單給使用者之前，必須補跑外部引用反查**：加上 `--include-github --include-git-branches`（透過 `gh` 與 `git grep` 唯讀掃描），或以 `--github-refs-json <snapshot.json>` 匯入離線快照。
-   - JSON 報告固定記錄 `external_ref_scan`（含 `github_issues_prs_scanned`、`open_pr_branches_scanned`、`warning`）；若未執行外部反查，Markdown 報告的頁首與刪除專節都會顯示顯著警示，提醒人工複核後才可刪除。
+4. **必須在最新 `origin/main` clone 上執行並啟用外部反查（提交刪除清單前必做）**：
+   - **最新 `origin/main` clone 要求**：`scripts/inventory_local_assets.py` **必須在最新同步的 `origin/main` clone 上執行**，切勿對較舊的 pinned checkout（例如 8785 demo 所 pin 住的舊 commit）執行盤點，否則會漏掉 `origin/main` 後來新增的文件／程式引用（例如 `local/manifests`、`local/uv-cache` 等）。
+   - **完整分頁 GitHub 與分支反查**：僅掃描單一 checkout 無法看到只出現在 GitHub issue／PR 本文、留言或尚未合併之 open PR 分支上的引用。提交任何刪除清單給使用者之前，**必須**加上 `--include-github --include-git-branches`（透過 `gh api --paginate` 分頁掃描全 repo 所有 issue／PR、所有留言與 open PR diff，並透過 `git grep` 掃描分支），或以 `--github-refs-json <snapshot.json>` 匯入完整離線快照。
+   - **未完成或截斷時暫停輸出刪除指令**：JSON 報告固定記錄 `external_ref_scan`（含 `github_issues_prs_scanned`、`open_pr_branches_scanned`、`truncated`、`warning`）。若任一 `gh` 呼叫失敗、逾時或觸及 `--github-limit` 上限，工具會自動設 `github_issues_prs_scanned=false`、`truncated=true` 並輸出明確警語；只要外部掃描未完整或發生截斷，Markdown 報告會**暫停輸出任何註解刪除指令（`# rm -rf`）**，直到補跑完整且無截斷為止。
 
 ## 3. 分類規則
 
@@ -74,11 +75,13 @@ Refs: #729、#733、#598、D384、D386、D387、D171。
 
 ## 4. 使用方式
 
+> **必要前提**：執行正式盤點或產出刪除建議時，`--repo` **必須指向最新同步的 `origin/main` clone**（不可使用 8785 demo 等舊 pinned commit 的 checkout），且**必須同時加上 `--include-github --include-git-branches`**，確認 JSON 中 `external_ref_scan.truncated == false` 後，報告才會輸出供人工核對之註解刪除指令。
+
 ```bash
-# 在 Mac / Linux 盤點 repo 內的 local/（輸出寫到 repo 外或 scratch，勿直接進 git）
+# 在最新 origin/main clone 上盤點 local/（輸出寫到 repo 外或 scratch，勿直接進 git）
 # 提交刪除清單給使用者前，務必加上 --include-github --include-git-branches
 python3 scripts/inventory_local_assets.py \
-  --repo . \
+  --repo /path/to/fresh-origin-main-clone \
   --local-root ./local \
   --include-github \
   --include-git-branches \

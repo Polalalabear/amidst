@@ -178,9 +178,17 @@ def test_inventory_classifications_and_strict_read_only(tmp_path: Path) -> None:
     assert by_path["local/evidence/cited-no-ref"]["classification"] == "UNCERTAIN"
     assert by_path["local/archive/historical-snapshot"]["classification"] == "UNCERTAIN"
 
-    # Markdown dedicated D387 section + commented-out review checklist
+    # P2-3: path_map_only_reference tagging in JSON and Markdown
+    assert by_path["local/archive/old-obsolete"]["path_map_only_reference"] is True
+    assert by_path["local/evidence/cited-no-ref"]["path_map_only_reference"] is True
+    assert by_path["local/evidence/e5-kept-run"]["path_map_only_reference"] is False
+    assert by_path["local/evidence/misc-unreferenced"]["path_map_only_reference"] is False
+    assert "[path_map_only]" in md
+
+    # P2-1: Markdown dedicated D387 section WITHHOLDS deletion commands when external scan was not run
     assert "## 明顯過期或錯誤（Obviously Stale or Broken — D387）" in md
-    assert "# rm -rf -- \"local/evidence/uv-cache\"" in md
+    assert "刪除指令已暫停輸出" in md
+    assert "# rm -rf -- \"local/evidence/uv-cache\"" not in md
     assert "local/data/scene-original-unreferenced" not in md.split("## 保留（KEEP）")[0]
 
 
@@ -362,3 +370,110 @@ def test_github_refs_json_keeps_issue_and_pr_branch_referenced_items(tmp_path: P
     assert gh_by_path["local/evidence/open-pr-experiment"]["classification"] == "KEEP"
     assert gh_by_path["local/evidence/open-pr-experiment"]["active_reference_count"] >= 1
     assert gh_by_path["local/evidence/truly-unreferenced"]["classification"] == "DELETABLE_CANDIDATE"
+    assert gh_report["external_ref_scan"]["truncated"] is False
+
+
+def test_paginated_gh_api_collection_and_truncation_detection(tmp_path: Path) -> None:
+    """PR #738 P1-A & P2-1:
+    - Paginated ``gh api --paginate`` extracts refs across multiple pages of issues/PRs,
+      comments, and open PR diffs without truncation; when complete, Markdown emits
+      commented-out review-only deletion commands.
+    - Hitting ``github_limit`` OR a failed/timed-out ``gh`` call sets
+      ``github_issues_prs_scanned=False``, ``truncated=True``, emits a non-empty warning,
+      and withholds deletion commands in Markdown.
+    """
+    repo = tmp_path / "repo"
+    local = tmp_path / "local"
+    (repo / "docs").mkdir(parents=True)
+
+    # Referenced in page 2 of issues/PRs
+    p2_issue = local / "evidence" / "impl-605-3d-20261118"
+    p2_issue.mkdir(parents=True)
+    (p2_issue / "out.json").write_text("{}\n", encoding="utf-8")
+
+    # Referenced in page 2 of issue/PR comments
+    p2_comment = local / "evidence" / "coordinator-20261110"
+    p2_comment.mkdir(parents=True)
+    (p2_comment / "audit.json").write_text("{}\n", encoding="utf-8")
+
+    # Referenced in open PR diff
+    pr_diff_item = local / "evidence" / "wb-8cam-grid-20261115"
+    pr_diff_item.mkdir(parents=True)
+    (pr_diff_item / "grid.json").write_text("{}\n", encoding="utf-8")
+
+    # Obvious stale/cache item (should produce commented rm -rf ONLY when scan is complete)
+    cache_dir = local / "evidence" / "uv-cache"
+    cache_dir.mkdir(parents=True)
+    (cache_dir / "pkg.whl").write_bytes(b"wheel")
+
+    def _mk_proc(returncode: int, stdout: str = "", stderr: str = "") -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args=["gh"], returncode=returncode, stdout=stdout, stderr=stderr)
+
+    # Concatenated JSON arrays as emitted by `gh api --paginate` across multiple pages
+    issues_paginated = (
+        json.dumps([{"number": 738, "title": "Recent PR", "body": "no local ref", "pull_request": {}}])
+        + "\n"
+        + json.dumps([{"number": 605, "title": "Older issue", "body": "See local/evidence/impl-605-3d-20261118/out.json"}])
+    )
+    comments_paginated = (
+        json.dumps([{"id": 1, "issue_url": "https://api.github.com/repos/o/r/issues/700", "body": "LGTM"}])
+        + json.dumps([{"id": 2, "issue_url": "https://api.github.com/repos/o/r/issues/500", "body": "Kept at local/evidence/coordinator-20261110/audit.json"}])
+    )
+    open_prs_paginated = json.dumps([{"number": 740, "head": {"ref": "codex/feat-grid"}}])
+    pr_diff_text = "+Ref: local/evidence/wb-8cam-grid-20261115/grid.json\n"
+
+    def ok_runner(cmd: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        joined = " ".join(cmd)
+        if "issues?state=all" in joined:
+            return _mk_proc(0, issues_paginated)
+        if "issues/comments" in joined:
+            return _mk_proc(0, comments_paginated)
+        if "pulls?state=open" in joined:
+            return _mk_proc(0, open_prs_paginated)
+        if cmd[:3] == ["gh", "pr", "diff"]:
+            return _mk_proc(0, pr_diff_text)
+        raise AssertionError(f"Unexpected gh command: {cmd}")
+
+    # 1. Full paginated run -> complete, not truncated, deletion checklist emitted (commented-out)
+    full_report = inventory_local_assets(repo, local, include_github=True, gh_runner=ok_runner)
+    full_ext = full_report["external_ref_scan"]
+    assert full_ext["github_issues_prs_scanned"] is True
+    assert full_ext["open_pr_branches_scanned"] is True
+    assert full_ext["truncated"] is False
+    assert full_ext["warning"] == ""
+
+    full_by_path = {i["local_path"]: i for i in full_report["items"]}
+    assert full_by_path["local/evidence/impl-605-3d-20261118"]["classification"] == "KEEP"
+    assert full_by_path["local/evidence/coordinator-20261110"]["classification"] == "KEEP"
+    assert full_by_path["local/evidence/wb-8cam-grid-20261115"]["classification"] == "KEEP"
+    assert full_by_path["local/evidence/uv-cache"]["classification"] == "DELETABLE_CANDIDATE"
+
+    full_md = render_markdown(full_report)
+    assert '# rm -rf -- "local/evidence/uv-cache"' in full_md
+    assert "刪除指令已暫停輸出" not in full_md
+
+    # 2. Explicit --github-limit hit -> truncated=True, scanned=False, warning non-empty, rm withheld
+    trunc_report = inventory_local_assets(repo, local, include_github=True, github_limit=2, gh_runner=ok_runner)
+    trunc_ext = trunc_report["external_ref_scan"]
+    assert trunc_ext["github_issues_prs_scanned"] is False
+    assert trunc_ext["truncated"] is True
+    assert trunc_ext["warning"]
+    trunc_md = render_markdown(trunc_report)
+    assert "刪除指令已暫停輸出" in trunc_md
+    assert '# rm -rf -- "local/evidence/uv-cache"' not in trunc_md
+
+    # 3. Failed gh call -> truncated=True, scanned=False, warning non-empty, rm withheld
+    def failing_runner(cmd: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        joined = " ".join(cmd)
+        if "issues/comments" in joined:
+            return _mk_proc(1, "", "HTTP 403 rate limit exceeded")
+        return ok_runner(cmd)
+
+    fail_report = inventory_local_assets(repo, local, include_github=True, gh_runner=failing_runner)
+    fail_ext = fail_report["external_ref_scan"]
+    assert fail_ext["github_issues_prs_scanned"] is False
+    assert fail_ext["truncated"] is True
+    assert "rate limit" in fail_ext["warning"]
+    fail_md = render_markdown(fail_report)
+    assert "刪除指令已暫停輸出" in fail_md
+    assert '# rm -rf -- "local/evidence/uv-cache"' not in fail_md

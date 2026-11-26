@@ -256,15 +256,56 @@ def _scan_git_branches(repo: Path, add_ref_fn: Any) -> tuple[bool, list[str]]:
     return True, warnings
 
 
-def _scan_github_live(repo: Path, add_ref_fn: Any) -> tuple[bool, bool, list[str]]:
-    """Query GitHub issues/PRs (bodies + comments) and open PR branches via ``gh`` CLI."""
-    warnings: list[str] = []
-    issues_ok = False
-    branches_ok = False
+def _parse_paginated_json_array(raw: str) -> list[dict[str, Any]]:
+    """Parse JSON array output from ``gh api --paginate`` (supports concatenated or slurped pages)."""
+    text = raw.strip()
+    if not text:
+        return []
+    decoder = json.JSONDecoder()
+    idx = 0
+    length = len(text)
+    items: list[dict[str, Any]] = []
+    while idx < length:
+        while idx < length and text[idx].isspace():
+            idx += 1
+        if idx >= length:
+            break
+        obj, end = decoder.raw_decode(text, idx)
+        idx = end
+        if isinstance(obj, list):
+            for elem in obj:
+                if isinstance(elem, list):
+                    for sub in elem:
+                        if isinstance(sub, dict):
+                            items.append(sub)
+                elif isinstance(elem, dict):
+                    items.append(elem)
+        else:
+            raise ValueError(f"Expected JSON array from gh api --paginate, got {type(obj).__name__}")
+    return items
 
-    def _run_gh(cmd: list[str]) -> tuple[bool, str, str]:
+
+def _collect_github_refs_via_gh(
+    repo: Path,
+    add_ref_fn: Any,
+    *,
+    github_limit: int | None = None,
+    runner: Any = None,
+) -> tuple[bool, bool, bool, list[str]]:
+    """Query ALL GitHub issues/PRs, their comments, and open PR diffs via paginated ``gh api``.
+
+    Returns ``(issues_ok, branches_ok, truncated, warnings)``.
+    If any ``gh`` call fails, times out, returns invalid JSON, or hits ``github_limit``,
+    ``truncated`` is set to ``True``, the affected ``*_ok`` flag is set to ``False``, and a
+    clear warning is emitted.
+    """
+    warnings: list[str] = []
+    truncated = False
+    run_fn = runner or subprocess.run
+
+    def _run_gh(cmd: list[str], *, timeout: int = 300) -> tuple[bool, str, str]:
         try:
-            proc = subprocess.run(
+            proc = run_fn(
                 cmd,
                 cwd=str(repo),
                 capture_output=True,
@@ -272,69 +313,132 @@ def _scan_github_live(repo: Path, add_ref_fn: Any) -> tuple[bool, bool, list[str
                 encoding="utf-8",
                 errors="replace",
                 check=False,
-                timeout=60,
+                timeout=timeout,
             )
         except FileNotFoundError:
             return False, "", "gh CLI not found in PATH"
+        except subprocess.TimeoutExpired as exc:
+            return False, "", f"gh CLI timed out after {exc.timeout}s"
         except subprocess.SubprocessError as exc:
             return False, "", f"gh CLI failed: {exc}"
         if proc.returncode != 0:
-            return False, proc.stdout, proc.stderr.strip() or f"gh exited {proc.returncode}"
+            return False, proc.stdout, (proc.stderr or "").strip() or f"gh exited {proc.returncode}"
         return True, proc.stdout, ""
 
+    # 1. All issues AND PRs (GitHub REST /issues?state=all returns both issues and pull requests)
     ok_i, out_i, err_i = _run_gh(
-        ["gh", "issue", "list", "--state", "all", "--limit", "200", "--json", "number,title,body,comments"]
+        ["gh", "api", "--paginate", "repos/{owner}/{repo}/issues?state=all&per_page=100"]
     )
-    ok_p, out_p, err_p = _run_gh(
-        ["gh", "pr", "list", "--state", "all", "--limit", "200", "--json", "number,title,body,comments,headRefName,state"]
-    )
-
     if ok_i:
         try:
-            for issue in json.loads(out_i):
-                num = issue.get("number")
-                src = f"github:issue#{num}"
-                _scan_text_for_refs(f"{issue.get('title') or ''}\n{issue.get('body') or ''}", src, add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
-                for c in issue.get("comments") or []:
-                    _scan_text_for_refs(str(c.get("body") or ""), f"{src}:comment", add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
+            issues_items = _parse_paginated_json_array(out_i)
+            if github_limit is not None and github_limit > 0 and len(issues_items) >= github_limit:
+                warnings.append(
+                    f"GitHub issues/PRs scan truncated at --github-limit={github_limit} "
+                    f"(fetched {len(issues_items)} items); re-run without --github-limit for a complete scan"
+                )
+                truncated = True
+                ok_i = False
+                issues_items = issues_items[:github_limit]
+            for item in issues_items:
+                num = item.get("number")
+                is_pr = "pull_request" in item
+                src = f"github:pr#{num}" if is_pr else f"github:issue#{num}"
+                _scan_text_for_refs(
+                    f"{item.get('title') or ''}\n{item.get('body') or ''}",
+                    src,
+                    add_ref_fn,
+                    kind="github_issue_pr",
+                    is_archive_doc=False,
+                )
         except ValueError as exc:
-            warnings.append(f"Failed to parse gh issue list JSON: {exc}")
+            warnings.append(f"Failed to parse paginated GitHub issues/PRs JSON: {exc}")
+            truncated = True
             ok_i = False
     else:
-        warnings.append(f"GitHub issues scan unavailable ({err_i})")
+        warnings.append(f"GitHub issues/PRs scan failed/incomplete ({err_i})")
+        truncated = True
 
-    open_prs: list[dict[str, Any]] = []
+    # 2. All issue and PR conversation comments (paginated across the entire repo)
+    ok_c, out_c, err_c = _run_gh(
+        ["gh", "api", "--paginate", "repos/{owner}/{repo}/issues/comments?per_page=100"]
+    )
+    if ok_c:
+        try:
+            comment_items = _parse_paginated_json_array(out_c)
+            if github_limit is not None and github_limit > 0 and len(comment_items) >= github_limit:
+                warnings.append(
+                    f"GitHub issue/PR comments scan truncated at --github-limit={github_limit} "
+                    f"(fetched {len(comment_items)} comments); re-run without --github-limit for a complete scan"
+                )
+                truncated = True
+                ok_c = False
+                comment_items = comment_items[:github_limit]
+            for comment in comment_items:
+                cid = comment.get("id")
+                issue_url = str(comment.get("issue_url") or "")
+                issue_num = issue_url.rstrip("/").split("/")[-1] if issue_url else ""
+                src = f"github:issue#{issue_num}:comment#{cid}" if issue_num else f"github:comment#{cid}"
+                _scan_text_for_refs(
+                    str(comment.get("body") or ""),
+                    src,
+                    add_ref_fn,
+                    kind="github_issue_pr",
+                    is_archive_doc=False,
+                )
+        except ValueError as exc:
+            warnings.append(f"Failed to parse paginated GitHub comments JSON: {exc}")
+            truncated = True
+            ok_c = False
+    else:
+        warnings.append(f"GitHub issue/PR comments scan failed/incomplete ({err_c})")
+        truncated = True
+
+    issues_ok = ok_i and ok_c
+
+    # 3. Open PRs (paginated) + open PR diffs
+    branches_ok = False
+    ok_p, out_p, err_p = _run_gh(
+        ["gh", "api", "--paginate", "repos/{owner}/{repo}/pulls?state=open&per_page=100"]
+    )
     if ok_p:
         try:
-            for pr in json.loads(out_p):
+            open_prs = _parse_paginated_json_array(out_p)
+            if github_limit is not None and github_limit > 0 and len(open_prs) >= github_limit:
+                warnings.append(
+                    f"GitHub open PRs scan truncated at --github-limit={github_limit} "
+                    f"(fetched {len(open_prs)} PRs); re-run without --github-limit for a complete scan"
+                )
+                truncated = True
+                ok_p = False
+                open_prs = open_prs[:github_limit]
+            branches_ok = ok_p
+            for pr in open_prs:
                 num = pr.get("number")
-                src = f"github:pr#{num}"
-                _scan_text_for_refs(f"{pr.get('title') or ''}\n{pr.get('body') or ''}", src, add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
-                for c in pr.get("comments") or []:
-                    _scan_text_for_refs(str(c.get("body") or ""), f"{src}:comment", add_ref_fn, kind="github_issue_pr", is_archive_doc=False)
-                if str(pr.get("state") or "").upper() == "OPEN":
-                    open_prs.append(pr)
+                head_info = pr.get("head")
+                head_ref = (head_info.get("ref") if isinstance(head_info, dict) else None) or pr.get("headRefName") or ""
+                ok_d, out_d, err_d = _run_gh(["gh", "pr", "diff", str(num)], timeout=120)
+                if ok_d:
+                    _scan_text_for_refs(
+                        out_d,
+                        f"github:pr#{num}:branch:{head_ref}",
+                        add_ref_fn,
+                        kind="open_pr_branch",
+                        is_archive_doc=False,
+                    )
+                else:
+                    warnings.append(f"Open PR #{num} ({head_ref}) diff scan failed: {err_d}")
+                    branches_ok = False
+                    truncated = True
         except ValueError as exc:
-            warnings.append(f"Failed to parse gh pr list JSON: {exc}")
-            ok_p = False
+            warnings.append(f"Failed to parse paginated GitHub open PRs JSON: {exc}")
+            branches_ok = False
+            truncated = True
     else:
-        warnings.append(f"GitHub PRs scan unavailable ({err_p})")
+        warnings.append(f"GitHub open PRs scan failed/incomplete ({err_p})")
+        truncated = True
 
-    issues_ok = ok_i and ok_p
-
-    if ok_p:
-        branches_ok = True
-        for pr in open_prs:
-            num = pr.get("number")
-            head_ref = pr.get("headRefName") or ""
-            ok_d, out_d, err_d = _run_gh(["gh", "pr", "diff", str(num)])
-            if ok_d:
-                _scan_text_for_refs(out_d, f"github:pr#{num}:branch:{head_ref}", add_ref_fn, kind="open_pr_branch", is_archive_doc=False)
-            else:
-                warnings.append(f"Open PR #{num} ({head_ref}) diff scan failed: {err_d}")
-                branches_ok = False
-
-    return issues_ok, branches_ok, warnings
+    return issues_ok, branches_ok, truncated, warnings
 
 
 def scan_repo_references(
@@ -343,19 +447,23 @@ def scan_repo_references(
     include_github: bool = False,
     github_refs_json: Path | None = None,
     include_git_branches: bool = False,
+    github_limit: int | None = None,
+    gh_runner: Any = None,
 ) -> dict[str, Any]:
     """Scan merged repo docs, configs, code, and optional GitHub/branch sources for ``local/...`` references.
 
     Returns:
       - refs_by_path: dict[local_rel_path, list[dict(file, line, kind, is_archive_doc, original_ref)]]
       - path_map_generations: dict[local_rel_path, str] from configs/local_path_map_v1.json
+      - path_map_paths: list[str] of all local/... paths listed in configs/local_path_map_v1.json
       - demo_pin_paths: set[str]
       - reproduce_manifest_paths: set[str]
-      - external_ref_scan: dict(github_issues_prs_scanned, open_pr_branches_scanned, warning)
+      - external_ref_scan: dict(github_issues_prs_scanned, open_pr_branches_scanned, truncated, warning)
     """
     repo = repo.resolve()
     refs_by_path: dict[str, list[dict[str, Any]]] = {}
     path_map_generations: dict[str, str] = {}
+    path_map_paths: set[str] = set()
     demo_pin_paths: set[str] = {"local/data/demo-owned-v1"}
     reproduce_manifest_paths: set[str] = set()
 
@@ -409,8 +517,10 @@ def scan_repo_references(
                 gen = item.get("generation")
                 if isinstance(new_p, str) and new_p.startswith("local/"):
                     norm = _norm_local_ref(new_p)
-                    if norm and isinstance(gen, str):
-                        path_map_generations[norm] = gen.upper()
+                    if norm:
+                        path_map_paths.add(norm)
+                        if isinstance(gen, str):
+                            path_map_generations[norm] = gen.upper()
         except (OSError, ValueError):
             pass
 
@@ -451,6 +561,7 @@ def scan_repo_references(
     # 5. Optional external reference scans: GitHub issues/PRs and open/git branches
     github_issues_prs_scanned = False
     open_pr_branches_scanned = False
+    truncated = False
     ext_warnings: list[str] = []
 
     if github_refs_json is not None:
@@ -460,9 +571,15 @@ def scan_repo_references(
         ext_warnings.extend(warns)
 
     if include_github:
-        gh_i, gh_b, warns = _scan_github_live(repo, add_ref)
+        gh_i, gh_b, gh_trunc, warns = _collect_github_refs_via_gh(
+            repo,
+            add_ref,
+            github_limit=github_limit,
+            runner=gh_runner,
+        )
         github_issues_prs_scanned = github_issues_prs_scanned or gh_i
         open_pr_branches_scanned = open_pr_branches_scanned or gh_b
+        truncated = truncated or gh_trunc
         ext_warnings.extend(warns)
 
     if include_git_branches:
@@ -477,19 +594,21 @@ def scan_repo_references(
         missing_scopes.append("open PR branches")
     if missing_scopes:
         ext_warnings.append(
-            f"{' and '.join(missing_scopes)} were NOT scanned; human review or re-running with "
-            "--include-github --include-git-branches (or --github-refs-json) is required before deleting any candidate."
+            f"{' and '.join(missing_scopes)} were NOT scanned (or were truncated); human review or re-running with "
+            "--include-github --include-git-branches (or --github-refs-json) without truncation is required before deleting any candidate."
         )
 
     external_ref_scan = {
         "github_issues_prs_scanned": github_issues_prs_scanned,
         "open_pr_branches_scanned": open_pr_branches_scanned,
+        "truncated": truncated,
         "warning": "; ".join(ext_warnings),
     }
 
     return {
         "refs_by_path": refs_by_path,
         "path_map_generations": path_map_generations,
+        "path_map_paths": sorted(path_map_paths),
         "demo_pin_paths": sorted(demo_pin_paths),
         "reproduce_manifest_paths": sorted(reproduce_manifest_paths),
         "external_ref_scan": external_ref_scan,
@@ -727,6 +846,8 @@ def inventory_local_assets(
     include_github: bool = False,
     github_refs_json: Path | None = None,
     include_git_branches: bool = False,
+    github_limit: int | None = None,
+    gh_runner: Any = None,
 ) -> dict[str, Any]:
     """Run full read-only inventory and classification."""
     repo = repo.resolve()
@@ -736,9 +857,12 @@ def inventory_local_assets(
         include_github=include_github,
         github_refs_json=github_refs_json,
         include_git_branches=include_git_branches,
+        github_limit=github_limit,
+        gh_runner=gh_runner,
     )
     refs_by_path = ref_index["refs_by_path"]
     path_map_generations = ref_index["path_map_generations"]
+    path_map_paths = set(ref_index["path_map_paths"])
     demo_pin_paths = set(ref_index["demo_pin_paths"])
     reproduce_manifest_paths = set(ref_index["reproduce_manifest_paths"])
     external_ref_scan = ref_index["external_ref_scan"]
@@ -760,8 +884,10 @@ def inventory_local_assets(
         active_refs = [r for r in refs if not r["is_archive_doc"]]
         archive_refs = [r for r in refs if r["is_archive_doc"]]
         path_map_gen = path_map_generations.get(lp)
+        in_path_map = any(lp == pm or pm.startswith(lp + "/") or lp.startswith(pm + "/") for pm in path_map_paths)
         in_repro = any(lp == rp or rp.startswith(lp + "/") or lp.startswith(rp + "/") for rp in reproduce_manifest_paths)
         in_demo = any(lp == dp or dp.startswith(lp + "/") or lp.startswith(dp + "/") for dp in demo_pin_paths)
+        path_map_only_reference = bool(in_path_map and not refs and not in_repro and not in_demo)
         is_archive_area = lp.startswith("local/archive/")
 
         classification: str
@@ -842,6 +968,7 @@ def inventory_local_assets(
                 "active_reference_count": len(active_refs),
                 "archive_reference_count": len(archive_refs),
                 "path_map_generation": path_map_gen,
+                "path_map_only_reference": path_map_only_reference,
                 "classification": classification,
                 "is_obviously_stale_or_broken": is_obviously_stale_or_broken,
                 "obviously_stale_or_broken_reason": stale_reason,
@@ -902,8 +1029,17 @@ def _fmt_bytes(num: int) -> str:
     return f"{num} B"
 
 
-def _fmt_refs(refs: list[dict[str, Any]], limit: int = 3) -> str:
+def _fmt_refs(
+    refs: list[dict[str, Any]],
+    limit: int = 3,
+    *,
+    path_map_only: bool = False,
+    path_map_gen: str | None = None,
+) -> str:
     if not refs:
+        if path_map_only:
+            gen_tag = f"（generation=`{path_map_gen}`）" if path_map_gen else ""
+            return f"`[path_map_only]` 僅列於 `configs/local_path_map_v1.json`{gen_tag}"
         return "無引用（0）"
     shown = []
     for r in refs[:limit]:
@@ -919,21 +1055,26 @@ def render_markdown(report: dict[str, Any]) -> str:
     ext = report.get("external_ref_scan") or {
         "github_issues_prs_scanned": False,
         "open_pr_branches_scanned": False,
+        "truncated": False,
         "warning": "GitHub issues/PRs and open PR branches were NOT scanned; human review is required before deleting any candidate.",
     }
-    ext_incomplete = (not ext.get("github_issues_prs_scanned")) or (not ext.get("open_pr_branches_scanned"))
+    ext_incomplete = (
+        (not ext.get("github_issues_prs_scanned"))
+        or (not ext.get("open_pr_branches_scanned"))
+        or bool(ext.get("truncated"))
+    )
     lines: list[str] = [
         "# `local/` 資產盤點與分類報告（唯讀）",
         "",
         f"- 產生時間（UTC）：`{report['generated_at_utc']}`",
         "- 掃描模式：**STRICTLY READ-ONLY（未刪除、未移動、未修改任何檔案）**",
-        f"- 外部引用反查：`github_issues_prs_scanned={ext.get('github_issues_prs_scanned')}`、`open_pr_branches_scanned={ext.get('open_pr_branches_scanned')}`",
+        f"- 外部引用反查：`github_issues_prs_scanned={ext.get('github_issues_prs_scanned')}`、`open_pr_branches_scanned={ext.get('open_pr_branches_scanned')}`、`truncated={bool(ext.get('truncated'))}`",
         f"- 總計：{report['total_items']} 項、{report['total_files']} 檔、{_fmt_bytes(report['total_bytes'])}（{report['total_bytes']} bytes）",
         "",
     ]
     if ext_incomplete:
         lines += [
-            f"> **⚠️ 外部引用掃描未完整警示**：{ext.get('warning') or 'GitHub issue/PR 或 open PR 分支未掃描，刪除任何候選項目之前必須由人工核對或補跑 `--include-github --include-git-branches`。'}",
+            f"> **⚠️ 外部引用掃描未完整警示**：{ext.get('warning') or 'GitHub issue/PR 或 open PR 分支未完整掃描（或已截斷），刪除任何候選項目之前必須在最新 origin/main clone 上補跑 `--include-github --include-git-branches`。'}",
             "",
         ]
     lines += [
@@ -953,7 +1094,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines += [
         "## 明顯過期或錯誤（Obviously Stale or Broken — D387）",
         "",
-        "> 本節依 D387 獨立列出明顯過期、損毀或可重建快取項目，附每項理由與引用反查結果。**本工具絕不自動刪除**；下列指令皆已註解，須由使用者核准後於自己的終端機手動執行。",
+        "> 本節依 D387 獨立列出明顯過期、損毀或可重建快取項目，附每項理由與引用反查結果。**本工具絕不自動刪除**；僅在外部反查完整且無截斷時才附上已註解之檢核指令，並須由使用者核准後於自己的終端機手動執行。",
         "",
     ]
     if ext_incomplete:
@@ -968,22 +1109,40 @@ def render_markdown(report: dict[str, Any]) -> str:
         ]
         for i in obvious:
             sha_disp = f"`{i['sha256'][:12]}…` ({i['hash_kind']})" if i["sha256"] else f"`NONE` ({i['hash_kind']})"
+            ref_disp = _fmt_refs(
+                i["reference_sources"],
+                path_map_only=bool(i.get("path_map_only_reference")),
+                path_map_gen=i.get("path_map_generation"),
+            )
             lines.append(
                 f"| `{i['local_path']}` | {_fmt_bytes(i['size_bytes'])} | {i['file_count']} | `{i['mtime_utc']}` | "
-                f"{_fmt_refs(i['reference_sources'])} | {i['rationale']} | {sha_disp} |"
+                f"{ref_disp} | {i['rationale']} | {sha_disp} |"
             )
-        lines += [
-            "",
-            "### 建議刪除檢核清單（僅供使用者於自己終端機核對後手動取消註解執行）",
-            "",
-            "```bash",
-            "# Review-only checklist generated by scripts/inventory_local_assets.py (NOT auto-executed).",
-            "# Remove the leading '# ' ONLY after explicit human approval.",
-        ]
-        for i in obvious:
-            flag = "-rf" if i["entry_type"] == "dir" else "-f"
-            lines.append(f"# rm {flag} -- \"{i['local_path']}\"  # {_fmt_bytes(i['size_bytes'])}; {i['obviously_stale_or_broken_reason']}")
-        lines += ["```", ""]
+        if ext_incomplete:
+            lines += [
+                "",
+                "### 建議刪除檢核清單（已暫停輸出 / Withheld）",
+                "",
+                "> **⛔ 刪除指令已暫停輸出**：外部引用反查尚未完整執行或發生截斷"
+                f"（`github_issues_prs_scanned={ext.get('github_issues_prs_scanned')}`、"
+                f"`open_pr_branches_scanned={ext.get('open_pr_branches_scanned')}`、"
+                f"`truncated={bool(ext.get('truncated'))}`）。"
+                "請在最新 `origin/main` clone 上執行 `--include-github --include-git-branches` 且確認無截斷後，再重新產生供人工核對之刪除指令。",
+                "",
+            ]
+        else:
+            lines += [
+                "",
+                "### 建議刪除檢核清單（僅供使用者於自己終端機核對後手動取消註解執行）",
+                "",
+                "```bash",
+                "# Review-only checklist generated by scripts/inventory_local_assets.py (NOT auto-executed).",
+                "# Remove the leading '# ' ONLY after explicit human approval.",
+            ]
+            for i in obvious:
+                flag = "-rf" if i["entry_type"] == "dir" else "-f"
+                lines.append(f"# rm {flag} -- \"{i['local_path']}\"  # {_fmt_bytes(i['size_bytes'])}; {i['obviously_stale_or_broken_reason']}")
+            lines += ["```", ""]
     else:
         lines += ["（本次掃描未發現明顯過期或錯誤項目。）", ""]
 
@@ -991,7 +1150,12 @@ def render_markdown(report: dict[str, Any]) -> str:
         subset = [i for i in report["items"] if i["classification"] == cls]
         lines.extend([f"## {title}", ""])
         if cls == "DELETABLE_CANDIDATE" and ext_incomplete:
-            lines.extend([f"> **⚠️ 刪除前必讀**：{ext.get('warning')}", ""])
+            lines.extend([
+                f"> **⚠️ 刪除前必讀**：{ext.get('warning')}",
+                ">",
+                "> **⛔ 刪除指令已暫停輸出**：在 `--include-github --include-git-branches` 完整無截斷執行完成前，本節不輸出任何刪除指令。",
+                "",
+            ])
         if not subset:
             lines.extend(["（無項目）", ""])
             return
@@ -1001,9 +1165,14 @@ def render_markdown(report: dict[str, Any]) -> str:
         ])
         for i in subset:
             sha_disp = f"`{i['sha256'][:12]}…` ({i['hash_kind']})" if i["sha256"] else f"`NONE` ({i['hash_kind']})"
+            ref_disp = _fmt_refs(
+                i["reference_sources"],
+                path_map_only=bool(i.get("path_map_only_reference")),
+                path_map_gen=i.get("path_map_generation"),
+            )
             lines.append(
                 f"| `{i['local_path']}` | {_fmt_bytes(i['size_bytes'])} | {i['file_count']} | `{i['mtime_utc']}` | "
-                f"{_fmt_refs(i['reference_sources'])} | {i['rationale']} | {sha_disp} |"
+                f"{ref_disp} | {i['rationale']} | {sha_disp} |"
             )
         lines.append("")
 
@@ -1030,7 +1199,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--include-github",
         action="store_true",
-        help="Also query GitHub issues/PRs (bodies+comments) and open PR diffs via gh CLI",
+        help="Also query all GitHub issues/PRs (bodies+comments via paginated gh api) and open PR diffs",
+    )
+    parser.add_argument(
+        "--github-limit",
+        type=int,
+        default=None,
+        help="Optional finite cap on fetched GitHub items (for debugging/testing; hitting this cap marks the scan truncated)",
     )
     parser.add_argument(
         "--github-refs-json",
@@ -1055,6 +1230,7 @@ def main(argv: list[str] | None = None) -> int:
         include_github=args.include_github,
         github_refs_json=args.github_refs_json,
         include_git_branches=args.include_git_branches,
+        github_limit=args.github_limit,
     )
     md_text = render_markdown(report)
 
