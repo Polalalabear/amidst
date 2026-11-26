@@ -168,7 +168,7 @@ export async function start(body, {fetcher = globalThis.fetch, query = location.
   const P = {...params(), model: q.get('model') || 'glb'};
   let recordedCase = null;
   if (q.get('auto') === 'recorded') {
-    body.innerHTML = '<main style="padding:5vw"><h1>A · 載入重播劇本</h1><input id="case-file" type="file" accept=".json"><p id="case-status" role="status"></p></main>';
+    body.innerHTML = '<main class="case-loader"><h1>A · 載入重播劇本</h1><input id="case-file" type="file" accept=".json"><p id="case-status" role="status"></p></main>';
     recordedCase = await new Promise(resolve => {
       body.querySelector('#case-file').onchange = async event => {
         try { resolve(validateCase(JSON.parse(await event.target.files[0].text()))); }

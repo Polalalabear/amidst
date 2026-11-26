@@ -157,3 +157,20 @@ test('B entry and HUD have no imports or keys from A state or geometry simulatio
     assert.doesNotMatch(text, /(?:world|sim|crowd|operator)\.mjs|groundTruthVisible|actor_id/);
   }
 });
+
+test('R2 tracking fields (#589): NEEDS_CONFIRM state, candidates and REACQUIRE detail validate; GT keys inside them still do not', () => {
+  const result = backendResult();
+  result.tracking = { state: 'NEEDS_CONFIRM', active_cam: 'CAM_W1', seen_cams: [], est_xy: [1, 2], lost_ticks: 3, unseen_s: 6.5, lost_phase: 'long',
+    events: [
+      { tick: 3, type: 'NEEDS_CONFIRM', cam: 'CAM_W1', detail: { unseen_s: 6.5, n_candidates: 1, reason: 'APPEARANCE_NOT_SEPARABLE' } },
+      { tick: 4, type: 'REACQUIRE', cam: 'CAM_W1', detail: { mode: 'short_gate', unseen_s: 1, dist_m: 0.5 } },
+      { tick: 5, type: 'REACQUIRE', cam: 'CAM_W1', detail: null },
+    ],
+    confirm_candidates: [{ cand_id: 'r3.1', cam: 'CAM_W1', est_xy: [5, 0], bbox: [1, 2, 3, 4], dist_m: 5, d_app: null, rank: 1 }] };
+  const msg = buildSystemMessage({ tick: 3, tCaptureMs: 1, frames: [], result });
+  assert.deepEqual(validateSystemMessage(msg), []);
+  assert.equal(msg.tracking.confirm_candidates[0].cand_id, 'r3.1');
+  assert.equal(msg.tracking.events[1].detail.mode, 'short_gate');
+  result.tracking.confirm_candidates[0].actor_id = 'LEAK';
+  assert.ok(!JSON.stringify(buildSystemMessage({ tick: 3, tCaptureMs: 1, frames: [], result })).includes('LEAK'));
+});

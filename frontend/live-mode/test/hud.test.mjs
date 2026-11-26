@@ -200,3 +200,9 @@ test('blue follows the nearest blue observation and the HUD rolling median is in
   assert.equal(recordLatency(st, 2001, 1901), 100);
   assert.equal(recordLatency(st, 2010, 2040), null);
 });
+
+test('NEEDS_CONFIRM (#589 R2) shows as pending confirmation and counts as lost, never as tracking', () => {
+  const { st, now } = run([mk(1, base), mk(2, { ...base, state: 'NEEDS_CONFIRM', lost_ticks: 2, unseen_s: 6, lost_phase: 'long', confirm_candidates: [] })], 1000);
+  const v = view(st, now, { advisor: 'off' });
+  assert.equal(v.track.kind, 'lost'); assert.match(v.track.text, /^待確認（失聯 \d+\.\d 秒）$/);
+});

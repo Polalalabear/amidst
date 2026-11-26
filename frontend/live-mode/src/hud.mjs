@@ -80,6 +80,7 @@ export function view(st, nowMs, cfg = {}, candidateCount = 0) {
   else if (tr.state === 'NEEDS_PICK') track = { kind: 'searching', text: `請選擇要追蹤的人（${candidateCount} 位）` };
   else if (tr.state === 'ADJUDICATING') track = { kind: 'adjudicating', text: `LLM 判斷中 ${sec(pendingMs || 0)} 秒`, seconds: (pendingMs || 0) / 1000 };
   else if (tr.state === 'SEARCHING' || !tr.active_cam) track = { kind: 'searching', text: '尚未鎖定目標' };
+  else if (lostMs != null && tr.state === 'NEEDS_CONFIRM') track = { kind: 'lost', text: `待確認（失聯 ${sec(lostMs)} 秒）`, seconds: lostMs / 1000 };
   else if (lostMs != null) track = { kind: tr.state === 'LOST' || lostMs >= LOST_RED_MS ? 'lost' : 'brief', text: `失聯 ${sec(lostMs)} 秒`, seconds: lostMs / 1000 };
   else track = { kind: 'tracking', text: '跟蹤中' };
 

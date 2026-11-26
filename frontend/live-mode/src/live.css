@@ -131,3 +131,5 @@ body.amidst-ui select:disabled{opacity:.45;cursor:not-allowed}
 
 .actor-swatch{display:inline-block;width:18px;height:18px;background:var(--actor-swatch)}
 #map-toggle{padding:.2em .9em}
+
+.case-loader{padding:5vw;color:var(--text);font:15px/1.5 var(--sans)}
