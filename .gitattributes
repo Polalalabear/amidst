@@ -1,0 +1,37 @@
+# Cross-platform line-ending hygiene (#728, #733).
+# Keep text source/docs files LF across Linux, macOS, and Windows so
+# authority-pinned files (authority_pins_v1.json) do not drift to CRLF.
+* text=auto eol=lf
+
+# Prevent CRLF/LF conversion from altering SHA-256 hashes of data, evidence,
+# manifests, images, models, and archives across Linux, macOS, and Windows.
+
+# Frozen data / evidence / manifests / tabular files: preserve exact bytes
+*.json -text
+*.jsonl -text
+*.csv -text
+*.sha256 -text
+
+# Media / images / video / 3D / models / archives: binary, never convert
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.webp -text
+*.mp4 -text
+*.mov -text
+*.mkv -text
+*.avi -text
+*.pth -text
+*.pt -text
+*.onnx -text
+*.bin -text
+*.gguf -text
+*.zip -text
+*.tar -text
+*.gz -text
+*.blend -text
+*.pdf -text
+
+# Shell scripts and macOS command launchers: always LF
+*.sh text eol=lf
+*.command text eol=lf

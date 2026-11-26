@@ -114,3 +114,36 @@ jobs:
           for f in guard node node_live pytest diffcheck localrefs; do echo "::group::$f"; tail -n 60 "$OUT/$f.log"; echo "::endgroup::"; done
           grep -E '^FAILED' "$OUT/pytest.log" | head -60
           exit $fail
+
+  reproduce-clean-clone:
+    name: reproduce-clean-clone (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    env:
+      PUSH_GUARD_BASE: 46835218c600d99b8c973e52f62e8dd95e79ff15
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: Install Python deps from uv.lock
+        run: uv sync --frozen --all-groups --python "$(tr -d '[:space:]' < .python-version)"
+
+      - name: Verify clean clone, tracked symlinks, and synthetic reproduce flow
+        shell: bash
+        run: |
+          BASE="${PR_BASE_SHA:-$PUSH_GUARD_BASE}"
+          .venv/bin/python scripts/reproduce/check_symlinks.py --repo . --json
+          .venv/bin/python scripts/verify_clean_clone.py --repo . --base "$BASE" --min-free-gib 1.0 --json
+          .venv/bin/pytest -q tests/reproduce/test_reproduce_pack.py tests/operations/test_inventory_local_assets.py
