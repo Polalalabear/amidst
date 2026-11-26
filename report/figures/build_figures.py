@@ -104,6 +104,9 @@ def _save_fig(fig: plt.Figure, out_dir: Path, stem: str) -> list[Path]:
     svg_path = out_dir / f"{stem}.svg"
     png_path = out_dir / f"{stem}.png"
     fig.savefig(svg_path, format="svg", bbox_inches="tight")
+    # Strip matplotlib's trailing spaces on SVG path lines so git diff --check stays clean
+    cleaned_svg = "\n".join(line.rstrip() for line in svg_path.read_text(encoding="utf-8").splitlines()) + "\n"
+    svg_path.write_text(cleaned_svg, encoding="utf-8")
     fig.savefig(png_path, format="png", dpi=200, bbox_inches="tight")
     plt.close(fig)
     return [svg_path, png_path]

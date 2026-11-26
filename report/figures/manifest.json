@@ -9,8 +9,8 @@
     {
       "filename": "fig1_e3_e5_summary.svg",
       "format": "svg",
-      "bytes": 21556,
-      "sha256": "af250c72843d199f2af7e13c0a28bf83c9ccbf64b23ecbf38a332cdc1bc5c45d"
+      "bytes": 21456,
+      "sha256": "8df385d77cc4c92b05f230afcaae46386ec7cd6c5e1c4cce628dc95b70bdf30e"
     },
     {
       "filename": "fig1_e3_e5_summary.png",
@@ -21,8 +21,8 @@
     {
       "filename": "fig2_five_way_comparison.svg",
       "format": "svg",
-      "bytes": 16300,
-      "sha256": "4a41431ac24fef4b3514db631ff30676bb54655a7b6e87b83b7cd3d762a265e3"
+      "bytes": 16198,
+      "sha256": "91d7ca45e6f16141fc516ea0491bf9926489e15b04b9feca213f35b471a553c0"
     },
     {
       "filename": "fig2_five_way_comparison.png",
@@ -33,8 +33,8 @@
     {
       "filename": "fig3_latency_breakdown.svg",
       "format": "svg",
-      "bytes": 25272,
-      "sha256": "d732b0b8bdd7bb87cbd1761419e383fc0fb434511ce94c0ec9f572fd08bbb5ee"
+      "bytes": 25126,
+      "sha256": "a84e6537d49cde0d3e83dcc38c733bdf079776fd56b7b097e57ed5e756530785"
     },
     {
       "filename": "fig3_latency_breakdown.png",
