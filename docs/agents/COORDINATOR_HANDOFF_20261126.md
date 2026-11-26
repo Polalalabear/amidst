@@ -26,7 +26,7 @@
 
 | 工作 | 預計產出 | 目前進度 | 卡住 |
 | --- | --- | --- | --- |
-| #717 → PR #723（Codex） | 16 段答案表、錯誤歸因、AO 描述性拆解、R-N | head `30563f0f`，CI 綠，Neon APPROVE（只審 GitHub，LOCAL 數字未重現） | 等 Claude 第 1 批審查；**PR 寫的輸出資料夾 `local/evidence/cx-e6-717-20261124/` 在 Mac 上找不到**，審查時要 Codex 補或說明 |
+| #717 → PR #723（Codex） | 16 段答案表、錯誤歸因、AO 描述性拆解、R-N | head `30563f0f`，CI 綠，Neon APPROVE（只審 GitHub，LOCAL 數字未重現） | 等 Claude 第 1 批審查；**PR 寫的輸出資料夾 `local/evidence/cx-e6-717-20261124/` 在 Mac 上找不到（SHA 不適用：資料夾不存在）**，審查時要 Codex 補或說明 |
 | #718 → PR #726（Neon） | E6 預登草稿、12 段劇本規格、資料分離自動檢查 | head `9e6c54b6`，CI 綠；Codex 兩輪 NEEDS_CHANGES 後已修 | **等 Codex 第三輪複審**，之後進第 1 批 |
 | #721（Codex） | 去錨定／歷史／摘要實作與 3 段診斷 | blocked | 等 #718 合併、付費與外傳影格同意（第 2 批） |
 | #727 E7（新） | 本地決策器（Qwen-VL 類、laya）延遲與決策探索 | blocked-user | 等 #598 移機完成 |
