@@ -4,7 +4,7 @@
 
 Read in this order:
 
-1. The task's brief, or, for a coordinating session, the handoff: `docs/agents/COORDINATOR_HANDOFF_20261124b.md`, a snapshot of 2026-11-24 (current decisions and state live on the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93)).
+1. The task's brief, or, for a coordinating session, the handoff: `docs/agents/COORDINATOR_HANDOFF_20261126.md`, a snapshot of 2026-11-26 (current decisions and state live on the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93)).
 2. `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md` (acceptance criteria AC1–AC8 and the Codex/Claude split) and the two-line plan (`docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`).
 3. `docs/evaluation/Q5_DECISION_WINDOW_D79.md` (the D79 decision-window document).
 4. `docs/specs/Q1Q5_PRODUCT_SPEC.md` (the Q1–Q5 product specification).
