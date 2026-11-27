@@ -133,6 +133,7 @@ if script == "e6_verdict_run.py":
     out = pathlib.Path(arg("--out"))
     explore = "--ablation-runs" in argv
     note("explore" if explore else "verdict")
+    if explore: note("ablation_runs:" + ",".join(pathlib.Path(x).name for x in many("--ablation-runs")))
     if out.exists() and (out / "verdict_e6.json").exists(): die("OUTPUT_EXISTS")
     if fails("explore" if explore else "verdict"): die("verdict")
     out.mkdir(parents=True, exist_ok=True)
@@ -229,6 +230,7 @@ def test_budget_exit_7_is_skipped_not_failed_and_later_hard_failure_still_writes
     assert "budget:NO_IMAGE" in calls and "abl:NO_IMAGE" not in calls      # skipped, never paid
     assert "abl:NO_SPATIAL" in calls                                        # the next ablation still ran
     assert json.loads((w.out / "ablation-status/NO_IMAGE.json").read_text())["state"] == "BUDGET_SKIPPED"
+    assert json.loads((w.out / "ablation-NO_IMAGE/STATUS.json").read_text())["status"] == "BUDGET_SKIPPED"
     st = states(w)
     assert any(v == "BUDGET_SKIPPED" for v in st.values())
     # the ERR trap is still armed afterwards: a hard failure in Stage 5 stops the run and is recorded
@@ -378,3 +380,18 @@ def test_missing_ledger_in_execute_mode_stops_before_any_e6_step(w):
     r = w.run()
     assert r.returncode != 0 and "LEDGER_REQUIRED" in (r.stderr + r.stdout)
     assert w.calls() == []
+
+
+def test_budget_skipped_root_is_passed_to_the_exploratory_comparison(w):
+    w.set(budget_rc={"NO_IMAGE": 7})
+    r = w.run()
+    assert r.returncode == 0, r.stderr[-800:]
+    runs = [c for c in w.calls() if c.startswith("ablation_runs:")]
+    assert runs == ["ablation_runs:ablation-NO_IMAGE,ablation-NO_SPATIAL"]       # skipped NO_IMAGE listed beside the completed NO_SPATIAL
+
+
+def test_only_failed_ablations_are_not_passed(tmp_path):
+    w = World(tmp_path)
+    w.set(fail=["abl:NO_IMAGE"], budget_rc={"NO_SPATIAL": 7})
+    assert w.run().returncode == 0
+    assert [c for c in w.calls() if c.startswith("ablation_runs:")] == ["ablation_runs:ablation-NO_SPATIAL"]

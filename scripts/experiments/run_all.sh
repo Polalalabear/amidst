@@ -274,6 +274,14 @@ except Exception:
     sys.exit(1)
 sys.exit(0)' "$1"
 }
+e6_status_is() {   # dir status
+  "$PYTHON_BIN" -c '
+import json, pathlib, sys
+try:
+    sys.exit(0 if json.loads((pathlib.Path(sys.argv[1]) / "STATUS.json").read_text()).get("status") == sys.argv[2] else 1)
+except Exception:
+    sys.exit(1)' "$1" "$2"
+}
 # for steps whose script writes no STATUS.json of its own (b1, rn, ao_orig, detection root): atomic COMPLETE marker, only after the step succeeded
 e6_mark_complete() {   # dir
   [[ "$DRY_RUN" == "1" ]] && return 0
@@ -530,6 +538,9 @@ if e6_phase_has ablation; then
       --base "${BASE_SPEND_USD}" --cap "${CAP_USD}" --out "${E6_FORMAL_OUT}/ablation-status/${ABL}.budget.json" --ledger "${E6_LEDGERS[@]}" || rc=$?
     if [[ $rc -eq 7 ]]; then
       printf '{"state": "BUDGET_SKIPPED"}\n' > "${ABL_MARK}"
+      # the root itself says BUDGET_SKIPPED too, so e6_verdict_run.py --ablation-runs lists it under ablations_skipped
+      mkdir -p "${ABL_OUT}"
+      printf '{"status": "BUDGET_SKIPPED", "reason": "cumulative + dry-run upper bound > %s"}\n' "${CAP_USD}" > "${ABL_OUT}/STATUS.json"
       e6_status BUDGET_SKIPPED "Stage 2e: ${ABL}" "cumulative + dry-run upper bound > ${CAP_USD}"
       continue
     elif [[ $rc -ne 0 ]]; then
@@ -544,7 +555,12 @@ if e6_phase_has ablation; then
   done
   # Exploratory comparison (not in Holm): the same scorer on the ablation outputs that completed.
   ABL_RUNS=()
-  for ABL in NO_IMAGE NO_SPATIAL; do e6_complete "${E6_FORMAL_OUT}/ablation-${ABL}" && ABL_RUNS+=("${E6_FORMAL_OUT}/ablation-${ABL}"); done
+  # completed roots AND budget-skipped roots (STATUS BUDGET_SKIPPED) go to the exploratory comparison, so the report lists ablations_skipped
+  for ABL in NO_IMAGE NO_SPATIAL; do
+    if e6_complete "${E6_FORMAL_OUT}/ablation-${ABL}" || e6_status_is "${E6_FORMAL_OUT}/ablation-${ABL}" BUDGET_SKIPPED; then
+      ABL_RUNS+=("${E6_FORMAL_OUT}/ablation-${ABL}")
+    fi
+  done
   if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_OUT}/verdict-exploratory"; then
     echo "==> [Stage 2e: exploratory comparison] complete (resume), skipped"
   elif [[ "$DRY_RUN" == "1" || ${#ABL_RUNS[@]} -gt 0 ]]; then
