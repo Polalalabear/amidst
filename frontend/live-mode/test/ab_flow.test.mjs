@@ -213,7 +213,7 @@ test('B browser selects via frame, map and list, downloads receipts and clears o
     }
     const match = req.url.match(/^\/src\/([a-z_-]+\.(?:mjs|css))$/);
     if (match) return res.writeHead(200, { 'Content-Type': match[1].endsWith('.css') ? 'text/css' : 'text/javascript' })
-      .end(await readFile(new URL(`../src/${match[1]}`, import.meta.url)));
+      .end(await readFile(new URL(match[1] === 'tokens.css' ? '../../workbench-v2/tokens.css' : `../src/${match[1]}`, import.meta.url)));
     res.writeHead(404).end();
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));

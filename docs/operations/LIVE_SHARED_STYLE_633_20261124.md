@@ -48,3 +48,19 @@ Node 28 passed、0 failed、1 skipped（GPU browser menu測試，未設定LIVE_A
 兩個node syntax check與diff-check PASS。Node依賴唯讀沿用既有runtime node_modules，未安裝或複製。
 Artifacts：NONE。沒有開可見瀏覽器、沒有影像／資料外傳。
 未驗證：實際GPU menu瀏覽器／截圖與pixel等價、完整前端套件、8791部署及與#690／#703整合。
+
+## 第三段（2026-11-27）：部分退役
+
+決定（使用者，2026-11-27，選項卡「部分退役後關 #633」）：非凍結的伺服器全部改讀正本
+`frontend/workbench-v2/tokens.css`，鏡像 `frontend/live-mode/src/tokens.css` 不刪。
+
+- 改讀正本：`src/amidst/live_mode/server.py`（第 502 行，#705／#739 已做）、
+  `frontend/live-mode/test/ab_flow.test.mjs`、`ab_menu.test.mjs`、
+  `frontend/live-mode/measure/n6_ceiling_compare.mjs`。三個新改的只對 `/src/tokens.css`
+  這一個檔明確導向，不開放整個 workbench-v2 目錄。
+- 保留鏡像的原因：E3 凍結錄製器 `scripts/evaluation/e3_cases/record.mjs` 用自己的靜態伺服器從
+  `frontend/live-mode/src/` 讀 `/src/tokens.css`，而它的 SHA 釘在
+  `configs/evaluation/e3_reappearances_v1.json`（producer 雜湊 `8b6d467b…1750`），不能改。
+- 鏡像保留到 E3 凍結解除，或錄製器重新登記為止；在那之前
+  `frontend/workbench-v2/tokens-css-mirror.test.mjs` 仍要求兩份一字不差，並檢查除 `record.mjs`
+  外沒有其他伺服器把 `/src/tokens.css` 解析到鏡像。
