@@ -575,21 +575,27 @@ def build_qwen_vl_inference_fn(
         return round((time.perf_counter() - t0) * 1000.0, 3)
 
     def _infer(req: DeciderRequest, accelerated: bool) -> str:
+        pil_pairs = _load_request_pil_images(req)
+        return _generate([(f"[CAMERA {cam}]", im) for cam, im in pil_pairs], assemble_ao_prompt(req), None, max_new_tokens, accelerated)
+
+    def _raw(system: str | None, text: str, images: list, max_new: int, accelerated: bool) -> str:
+        """E8 (#780): already-rendered input. ``images`` = [(label, PIL image)]; same greedy decoding as ``_infer``."""
+        return _generate(list(images), text, system, max_new, accelerated)
+
+    def _generate(pil_pairs: list, prompt: str, system: str | None, max_new: int, accelerated: bool) -> str:
         import torch
 
         processor, model, target_device = _ensure_loaded(accelerated)
         _infer.last_runtime = _runtime_info(target_device, getattr(model, "dtype", "unknown"))  # type: ignore[attr-defined]
-        prompt = assemble_ao_prompt(req)
-        pil_pairs = _load_request_pil_images(req)
-
         content: list[dict[str, Any]] = []
         images = []
-        for cam, im in pil_pairs:
-            content.append({"type": "text", "text": f"[CAMERA {cam}]"})
+        for label, im in pil_pairs:
+            content.append({"type": "text", "text": label})
             content.append({"type": "image"})
             images.append(im)
         content.append({"type": "text", "text": prompt})
-        messages = [{"role": "user", "content": content}]
+        messages = ([{"role": "system", "content": [{"type": "text", "text": system}]}] if system else []) + \
+            [{"role": "user", "content": content}]
 
         chat_text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         proc_kwargs: dict[str, Any] = {"text": [chat_text], "padding": True, "return_tensors": "pt"}
@@ -599,13 +605,14 @@ def build_qwen_vl_inference_fn(
         inputs = {k: v.to(target_device) if hasattr(v, "to") else v for k, v in inputs.items()}
 
         with torch.no_grad():
-            generated = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
+            generated = model.generate(**inputs, do_sample=False, max_new_tokens=max_new)
 
         prompt_len = inputs["input_ids"].shape[1]
         trimmed = generated[:, prompt_len:]
         return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
     _infer.warmup = _warmup  # type: ignore[attr-defined]
+    _infer.raw = _raw  # type: ignore[attr-defined]
     return _infer
 
 
@@ -823,6 +830,16 @@ def build_laya_native_inference_fn(
             answer = None
         return laya_answer_to_ao_json(answer, option_map, req.camera_ids)
 
+    def _raw(state: dict[str, Any], questions: dict[str, Any], accelerated: bool) -> Any:
+        """E8 (#780): already-rendered (state, questions) -> ``answers['pick']``, or None when the options do not fit."""
+        agent, target = _ensure_loaded(accelerated)
+        agent_dtype = getattr(agent, "dtype", "float32") if str(target).startswith("cuda") else "float32"
+        _infer.last_runtime = _runtime_info(target, agent_dtype)  # type: ignore[attr-defined]
+        try:
+            return (agent.system_one(state, questions).get("answers") or {}).get("pick")
+        except ValueError:
+            return None
+
     def _option_stats() -> dict[str, Any]:
         n = len(option_counts)
         over = sum(1 for k in option_counts if k > LAYA_OPTION_WARN_THRESHOLD)
@@ -832,6 +849,8 @@ def build_laya_native_inference_fn(
     _infer.provenance = provenance  # type: ignore[attr-defined]
     _infer.option_counts = option_counts  # type: ignore[attr-defined]
     _infer.option_stats = _option_stats  # type: ignore[attr-defined]
+    _infer.raw = _raw  # type: ignore[attr-defined]
+    _infer.agent = lambda accelerated=True: _ensure_loaded(accelerated)[0]  # type: ignore[attr-defined]  (E8 truncation audit)
     return _infer
 
 

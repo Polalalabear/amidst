@@ -154,3 +154,20 @@ def test_inference_side_does_not_import_scoring():
             mods = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
             mods |= {n.module or '' for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
             assert not [m for m in mods if any(b in m for b in banned)], p
+
+
+def test_model_glue_and_truncation():
+    r = req('L2')
+    ans, err = R.answer_with_laya(r, lambda state, q: {'choice': 'B', 'confidence': 0.7})
+    assert err is None and ans == {'answer': 'SELECT', 'option': 'B', 'confidence': 0.7}
+    ans, err = R.answer_with_vlm(r, lambda system, text, images, n: '{"answer":"KEEP","option":null}')
+    assert R.display_of(ans, r)['via'] == 'KEEP'
+    r0 = req('L0', e7_row=e7_row())
+    ans0, err0 = R.answer_with_laya(r0, lambda state, q: {'choice': 'SELECT:CAM_A|D1'})
+    assert err0 is None and R.display_of(ans0, r0)['detection_id'] == 'D1'
+    assert R.answer_with_laya(r0, lambda state, q: None)[0] is None
+    s, q, _ = R.render_laya(r)
+    t = R.laya_truncation(s, q, lambda text: text.split(), 'laya_text')
+    assert t['n_options'] == 5 and not t['options_shrunk'] and t['approximate']
+    big = R.laya_truncation(s, {'pick': {'instructions': 'x', 'criteria': {str(i): 'w ' * 60 for i in range(10)}}}, str.split, 'laya_text')
+    assert big['options_shrunk'] and big['per_option_budget'] == 17

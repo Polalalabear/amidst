@@ -19,7 +19,13 @@ import math
 import random
 from typing import Any
 
-from amidst.evaluation.e7_decider_eval import DeciderRequest, assemble_ao_prompt, build_laya_state_and_questions
+from amidst.evaluation.e7_decider_eval import (
+    DeciderRequest,
+    assemble_ao_prompt,
+    build_laya_state_and_questions,
+    laya_answer_to_ao_json,
+    parse_ao_json_response,
+)
 from amidst.live_mode.aopen import arms as e6_arms
 from amidst.q1q5 import agent_service as ag
 from amidst.q1q5 import scene_context as sx
@@ -414,6 +420,50 @@ def baseline_answer(policy: str, req: dict) -> dict:
         o = min(red, key=lambda o: o['distance_m'], default=None)
         return {'answer': 'SELECT', 'option': o['key']} if o else {'answer': 'NOT_VISIBLE', 'option': None}
     raise ValueError('BAD_POLICY')
+
+
+# ------------------------------------------------------------------------------------------------ model glue (Part 1 and Part 2)
+FRAME_SIZE = (320, 180)
+LAYA_LIMITS = {'laya_text': (512, 192), 'laya_typed': (1024, 256)}   # (max_len, head_max_len), HF @246177e5 rl_agent_config.json
+LAYA_OPTION_CAP = 48
+
+
+def answer_with_laya(req: dict, laya_raw) -> tuple[dict | None, str | None]:
+    """laya_raw(state, questions) -> answers['pick'] (``build_laya_native_inference_fn(...).raw`` with accelerated bound)."""
+    state, questions, omap = render_laya(req)
+    pick = laya_raw(state, questions)
+    if req['level'] == 'L0':
+        e7 = req['e7']
+        raw = laya_answer_to_ao_json(pick, omap, tuple(e7['camera_ids']))
+        return from_e7_parsed(*parse_ao_json_response(raw, tuple(e7['camera_ids']), tuple(e7['candidates']), FRAME_SIZE))
+    return laya_choice_answer(pick, omap)
+
+
+def answer_with_vlm(req: dict, vlm_raw, *, scene: dict | None = None) -> tuple[dict | None, str | None]:
+    """vlm_raw(system, text, image_relpaths, max_new_tokens) -> generated text (images resolved by the caller)."""
+    v = render_vlm(req, scene)
+    text = vlm_raw(v['system'], v['text'], v['images'], v['max_new_tokens'])
+    if req['level'] == 'L0':
+        e7 = req['e7']
+        return from_e7_parsed(*parse_ao_json_response(text, tuple(e7['camera_ids']), tuple(e7['candidates']), FRAME_SIZE))
+    return parse_e8_answer(text, req)
+
+
+def laya_truncation(state: dict, questions: dict, tokenize, model: str) -> dict:
+    """APPROXIMATE audit of laya's input limits (design §2.6, V6) with laya's own tokenizer: options are 'key: text', each capped at
+    48 tokens, evenly shrunk when the head (question + options) exceeds head_max_len; the state is cut from the right when the whole
+    sequence exceeds max_len. ``tokenize(text) -> list``. The exact rl_common packing is not re-implemented; this is a covariate."""
+    max_len, head_max = LAYA_LIMITS[model]
+    q = questions['pick']
+    n_instr = len(tokenize(q['instructions']))
+    opts = [min(LAYA_OPTION_CAP, len(tokenize(f'{k}: {v}'))) for k, v in q['criteria'].items()]
+    head = 2 + n_instr + sum(1 + n for n in opts) + 1
+    n_state = len(tokenize(json.dumps(state, ensure_ascii=False)))
+    shrunk = head > head_max
+    used_head = min(head, head_max)
+    return {'n_options': len(opts), 'head_tokens': head, 'options_shrunk': shrunk,
+            'per_option_budget': (head_max - 16) // max(1, len(opts)) if shrunk else None,
+            'state_tokens': n_state, 'state_truncated': used_head + n_state + 1 > max_len, 'approximate': True}
 
 
 BASELINE_LEVEL = {'FIRST': 'L0c', 'RANDOM': 'L0c', 'FIRST_RED': 'L1', 'NEAREST_RED': 'L2', 'B1': 'L0c'}
