@@ -298,8 +298,9 @@ B1 在 tick t 更新後，依序取第一個成立的條件：
 
 | 結論 | 條件 |
 | --- | --- |
-| **Agent 有幫助** | H2 `SUPPORTED`（交接點交給 Agent 不比規則差），且 H1a–d 至少一項 `SUPPORTED`。S3 成立時加「降低錯人秒」，S4 成立時加「較早切對鏡頭」 |
-| **不比規則差，但沒有更好** | H2 `SUPPORTED`，H1a–d 都不 `SUPPORTED` |
+| **Agent 優於規則** | H2 `SUPPORTED`，H1a–d 至少一項 `SUPPORTED`，**且** S2（對同級資訊的規則 NEAREST_RED，即 4 m 內最近的紅色）在 L2 或 L3 至少一項 Holm 調整後顯著偏向 Agent。S3 成立時加「降低錯人秒」，S4 成立時加「較早切對鏡頭」 |
+| **超過顏色啟發法，閉迴路不劣於 B1** | H2 `SUPPORTED`，H1a–d 至少一項 `SUPPORTED`，但 S2 沒有一項顯著偏向 Agent。H1 的對照是 FIRST_RED，所以 H1 成立只能寫「超過顏色啟發法」，不能寫「優於規則」 |
+| **閉迴路不劣於 B1，但單點沒有更好** | H2 `SUPPORTED`，H1a–d 都不 `SUPPORTED` |
 | **資訊不足** | 在某一級 k：模型@k 與 NEAREST_RED 差異不顯著（S2 調整後 p ≥ 0.05，且差距 < 5 個百分點），而且所有模型、所有級、所有底線的「任一答對」聯集，在可回答的點（排除偵測漏掉）上 < 0.80 |
 | **模型太小（或用不上資訊）** | NEAREST_RED 在 L2 或 L3 顯著優於該模型（S2 方向偏向規則），或同一級 qwen7b − qwen3b ≥ +10 個百分點；而且該模型在 L2／L3 選第 1 個候選的比例仍 > 50% |
 | **無法判斷** | 以上都不成立 |
@@ -407,7 +408,7 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | Q5 | 主要比較對象 | laya_typed、qwen7b |
 | Q6 | 第二部分的順序 | 只用 `p0` |
 
-**分支狀態**：`claude/feat-e8` 從 `179bccb7`（`claude/feat-e7-laya`）切出。#769 修好且 CI 綠燈後，用**合併 commit** 把修正後的 `origin/claude/feat-e7-laya` 併進來（不 rebase、不 force），再寫依賴它的 `e8_handoff`。
+**分支狀態**：`claude/feat-e8` 從 `179bccb7`（`claude/feat-e7-laya`）切出。#769 已合併進 main（merge commit `e17a0787`，程式 `cd41eaa1`），`claude/feat-e7-laya` 已刪除；本分支以合併 commit `e1e83ef0` 併入 #769 的修正後 head `e3e1dc02`（經 `refs/pull/769/head`，內容等於 main 上的 #769），沒有 rebase 或 force。之後要跟上 main 時同樣用合併 commit。
 
 ## 9. 每個數字的出處
 
