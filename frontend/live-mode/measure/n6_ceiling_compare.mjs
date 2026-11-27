@@ -52,6 +52,7 @@ const server = createServer(async (req, res) => {
     if (url === '/config') return res.end(JSON.stringify({n6: true, schedule_mode: 'all'}));
     const file = url === '/' ? path.join(frontend, 'index.html')
       : url.startsWith('/data/') ? data.get(url.slice(6))
+      : url === '/src/tokens.css' ? path.join(frontend, '../workbench-v2/tokens.css')
       : url.startsWith('/src/') ? path.join(frontend, url)
       : url.startsWith('/vendor/three/') ? path.join(frontend, 'node_modules/three', url.slice('/vendor/three/'.length))
       : null;

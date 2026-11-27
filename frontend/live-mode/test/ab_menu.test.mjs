@@ -135,7 +135,7 @@ test('browser menu, Begin, drag movement, private log and URL bypass', {skip: !p
    if(headers.length===1){res.statusCode=409;return json({error:'NON_MONOTONIC_TICK',next_tick:1});}
    return json({tracking:{state:'SEARCHING',lost_ticks:0},events:[],timing_ms:{server_total:0}});
   }
-  const file=files[url]||(url.startsWith('/src/')?path.join(root,url.slice(1)):url.startsWith('/vendor/three/')?path.join(root,'node_modules/three',url.slice('/vendor/three/'.length)):null);
+  const file=files[url]||(url==='/src/tokens.css'?path.join(repo,'frontend/workbench-v2/tokens.css'):url.startsWith('/src/')?path.join(root,url.slice(1)):url.startsWith('/vendor/three/')?path.join(root,'node_modules/three',url.slice('/vendor/three/'.length)):null);
   if(!file||!fs.existsSync(file)){res.statusCode=404;return res.end();}
   res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.mjs')||file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':file.endsWith('.json')?'application/json':'model/gltf-binary');fs.createReadStream(file).pipe(res);
  });
