@@ -98,7 +98,7 @@ tag 共 47 個（`archive/*`），保留。
 | `local/runtime` | 238 MB | `live-main` 是 8791 的執行目錄，不能動 |
 | `local/manifests`、`archive`、`logs` | 57 MB、69 MB、0.1 MB | 有引用（見 #729 盤點） |
 
-- 既有盤點：LOCAL `local/evidence/cl-inventory-729-20261127/`（MANIFEST SHA-256 `f20319cc…0a54`；`inventory.json`、`DELETE_LIST.md`、`deletable_candidates_xref.json`）。那次的結論是 77 個可刪候選裡有 59 個其實有被引用，最確定可刪的只有 9 項、約 9.6 MB；D394 已經清過一次。
+- 既有盤點：LOCAL `local/evidence/cl-inventory-729-20261127/`（MANIFEST SHA-256 `f20319cc7f34b273b4beffd40bd3d8c5381b1dfd8995f8b8b385bdce81fa0a54`；`inventory.json`、`DELETE_LIST.md`、`deletable_candidates_xref.json`）。那次的結論是 77 個可刪候選裡有 59 個其實有被引用，最確定可刪的只有 9 項、約 9.6 MB；D394 已經清過一次。
 - 大整理時建議：
   1. E6 結果 PR 合併後，先用 `scripts/inventory_local_assets.py` 重新盤點一次，再做 GitHub 引用反查，流程照 cl-inventory-729。
   2. E6 的所有輸出（`e6-*`）、E7 的上傳包、`neon-datapack`、gate r5 都要保留。舊的 gate 資料夾（`gate-pin-20261123`、`gate-pin-20261124-r3`、`gate-pin-20261127`）是壓縮封存的候選，前提是確認文件引用的 SHA 都還能查到。
