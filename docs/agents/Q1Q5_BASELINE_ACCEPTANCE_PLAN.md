@@ -17,7 +17,7 @@
 | AC4 | 跟隨切鏡：播放時，同鏡頭內持續標出目標（Q2）；目標離開畫面後，單畫面模式自動硬切到 Q5 判定的下一台鏡頭，多鏡頭模式標出下一台。找不到時顯示「搜尋中」或「回原鏡頭」，不假裝找到 | 至少 1 次成功切鏡、1 次找不到 |
 | AC5 | 模式：預設 RULE_ONLY，可以選 AGENT_SEQUENTIAL。Qwen 逾時時顯示兜底接手（D73） | 兩種模式各跑一次 |
 | AC6 | 審核模式顯示每一步的決策來源、候選、證據與 fallback 原因；Demo 模式不顯示內部判斷（D71） | 切換 `?mode=review` 比對 |
-| AC7 | 可重現：同一 session 用 recorded replay 重播，輸出 hash 相同；#127 測試包對該 session 的輸出全部通過 | 附 hash 與 kit 報告 |
+| AC7 | 可重現：同一 session 用 recorded replay 重播，輸出 hash 相同；#127 測試包對該 session 的輸出全部通過 | 附 hash 與 kit 報告。single_view 相同，且 `parameter_set` 只差 D313 兩個逾時鍵時，視為通過；其他差異判失敗（D419，診斷見 [#778](https://github.com/Polalalabear/amidst/pull/778) `0b8b400a`） |
 | AC8 | 誠實標示：MISSING／UNKNOWN 照實顯示；不宣稱身分已確認 | 抽看缺格與找不到的情況 |
 
 ## 2. 兩階段驗收（D76）
