@@ -16,7 +16,7 @@
 | `docs/agents/{OFFICE_DEMO_MVP,OFFICE_DEMO_PLAN_20261101,OFFICE_DEMO_SCRIPT,OFFICE_DEMO_TASKS,K1_BLOCKERS_DECISION_20261016}.md` | `docs/archive/office/` 同名 | 搬移 | D408，#757 |
 | `screenshots/d128_w_a5_*.png`（3 張） | `docs/history/screenshots/` 同名 | 搬移 | D408，#757 |
 | `docs/index/CODE_DOC_MAP.md` §3（其他套件）、§4（D319 處理結果） | [`docs/index/CODE_DOC_MAP_INACTIVE.md`](CODE_DOC_MAP_INACTIVE.md) | 拆出 | D408，#757 |
-| `local/` 下 D394 清單的項目（uv 快取、pytest 暫存、PR 預覽 checkout、e3 preflight v1／v2、D115 原始 run、r004 八鏡頭原始 PNG、第一版 baseline 原錄製、demo-owned 舊驗證截圖、D133 proxy、P1 clean-room、office-canonical、舊 PR／relock 證據） | **已永久刪除**，文件裡引用的 SHA 收據已經核對不到原檔 | 刪除 | D394；清單 LOCAL `local/evidence/local-necessity-20261127/`，腳本 `local/evidence/delete-20261127/delete.sh`（SHA-256 `e835eac9…6dfe`） |
+| `local/` 下 D394 清單的項目（uv 快取、pytest 暫存、PR 預覽 checkout、e3 preflight v1／v2、D115 原始 run、r004 八鏡頭原始 PNG、第一版 baseline 原錄製、demo-owned 舊驗證截圖、D133 proxy、P1 clean-room、office-canonical、舊 PR／relock 證據） | **已永久刪除**，文件裡引用的 SHA 收據已經核對不到原檔 | 刪除 | D394；清單 LOCAL `local/evidence/local-necessity-20261127/`（`SHA256SUMS` 的 SHA-256 `fcf339190c5de70eabd97624e482cf41df22f039f7357f54c0c700c1b4b18fd2`），腳本 `local/evidence/delete-20261127/delete.sh`（SHA-256 `e835eac9…6dfe`） |
 
 D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [`docs/archive/ARCHIVE_20261027.md`](../archive/ARCHIVE_20261027.md) §1–§6；D408 的搬移也記在同一份的 §7。
 
@@ -29,7 +29,7 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 | 2026-11-27 | D408 | [#757](https://github.com/Polalalabear/amidst/pull/757) `ba7f74f6`（issue #756） | 刪除＋搬移＋新增＋更新 | 刪 14 份舊交接（全文已併入合併文件）；搬 5 份 Office 文件、3 張截圖；新增 `COORDINATOR_HANDOFFS_20261025_20261127.md`、`CODE_DOC_MAP_INACTIVE.md`；`docs/README.md`、`CODE_DOC_MAP.md` 只留現行導覽；`ARCHIVE_20261027.md` 加 §7 對照；CLAUDE.md、20261027 交接的 pin 重新登記 |
 | 2026-11-27 | D407 | [#755](https://github.com/Polalalabear/amidst/pull/755) `84dbbc44` | 更新 | 交接指向改為 20261127b（CLAUDE.md、AGENTS.md、`docs/README.md`）；`Q1Q5_PROGRESS.md` 補到 #755；CODE_DOC_MAP 加 E6／E7、報告、重現包；pin 登記 |
 | 2026-11-27 | D407 | — （#93 本文） | 更新 | 工作清單同步；`real-e2e.mjs` 多畫面格數列關閉（已由 #709 `579b431a` 與 #700 gate r3–r5 涵蓋） |
-| 2026-11-27 | D394 | — （本機） | 刪除 | `local/` 約 8 GB，使用者執行 `delete.sh`，清單見 §1 最後一列；之後的 #729 盤點（LOCAL `local/evidence/cl-inventory-729-20261127/`）結論是剩下的可刪項目只有約 9.6 MB |
+| 2026-11-27 | D394 | — （本機） | 刪除 | `local/` 約 8 GB，使用者執行 `delete.sh`，清單見 §1 最後一列；之後的 #729 盤點（LOCAL `local/evidence/cl-inventory-729-20261127/`，`MANIFEST.sha256` 的 SHA-256 `f20319cc7f34b273b4beffd40bd3d8c5381b1dfd8995f8b8b385bdce81fa0a54`）結論是剩下的可刪項目只有約 9.6 MB |
 | 2026-11-19 | D319／D338 | [#632](https://github.com/Polalalabear/amidst/pull/632) `7ef1426b` | 盤點＋更新 | 第一輪檢索 `SWEEP_D319_PASS1_20261119.md`；處理結果見 `CODE_DOC_MAP_INACTIVE.md`（原 CODE_DOC_MAP §4） |
 | 2026-10-27 | D91 | #263 | 封存（原地） | 91 份歷史文件加「已封存」檔頭，清單在 `ARCHIVE_20261027.md` |
 
@@ -98,7 +98,7 @@ tag 共 47 個（`archive/*`），保留。
 | `local/runtime` | 238 MB | `live-main` 是 8791 的執行目錄，不能動 |
 | `local/manifests`、`archive`、`logs` | 57 MB、69 MB、0.1 MB | 有引用（見 #729 盤點） |
 
-- 既有盤點：LOCAL `local/evidence/cl-inventory-729-20261127/`（`inventory.json`、`DELETE_LIST.md`、`deletable_candidates_xref.json`）。那次的結論是 77 個可刪候選裡有 59 個其實有被引用，最確定可刪的只有 9 項、約 9.6 MB；D394 已經清過一次。
+- 既有盤點：LOCAL `local/evidence/cl-inventory-729-20261127/`（MANIFEST SHA-256 `f20319cc…0a54`；`inventory.json`、`DELETE_LIST.md`、`deletable_candidates_xref.json`）。那次的結論是 77 個可刪候選裡有 59 個其實有被引用，最確定可刪的只有 9 項、約 9.6 MB；D394 已經清過一次。
 - 大整理時建議：
   1. E6 結果 PR 合併後，先用 `scripts/inventory_local_assets.py` 重新盤點一次，再做 GitHub 引用反查，流程照 cl-inventory-729。
   2. E6 的所有輸出（`e6-*`）、E7 的上傳包、`neon-datapack`、gate r5 都要保留。舊的 gate 資料夾（`gate-pin-20261123`、`gate-pin-20261124-r3`、`gate-pin-20261127`）是壓縮封存的候選，前提是確認文件引用的 SHA 都還能查到。
