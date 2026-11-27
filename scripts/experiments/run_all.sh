@@ -389,7 +389,7 @@ if e6_phase_has select; then
     run_to_file "Stage 2b: formal dry-run estimate, e5_run.py (AO_ORIG, K=3)" "${E6_FREEZE_DIR}/formal_ao_orig_dryrun.txt" \
       "$PYTHON_BIN" -B scripts/evaluation/e5_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
         --out "${E6_FREEZE_DIR}/_unused_ao_out" --usage-dir "${E6_FREEZE_DIR}/_unused_ao_ledger" \
-        --cases "${E6_FORMAL_CASES[@]}" --k 3 --mode offline --budget-usd 32 --dry-run
+        --cases "${E6_FORMAL_CASES[@]}" --k 3 --mode offline --budget-usd 45 --dry-run
     # B1 / AO_ORIG / R-N records are shown for information only; the rule picks among the three DEANCHOR groups.
     e6_step "Stage 2b: select group (hard gate + ordered rule) and write the batch-3 freeze receipt" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_select_arm.py select \
@@ -402,7 +402,7 @@ fi
 if e6_phase_has formal; then
   # 2c. Formal 12 segments. D402: the batch-3 review is a MECHANICAL gate (user's advance approval of the budget, #93 D402):
   # `e6_select_arm.py verify-freeze` recomputes the selection and compares the receipt field by field, checks prompt/config SHA-256 and
-  # the commit, runs check_e6_data_separation.py --mode formal, and checks the Agent dry-run <= USD 32 and cumulative <= USD 90.
+  # the commit, runs check_e6_data_separation.py --mode formal, and checks the Agent dry-run <= USD 45 (D404) and cumulative <= USD 90.
   # Any failure -> exit 6 here and nothing formal runs. E6_STOP_AT_BATCH3=1 stops after the gate passes (to look first).
   e6_refresh_ledgers
   if [[ -f "${E6_FREEZE_DIR}/VERIFY_FREEZE.json" && -f "${E6_FREEZE_DIR}/formal_gate.json" ]] \

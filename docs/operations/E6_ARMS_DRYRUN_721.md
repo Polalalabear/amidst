@@ -62,7 +62,7 @@ uv run python -B scripts/evaluation/e6_arms_run.py --root local/evidence/e3-652-
 
 ## 正式 12 段 K=3 付費路徑與 verdict（D401，#721 剩餘兩件；**未執行**）
 
-- `e6_arms_run.py` 的第二個付費模式 **FORMAL**：只接受 `--k 3` 與 `E6-S01`…`E6-S12` 全部 12 段（缺、多、重複都拒絕）、`--max-usd` ∈ (0, 32]。介面對齊 `run_all.sh` 2c：`--root <formal root> --cameras … --cases … --arms … --k 3 --paid --max-usd … --baseline-json … --out … --extra-ledger <ledger dirs…>`。
+- `e6_arms_run.py` 的第二個付費模式 **FORMAL**：只接受 `--k 3` 與 `E6-S01`…`E6-S12` 全部 12 段（缺、多、重複都拒絕）、`--max-usd` ∈ (0, 45]（D404：預登 §7.1 寫 32，使用者在協調對話核准改 45；累計上限 90 不變）。介面對齊 `run_all.sh` 2c：`--root <formal root> --cameras … --cases … --arms … --k 3 --paid --max-usd … --baseline-json … --out … --extra-ledger <ledger dirs…>`。
 - 閘門（D402：批 3 改機械閘門、使用者事前同意，**不再用 `E6_BATCH3_APPROVED` 環境變數**；完整比對由 `e6_select_arm.py verify-freeze` 負責，本腳本只做下列檢查，任一不過即 SystemExit，不建 transport）：批 3 凍結收據存在且有全部必要鍵（`SELECTED_AGENT`、`code_commit_sha`、`prompt_and_config_sha256`、`params`、`formal_dry_run_estimate`、`scorer_sha256`），路徑為 `--receipt`，否則 `$E6_FREEZE_DIR/BATCH3_FREEZE.json`，否則 `<evidence root>/e6-batch3-freeze-20261127/BATCH3_FREEZE.json`；`SELECTED_AGENT` 合法；收據 `prompt_and_config_sha256`（`{路徑: sha256}`）中每個檔案的 SHA-256 都要等於目前 checkout 的檔案，否則 `FORMAL_PROMPT_SHA_MISMATCH`；`--arms` 必須恰好是 `DEANCHOR` ＋ 收據的 `SELECTED_AGENT`（AO_ORIG 由 `e5_run.py` 跑，不在此）。之後同診斷：估算 ≤ `--max-usd`、累計（38.17＋`<out>/ledger` 與 `--extra-ledger` 之新列＋估算）≤ 90，通過才付費。
 - 輸出 `<out>/<case>/<ARM>.k1.json`…`k3.json`，其餘（原子寫入、PRECHECK／STATUS／MANIFEST、guard 拒絕立即停）同診斷；PRECHECK 記 mode 與收據 SHA-256。
 - G6：`src/amidst/evaluation/e6_verdict.py` 的 `verdict_e6(segments, decision_points, selected_agent=…)`，只用標準庫，`e3_scoring.py` 未動（測試鎖 SHA-256）。

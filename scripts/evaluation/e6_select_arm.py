@@ -4,7 +4,7 @@
 Subcommands
   select       score the K=1 diagnostic runs of the pool {DEANCHOR, DEANCHOR_HIST, DEANCHOR_HIST_SUM} on E3-A1/E3-B1/E3-C1,
                apply the hard-coded rule and write the batch-3 freeze receipt (never overwritten).
-  formal-gate  refuse unless the receipt exists and the formal dry-run estimates fit USD 32 and the cumulative cap (prereg 7.1).
+  formal-gate  refuse unless the receipt exists and the formal dry-run estimates fit USD 45 (D404; prereg 7.1 said 32) and the cumulative cap USD 90.
 
 Rule (prereg 2.2, written once, no tuning):
   eligibility  format-return rate <= 0.20, provider-error rate <= 0.10, GT-isolation violations == 0, no CALL_BUDGET_EXHAUSTED,
@@ -40,7 +40,7 @@ POOL = ('DEANCHOR', 'DEANCHOR_HIST', 'DEANCHOR_HIST_SUM')          # simplest fi
 DIAG_CASES = ('E3-A1', 'E3-B1', 'E3-C1')                            # prereg 5.1
 FORMAT_RETURN_MAX, PROVIDER_ERROR_MAX = 0.20, 0.10
 TIE_WP_S, TIE_FL_S, TIE_FOLLOW = 1.0, 1.0, 0.01
-FORMAL_CAP_USD, PROJECT_CAP_USD, BASE_SPEND_USD = 32.0, 90.0, 38.17  # prereg 7.1, D375
+FORMAL_CAP_USD, PROJECT_CAP_USD, BASE_SPEND_USD = 45.0, 90.0, 38.17  # formal cap 45 = D404 (prereg 7.1: 32); project cap 90 + base 38.17 = D375
 EPS = 1e-9
 EXIT_NO_ELIGIBLE, EXIT_GATE = 3, 4
 GT_TEXT = re.compile(r'gt_[a-z_]+|ground[ _]truth', re.I)
@@ -414,9 +414,9 @@ def verify_freeze(receipt: dict, *, sources, scorer: Path, agent_estimates: dict
         put('formal_separation', False, f'{type(exc).__name__}: {str(exc)[:160]}')
     try:
         gate = formal_gate(receipt, agent_estimates, base=base, cap=cap, new_ledger=ledger_new_usd(ledgers, require_ledger))
-        put('formal_dry_run_le_32_and_cumulative_le_90', True, f"formal={gate['formal_total_usd_upper_bound']} cumulative={gate['cumulative_usd_upper_bound']}")
+        put('formal_dry_run_le_45_and_cumulative_le_90', True, f"formal={gate['formal_total_usd_upper_bound']} cumulative={gate['cumulative_usd_upper_bound']}")
     except ValueError as exc:
-        put('formal_dry_run_le_32_and_cumulative_le_90', False, str(exc))
+        put('formal_dry_run_le_45_and_cumulative_le_90', False, str(exc))
     return {'ok': all(c['ok'] for c in checks.values()), 'checks': checks, 'gate': gate}
 
 

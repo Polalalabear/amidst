@@ -292,7 +292,7 @@ FORMAL = [f'E6-S{i:02d}' for i in range(1, 13)]
 
 
 def formal_args(tmp_path, **kw):
-    base = dict(k=3, cases=list(FORMAL), arms=['DEANCHOR', 'DEANCHOR_HIST'], max_usd=32.0, receipt=tmp_path / 'freeze' / 'BATCH3_FREEZE.json')
+    base = dict(k=3, cases=list(FORMAL), arms=['DEANCHOR', 'DEANCHOR_HIST'], max_usd=45.0, receipt=tmp_path / 'freeze' / 'BATCH3_FREEZE.json')
     base.update(kw)
     return args(tmp_path, **base)
 
@@ -394,7 +394,7 @@ def test_formal_deanchor_selected_means_deanchor_only(tmp_path, approved):
     ({'cases': FORMAL[:11]}, 'PAID_COMBINATION_REFUSED'),
     ({'cases': FORMAL + ['E3-A1']}, 'PAID_COMBINATION_REFUSED'),
     ({'cases': FORMAL[:-1] + ['E6-S01']}, 'PAID_COMBINATION_REFUSED'),
-    ({'max_usd': 32.01}, 'PAID_BUDGET_REFUSED'),
+    ({'max_usd': 45.01}, 'PAID_BUDGET_REFUSED'),
     ({'max_usd': 0}, 'PAID_BUDGET_REFUSED'),
     ({'paid': False}, 'PAID_RUN_NOT_AUTHORIZED'),
 ])
@@ -407,7 +407,7 @@ def test_formal_bad_requests(tmp_path, approved, kw, msg):
 def test_formal_ok_and_returns_receipt_info(tmp_path, approved):
     write_receipt(tmp_path)
     cap, mode, receipt = R.check_paid_request(formal_args(tmp_path))
-    assert (cap, mode) == (32.0, 'FORMAL') and receipt['SELECTED_AGENT'] == 'DEANCHOR_HIST'
+    assert (cap, mode) == (45.0, 'FORMAL') and receipt['SELECTED_AGENT'] == 'DEANCHOR_HIST'
     assert receipt['sha256'] == hashlib.sha256((tmp_path / 'freeze' / 'BATCH3_FREEZE.json').read_bytes()).hexdigest()
     assert R.check_paid_request(args(tmp_path))[1] == 'DIAGNOSTIC'          # diagnostic path unchanged
 
@@ -432,8 +432,8 @@ def test_formal_paid_run_writes_three_replicates_per_arm(tmp_path, approved, mon
     assert json.loads((out / 'STATUS.json').read_text())['status'] == 'COMPLETE'
 
 
-def test_formal_estimate_over_32_or_cumulative_over_90_refused(tmp_path, approved, monkeypatch):
-    stub_env(monkeypatch, est=33.0)
+def test_formal_estimate_over_45_or_cumulative_over_90_refused(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=46.0)
     write_receipt(tmp_path)
     with pytest.raises(SystemExit, match='ESTIMATE_OVER_MAX_USD'):
         R.paid_run(formal_args(tmp_path), transport=lambda body: pytest.fail('no call'))
@@ -491,7 +491,7 @@ def test_ablation_over_budget_is_skipped_not_shrunk(tmp_path, approved, monkeypa
     assert st['status'] == 'BUDGET_SKIPPED' and 'CUMULATIVE_OVER_CAP' in st['reason']
     assert not list(out.rglob('*.k?.json')) and (out / 'MANIFEST.sha256').exists()
     # estimate above --max-usd also skips (K and the segment list are never reduced)
-    stub_env(monkeypatch, est=33.0)
+    stub_env(monkeypatch, est=46.0)
     out2 = tmp_path / 'out2'
     a2 = abl_args(tmp_path, out=out2)
     assert R.paid_run(a2, transport=lambda body: pytest.fail('no paid call')) == 0
