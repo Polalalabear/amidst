@@ -789,9 +789,7 @@ def test_all_three_builders_record_device(monkeypatch):
         def eval(self):
             pass
 
-    for name in ("qwen", "diffusion"):
-        rec = E7._runtime_info("cuda", FakeModel.dtype)
-        assert rec == {"device": "cuda", "dtype": "bfloat16"}
+    assert E7._runtime_info("cuda", FakeModel.dtype) == {"device": "cuda", "dtype": "bfloat16"}
     # decide() copies the inference fn's last_runtime into the record for every adapter type
     for cls, kw in (
         (E7.QwenVLDecider, {}),
@@ -810,3 +808,52 @@ def test_all_three_builders_record_device(monkeypatch):
 
     for b in (E7.build_qwen_vl_inference_fn, E7.build_laya_native_inference_fn, E7.build_diffusion_vlm_inference_fn):
         assert "_runtime_info" in inspect.getsource(b)
+
+
+def test_notebook_smoke_full_flow_cells_1_to_8(tmp_path: Path, monkeypatch):
+    """Run every code cell (1 -> 8) in SMOKE_MODE with a synthetic pack; check md/json/png outputs."""
+    import contextlib
+    import io
+
+    pack = tmp_path / "pack"
+    (pack / "requests").mkdir(parents=True)
+    (pack / "scoring_only").mkdir()
+    reqs = _make_synthetic_requests()
+    with (pack / "requests" / "e3_16_segments.jsonl").open("w", encoding="utf-8") as f:
+        for r in reqs:
+            if r.dataset_group != "e3_16_segments":
+                continue
+            f.write(json.dumps({
+                "request_id": r.request_id, "case_id": r.case_id, "dataset_group": r.dataset_group, "tick": r.tick,
+                "variable_text": r.variable_text, "candidates": list(r.candidates), "camera_ids": list(r.camera_ids),
+            }) + "\n")
+    table = {
+        r.request_id: {
+            "expected_answer": "SELECT",
+            "expected_camera_ids": ["CAM_EXT_CAR"],
+            "expected_detection_ids": {"CAM_EXT_CAR": ["D1"]},
+        }
+        for r in reqs if r.dataset_group == "e3_16_segments"
+    }
+    (pack / "scoring_only" / "answer_table.json").write_text(json.dumps(table), encoding="utf-8")
+    lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(pack)}"
+             for p in sorted(pack.rglob("*")) if p.is_file()]
+    (pack / "MANIFEST.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    monkeypatch.chdir(REPO_ROOT)  # Cell 1B takes the "already inside repo checkout" path
+    nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    env: dict = {}
+    out = tmp_path / "out"
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        for i, cell in enumerate(c for c in nb["cells"] if c["cell_type"] == "code"):
+            exec(compile("".join(cell["source"]), f"code-cell-{i}", "exec"), env)
+            if i == 0:  # after Cell 1 config: smoke + temp dirs
+                env.update(SMOKE_MODE=True, PACK_ROOT=pack, OUTPUT_DIR=out)
+    text = buf.getvalue()
+    assert "E7 NOTEBOOK" in text and "RUNNING: qwen_vl, laya_text, laya_typed" in text
+    names = sorted(p.name for p in out.iterdir())
+    assert any(n.startswith("e7_analysis_") and n.endswith(".md") for n in names), names
+    assert any(n.startswith("e7_analysis_") and n.endswith(".json") for n in names), names
+    assert any(n.startswith("e7_latency_") and n.endswith(".png") for n in names), names
+    assert len(env["RAW_COMPARISONS"]) == 4 and len(env["SKIPPED_MODELS"]) == 1
