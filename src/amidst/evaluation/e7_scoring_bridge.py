@@ -362,6 +362,51 @@ def score_e7_comparison(
     return out
 
 
+def _block_runtime(block: dict[str, Any]) -> dict[str, Any]:
+    """Device/dtype actually used per decision record; several distinct values -> ``MIXED`` with all listed."""
+    devs: list[str] = []
+    dtypes: list[str] = []
+    for r in block.get("records") or []:
+        d, t = r.get("device"), r.get("dtype")
+        if d and d not in devs:
+            devs.append(str(d))
+        if t and t not in dtypes:
+            dtypes.append(str(t))
+
+    def _one(vals: list[str]) -> str:
+        return "UNKNOWN" if not vals else (vals[0] if len(vals) == 1 else "MIXED")
+
+    return {"device": _one(devs), "dtype": _one(dtypes), "device_values": devs, "dtype_values": dtypes}
+
+
+def build_hardware_used(model: dict[str, Any], hardware: dict[str, Any]) -> dict[str, Any]:
+    """Per model x mode hardware columns: record-derived device/dtype plus report-level GPU/CPU fields."""
+    cpu_threads = hardware.get("cpu_threads_torch")
+    if cpu_threads in (None, "UNKNOWN"):
+        cpu_threads = hardware.get("cpu_count")
+    return {
+        "accelerated": {**_block_runtime(model.get("accelerated") or {}), "gpu_name": hardware.get("gpu_name", "NONE")},
+        "unaccelerated": {
+            **_block_runtime(model.get("unaccelerated") or {}),
+            "cpu_model": hardware.get("cpu_model", "UNKNOWN"),
+            "cpu_threads": cpu_threads,
+        },
+    }
+
+
+def format_device_cell(hu: dict[str, Any], kind: str) -> str:
+    """e.g. ``cuda bf16 · NVIDIA L4`` / ``cpu float32 · <cpu_model> ×<threads>``; MIXED lists all values."""
+    def _dev(d: dict[str, Any]) -> str:
+        if d.get("device") == "MIXED":
+            return f"MIXED[{', '.join(d.get('device_values') or [])}] {'/'.join(d.get('dtype_values') or []) or d.get('dtype')}"
+        return f"{d.get('device')} {d.get('dtype')}"
+
+    d = hu[kind]
+    if kind == "accelerated":
+        return f"{_dev(d)} · {d.get('gpu_name')}"
+    return f"{_dev(d)} · {d.get('cpu_model')} ×{d.get('cpu_threads')}"
+
+
 def build_e7_analysis_report(
     *,
     hardware: dict[str, Any],
@@ -396,7 +441,7 @@ def build_e7_analysis_report(
         "hardware": hardware,
         "manifest_verification": manifest_verification,
         "frozen_baselines": frozen_summary,
-        "models": scored_models,
+        "models": [{**m, "hardware_used": build_hardware_used(m, hardware)} for m in scored_models],
         "skipped_models": list(skipped_models or []),
     }
 
@@ -410,15 +455,17 @@ def render_e7_markdown(report: dict[str, Any]) -> str:
         f"- Generated (UTC): `{report['generated_at_utc']}`",
         f"- Identity status: **`{report['identity_status']}`**",
         f"- GPU: `{hw.get('gpu_name')}` (VRAM: `{hw.get('gpu_vram_mb')}` MB, driver: `{hw.get('gpu_driver_version')}`)",
-        f"- CPU / RAM: `{hw.get('cpu_model')}` ({hw.get('cpu_count')} cores) / `{hw.get('ram_gb')}` GB",
+        f"- GPU compute capability: `{hw.get('gpu_compute_capability', 'NONE')}` | `nvidia-smi`: `{hw.get('nvidia_smi_query', 'NONE')}`",
+        f"- CPU / RAM: `{hw.get('cpu_model')}` ({hw.get('cpu_count')} cores, torch threads: `{hw.get('cpu_threads_torch', 'UNKNOWN')}`) / `{hw.get('ram_gb')}` GB",
+        f"- Runtime env: `{hw.get('runtime_env', 'UNKNOWN')}`",
         f"- CUDA / cuDNN / Python: `{hw.get('cuda_version')}` / `{hw.get('cudnn_version')}` / `{hw.get('python_version')}`",
         f"- Git commit: `{hw.get('git_commit')}`",
         f"- Upload pack MANIFEST: `{mv.get('status')}` ({mv.get('files_verified')} files verified, SHA-256 `{str(mv.get('manifest_sha256', ''))[:16]}...`)",
         "",
         "## Acceleration Comparison (Accelerated vs Unaccelerated)",
         "",
-        "| Model | Mode | Accel p50/p95 (ms) | Unaccel p50/p95 (ms) | Accel Fallback | Unaccel Fallback | Agreement | DP Acc (Accel) | Needs Mac Scoring | Sample (Acc/Unacc) |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Model | Mode | Accel p50/p95 (ms) | Unaccel p50/p95 (ms) | Accel Fallback | Unaccel Fallback | Agreement | DP Acc (Accel) | Needs Mac Scoring | Sample (Acc/Unacc) | Accel device | Unaccel device |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for m in report["models"]:
         a, u = m["accelerated"], m["unaccelerated"]
@@ -429,7 +476,9 @@ def render_e7_markdown(report: dict[str, Any]) -> str:
             f"{a['format_fallback_rate']:.4f} | {u['format_fallback_rate']:.4f} | "
             f"{m['decision_agreement_vs_unaccelerated']} | {a.get('decision_point_accuracy')} | "
             f"{a.get('needs_mac_scoring_count', 0)} | "
-            f"{a['sample_size']} / {u['sample_size']} |"
+            f"{a['sample_size']} / {u['sample_size']} | "
+            f"{format_device_cell(m.get('hardware_used') or build_hardware_used(m, hw), 'accelerated')} | "
+            f"{format_device_cell(m.get('hardware_used') or build_hardware_used(m, hw), 'unaccelerated')} |"
         )
     lines.append("")
     return "\n".join(lines)
@@ -463,7 +512,13 @@ def write_e7_outputs(report: dict[str, Any], out_dir: Path, date_tag: str | None
             ax.set_xlabel("Latency p50 (ms)")
             ax.set_title("E7 Decider Latency: Accelerated vs Unaccelerated")
             ax.legend()
-            fig.tight_layout()
+            hw = report["hardware"]
+            foot = (
+                f"GPU: {hw.get('gpu_name')} | CPU: {hw.get('cpu_model')} ×{hw.get('cpu_threads_torch', hw.get('cpu_count'))} threads"
+                f" | commit {str(hw.get('git_commit'))[:12]}"
+            )
+            fig.tight_layout(rect=(0, 0.04, 1, 1))
+            fig.text(0.01, 0.01, foot, fontsize=7, ha="left", va="bottom")
             png_path = out_dir / f"e7_latency_{tag}.png"
             fig.savefig(png_path, dpi=150)
             plt.close(fig)

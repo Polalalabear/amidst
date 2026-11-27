@@ -857,3 +857,77 @@ def test_notebook_smoke_full_flow_cells_1_to_8(tmp_path: Path, monkeypatch):
     assert any(n.startswith("e7_analysis_") and n.endswith(".json") for n in names), names
     assert any(n.startswith("e7_latency_") and n.endswith(".png") for n in names), names
     assert len(env["RAW_COMPARISONS"]) == 4 and len(env["SKIPPED_MODELS"]) == 1
+
+
+# --------------------------------------------------------------------------- hardware spec in outputs
+def _hw_fixture() -> dict:
+    return {
+        "gpu_name": "NVIDIA L4", "gpu_vram_mb": "23034", "gpu_driver_version": "550.54",
+        "gpu_compute_capability": "8.9",
+        "nvidia_smi_query": "NVIDIA L4, 23034 MiB, 550.54, 8.9",
+        "cpu_model": "Intel(R) Xeon(R) CPU @ 2.20GHz", "cpu_count": 8, "cpu_threads_torch": 8, "ram_gb": 52.0,
+        "cuda_version": "12.4", "cudnn_version": "90100", "python_version": "3.11.9",
+        "git_commit": "9785ab405221429340b1e69f322bb1642c47fe3c", "runtime_env": "colab",
+    }
+
+
+def _model_with(acc_devs, unacc_devs):
+    def blk(devs):
+        recs = [{"request_id": f"r{i}", "device": d, "dtype": ("bfloat16" if d == "cuda" else "float32")}
+                for i, d in enumerate(devs)]
+        return {"latency_p50_ms": 1.0, "latency_p95_ms": 2.0, "format_fallback_rate": 0.0,
+                "sample_size": len(recs), "records": recs}
+
+    return {"label": "Qwen", "input_mode": "text_only", "decision_agreement_vs_unaccelerated": 1.0,
+            "accelerated": blk(acc_devs), "unaccelerated": blk(unacc_devs)}
+
+
+def test_cpu_model_from_injected_proc_cpuinfo(tmp_path: Path):
+    f = tmp_path / "cpuinfo"
+    f.write_text("processor\t: 0\nvendor_id\t: GenuineIntel\nmodel name\t: Intel(R) Xeon(R) CPU @ 2.20GHz\n"
+                 "processor\t: 1\nmodel name\t: Other\n", encoding="utf-8")
+    assert E7._read_cpu_model(f) == "Intel(R) Xeon(R) CPU @ 2.20GHz"
+    assert E7._read_cpu_model(tmp_path / "missing")  # falls back to platform, non-empty
+    hw = E7.collect_hardware_provenance(REPO_ROOT, cpuinfo_path=f)
+    assert hw["cpu_model"] == "Intel(R) Xeon(R) CPU @ 2.20GHz"
+    for k in ("cpu_threads_torch", "gpu_compute_capability", "nvidia_smi_query", "runtime_env", "cpu_count", "git_commit"):
+        assert k in hw
+    assert hw["runtime_env"] in ("colab", "local")
+
+
+def test_hardware_used_mixed_and_markdown_columns():
+    hw = _hw_fixture()
+    m = _model_with(["cuda", "cuda"], ["cpu", "cuda"])
+    hu = E7S.build_hardware_used(m, hw)
+    assert hu["accelerated"] == {"device": "cuda", "dtype": "bfloat16", "device_values": ["cuda"],
+                                 "dtype_values": ["bfloat16"], "gpu_name": "NVIDIA L4"}
+    assert hu["unaccelerated"]["device"] == "MIXED" and hu["unaccelerated"]["device_values"] == ["cpu", "cuda"]
+    assert hu["unaccelerated"]["cpu_threads"] == 8
+    assert E7S.format_device_cell(hu, "accelerated") == "cuda bfloat16 · NVIDIA L4"
+    assert E7S.format_device_cell(hu, "unaccelerated").startswith("MIXED[cpu, cuda]")
+    clean = E7S.build_hardware_used(_model_with(["cuda"], ["cpu"]), hw)
+    assert E7S.format_device_cell(clean, "unaccelerated") == "cpu float32 · Intel(R) Xeon(R) CPU @ 2.20GHz ×8"
+    assert E7S.build_hardware_used(_model_with([], []), hw)["accelerated"]["device"] == "UNKNOWN"
+
+    report = E7S.build_e7_analysis_report(
+        hardware=hw, manifest_verification={"status": "OK", "files_verified": 1},
+        scored_models=[_model_with(["cuda"], ["cpu"])],
+    )
+    assert report["models"][0]["hardware_used"]["accelerated"]["gpu_name"] == "NVIDIA L4"
+    md = E7S.render_e7_markdown(report)
+    for needle in ("Intel(R) Xeon(R) CPU @ 2.20GHz", "torch threads: `8`", "`8.9`", "NVIDIA L4, 23034 MiB",
+                   "`colab`", hw["git_commit"], "Accel device", "Unaccel device",
+                   "cuda bfloat16 · NVIDIA L4", "cpu float32 · Intel(R) Xeon(R) CPU @ 2.20GHz ×8"):
+        assert needle in md, needle
+
+
+def test_png_has_hardware_footer(tmp_path: Path):
+    pytest.importorskip("matplotlib")
+    hw = _hw_fixture()
+    report = E7S.build_e7_analysis_report(
+        hardware=hw, manifest_verification={"status": "OK", "files_verified": 1},
+        scored_models=[_model_with(["cuda"], ["cpu"])],
+    )
+    out = E7S.write_e7_outputs(report, tmp_path / "o", date_tag="20261127")
+    assert out["png"].is_file() and out["png"].stat().st_size > 0
+    assert json.loads(out["json"].read_text(encoding="utf-8"))["models"][0]["hardware_used"]

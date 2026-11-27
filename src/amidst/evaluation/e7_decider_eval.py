@@ -133,11 +133,37 @@ def _run_cmd_quiet(cmd: list[str], cwd: Path | None = None) -> str | None:
         return None
 
 
-def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]:
+def _detect_runtime_env() -> str:
+    import importlib.util
+
+    try:
+        return "colab" if importlib.util.find_spec("google.colab") is not None else "local"
+    except Exception:
+        return "local"
+
+
+def _read_cpu_model(cpuinfo_path: Path | str = "/proc/cpuinfo") -> str:
+    """First ``model name`` in ``/proc/cpuinfo`` (Linux/Colab); falls back to ``platform`` info."""
+    try:
+        for line in Path(cpuinfo_path).read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.lower().startswith("model name") and ":" in line:
+                name = line.split(":", 1)[1].strip()
+                if name:
+                    return name
+    except Exception:
+        pass
+    return platform.processor() or platform.machine() or "UNKNOWN"
+
+
+def collect_hardware_provenance(
+    repo_root: Path | None = None, *, cpuinfo_path: Path | str = "/proc/cpuinfo"
+) -> dict[str, Any]:
     """Record GPU/VRAM, CPU, RAM, CUDA/cuDNN/driver, Python/packages, git commit, and UTC timestamp."""
     gpu_name = None
     vram_mb = None
     driver_version = None
+    nvidia_smi_query = None
+    gpu_compute_capability = None
     if shutil.which("nvidia-smi"):
         smi = _run_cmd_quiet(
             ["nvidia-smi", "--query-gpu=name,memory.total,driver_version", "--format=csv,noheader,nounits"]
@@ -146,17 +172,33 @@ def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]
             first = [x.strip() for x in smi.splitlines()[0].split(",")]
             if len(first) >= 3:
                 gpu_name, vram_mb, driver_version = first[0], first[1], first[2]
+        nvidia_smi_query = _run_cmd_quiet(
+            [
+                "nvidia-smi",
+                "--query-gpu=name,memory.total,driver_version,compute_cap",
+                "--format=csv,noheader",
+            ]
+        )
+        if nvidia_smi_query:
+            parts = [x.strip() for x in nvidia_smi_query.splitlines()[0].split(",")]
+            if len(parts) >= 4:
+                gpu_compute_capability = parts[3]
 
     cuda_version = None
     cudnn_version = None
     cuda_available = False
     cuda_bf16_supported = False
+    cpu_threads_torch: Any = "UNKNOWN"
     packages: dict[str, str] = {}
     for pkg in ("torch", "transformers", "accelerate", "PIL", "numpy", "matplotlib"):
         try:
             mod = __import__(pkg)
             packages[pkg] = str(getattr(mod, "__version__", "installed"))
             if pkg == "torch":
+                try:
+                    cpu_threads_torch = int(mod.get_num_threads())
+                except Exception:
+                    cpu_threads_torch = "UNKNOWN"
                 cuda_version = getattr(getattr(mod, "version", None), "cuda", None)
                 try:
                     cuda_available = bool(mod.cuda.is_available())
@@ -190,12 +232,16 @@ def collect_hardware_provenance(repo_root: Path | None = None) -> dict[str, Any]
         "recorded_at_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "platform": platform.platform(),
         "os": platform.system(),
-        "cpu_model": platform.processor() or platform.machine() or "UNKNOWN",
+        "cpu_model": _read_cpu_model(cpuinfo_path),
         "cpu_count": os.cpu_count(),
+        "cpu_threads_torch": cpu_threads_torch,
         "ram_gb": ram_gb,
         "gpu_name": gpu_name or "NONE",
         "gpu_vram_mb": vram_mb or "NONE",
         "gpu_driver_version": driver_version or "NONE",
+        "gpu_compute_capability": gpu_compute_capability or "NONE",
+        "nvidia_smi_query": nvidia_smi_query or "NONE",
+        "runtime_env": _detect_runtime_env(),
         "cuda_version": cuda_version or "NONE",
         "cudnn_version": cudnn_version or "NONE",
         "cuda_bf16_supported": cuda_bf16_supported,
