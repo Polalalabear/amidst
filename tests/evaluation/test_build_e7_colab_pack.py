@@ -230,3 +230,47 @@ def test_requests_only_gate_rejects_answer_table_and_gt(tmp_path):
         p.write_text('{}')
         with pytest.raises(ValueError, match='D385'):
             S.verify_requests_only_pack(pack)
+
+
+def _ok_pertick_pack(tmp_path, name):
+    import build_e7_colab_pack as B
+
+    root = tmp_path / (name + '-e3')
+    (root / 'indexes' / 'E3-X').mkdir(parents=True)
+    out = tmp_path / name
+    B.build_pertick_pack(out, [root], case_loader=_fake_loader)
+    return out
+
+
+def test_pertick_empty_pack_rejected_at_build_and_gate(tmp_path):
+    import build_e7_colab_pack as B
+    from amidst.evaluation import e7_scoring_bridge as S
+
+    with pytest.raises(ValueError, match='PERTICK_PACK_EMPTY'):
+        B.build_pertick_pack(tmp_path / 'empty', [], case_loader=_fake_loader)
+    assert not (tmp_path / 'empty').exists()  # a failed build leaves nothing behind
+    out = _ok_pertick_pack(tmp_path, 'p1')
+    (out / 'requests' / 'e3_16_segments.jsonl').write_text('')
+    (out / 'MANIFEST.sha256').write_text('\n'.join(
+        f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(out).as_posix()}'
+        for p in sorted(out.rglob('*')) if p.is_file() and p.name != 'MANIFEST.sha256') + '\n')
+    with pytest.raises(ValueError, match='PERTICK_PACK_EMPTY'):
+        S.verify_requests_only_pack(out)
+
+
+def test_pertick_gate_rejects_extra_and_missing_files(tmp_path):
+    from amidst.evaluation import e7_scoring_bridge as S
+
+    out = _ok_pertick_pack(tmp_path, 'p2')
+    assert S.verify_requests_only_pack(out)['status'] == 'OK'
+    (out / 'notes.txt').write_text('x')
+    with pytest.raises(ValueError, match='PERTICK_PACK_STRUCTURE'):
+        S.verify_requests_only_pack(out)
+    (out / 'notes.txt').unlink()
+    (out / 'requests' / 'other.jsonl').write_text('{}\n')
+    with pytest.raises(ValueError, match='PERTICK_PACK_STRUCTURE'):
+        S.verify_requests_only_pack(out)
+    (out / 'requests' / 'other.jsonl').unlink()
+    (out / 'PACK_INFO.json').unlink()
+    with pytest.raises(ValueError, match='PERTICK_PACK_STRUCTURE'):
+        S.verify_requests_only_pack(out)

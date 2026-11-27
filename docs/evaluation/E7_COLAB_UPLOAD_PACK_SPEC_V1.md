@@ -6,7 +6,7 @@ Defines the exact directory layout, `MANIFEST.sha256` format, pre-upload enforce
 
 - **Prepared by:** Codex on Mac (from `local/evidence/`), gated via `write_colab_answer_table` and `verify_colab_pack_pre_upload`.
 - **Consumed by:** User running `notebooks/e7_colab_decider_eval.ipynb` on Colab Pro (Run All).
-- **One-Click Run All Condition:** Out of the box, Run All completes end-to-end (including Cell 7 scoring and Cell 8 report export) for all audited models (`Qwen/Qwen2.5-VL-3B-Instruct`), while unaudited custom-code models (`convaiinnovations/laya`, `GSAI-ML/LLaDA-V`) are cleanly recorded as `SKIPPED_UNAUDITED` without aborting. Including `laya` or `LLaDA-V` requires auditing their HF custom `.py` files and setting `custom_code_audited = True` + pinned `audited_commit` in Cell 1. For formal `#732` runs, pin `PINNED_GIT_COMMIT` and every `hf_revision` to exact 40-char commit SHAs.
+- **One-Click Run All Condition:** Run All completes end-to-end from CELL 1 on a fresh Colab runtime (Python 3.13, L4; accepted for the per-tick laya run, #766). Audited parties run: `qwen_vl` (`Qwen/Qwen2.5-VL-3B-Instruct`, `image_text` and `text_only`), and `laya_text` / `laya_typed` (`convaiinnovations/laya`, audited commit `246177e5…`, native `RLAgent` path). The unaudited custom-code model `GSAI-ML/LLaDA-V` is recorded as `SKIPPED_UNAUDITED` without aborting; including it requires auditing its HF custom `.py` files and setting `custom_code_audited = True` + pinned `audited_commit` in Cell 1. For formal `#732` runs, pin `PINNED_GIT_COMMIT` and every `hf_revision` to exact 40-char commit SHAs.
 - **Identity status:** `UNCONFIRMED`.
 - **No paid API calls** in Colab; Colab Pro compute cost is user-borne and recorded in hardware provenance.
 
@@ -23,8 +23,18 @@ Defines the exact directory layout, `MANIFEST.sha256` format, pre-upload enforce
 ## Per-tick requests-only pack and real-latency replay (#767)
 
 - **Why:** E7 snapshots are every 10 ticks (2 s); E5 scores every tick. Qwen (~6 s/answer) is replayed on the Mac through the unchanged E5 AO-L machinery (`src/amidst/evaluation/e7_replay.py`, `scripts/evaluation/e7_replay_run.py`): the request starting at tick t uses the latest snapshot at or before t and its answer is delivered after that request's measured latency (`AOpenDecider` simlive `_poll`, `chain_box` IoU ≥ 0.3, `NeutralTracker`). Primary chain start = the snapshot tick (stricter); the ask-tick variant is a sensitivity column. Format fallbacks are "no answer" (they still occupy their latency). laya (~40 ms) is rerun on Colab GPU with one text_only request per tick, then replayed the same way (latency < 0.2 s: effective on the next tick).
-- **Pack:** `python scripts/evaluation/build_e7_colab_pack.py --pertick --roots <E3 roots> --out <pack>` writes only `requests/e3_16_segments.jsonl` (one text_only request per tick, no `image_paths`), `PACK_INFO.json`, `MANIFEST.sha256`. It reads NO GT, has NO `scoring_only/`, NO frames, NO baselines; `verify_requests_only_pack` rejects any answer table or GT file/key. Zip it with `python -m amidst.evaluation.e7_colab_runtime make-zip --requests-only ...`.
+- **Pack (fixed structure):** `python scripts/evaluation/build_e7_colab_pack.py --pertick --roots <E3 roots> --out <pack>` writes only `requests/e3_16_segments.jsonl` (one text_only request per tick, no `image_paths`), `PACK_INFO.json`, `MANIFEST.sha256`. It reads NO GT, has NO `scoring_only/`, NO frames, NO baselines; `verify_requests_only_pack` rejects any answer table or GT file/key, **rejects a pack with 0 requests, and requires exactly these three files** (`MANIFEST.sha256`, `PACK_INFO.json`, `requests/e3_16_segments.jsonl`): any extra or missing file is rejected (the gate scans only those files' keys, so the structure is fixed rather than inferred). Zip it with `python -m amidst.evaluation.e7_colab_runtime make-zip --requests-only ...`.
 - **Notebook settings for that run (CELL 1):** `PACK_ZIP` = the per-tick zip, `RUN_PARTIES = ["laya_text", "laya_typed"]`, `RUN_UNACCELERATED = False` (skips the CPU pass), `SCORE_ON_COLAB = False` (CELL 7 skipped; CELL 8 writes `e7_raw_comparisons.json`). Scoring stays on the Mac.
+
+## Limitations of E7 (D416 / #767 note; read before quoting any E7 number)
+
+E7 is **not** a fair comparison between an Agent and the rule (B1). Its requests are stateless detection snapshots, and for the laya parties:
+
+1. **No target conditions:** the request has no "target is red" colour condition, no reference crop and no previous position (B1 uses colour and a 4 m gate; the E5 API Agent gets `AO_STATE`, the reference crop and scene context).
+2. **Option text carries no colour:** the candidate option text laya sees does not contain colours.
+3. **Ranking fallback:** when the answer is not a SELECT, the next-camera ranking is filled with `camera_ids[:3]` (request camera order), not a model ranking (`e7_decider_eval.py`).
+
+So E7 only shows what a model does with a flat list of detections and no target information; it cannot answer "is the Agent better than the rule". Fair comparison is E8 (#780). Replay-vs-AOL numbers (#767) share these confounds: E7 prompts have no reference crop, history or `AO_STATE`, and GPU/CPU agreement is 0.95 (answers are not bit-exact).
 
 ## Directory Layout
 

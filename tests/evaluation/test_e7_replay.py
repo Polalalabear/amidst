@@ -81,3 +81,19 @@ def test_bad_inputs():
         RP.ReplayAOpenDecider({}, {}, _Proj())
     with pytest.raises(ValueError):
         RP.ReplayAOpenDecider({0: _snap([0, 0, 1, 1], 0.1)}, {}, _Proj(), chain_start="x")
+
+
+def test_recorded_select_not_in_snapshot_candidates_becomes_unknown_detection_not_stopiteration():
+    snap = _snap([10, 40, 30, 100], 0.2)
+    snap["parsed"]["detection_id"] = "D9"  # not a snapshot candidate
+    d, rows = _run({0: snap}, "snapshot", n=20)  # must not raise StopIteration in _poll
+    first = d.calls[0]
+    assert first["fallback_reason"] == "UNKNOWN_DETECTION" and first["answer"] is None and first["applied"] is False
+    assert first["applied_tick"] == 2
+
+
+def test_recorded_own_box_out_of_frame_becomes_bad_own_box():
+    snap = _snap([10, 40, 30, 100], 0.2, answer="OWN_BOX")
+    snap["parsed"].update(box_xyxy=[10, 40, 400, 100], detection_id=None)
+    d, _ = _run({0: snap}, "ask", n=10)
+    assert d.calls[0]["fallback_reason"] == "BAD_OWN_BOX" and d.calls[0]["applied"] is False

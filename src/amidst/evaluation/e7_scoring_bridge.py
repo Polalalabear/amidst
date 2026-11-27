@@ -242,7 +242,8 @@ def verify_requests_only_pack(pack_root: Path) -> dict[str, Any]:
     """Pre-upload gate for a per-tick, requests-only pack (#767): NO answer table may exist; no GT anywhere.
 
     Same forbidden dir/file/key rules as :func:`verify_colab_pack_pre_upload`, plus: ``scoring_only/`` must be absent,
-    and ``MANIFEST.sha256`` must exist and verify.
+    the structure is FIXED (exactly ``MANIFEST.sha256``, ``PACK_INFO.json``, ``requests/e3_16_segments.jsonl``; any extra or
+    missing file is rejected), at least one request must exist, and ``MANIFEST.sha256`` must verify.
     """
     root = Path(pack_root)
     if not root.is_dir():
@@ -255,12 +256,20 @@ def verify_requests_only_pack(pack_root: Path) -> dict[str, Any]:
             raise ValueError(f"D385_FORBIDDEN_PACK_PATH: forbidden GT directory in pack: {p.relative_to(root)}")
         if p.is_file() and (p.name.lower() in FORBIDDEN_PACK_FILE_NAMES or p.suffix.lower() in FORBIDDEN_PACK_SUFFIXES):
             raise ValueError(f"D385_FORBIDDEN_PACK_FILE: forbidden GT file in pack: {p.relative_to(root)}")
+    allowed = {"MANIFEST.sha256", "PACK_INFO.json", "requests/e3_16_segments.jsonl"}
+    present = {p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file()}
+    if present != allowed:
+        raise ValueError(
+            f"PERTICK_PACK_STRUCTURE: fixed structure {sorted(allowed)}; unexpected={sorted(present - allowed)} missing={sorted(allowed - present)}"
+        )
     n_req = 0
     for req_file in sorted((root / "requests").glob("*.jsonl")):
         for lineno, line in enumerate(req_file.read_text(encoding="utf-8").splitlines(), start=1):
             if line.strip():
                 _scan_forbidden_gt_fields(json.loads(line), f"{req_file.name}:{lineno}")
                 n_req += 1
+    if n_req == 0:
+        raise ValueError("PERTICK_PACK_EMPTY: the requests-only pack contains 0 requests")
     info = root / "PACK_INFO.json"
     if info.is_file():
         _scan_forbidden_gt_fields(json.loads(info.read_text(encoding="utf-8")), "PACK_INFO.json")
