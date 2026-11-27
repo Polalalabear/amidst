@@ -2728,6 +2728,15 @@
       ],
       "issue_ref": "#721",
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e3-f4.b-log.v1",
+      "source_paths": [
+        "scripts/evaluation/e3_f4_run.py",
+        "src/amidst/evaluation/e8_colab_run.py"
+      ],
+      "issue_ref": "#780",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }
