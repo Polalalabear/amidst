@@ -487,6 +487,7 @@ def build_qwen_vl_inference_fn(
         import torch
 
         processor, model, target_device = _ensure_loaded(accelerated)
+        _infer.last_runtime = _runtime_info(target_device, getattr(model, "dtype", "unknown"))  # type: ignore[attr-defined]
         prompt = assemble_ao_prompt(req)
         pil_pairs = _load_request_pil_images(req)
 
@@ -515,6 +516,11 @@ def build_qwen_vl_inference_fn(
 
     _infer.warmup = _warmup  # type: ignore[attr-defined]
     return _infer
+
+
+def _runtime_info(device: str, dtype: Any) -> dict[str, str]:
+    """Actual device/dtype a decision ran on (recorded per decision so accel/unaccel columns can be audited)."""
+    return {"device": str(device), "dtype": str(dtype).replace("torch.", "")}
 
 
 LAYA_REPO_ID = "convaiinnovations/laya"
@@ -665,9 +671,10 @@ def build_laya_native_inference_fn(
     option_counts: list[int] = []
     provenance: dict[str, Any] = {"repo_id": model_id, "revision": revision}
 
-    def _ensure_loaded(accelerated: bool):
-        if "agent" in cache:
-            return cache["agent"]
+    def _load_once() -> tuple[Any, Path]:
+        """Download/verify/import exactly once; returns (rl_agent_api module, snapshot dir)."""
+        if "api" in cache:
+            return cache["api"], cache["snap"]
         import importlib
 
         if snapshot_dir is not None:
@@ -684,20 +691,28 @@ def build_laya_native_inference_fn(
             )
         provenance["py_sha256"] = verify_laya_audited_files(snap)
         provenance["snapshot_sha256"] = snapshot_file_hashes(snap)
+        provenance["checkpoint_subdir"] = checkpoint_subdir or "(repo root, English)"
         sys.path.insert(0, str(snap))
         try:
             api = importlib.import_module("rl_agent_api")
         finally:
             if sys.path and sys.path[0] == str(snap):
                 sys.path.pop(0)
+        cache["api"], cache["snap"] = api, snap
+        return api, snap
+
+    def _ensure_loaded(accelerated: bool):
+        """RLAgent cached per target device (never reuse a cuda agent for the unaccelerated/CPU run)."""
+        api, snap = _load_once()
         import torch
 
         use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
         target = device if device is not None else ("cuda" if use_cuda else "cpu")
-        model_dir = snap / checkpoint_subdir if checkpoint_subdir else snap
-        provenance["checkpoint_subdir"] = checkpoint_subdir or "(repo root, English)"
-        cache["agent"] = api.RLAgent(str(model_dir), device=target)
-        return cache["agent"]
+        key = f"agent:{target}"
+        if key not in cache:
+            model_dir = snap / checkpoint_subdir if checkpoint_subdir else snap
+            cache[key] = api.RLAgent(str(model_dir), device=target)
+        return cache[key], target
 
     def _warmup(accelerated: bool) -> float:
         t0 = time.perf_counter()
@@ -705,7 +720,9 @@ def build_laya_native_inference_fn(
         return round((time.perf_counter() - t0) * 1000.0, 3)
 
     def _infer(req: DeciderRequest, accelerated: bool) -> str:
-        agent = _ensure_loaded(accelerated)
+        agent, target = _ensure_loaded(accelerated)
+        agent_dtype = getattr(agent, "dtype", "float32") if str(target).startswith("cuda") else "float32"
+        _infer.last_runtime = _runtime_info(target, agent_dtype)  # type: ignore[attr-defined]
         state, questions, option_map = build_laya_state_and_questions(req)
         option_counts.append(len(option_map))
         try:
@@ -801,6 +818,7 @@ def build_diffusion_vlm_inference_fn(
         import torch
 
         proc, model, target_device = _ensure_loaded(accelerated)
+        _infer.last_runtime = _runtime_info(target_device, getattr(model, "dtype", "unknown"))  # type: ignore[attr-defined]
         prompt = assemble_ao_prompt(req)
         pil_pairs = _load_request_pil_images(req)
         images = [im for _, im in pil_pairs]
@@ -853,6 +871,7 @@ class BaseDeciderAdapter:
         t0 = time.perf_counter()
         raw_text = self.predict_raw(req, accelerated=accelerated)
         latency_ms = round((time.perf_counter() - t0) * 1000.0, 3)
+        runtime = getattr(getattr(self, "_inference_fn", None), "last_runtime", None) or {}
         parsed, err = parse_ao_json_response(raw_text, req.camera_ids, req.candidates)
         return {
             "request_id": req.request_id,
@@ -862,6 +881,8 @@ class BaseDeciderAdapter:
             "input_mode": req.input_mode,
             "accelerated": bool(accelerated),
             "latency_ms": latency_ms,
+            "device": runtime.get("device"),
+            "dtype": runtime.get("dtype"),
             "retries_attempted": 0,  # Strict no-retry-inflation invariant
             "fallback_reason": err,
             "parsed": parsed,
@@ -1081,6 +1102,7 @@ def _summarize_decisions(records: list[dict[str, Any]], accel_label: str, *, loa
         "format_fallback_rate": round(fallbacks / n, 4) if n else 0.0,
         "retries_total": sum(int(r.get("retries_attempted", 0)) for r in records),
         "answer_distribution": ans_dist,
+        "devices": sorted({f"{r.get('device')}/{r.get('dtype')}" for r in records if r.get("device")}),
         "records": records,
     }
 
