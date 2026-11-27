@@ -1,8 +1,8 @@
 """E6 arms replay (inference side only) and ApiGuard dry-run estimate. #721, D377/D396.
 
 Dry-run (no network, no key, no ledger; builds the real requests with a local canned transport):
-  uv run python -B scripts/evaluation/e6_arms_run.py --root <E3 root> --cameras <catalog> --cases E3-A1 E3-B1 E3-C3 \
-      --k 3 --dry-run
+  uv run python -B scripts/evaluation/e6_arms_run.py --root <E3 root> --cameras <catalog> --cases E3-A1 E3-B1 E3-C1 \
+      --k 1 --dry-run
 A paid run needs --budget-usd and --usage-dir and the coordinator's approval in chat; it is never part of this PR.
 Never loads scoring inputs. Existing outputs are skipped, never overwritten. AO (original) is not run here.
 """

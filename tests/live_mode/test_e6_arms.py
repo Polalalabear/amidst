@@ -76,7 +76,7 @@ def make(arm, *docs, bodies=None, **kw):
 # ---- configuration -----------------------------------------------------------------------------------
 def test_arm_flags_and_bad_arm():
     assert [(a, ArmConfig.of(a).history, ArmConfig.of(a).summary) for a in ARMS] == [
-        ('DEANCHOR', False, False), ('DEANCHOR_HIST', True, False), ('DEANCHOR_HIST_SUM', True, True)]
+        ('DEANCHOR', 'previous', False), ('DEANCHOR_HIST', 'full', False), ('DEANCHOR_HIST_SUM', 'full', True)]
     with pytest.raises(ValueError):
         ArmConfig.of('AO')
     cfg = json.loads((REPO / 'configs/evaluation/e6_arms_v1.json').read_text())
@@ -102,17 +102,24 @@ def test_request_has_reference_frames_candidates_and_no_rule_or_tracking(arm, fr
             assert banned not in var and banned not in text, banned
         assert 'TARGET REFERENCE' in json.dumps(body['input'][1])
         assert [p['image_url'][:5] for it in body['input'][1:2] for p in it['content'] if p['type'] == 'input_image']
-        assert 'E6 DE-ANCHOR OVERRIDES' in body['input'][0]['content'][0]['text']
-        assert 'A-OPEN OVERRIDES' in body['input'][0]['content'][0]['text']
+        prefix = body['input'][0]['content'][0]['text']
+        assert 'E6 DE-ANCHOR RULES' in prefix and 'E6 ANSWER FORMAT' in prefix
+        for hint in ('Rule gates', 'rule gate', 'previous display', 'current target', 'Tracker colour', 'displayed', 'AO_STATE',
+                     'A-OPEN', 'rule_state', 'neutral tracker', 'unchanged', 'clear the target'):
+            assert hint.lower() not in (prefix + json.dumps(body['input'][1])).lower(), hint
+        assert 'a person wearing red' in json.dumps(body['input'][1])
     rec = d.calls[0]['request']
     assert rec['arm'] == arm and rec['reference'] and rec['candidates'] == 2
     assert all(set(c) == {'detection_id', 'camera_id', 'box', 'score', 'class_label', 'colors'} for c in rec['candidate_list'])
     assert 'rule_state' not in rec
 
 
-def test_e5_base_derivation_drops_only_the_state_line():
-    assert 'AO_STATE' in A.E5_EXTRA and 'AO_STATE' not in A.E5_BASE and 'rule_state' not in A.E5_BASE
-    assert len(A.E5_EXTRA.splitlines()) - len(A.E5_BASE.splitlines()) == 1
+def test_static_prefix_is_e6_only_and_original_prompt_untouched():
+    from amidst.q1q5 import agent_service as ag
+    from amidst.live_mode.aopen.decider import E5_EXTRA
+    pre = A.static_prefix(SCENE, A.ArmConfig.of('DEANCHOR').extra())
+    assert ag.SYSTEM_TEXT not in pre and E5_EXTRA not in pre and 'Rule gates' in ag.SYSTEM_TEXT
+    assert A.sx.sha256_of(SCENE) in pre
 
 
 def test_ranking_never_reorders_frames(frames):
@@ -133,6 +140,7 @@ def test_marker_blocks_only_where_the_arm_adds_them(frames):
         run_ticks(d, frames, range(0, 20))
         texts[arm] = [user_text(b) for b in bodies]
     assert all('HISTORY=' not in t and 'PRIOR_NOTES' not in t for t in texts['DEANCHOR'])
+    assert 'PREVIOUS_ANSWER=null' in texts['DEANCHOR'][0] and 'PREVIOUS_ANSWER=' not in texts['DEANCHOR_HIST'][0]
     assert all('PRIOR_NOTES' not in t for t in texts['DEANCHOR_HIST'])
     assert 'HISTORY=[]' in texts['DEANCHOR_HIST'][0]
     assert any('HISTORY=[{' in t for t in texts['DEANCHOR_HIST'][1:])
@@ -156,16 +164,50 @@ def test_history_labels_and_system_follow_time(frames):
     assert not {'applied', 'followed_s', 'followed_ticks', 'fallback_reason'} & set(e[SELF])
 
 
-def test_history_follow_ends_when_a_new_entry_arrives():
+def pick(h, tick, applied=True, answer='SELECT'):
+    return h.add({'answer': answer, 'camera_id': 'A', 'detection_id': 'D1', 'applied': applied, 'ask_tick': tick - 1}, tick)
+
+
+def test_follow_counts_until_lost_and_uncertain_does_not_cut():
     h = HistoryLedger()
-    h.add({'answer': 'SELECT', 'camera_id': 'A', 'detection_id': 'D1', 'applied': True, 'ask_tick': 0}, 1)
+    pick(h, 1)
     h.observe('FOLLOWING')
+    h.observe('COASTING')                       # neither counts nor ends
     h.observe('FOLLOWING')
+    h.add({'answer': 'UNCERTAIN', 'applied': False, 'ask_tick': 5}, 6)
+    h.add({'answer': 'SELECT', 'applied': False, 'fallback_reason': 'EXPIRED', 'ask_tick': 7}, 8)
+    h.observe('FOLLOWING')
+    assert h.entries[0][SYS]['followed_ticks'] == 3 and not h.entries[0][SYS]['follow_ended']
+    assert h.entries[1][SYS]['followed_ticks'] == 0 and h.entries[1][SYS]['follow_ended']
     h.observe('LOST')
     h.observe('FOLLOWING')
-    assert h.entries[0][SYS]['followed_ticks'] == 2 and h.entries[0][SYS]['follow_ended']
-    h.add({'answer': 'UNCERTAIN', 'applied': False, 'ask_tick': 9}, 10)
-    assert len(h.view()) == 2 and h.ids() == {'H1', 'H2'}
+    assert h.entries[0][SYS]['followed_ticks'] == 3 and h.entries[0][SYS]['follow_ended']
+    assert h.entries[0][SYS]['followed_s'] == 0.6
+
+
+def test_follow_replaced_by_next_applied_pick():
+    h = HistoryLedger()
+    pick(h, 1)
+    h.observe('FOLLOWING')
+    pick(h, 4)
+    h.observe('FOLLOWING')
+    h.observe('FOLLOWING')
+    assert h.entries[0][SYS]['followed_ticks'] == 1 and h.entries[0][SYS]['follow_ended']
+    assert h.entries[1][SYS]['followed_ticks'] == 2 and not h.entries[1][SYS]['follow_ended']
+    h.add({'answer': 'NOT_VISIBLE', 'applied': True}, 9)      # applied clear also ends the follow
+    assert h.entries[1][SYS]['follow_ended']
+    assert h.ids() == {'H1', 'H2', 'H3'}
+
+
+def test_deanchor_shows_only_previous_answer(frames):
+    bodies = []
+    d = make('DEANCHOR', answer(), answer('UNCERTAIN'), answer('UNCERTAIN'), bodies=bodies)
+    run_ticks(d, frames, range(0, 16))
+    line = [ln for ln in user_text(bodies[-1]).splitlines() if ln.startswith('PREVIOUS_ANSWER=')][0]
+    prev = json.loads(line.split('=', 1)[1])
+    assert set(prev) == {SELF, SYS} and set(prev[SYS]) == {'t_s'}
+    assert prev[SELF]['answer'] == 'UNCERTAIN'          # latest answer only, not the earlier SELECT
+    assert 'applied' not in line and 'followed' not in line and 'H1' not in line
 
 
 def test_history_is_capped():

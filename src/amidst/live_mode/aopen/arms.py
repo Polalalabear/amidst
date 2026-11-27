@@ -18,7 +18,7 @@ from amidst.live_mode.service_decider import _jpeg
 from amidst.q1q5 import agent_service as ag
 from amidst.q1q5 import scene_context as sx
 
-from .decider import E5_EXTRA, MODEL, AOpenDecider, sha
+from .decider import MODEL, AOpenDecider, sha
 
 ARMS = ('DEANCHOR', 'DEANCHOR_HIST', 'DEANCHOR_HIST_SUM')
 SELF = 'SELF_ANSWER_UNVERIFIED'
@@ -31,24 +31,44 @@ MAX_SENTENCE_CHARS = 200
 _FORBIDDEN_KEY = re.compile('(?i)(?:ground_?truth|(?:^|[^a-z0-9])gt_|actors|visib|depth|trajector|renderer_track|expected)')
 _FORBIDDEN_TEXT = re.compile('(?i)(?:ground_?truth|(?:^|[^a-z0-9])gt_[a-z]|renderer_track|trajector)')
 
-# E5_EXTRA minus the line that points at the rule state / displayed AO target (not provided in E6 requests).
-E5_BASE = '\n'.join(ln for ln in E5_EXTRA.splitlines() if 'AO_STATE' not in ln)
+# Static E6 text. Neutral on purpose: nothing hints at a rule gate, a displayed target or a "previous display" (Opus D398).
+# The original AO path keeps SYSTEM_TEXT/E5_EXTRA; E6 never uses them.
+E6_SYSTEM_TEXT = (
+    'You are the decision component of a multi-camera tracker. You decide where one target person is NOW. '
+    'Identity can never be confirmed; you only say which detected person looks most like the same person as the reference crop. '
+    'The scene context below (JSON) describes the site: region connectivity and exit zones, the camera graph with its approval level, '
+    'each camera position/yaw/FOV/ground footprint and overlaps. Edges are topological only; a missing or DRAFT edge is information, '
+    'not a prohibition. You may select ANY listed detection, or draw your own box when no listed box covers the person.')
+
+E6_BASE = '''
+E6 ANSWER FORMAT. All request frames are 320x180 pixels. OWN_BOX uses these actual pixels:
+0 <= x0 < x1 <= 320 and 0 <= y0 < y1 <= 180. Do not rescale coordinates.
+Candidates are person detections with score >= 0.15 (CAM_ENTRY >= 0.05).
+Return exactly one JSON object with these fields:
+{"answer":"SELECT|OWN_BOX|NOT_VISIBLE|UNCERTAIN|STILL_HERE_OCCLUDED",
+ "camera_id":null,"detection_id":null,"box_xyxy":null,"next_camera_ranking":[],
+ "confidence":"low|medium|high","reason_codes":[],"reason":"short explanation"}.
+Use one answer value, not the pipe-separated list. SELECT requires camera_id and detection_id (a listed detection).
+OWN_BOX requires camera_id and box_xyxy. Every answer must include next_camera_ranking:
+at most three known camera IDs, most likely first. This ranking drives the next search order.
+UNCERTAIN: you cannot judge from these frames. NOT_VISIBLE: the person you look for is in none of the shown frames
+(still give your ranking). STILL_HERE_OCCLUDED: you judge the person to be in a shown camera but hidden (give camera_id).
+Identity remains UNCONFIRMED. Scene edges do not certify physical traversal or collision safety.
+'''.strip()
 
 E6_EXTRA = '''
-E6 DE-ANCHOR OVERRIDES (apply instead of conflicting instructions above, and together with the A-OPEN rules):
-No rule display, rule answer, rule gate result, or currently displayed target box is provided in this request.
-Decide from the frames alone: compare every listed person with the TARGET REFERENCE crop (the original first-lock
+E6 DE-ANCHOR RULES:
+Decide from the frames alone: compare every listed person with the TARGET REFERENCE crop (the original first-match
 crop) as if you saw this situation for the first time. Never assume that a person is the target because you or
 anyone chose that person earlier. Cameras are listed in a fixed order, not ranked by earlier answers.
-STILL_HERE_OCCLUDED is accepted only if the system already holds a target in that camera; otherwise it is ignored.
 If you cannot judge, answer UNCERTAIN or NOT_VISIBLE; do not guess.
 '''.strip()
 
 E6_HIST_EXTRA = '''
-HISTORY (when present) is maintained by a script. Fields under SELF_ANSWER_UNVERIFIED are your own earlier answers:
-they are NOT verified and may be wrong; never treat them as evidence about who the target is. Fields under
-SYSTEM_OBSERVED are what the system measured (times, cameras, whether an answer was applied, how long the pixel
-tracker kept overlapping a box). SYSTEM_OBSERVED never confirms identity.
+PREVIOUS_ANSWER / HISTORY (when present) is maintained by a script. Fields under SELF_ANSWER_UNVERIFIED are your own
+earlier answers: they are NOT verified and may be wrong; never treat them as evidence about who the target is. Fields
+under SYSTEM_OBSERVED are what the system measured (times, cameras, whether an answer was applied, how long the pixel
+tracker kept an overlapping box after it). SYSTEM_OBSERVED never confirms identity.
 '''.strip()
 
 E6_SUM_EXTRA = '''
@@ -58,22 +78,31 @@ discarded. Summaries are shown back to you only as unverified notes.
 '''.strip()
 
 
+def static_prefix(scene, extra):
+    return (E6_SYSTEM_TEXT + '\n\nSCENE_CONTEXT_SHA256=' + sx.sha256_of(scene) + '\nSCENE_CONTEXT=' + sx.serialize(scene)
+            + '\n\n' + E6_BASE + '\n\n' + extra)
+
+
+def reference_text(colour='red'):
+    """Static track-layer text: the colour is the user's query condition, not a tracker label."""
+    return (f'TARGET REFERENCE (crop taken when the user\'s query "a person wearing {colour}" was first matched). '
+            'The reference crop follows.')
+
+
 @dataclass(frozen=True)
 class ArmConfig:
     name: str
-    history: bool
+    history: str      # 'none' | 'previous' (one SELF_ANSWER_UNVERIFIED entry) | 'full'
     summary: bool
 
     @staticmethod
     def of(name):
         if name not in ARMS:
             raise ValueError('BAD_ARM')
-        return ArmConfig(name, name != 'DEANCHOR', name == 'DEANCHOR_HIST_SUM')
+        return ArmConfig(name, 'previous' if name == 'DEANCHOR' else 'full', name == 'DEANCHOR_HIST_SUM')
 
     def extra(self):
-        parts = [E6_EXTRA]
-        if self.history:
-            parts.append(E6_HIST_EXTRA)
+        parts = [E6_EXTRA, E6_HIST_EXTRA]
         if self.summary:
             parts.append(E6_SUM_EXTRA)
         return '\n\n'.join(parts)
@@ -94,44 +123,59 @@ def reject_forbidden(obj, where='value'):
 
 
 class HistoryLedger:
-    """Script-maintained history. One entry per applied-or-not answer; SYSTEM_OBSERVED fields are updated by the script."""
+    """Script-maintained history. One entry per answer; SYSTEM_OBSERVED fields are updated by the script.
+
+    followed_s counts FOLLOWING ticks of the neutral tracker after an applied SELECT/OWN_BOX, until the tracker is LOST
+    (or holds an occlusion) or a later *applied* pick replaces it. UNCERTAIN or unapplied answers never cut it short.
+    """
 
     def __init__(self):
         self.entries = []
+        self.active = None            # entry whose pick the tracker is currently following
 
     def add(self, rec, tick):
         n = len(self.entries) + 1
-        if self.entries:
-            self.entries[-1][SYS]['follow_ended'] = True
+        picked = rec.get('answer') in ('SELECT', 'OWN_BOX') and bool(rec.get('applied'))
+        if picked or (rec.get('applied') and rec.get('answer') in ('NOT_VISIBLE', 'STILL_HERE_OCCLUDED')):
+            if self.active is not None:
+                self.active[SYS]['follow_ended'] = True      # replaced (or cleared) by a later applied answer
+            self.active = None
         e = {'id': f'H{n}',
              SYS: {'asked_tick': rec.get('ask_tick', tick), 'applied_tick': tick, 't_s': round(tick / 5, 1),
                    'camera_asked_about': rec.get('camera_id'), 'applied': bool(rec.get('applied')),
                    'fallback_reason': rec.get('fallback_reason'), 'kind': rec.get('kind'),
-                   'followed_ticks': 0, 'followed_s': 0.0, 'follow_ended': rec.get('answer') not in ('SELECT', 'OWN_BOX')
-                   or not rec.get('applied')},
+                   'followed_ticks': 0, 'followed_s': 0.0, 'follow_ended': not picked},
              SELF: {'answer': rec.get('answer'), 'camera_id': rec.get('camera_id'), 'detection_id': rec.get('detection_id'),
                     'box_xyxy': rec.get('box_xyxy'), 'confidence': rec.get('confidence'),
                     'next_camera_ranking': list(rec.get('next_camera_ranking') or [])}}
         reject_forbidden(e, e['id'])
         self.entries.append(e)
+        if picked:
+            self.active = e
         return e
 
     def observe(self, neutral_status):
-        """Called once per tick after the neutral tracker step: extends how long the latest applied pick was followed."""
-        if not self.entries:
+        """Once per tick after the neutral tracker step."""
+        e = self.active
+        if e is None:
             return
-        e = self.entries[-1]
         s = e[SYS]
-        if s['follow_ended'] or not s['applied']:
-            return
         if neutral_status == 'FOLLOWING':
             s['followed_ticks'] += 1
             s['followed_s'] = round(s['followed_ticks'] / 5, 1)
-        else:
+        elif neutral_status != 'COASTING':          # LOST or OCCLUDED_HOLD ends the follow; COASTING neither counts nor ends
             s['follow_ended'] = True
+            self.active = None
 
     def view(self):
         return json.loads(json.dumps(self.entries[-MAX_HISTORY:]))
+
+    def previous(self):
+        """DEANCHOR: only the latest answer, SELF_ANSWER_UNVERIFIED, plus when it was given."""
+        if not self.entries:
+            return None
+        e = self.entries[-1]
+        return {SYS: {'t_s': e[SYS]['t_s']}, SELF: json.loads(json.dumps(e[SELF]))}
 
     def ids(self):
         return {e['id'] for e in self.entries[-MAX_HISTORY:]}
@@ -158,14 +202,16 @@ def validate_summary(raw, shown_ids: Iterable[str]):
     return out
 
 
-def variable_text(arm: ArmConfig, t_s, cands, cams, history=None, notes=None):
-    lines = [f'NOW t={t_s:.1f}s. No rule display, rule answer or displayed target box is provided.',
+def variable_text(arm: ArmConfig, t_s, cands, cams, history=None, notes=None, previous=None):
+    lines = [f'NOW t={t_s:.1f}s.',
              'DETECTIONS (person score>=0.15, CAM_ENTRY>=0.05; observations only):']
     for c in cands:
         lines.append(f'- {c.camera_id} {c.id}: {c.class_label} score {c.score:.2f} box '
                      f'[{c.box[0]:.0f},{c.box[1]:.0f},{c.box[2]:.0f},{c.box[3]:.0f}] colours {",".join(c.colors) or "none"}')
     lines.append('CAMERAS THIS CALL (fixed order): ' + ', '.join(cams) + '. Camera properties are in the scene context.')
-    if arm.history:
+    if arm.history == 'previous':
+        lines.append('PREVIOUS_ANSWER=' + json.dumps(previous, sort_keys=True))
+    elif arm.history == 'full':
         lines.append('HISTORY=' + json.dumps(history or [], sort_keys=True))
     if arm.summary and notes:
         lines.append('PRIOR_NOTES (your own earlier summary; ' + SELF + ')=' + json.dumps(notes, sort_keys=True))
@@ -200,15 +246,16 @@ class ArmDecider(AOpenDecider):
             shots.append((cam, _jpeg(frames[cam], boxes)))
         inp = ag.DecisionInput(self.scene, tick / 5, cands, seed_colors=('red',), reference_jpeg=self.reference, frames=shots)
         body = ag.build_body(MODEL, inp)
-        prefix = body['input'][0]['content'][0]['text']
-        extra = self.arm.extra()
-        body['input'][0]['content'][0]['text'] = prefix + '\n\n' + E5_BASE + '\n\n' + extra
-        history = self.ledger.view() if self.arm.history else None
+        full_prefix = static_prefix(self.scene, self.arm.extra())
+        body['input'][0]['content'][0]['text'] = full_prefix
+        body['input'][1]['content'][0]['text'] = reference_text('red')
+        history = self.ledger.view() if self.arm.history == 'full' else None
         self._shown = {e['id'] for e in history} if history else set()
-        var = variable_text(self.arm, tick / 5, cands, [c for c, _ in shots], history, self.notes if self.arm.summary else None)
+        previous = self.ledger.previous() if self.arm.history == 'previous' else None
+        var = variable_text(self.arm, tick / 5, cands, [c for c, _ in shots], history,
+                            self.notes if self.arm.summary else None, previous)
         reject_forbidden(var, 'variable_text')
         body['input'][-1]['content'][0]['text'] = var
-        full_prefix = prefix + '\n\n' + E5_BASE + '\n\n' + extra
         request = {'t_s': tick / 5, 'arm': self.arm.name, 'images': {c: sha(b) for c, b in shots}, 'reference': sha(self.reference),
                    'candidates': len(cands), 'candidate_list': [
                        {'detection_id': c.id, 'camera_id': c.camera_id, 'box': list(c.box), 'score': c.score,
@@ -239,8 +286,8 @@ class ArmDecider(AOpenDecider):
         result = super()._poll(tick)
         if result is not None and p is not None:
             self.ledger.add(result, tick)
-            if self.arm.summary:
-                self.notes = p.get('summary')   # None when validation failed: not passed on
+            if self.arm.summary and result['fallback_reason'] is None:
+                self.notes = p.get('summary')   # None when validation failed: not passed on; failed calls keep older notes
         return result
 
     def step(self, tick, dets, frames, rule_state):
