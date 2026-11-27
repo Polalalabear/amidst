@@ -931,3 +931,69 @@ def test_png_has_hardware_footer(tmp_path: Path):
     out = E7S.write_e7_outputs(report, tmp_path / "o", date_tag="20261127")
     assert out["png"].is_file() and out["png"].stat().st_size > 0
     assert json.loads(out["json"].read_text(encoding="utf-8"))["models"][0]["hardware_used"]
+
+
+# --------------------------------------------------------------------------- #768 HF provenance (multi-shard)
+def _fake_hf_hub(monkeypatch, *, scan_repos, snapshot_dir=None, sha="a" * 40):
+    import sys
+    import types
+    from types import SimpleNamespace as NS
+
+    mod = types.ModuleType("huggingface_hub")
+
+    class _Api:
+        def model_info(self, model_id, revision=None):
+            return NS(sha=sha)
+
+    def _scan(cache_dir=None):
+        return NS(repos=scan_repos)
+
+    def _snap(model_id, revision=None, cache_dir=None, local_files_only=False):
+        if snapshot_dir is None:
+            raise RuntimeError("not cached")
+        return str(snapshot_dir)
+
+    mod.HfApi, mod.scan_cache_dir, mod.snapshot_download = _Api, _scan, _snap
+    monkeypatch.setitem(sys.modules, "huggingface_hub", mod)
+
+
+def test_768_multishard_weights_record_every_shard_sha(tmp_path, monkeypatch):
+    from types import SimpleNamespace as NS
+
+    sha = "b" * 40
+    files, expected = [], {}
+    for i in range(1, 5):
+        fp = tmp_path / f"model-0000{i}-of-00004.safetensors"
+        fp.write_bytes(f"shard{i}".encode())
+        expected[fp.name] = hashlib.sha256(f"shard{i}".encode()).hexdigest()
+        files.append(NS(file_path=fp))
+    other = tmp_path / "other.safetensors"
+    other.write_bytes(b"x")
+    (tmp_path / "config.json").write_text("{}")
+    files.append(NS(file_path=tmp_path / "config.json"))
+    repo = NS(repo_id="Qwen/X", revisions=[NS(commit_hash=sha, files=files), NS(commit_hash="c" * 40, files=[NS(file_path=other)])])
+    _fake_hf_hub(monkeypatch, scan_repos=[repo], sha=sha)
+    out = E7.resolve_hf_provenance("Qwen/X", "main")
+    assert out["resolved_commit_sha"] == sha
+    assert out["weight_files_sha256"] == expected  # all 4 shards, no stale revision, no config.json
+    assert out["weights_sha256"] == expected
+    assert "weights_unknown_reason" not in out
+
+
+def test_768_fallback_snapshot_when_scan_misses(tmp_path, monkeypatch):
+    snap = tmp_path / ("d" * 40)
+    snap.mkdir()
+    (snap / "m.safetensors").write_bytes(b"abc")
+    _fake_hf_hub(monkeypatch, scan_repos=[], snapshot_dir=snap)
+    out = E7.resolve_hf_provenance("Qwen/X", "main")
+    assert out["weight_files_sha256"] == {"m.safetensors": hashlib.sha256(b"abc").hexdigest()}
+
+
+def test_768_unknown_with_reason_never_placeholder(monkeypatch):
+    _fake_hf_hub(monkeypatch, scan_repos=[])
+    out = E7.resolve_hf_provenance("Qwen/X", "main")
+    assert out["weight_files_sha256"] == {}
+    assert out["weights_sha256"] == "UNKNOWN"
+    assert "not cached" in out["weights_unknown_reason"]
+    assert "RECORD_AT_RUNTIME" not in json.dumps(out)
+    assert E7.DeciderSpec.__dataclass_fields__["weights_sha256"].default == "UNKNOWN"

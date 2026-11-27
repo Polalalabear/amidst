@@ -253,47 +253,85 @@ def collect_hardware_provenance(
     }
 
 
-def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: str | None = None) -> dict[str, Any]:
-    """Resolve exact HF commit SHA and SHA-256 hashes of cached weight files at runtime.
+_WEIGHT_SUFFIXES = (".safetensors", ".bin", ".pt")
+WEIGHTS_UNKNOWN = "UNKNOWN"
 
-    Safe to call offline or without ``huggingface_hub`` installed; falls back to
-    ``resolved_commit_sha = "UNRESOLVED_OFFLINE"`` and empty weight map.
+
+def _hash_weight_files(paths: Any) -> dict[str, str]:
+    """SHA-256 of every weight shard (one entry per file name, so sharded models list every shard)."""
+    out: dict[str, str] = {}
+    for p in sorted({Path(x) for x in paths}, key=lambda q: q.name):
+        if p.suffix in _WEIGHT_SUFFIXES and p.is_file():
+            out[p.name] = sha256_file(p)
+    return out
+
+
+def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: str | None = None) -> dict[str, Any]:
+    """Resolve exact HF commit SHA and SHA-256 hashes of every cached weight file (all shards).
+
+    Strategy: (1) ``scan_cache_dir`` on the given/default cache; (2) fallback
+    ``snapshot_download(local_files_only=True)`` for the requested revision (finds the cache the
+    model was actually loaded from, e.g. a custom ``HF_HOME``). If no weight file can be hashed,
+    ``weight_files_sha256`` stays empty and ``weights_sha256`` is ``"UNKNOWN"`` with
+    ``weights_unknown_reason`` (never the placeholder ``RECORD_AT_RUNTIME``).
     """
     resolved_sha = "UNRESOLVED_OFFLINE"
     weight_shas: dict[str, str] = {}
+    errors: list[str] = []
     try:
-        from huggingface_hub import HfApi, scan_cache_dir
+        from huggingface_hub import HfApi, scan_cache_dir, snapshot_download
+    except Exception as exc:  # noqa: BLE001
+        HfApi = scan_cache_dir = snapshot_download = None  # type: ignore[assignment]
+        errors.append(f"huggingface_hub import failed: {type(exc).__name__}: {exc}")
 
+    if HfApi is not None:
         try:
             info = HfApi().model_info(model_id, revision=revision)
             if getattr(info, "sha", None):
                 resolved_sha = str(info.sha)
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"model_info failed: {type(exc).__name__}: {exc}")
 
+    if scan_cache_dir is not None:
         try:
             cache_info = scan_cache_dir(cache_dir=cache_dir)
             for repo in cache_info.repos:
                 if repo.repo_id != model_id:
                     continue
                 for rev in repo.revisions:
+                    # When the commit is known, only hash that revision's files.
+                    if resolved_sha != "UNRESOLVED_OFFLINE" and rev.commit_hash and rev.commit_hash != resolved_sha:
+                        continue
                     if resolved_sha == "UNRESOLVED_OFFLINE" and rev.commit_hash:
                         resolved_sha = str(rev.commit_hash)
-                    for f in rev.files:
-                        fp = Path(f.file_path)
-                        if fp.suffix in (".safetensors", ".bin", ".pt") and fp.is_file():
-                            weight_shas[fp.name] = sha256_file(fp)
-        except Exception:
-            pass
-    except Exception:
-        pass
+                    weight_shas.update(_hash_weight_files(f.file_path for f in rev.files))
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"scan_cache_dir failed: {type(exc).__name__}: {exc}")
 
-    return {
+    if not weight_shas and snapshot_download is not None:
+        try:
+            snap = Path(snapshot_download(model_id, revision=revision, cache_dir=cache_dir, local_files_only=True))
+            if resolved_sha == "UNRESOLVED_OFFLINE" and len(snap.name) == 40:
+                resolved_sha = snap.name
+            weight_shas.update(_hash_weight_files(snap.rglob("*")))
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"snapshot_download(local_files_only) failed: {type(exc).__name__}: {exc}")
+
+    out: dict[str, Any] = {
         "hf_repo_id": model_id,
         "requested_revision": revision,
         "resolved_commit_sha": resolved_sha,
         "weight_files_sha256": weight_shas,
+        "weights_sha256": WEIGHTS_UNKNOWN,
     }
+    if weight_shas:
+        out["weights_sha256"] = dict(weight_shas)
+    else:
+        out["weights_unknown_reason"] = (
+            "no cached weight file (.safetensors/.bin/.pt) found for this repo/revision"
+            + (": " + "; ".join(errors) if errors else "")
+        )
+    return out
 
 
 # --------------------------------------------------------------------------- Request / Response Types
@@ -319,7 +357,7 @@ class DeciderSpec:
     category: str  # "local_option" | "local_vlm" | "local_diffusion"
     hf_repo_id: str
     hf_revision: str
-    weights_sha256: str = "RECORD_AT_RUNTIME"
+    weights_sha256: str = "UNKNOWN"
     requires_custom_code: bool = False
     custom_code_audited: bool = False
     audited_commit: str | None = None
@@ -1229,7 +1267,15 @@ def run_acceleration_comparison(
         "weights_sha256": (
             hf_provenance.get("weight_files_sha256")
             if isinstance(hf_provenance, dict) and hf_provenance.get("weight_files_sha256")
-            else decider.spec.weights_sha256
+            else "UNKNOWN"
+        ),
+        "weights_unknown_reason": (
+            None
+            if isinstance(hf_provenance, dict) and hf_provenance.get("weight_files_sha256")
+            else (
+                (hf_provenance or {}).get("weights_unknown_reason")
+                or "hf_provenance not resolved (SMOKE_MODE or not provided)"
+            )
         ),
         "dataset_scope": dataset_scope,
         "input_mode": input_mode,
