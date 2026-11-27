@@ -107,6 +107,7 @@ def test_notebook_cell7_hard_fails_on_missing_answer_table(tmp_path: Path):
         "HARDWARE_PROVENANCE": {},
         "MANIFEST_VERIFICATION": {},
         "DATASET_SCOPE": "e3_16_segments",
+        "SCORE_ON_COLAB": True,
     }
     with pytest.raises(FileNotFoundError, match="MISSING_ANSWER_TABLE"):
         exec(compile(src, "e7-cell-7-scoring", "exec"), env)
@@ -479,7 +480,7 @@ def test_p1b_d392_gt_regime_rejected_and_strict_value_type_validation():
         E7S.validate_colab_answer_entry({"expected_answer": "SELECT", "tick": True}, key="R3")
 
 
-def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
+def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing(tmp_path: Path):
     """P2-1: Cell 6 records unaudited custom-code models as SKIPPED_UNAUDITED and completes Qwen runs."""
     nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
     cell1 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-1-config")
@@ -489,6 +490,9 @@ def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
     exec(compile("".join(cell1["source"]), "e7-cell-1-config", "exec"), env)
     env["SMOKE_MODE"] = True
     env["REQUESTS"] = _make_synthetic_requests()
+    env["OUTPUT_DIR"] = tmp_path  # Cell 6 now writes per-group checkpoints (#766)
+    env["HARDWARE_PROVENANCE"] = {"git_commit": "UNKNOWN"}
+    env["MANIFEST_VERIFICATION"] = {}
     exec(compile("".join(cell6["source"]), "e7-cell-6-run-deciders", "exec"), env)
 
     # Qwen (2 modes) and both audited laya parties (text_only) ran cleanly; only diffusion_vlm is SKIPPED_UNAUDITED
@@ -931,3 +935,108 @@ def test_png_has_hardware_footer(tmp_path: Path):
     out = E7S.write_e7_outputs(report, tmp_path / "o", date_tag="20261127")
     assert out["png"].is_file() and out["png"].stat().st_size > 0
     assert json.loads(out["json"].read_text(encoding="utf-8"))["models"][0]["hardware_used"]
+
+
+# --------------------------------------------------------------------------- #768 HF provenance (multi-shard)
+def _fake_hf_hub(monkeypatch, *, scan_repos, snapshot_dir=None, sha="a" * 40):
+    import sys
+    import types
+    from types import SimpleNamespace as NS
+
+    mod = types.ModuleType("huggingface_hub")
+
+    class _Api:
+        def model_info(self, model_id, revision=None):
+            return NS(sha=sha)
+
+    def _scan(cache_dir=None):
+        return NS(repos=scan_repos)
+
+    def _snap(model_id, revision=None, cache_dir=None, local_files_only=False):
+        if snapshot_dir is None:
+            raise RuntimeError("not cached")
+        return str(snapshot_dir)
+
+    mod.HfApi, mod.scan_cache_dir, mod.snapshot_download = _Api, _scan, _snap
+    monkeypatch.setitem(sys.modules, "huggingface_hub", mod)
+
+
+def test_768_multishard_weights_record_every_shard_sha(tmp_path, monkeypatch):
+    from types import SimpleNamespace as NS
+
+    sha = "b" * 40
+    files, expected = [], {}
+    for i in range(1, 5):
+        fp = tmp_path / f"model-0000{i}-of-00004.safetensors"
+        fp.write_bytes(f"shard{i}".encode())
+        expected[fp.name] = hashlib.sha256(f"shard{i}".encode()).hexdigest()
+        files.append(NS(file_path=fp))
+    other = tmp_path / "other.safetensors"
+    other.write_bytes(b"x")
+    (tmp_path / "config.json").write_text("{}")
+    files.append(NS(file_path=tmp_path / "config.json"))
+    repo = NS(repo_id="Qwen/X", revisions=[NS(commit_hash=sha, files=files), NS(commit_hash="c" * 40, files=[NS(file_path=other)])])
+    _fake_hf_hub(monkeypatch, scan_repos=[repo], sha=sha)
+    out = E7.resolve_hf_provenance("Qwen/X", "main")
+    assert out["resolved_commit_sha"] == sha
+    assert out["weight_files_sha256"] == expected  # all 4 shards, no stale revision, no config.json
+    assert out["weights_sha256"] == expected
+    assert "weights_unknown_reason" not in out
+
+
+def test_768_fallback_snapshot_when_scan_misses(tmp_path, monkeypatch):
+    snap = tmp_path / ("d" * 40)
+    snap.mkdir()
+    (snap / "m.safetensors").write_bytes(b"abc")
+    _fake_hf_hub(monkeypatch, scan_repos=[], snapshot_dir=snap)
+    out = E7.resolve_hf_provenance("Qwen/X", "main")
+    assert out["weight_files_sha256"] == {"m.safetensors": hashlib.sha256(b"abc").hexdigest()}
+
+
+def test_768_unknown_with_reason_never_placeholder(monkeypatch):
+    _fake_hf_hub(monkeypatch, scan_repos=[])
+    out = E7.resolve_hf_provenance("Qwen/X", "main")
+    assert out["weight_files_sha256"] == {}
+    assert out["weights_sha256"] == "UNKNOWN"
+    assert "not cached" in out["weights_unknown_reason"]
+    assert "RECORD_AT_RUNTIME" not in json.dumps(out)
+    assert E7.DeciderSpec.__dataclass_fields__["weights_sha256"].default == "UNKNOWN"
+
+
+def test_768_provenance_resolved_after_warmup_not_before():
+    """First model of a repo: cache is empty until warmup loads the weights. A callable is resolved AFTER warmup."""
+    state = {"cached": False}
+    reqs = _make_synthetic_requests()[:2]
+
+    def _infer(req, accelerated):
+        return json.dumps({"answer": "NOT_VISIBLE", "next_camera_ranking": ["CAM_EXT_CAR"]})
+
+    def _warm(accelerated):
+        state["cached"] = True  # weights downloaded/loaded here
+        return 1.0
+
+    _infer.warmup = _warm  # type: ignore[attr-defined]
+    decider = E7.QwenVLDecider(inference_fn=_infer)
+    res = E7.run_acceleration_comparison(
+        decider, reqs, run_unaccelerated=False,
+        hf_provenance=lambda: {"weight_files_sha256": {"m.safetensors": "x"} if state["cached"] else {}},
+    )
+    assert res["hf_provenance"]["weight_files_sha256"] == {"m.safetensors": "x"}
+    assert res["weights_sha256"] == {"m.safetensors": "x"} and res["weights_unknown_reason"] is None
+    assert res["unaccelerated"]["sample_size"] == 0 and res["decision_agreement_vs_unaccelerated"] is None
+
+
+def test_768_same_filename_in_two_subdirs_does_not_collide(tmp_path):
+    (tmp_path / "typed-decisions").mkdir()
+    (tmp_path / "model.safetensors").write_bytes(b"root")
+    (tmp_path / "typed-decisions" / "model.safetensors").write_bytes(b"typed")
+    out = E7._hash_weight_files(tmp_path.rglob("*"), tmp_path)
+    assert out == {"model.safetensors": hashlib.sha256(b"root").hexdigest(),
+                   "typed-decisions/model.safetensors": hashlib.sha256(b"typed").hexdigest()}
+
+
+def test_hardware_used_from_raw_comparison_shape_with_empty_unaccelerated_block():
+    m = _model_with(["cuda", "cuda"], [])
+    hu = E7S.build_hardware_used(m, _hw_fixture())
+    assert hu["accelerated"]["device"] == "cuda" and hu["accelerated"]["dtype"] == "bfloat16"
+    assert hu["unaccelerated"]["device"] == "UNKNOWN"

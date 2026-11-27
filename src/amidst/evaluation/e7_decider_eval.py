@@ -253,47 +253,92 @@ def collect_hardware_provenance(
     }
 
 
-def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: str | None = None) -> dict[str, Any]:
-    """Resolve exact HF commit SHA and SHA-256 hashes of cached weight files at runtime.
+_WEIGHT_SUFFIXES = (".safetensors", ".bin", ".pt")
+WEIGHTS_UNKNOWN = "UNKNOWN"
 
-    Safe to call offline or without ``huggingface_hub`` installed; falls back to
-    ``resolved_commit_sha = "UNRESOLVED_OFFLINE"`` and empty weight map.
+
+def _hash_weight_files(paths: Any, base: Path | None = None) -> dict[str, str]:
+    """SHA-256 of every weight shard. Keyed by the path relative to the snapshot root when ``base`` is known (so
+    ``model.safetensors`` and ``typed-decisions/model.safetensors`` never collide), else by file name."""
+    out: dict[str, str] = {}
+    for p in sorted({Path(x) for x in paths}, key=lambda q: str(q)):
+        if p.suffix in _WEIGHT_SUFFIXES and p.is_file():
+            key = p.name
+            if base is not None:
+                try:
+                    key = p.relative_to(base).as_posix()
+                except ValueError:
+                    key = p.name
+            out[key] = sha256_file(p)
+    return out
+
+
+def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: str | None = None) -> dict[str, Any]:
+    """Resolve exact HF commit SHA and SHA-256 hashes of every cached weight file (all shards).
+
+    Strategy: (1) ``scan_cache_dir`` on the given/default cache; (2) fallback
+    ``snapshot_download(local_files_only=True)`` for the requested revision (finds the cache the
+    model was actually loaded from, e.g. a custom ``HF_HOME``). If no weight file can be hashed,
+    ``weight_files_sha256`` stays empty and ``weights_sha256`` is ``"UNKNOWN"`` with
+    ``weights_unknown_reason`` (never the placeholder ``RECORD_AT_RUNTIME``).
     """
     resolved_sha = "UNRESOLVED_OFFLINE"
     weight_shas: dict[str, str] = {}
+    errors: list[str] = []
     try:
-        from huggingface_hub import HfApi, scan_cache_dir
+        from huggingface_hub import HfApi, scan_cache_dir, snapshot_download
+    except Exception as exc:  # noqa: BLE001
+        HfApi = scan_cache_dir = snapshot_download = None  # type: ignore[assignment]
+        errors.append(f"huggingface_hub import failed: {type(exc).__name__}: {exc}")
 
+    if HfApi is not None:
         try:
             info = HfApi().model_info(model_id, revision=revision)
             if getattr(info, "sha", None):
                 resolved_sha = str(info.sha)
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"model_info failed: {type(exc).__name__}: {exc}")
 
+    if scan_cache_dir is not None:
         try:
             cache_info = scan_cache_dir(cache_dir=cache_dir)
             for repo in cache_info.repos:
                 if repo.repo_id != model_id:
                     continue
                 for rev in repo.revisions:
+                    # When the commit is known, only hash that revision's files.
+                    if resolved_sha != "UNRESOLVED_OFFLINE" and rev.commit_hash and rev.commit_hash != resolved_sha:
+                        continue
                     if resolved_sha == "UNRESOLVED_OFFLINE" and rev.commit_hash:
                         resolved_sha = str(rev.commit_hash)
-                    for f in rev.files:
-                        fp = Path(f.file_path)
-                        if fp.suffix in (".safetensors", ".bin", ".pt") and fp.is_file():
-                            weight_shas[fp.name] = sha256_file(fp)
-        except Exception:
-            pass
-    except Exception:
-        pass
+                    weight_shas.update(_hash_weight_files((f.file_path for f in rev.files), getattr(rev, "snapshot_path", None)))
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"scan_cache_dir failed: {type(exc).__name__}: {exc}")
 
-    return {
+    if not weight_shas and snapshot_download is not None:
+        try:
+            snap = Path(snapshot_download(model_id, revision=revision, cache_dir=cache_dir, local_files_only=True))
+            if resolved_sha == "UNRESOLVED_OFFLINE" and len(snap.name) == 40:
+                resolved_sha = snap.name
+            weight_shas.update(_hash_weight_files(snap.rglob("*"), snap))
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"snapshot_download(local_files_only) failed: {type(exc).__name__}: {exc}")
+
+    out: dict[str, Any] = {
         "hf_repo_id": model_id,
         "requested_revision": revision,
         "resolved_commit_sha": resolved_sha,
         "weight_files_sha256": weight_shas,
+        "weights_sha256": WEIGHTS_UNKNOWN,
     }
+    if weight_shas:
+        out["weights_sha256"] = dict(weight_shas)
+    else:
+        out["weights_unknown_reason"] = (
+            "no cached weight file (.safetensors/.bin/.pt) found for this repo/revision"
+            + (": " + "; ".join(errors) if errors else "")
+        )
+    return out
 
 
 # --------------------------------------------------------------------------- Request / Response Types
@@ -319,7 +364,7 @@ class DeciderSpec:
     category: str  # "local_option" | "local_vlm" | "local_diffusion"
     hf_repo_id: str
     hf_revision: str
-    weights_sha256: str = "RECORD_AT_RUNTIME"
+    weights_sha256: str = "UNKNOWN"
     requires_custom_code: bool = False
     custom_code_audited: bool = False
     audited_commit: str | None = None
@@ -1178,9 +1223,14 @@ def run_acceleration_comparison(
     accelerated_label: str = "cuda_bf16",
     unaccelerated_label: str = "cpu",
     unaccelerated_sample_cap: int | None = 20,
-    hf_provenance: dict[str, Any] | None = None,
+    hf_provenance: dict[str, Any] | Callable[[], dict[str, Any]] | None = None,
+    run_unaccelerated: bool = True,
 ) -> dict[str, Any]:
-    """Run BOTH accelerated and unaccelerated passes for one decider and compute agreement/differences."""
+    """Run BOTH accelerated and unaccelerated passes for one decider and compute agreement/differences.
+
+    ``run_unaccelerated=False`` skips the CPU pass entirely (per-tick replay runs, #767): the unaccelerated block is empty
+    (``sample_size`` 0) and ``decision_agreement_vs_unaccelerated`` is ``None``.
+    """
     if input_mode not in SUPPORTED_INPUT_MODES:
         raise ValueError(f"UNSUPPORTED_INPUT_MODE: {input_mode}")
 
@@ -1189,8 +1239,13 @@ def run_acceleration_comparison(
 
     # Warm up model/device BEFORE timed decide() loops so load time does not pollute per-request latency / p95.
     acc_load_ms = decider.warmup(accelerated=True) if mode_reqs else 0.0
+    if callable(hf_provenance):  # resolved AFTER the weights are loaded/downloaded by warmup (cache is then complete)
+        hf_provenance = hf_provenance()
     acc_records = [decider.decide(r, accelerated=True) for r in mode_reqs]
-    unacc_reqs = mode_reqs[:unaccelerated_sample_cap] if (unaccelerated_sample_cap and unaccelerated_sample_cap > 0) else mode_reqs
+    if not run_unaccelerated:
+        unacc_reqs: list[DeciderRequest] = []
+    else:
+        unacc_reqs = mode_reqs[:unaccelerated_sample_cap] if (unaccelerated_sample_cap and unaccelerated_sample_cap > 0) else mode_reqs
     unacc_load_ms = decider.warmup(accelerated=False) if unacc_reqs else 0.0
     unacc_records = [decider.decide(r, accelerated=False) for r in unacc_reqs]
 
@@ -1229,7 +1284,15 @@ def run_acceleration_comparison(
         "weights_sha256": (
             hf_provenance.get("weight_files_sha256")
             if isinstance(hf_provenance, dict) and hf_provenance.get("weight_files_sha256")
-            else decider.spec.weights_sha256
+            else "UNKNOWN"
+        ),
+        "weights_unknown_reason": (
+            None
+            if isinstance(hf_provenance, dict) and hf_provenance.get("weight_files_sha256")
+            else (
+                (hf_provenance or {}).get("weights_unknown_reason")
+                or "hf_provenance not resolved (SMOKE_MODE or not provided)"
+            )
         ),
         "dataset_scope": dataset_scope,
         "input_mode": input_mode,

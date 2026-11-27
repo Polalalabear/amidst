@@ -6,9 +6,35 @@ Defines the exact directory layout, `MANIFEST.sha256` format, pre-upload enforce
 
 - **Prepared by:** Codex on Mac (from `local/evidence/`), gated via `write_colab_answer_table` and `verify_colab_pack_pre_upload`.
 - **Consumed by:** User running `notebooks/e7_colab_decider_eval.ipynb` on Colab Pro (Run All).
-- **One-Click Run All Condition:** Out of the box, Run All completes end-to-end (including Cell 7 scoring and Cell 8 report export) for all audited models (`Qwen/Qwen2.5-VL-3B-Instruct`), while unaudited custom-code models (`convaiinnovations/laya`, `GSAI-ML/LLaDA-V`) are cleanly recorded as `SKIPPED_UNAUDITED` without aborting. Including `laya` or `LLaDA-V` requires auditing their HF custom `.py` files and setting `custom_code_audited = True` + pinned `audited_commit` in Cell 1. For formal `#732` runs, pin `PINNED_GIT_COMMIT` and every `hf_revision` to exact 40-char commit SHAs.
+- **One-Click Run All Condition:** Run All completes end-to-end from CELL 1 on a fresh Colab runtime (Python 3.13, L4; accepted for the per-tick laya run, #766). Audited parties run: `qwen_vl` (`Qwen/Qwen2.5-VL-3B-Instruct`, `image_text` and `text_only`), and `laya_text` / `laya_typed` (`convaiinnovations/laya`, audited commit `246177e5…`, native `RLAgent` path). The unaudited custom-code model `GSAI-ML/LLaDA-V` is recorded as `SKIPPED_UNAUDITED` without aborting; including it requires auditing its HF custom `.py` files and setting `custom_code_audited = True` + pinned `audited_commit` in Cell 1. For formal `#732` runs, pin `PINNED_GIT_COMMIT` and every `hf_revision` to exact 40-char commit SHAs.
 - **Identity status:** `UNCONFIRMED`.
 - **No paid API calls** in Colab; Colab Pro compute cost is user-borne and recorded in hardware provenance.
+
+## Delivery format and Colab runtime (#766, notebook `2026-11-27-r2`)
+
+- **One zip.** Mac builds `e7-colab-pack.zip` from the pack folder with `python -m amidst.evaluation.e7_colab_runtime make-zip --pack-root <pack_root> --zip <zip>` (runs `verify-pack` first; stored without compression). The zip's SHA-256 goes to the sidecar `e7-colab-pack.zip.sha256` (`<hex>  <name>`) next to it, because `PACK_INFO.json` is inside the zip and cannot contain the zip's own digest. Upload both to `MyDrive/amidst/`.
+- **Colab side (CELL 4):** the zip is checked against the sidecar, extracted to local `/content/e7-colab-pack` (path traversal refused), then `MANIFEST.sha256` is verified on local disk (replaces reading 4252 small files from Drive). A pre-extracted pack at `PACK_ROOT` is still accepted. The zip SHA-256 is written to `RUN_NOTES.json`.
+- **Pinned runtime (Python 3.13):** `torch==2.7.1`, `torchvision==0.22.1` (matching pair, both with cp313 manylinux wheels on PyPI; torch ≥ 2.6 has Dynamo on 3.13), `transformers==4.53.3`, `huggingface_hub==0.33.4`, `safetensors==0.5.3`, `accelerate==1.8.1`. numpy / Pillow / matplotlib are **not** installed or downgraded; CELL 2 only checks minimums (numpy 2.0, Pillow 10, matplotlib 3.8). CELL 2 compares the on-disk version of each pin with the version already imported in memory and stops with "重啟 runtime 後再 Run All" if they differ.
+- **Resume (CELL 6):** after each (party, mode) group a checkpoint `OUTPUT_DIR/checkpoints/<party>__<mode>.json` is written atomically, with a fingerprint (git commit, scope, request count, smoke flag, CPU cap, pins). A rerun skips groups whose fingerprint matches and does not load a model whose modes are all done.
+- **Packaging (CELL 9):** `OUTPUT_DIR/e7-run-<date>/` and `.zip` with `e7_analysis_*`, PNG, checkpoints, `RUN_NOTES.json` (versions, deviations from `RUN_DEVIATIONS`, pack zip SHA-256, per-party HF provenance) and its own `MANIFEST.sha256`.
+- **Provenance (#768):** weights are hashed AFTER warmup (the first model of a repo has an empty cache before it loads) and keyed by path relative to the snapshot root; a model's `weight_files_sha256` lists every weight shard; if none can be hashed, `weights_sha256` is `"UNKNOWN"` with `weights_unknown_reason` (never `RECORD_AT_RUNTIME`). Qwen's `hf_revision` is the commit `66285546d2b821cf421d4f5eb2576359d3770cd3`.
+- Not verified until the user runs the notebook on a fresh L4 runtime (`SMOKE_MODE=True` and `False`, one Run All).
+
+## Per-tick requests-only pack and real-latency replay (#767)
+
+- **Why:** E7 snapshots are every 10 ticks (2 s); E5 scores every tick. Qwen (~6 s/answer) is replayed on the Mac through the unchanged E5 AO-L machinery (`src/amidst/evaluation/e7_replay.py`, `scripts/evaluation/e7_replay_run.py`): the request starting at tick t uses the latest snapshot at or before t and its answer is delivered after that request's measured latency (`AOpenDecider` simlive `_poll`, `chain_box` IoU ≥ 0.3, `NeutralTracker`). Primary chain start = the snapshot tick (stricter); the ask-tick variant is a sensitivity column. Format fallbacks are "no answer" (they still occupy their latency). laya (~40 ms) is rerun on Colab GPU with one text_only request per tick, then replayed the same way (latency < 0.2 s: effective on the next tick).
+- **Pack (fixed structure):** `python scripts/evaluation/build_e7_colab_pack.py --pertick --roots <E3 roots> --out <pack>` writes only `requests/e3_16_segments.jsonl` (one text_only request per tick, no `image_paths`), `PACK_INFO.json`, `MANIFEST.sha256`. It reads NO GT, has NO `scoring_only/`, NO frames, NO baselines; `verify_requests_only_pack` rejects any answer table or GT file/key, **rejects a pack with 0 requests, and requires exactly these three files** (`MANIFEST.sha256`, `PACK_INFO.json`, `requests/e3_16_segments.jsonl`): any extra or missing file is rejected (the gate scans only those files' keys, so the structure is fixed rather than inferred). Zip it with `python -m amidst.evaluation.e7_colab_runtime make-zip --requests-only ...`.
+- **Notebook settings for that run (CELL 1):** `PACK_ZIP` = the per-tick zip, `RUN_PARTIES = ["laya_text", "laya_typed"]`, `RUN_UNACCELERATED = False` (skips the CPU pass), `SCORE_ON_COLAB = False` (CELL 7 skipped; CELL 8 writes `e7_raw_comparisons.json`). Scoring stays on the Mac.
+
+## Limitations of E7 (D416 / #767 note; read before quoting any E7 number)
+
+E7 is **not** a fair comparison between an Agent and the rule (B1). Its requests are stateless detection snapshots, and for the laya parties:
+
+1. **No target conditions:** the request has no "target is red" colour condition, no reference crop and no previous position (B1 uses colour and a 4 m gate; the E5 API Agent gets `AO_STATE`, the reference crop and scene context).
+2. **Option text carries no colour:** the candidate option text laya sees does not contain colours.
+3. **Ranking fallback:** when the answer is not a SELECT, the next-camera ranking is filled with `camera_ids[:3]` (request camera order), not a model ranking (`e7_decider_eval.py`).
+
+So E7 only shows what a model does with a flat list of detections and no target information; it cannot answer "is the Agent better than the rule". Fair comparison is E8 (#780). Replay-vs-AOL numbers (#767) share these confounds: E7 prompts have no reference crop, history or `AO_STATE`, and GPU/CPU agreement is 0.95 (answers are not bit-exact).
 
 ## Directory Layout
 

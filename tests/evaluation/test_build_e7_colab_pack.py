@@ -194,3 +194,83 @@ def test_target_absent_actor_is_not_visible():
     assert B.expected_for_tick(cands, None)['expected_answer'] == 'NOT_VISIBLE'
     assert B.expected_for_tick(cands, {'present': False, 'gt_visible': ['CAM_A'],
                                        'gt_boxes': {'CAM_A': HIT}})['expected_answer'] == 'NOT_VISIBLE'
+
+
+# --------------------------------------------------------------------------- #767 per-tick requests-only pack
+def _fake_loader(root, cid):
+    dets = lambda x: {'CAM_A': [{'bbox': [x, 10, x + 20, 90], 'score': 0.9, 'color': 'red'}], 'CAM_B': []}
+    ticks = [(t, dets(5 * t), {'CAM_A': Path('a.png'), 'CAM_B': Path('b.png')}) for t in range(7)]
+    return ticks, ['CAM_A', 'CAM_B']
+
+
+def test_pertick_pack_one_request_per_tick_no_gt_no_answer_table(tmp_path, monkeypatch):
+    import build_e7_colab_pack as B
+
+    root = tmp_path / 'e3'
+    (root / 'indexes' / 'E3-X').mkdir(parents=True)
+    out = tmp_path / 'pack'
+    res = B.build_pertick_pack(out, [root], case_loader=_fake_loader)
+    assert res['requests'] == 7 and res['stride_ticks'] == 1 and res['gate']['status'] == 'OK'
+    rows = [json.loads(x) for x in (out / 'requests' / 'e3_16_segments.jsonl').read_text().splitlines()]
+    assert [r['tick'] for r in rows] == list(range(7)) and all(r['image_paths'] == {} for r in rows)
+    assert not (out / 'scoring_only').exists() and not (out / 'frames').exists()
+    assert 'expected' not in json.dumps(rows)
+
+
+def test_requests_only_gate_rejects_answer_table_and_gt(tmp_path):
+    from amidst.evaluation import e7_scoring_bridge as S
+
+    for bad in ('scoring_only/answer_table.json', 'gt/x.json', 'a-log.json'):
+        pack = tmp_path / bad.replace('/', '_')
+        (pack / 'requests').mkdir(parents=True)
+        (pack / 'requests' / 'r.jsonl').write_text('{}\n')
+        (pack / 'MANIFEST.sha256').write_text('')
+        p = pack / bad
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text('{}')
+        with pytest.raises(ValueError, match='D385'):
+            S.verify_requests_only_pack(pack)
+
+
+def _ok_pertick_pack(tmp_path, name):
+    import build_e7_colab_pack as B
+
+    root = tmp_path / (name + '-e3')
+    (root / 'indexes' / 'E3-X').mkdir(parents=True)
+    out = tmp_path / name
+    B.build_pertick_pack(out, [root], case_loader=_fake_loader)
+    return out
+
+
+def test_pertick_empty_pack_rejected_at_build_and_gate(tmp_path):
+    import build_e7_colab_pack as B
+    from amidst.evaluation import e7_scoring_bridge as S
+
+    with pytest.raises(ValueError, match='PERTICK_PACK_EMPTY'):
+        B.build_pertick_pack(tmp_path / 'empty', [], case_loader=_fake_loader)
+    assert not (tmp_path / 'empty').exists()  # a failed build leaves nothing behind
+    out = _ok_pertick_pack(tmp_path, 'p1')
+    (out / 'requests' / 'e3_16_segments.jsonl').write_text('')
+    (out / 'MANIFEST.sha256').write_text('\n'.join(
+        f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(out).as_posix()}'
+        for p in sorted(out.rglob('*')) if p.is_file() and p.name != 'MANIFEST.sha256') + '\n')
+    with pytest.raises(ValueError, match='PERTICK_PACK_EMPTY'):
+        S.verify_requests_only_pack(out)
+
+
+def test_pertick_gate_rejects_extra_and_missing_files(tmp_path):
+    from amidst.evaluation import e7_scoring_bridge as S
+
+    out = _ok_pertick_pack(tmp_path, 'p2')
+    assert S.verify_requests_only_pack(out)['status'] == 'OK'
+    (out / 'notes.txt').write_text('x')
+    with pytest.raises(ValueError, match='PERTICK_PACK_STRUCTURE'):
+        S.verify_requests_only_pack(out)
+    (out / 'notes.txt').unlink()
+    (out / 'requests' / 'other.jsonl').write_text('{}\n')
+    with pytest.raises(ValueError, match='PERTICK_PACK_STRUCTURE'):
+        S.verify_requests_only_pack(out)
+    (out / 'requests' / 'other.jsonl').unlink()
+    (out / 'PACK_INFO.json').unlink()
+    with pytest.raises(ValueError, match='PERTICK_PACK_STRUCTURE'):
+        S.verify_requests_only_pack(out)

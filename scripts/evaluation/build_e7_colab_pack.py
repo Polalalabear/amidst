@@ -220,6 +220,53 @@ def build_pack(out: Path, roots: list[Path], *, stride: int = DEFAULT_STRIDE, e5
         raise
 
 
+def build_pertick_requests(case_id: str, ticks: list[tuple[int, dict, dict]], camera_order: list[str]) -> list[dict]:
+    """One text_only request per tick (stride 1), NO GT and NO frames: detections + text only (#767 laya per-tick run)."""
+    rows = []
+    for tick, dets, paths in ticks:
+        cams = [c for c in camera_order if c in paths]
+        cands = candidates_for_tick(dets, camera_order)
+        rows.append({'request_id': f'{case_id}|t{tick}', 'case_id': case_id, 'dataset_group': DATASET_GROUP, 'tick': tick,
+                     'camera_ids': cams, 'variable_text': variable_text(tick, cands, cams), 'candidates': cands, 'image_paths': {}})
+    return rows
+
+
+def build_pertick_pack(out: Path, roots: list[Path], *, source_commit: str = 'UNKNOWN', cases: list[str] | None = None,
+                       case_loader: Callable = load_case_inputs, now: dt.datetime | None = None) -> dict[str, Any]:
+    """Requests-only pack (no frames, no answer table, no baselines): reads NO GT at all. Gate: ``verify_requests_only_pack``."""
+    from amidst.evaluation.e7_scoring_bridge import verify_requests_only_pack  # noqa: PLC0415
+    out = Path(out)
+    if out.exists():
+        raise FileExistsError(f'PACK_EXISTS: {out}')
+    out.mkdir(parents=True)
+    try:
+        rows, case_ids = [], []
+        for root in roots:
+            for cid in (c for c in discover_cases(root) if cases is None or c in cases):
+                ticks, order = case_loader(root, cid)
+                rows += build_pertick_requests(cid, ticks, order)
+                case_ids.append(cid)
+        if not rows:
+            raise ValueError('PERTICK_PACK_EMPTY: no requests built (check --roots / --cases)')
+        ids = [r['request_id'] for r in rows]
+        if len(ids) != len(set(ids)):
+            raise ValueError('DUPLICATE_REQUEST_ID')
+        (out / 'requests').mkdir()
+        (out / 'requests' / 'e3_16_segments.jsonl').write_text(
+            ''.join(json.dumps(r, sort_keys=True, ensure_ascii=False) + '\n' for r in rows))
+        info = {'schema_version': PACK_SCHEMA + '_pertick', 'dataset_scopes': [DATASET_GROUP], 'cases': case_ids,
+                'requests': len(rows), 'stride_ticks': 1, 'tick_hz': 5, 'input_mode': 'text_only', 'source_git_commit': source_commit,
+                'identity': 'UNCONFIRMED', 'created_utc': (now or dt.datetime.now(dt.timezone.utc)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                'notes': 'per-tick text_only requests; NO frames, NO answer table, NO baselines (scoring stays on the Mac)'}
+        (out / 'PACK_INFO.json').write_text(json.dumps(info, indent=2) + '\n')
+        manifest_sha = write_manifest(out)
+        gate = verify_requests_only_pack(out)
+        return {**info, 'manifest_sha256': manifest_sha, 'gate': gate, 'files': sum(1 for p in out.rglob('*') if p.is_file())}
+    except BaseException:
+        shutil.rmtree(out, ignore_errors=True)
+        raise
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--roots', nargs='+', type=Path, required=True, help='E3 roots (e3-652-..., e3-reappearances-...)')
@@ -227,7 +274,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--stride', type=int, default=DEFAULT_STRIDE)
     ap.add_argument('--e5-report', type=Path)
     ap.add_argument('--source-commit', default='UNKNOWN')
+    ap.add_argument('--pertick', action='store_true',
+                    help='#767: requests-only pack, one text_only request per tick, no frames / answer table / GT')
     a = ap.parse_args(argv)
+    if a.pertick:
+        res = build_pertick_pack(a.out, a.roots, source_commit=a.source_commit)
+        print(json.dumps({k: v for k, v in res.items() if k != 'gate'}, indent=2))
+        print('PRE_UPLOAD_GATE', res['gate']['status'])
+        return 0
     res = build_pack(a.out, a.roots, stride=a.stride, e5_report=a.e5_report, source_commit=a.source_commit)
     print(json.dumps({k: v for k, v in res.items() if k != 'gate'}, indent=2))
     print('PRE_UPLOAD_GATE', res['gate']['status'])
