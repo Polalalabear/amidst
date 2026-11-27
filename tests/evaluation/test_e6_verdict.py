@@ -343,3 +343,15 @@ def test_ablation_family_mismatch_is_an_error():
     s2, p2 = ablated(segs, pts, SEL + '+NO_IMAGE')
     with pytest.raises(ValueError, match='FAMILY_MISMATCH_ABLATION'):
         V.verdict_e6(segs + [r for r in s2 if r['family_id'] != 'E6-F02'], pts + [r for r in p2 if r['family_id'] != 'E6-F02'], selected_agent=SEL)
+
+
+def test_ablation_decision_point_ids_must_match_the_selected_agent():
+    spec = {'B1': ref(), 'AO_ORIG': ref(), 'DEANCHOR': better(), SEL: better()}
+    segs, pts = build(spec=spec)
+    s2, p2 = ablated(segs, pts, SEL + '+NO_SPATIAL')
+    V.verdict_e6(segs + s2, pts + p2, selected_agent=SEL)                                              # same ids: fine
+    with pytest.raises(ValueError, match='DECISION_POINT_MISMATCH_ABLATION:' + SEL + r'\+NO_SPATIAL'):
+        V.verdict_e6(segs + s2, pts + p2[:-1], selected_agent=SEL)                                      # one decision point missing
+    renamed = [dict(r, dp_id=r['dp_id'] + 'x') if r['dp_id'].endswith('DP1') else r for r in p2]
+    with pytest.raises(ValueError, match='DECISION_POINT_MISMATCH_ABLATION'):
+        V.verdict_e6(segs + s2, pts + renamed, selected_agent=SEL)

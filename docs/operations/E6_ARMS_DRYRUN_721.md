@@ -95,3 +95,17 @@ uv run python -B scripts/evaluation/e6_verdict_run.py --frozen-spec configs/eval
 - dry-run 分開估價：`--dry-run --ablation NO_IMAGE`／`NO_SPATIAL` 各自輸出（輸出含 `ablation` 欄位）；NO_IMAGE 因沒有圖片，估價（1,100 tokens／張）明顯較低。
 - `e6_verdict_run.py --ablation-runs <root…>`：group 名 `<SELECTED>+<ABLATION>`；對 SELECTED 報家族層級配對差（消融−SELECTED：錯人秒與盲區誤鎖秒為加總、跟對率與決策點正確率為平均）與**未校正**雙側符號翻轉 p（M≤12 枚舉），一律標 `EXPLORATORY`、`in_holm=false`，不影響 P1／P2 判定（測試確認 hypotheses 逐欄相同）；`BUDGET_SKIPPED` 的根目錄列在 `ablations_skipped`；消融組別的基底不是 SELECTED 即 `ABLATION_NOT_ON_SELECTED`。
 - **注意（凍結順序）**：`arms.py` 在 #741 的 `PROMPT_FILES` 裡，本 PR 修改了它（`ablation='none'` 的請求位元組不變，測試鎖定 prefix／variable-text 的 SHA），所以批 3 凍結收據必須在本 PR 合併之後產生，否則 `FORMAL_PROMPT_SHA_MISMATCH`。
+
+### D403 補充核對
+
+1. **`ablation=none` 位元組不變的證明**（K=1 診斷用 main `7dbb4ede` 跑，選組結果能套到正式組的依據）：把 `git show 7dbb4ede:src/amidst/live_mode/aopen/arms.py` 放到暫存檔，以 `amidst.live_mode.aopen.arms_old` 載入，與目前的 `arms.py` 在同一個行程、同一組假回答（含摘要）、`SCENE` 與含空間欄位的 `RICH_SCENE` 兩種 scene、三組各 3 次呼叫實算：
+   - 完整請求 body（`json.dumps(sort_keys=True)`，含 base64 影像）逐呼叫**相同**（3 組 × 2 scene × 3 呼叫＝18 個 body 全相同），`prefix_sha256`、variable_text SHA、`body_sha256` 全相同；
+   - 舊版輸出的 prefix／variable-text SHA 與測試黃金值一致：DEANCHOR `49b5bed0…`／`a4a012b3…`、DEANCHOR_HIST `abe31838…`／`e2381b84…`、DEANCHOR_HIST_SUM `f5c6e589…`／`e2381b84…`。結論 `ALL_IDENTICAL True`。
+2. **`E6_EXTRA_NO_IMAGE` 與其他 NO_IMAGE 靜態文字改寫了哪些句子**（原文 → 改寫）：
+   - `E6_EXTRA`：`Decide from the frames alone: compare every listed person with the TARGET REFERENCE crop (the original first-match crop) as if you saw this situation for the first time.` → `Decide from the listed detections alone, as if you saw this situation for the first time.`（其餘三句——不要因為自己或別人選過就當成目標、鏡頭固定順序、不確定就答 UNCERTAIN／NOT_VISIBLE——不變）。
+   - `E6_SYSTEM_TEXT`：`…which detected person looks most like the same person as the reference crop.` → `…which detected person most likely is the person the user asks for.`
+   - `E6_BASE`：`All request frames are 320x180 pixels.` → `Box coordinates are in a 320x180 pixel frame.`；`UNCERTAIN: you cannot judge from these frames.` → `…from these inputs.`；`NOT_VISIBLE: the person you look for is in none of the shown frames` → `…is none of the listed detections`。
+   - 參考層文字：`TARGET REFERENCE (crop taken when the user's query "a person wearing red" was first matched). The reference crop follows.` → `TARGET: the user's query is "a person wearing red".`（查詢條件保留）。
+   - 變數文字（偵測框、候選、`CAMERAS THIS CALL`）完全不變。
+3. verdict 的消融比較除了家族集合，也比對**決策點 id 集合**與 SELECTED 相同（`DECISION_POINT_MISMATCH_ABLATION:<group>`）。
+4. **與 #741 head `4ae04066` 的 run_all.sh 2c／2d／2e 對照**：2c `--cases … --arms "${AGENT_ARMS[@]}" --k 3 --paid --max-usd "${ARMS_BUDGET}" --baseline-json --receipt --out --extra-ledger …`、2d `--frozen-spec --gt-root --runs b1 ao_orig arms --receipt --out`、2e dry-run `--arms SELECTED --k 3 --ablation X --dry-run` 與 paid `--ablation X --paid --max-usd <budget-check max_usd> --receipt --out --extra-ledger`、探索性比較 `--ablation-runs <完成的根> … --out verdict-exploratory`，旗標名稱與參數個數都與本 PR 兩支 CLI 相容（`budget-check` 的 `max_usd` ＝ 估價上界進位到分，≥ 本腳本重算的上界，不會誤判 BUDGET_SKIPPED）。唯一建議：2e 的 `ABL_RUNS` 目前只收 STATUS＝COMPLETE 的根；若本腳本自己寫了 `STATUS=BUDGET_SKIPPED`（重讀帳本後超額），那個根不會傳給 `--ablation-runs`，`ablations_skipped` 就不會列出——不影響判定，只是報告少一行；要列出的話把 STATUS 為 BUDGET_SKIPPED 的根也加進 `--ablation-runs`（CLI 已支援）。

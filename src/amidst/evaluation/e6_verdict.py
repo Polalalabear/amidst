@@ -371,6 +371,9 @@ def verdict_e6(segments, decision_points, *, selected_agent='DEANCHOR', n_boot=N
     if any(s != dp_ids[GROUP_REFERENCE_P2] for s in dp_ids.values()):
         raise ValueError('DECISION_POINT_MISMATCH')
     n_dp = len(dp_ids[GROUP_REFERENCE_P2])
+    for g in sorted(g for g in units if g.startswith(selected_agent + '+')):          # D403: an ablation must cover the same decision points
+        if {r['dp_id'] for r in decision_points if r['group'] == g} != dp_ids[selected_agent]:
+            raise ValueError('DECISION_POINT_MISMATCH_ABLATION:' + g)
     exploratory = n_dp < MIN_DP or m < MIN_FAMILIES
 
     rng = random.Random(seed)
