@@ -687,3 +687,31 @@ def test_two_laya_parties_build_own_inference_fns(tmp_path: Path, monkeypatch):
         )
         assert callable(fn)
     assert set(seen) == {"", "typed-decisions"}
+
+
+def test_notebook_version_box_matches_config():
+    import re
+
+    nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    cell0 = "".join(nb["cells"][0]["source"])
+    cell1_src = "".join(next(c for c in nb["cells"] if c.get("id") == "e7-cell-1-config")["source"])
+    cell1b = "".join(next(c for c in nb["cells"] if c.get("id") == "e7-cell-1b-drive-and-repo")["source"])
+    env: dict = {}
+    exec(compile(cell1_src, "e7-cell-1-config", "exec"), env)
+
+    pin = env["PINNED_GIT_COMMIT"]
+    assert re.fullmatch(r"[0-9a-f]{40}", pin)
+    assert cell0.lstrip().startswith("## ") and "本版測試內容" in cell0.split("---")[0]
+    assert pin in cell0 and env["NOTEBOOK_VERSION_DATE"] in cell0
+
+    box = cell0.split("---")[0]
+    running = {c["party_id"] for c in env["MODEL_CONFIGS"] if c["custom_code_audited"]}
+    skipped = {c["party_id"] for c in env["MODEL_CONFIGS"] if not c["custom_code_audited"]}
+    listed = set(re.findall(r"`((?:qwen_vl|laya_text|laya_typed|diffusion_vlm))`", box))
+    assert listed == running | skipped
+    run_part, skip_part = box.split("**跳過**")
+    assert {p for p in listed if f"`{p}`" in run_part} == running
+    assert all(f"`{p}`" in skip_part.split("\n")[0] for p in skipped)
+
+    # version banner + pin check in Cell 1B
+    assert "rev-parse" in cell1b and "PINNED_GIT_COMMIT" in cell1b and "raise RuntimeError" in cell1b
