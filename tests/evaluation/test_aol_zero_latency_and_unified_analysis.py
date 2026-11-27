@@ -282,3 +282,25 @@ def test_run_all_stage1_budget_check_reads_apiguard_usage_jsonl_and_excludes_den
     )
     assert fail.returncode != 0, "Expected non-zero exit when total exceeds cap"
     assert "BUDGET_CAP_EXCEEDED" in (fail.stderr + fail.stdout)
+
+
+def test_run_all_stage1_strict_mode_fails_closed_on_missing_ledger(tmp_path: Path):
+    """--execute passes strict=1: unset dir, missing dir or missing usage.jsonl stop the run; dry-run (strict 0) only warns."""
+    import re
+    import subprocess
+
+    text = (REPO_ROOT / "scripts" / "experiments" / "run_all.sh").read_text(encoding="utf-8")
+    py = re.search(r"BUDGET_CHECK_PY='\n(.*?)\n'", text, flags=re.S).group(1)
+
+    def run(dir_arg, strict):
+        return subprocess.run([sys.executable, "-c", py, "38.17", "90.00", dir_arg, strict], capture_output=True, text=True)
+
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    for arg in ("", str(tmp_path / "nope"), str(empty)):
+        bad = run(arg, "1")
+        assert bad.returncode != 0 and "LEDGER_REQUIRED" in (bad.stderr + bad.stdout), arg
+        warn = run(arg, "0")
+        assert warn.returncode == 0 and "WARNING" in warn.stdout, arg
+    (empty / "usage.jsonl").write_text("")
+    assert run(str(empty), "1").returncode == 0

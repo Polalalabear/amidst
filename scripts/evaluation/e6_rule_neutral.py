@@ -187,62 +187,86 @@ def seed_from_b1(path):
     }
 
 
-def main():
+def replay_case(projector, cameras, root, b1_runs, cid, out):
+    """One case: seed from its B1 run, replay RN_U and RN_N on the frozen detections, write ``<out>/<cid>/<arm>.json``."""
+    seed = seed_from_b1(b1_runs / cid / "B1.k1.json")
+    if digest(cameras.read_bytes()) != seed["camera_catalog_sha256"]:
+        raise ValueError("CALIBRATION_PIN")
+    versions = {
+        arm: RuleNeutral(projector, seed["tick"], seed["xy"], seed["duration_s"], answer)
+        for arm, answer in [("RN_U", "UNCERTAIN"), ("RN_N", "NOT_VISIBLE")]
+    }
+    rows, hashes = {arm: [] for arm in versions}, {}
+    for tick, dets in observations(root, cid, hashes):
+        for arm, decider in versions.items():
+            rows[arm].append(decider.step(tick, dets))
+    for arm, decider in versions.items():
+        target = out / cid / f"{arm}.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(
+                {
+                    "schema": "e6-rn.v1",
+                    "case_id": cid,
+                    "arm": arm,
+                    "k": 1,
+                    "tick_us": 200_000,
+                    "size": [320, 180],
+                    "seed": seed,
+                    "identity": "UNCONFIRMED",
+                    "paid_calls": 0,
+                    "call_cap": decider.cap,
+                    "calls": decider.calls,
+                    "rows": rows[arm],
+                    "sources": hashes,
+                    "code_sha256": digest(Path(__file__).read_bytes()),
+                    "protocol_sha256": digest(
+                        (ROOT / "docs/evaluation/E6_RN_FROZEN_20261124.md").read_bytes()
+                    ),
+                },
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+        print(cid, arm, len(rows[arm]), len(decider.calls), flush=True)
+
+
+def jobs_for(a):
+    """(root, B1 runs dir, case ids). Old layout (``--evidence``): the two E3 corpora, every ``E3-*`` case, as before.
+    New layout (``--root`` + ``--b1-runs``): one root, ``--cases`` or every case dir under ``indexes/`` (E6 formal recording)."""
+    if a.evidence is not None:
+        out = []
+        for corpus, folder in [
+            ("e3-652-20261122", "runs-final-9"),
+            ("e3-reappearances-20261122", "runs-final-665"),
+        ]:
+            root = a.evidence / corpus
+            cases = [i.parent.name for i in sorted((root / "indexes").glob("E3-*/detection_index.json"))]
+            out.append((root, a.evidence / "f4-658-20261122" / folder, cases))
+        return out
+    cases = list(a.cases) if a.cases else sorted(i.parent.name for i in (a.root / "indexes").glob("*/detection_index.json"))
+    if not cases:
+        raise ValueError("NO_CASES")
+    return [(a.root, a.b1_runs, cases)]
+
+
+def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--evidence", required=True, type=Path)
+    p.add_argument("--evidence", type=Path, help="old layout: local/evidence with the two E3 corpora and f4-658 B1 runs")
+    p.add_argument("--root", type=Path, help="one recording root (indexes/, rgb/), e.g. local/evidence/e6-formal-20261127")
+    p.add_argument("--b1-runs", type=Path, help="with --root: folder holding <case>/B1.k1.json (B1 run on that recording; seed only)")
+    p.add_argument("--cases", nargs="+", help="with --root: case ids (default: every case under indexes/)")
     p.add_argument("--cameras", required=True, type=Path)
     p.add_argument("--out", required=True, type=Path)
-    a = p.parse_args()
+    a = p.parse_args(argv)
+    if (a.evidence is None) == (a.root is None) or (a.root is not None and a.b1_runs is None) or (a.evidence is not None and (a.b1_runs or a.cases)):
+        p.error("use either --evidence, or --root with --b1-runs (and optionally --cases)")
     if a.out.exists():
         raise ValueError("OUTPUT_EXISTS")
     projector = Projector(load_cameras(str(a.cameras)))
-    for corpus, folder in [
-        ("e3-652-20261122", "runs-final-9"),
-        ("e3-reappearances-20261122", "runs-final-665"),
-    ]:
-        root = a.evidence / corpus
-        for index in sorted((root / "indexes").glob("E3-*/detection_index.json")):
-            cid = index.parent.name
-            seed = seed_from_b1(a.evidence / "f4-658-20261122" / folder / cid / "B1.k1.json")
-            if digest(a.cameras.read_bytes()) != seed["camera_catalog_sha256"]:
-                raise ValueError("CALIBRATION_PIN")
-            versions = {
-                arm: RuleNeutral(projector, seed["tick"], seed["xy"], seed["duration_s"], answer)
-                for arm, answer in [("RN_U", "UNCERTAIN"), ("RN_N", "NOT_VISIBLE")]
-            }
-            rows, hashes = {arm: [] for arm in versions}, {}
-            for tick, dets in observations(root, cid, hashes):
-                for arm, decider in versions.items():
-                    rows[arm].append(decider.step(tick, dets))
-            for arm, decider in versions.items():
-                out = a.out / cid / f"{arm}.json"
-                out.parent.mkdir(parents=True, exist_ok=True)
-                out.write_text(
-                    json.dumps(
-                        {
-                            "schema": "e6-rn.v1",
-                            "case_id": cid,
-                            "arm": arm,
-                            "k": 1,
-                            "tick_us": 200_000,
-                            "size": [320, 180],
-                            "seed": seed,
-                            "identity": "UNCONFIRMED",
-                            "paid_calls": 0,
-                            "call_cap": decider.cap,
-                            "calls": decider.calls,
-                            "rows": rows[arm],
-                            "sources": hashes,
-                            "code_sha256": digest(Path(__file__).read_bytes()),
-                            "protocol_sha256": digest(
-                                (ROOT / "docs/evaluation/E6_RN_FROZEN_20261124.md").read_bytes()
-                            ),
-                        },
-                        ensure_ascii=False,
-                    )
-                    + "\n"
-                )
-                print(cid, arm, len(rows[arm]), len(decider.calls), flush=True)
+    for root, b1_runs, cases in jobs_for(a):
+        for cid in cases:
+            replay_case(projector, a.cameras, root, b1_runs, cid, a.out)
 
 
 if __name__ == "__main__":
