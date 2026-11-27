@@ -238,6 +238,38 @@ def verify_colab_pack_pre_upload(pack_root: Path) -> dict[str, Any]:
     }
 
 
+def verify_requests_only_pack(pack_root: Path) -> dict[str, Any]:
+    """Pre-upload gate for a per-tick, requests-only pack (#767): NO answer table may exist; no GT anywhere.
+
+    Same forbidden dir/file/key rules as :func:`verify_colab_pack_pre_upload`, plus: ``scoring_only/`` must be absent,
+    and ``MANIFEST.sha256`` must exist and verify.
+    """
+    root = Path(pack_root)
+    if not root.is_dir():
+        raise FileNotFoundError(f"PACK_ROOT_NOT_FOUND: {root}")
+    if (root / "scoring_only").exists() or any(p.name == "answer_table.json" for p in root.rglob("*")):
+        raise ValueError("D385_ANSWER_TABLE_IN_REQUESTS_ONLY_PACK: the per-tick pack must not contain an answer table")
+    for p in root.rglob("*"):
+        rel_parts = p.relative_to(root).parts
+        if any(part.lower() in FORBIDDEN_PACK_DIR_NAMES for part in rel_parts) :
+            raise ValueError(f"D385_FORBIDDEN_PACK_PATH: forbidden GT directory in pack: {p.relative_to(root)}")
+        if p.is_file() and (p.name.lower() in FORBIDDEN_PACK_FILE_NAMES or p.suffix.lower() in FORBIDDEN_PACK_SUFFIXES):
+            raise ValueError(f"D385_FORBIDDEN_PACK_FILE: forbidden GT file in pack: {p.relative_to(root)}")
+    n_req = 0
+    for req_file in sorted((root / "requests").glob("*.jsonl")):
+        for lineno, line in enumerate(req_file.read_text(encoding="utf-8").splitlines(), start=1):
+            if line.strip():
+                _scan_forbidden_gt_fields(json.loads(line), f"{req_file.name}:{lineno}")
+                n_req += 1
+    info = root / "PACK_INFO.json"
+    if info.is_file():
+        _scan_forbidden_gt_fields(json.loads(info.read_text(encoding="utf-8")), "PACK_INFO.json")
+    from amidst.evaluation.e7_decider_eval import verify_manifest_sha256
+
+    return {"status": "OK", "pack_root": str(root), "requests": n_req,
+            "manifest_verification": verify_manifest_sha256(root, root / "MANIFEST.sha256")}
+
+
 def _expected_dets_for_camera(raw_expected_dets: Any, cam: str | None) -> set[str] | None:
     if raw_expected_dets is None:
         return None

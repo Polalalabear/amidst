@@ -36,10 +36,10 @@ def test_version_check_disk_mismatch_and_missing():
 
 
 def test_check_min_versions_unchanged_runtime(monkeypatch):
-    monkeypatch.setattr(R.metadata, "version", lambda n: {"numpy": "2.3.0"}[n])
-    assert R.check_min_versions({"numpy": "2.0.0"}) == {"numpy": "2.3.0"}
+    monkeypatch.setattr(R.metadata, "version", lambda n: {"fakepkg": "2.3.0"}[n])  # not imported -> no memory check
+    assert R.check_min_versions({"fakepkg": "2.0.0"}) == {"fakepkg": "2.3.0"}
     with pytest.raises(RuntimeError):
-        R.check_min_versions({"numpy": "2.5.0"})
+        R.check_min_versions({"fakepkg": "2.5.0"})
 
 
 def test_check_min_versions_memory_vs_disk_mismatch_needs_restart(monkeypatch):
@@ -156,7 +156,7 @@ def test_notebook_cell6_resumes_second_run_without_loading_models(tmp_path):
     def run():
         env: dict = {}
         exec(compile(cells["e7-cell-1-config"], "c1", "exec"), env)
-        env.update(SMOKE_MODE=True, REQUESTS=_make_synthetic_requests(), OUTPUT_DIR=tmp_path, HARDWARE_PROVENANCE={"git_commit": "x"})
+        env.update(SMOKE_MODE=True, REQUESTS=_make_synthetic_requests(), OUTPUT_DIR=tmp_path, HARDWARE_PROVENANCE={"git_commit": "x"}, MANIFEST_VERIFICATION={})
         exec(compile(cells["e7-cell-6-run-deciders"], "c6", "exec"), env)
         return env
 
@@ -170,3 +170,23 @@ def test_notebook_cell6_resumes_second_run_without_loading_models(tmp_path):
     next((tmp_path / "checkpoints").glob("laya_typed__*.json")).unlink()
     third = run()
     assert len(third["RESUMED_GROUPS"]) == 3 and len(third["RAW_COMPARISONS"]) == 4
+
+
+def test_notebook_pertick_switches_skip_scoring_and_cpu_and_unselected_parties(tmp_path):
+    from tests.evaluation.test_e7_decider_eval import _make_synthetic_requests  # type: ignore
+
+    nb = json.loads(NB.read_text(encoding="utf-8"))
+    cells = {c["id"]: "".join(c["source"]) for c in nb["cells"]}
+    env: dict = {}
+    exec(compile(cells["e7-cell-1-config"], "c1", "exec"), env)
+    env.update(SMOKE_MODE=True, REQUESTS=_make_synthetic_requests(), OUTPUT_DIR=tmp_path, HARDWARE_PROVENANCE={"git_commit": "x"},
+               MANIFEST_VERIFICATION={"manifest_sha256": "a" * 64}, RUN_PARTIES=["laya_text", "laya_typed"], RUN_UNACCELERATED=False,
+               SCORE_ON_COLAB=False, PACK_ROOT=tmp_path / "no-answer-table-here")
+    exec(compile(cells["e7-cell-6-run-deciders"], "c6", "exec"), env)
+    assert {r["party_id"] for r in env["RAW_COMPARISONS"]} == {"laya_text", "laya_typed"}
+    assert all(r["unaccelerated"]["sample_size"] == 0 and r["decision_agreement_vs_unaccelerated"] is None for r in env["RAW_COMPARISONS"])
+    exec(compile(cells["e7-cell-7-scoring"], "c7", "exec"), env)  # must not touch an answer table
+    assert env["E7_REPORT"] is None
+    env["OUTPUT_DIR"] = tmp_path
+    exec(compile(cells["e7-cell-8-export"], "c8", "exec"), env)
+    assert (tmp_path / "e7_raw_comparisons.json").is_file()

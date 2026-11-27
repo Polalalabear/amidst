@@ -170,10 +170,16 @@ def extract_pack_zip(zip_path: Path, dest: Path, *, expected_sha256: str | None 
 
 # --------------------------------------------------------------------------- resumable checkpoints
 def run_fingerprint(*, git_commit: str, dataset_scope: str, n_requests: int, smoke_mode: bool,
-                    cpu_sample_cap: int | None, pinned_deps: list[str]) -> dict[str, Any]:
+                    cpu_sample_cap: int | None, pinned_deps: list[str], run_unaccelerated: bool = True,
+                    pack_manifest_sha256: str | None = None) -> dict[str, Any]:
     """Everything that must be equal for a checkpoint to be reusable."""
-    return {"git_commit": git_commit, "dataset_scope": dataset_scope, "n_requests": n_requests,
-            "smoke_mode": bool(smoke_mode), "cpu_sample_cap": cpu_sample_cap, "pinned_deps": sorted(pinned_deps)}
+    fp = {"git_commit": git_commit, "dataset_scope": dataset_scope, "n_requests": n_requests,
+          "smoke_mode": bool(smoke_mode), "cpu_sample_cap": cpu_sample_cap, "pinned_deps": sorted(pinned_deps)}
+    if not run_unaccelerated:  # keys added only when non-default so earlier checkpoints stay valid
+        fp["run_unaccelerated"] = False
+    if pack_manifest_sha256:
+        fp["pack_manifest_sha256"] = pack_manifest_sha256
+    return fp
 
 
 def checkpoint_path(output_dir: Path, party_id: str, mode: str) -> Path:
@@ -270,10 +276,11 @@ def main(argv: list[str] | None = None) -> int:
     z = sub.add_parser("make-zip", help="gate the pack (verify-pack), zip it, write <zip>.sha256")
     z.add_argument("--pack-root", required=True, type=Path)
     z.add_argument("--zip", dest="zip_path", required=True, type=Path)
+    z.add_argument("--requests-only", action="store_true", help="per-tick pack (#767): gate with verify_requests_only_pack (no answer table allowed)")
     args = ap.parse_args(argv)
-    from amidst.evaluation.e7_scoring_bridge import verify_colab_pack_pre_upload
+    from amidst.evaluation.e7_scoring_bridge import verify_colab_pack_pre_upload, verify_requests_only_pack
 
-    verify_colab_pack_pre_upload(args.pack_root)  # D385/D392 gate before anything leaves the Mac
+    (verify_requests_only_pack if args.requests_only else verify_colab_pack_pre_upload)(args.pack_root)  # D385/D392 gate before anything leaves the Mac
     print(json.dumps(make_pack_zip(args.pack_root, args.zip_path), indent=2))
     return 0
 

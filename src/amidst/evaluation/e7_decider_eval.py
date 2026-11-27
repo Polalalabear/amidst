@@ -1217,8 +1217,13 @@ def run_acceleration_comparison(
     unaccelerated_label: str = "cpu",
     unaccelerated_sample_cap: int | None = 20,
     hf_provenance: dict[str, Any] | None = None,
+    run_unaccelerated: bool = True,
 ) -> dict[str, Any]:
-    """Run BOTH accelerated and unaccelerated passes for one decider and compute agreement/differences."""
+    """Run BOTH accelerated and unaccelerated passes for one decider and compute agreement/differences.
+
+    ``run_unaccelerated=False`` skips the CPU pass entirely (per-tick replay runs, #767): the unaccelerated block is empty
+    (``sample_size`` 0) and ``decision_agreement_vs_unaccelerated`` is ``None``.
+    """
     if input_mode not in SUPPORTED_INPUT_MODES:
         raise ValueError(f"UNSUPPORTED_INPUT_MODE: {input_mode}")
 
@@ -1228,7 +1233,10 @@ def run_acceleration_comparison(
     # Warm up model/device BEFORE timed decide() loops so load time does not pollute per-request latency / p95.
     acc_load_ms = decider.warmup(accelerated=True) if mode_reqs else 0.0
     acc_records = [decider.decide(r, accelerated=True) for r in mode_reqs]
-    unacc_reqs = mode_reqs[:unaccelerated_sample_cap] if (unaccelerated_sample_cap and unaccelerated_sample_cap > 0) else mode_reqs
+    if not run_unaccelerated:
+        unacc_reqs: list[DeciderRequest] = []
+    else:
+        unacc_reqs = mode_reqs[:unaccelerated_sample_cap] if (unaccelerated_sample_cap and unaccelerated_sample_cap > 0) else mode_reqs
     unacc_load_ms = decider.warmup(accelerated=False) if unacc_reqs else 0.0
     unacc_records = [decider.decide(r, accelerated=False) for r in unacc_reqs]
 

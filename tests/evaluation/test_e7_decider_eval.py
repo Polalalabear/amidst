@@ -107,6 +107,7 @@ def test_notebook_cell7_hard_fails_on_missing_answer_table(tmp_path: Path):
         "HARDWARE_PROVENANCE": {},
         "MANIFEST_VERIFICATION": {},
         "DATASET_SCOPE": "e3_16_segments",
+        "SCORE_ON_COLAB": True,
     }
     with pytest.raises(FileNotFoundError, match="MISSING_ANSWER_TABLE"):
         exec(compile(src, "e7-cell-7-scoring", "exec"), env)
@@ -491,6 +492,7 @@ def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing(tmp_path: P
     env["REQUESTS"] = _make_synthetic_requests()
     env["OUTPUT_DIR"] = tmp_path  # Cell 6 now writes per-group checkpoints (#766)
     env["HARDWARE_PROVENANCE"] = {"git_commit": "UNKNOWN"}
+    env["MANIFEST_VERIFICATION"] = {}
     exec(compile("".join(cell6["source"]), "e7-cell-6-run-deciders", "exec"), env)
 
     # Qwen (2 modes) and both audited laya parties (text_only) ran cleanly; only diffusion_vlm is SKIPPED_UNAUDITED
