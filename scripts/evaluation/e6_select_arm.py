@@ -254,13 +254,18 @@ def validate_receipt(r: dict) -> None:
         raise ValueError('RECEIPT_ESTIMATE')
 
 
-def ledger_new_usd(dirs) -> float:
-    """Sum est_cost_usd of non-DENIED rows of every ledger dir/file (same rule as run_all.sh Stage 1)."""
+def ledger_new_usd(dirs, require=False) -> float:
+    """Sum est_cost_usd of non-DENIED rows of every ledger dir/file (same rule as run_all.sh Stage 1).
+    ``require`` (run_all.sh --execute): no ledger given, or a ledger file that does not exist, is an error, never 0 USD."""
     total = 0.0
+    if require and not dirs:
+        raise ValueError('LEDGER_REQUIRED: no ledger given')
     for d in dirs:
         p = Path(d)
         p = p if p.is_file() else p / 'usage.jsonl'
         if not p.is_file():
+            if require:
+                raise ValueError(f'LEDGER_REQUIRED: {p} not found')
             continue
         for line in p.read_text('utf-8').splitlines():
             try:
@@ -354,7 +359,7 @@ def cmd_gate(a) -> int:
     if a.ao_estimate:
         est['AO_ORIG'] = e5_dryrun_total(Path(a.ao_estimate).read_text())
     try:
-        res = formal_gate(receipt, est, base=a.base, cap=a.cap, new_ledger=ledger_new_usd(a.ledger or []))
+        res = formal_gate(receipt, est, base=a.base, cap=a.cap, new_ledger=ledger_new_usd(a.ledger or [], a.require_ledger))
     except ValueError as exc:
         print('FORMAL_GATE_FAIL', exc, file=sys.stderr)
         return EXIT_GATE
@@ -384,6 +389,7 @@ def main(argv=None) -> int:
     g.add_argument('--ao-estimate', type=Path, help='captured stdout of e5_run.py --dry-run (formal cases, K=3, AO_ORIG)')
     g.add_argument('--ledger', nargs='*', help='ledger dirs (usage.jsonl) whose rows count as new spend')
     g.add_argument('--out', type=Path, help='write the gate result (groups, per-group ApiGuard budgets) for run_all.sh')
+    g.add_argument('--require-ledger', action='store_true', help='fail closed when a ledger is missing (run_all.sh --execute)')
     g.add_argument('--base', type=float, default=BASE_SPEND_USD)
     g.add_argument('--cap', type=float, default=PROJECT_CAP_USD)
     a = ap.parse_args(argv)

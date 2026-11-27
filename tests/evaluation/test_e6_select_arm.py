@@ -238,3 +238,34 @@ def test_e5_dryrun_total_parses_and_rejects_unknown_price():
         M.e5_dryrun_total('DRY_RUN a {"est_total_usd": null}')
     with pytest.raises(ValueError):
         M.e5_dryrun_total('no lines')
+
+
+# ---------------------------------------------------------------- P2: follow-rate tolerance boundary, ledger fail closed
+def test_follow_difference_exactly_0_01_is_a_tie_and_just_over_wins():
+    sel, trace, _ = pick(DEANCHOR=(30, 5, 0.70), DEANCHOR_HIST=(30, 5, 0.71))
+    assert sel == 'DEANCHOR' and trace[-1]['level'] == 'simplicity'            # exactly 0.01 apart: tie -> simplest
+    sel, *_ = pick(DEANCHOR=(30, 5, 0.70), DEANCHOR_HIST=(30, 5, 0.7101))
+    assert sel == 'DEANCHOR_HIST'
+    sel, *_ = pick(DEANCHOR=(30, 5, 0.6999), DEANCHOR_HIST=(30, 5, 0.7099))
+    assert sel == 'DEANCHOR'
+
+
+def test_ledger_required_fails_closed(tmp_path):
+    with pytest.raises(ValueError, match='LEDGER_REQUIRED'):
+        M.ledger_new_usd([], require=True)
+    with pytest.raises(ValueError, match='LEDGER_REQUIRED'):
+        M.ledger_new_usd([tmp_path / 'nope'], require=True)
+    assert M.ledger_new_usd([tmp_path / 'nope']) == 0.0                         # dry-run style: tolerated
+    (tmp_path / 'usage.jsonl').write_text('')
+    assert M.ledger_new_usd([tmp_path], require=True) == 0.0                    # an existing empty ledger is a real 0
+
+
+def test_gate_cli_require_ledger(tmp_path, capsys):
+    (tmp_path / 'r.json').write_text(json.dumps(receipt('DEANCHOR')))
+    p, q = estimate_files(tmp_path)
+    base = ['formal-gate', '--receipt', str(tmp_path / 'r.json'), '--arms-estimate', str(p), '--ao-estimate', str(q)]
+    assert M.main(base + ['--require-ledger']) == M.EXIT_GATE                   # no ledger at all
+    assert M.main(base + ['--ledger', str(tmp_path / 'missing'), '--require-ledger']) == M.EXIT_GATE
+    assert M.main(base + ['--ledger', str(tmp_path / 'missing')]) == 0           # dry-run style
+    (tmp_path / 'usage.jsonl').write_text('')
+    assert M.main(base + ['--ledger', str(tmp_path), '--require-ledger']) == 0

@@ -20,7 +20,7 @@ CAP_USD="${CAP_USD:-90.00}"
 AMIDST_API_USAGE_DIR="${AMIDST_API_USAGE_DIR:-}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 # E6 (#732 G4, D396/D398): paths are relative to the repo checkout that holds local/ (run from there).
-E6_PHASE="${E6_PHASE:-all}"            # none | diag | select | formal | all (all = 2a + 2b + 2c)
+E6_PHASE="${E6_PHASE:-all}"            # none | diag | detect | select | formal | all (all = 2a + detect + 2b + 2c)
 
 for arg in "$@"; do
   case "$arg" in
@@ -30,7 +30,7 @@ for arg in "$@"; do
     --out-dir=*) OUT_DIR="${arg#*=}" ;;
     --e6-phase=*) E6_PHASE="${arg#*=}" ;;
     -h|--help)
-      echo "Usage: $0 [--dry-run | --execute] [--datapack-root=PATH] [--out-dir=PATH] [--e6-phase=none|diag|select|formal|all]"
+      echo "Usage: $0 [--dry-run | --execute] [--datapack-root=PATH] [--out-dir=PATH] [--e6-phase=none|diag|detect|select|formal|all]"
       echo "  Stage 2 (E6) with --execute spends money (diagnostic K=1, then the formal 12 segments). The formal phase additionally"
       echo "  needs E6_BATCH3_APPROVED=1 (batch-3 review + user approval, prereg section 0.2)."
       exit 0
@@ -69,6 +69,12 @@ import json, math, pathlib, sys
 base = float(sys.argv[1])
 cap = float(sys.argv[2])
 usage_dir_raw = sys.argv[3].strip()
+strict = len(sys.argv) > 4 and sys.argv[4] == "1"   # --execute: a missing ledger must stop the run, not count as 0 USD
+
+def missing(msg):
+    if strict:
+        raise SystemExit("LEDGER_REQUIRED: " + msg)
+    print("WARNING: " + msg + "; reporting 0.00 USD new ledger rows.")
 
 def load_rows(usage_path: pathlib.Path):
     if usage_path.is_file():
@@ -101,15 +107,15 @@ new_spend = 0.0
 rows_counted = 0
 denied_skipped = 0
 if not usage_dir_raw:
-    print("WARNING: AMIDST_API_USAGE_DIR is unset/empty; reporting 0.00 USD new ledger rows.")
+    missing("AMIDST_API_USAGE_DIR is unset/empty")
 else:
     p = pathlib.Path(usage_dir_raw)
     if not p.exists():
-        print(f"WARNING: AMIDST_API_USAGE_DIR={p} does not exist; reporting 0.00 USD new ledger rows.")
+        missing(f"AMIDST_API_USAGE_DIR={p} does not exist")
     else:
         rows, ledger_file = load_rows(p)
         if not ledger_file.is_file():
-            print(f"WARNING: ApiGuard ledger {ledger_file} not found; reporting 0.00 USD new ledger rows.")
+            missing(f"ApiGuard ledger {ledger_file} not found (create an empty usage.jsonl for a fresh ledger)")
         for r in rows:
             if r.get("outcome") == "DENIED":
                 denied_skipped += 1
@@ -131,7 +137,7 @@ if total > cap:
 '
 
 run_step "Stage 1: Preflight & ApiGuard Ledger Budget Check" \
-  "$PYTHON_BIN" -c "$BUDGET_CHECK_PY" "${BASE_SPEND_USD}" "${CAP_USD}" "${AMIDST_API_USAGE_DIR}"
+  "$PYTHON_BIN" -c "$BUDGET_CHECK_PY" "${BASE_SPEND_USD}" "${CAP_USD}" "${AMIDST_API_USAGE_DIR}" "$([[ "$DRY_RUN" == "1" ]] && echo 0 || echo 1)"
 
 # Stage 2: E6 diagnostic (3 segments) -> automatic group selection (prereg 2.2) -> batch-3 freeze receipt -> formal 12 segments
 # Spec: docs/evaluation/E6_PREREGISTRATION_DRAFT.md 2.1, 2.2, 3.1, 5, 7. Scoring/verdicts (verdict_e6, Holm IUT) are NOT run here:
@@ -144,7 +150,10 @@ E6_RECON="${E6_RECON:-${EVIDENCE_ROOT}/api-usage/RECONCILIATION_20261124.json}"
 E6_DIAG_OUT="${E6_DIAG_OUT:-${EVIDENCE_ROOT}/e6-arms-k1-20261127}"
 E6_RN_OLD="${E6_RN_OLD:-${EVIDENCE_ROOT}/e6-rn-old16-20261127}"
 E6_FREEZE_DIR="${E6_FREEZE_DIR:-${EVIDENCE_ROOT}/e6-batch3-freeze-20261127}"
-E6_FORMAL_ROOT="${E6_FORMAL_ROOT:-${EVIDENCE_ROOT}/e6-formal-20261127}"
+E6_RECORD_ROOT="${E6_RECORD_ROOT:-${EVIDENCE_ROOT}/e6-formal-20261127}"         # frozen recording (wire, pixels, case, GT): read-only
+E6_FORMAL_ROOT="${E6_FORMAL_ROOT:-${EVIDENCE_ROOT}/e6-formal-det-20261127}"      # inference-side root: wire clones + pixels + rgb/ + indexes/ (no GT)
+E6_MODELS="${E6_MODELS:-${DATAPACK_ROOT}/data/demo-owned-v1/models/rtdetr}"
+E6_RUNTIME_DEPS="${E6_RUNTIME_DEPS:-${DATAPACK_ROOT}/data/q1q5-dynamic-baseline-v1_20261025/runtime-deps}"
 E6_FORMAL_OUT="${E6_FORMAL_OUT:-${EVIDENCE_ROOT}/e6-formal-run-20261127}"
 E6_DIAG_CASES=(E3-A1 E3-B1 E3-C1)
 E6_FORMAL_CASES=(E6-S01 E6-S02 E6-S03 E6-S04 E6-S05 E6-S06 E6-S07 E6-S08 E6-S09 E6-S10 E6-S11 E6-S12)
@@ -169,7 +178,7 @@ run_to_file() {
 e6_phase_has() { [[ "$E6_PHASE" == "all" || "$E6_PHASE" == "$1" ]]; }
 
 echo "==> [Stage 2: E6 Diagnostic -> Auto-Select -> 12-Segment Formal]  phase=${E6_PHASE}"
-case "$E6_PHASE" in none|diag|select|formal|all) ;; *) echo "bad --e6-phase: ${E6_PHASE}" >&2; exit 2 ;; esac
+case "$E6_PHASE" in none|diag|detect|select|formal|all) ;; *) echo "bad --e6-phase: ${E6_PHASE}" >&2; exit 2 ;; esac
 
 if e6_phase_has diag; then
   # 2a. B1 and AO_ORIG diagnostic records already exist (f4-658 runs-final-9, e5-20261123 runs-9): not rerun.
@@ -194,11 +203,20 @@ if e6_phase_has diag; then
       --out "${E6_DIAG_OUT}" ${extra_ledger[@]+"${extra_ledger[@]}"}
 fi
 
+if e6_phase_has detect; then
+  # Zero-cost local detection (RT-DETR R18, MPS) on the frozen recording: the SAME producer and parameters as E3 (e3_cases/index.py),
+  # output = RGB PNGs + detection index every group reads. Trial one segment first: ... e6_detect_formal.py ... --cases E6-S01
+  # Needs torch 2.6.0 / torchvision 0.21.0 (E6_RUNTIME_DEPS on PYTHONPATH of the child). Stops when free disk < 5 GiB.
+  run_step "Stage 2-det: formal RGB + detection index (E3 pipeline, 0 USD, local)" \
+    "$PYTHON_BIN" -B scripts/evaluation/e6_detect_formal.py --recording "${E6_RECORD_ROOT}" --out "${E6_FORMAL_ROOT}" \
+      --models "${E6_MODELS}" --runtime-deps "${E6_RUNTIME_DEPS}" --reference-index "${E3_ROOT}/indexes/E3-A1/detection_index.json"
+fi
+
 if e6_phase_has select; then
   if [[ -f "${E6_RECEIPT}" ]]; then
     echo "==> [Stage 2b] frozen receipt exists, NOT re-selecting (prereg 0.2): ${E6_RECEIPT}"
   else
-    # Formal dry-run estimates (K=3) go into the receipt; they need the frozen formal recording (PR #745), not any model output.
+    # Formal dry-run estimates (K=3) go into the receipt; they need the detection root above (frozen pixels + index), not any model output.
     run_to_file "Stage 2b: formal dry-run estimate, e6_arms_run.py (K=3, all pool arms)" "${E6_FREEZE_DIR}/formal_arms_dryrun.json" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
         --cases "${E6_FORMAL_CASES[@]}" --k 3 --dry-run
@@ -228,11 +246,12 @@ if e6_phase_has formal; then
     exit 6
   fi
   run_step "Stage 2c gate: data separation (formal mode, physical artifacts)" \
-    "$PYTHON_BIN" -B scripts/evaluation/check_e6_data_separation.py --mode formal --artifact-root "${E6_FORMAL_ROOT}"
+    "$PYTHON_BIN" -B scripts/evaluation/check_e6_data_separation.py --mode formal --artifact-root "${E6_RECORD_ROOT}"
   run_step "Stage 2c gate: frozen receipt + formal dry-run <= USD 32 + cumulative (D375 base ${BASE_SPEND_USD} + ledger + estimate <= ${CAP_USD})" \
     "$PYTHON_BIN" -B scripts/evaluation/e6_select_arm.py formal-gate --receipt "${E6_RECEIPT}" \
       --arms-estimate "${E6_FREEZE_DIR}/formal_arms_dryrun.json" --ao-estimate "${E6_FREEZE_DIR}/formal_ao_orig_dryrun.txt" \
-      --base "${BASE_SPEND_USD}" --cap "${CAP_USD}" --out "${E6_FREEZE_DIR}/formal_gate.json" --ledger "${E6_LEDGERS[@]}"
+      --base "${BASE_SPEND_USD}" --cap "${CAP_USD}" --out "${E6_FREEZE_DIR}/formal_gate.json" \
+      --ledger "${E6_LEDGERS[@]}" $([[ "$DRY_RUN" == "1" ]] || echo --require-ledger)
   # Group list and ApiGuard budgets come from the receipt and the gate result (budget = the dry-run USD upper bound, in cents).
   AGENT_ARMS=(DEANCHOR)
   AO_BUDGET="<AO_ORIG budget from formal_gate.json>"
