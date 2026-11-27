@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-11-24（D377 批次補列；`gh` 逐項重查 #656–#722 與狀態有變的 #588、#596、#612、#623、#645、#646、#652、#653；`main` `10a1384c`）。資料來源：GitHub 上全部 PR 與 issue。
-本文涵蓋 **416 個 PR 與 306 個 issue，共 722 項**（編號 #1–#722 連續，無缺號），每項只列在一個主分類下。
+快照時間：2026-11-27（D407 批次補列；`gh` 逐項重查 #1–#754 的開關狀態，新增 #723–#755；`main` `750a827d`）。資料來源：GitHub 上全部 PR 與 issue。
+本文涵蓋 **438 個 PR 與 317 個 issue，共 755 項**（編號 #1–#755 連續，無缺號），每項只列在一個主分類下。
 維護方式（D91-4）：本文的列由協調者批次補列，一般 PR／issue 不必各自更新，2026-11-10 起主線改為 `main`（D200），PR 的 base 一律是 `main`；`mainline/q1q5` 凍結，staging 已不再使用。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
@@ -27,19 +27,20 @@
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 51 | 0 | 0 | 0 | 51 |
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 62 | 0 | 0 | 0 | 62 |
 | [Line 2 複雜場景](#line-2-複雜場景) | 50 | 0 | 0 | 0 | 50 |
-| [流程：任務板、交接與文件](#流程任務板交接與文件) | 104 | 4 | 1 | 0 | 109 |
-| [Agent：WP／DP4 與評估](#agentwpdp4-與評估) | 68 | 2 | 5 | 0 | 75 |
-| [即時模式（Live mode）](#即時模式live-mode) | 46 | 2 | 6 | 0 | 54 |
+| [流程：任務板、交接與文件](#流程任務板交接與文件) | 107 | 4 | 1 | 0 | 112 |
+| [Agent：WP／DP4 與評估](#agentwpdp4-與評估) | 88 | 6 | 3 | 0 | 97 |
+| [即時模式（Live mode）](#即時模式live-mode) | 48 | 3 | 5 | 0 | 56 |
 | [4 人場景、8 鏡頭與 N6 素材（#516）](#4-人場景8-鏡頭與-n6-素材516) | 16 | 0 | 0 | 0 | 16 |
-| [Demo 整合、前台 UI 與 8785 更新（#445）](#demo-整合前台-ui-與-8785-更新445) | 34 | 4 | 1 | 1 | 40 |
+| [Demo 整合、前台 UI 與 8785 更新（#445）](#demo-整合前台-ui-與-8785-更新445) | 36 | 3 | 1 | 1 | 41 |
 | [W 系列：D126 查找與追蹤核心](#w-系列d126-查找與追蹤核心) | 61 | 0 | 0 | 0 | 61 |
-| [大掃除、CI 與可攜性（#486）](#大掃除ci-與可攜性486) | 23 | 0 | 1 | 0 | 24 |
+| [大掃除、CI 與可攜性（#486）](#大掃除ci-與可攜性486) | 25 | 1 | 2 | 1 | 29 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 38 | 0 | 0 | 0 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **695** | **12** | **14** | **1** | **722** |
+| **合計** | **724** | **17** | **12** | **2** | **755** |
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-11-27（協調者批次補列，D91-4，D407，文件整理對話）：快照擴大到 #1–#755。新增 #723–#755（E6／E7、FEAT-EXP-CODE／EXP-RUN／REPORT 列在「Agent：WP／DP4 與評估」，FEAT-LIVE-FINISH 列在「即時模式」，#725 列在「Demo 整合」，FEAT-DELIVER 與重現（#728、#729、#733、#738、#740）列在「大掃除」，交接 #744、#747 與本 PR #755 列在「流程」）。移到「已完成」：#722、#684、#681、#680、#630、#714、#598。#717–#721、#700、#710 工作已合併但 issue 還開著，備註已更新。
 - 2026-11-24（協調者批次補列，D91-4，D377，隨 #722）：快照擴大到 #1–#722。新增 #656–#722（E3、E5 研究線與 F1–F5 列在「Agent：WP／DP4 與評估」，LIVE 列在「即時模式」，8785 列在「Demo 整合」，CI 列在「大掃除」，交接列在「流程」）。移到「已完成」：#653、#645／#646（關閉不處理）、#588、#596、#652、#623。#699、#704 已完成關閉；#680 剩 LOCAL 同步、#612 等 #710／#714。
 - 2026-11-22（協調者批次補列，D91-4，D342 修正輪，隨 #653）：快照擴大到 #1–#655。新增 #651（已完成關閉，#655）、#652（未完成，owner:codex）、#653（本 PR，進行中）、#654（已完成關閉，#617）、#655（已合併 `4f665d55`，G7 已修正）。已合併移到「已完成」：#608（`cfbfe4e9`，relock R1，門檻 UNKNOWN、預設關閉）、#617（`1742ed06`，LIVE 錄製重播）。#588、#596 仍開著（實作已合併，等 Codex 關閉）。
 - 2026-11-20（協調者批次補列，D91-4，D342，隨全面文件同步 PR）：快照擴大到 #1–#650。新增 #621–#650：Agent 研究線（#629、#635–#637、#639–#648，依 D340／D341 的假設 H1–H6）列在「Agent：WP／DP4 與評估」；#622、#624、#628、#630、#633、#634、#638 列在「即時模式」；#623、#625 列在「Demo 整合」；#626、#627 列在「大掃除」；#621、#631、#632、#649、#650 列在「流程」。已關閉移到「已完成」：#489、#597（D341 關閉（不處理），由 #645、#646 取代）、#619（#628）、#620（#625）。開著的：#623、#633、#645 列「進行中」，#630、#646 列「未完成」。
@@ -436,7 +437,7 @@
 
 ## 流程：任務板、交接與文件
 
-### 已完成（104）
+### 已完成（107）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -544,25 +545,28 @@
 | [#712](https://github.com/Polalalabear/amidst/pull/712) | PR | docs(agents): coordinator handoff 2026-11-24 | — | 已合併 `main`（2026-11-24，`384e9327`） |
 | [#716](https://github.com/Polalalabear/amidst/pull/716) | PR | docs: 設計問答紀錄與交接 20261124b | — | 已合併 `main`（2026-11-24，`a3293368`） |
 | [#704](https://github.com/Polalalabear/amidst/issues/704) | Issue | Codex-W support-data：E5數字摘錄與文件盤點草稿 | — | 已由 #702（`595ec837`）完成並關閉（2026-11-24） |
+| [#722](https://github.com/Polalalabear/amidst/pull/722) | PR | docs: E6 計畫草案、停工重排交接與設計問答補充（D375–D376） | — | 已合併 `main`（2026-11-26，`384ef9d5`）；原備註：本 PR：E6 計畫、交接、索引更新；Draft，待審 |
+| [#744](https://github.com/Polalalabear/amidst/pull/744) | PR | docs(agents): coordinator handoff 2026-11-27 | — | 已合併 `main`（2026-11-27，`1d026c7c`） |
+| [#747](https://github.com/Polalalabear/amidst/pull/747) | PR | docs(agents): coordinator handoff 2026-11-27 (second) | — | 已合併 `main`（2026-11-27，`bba8e0f3`） |
 
 ### 進行中（4）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D377（下一個 D378）；工作清單在本文 |
+| [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板；決定已到 D407（下一個 D408）；工作清單在本文 |
 | [#479](https://github.com/Polalalabear/amidst/issues/479) | Issue | B｜實驗紀錄與研究報告（LaTeX 紀錄、RQ1–RQ5、延遲、評估） | — | 進行中；issue 開著；owner:argon |
 | [#674](https://github.com/Polalalabear/amidst/issues/674) | Issue | 更新紀錄（append-only，所有更新的唯一紀錄） | — | append-only 更新紀錄 |
-| [#722](https://github.com/Polalalabear/amidst/pull/722) | PR | docs: E6 計畫草案、停工重排交接與設計問答補充（D375–D376） | — | 本 PR：E6 計畫、交接、索引更新；Draft，待審 |
+| [#755](https://github.com/Polalalabear/amidst/pull/755) | PR | docs: 交接指向 20261127b、PROGRESS 補到 #755、E6／E7 索引（D407） | — | 本 PR：交接指向、進度導覽、CODE_DOC_MAP；Draft，待審 |
 
 ### 未完成（1）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#719](https://github.com/Polalalabear/amidst/issues/719) | Issue | AR-F5 論文、README、收尾措辭（GitHub-only） | — | ready；owner:argon；期限 2026-11-25 |
+| [#719](https://github.com/Polalalabear/amidst/issues/719) | Issue | AR-F5 論文、README、收尾措辭（GitHub-only） | — | 工作已由 #724（`88102b91`）合併；issue 還開著；owner:argon |
 
 ## Agent：WP／DP4 與評估
 
-### 已完成（68）
+### 已完成（88）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -623,7 +627,10 @@
 | [#670](https://github.com/Polalalabear/amidst/pull/670) | PR | docs(e3): F5 決策圖加入鏡頭朝向與遮擋後可見範圍（#668） | — | 已合併 `main`（2026-11-23，`aeb9b915`） |
 | [#671](https://github.com/Polalalabear/amidst/pull/671) | PR | docs(eval): E3 preregistration revision D350 (H2 supplementary diagnostics) | — | 已合併 `main`（2026-11-22，`c988ed60`） |
 | [#678](https://github.com/Polalalabear/amidst/pull/678) | PR | F4 (#658): E3 arms runner, scoring, reruns and report (H1/H2/H4 不成立; A3 探索性) | — | 已合併 `main`（2026-11-23，`3c436357`） |
+| [#680](https://github.com/Polalalabear/amidst/issues/680) | Issue | CX-F4R F4 主結果獨立重算（第二方重現） | — | 已完成關閉（2026-11-24）；原備註：#683 已合併（`cf28c717`）；剩 Codex 把成品同步到 LOCAL `cx-f4-recompute-20261123` 並核對 MANIFEST，尚未做；owner:codex |
+| [#681](https://github.com/Polalalabear/amidst/issues/681) | Issue | E4: conditional Agent override (exploratory, D355) | — | 關閉（不處理）（2026-11-26）；原備註：D376 暫停（E4，D356 起暫停） |
 | [#683](https://github.com/Polalalabear/amidst/pull/683) | PR | CX-F4R: 獨立重算 F4 H1／H2／H4，重現主結果 | — | 已合併 `main`（2026-11-23，`cf28c717`） |
+| [#684](https://github.com/Polalalabear/amidst/issues/684) | Issue | E5：完全開放 Agent vs 規則（A-open，D356） | — | 已完成關閉（2026-11-26）；原備註：E5 已判定（#698、#706），事後檢查列在留言；E6 見 #717、#718、#721 |
 | [#685](https://github.com/Polalalabear/amidst/pull/685) | PR | E5: preregistration and A-open interface contract (D356/D357, #684) | — | 已合併 `main`（2026-11-23，`396be050`） |
 | [#692](https://github.com/Polalalabear/amidst/pull/692) | PR | feat(eval): E5 score wrapper e5_score.py + tests (#684) | — | 已合併 `main`（2026-11-23，`fe442470`） |
 | [#693](https://github.com/Polalalabear/amidst/pull/693) | PR | docs(paper): F5 論文草稿 E3 章節（#659） | — | 已合併 `main`（2026-11-23，`901e5953`） |
@@ -634,27 +641,46 @@
 | [#706](https://github.com/Polalalabear/amidst/pull/706) | PR | docs(e5): AO-L (H8d) 結果補進 E5 報告（H8d 不成立，K=1） | — | 已合併 `main`（2026-11-23，`ca635c2e`） |
 | [#715](https://github.com/Polalalabear/amidst/pull/715) | PR | docs(paper): F5 論文填寫 E5 章節與 E5 數字總表（AO-L） | — | 已合併 `main`（2026-11-24，`10a1384c`） |
 | [#699](https://github.com/Polalalabear/amidst/issues/699) | Issue | ApiGuard 記 cached_tokens 並按快取單價計費 | — | 已由 #701（`a9b45d38`）完成並關閉（2026-11-24）；折扣需價格表加 `cached_input_usd_per_mtok` 才啟用 |
+| [#723](https://github.com/Polalalabear/amidst/pull/723) | PR | eval: E6 independent answer table and rule-neutral diagnostics (#717) | — | 已合併 `main`（2026-11-26，`e202110b`）；E6-1 答案表與 R-N 診斷（#717） |
+| [#724](https://github.com/Polalalabear/amidst/pull/724) | PR | docs: F5 論文排版／限制／收尾措辭與中英文 README E3／E5 更新（#719） | — | 已合併 `main`（2026-11-26，`88102b91`）；F5 論文與 README 收尾（#719） |
+| [#726](https://github.com/Polalalabear/amidst/pull/726) | PR | docs(eval): E6 預先登記草稿、12 段新劇本規格與資料分離自動檢查（#718） | — | 已合併 `main`（2026-11-26，`017dd61a`）；E6 預登草稿與資料分離檢查（#718） |
+| [#731](https://github.com/Polalalabear/amidst/issues/731) | Issue | FEAT-EXP-CODE：實驗設計與程式一次做完（E6 定稿＋去錨定、E7 notebook、#672、延遲歸零、統一分析） | — | 已完成關閉（2026-11-26）；FEAT-EXP-CODE，#737 |
+| [#736](https://github.com/Polalalabear/amidst/pull/736) | PR | feat(report): FEAT-REPORT skeleton, open-slide deck, A0 poster, and unified_analysis_v1 figures (#734, #730) | — | 已合併 `main`（2026-11-26，`c741c95d`）；報告骨架、簡報、海報（#734、#730） |
+| [#737](https://github.com/Polalalabear/amidst/pull/737) | PR | feat(eval): FEAT-EXP-CODE E7 Colab notebook, AO-L zero-latency rescore, unified analysis, run_all.sh (#731, #727) | — | 已合併 `main`（2026-11-26，`2201f978`）；E7 notebook、AO-L 延遲歸零、統一分析、`run_all.sh` |
+| [#741](https://github.com/Polalalabear/amidst/pull/741) | PR | docs(exp-run): #732 round 1 — zero-cost AO-L rescore + unified analysis; blockers G1–G5 | — | 已合併 `main`（2026-11-27，`71633fb8`）；#732 第 1 輪＋G4 一次跑完接線 |
+| [#742](https://github.com/Polalalabear/amidst/issues/742) | Issue | E6 G1＋G2：12 段路線與干擾者時序（#732 前提） | — | 已完成關閉（2026-11-27）；由 #745 完成 |
+| [#743](https://github.com/Polalalabear/amidst/pull/743) | PR | feat(e6): 去錨定／歷史／摘要三組請求建構（#721、#732 G3） | — | 已合併 `main`（2026-11-27，`7dbb4ede`）；G3 |
+| [#745](https://github.com/Polalalabear/amidst/pull/745) | PR | E6 G1＋G2：12 段路線與干擾者時序設計＋錄製器支援（#742，待 Opus 審） | — | 已合併 `main`（2026-11-27，`a1fb2fcb`）；G1＋G2；D399／D401 |
+| [#746](https://github.com/Polalalabear/amidst/pull/746) | PR | feat(e6): 正式 12 段 K=3 付費路徑與 verdict_e6（#721、#732 G6） | — | 已合併 `main`（2026-11-27，`037477d3`）；G6 |
+| [#748](https://github.com/Polalalabear/amidst/pull/748) | PR | fix(e6): raise formal run cap USD 32 -> 45 (D404) | — | 已合併 `main`（2026-11-27，`a9418fdf`）；D404 |
+| [#749](https://github.com/Polalalabear/amidst/pull/749) | PR | feat(e7): laya native decider on audited HF commit (#727) | — | 已合併 `main`（2026-11-27，`d91241a4`）；E7 laya（#727） |
+| [#750](https://github.com/Polalalabear/amidst/pull/750) | PR | fix(e6): R-N emits complete unstarted records when B1 never acquires (D405) | — | 已合併 `main`（2026-11-27，`a25a2124`）；D405 |
+| [#751](https://github.com/Polalalabear/amidst/pull/751) | PR | docs(e7): notebook version box and pinned commit banner (#727) | — | 已合併 `main`（2026-11-27，`b64bcf7e`）；E7（#727） |
+| [#752](https://github.com/Polalalabear/amidst/pull/752) | PR | fix(e7): laya per-device cache, device record, Colab-ready notebook (#727) | — | 已合併 `main`（2026-11-27，`5b189d08`）；E7（#727） |
+| [#753](https://github.com/Polalalabear/amidst/pull/753) | PR | feat(e7): outputs carry hardware spec (#727) | — | 已合併 `main`（2026-11-27，`750a827d`）；E7（#727） |
 
-### 進行中（2）
+### 進行中（6）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#659](https://github.com/Polalalabear/amidst/issues/659) | Issue | F5 論文與交付資料夾定稿（E3 結果） | — | F5 論文與交付；#693、#715 已合併，收尾在 #719 |
-| [#684](https://github.com/Polalalabear/amidst/issues/684) | Issue | E5：完全開放 Agent vs 規則（A-open，D356） | — | E5 已判定（#698、#706），事後檢查列在留言；E6 見 #717、#718、#721 |
+| [#727](https://github.com/Polalalabear/amidst/issues/727) | Issue | E7 本地／Colab 決策器（laya、Qwen 類 VLM、擴散語言模型）延遲與決策評測（移機後） | — | E7：#737／#749／#751–#753 已合併；notebook 可從 GitHub main 在 Colab 一鍵跑（pin `594268b9`），使用者執行中 |
+| [#730](https://github.com/Polalalabear/amidst/issues/730) | Issue | 完整報告資料夾：海報、open-slide 簡報、圖片、PDF（D384） | — | 併入 #734；骨架 #736 已合併 |
+| [#732](https://github.com/Polalalabear/amidst/issues/732) | Issue | FEAT-EXP-RUN：Mac 一鍵執行實驗與產出分析檔（渲染 12 段、API 組、Colab、評分） | — | FEAT-EXP-RUN：G1–G6 已合併（#741、#743、#745、#746、#748、#750）；E6 正式一次跑完執行中（D402–D406）；結果紀錄骨架 #754 |
+| [#734](https://github.com/Polalalabear/amidst/issues/734) | Issue | FEAT-REPORT：完整報告資料夾（海報、open-slide 簡報、圖、PDF） | — | FEAT-REPORT：骨架 #736 已合併；E6 數字等 #732 |
+| [#754](https://github.com/Polalalabear/amidst/pull/754) | PR | docs(exp-run): E6 正式執行紀錄骨架與偏離列表（D407，#732） | — | E6 結果紀錄骨架（D407）；Draft，數字待 2d 由 E6 協調對話回填 |
 
-### 未完成（5）
+### 未完成（3）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#681](https://github.com/Polalalabear/amidst/issues/681) | Issue | E4: conditional Agent override (exploratory, D355) | — | D376 暫停（E4，D356 起暫停） |
-| [#717](https://github.com/Polalalabear/amidst/issues/717) | Issue | E6-1 答案表、逐事件對照與錯誤歸因：獨立重算（零付費） | — | ready；owner:codex；D377 |
-| [#718](https://github.com/Polalalabear/amidst/issues/718) | Issue | AR-E6 預先登記草稿與新劇本規格（GitHub-only） | — | ready；owner:argon；D377 |
-| [#721](https://github.com/Polalalabear/amidst/issues/721) | Issue | E6-2 去錨定、歷史與摘要：實作與小型診斷（付費前先停） | — | blocked，等 #718 合併與付費／外傳同意；owner:codex |
-| [#680](https://github.com/Polalalabear/amidst/issues/680) | Issue | CX-F4R F4 主結果獨立重算（第二方重現） | — | #683 已合併（`cf28c717`）；剩 Codex 把成品同步到 LOCAL `cx-f4-recompute-20261123` 並核對 MANIFEST，尚未做；owner:codex |
+| [#717](https://github.com/Polalalabear/amidst/issues/717) | Issue | E6-1 答案表、逐事件對照與錯誤歸因：獨立重算（零付費） | — | 工作已由 #723（`e202110b`）合併；issue 還開著；owner:codex |
+| [#718](https://github.com/Polalalabear/amidst/issues/718) | Issue | AR-E6 預先登記草稿與新劇本規格（GitHub-only） | — | 工作已由 #726（`017dd61a`）合併；issue 還開著；owner:argon |
+| [#721](https://github.com/Polalalabear/amidst/issues/721) | Issue | E6-2 去錨定、歷史與摘要：實作與小型診斷（付費前先停） | — | 實作已由 #743（`7dbb4ede`）、#746（`037477d3`）合併；正式執行在 #732；結果回填由 E6 協調對話做 |
 
 ## 即時模式（Live mode）
 
-### 已完成（46）
+### 已完成（48）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -691,6 +717,7 @@
 | [#622](https://github.com/Polalalabear/amidst/pull/622) | PR | feat(live-hardset): 難題集全部腳本產生（D331）、graph 讀法已決定、H1-3／H4-2／H5-3 改路線（D330） | — | 已合併 `main`（2026-11-19，`ba535fef`）；分支 `claude/feat-live-hardset`；D330／D331，#597 |
 | [#624](https://github.com/Polalalabear/amidst/pull/624) | PR | feat(live-hardset): #597 規則 vs LLM 比較 runner、評分器與 dry-run（準備部分，不付費） | — | 已合併 `main`（2026-11-19，`7f2bdf3d`）；分支 `claude/feat-live-hardset`；#597 runner／評分器／dry-run，沿用到 #646 |
 | [#628](https://github.com/Polalalabear/amidst/pull/628) | PR | fix(live): #619 室外遠端目標量測與紅標籤門檻 (weak 0.3→0.2) | — | 已合併 `main`（2026-11-19，`be4c4262`）；分支 `claude/feat-live-far-target`；#619；Opus 裁決 |
+| [#630](https://github.com/Polalalabear/amidst/issues/630) | Issue | LIVE 室外覆蓋缺口：x<−13 只有 CAM_ENTRY（不在追蹤圖）、y>5.7 無鏡頭 | — | 關閉（不處理）（2026-11-26）；原備註：deferred（D339）；D376 暫停到 2026-11-25 後；owner:claude |
 | [#634](https://github.com/Polalalabear/amidst/pull/634) | PR | feat(live-ui): LIVE 改用 workbench-v2 共用 token（第一段） | — | 已合併 `main`（2026-11-19，`29825d2f`）；分支 `claude/feat-live-ui-style`；#633 第一段 |
 | [#638](https://github.com/Polalalabear/amidst/pull/638) | PR | docs(live): #630 室外覆蓋缺口分析與方案比較 | — | 已合併 `main`（2026-11-19，`9dc6dd53`）；分支 `claude/feat-live-far-target`；#630 分析；Opus 裁決 |
 | [#654](https://github.com/Polalalabear/amidst/issues/654) | Issue | LIVE A/B 錄製重播與 D327 crowd 整合（PR #617） | — | 已完成關閉（2026-11-22，#617 `1742ed06`）；owner:codex |
@@ -704,21 +731,22 @@
 | [#703](https://github.com/Polalalabear/amidst/pull/703) | PR | feat(live): guarded Agent wiring, track contract and relock evidence (#675) | — | 已合併 `main`（2026-11-23，`d9ebacb5`） |
 | [#705](https://github.com/Polalalabear/amidst/pull/705) | PR | feat(live): shared token route and LIVE style cleanup (#633) | — | 已合併 `main`（2026-11-23，`21d6f4c5`） |
 | [#707](https://github.com/Polalalabear/amidst/pull/707) | PR | test(live): fix State fixture for gate diagnostics (#700, #675) | — | 已合併 `main`（2026-11-24，`edb642c6`） |
+| [#739](https://github.com/Polalalabear/amidst/pull/739) | PR | FEAT-LIVE-FINISH 1–2：藍衣遠距重新取得（--relock，預設關）＋LIVE 樣式收尾 | — | 已合併 `main`（2026-11-26，`a3311bcb`）；#735 第 1、2 項（藍衣 relock 預設關、LIVE 樣式） |
 
-### 進行中（2）
+### 進行中（3）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#566](https://github.com/Polalalabear/amidst/issues/566) | Issue | CX-L5 即時模式 A/B 雙畫面：選角色、B 選目標、人物不碰撞 | — | 子項 #568–#573 已完成關閉，#574 未完成；D376 暫停到 2026-11-25 後；owner:codex |
 | [#633](https://github.com/Polalalabear/amidst/issues/633) | Issue | LIVE 模式全面改成 workbench-v2 風格（共用樣式檔） | — | #634、#705 已合併；D376 暫停到 2026-11-25 後；owner:claude |
+| [#735](https://github.com/Polalalabear/amidst/issues/735) | Issue | FEAT-LIVE-FINISH：LIVE 追藍衣、Agent 預設啟動、UI/UX、前台 3D 與換 pin | — | FEAT-LIVE-FINISH：#739、#714 已合併，8785 pin `5727fc9a`；剩 #675（等 #732） |
 
-### 未完成（6）
+### 未完成（5）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#574](https://github.com/Polalalabear/amidst/issues/574) | Issue | CX-L5g 即時模式 A/B：整合、瀏覽器驗收、handoff 文件 | — | D376 暫停到 2026-11-25 後（#617 已合併）；owner:codex |
 | [#589](https://github.com/Polalalabear/amidst/issues/589) | Issue | CX-L6b 重新取得 R2：後台接線＋#559 adaptive 排程驗收（ENTRY） | — | CX-L6b；#608 已合併；D376 暫停；§4.5 等使用者決定；owner:codex |
-| [#630](https://github.com/Polalalabear/amidst/issues/630) | Issue | LIVE 室外覆蓋缺口：x<−13 只有 CAM_ENTRY（不在追蹤圖）、y>5.7 無鏡頭 | — | deferred（D339）；D376 暫停到 2026-11-25 後；owner:claude |
 | [#672](https://github.com/Polalalabear/amidst/issues/672) | Issue | LIVE 追其他目標（T 以外）：可行性與探索性評估 | — | D376 暫停到 2026-11-25 後 |
 | [#675](https://github.com/Polalalabear/amidst/issues/675) | Issue | LIVE：開放 Agent 決策（8791 重啟帶 advisor＋ApiGuard） | — | D376 暫停到 2026-11-25 後；#703 已合併，8791 未部署 |
 | [#676](https://github.com/Polalalabear/amidst/issues/676) | Issue | LIVE bug：藍衣目標已被偵測仍失聯（重新取得 gate／只認紅色） | — | 等使用者決定；#690 已合併（session 顏色與 gate 診斷） |
@@ -748,7 +776,7 @@
 
 ## Demo 整合、前台 UI 與 8785 更新（#445）
 
-### 已完成（34）
+### 已完成（36）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -786,21 +814,22 @@
 | [#689](https://github.com/Polalalabear/amidst/pull/689) | PR | fix(workbench): 未接入的 run 明確拒絕 manual_seed | — | 已合併 `main`（2026-11-23，`d4521ee9`） |
 | [#708](https://github.com/Polalalabear/amidst/issues/708) | Issue | 預錄 display_estimate UNKNOWN 原因文字＋real-e2e B05 斷言更新 | — | 已完成關閉（2026-11-24） |
 | [#709](https://github.com/Polalalabear/amidst/pull/709) | PR | fix(demo): display_estimate UNKNOWN 原因文字＋real-e2e B05 斷言 (#708) | — | 已合併 `main`（2026-11-24，`579b431a`） |
+| [#714](https://github.com/Polalalabear/amidst/pull/714) | PR | feat(workbench): connect front desk 3D and display estimates (#710) | — | 已合併 `main`（2026-11-26，`5727fc9a`）；原備註：等審查；實跑 3D 未驗證 |
+| [#725](https://github.com/Polalalabear/amidst/pull/725) | PR | verify: zero-cost demo checks and 20-question rule acceptance (#720) | — | 已合併 `main`（2026-11-26，`018e1a5c`）；零費用 demo 檢查與 20 題規則驗收（#720） |
 
-### 進行中（4）
+### 進行中（3）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#700](https://github.com/Polalalabear/amidst/issues/700) | Issue | B3 2026-11-24：ada45f31 換 pin gate（不部署） | — | gate r3b FAIL（A4-8CAM 缺 9、B4-8CAM 缺 10 筆收據）；標準等使用者決定 |
-| [#710](https://github.com/Polalalabear/amidst/issues/710) | Issue | 新版前台接上 3D 場景與 display_estimate（目前只在 ?ui=legacy） | — | #714 實作，Draft／開著 |
-| [#714](https://github.com/Polalalabear/amidst/pull/714) | PR | feat(workbench): connect front desk 3D and display estimates (#710) | — | 等審查；實跑 3D 未驗證 |
+| [#700](https://github.com/Polalalabear/amidst/issues/700) | Issue | B3 2026-11-24：ada45f31 換 pin gate（不部署） | — | gate r5 全 PASS（main `5727fc9a`），使用者核准換 pin，8785 已在 `5727fc9a`；issue 還開著 |
+| [#710](https://github.com/Polalalabear/amidst/issues/710) | Issue | 新版前台接上 3D 場景與 display_estimate（目前只在 ?ui=legacy） | — | #714 已合併（`5727fc9a`）；issue 還開著 |
 | [#612](https://github.com/Polalalabear/amidst/issues/612) | Issue | CX-8E 預錄模式提供系統估計位置 est_xy（給 #605 3D 視圖） | — | #623 已合併（`f8b1a454`）；新版前台顯示由 #710／#714 接上後才關；owner:codex |
 
 ### 未完成（1）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#720](https://github.com/Polalalabear/amidst/issues/720) | Issue | CX-DEMO 8785 收尾：#714 實跑、r3b、換 pin 後 AC1–AC8、海報文字 | — | ready（零付費部分）；owner:codex；gate 補跑另列 |
+| [#720](https://github.com/Polalalabear/amidst/issues/720) | Issue | CX-DEMO 8785 收尾：#714 實跑、r3b、換 pin 後 AC1–AC8、海報文字 | — | #725（`018e1a5c`）已合併；#714 已合併、#700 已換 pin；issue 還開著；owner:codex |
 
 ### 待確認（1）
 
@@ -878,7 +907,7 @@
 
 ## 大掃除、CI 與可攜性（#486）
 
-### 已完成（23）
+### 已完成（25）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -901,16 +930,31 @@
 | [#517](https://github.com/Polalalabear/amidst/pull/517) | PR | ci: guard base for PRs into main back to the PR base (D200) | — | 已合併 `main`（2026-11-10） |
 | [#536](https://github.com/Polalalabear/amidst/pull/536) | PR | ops: 大掃除收尾 — AGENTS/CLAUDE 對齊 main、相對輸出路徑、LOCAL 引用檢查、資料夾收尾交接 (#486) | — | 已合併 `main`（2026-11-15） |
 | [#595](https://github.com/Polalalabear/amidst/pull/595) | PR | refactor(office): retire Office display and rehearsal check (#579) | — | 已合併 `main`（2026-11-18，`6bf287d7`） |
+| [#598](https://github.com/Polalalabear/amidst/issues/598) | Issue | 跨平台：Windows／Linux 執行 demo（延後） | — | 關閉（不處理）（2026-11-26）；原備註：延後（D376 再延到 2026-11-25 後） |
 | [#626](https://github.com/Polalalabear/amidst/issues/626) | Issue | D319 冗餘清理：第一次檢索（程式碼↔文件對應） | — | 已完成關閉（2026-11-19，#627）；owner:claude |
 | [#627](https://github.com/Polalalabear/amidst/pull/627) | PR | docs(index): D319 第一次檢索（程式碼↔文件對應，只記錄） | — | 已合併 `main`（2026-11-19，`2e94a055`）；分支 `claude/feat-ops-docs`；D319 第一次檢索 |
 | [#711](https://github.com/Polalalabear/amidst/issues/711) | Issue | CI：納入 tests/live_mode 與 frontend/live-mode 測試 | — | 已完成關閉（2026-11-24） |
 | [#713](https://github.com/Polalalabear/amidst/pull/713) | PR | ci: 納入 tests/live_mode 與 frontend/live-mode 測試 (#711) | — | 已合併 `main`（2026-11-24，`6afb4f76`） |
+| [#738](https://github.com/Polalalabear/amidst/pull/738) | PR | feat(deliver): FEAT-DELIVER local/ inventory tool and Linux/macOS reproduce pack (#733, #729, #728) | — | 已合併 `main`（2026-11-26，`a90a7884`）；`local/` 盤點工具與重現包 |
 
-### 未完成（1）
+### 進行中（1）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#598](https://github.com/Polalalabear/amidst/issues/598) | Issue | 跨平台：Windows／Linux 執行 demo（延後） | — | 延後（D376 再延到 2026-11-25 後） |
+| [#733](https://github.com/Polalalabear/amidst/issues/733) | Issue | FEAT-DELIVER：重現包（Linux／macOS）＋ local/ 盤點清理 | — | FEAT-DELIVER：#738 已合併；重現部分 D407 延後 |
+
+### 未完成（2）
+
+| 編號 | 類型 | 標題 | 也涉及 | 備註 |
+| --- | --- | --- | --- | --- |
+| [#728](https://github.com/Polalalabear/amidst/issues/728) | Issue | 重現包：Linux／macOS 從 GitHub clone＋雲端硬碟下載即可重現（D384） | — | D407：Linux／macOS 重現延後 |
+| [#740](https://github.com/Polalalabear/amidst/issues/740) | Issue | inventory_local_assets：補 local/ 相對路徑引用與 path map 命中判 UNCERTAIN（#738 P2 後續） | — | owner:neon；D407 隨重現延後 |
+
+### 待確認（1）
+
+| 編號 | 類型 | 標題 | 也涉及 | 備註 |
+| --- | --- | --- | --- | --- |
+| [#729](https://github.com/Polalalabear/amidst/issues/729) | Issue | local/ 大型資產盤點與分類工具：保留／可刪／不確定（D384） | — | 盤點工具已由 #738（`a90a7884`）交付，Mac 盤點已代跑；issue 還開著 |
 
 ## 暫停：跨鏡頭盲區 3D 重建線
 
