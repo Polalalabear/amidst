@@ -696,6 +696,14 @@
       "sha256": "a8bb615aab07d63c0622424896d9ec1a5976e5da1bc563c65d05965dbcc9fc18",
       "status": "現行；來源文件清單加整理總帳 CLEANUP_LEDGER.md（D409）；登記不等於核准",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D411-DOCS-1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/docs-ledger-progress-d411@cbd3bc0c03a306e22cfc2ffe87f666453d63af68",
+      "sha256": "3f90bf4514f76f4d9bfe3cb554d8ab58bd56702eefba350326ef9e86e704c6a5",
+      "status": "現行；進度導覽補到 #774（D91-4，D411）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/774"
     }
   ],
   "authorized_changes": [
@@ -1160,6 +1168,13 @@
       "requires_commit": "27c33afc816eba37529253f0aa60ca08170f3f76",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "來源文件清單加整理總帳連結（D409）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "3f90bf4514f76f4d9bfe3cb554d8ab58bd56702eefba350326ef9e86e704c6a5",
+      "requires_commit": "cbd3bc0c03a306e22cfc2ffe87f666453d63af68",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/774",
+      "reason": "進度導覽補到 #774（D91-4，D411，#774）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }

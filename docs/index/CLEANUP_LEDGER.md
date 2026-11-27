@@ -24,6 +24,10 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 
 | 日期 | 決策 | PR／commit | 動作 | 內容與證據 |
 | --- | --- | --- | --- | --- |
+| 2026-11-27 | D411 | [#764](https://github.com/Polalalabear/amidst/pull/764) `c96196cb`；本總帳 PR `claude/docs-ledger-progress-d411` | 新增＋更新 | #720 換 pin 後 AC1–AC8（子 session ac720-acceptance，Sonnet，零付費、無頭）：AC8 通過、AC6 未通過、AC5 RULE_ONLY 通過（Agent 未驗證）、其餘部分通過；紀錄 `docs/operations/AC1_AC8_PIN_5727FC9A_20261127.md`，LOCAL `local/evidence/ac-720-20261127/`（`SHA256SUMS` SHA-256 `5e53b7d9171764f7c59a75af5a3e1b0a770bf84fc5e67bbb01f7102c3e5ebb04`）。#720 關閉；後續 issue #770（AC2 絕對時鐘解析）、#771（AC3／AC4 目標框）、#772（AC6 審核面板）、#773（AC7 B-05 hash）。#93 本文：8785 收尾、LIVE 第二段、est_xy＋8CAM 三列改寫，新增 #762、#770–#773 五列 |
+| 2026-11-27 | D411 | [#761](https://github.com/Polalalabear/amidst/pull/761) `16a35980` | 更新 | #633 tokens 鏡像部分退役：`ab_flow.test.mjs`、`ab_menu.test.mjs`、`n6_ceiling_compare.mjs` 改讀正本 `frontend/workbench-v2/tokens.css`；鏡像 `frontend/live-mode/src/tokens.css` **保留**，因為 E3 凍結錄製器 `scripts/evaluation/e3_cases/record.mjs` 從 `frontend/live-mode/src/` 讀它，而 `record.mjs` 的 SHA 釘在 `configs/evaluation/e3_reappearances_v1.json`；`tokens-css-mirror.test.mjs` 改寫理由並加來源檢查。要刪鏡像，得等 E3 凍結解除或重新登記。#633 關閉 |
+| 2026-11-27 | D411 | — （GitHub issue） | 更新＋新增 | #594 關閉（D302 只要求加一個 8CAM run，A4-1-8CAM、B4-1-8CAM 已由 #623 交付）；B-05、r005 8CAM 沒有素材，另開 #762（`owner:codex`、`deferred`） |
+| 2026-11-27 | D413、D414（E6 協調對話請託） | — （#93 本文） | 更新 | #754 合併（`54df53d8`）後同步 #93 本文：更新行、FEAT-EXP-RUN、FEAT-REPORT、FEAT-LIVE-FINISH（#675：D414 預設規則，Agent 選項等 #727）、E6-2（#721 已關閉）；其他內容沒動 |
 | 2026-11-27 | D410（使用者指示） | — （GitHub issue 與標籤）；本總帳更新在 PR `claude/docs-cleanup-ledger-d410` | 更新 | 大整理第 2 步提前：關閉 #717（#723）、#718（#726）、#719（#724）、#710（#714）、#700（gate r5，pin `5727fc9a`）、#612（#623＋#714）、#729（#738）、#659（not planned，併入 #734），每個都留言寫明完成處並清掉狀態標籤。#720、#594、#633 核對後還有未完成項目，留言說明後保持開啟（§3.1.1）。標籤：#733 `ready`＋`in-progress` → `deferred`；#728 `ready` → `deferred`；#740 加 `deferred`（三者依 D407 延後）；#734 移除 `ready`；#732 `owner:codex` → `owner:claude`（D396）；#594 移除 `needs-claude-review`；#479 移除 `pull:ready`；#675 `blocked-user` → `blocked`（卡在 E6 選組，不是等使用者）。開著的 issue 29 → 21 |
 | 2026-11-27 | D410 | — | 更正 | 下一列（D409）的「本 PR」是 [#758](https://github.com/Polalalabear/amidst/pull/758)，merge `285ab8cb` |
 | 2026-11-27 | D409 | 本 PR | 新增 | 建立本總帳；§3 是全專案大整理的盤點（只讀，main `ba7f74f6`） |
@@ -39,18 +43,11 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 
 依據 #93 D408 第 6 點：目前的大工作（E6 結果、E7、報告）**完成後**才開始大整理，GitHub 和本機要一起更新。本節只盤點、不執行；數字取自 2026-11-27 的 `gh`、`git ls-files` 和 `du`。執行時照 §3.6 的順序做，做完一項就移到 §2。
 
-### 3.1 GitHub issue（D409 盤點時開著 29 個；D410 關 8 個後是 21 個）
+### 3.1 GitHub issue（D409 盤點時開著 29 個；D410 關 8 個後是 21 個；2026-11-27 晚上新開 #762、#765–#773 等之後是 26 個）
 
 #### 3.1.1 工作已合併、issue 還開著
 
-D410（2026-11-27）已關閉 8 個，留言寫明完成處，見 §2：#717、#718、#719、#710、#700、#612、#729、#659（#659 以 not planned 關閉，併入 #734）。下面是核對後**還不能關**的：
-
-| Issue | 已合併的部分 | 還缺什麼（D410 核對） |
-| --- | --- | --- |
-| #720 8785 收尾 | #725 `018e1a5c`、#714 `5727fc9a`、#700 gate r5；pin 已換到 `5727fc9a` | 第 3 項「換 pin 後重走 AC1–AC8、在 issue 貼結果表」沒有紀錄 |
-| #594 8CAM run | #623 `f8b1a454`；8CAM wall 在 gate r3–r5 都 PASS | B-05、r005 的 8CAM 核准來源仍是 UNKNOWN；#686 只把 B-05 標成 SCENE_CONTEXT_INCOMPLETE |
-| #633 LIVE 改成 workbench-v2 風格 | #705 `21d6f4c5`、#739 `a3311bcb` | Claude 後續：`frontend/workbench-v2/tokens-css-mirror.test.mjs` 鏡像契約退役、`frontend/live-mode/src/tokens.css` 鏡像退役（main `285ab8cb` 上兩個檔都還在） |
-| #721 E6-2 實作 | #743 `7dbb4ede`、#746 `037477d3` | **等 E6 結果 PR 合併**，由 E6 協調對話回填後關閉 |
+**全部處理完畢。** D410 關 8 個（#717、#718、#719、#710、#700、#612、#729、#659）。D411 關 #633（#761 部分退役）、#594（D302 已滿足，B-05／r005 8CAM 另開 #762）、#720（AC1–AC8 已跑，#764；後續 #770–#773）。#721 由 E6 協調對話在 #754 合併後關閉。細節見 §2。
 
 #### 3.1.2 等主線（E6／E7）
 - #732（FEAT-EXP-RUN，執行中）、#734／#730（報告）、#727（E7，使用者在 Colab 跑）、#675（LIVE Agent 預設設定，等 E6 選組）、#735（FEAT-LIVE-FINISH，只剩 #675）。
@@ -126,7 +123,7 @@ tag 共 47 個（`archive/*`），保留。
 ### 3.6 建議執行順序（大工作完成後）
 
 1. **觸發條件**：E6 結果 PR（#754）合併、#732 回填完成、E7 分析完成、#734 報告數字補上。
-2. **GitHub**（Haiku 執行、協調者核對）：~~關閉 §3.1.1 的 issue、修正 §3.1.5 的標籤~~（D410 提前做了，剩 §3.1.1 表中的 4 個）；#93 工作清單改為只列現行工作。
+2. **GitHub**（Haiku 執行、協調者核對）：~~關閉 §3.1.1 的 issue、修正 §3.1.5 的標籤~~（D410、D411 已做完）；#93 工作清單改為只列現行工作。
 3. **分支**：協調者寫好一條刪除指令（17 支已合併分支），使用者執行；`claude/docs-handoff-20261124` 先處理 `c37a0cc4`；archive 類的分支由使用者決定保留或改成 tag。
 4. **`local/`**：照 §3.4 的流程重新盤點、核對、決定，由使用者刪除。
 5. **文件**：照 §3.5，以 D408 的做法分批搬移，每批一個 PR，附對照表、pin 重新登記、連結檢查。
