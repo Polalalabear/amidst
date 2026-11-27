@@ -2,6 +2,8 @@
 
 快照時間 2026-11-27 約 10:30（+08:00）。main = `71633fb8`；8785 pin = `5727fc9a`（未變）；下一個決策號 **D404**。之後的狀態以 [#93](https://github.com/Polalalabear/amidst/issues/93)、[#674](https://github.com/Polalalabear/amidst/issues/674) 為準。新的協調對話**全程用繁體中文**（D255）。前一份：[2026-11-27 交接](../history/COORDINATOR_HANDOFFS_20261025_20261127.md#h20261127)（已併入合集）。
 
+> 後續：[2026-11-27 第三次交接](COORDINATOR_HANDOFF_20261127c.md)（E6 正式結果與之後的待辦）。CLAUDE.md、AGENTS.md 仍指向本文件（authority pin），請接著讀第三次交接。
+
 ## 0. 先讀
 
 1. 本文件。

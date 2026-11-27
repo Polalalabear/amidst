@@ -42,7 +42,7 @@
 ### 營運與交接
 
 - [C／#486 自有依賴與主線交接](operations/DEMO_OWNED_DEPENDENCIES_20261108.md)：單一設定、鎖定、manifest、舊路徑對照與驗證命令
-- [最新協調者交接（2026-11-27b）](agents/COORDINATOR_HANDOFF_20261127b.md)；之後的決策在 [#93](https://github.com/Polalalabear/amidst/issues/93)
+- [最新協調者交接（2026-11-27c）](agents/COORDINATOR_HANDOFF_20261127c.md)（前一份 [2026-11-27b](agents/COORDINATOR_HANDOFF_20261127b.md)）；之後的決策在 [#93](https://github.com/Polalalabear/amidst/issues/93)
 - [Q1–Q5 進度導覽](operations/Q1Q5_PROGRESS.md)：全部 PR 與 issue 的分類
 - [本機測試設定](operations/Q1Q5_LOCAL_TEST_SETUP.md)
 - [D133 LOCAL 播放代理與 Mac 切鏡量測](engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md)：#444／#479 的工程收據，無整合 merge
@@ -79,7 +79,7 @@ Two lines run in parallel (D87): **Line 1** is the r004 A4-1/B4-1 baseline (D89)
 - **Line 2:** [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (#252), [complex scenario cards v2](https://github.com/Polalalabear/amidst/pull/261) (#261) and the [Q5 scoring v2 design](https://github.com/Polalalabear/amidst/pull/258) (#258); all Draft PRs, not yet merged.
 - **Current experiments:** E3 [preregistration](evaluation/E3_PREREGISTRATION_20261122.md), E5 [report](operations/E5_REPORT_20261123.md), [E6 plan (D377)](evaluation/E6_PLAN_20261124.md).
 - **Evaluation (D340, D341):** [Agent vs rule hypotheses H1–H6](evaluation/AGENT_VS_RULE_HYPOTHESES_20261120.md) (§0 current evidence), [W1 frame evaluation](evaluation/W1_FRAME_EVAL_20261120.md), [vision-agent pilot](evaluation/VISION_AGENT_RECORDED_20261120.md), [W2 active Agent](evaluation/W2_ACTIVE_AGENT_20261120.md), [Agent wiring and ApiGuard audit](engineering/AGENT_API_WIRING_AUDIT_20261120.md), [code ↔ document map](index/CODE_DOC_MAP.md).
-- **Operations:** [latest coordinator handoff (2026-11-27b)](agents/COORDINATOR_HANDOFF_20261127b.md), [progress guide](operations/Q1Q5_PROGRESS.md), [local test setup](operations/Q1Q5_LOCAL_TEST_SETUP.md).
+- **Operations:** [latest coordinator handoff (2026-11-27c)](agents/COORDINATOR_HANDOFF_20261127c.md), [progress guide](operations/Q1Q5_PROGRESS.md), [local test setup](operations/Q1Q5_LOCAL_TEST_SETUP.md).
 
 ### Archive
 
