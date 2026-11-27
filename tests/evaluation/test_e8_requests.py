@@ -143,3 +143,14 @@ def test_no_duplicate_definitions():
     existing = set().union(*(defs(p) for p in reused if (ROOT / p).exists()))
     for p in e8:
         assert not (defs(p) & existing), (p, defs(p) & existing)
+
+
+def test_inference_side_does_not_import_scoring():
+    """Design §4.4 (D385/D417): inference-side E8 code never imports scoring modules."""
+    banned = ('e3_scoring', 'e7_scoring_bridge', 'e6_verdict', 'e8_score', 'e3_f4_score')
+    for p in ('src/amidst/evaluation/e8_requests.py', 'src/amidst/evaluation/e8_handoff.py'):
+        if (ROOT / p).exists():
+            tree = ast.parse((ROOT / p).read_text())
+            mods = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+            mods |= {n.module or '' for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
+            assert not [m for m in mods if any(b in m for b in banned)], p
