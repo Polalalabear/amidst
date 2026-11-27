@@ -79,7 +79,7 @@ def test_notebook_json_validity_and_cell_structure():
     dec_src = all_code[dec_idx]
     for fn_name in (
         "build_qwen_vl_inference_fn",
-        "build_laya_text_inference_fn",
+        "build_laya_native_inference_fn",
         "build_diffusion_vlm_inference_fn",
         "build_smoke_inference_fn",
     ):
@@ -138,7 +138,7 @@ def test_decider_gt_isolation_ast_and_signature():
         E7.QwenVLDecider.__init__,
         E7.DiffusionVLMDecider.__init__,
         E7.build_qwen_vl_inference_fn,
-        E7.build_laya_text_inference_fn,
+        E7.build_laya_native_inference_fn,
         E7.build_diffusion_vlm_inference_fn,
         E7.run_acceleration_comparison,
     ):
@@ -173,7 +173,7 @@ def test_laya_and_diffusion_custom_code_audit_gate():
         un_audited.decide(reqs[0], accelerated=True)
 
     with pytest.raises(E7.CustomCodeAuditError):
-        E7.build_laya_text_inference_fn(custom_code_audited=False)
+        E7.build_laya_native_inference_fn(custom_code_audited=False)
 
     with pytest.raises(E7.CustomCodeAuditError):
         E7.build_diffusion_vlm_inference_fn(custom_code_audited=False)
@@ -491,12 +491,12 @@ def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
     env["REQUESTS"] = _make_synthetic_requests()
     exec(compile("".join(cell6["source"]), "e7-cell-6-run-deciders", "exec"), env)
 
-    # Qwen (2 modes: image_text + text_only) ran cleanly; laya and diffusion_vlm were skipped as SKIPPED_UNAUDITED
-    assert len(env["RAW_COMPARISONS"]) == 2
-    assert all(r["party_id"] == "qwen_vl" for r in env["RAW_COMPARISONS"])
+    # Qwen (2 modes) and both audited laya parties (text_only) ran cleanly; only diffusion_vlm is SKIPPED_UNAUDITED
+    assert len(env["RAW_COMPARISONS"]) == 4
+    assert {r["party_id"] for r in env["RAW_COMPARISONS"]} == {"qwen_vl", "laya_text", "laya_typed"}
     skipped = env["SKIPPED_MODELS"]
-    assert len(skipped) == 2
-    assert {s["party_id"] for s in skipped} == {"laya_text", "diffusion_vlm"}
+    assert len(skipped) == 1
+    assert {s["party_id"] for s in skipped} == {"diffusion_vlm"}
     assert all(s["status"] == "SKIPPED_UNAUDITED" for s in skipped)
 
 
@@ -536,3 +536,154 @@ def test_p2_3_and_p2_4_warmup_excluded_from_latency_and_hardware_provenance_dtyp
     hw = E7.collect_hardware_provenance(REPO_ROOT)
     assert isinstance(hw["cuda_bf16_supported"], bool)
     assert hw["actual_accelerated_dtype"] in {"bf16", "fp16", "fp32"}
+
+
+# --------------------------------------------------------------------------- laya native adapter (#727)
+def _laya_req(n_cands: int = 2) -> E7.DeciderRequest:
+    return E7.DeciderRequest(
+        request_id="r1",
+        case_id="E3-A1",
+        dataset_group="e3_16_segments",
+        tick=10,
+        variable_text="DETECTIONS tick=10",
+        candidates=tuple(
+            {"detection_id": f"D{i}", "camera_id": "CAM_ENTRY", "box": [1, 2, 3, 4], "score": 0.5}
+            for i in range(n_cands)
+        ),
+        camera_ids=("CAM_EXT_CAR", "CAM_ENTRY"),
+    )
+
+
+def test_laya_request_to_state_and_questions():
+    state, questions, option_map = E7.build_laya_state_and_questions(_laya_req(2))
+    assert state["case"] == "E3-A1" and state["cameras"] == ["CAM_EXT_CAR", "CAM_ENTRY"]
+    q = questions["pick"]
+    assert q["type"] == "choice" and isinstance(q["instructions"], str)
+    assert list(q["criteria"]) == [
+        "SELECT:CAM_ENTRY|D0",
+        "SELECT:CAM_ENTRY|D1",
+        "NOT_VISIBLE",
+        "UNCERTAIN",
+        "STILL_HERE_OCCLUDED",
+    ]
+    assert "D0" in q["criteria"]["SELECT:CAM_ENTRY|D0"]
+    assert set(option_map) == set(q["criteria"])
+    # the AO state must not carry any answer/GT-like key
+    assert not ({"gt", "expected", "answer_table"} & set(state))
+
+
+def test_laya_choice_to_ao_json_and_fallbacks():
+    req = _laya_req(1)
+    _, _, option_map = E7.build_laya_state_and_questions(req)
+    sel = E7.laya_answer_to_ao_json({"choice": "SELECT:CAM_ENTRY|D0", "confidence": 0.7}, option_map, req.camera_ids)
+    parsed, err = E7.parse_ao_json_response(sel, req.camera_ids, req.candidates)
+    assert err is None and parsed["answer"] == "SELECT"
+    assert parsed["camera_id"] == "CAM_ENTRY" and parsed["detection_id"] == "D0" and parsed["confidence"] == 0.7
+    nv = E7.laya_answer_to_ao_json({"choice": "NOT_VISIBLE"}, option_map, req.camera_ids)
+    parsed, err = E7.parse_ao_json_response(nv, req.camera_ids, req.candidates)
+    assert err is None and parsed["answer"] == "NOT_VISIBLE"
+    occ = E7.laya_answer_to_ao_json({"choice": "STILL_HERE_OCCLUDED"}, option_map, req.camera_ids)
+    parsed, err = E7.parse_ao_json_response(occ, req.camera_ids, req.candidates)
+    assert err == "BAD_CAMERA"  # occluded needs a camera; laya choice carries none -> counted as fallback
+    for bad in (None, {}, {"choice": "bogus"}, {"choice": 3}):
+        raw = E7.laya_answer_to_ao_json(bad, option_map, req.camera_ids)
+        parsed, err = E7.parse_ao_json_response(raw, req.camera_ids, req.candidates)
+        assert parsed is None and err == "FORMAT_INVALID"
+
+
+def test_laya_native_gate_and_sha_mismatch(tmp_path: Path):
+    with pytest.raises(E7.CustomCodeAuditError):
+        E7.build_laya_native_inference_fn(custom_code_audited=False)
+    with pytest.raises(E7.CustomCodeAuditError, match="audited commit"):
+        E7.build_laya_native_inference_fn(custom_code_audited=True, audited_commit="deadbeef")
+    # wrong file contents -> hash mismatch
+    for name in E7.LAYA_AUDITED_PY_SHA256:
+        (tmp_path / name).write_text("print('tampered')\n", encoding="utf-8")
+    with pytest.raises(E7.CustomCodeAuditError, match="CUSTOM_CODE_HASH_MISMATCH"):
+        E7.verify_laya_audited_files(tmp_path)
+    fn = E7.build_laya_native_inference_fn(
+        custom_code_audited=True,
+        audited_commit=E7.LAYA_AUDITED_COMMIT,
+        snapshot_dir=str(tmp_path),
+    )
+    with pytest.raises(E7.CustomCodeAuditError, match="CUSTOM_CODE_HASH_MISMATCH"):
+        fn.warmup(False)  # fails BEFORE importing any snapshot code
+    assert all(len(v) == 64 for v in E7.LAYA_AUDITED_PY_SHA256.values())
+    assert E7.LAYA_AUDITED_PY_SHA256["rl_common.py"].startswith("8d83611d")
+    assert E7.LAYA_AUDITED_PY_SHA256["rl_agent_api.py"].startswith("be3b4681")
+    assert E7.LAYA_AUDITED_PY_SHA256["email_utils.py"].startswith("1b1c0a6e")
+
+
+def test_laya_allow_patterns_root_only_and_subdir():
+    root = E7.laya_allow_patterns()
+    assert {"rl_common.py", "rl_agent_api.py", "email_utils.py", "model.safetensors", "encoder/*", "tokenizer/*"} <= set(root)
+    assert not any(p.startswith(("typed-decisions", "multilingual", "assets", "eval")) for p in root)
+    sub = E7.laya_allow_patterns("typed-decisions")
+    assert "typed-decisions/model.safetensors" in sub and "model.safetensors" not in sub
+
+
+def test_laya_native_infer_with_stub_agent_records_option_counts(tmp_path: Path, monkeypatch):
+    """Stub rl_agent_api whose hashes are patched in; no weights, no GPU, no download."""
+    stub = tmp_path / "rl_agent_api.py"
+    stub.write_text(
+        "class RLAgent:\n"
+        "    def __init__(self, d, device=None):\n        pass\n"
+        "    def system_one(self, state, questions):\n"
+        "        keys = list(questions['pick']['criteria'])\n"
+        "        return {'answers': {'pick': {'type': 'choice', 'choice': keys[0], 'confidence': 0.9}}}\n",
+        encoding="utf-8",
+    )
+    for name in ("rl_common.py", "email_utils.py"):
+        (tmp_path / name).write_text("", encoding="utf-8")
+    patched = {n: hashlib.sha256((tmp_path / n).read_bytes()).hexdigest() for n in E7.LAYA_AUDITED_PY_SHA256}
+    monkeypatch.setattr(E7, "LAYA_AUDITED_PY_SHA256", patched)
+    monkeypatch.setitem(__import__("sys").modules, "torch", type("T", (), {"cuda": type("C", (), {"is_available": staticmethod(lambda: False)})})())
+    monkeypatch.setitem(__import__("sys").modules, "rl_agent_api", None)  # monkeypatch restores/removes it on teardown
+    monkeypatch.delitem(__import__("sys").modules, "rl_agent_api")
+    fn = E7.build_laya_native_inference_fn(
+        custom_code_audited=True, audited_commit=E7.LAYA_AUDITED_COMMIT, snapshot_dir=str(tmp_path)
+    )
+    dec = E7.LayaTextDecider(custom_code_audited=True, audited_commit=E7.LAYA_AUDITED_COMMIT, inference_fn=fn)
+    dec.warmup(accelerated=False)
+    out = dec.decide(_laya_req(22), accelerated=False)
+    assert out["fallback_reason"] is None and out["parsed"]["answer"] == "SELECT"
+    assert out["retries_attempted"] == 0
+    stats = fn.option_stats()
+    assert stats["n"] == 1 and stats["over_20"] == 1  # 22 candidates + 3 fixed options > 20
+    assert set(fn.provenance["py_sha256"]) == set(patched)
+
+
+def test_two_laya_parties_build_own_inference_fns(tmp_path: Path, monkeypatch):
+    nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    cell1 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-1-config")
+    env: dict = {}
+    exec(compile("".join(cell1["source"]), "e7-cell-1-config", "exec"), env)
+    laya = {c["party_id"]: c for c in env["MODEL_CONFIGS"] if c["adapter"] == "LayaTextDecider"}
+    assert set(laya) == {"laya_text", "laya_typed"}
+    assert laya["laya_text"].get("checkpoint_subdir", "") == ""
+    assert laya["laya_typed"]["checkpoint_subdir"] == "typed-decisions"
+    for c in laya.values():
+        assert c["audited_commit"] == c["hf_revision"] == E7.LAYA_AUDITED_COMMIT and c["custom_code_audited"]
+
+    seen: dict[str, dict] = {}
+    real = E7.build_laya_native_inference_fn
+
+    def spy(*a, **kw):
+        fn = real(*a, **kw)
+        seen[kw["checkpoint_subdir"]] = kw
+        return fn
+
+    monkeypatch.setattr(E7, "build_laya_native_inference_fn", spy)
+    for c in laya.values():
+        d = E7.LayaTextDecider(
+            c["hf_repo_id"], c["hf_revision"], custom_code_audited=True, audited_commit=c["audited_commit"],
+            party_id=c["party_id"], checkpoint_subdir=c.get("checkpoint_subdir", ""),
+        )
+        assert d.spec.party_id == c["party_id"]
+        d.validate_custom_code_gate()
+        # builds lazily via predict path without downloading: construction only
+        fn = E7.build_laya_native_inference_fn(
+            audited_commit=c["audited_commit"], custom_code_audited=True, checkpoint_subdir=d.checkpoint_subdir
+        )
+        assert callable(fn)
+    assert set(seen) == {"", "typed-decisions"}

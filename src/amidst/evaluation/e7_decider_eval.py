@@ -42,6 +42,8 @@ DEFAULT_SIZE = (320, 180)
 PINNED_DEPS = (
     "torch==2.5.1",
     "transformers==4.49.0",
+    "huggingface_hub==0.29.1",
+    "safetensors==0.5.3",
     "accelerate==1.4.0",
     "Pillow==11.1.0",
     "numpy==2.1.3",
@@ -515,57 +517,187 @@ def build_qwen_vl_inference_fn(
     return _infer
 
 
-def build_laya_text_inference_fn(
-    model_id: str = "convaiinnovations/laya",
-    revision: str = "main",
+LAYA_REPO_ID = "convaiinnovations/laya"
+LAYA_AUDITED_COMMIT = "246177e5cb70334c9831c0730864a93c836aac8f"
+# Full SHA-256 of the three audited custom .py files (#727 audit, verified via HF at the pinned commit).
+LAYA_AUDITED_PY_SHA256 = {
+    "rl_common.py": "8d83611d480c971d640a7b7d3aa2f2219c5e8455e9cc2329fd073681bd8be23e",
+    "rl_agent_api.py": "be3b46819c9999c3ef88e0f2ecf6d3ab1cdfed1d9a8b466fc89811e34d44031b",
+    "email_utils.py": "1b1c0a6e23251ac8cae81e723bc98a31ca5483522c742937e263c2ecee42f343",
+}
+LAYA_NON_CHOICE_OPTIONS = ("NOT_VISIBLE", "UNCERTAIN", "STILL_HERE_OCCLUDED")
+LAYA_OPTION_WARN_THRESHOLD = 20
+LAYA_INSTRUCTIONS = (
+    "Identity is UNCONFIRMED. Pick the one candidate detection that is most likely the tracked target, "
+    "or NOT_VISIBLE / UNCERTAIN / STILL_HERE_OCCLUDED if no candidate fits."
+)
+
+
+def laya_allow_patterns(checkpoint_subdir: str = "") -> list[str]:
+    """Files to download: the 3 audited .py files, the root config, and ONE checkpoint's files only."""
+    pre = f"{checkpoint_subdir.strip('/')}/" if checkpoint_subdir else ""
+    return [
+        *LAYA_AUDITED_PY_SHA256,
+        "config.json",
+        f"{pre}model.safetensors",
+        f"{pre}rl_agent_config.json",
+        f"{pre}encoder/*",
+        f"{pre}tokenizer/*",
+    ]
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def verify_laya_audited_files(snapshot_dir: Path | str) -> dict[str, str]:
+    """Check the 3 audited .py files against the audited SHA-256; raise ``CustomCodeAuditError`` on mismatch."""
+    root = Path(snapshot_dir)
+    out: dict[str, str] = {}
+    for name, expected in LAYA_AUDITED_PY_SHA256.items():
+        fp = root / name
+        if not fp.is_file():
+            raise CustomCodeAuditError(f"CUSTOM_CODE_HASH_MISMATCH: {name} missing from laya snapshot")
+        got = _sha256_file(fp)
+        if got != expected:
+            raise CustomCodeAuditError(
+                f"CUSTOM_CODE_HASH_MISMATCH: {name} sha256 {got[:8]} != audited {expected[:8]}"
+            )
+        out[name] = got
+    return out
+
+
+def snapshot_file_hashes(snapshot_dir: Path | str) -> dict[str, str]:
+    """SHA-256 of every file in the snapshot (relative path -> hex digest) for provenance."""
+    root = Path(snapshot_dir)
+    return {
+        str(fp.relative_to(root)): _sha256_file(fp)
+        for fp in sorted(root.rglob("*"))
+        if fp.is_file() or (fp.is_symlink() and fp.resolve().is_file())
+    }
+
+
+def _candidate_option_text(c: dict[str, Any]) -> str:
+    return f"camera {c.get('camera_id')} detection {c.get('detection_id')} box {c.get('box')} score {c.get('score')}"
+
+
+def build_laya_state_and_questions(req: DeciderRequest) -> tuple[dict[str, Any], dict[str, Any], dict[str, dict[str, Any]]]:
+    """DeciderRequest -> (laya state, questions, option_id -> candidate/answer map). Text-only, inference-side only."""
+    state = {
+        "case": req.case_id,
+        "tick": req.tick,
+        "cameras": list(req.camera_ids),
+        "context": req.variable_text,
+    }
+    criteria: dict[str, str] = {}
+    option_map: dict[str, dict[str, Any]] = {}
+    for c in req.candidates:
+        oid = f"SELECT:{c.get('camera_id')}|{c.get('detection_id')}"
+        if oid in option_map:
+            continue
+        criteria[oid] = _candidate_option_text(c)
+        option_map[oid] = {"answer": "SELECT", "camera_id": c.get("camera_id"), "detection_id": c.get("detection_id")}
+    for name in LAYA_NON_CHOICE_OPTIONS:
+        criteria[name] = ""
+        option_map[name] = {"answer": name}
+    questions = {"pick": {"type": "choice", "instructions": LAYA_INSTRUCTIONS, "criteria": criteria}}
+    return state, questions, option_map
+
+
+def laya_answer_to_ao_json(
+    answer: Any, option_map: dict[str, dict[str, Any]], camera_ids: tuple[str, ...]
+) -> str:
+    """Convert laya ``answers['pick']`` into an AO JSON string; invalid/missing choice -> unparsable JSON (format fallback)."""
+    choice = answer.get("choice") if isinstance(answer, dict) else None
+    spec = option_map.get(choice) if isinstance(choice, str) else None
+    if spec is None:
+        return json.dumps({"answer": "LAYA_INVALID_CHOICE"})
+    conf = answer.get("confidence")
+    ans = spec["answer"]
+    cam = spec.get("camera_id")
+    return json.dumps(
+        {
+            "answer": ans,
+            "camera_id": cam,
+            "detection_id": spec.get("detection_id"),
+            "box_xyxy": None,
+            "next_camera_ranking": [cam] if cam else list(camera_ids[:3]),
+            "confidence": float(conf) if isinstance(conf, (int, float)) and not isinstance(conf, bool) else None,
+            "reason_codes": ["LAYA_NATIVE"],
+            "reason": f"laya choice={choice}",
+        }
+    )
+
+
+def build_laya_native_inference_fn(
+    model_id: str = LAYA_REPO_ID,
+    revision: str = LAYA_AUDITED_COMMIT,
     *,
     custom_code_audited: bool = False,
     audited_commit: str | None = None,
     device: str | None = None,
     use_acceleration: bool = True,
-    max_new_tokens: int = 256,
+    snapshot_dir: str | None = None,
+    checkpoint_subdir: str = "",
 ) -> Callable[[DeciderRequest, bool], str]:
-    """Build a real HuggingFace ``transformers`` Laya text-only inference callable.
+    """Laya native (ModernBERT encoder + decision head) inference via the audited ``rl_agent_api.RLAgent``.
 
-    Enforces the mandatory custom ``.py`` audit gate BEFORE loading with
-    ``trust_remote_code=True``.
+    Executes ONLY the three audited .py files (SHA-256 verified) plus transformers; no ``pip install laya``
+    and no ``trust_remote_code``. The encoder architecture config ships inside the pinned snapshot
+    (``encoder/``), so no separate ModernBERT download happens. ``checkpoint_subdir=""`` loads the repo-root
+    English checkpoint (what ``laya.Agent("convaiinnovations/laya")`` loads per the README); only that
+    checkpoint's files plus the 3 audited .py files are downloaded (``allow_patterns``). Exposes ``.provenance`` and ``.option_counts``.
     """
     if not custom_code_audited or not audited_commit:
         raise CustomCodeAuditError(
-            f"CUSTOM_CODE_NOT_AUDITED: laya_text ({model_id}) requires custom_code_audited=True "
-            "and a pinned audited_commit before trust_remote_code=True."
+            f"CUSTOM_CODE_NOT_AUDITED: laya_text ({model_id}) requires custom_code_audited=True and audited_commit."
+        )
+    if audited_commit != LAYA_AUDITED_COMMIT or revision != LAYA_AUDITED_COMMIT:
+        raise CustomCodeAuditError(
+            f"CUSTOM_CODE_NOT_AUDITED: laya revision must equal audited commit {LAYA_AUDITED_COMMIT}"
         )
 
-    pinned_rev = audited_commit or revision
     cache: dict[str, Any] = {}
+    option_counts: list[int] = []
+    provenance: dict[str, Any] = {"repo_id": model_id, "revision": revision}
 
     def _ensure_loaded(accelerated: bool):
+        if "agent" in cache:
+            return cache["agent"]
+        import importlib
+
+        if snapshot_dir is not None:
+            snap = Path(snapshot_dir)
+        else:
+            from huggingface_hub import snapshot_download
+
+            snap = Path(
+                snapshot_download(
+                    repo_id=model_id,
+                    revision=revision,
+                    allow_patterns=laya_allow_patterns(checkpoint_subdir),
+                )
+            )
+        provenance["py_sha256"] = verify_laya_audited_files(snap)
+        provenance["snapshot_sha256"] = snapshot_file_hashes(snap)
+        sys.path.insert(0, str(snap))
+        try:
+            api = importlib.import_module("rl_agent_api")
+        finally:
+            if sys.path and sys.path[0] == str(snap):
+                sys.path.pop(0)
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
 
         use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
-        target_device = device if device is not None else ("cuda" if use_cuda else "cpu")
-        if target_device.startswith("cuda"):
-            bf16_ok = bool(hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported())
-            dtype = torch.bfloat16 if bf16_ok else torch.float16
-        else:
-            dtype = torch.float32
-        key = f"{target_device}:{dtype}"
-        if key not in cache:
-            tokenizer = cache.get("tokenizer")
-            if tokenizer is None:
-                tokenizer = AutoTokenizer.from_pretrained(model_id, revision=pinned_rev, trust_remote_code=True)
-                cache["tokenizer"] = tokenizer
-            model = AutoModelForCausalLM.from_pretrained(
-                model_id,
-                revision=pinned_rev,
-                torch_dtype=dtype,
-                trust_remote_code=True,
-            )
-            model.to(target_device)
-            model.eval()
-            cache[key] = (tokenizer, model, target_device)
-        return cache[key]
+        target = device if device is not None else ("cuda" if use_cuda else "cpu")
+        model_dir = snap / checkpoint_subdir if checkpoint_subdir else snap
+        provenance["checkpoint_subdir"] = checkpoint_subdir or "(repo root, English)"
+        cache["agent"] = api.RLAgent(str(model_dir), device=target)
+        return cache["agent"]
 
     def _warmup(accelerated: bool) -> float:
         t0 = time.perf_counter()
@@ -573,19 +705,25 @@ def build_laya_text_inference_fn(
         return round((time.perf_counter() - t0) * 1000.0, 3)
 
     def _infer(req: DeciderRequest, accelerated: bool) -> str:
-        import torch
+        agent = _ensure_loaded(accelerated)
+        state, questions, option_map = build_laya_state_and_questions(req)
+        option_counts.append(len(option_map))
+        try:
+            out = agent.system_one(state, questions)
+            answer = (out.get("answers") or {}).get("pick")
+        except ValueError:  # options do not fit head_max_len -> format fallback, no retry
+            answer = None
+        return laya_answer_to_ao_json(answer, option_map, req.camera_ids)
 
-        tokenizer, model, target_device = _ensure_loaded(accelerated)
-        prompt = assemble_ao_prompt(req)
-        inputs = tokenizer(prompt, return_tensors="pt")
-        inputs = {k: v.to(target_device) if hasattr(v, "to") else v for k, v in inputs.items()}
-        with torch.no_grad():
-            generated = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
-        prompt_len = inputs["input_ids"].shape[1]
-        trimmed = generated[:, prompt_len:]
-        return tokenizer.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
+    def _option_stats() -> dict[str, Any]:
+        n = len(option_counts)
+        over = sum(1 for k in option_counts if k > LAYA_OPTION_WARN_THRESHOLD)
+        return {"n": n, "over_20": over, "over_20_ratio": (over / n) if n else 0.0}
 
     _infer.warmup = _warmup  # type: ignore[attr-defined]
+    _infer.provenance = provenance  # type: ignore[attr-defined]
+    _infer.option_counts = option_counts  # type: ignore[attr-defined]
+    _infer.option_stats = _option_stats  # type: ignore[attr-defined]
     return _infer
 
 
@@ -735,7 +873,7 @@ class LayaTextDecider(BaseDeciderAdapter):
     """Laya text-only option-selection decider (primary option model; HF custom .py audit gate enforced)."""
 
     DEFAULT_AUDIT_CHECKLIST = (
-        "Read modeling_*.py and configuration_*.py at pinned HF revision before trust_remote_code=True",
+        "Read the HF custom .py files at the pinned revision before executing them",
         "Verify no network exfiltration, shell execution, or host filesystem reads in custom .py",
         "Record exact audited git commit SHA in DeciderSpec.audited_commit",
     )
@@ -743,15 +881,19 @@ class LayaTextDecider(BaseDeciderAdapter):
     def __init__(
         self,
         hf_repo_id: str = "convaiinnovations/laya",
-        hf_revision: str = "main",
+        hf_revision: str = LAYA_AUDITED_COMMIT,
         *,
         custom_code_audited: bool = False,
         audited_commit: str | None = None,
         inference_fn: Callable[[DeciderRequest, bool], str] | None = None,
+        party_id: str = "laya_text",
+        label: str | None = None,
+        checkpoint_subdir: str = "",
     ):
+        self.checkpoint_subdir = checkpoint_subdir
         spec = DeciderSpec(
-            party_id="laya_text",
-            label="Laya Text-Only (Option Selector)",
+            party_id=party_id,
+            label=label or f"Laya Text-Only (Option Selector, {checkpoint_subdir or 'root English'} checkpoint)",
             category="local_option",
             hf_repo_id=hf_repo_id,
             hf_revision=hf_revision,
@@ -768,11 +910,12 @@ class LayaTextDecider(BaseDeciderAdapter):
         self.validate_custom_code_gate()
         t0 = time.perf_counter()
         if self._inference_fn is None:
-            self._inference_fn = build_laya_text_inference_fn(
+            self._inference_fn = build_laya_native_inference_fn(
                 self.spec.hf_repo_id,
                 self.spec.hf_revision,
                 custom_code_audited=self.spec.custom_code_audited,
                 audited_commit=self.spec.audited_commit,
+                checkpoint_subdir=self.checkpoint_subdir,
             )
         warmup_fn = getattr(self._inference_fn, "warmup", None)
         if callable(warmup_fn):
@@ -782,11 +925,12 @@ class LayaTextDecider(BaseDeciderAdapter):
     def predict_raw(self, req: DeciderRequest, *, accelerated: bool) -> str:
         self.validate_custom_code_gate()
         if self._inference_fn is None:
-            self._inference_fn = build_laya_text_inference_fn(
+            self._inference_fn = build_laya_native_inference_fn(
                 self.spec.hf_repo_id,
                 self.spec.hf_revision,
                 custom_code_audited=self.spec.custom_code_audited,
                 audited_commit=self.spec.audited_commit,
+                checkpoint_subdir=self.checkpoint_subdir,
             )
         return self._inference_fn(req, accelerated)
 
