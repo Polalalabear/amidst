@@ -2680,6 +2680,30 @@
       ],
       "issue_ref": "#731",
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e6.arm-config.v1",
+      "source_paths": [
+        "configs/evaluation/e6_arms_v1.json"
+      ],
+      "issue_ref": "#721",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e6.arm-log.v1",
+      "source_paths": [
+        "scripts/evaluation/e6_arms_run.py"
+      ],
+      "issue_ref": "#721",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e6.verdict.v1",
+      "source_paths": [
+        "src/amidst/evaluation/e6_verdict.py"
+      ],
+      "issue_ref": "#721",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }
