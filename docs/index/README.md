@@ -49,6 +49,7 @@
 | 2026-11-20 | D342 | #648 合併後的全面文件同步：`CODE_DOC_MAP.md` §1 加 `camera_projection.py`、付費護欄與 G7、假設評估（W1、先導、W2）三列；規格 §2 資料流加 Agent 模式、§4.3 補 `ApiGuard` 路徑、G7、H1–H6 目前證據，§8 U-9 關閉、新增 U-18；假設文件新增 §0 目前證據狀態；W1 文件主結果改為多數決並補 `rule_nocolor` 說明（#647 Opus 後續 2、3）；README、AGENTS.md 來源文件清單；`Q1Q5_PROGRESS.md` 補到 #650；authority pin 補登 `docs/specs/DEVELOPMENT_RULES.md` | 本 PR |
 | 2026-11-22 | D344／F1 [#660](https://github.com/Polalalabear/amidst/issues/660) | 新增 `E3_PREREGISTRATION_20261122.md`、`E3_SCORER_RECOMPUTE_20261122.md`；`CODE_DOC_MAP.md` 加 E3 統一評分器一列。W2 文件與假設文件 §0 的「IoU 準則 0.761、錯人 6.3 s」依重算結果待後續修正（本 PR 不改） | 本 PR |
 | 2026-11-24 | D377／[#722](https://github.com/Polalalabear/amidst/pull/722) | 新增 `E6_PLAN_20261124.md`；`CODE_DOC_MAP.md` 加 E3、F2、F3、E5、E6、ApiGuard 快取與 LIVE 對應；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §0 加 E5 結果與 E6 指向；`docs/README.md`、AGENTS.md、CLAUDE.md 改指 20261124b 交接；`Q1Q5_PROGRESS.md` 補到 #722。根目錄 `README.md` 由 #719 更新，本次不動 | [#722](https://github.com/Polalalabear/amidst/pull/722) |
+| 2026-11-27 | D407 | `CODE_DOC_MAP.md` §1 的 E6 列拆成 E6 預登／R-N、路線與錄製、Agent 組、一次跑完四列，新增 E7、AO-L 延遲歸零與統一分析、報告資料夾、重現包四列，俯視圖 3D 補 #714；CLAUDE.md、AGENTS.md、`docs/README.md` 改指 `COORDINATOR_HANDOFF_20261127b.md`；`Q1Q5_PROGRESS.md` 補到 #755 | 本 PR（分支 `claude/docs-update-20261127`） |
 
 ## 論文素材
 

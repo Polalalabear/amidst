@@ -42,7 +42,7 @@
 ### 營運與交接
 
 - [C／#486 自有依賴與主線交接](operations/DEMO_OWNED_DEPENDENCIES_20261108.md)：單一設定、鎖定、manifest、舊路徑對照與驗證命令
-- [最新協調者交接（2026-11-26）](agents/COORDINATOR_HANDOFF_20261126.md)；之後的決策在 [#93](https://github.com/Polalalabear/amidst/issues/93)
+- [最新協調者交接（2026-11-27b）](agents/COORDINATOR_HANDOFF_20261127b.md)；之後的決策在 [#93](https://github.com/Polalalabear/amidst/issues/93)
 - [Q1–Q5 進度導覽](operations/Q1Q5_PROGRESS.md)：全部 PR 與 issue 的分類
 - [本機測試設定](operations/Q1Q5_LOCAL_TEST_SETUP.md)
 - [D133 LOCAL 播放代理與 Mac 切鏡量測](engineering/D133_PLAYBACK_PROXY_MEASUREMENT_20261108.md)：#444／#479 的工程收據，無整合 merge
