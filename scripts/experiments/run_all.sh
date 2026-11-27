@@ -251,8 +251,14 @@ if e6_phase_has formal; then
   run_step "Stage 2c: B1 on the formal recording (0 USD, K=1)" \
     "$PYTHON_BIN" -B scripts/evaluation/e3_f4_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
       --out "${E6_FORMAL_OUT}/b1" --cases "${E6_FORMAL_CASES[@]}" --arms B1
-  echo "==> [Stage 2c: R-N on the formal recording] UNKNOWN: scripts/evaluation/e6_rule_neutral.py is hard-wired to the old 16 corpora" \
-       "(--evidence/f4-658 B1 seeds); R-N for E6-S01..S12 is NOT run here until that CLI takes a root/cases/B1 seed source."
+  # R-N (zero cost): same frozen detections, seed = first ACQUIRE of the B1 run just written above (nothing else crosses). Output dir must not exist.
+  if [[ -d "${E6_FORMAL_OUT}/rn" ]]; then
+    echo "==> [Stage 2c: R-N formal] exists, skipped: ${E6_FORMAL_OUT}/rn"
+  else
+    run_step "Stage 2c: R-N on the formal recording (0 USD, RN_U + RN_N)" \
+      "$PYTHON_BIN" -B scripts/evaluation/e6_rule_neutral.py --root "${E6_FORMAL_ROOT}" --b1-runs "${E6_FORMAL_OUT}/b1" \
+        --cases "${E6_FORMAL_CASES[@]}" --cameras "${CAMERA_CATALOG}" --out "${E6_FORMAL_OUT}/rn"
+  fi
   # Paid groups, K=3. AO_ORIG = the unchanged E5 A-open (e5_run.py); budget = the gate's USD upper bound (ApiGuard cap per invocation).
   run_step "Stage 2c: AO_ORIG (K=3, paid, offline)" \
     "$PYTHON_BIN" -B scripts/evaluation/e5_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
@@ -264,7 +270,7 @@ if e6_phase_has formal; then
     "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
       --cases "${E6_FORMAL_CASES[@]}" --arms "${AGENT_ARMS[@]}" --k 3 --paid --max-usd "${ARMS_BUDGET}" \
       --baseline-json "${E6_RECON}" --out "${E6_FORMAL_OUT}/arms" --extra-ledger "${E6_LEDGERS[@]}" "${E6_FORMAL_OUT}/ledger-ao_orig"
-  echo "    Scoring and verdicts (verdict_e6, Holm IUT) are a separate task; inputs: ${E6_FORMAL_OUT}/{b1,ao_orig,arms}/<case>/."
+  echo "    Scoring and verdicts (verdict_e6, Holm IUT) are a separate task; inputs: ${E6_FORMAL_OUT}/{b1,rn,ao_orig,arms}/<case>/."
 fi
 
 # Stage 3: #672 Multi-target exploratory tracking

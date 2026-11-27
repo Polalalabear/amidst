@@ -1,0 +1,2620 @@
+{
+ "RN_N": {
+  "arm": "RN_N",
+  "call_cap": 5,
+  "calls": [
+   {
+    "accepted": true,
+    "answer": "SELECT",
+    "applied": true,
+    "applied_tick": 1,
+    "ask_tick": 0,
+    "camera_id": "CAM_W1",
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 2.5079872407968904,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     },
+     {
+      "box": [
+       100,
+       40,
+       130,
+       150
+      ],
+      "camera_id": "CAM_W1",
+      "color": "red",
+      "detection_id": "D1",
+      "distance_m": 1.044030650891055,
+      "eligible": true,
+      "est_xy": [
+       2.3,
+       3.0
+      ],
+      "reasons": [],
+      "score": 0.9
+     }
+    ],
+    "detection_id": "D1",
+    "kind": "FIRST",
+    "last_known_tick": 0,
+    "last_known_xy": [
+     2.0,
+     2.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": [
+     100,
+     40,
+     130,
+     150
+    ]
+   },
+   {
+    "accepted": true,
+    "answer": "SELECT",
+    "applied": true,
+    "applied_tick": 11,
+    "ask_tick": 10,
+    "camera_id": "CAM_W1",
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7999999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     },
+     {
+      "box": [
+       110,
+       40,
+       140,
+       150
+      ],
+      "camera_id": "CAM_W1",
+      "color": "red",
+      "detection_id": "D1",
+      "distance_m": 0.0,
+      "eligible": true,
+      "est_xy": [
+       2.5,
+       3.0
+      ],
+      "reasons": [],
+      "score": 0.9
+     }
+    ],
+    "detection_id": "D1",
+    "kind": "POLL",
+    "last_known_tick": 10,
+    "last_known_xy": [
+     2.5,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "pending_at_end": false,
+    "selected_box": [
+     110,
+     40,
+     140,
+     150
+    ]
+   },
+   {
+    "accepted": true,
+    "answer": "NOT_VISIBLE",
+    "applied": true,
+    "applied_tick": 18,
+    "ask_tick": 17,
+    "camera_id": null,
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7199999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     }
+    ],
+    "detection_id": null,
+    "kind": "LOST_EARLY",
+    "last_known_tick": 14,
+    "last_known_xy": [
+     2.58,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": null
+   },
+   {
+    "accepted": true,
+    "answer": "NOT_VISIBLE",
+    "applied": true,
+    "applied_tick": 23,
+    "ask_tick": 22,
+    "camera_id": null,
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7199999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     }
+    ],
+    "detection_id": null,
+    "kind": "LOST_EARLY",
+    "last_known_tick": 14,
+    "last_known_xy": [
+     2.58,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": null
+   },
+   {
+    "accepted": true,
+    "answer": "SELECT",
+    "applied": true,
+    "applied_tick": 28,
+    "ask_tick": 27,
+    "camera_id": "CAM_W1",
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7199999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     },
+     {
+      "box": [
+       127,
+       40,
+       157,
+       150
+      ],
+      "camera_id": "CAM_W1",
+      "color": "red",
+      "detection_id": "D1",
+      "distance_m": 0.2599999999999998,
+      "eligible": true,
+      "est_xy": [
+       2.84,
+       3.0
+      ],
+      "reasons": [],
+      "score": 0.9
+     }
+    ],
+    "detection_id": "D1",
+    "kind": "LOST_EARLY",
+    "last_known_tick": 14,
+    "last_known_xy": [
+     2.58,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": [
+     127,
+     40,
+     157,
+     150
+    ]
+   }
+  ],
+  "case_id": "E3-T1",
+  "code_sha256": "<dropped>",
+  "identity": "UNCONFIRMED",
+  "k": 1,
+  "paid_calls": 0,
+  "protocol_sha256": "<dropped>",
+  "rows": [
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 0,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 1,
+    "tracker_action": "SELECT",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      100,
+      40,
+      130,
+      150
+     ],
+     "est_xy": [
+      2.3,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      100,
+      40,
+      130,
+      150
+     ],
+     "est_xy": [
+      2.3,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 2,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      102,
+      40,
+      132,
+      150
+     ],
+     "est_xy": [
+      2.34,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      102,
+      40,
+      132,
+      150
+     ],
+     "est_xy": [
+      2.34,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 3,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      103,
+      40,
+      133,
+      150
+     ],
+     "est_xy": [
+      2.36,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      103,
+      40,
+      133,
+      150
+     ],
+     "est_xy": [
+      2.36,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 4,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      104,
+      40,
+      134,
+      150
+     ],
+     "est_xy": [
+      2.38,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      104,
+      40,
+      134,
+      150
+     ],
+     "est_xy": [
+      2.38,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 5,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      105,
+      40,
+      135,
+      150
+     ],
+     "est_xy": [
+      2.4,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      105,
+      40,
+      135,
+      150
+     ],
+     "est_xy": [
+      2.4,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 6,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      106,
+      40,
+      136,
+      150
+     ],
+     "est_xy": [
+      2.42,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      106,
+      40,
+      136,
+      150
+     ],
+     "est_xy": [
+      2.42,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 7,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      107,
+      40,
+      137,
+      150
+     ],
+     "est_xy": [
+      2.44,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      107,
+      40,
+      137,
+      150
+     ],
+     "est_xy": [
+      2.44,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 8,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      108,
+      40,
+      138,
+      150
+     ],
+     "est_xy": [
+      2.46,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      108,
+      40,
+      138,
+      150
+     ],
+     "est_xy": [
+      2.46,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 9,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      109,
+      40,
+      139,
+      150
+     ],
+     "est_xy": [
+      2.48,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      109,
+      40,
+      139,
+      150
+     ],
+     "est_xy": [
+      2.48,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 10,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 11,
+    "tracker_action": "SELECT",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 12,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      112,
+      40,
+      142,
+      150
+     ],
+     "est_xy": [
+      2.54,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      112,
+      40,
+      142,
+      150
+     ],
+     "est_xy": [
+      2.54,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 13,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      113,
+      40,
+      143,
+      150
+     ],
+     "est_xy": [
+      2.56,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      113,
+      40,
+      143,
+      150
+     ],
+     "est_xy": [
+      2.56,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 14,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "COASTING",
+    "ranking": [],
+    "tick": 15,
+    "tracker_action": "COASTING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "COASTING",
+    "ranking": [],
+    "tick": 16,
+    "tracker_action": "COASTING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 17,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 18,
+    "tracker_action": "NOT_VISIBLE",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 19,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 20,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 21,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 22,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 23,
+    "tracker_action": "NOT_VISIBLE",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 24,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 25,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 26,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 27,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 28,
+    "tracker_action": "SELECT",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      127,
+      40,
+      157,
+      150
+     ],
+     "est_xy": [
+      2.84,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      127,
+      40,
+      157,
+      150
+     ],
+     "est_xy": [
+      2.84,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 29,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      129,
+      40,
+      159,
+      150
+     ],
+     "est_xy": [
+      2.88,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   }
+  ],
+  "schema": "e6-rn.v1",
+  "seed": {
+   "camera_catalog_sha256": "cf6d12b369da11d4815172d6adfef246349c8775613b0d556ec9ac38c758b3ed",
+   "duration_s": 6.0,
+   "tick": 0,
+   "xy": [
+    2.0,
+    2.0
+   ]
+  },
+  "size": [
+   320,
+   180
+  ],
+  "sources": [
+   "indexes/E3-T1/detection_index.json",
+   "indexes/E3-T1/detection_index.records.jsonl",
+   "rgb/E3-T1/CAM_ENTRY/000000.png",
+   "rgb/E3-T1/CAM_ENTRY/000001.png",
+   "rgb/E3-T1/CAM_ENTRY/000002.png",
+   "rgb/E3-T1/CAM_ENTRY/000003.png",
+   "rgb/E3-T1/CAM_ENTRY/000004.png",
+   "rgb/E3-T1/CAM_ENTRY/000005.png",
+   "rgb/E3-T1/CAM_ENTRY/000006.png",
+   "rgb/E3-T1/CAM_ENTRY/000007.png",
+   "rgb/E3-T1/CAM_ENTRY/000008.png",
+   "rgb/E3-T1/CAM_ENTRY/000009.png",
+   "rgb/E3-T1/CAM_ENTRY/000010.png",
+   "rgb/E3-T1/CAM_ENTRY/000011.png",
+   "rgb/E3-T1/CAM_ENTRY/000012.png",
+   "rgb/E3-T1/CAM_ENTRY/000013.png",
+   "rgb/E3-T1/CAM_ENTRY/000014.png",
+   "rgb/E3-T1/CAM_ENTRY/000015.png",
+   "rgb/E3-T1/CAM_ENTRY/000016.png",
+   "rgb/E3-T1/CAM_ENTRY/000017.png",
+   "rgb/E3-T1/CAM_ENTRY/000018.png",
+   "rgb/E3-T1/CAM_ENTRY/000019.png",
+   "rgb/E3-T1/CAM_ENTRY/000020.png",
+   "rgb/E3-T1/CAM_ENTRY/000021.png",
+   "rgb/E3-T1/CAM_ENTRY/000022.png",
+   "rgb/E3-T1/CAM_ENTRY/000023.png",
+   "rgb/E3-T1/CAM_ENTRY/000024.png",
+   "rgb/E3-T1/CAM_ENTRY/000025.png",
+   "rgb/E3-T1/CAM_ENTRY/000026.png",
+   "rgb/E3-T1/CAM_ENTRY/000027.png",
+   "rgb/E3-T1/CAM_ENTRY/000028.png",
+   "rgb/E3-T1/CAM_ENTRY/000029.png",
+   "rgb/E3-T1/CAM_W1/000000.png",
+   "rgb/E3-T1/CAM_W1/000001.png",
+   "rgb/E3-T1/CAM_W1/000002.png",
+   "rgb/E3-T1/CAM_W1/000003.png",
+   "rgb/E3-T1/CAM_W1/000004.png",
+   "rgb/E3-T1/CAM_W1/000005.png",
+   "rgb/E3-T1/CAM_W1/000006.png",
+   "rgb/E3-T1/CAM_W1/000007.png",
+   "rgb/E3-T1/CAM_W1/000008.png",
+   "rgb/E3-T1/CAM_W1/000009.png",
+   "rgb/E3-T1/CAM_W1/000010.png",
+   "rgb/E3-T1/CAM_W1/000011.png",
+   "rgb/E3-T1/CAM_W1/000012.png",
+   "rgb/E3-T1/CAM_W1/000013.png",
+   "rgb/E3-T1/CAM_W1/000014.png",
+   "rgb/E3-T1/CAM_W1/000025.png",
+   "rgb/E3-T1/CAM_W1/000026.png",
+   "rgb/E3-T1/CAM_W1/000027.png",
+   "rgb/E3-T1/CAM_W1/000028.png",
+   "rgb/E3-T1/CAM_W1/000029.png",
+   "rgb/E3-T1/rgb_index.json"
+  ],
+  "tick_us": 200000
+ },
+ "RN_U": {
+  "arm": "RN_U",
+  "call_cap": 5,
+  "calls": [
+   {
+    "accepted": true,
+    "answer": "SELECT",
+    "applied": true,
+    "applied_tick": 1,
+    "ask_tick": 0,
+    "camera_id": "CAM_W1",
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 2.5079872407968904,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     },
+     {
+      "box": [
+       100,
+       40,
+       130,
+       150
+      ],
+      "camera_id": "CAM_W1",
+      "color": "red",
+      "detection_id": "D1",
+      "distance_m": 1.044030650891055,
+      "eligible": true,
+      "est_xy": [
+       2.3,
+       3.0
+      ],
+      "reasons": [],
+      "score": 0.9
+     }
+    ],
+    "detection_id": "D1",
+    "kind": "FIRST",
+    "last_known_tick": 0,
+    "last_known_xy": [
+     2.0,
+     2.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": [
+     100,
+     40,
+     130,
+     150
+    ]
+   },
+   {
+    "accepted": true,
+    "answer": "SELECT",
+    "applied": true,
+    "applied_tick": 11,
+    "ask_tick": 10,
+    "camera_id": "CAM_W1",
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7999999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     },
+     {
+      "box": [
+       110,
+       40,
+       140,
+       150
+      ],
+      "camera_id": "CAM_W1",
+      "color": "red",
+      "detection_id": "D1",
+      "distance_m": 0.0,
+      "eligible": true,
+      "est_xy": [
+       2.5,
+       3.0
+      ],
+      "reasons": [],
+      "score": 0.9
+     }
+    ],
+    "detection_id": "D1",
+    "kind": "POLL",
+    "last_known_tick": 10,
+    "last_known_xy": [
+     2.5,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "pending_at_end": false,
+    "selected_box": [
+     110,
+     40,
+     140,
+     150
+    ]
+   },
+   {
+    "accepted": true,
+    "answer": "UNCERTAIN",
+    "applied": false,
+    "applied_tick": 18,
+    "ask_tick": 17,
+    "camera_id": null,
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7199999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     }
+    ],
+    "detection_id": null,
+    "kind": "LOST_EARLY",
+    "last_known_tick": 14,
+    "last_known_xy": [
+     2.58,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": null
+   },
+   {
+    "accepted": true,
+    "answer": "UNCERTAIN",
+    "applied": false,
+    "applied_tick": 23,
+    "ask_tick": 22,
+    "camera_id": null,
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7199999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     }
+    ],
+    "detection_id": null,
+    "kind": "LOST_EARLY",
+    "last_known_tick": 14,
+    "last_known_xy": [
+     2.58,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": null
+   },
+   {
+    "accepted": true,
+    "answer": "SELECT",
+    "applied": true,
+    "applied_tick": 28,
+    "ask_tick": 27,
+    "camera_id": "CAM_W1",
+    "candidate_list": [
+     {
+      "box": [
+       200,
+       40,
+       230,
+       150
+      ],
+      "camera_id": "CAM_ENTRY",
+      "color": "blue",
+      "detection_id": "D1",
+      "distance_m": 1.7199999999999998,
+      "eligible": false,
+      "est_xy": [
+       4.3,
+       3.0
+      ],
+      "reasons": [
+       "NOT_RED"
+      ],
+      "score": 0.4
+     },
+     {
+      "box": [
+       127,
+       40,
+       157,
+       150
+      ],
+      "camera_id": "CAM_W1",
+      "color": "red",
+      "detection_id": "D1",
+      "distance_m": 0.2599999999999998,
+      "eligible": true,
+      "est_xy": [
+       2.84,
+       3.0
+      ],
+      "reasons": [],
+      "score": 0.9
+     }
+    ],
+    "detection_id": "D1",
+    "kind": "LOST_EARLY",
+    "last_known_tick": 14,
+    "last_known_xy": [
+     2.58,
+     3.0
+    ],
+    "own_state": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "pending_at_end": false,
+    "selected_box": [
+     127,
+     40,
+     157,
+     150
+    ]
+   }
+  ],
+  "case_id": "E3-T1",
+  "code_sha256": "<dropped>",
+  "identity": "UNCONFIRMED",
+  "k": 1,
+  "paid_calls": 0,
+  "protocol_sha256": "<dropped>",
+  "rows": [
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 0,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 1,
+    "tracker_action": "SELECT",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      100,
+      40,
+      130,
+      150
+     ],
+     "est_xy": [
+      2.3,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      100,
+      40,
+      130,
+      150
+     ],
+     "est_xy": [
+      2.3,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 2,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      102,
+      40,
+      132,
+      150
+     ],
+     "est_xy": [
+      2.34,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      102,
+      40,
+      132,
+      150
+     ],
+     "est_xy": [
+      2.34,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 3,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      103,
+      40,
+      133,
+      150
+     ],
+     "est_xy": [
+      2.36,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      103,
+      40,
+      133,
+      150
+     ],
+     "est_xy": [
+      2.36,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 4,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      104,
+      40,
+      134,
+      150
+     ],
+     "est_xy": [
+      2.38,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      104,
+      40,
+      134,
+      150
+     ],
+     "est_xy": [
+      2.38,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 5,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      105,
+      40,
+      135,
+      150
+     ],
+     "est_xy": [
+      2.4,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      105,
+      40,
+      135,
+      150
+     ],
+     "est_xy": [
+      2.4,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 6,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      106,
+      40,
+      136,
+      150
+     ],
+     "est_xy": [
+      2.42,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      106,
+      40,
+      136,
+      150
+     ],
+     "est_xy": [
+      2.42,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 7,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      107,
+      40,
+      137,
+      150
+     ],
+     "est_xy": [
+      2.44,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      107,
+      40,
+      137,
+      150
+     ],
+     "est_xy": [
+      2.44,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 8,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      108,
+      40,
+      138,
+      150
+     ],
+     "est_xy": [
+      2.46,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      108,
+      40,
+      138,
+      150
+     ],
+     "est_xy": [
+      2.46,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 9,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      109,
+      40,
+      139,
+      150
+     ],
+     "est_xy": [
+      2.48,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      109,
+      40,
+      139,
+      150
+     ],
+     "est_xy": [
+      2.48,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 10,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 11,
+    "tracker_action": "SELECT",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      110,
+      40,
+      140,
+      150
+     ],
+     "est_xy": [
+      2.5,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 12,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      112,
+      40,
+      142,
+      150
+     ],
+     "est_xy": [
+      2.54,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      112,
+      40,
+      142,
+      150
+     ],
+     "est_xy": [
+      2.54,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 13,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      113,
+      40,
+      143,
+      150
+     ],
+     "est_xy": [
+      2.56,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      113,
+      40,
+      143,
+      150
+     ],
+     "est_xy": [
+      2.56,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 14,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "COASTING",
+    "ranking": [],
+    "tick": 15,
+    "tracker_action": "COASTING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "COASTING",
+    "ranking": [],
+    "tick": 16,
+    "tracker_action": "COASTING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      114,
+      40,
+      144,
+      150
+     ],
+     "est_xy": [
+      2.58,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 17,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 18,
+    "tracker_action": "UNCERTAIN",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 19,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 20,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 21,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 22,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 23,
+    "tracker_action": "UNCERTAIN",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 24,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 25,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 26,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "LOST",
+    "ranking": [],
+    "tick": 27,
+    "tracker_action": "LOST",
+    "tracking": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    }
+   },
+   {
+    "before": {
+     "active_cam": null,
+     "box": null,
+     "est_xy": null,
+     "lost_ticks": 1,
+     "state": "LOST"
+    },
+    "decision_source": "RULE",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 28,
+    "tracker_action": "SELECT",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      127,
+      40,
+      157,
+      150
+     ],
+     "est_xy": [
+      2.84,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   },
+   {
+    "before": {
+     "active_cam": "CAM_W1",
+     "box": [
+      127,
+      40,
+      157,
+      150
+     ],
+     "est_xy": [
+      2.84,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    },
+    "decision_source": "NEUTRAL",
+    "neutral_status": "FOLLOWING",
+    "ranking": [],
+    "tick": 29,
+    "tracker_action": "FOLLOWING",
+    "tracking": {
+     "active_cam": "CAM_W1",
+     "box": [
+      129,
+      40,
+      159,
+      150
+     ],
+     "est_xy": [
+      2.88,
+      3.0
+     ],
+     "lost_ticks": 0,
+     "state": "TRACKING"
+    }
+   }
+  ],
+  "schema": "e6-rn.v1",
+  "seed": {
+   "camera_catalog_sha256": "cf6d12b369da11d4815172d6adfef246349c8775613b0d556ec9ac38c758b3ed",
+   "duration_s": 6.0,
+   "tick": 0,
+   "xy": [
+    2.0,
+    2.0
+   ]
+  },
+  "size": [
+   320,
+   180
+  ],
+  "sources": [
+   "indexes/E3-T1/detection_index.json",
+   "indexes/E3-T1/detection_index.records.jsonl",
+   "rgb/E3-T1/CAM_ENTRY/000000.png",
+   "rgb/E3-T1/CAM_ENTRY/000001.png",
+   "rgb/E3-T1/CAM_ENTRY/000002.png",
+   "rgb/E3-T1/CAM_ENTRY/000003.png",
+   "rgb/E3-T1/CAM_ENTRY/000004.png",
+   "rgb/E3-T1/CAM_ENTRY/000005.png",
+   "rgb/E3-T1/CAM_ENTRY/000006.png",
+   "rgb/E3-T1/CAM_ENTRY/000007.png",
+   "rgb/E3-T1/CAM_ENTRY/000008.png",
+   "rgb/E3-T1/CAM_ENTRY/000009.png",
+   "rgb/E3-T1/CAM_ENTRY/000010.png",
+   "rgb/E3-T1/CAM_ENTRY/000011.png",
+   "rgb/E3-T1/CAM_ENTRY/000012.png",
+   "rgb/E3-T1/CAM_ENTRY/000013.png",
+   "rgb/E3-T1/CAM_ENTRY/000014.png",
+   "rgb/E3-T1/CAM_ENTRY/000015.png",
+   "rgb/E3-T1/CAM_ENTRY/000016.png",
+   "rgb/E3-T1/CAM_ENTRY/000017.png",
+   "rgb/E3-T1/CAM_ENTRY/000018.png",
+   "rgb/E3-T1/CAM_ENTRY/000019.png",
+   "rgb/E3-T1/CAM_ENTRY/000020.png",
+   "rgb/E3-T1/CAM_ENTRY/000021.png",
+   "rgb/E3-T1/CAM_ENTRY/000022.png",
+   "rgb/E3-T1/CAM_ENTRY/000023.png",
+   "rgb/E3-T1/CAM_ENTRY/000024.png",
+   "rgb/E3-T1/CAM_ENTRY/000025.png",
+   "rgb/E3-T1/CAM_ENTRY/000026.png",
+   "rgb/E3-T1/CAM_ENTRY/000027.png",
+   "rgb/E3-T1/CAM_ENTRY/000028.png",
+   "rgb/E3-T1/CAM_ENTRY/000029.png",
+   "rgb/E3-T1/CAM_W1/000000.png",
+   "rgb/E3-T1/CAM_W1/000001.png",
+   "rgb/E3-T1/CAM_W1/000002.png",
+   "rgb/E3-T1/CAM_W1/000003.png",
+   "rgb/E3-T1/CAM_W1/000004.png",
+   "rgb/E3-T1/CAM_W1/000005.png",
+   "rgb/E3-T1/CAM_W1/000006.png",
+   "rgb/E3-T1/CAM_W1/000007.png",
+   "rgb/E3-T1/CAM_W1/000008.png",
+   "rgb/E3-T1/CAM_W1/000009.png",
+   "rgb/E3-T1/CAM_W1/000010.png",
+   "rgb/E3-T1/CAM_W1/000011.png",
+   "rgb/E3-T1/CAM_W1/000012.png",
+   "rgb/E3-T1/CAM_W1/000013.png",
+   "rgb/E3-T1/CAM_W1/000014.png",
+   "rgb/E3-T1/CAM_W1/000025.png",
+   "rgb/E3-T1/CAM_W1/000026.png",
+   "rgb/E3-T1/CAM_W1/000027.png",
+   "rgb/E3-T1/CAM_W1/000028.png",
+   "rgb/E3-T1/CAM_W1/000029.png",
+   "rgb/E3-T1/rgb_index.json"
+  ],
+  "tick_us": 200000
+ }
+}

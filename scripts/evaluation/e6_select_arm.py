@@ -11,7 +11,8 @@ Rule (prereg 2.2, written once, no tuning):
                all three cases present and scorable. None eligible -> exit 3 (stop, fix the implementation).
   ranking      level 1 wrong-person seconds (sum, tie within 1.0 s of the lowest) -> level 2 blind false-lock seconds (sum, tie within
                1.0 s of the lowest) -> level 3 mean per-segment follow rate (tie within 0.01 of the highest) -> level 4 simplest
-               (DEANCHOR > DEANCHOR_HIST > DEANCHOR_HIST_SUM). Each level keeps every group within the tolerance of the best one.
+               (DEANCHOR > DEANCHOR_HIST > DEANCHOR_HIST_SUM). Each level keeps every group within the tolerance of the best one
+               (chained-tie reading fixed as D400, #93 comment 7206746316; "mean follow rate" = mean of the per-segment follow rates).
 Metrics use the pinned single-tick definitions (src/amidst/evaluation/e3_scoring.py through e3_f4_score.run_scores, primary criterion).
 Identity stays UNCONFIRMED. No paid call, no model import, no GT in any output other than aggregate seconds/rates.
 """
