@@ -2,7 +2,7 @@
 
 # Office 多場景預設與接地品質旗標（2026-10-16）
 
-依 [Demo 計畫 §8](../agents/OFFICE_DEMO_PLAN_20261101.md#8-codex-任務) 的 `78855c1` 修訂交付任務 3。v2 前提 commit `bb3d282` 已推送；整合分支透過 merge commits 納入，沒有 squash／rebase。
+依 [Demo 計畫 §8](../archive/office/OFFICE_DEMO_PLAN_20261101.md#8-codex-任務) 的 `78855c1` 修訂交付任務 3。v2 前提 commit `bb3d282` 已推送；整合分支透過 merge commits 納入，沒有 squash／rebase。
 
 | 場景 | 來源與感知 | 可用層 |
 | --- | --- | --- |

@@ -4,7 +4,7 @@
 
 Status: DRAFT for Codex confirmation, 2026-10-16 (task K0). Additive to the
 existing observation records and to the Task 3 `contact_quality` flag in the
-[Office demo plan §8](../agents/OFFICE_DEMO_PLAN_20261101.md#任務-3工作台多場景預設接地點品質旗標).
+[Office demo plan §8](../archive/office/OFFICE_DEMO_PLAN_20261101.md#任務-3工作台多場景預設接地點品質旗標).
 No existing field, position, state, endpoint or assertion changes. Items marked
 **OPEN** need Codex confirmation; names not found in
 [OFFICE_DEMO_TARGET_V1](OFFICE_DEMO_TARGET_V1.md) or the
@@ -17,7 +17,7 @@ consumes nothing from it directly.
 ## 1. Purpose and authority
 
 This contract describes the output of the hybrid ground-contact estimator
-([plan §3.1](../agents/OFFICE_DEMO_PLAN_20261101.md#3-方法觀測--假設--檢索--驗證)):
+([plan §3.1](../archive/office/OFFICE_DEMO_PLAN_20261101.md#3-方法觀測--假設--檢索--驗證)):
 for one image observation, a ground estimate that is either
 
 - a **POINT**: the foot (contact pixel) is visible and its floor intersection is

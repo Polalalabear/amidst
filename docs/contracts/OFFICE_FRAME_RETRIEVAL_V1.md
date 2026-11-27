@@ -10,7 +10,7 @@ marked **OPEN** need Codex confirmation; names not found in
 [OFFICE_DEMO_TARGET_V1](OFFICE_DEMO_TARGET_V1.md) or the
 [pipeline map](../engineering/OFFICE_PIPELINE_MAP.md) are `UNKNOWN`.
 
-Method: [plan §3.3–3.4](../agents/OFFICE_DEMO_PLAN_20261101.md#3-方法觀測--假設--檢索--驗證).
+Method: [plan §3.3–3.4](../archive/office/OFFICE_DEMO_PLAN_20261101.md#3-方法觀測--假設--檢索--驗證).
 Hypothesis input: [blind hypothesis v1](OFFICE_BLIND_HYPOTHESIS_V1.md).
 Shared conventions and provenance block:
 [interval observation v1 §2](OFFICE_INTERVAL_OBSERVATION_V1.md#2-conventions).

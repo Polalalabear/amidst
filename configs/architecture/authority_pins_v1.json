@@ -664,6 +664,30 @@
       "sha256": "2f6216c3157591edb0d0b53f9b2fbf05fa851cf023675d70331d8fac0ab7115d",
       "status": "現行；進度導覽補到 #755（D91-4，D407）；登記不等於核准",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D408-DOCS-1",
+      "path": "CLAUDE.md",
+      "ref": "claude/docs-folder-cleanup-20261127@54265f0387fa11fe07cec05fb69964384e4a97e8",
+      "sha256": "4497009dfbdb73671981924fdf83bec7c184eb8689841d83cee0d8a5daf5f7a5",
+      "status": "現行；Office 計畫路徑改為 docs/archive/office/（D408）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D408-DOCS-2",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/docs-folder-cleanup-20261127@54265f0387fa11fe07cec05fb69964384e4a97e8",
+      "sha256": "d01f9e62a94a69d9ea933f58c25f43cf8e0d4c16e9641fbc2454d3eeb7936cb4",
+      "status": "現行；10-25 交接連結改指向合併文件（D408）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D408-DOCS-3",
+      "path": "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+      "ref": "claude/docs-folder-cleanup-20261127@54265f0387fa11fe07cec05fb69964384e4a97e8",
+      "sha256": "855a0f5d30a4ecd71fd84c2928855e10912112cb8288057fc1e92a4e9d15b54b",
+      "status": "現行（交接快照）；連到 10-25、10-26 的連結改指向合併文件（D408）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -1100,6 +1124,27 @@
       "requires_commit": "2edd32c5c8713d5b59ff38e6552a2aa067a82179",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "進度導覽補到 #755（D91-4，PR #755，D407）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "4497009dfbdb73671981924fdf83bec7c184eb8689841d83cee0d8a5daf5f7a5",
+      "requires_commit": "54265f0387fa11fe07cec05fb69964384e4a97e8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "Office 計畫路徑改為 docs/archive/office/OFFICE_DEMO_PLAN_20261101.md（D408，#756）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "d01f9e62a94a69d9ea933f58c25f43cf8e0d4c16e9641fbc2454d3eeb7936cb4",
+      "requires_commit": "54265f0387fa11fe07cec05fb69964384e4a97e8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "10-25 交接連結改指向 docs/history 合併文件（D408，#756）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+      "sha256": "855a0f5d30a4ecd71fd84c2928855e10912112cb8288057fc1e92a4e9d15b54b",
+      "requires_commit": "54265f0387fa11fe07cec05fb69964384e4a97e8",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "連到已刪除的 10-25、10-26 交接的三個連結改指向 docs/history 合併文件錨點（D408，#756）；只改連結。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }

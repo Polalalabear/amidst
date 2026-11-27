@@ -49,7 +49,7 @@
 
 ### 封存
 
-- [封存索引](archive/ARCHIVE_20261027.md)：Office Demo、3D 線、Phase 1／2、早期 Q1–Q5 討論稿與 `docs/specs/` 的舊規格。原檔留在原位，歷史 `.md` 的檔頭有「已封存」註記；JSON、圖檔與 `history/` 不動。
+- [非現行索引](archive/ARCHIVE_20261027.md)：已封存、搬移或併入歷史文件的 Office、3D 線、Phase 1／2、早期交接與舊規格（含 2026-11-27 搬移對照表，D408）；非現行程式模組見 [CODE_DOC_MAP_INACTIVE.md](index/CODE_DOC_MAP_INACTIVE.md)。
 
 ### 資料夾與符號連結
 
@@ -57,12 +57,13 @@
 | --- | --- |
 | [specs/](specs/) | 開發規則與產品規格；舊 PRD 等已封存 |
 | [contracts/](contracts/) | 契約 |
-| [agents/](agents/) | 計畫、協調者交接、設計文件 |
+| [agents/](agents/) | 現行計畫、現行協調者交接、設計文件 |
 | [evaluation/](evaluation/) | 評估與決策窗文件 |
 | [engineering/](engineering/) | 工程紀錄（多數已封存，見封存索引） |
 | [operations/](operations/) | 進度導覽、測試設定、營運文件 |
 | [research/](research/) | 研究紀錄（已封存） |
-| [history/](history/) | 歷史 checkpoint 紀錄 |
+| [history/](history/) | 歷史 checkpoint 紀錄、協調者交接合集、舊截圖 |
+| [archive/](archive/) | 非現行索引與已封存的 Office 文件（`archive/office/`） |
 
 此頁是唯一文件索引。根目錄另保留 exact corridor review 與 runtime 使用的 checkpoint JSON；三個符號連結維持 locked protocol、核准 review 與歷史 geometry reports 的原路徑。正文位於分類資料夾，不另建逐檔轉址文件。
 
@@ -82,6 +83,6 @@ Two lines run in parallel (D87): **Line 1** is the r004 A4-1/B4-1 baseline (D89)
 
 ### Archive
 
-The [archive index](archive/ARCHIVE_20261027.md) lists the Office demo, 3D-line, Phase 1/2, early Q1–Q5 discussion and old `docs/specs/` documents. Original files stay in place; historical `.md` files carry an "archived" header line. JSON, images and `history/` are untouched.
+The [non-current index](archive/ARCHIVE_20261027.md) lists archived, moved or merged documents (Office demo, 3D line, Phase 1/2, early handoffs, old specs; includes the 2026-11-27 move table, D408); inactive code modules are in [CODE_DOC_MAP_INACTIVE.md](index/CODE_DOC_MAP_INACTIVE.md).
 
 This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; the body text lives in the category folders, with no per-file redirect documents.

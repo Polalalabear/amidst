@@ -3972,7 +3972,7 @@
      "evidence_preservation": "fail",
      "raw_assets": "unknown"
     },
-    "reason": "主線 runbook 仍以此路徑為 P1_BUNDLE：docs/operations/DEMO_RUNBOOK_20261104.md:26、:52、:60；EVENT_NAMES.md:9；COORDINATOR_HANDOFF_20261026.md:80；DEMO_OWNED_DEPENDENCIES_20261108.md:33。可封存（壓縮副本），不可刪原件",
+    "reason": "主線 runbook 仍以此路徑為 P1_BUNDLE：docs/operations/DEMO_RUNBOOK_20261104.md:26、:52、:60；EVENT_NAMES.md:9；docs/history/COORDINATOR_HANDOFFS_20261025_20261127.md（2026-10-26 段「7. 使用者待辦」，第 252 行；原 COORDINATOR_HANDOFF_20261026.md:80）；DEMO_OWNED_DEPENDENCIES_20261108.md:33。可封存（壓縮副本），不可刪原件",
     "checked_at": "2026-11-09",
     "evidence": [
      "git grep -n \"amidst-p1-clean-room\" 2616661 -- . \":!docs/history\" → 7 檔"

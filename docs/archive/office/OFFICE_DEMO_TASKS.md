@@ -1,11 +1,11 @@
 > 2026-11-19 註（D338，#631）：**放棄**。本任務清單指向的 `frontend/workbench/` 已於 D268 下線、PR #575 移除；未完成的任務不再執行，現行工作見 [#93](https://github.com/Polalalabear/amidst/issues/93) 本文工作清單。本文已封存，不重寫。
-> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+> 已封存（2026-10-27，D91），見 [封存索引](../ARCHIVE_20261027.md)。
 
 # Claude Code Office Demo task sequence
 
 Take one task per session and stop after its focused verification. All frontend code tasks use the existing shared workbench paths below. Do not broaden scope if an asset, field, or route is missing; document it as `UNKNOWN` and identify the dependency.
 
-Defect IDs D1–D6 refer to the [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md) (2026-10-15). MVP scope: [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md#minimum-viable-scope--audit-2026-10-15).
+Defect IDs D1–D6 refer to the [frontend audit section](../../engineering/OFFICE_MVP_AGENT_AUDIT.md) (2026-10-15). MVP scope: [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md#minimum-viable-scope--audit-2026-10-15).
 
 ## 2026-10-16 update — plan to 2026-11-01
 
@@ -56,7 +56,7 @@ Live status is tracked in GitHub issues under the [Office demo 2026-11-01 milest
 
 ## 0 — Office visualization audit and smallest MVP — DONE
 
-Findings, evidence and dependencies are recorded in [`OFFICE_MVP_AGENT_AUDIT.md`](../engineering/OFFICE_MVP_AGENT_AUDIT.md) and [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md). No application code was changed.
+Findings, evidence and dependencies are recorded in [`OFFICE_MVP_AGENT_AUDIT.md`](../../engineering/OFFICE_MVP_AGENT_AUDIT.md) and [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md). No application code was changed.
 
 ## 1 — Primary source view and 0.2 s source flipbook — IMPLEMENTED
 
@@ -124,7 +124,7 @@ Findings, evidence and dependencies are recorded in [`OFFICE_MVP_AGENT_AUDIT.md`
 ## UX-1M — Mandatory manual browser acceptance of UX-1 (gate)
 
 - **Owner:** the user runs or authorizes the launch, and Claude may drive the in-app browser only after that authorization. No code changes in this checkpoint. A failure goes back to UX-1 as a scoped repair.
-- **Launch:** only through the existing safe launcher ([`OFFICE_DEMO_LAUNCHER.md`](../operations/OFFICE_DEMO_LAUNCHER.md)) on local Office data. If media or the bundle are unavailable, the result is **BLOCKED**, not passed, and UX-2/UX-3/4 do not start.
+- **Launch:** only through the existing safe launcher ([`OFFICE_DEMO_LAUNCHER.md`](../../operations/OFFICE_DEMO_LAUNCHER.md)) on local Office data. If media or the bundle are unavailable, the result is **BLOCKED**, not passed, and UX-2/UX-3/4 do not start.
 - **Checklist (every item observed in a real browser):**
   1. Office opens in 2D, with both fixture cameras visible at once, each labeled, at the same source time.
   2. Play and scrub: both tiles change frame together in 0.2 s steps. Playback time and each tile's frame source time agree, and a missing frame shows `MISSING` in that tile only.
@@ -209,7 +209,7 @@ Findings, evidence and dependencies are recorded in [`OFFICE_MVP_AGENT_AUDIT.md`
 
 - **Owner:** Claude Code frontend; Codex owns API behavior.
 - **Paths:** `frontend/workbench/app.mjs`, `frontend/workbench/cross-camera.mjs`, `frontend/workbench/presentation-data.mjs`, `frontend/workbench/index.html`; tests `cross-camera.test.mjs`, `app.test.mjs`.
-- **Allowed changes:** consume `POST /api/target_reconstruction` per [`OFFICE_DEMO_TARGET_V1.md`](../contracts/OFFICE_DEMO_TARGET_V1.md) and render candidates/evidence/trace in the UX-3 drawer section 「目標與候選 Top-K」, feeding the UX-2 target chip; do not add browser fallback inference or present score as probability.
+- **Allowed changes:** consume `POST /api/target_reconstruction` per [`OFFICE_DEMO_TARGET_V1.md`](../../contracts/OFFICE_DEMO_TARGET_V1.md) and render candidates/evidence/trace in the UX-3 drawer section 「目標與候選 Top-K」, feeding the UX-2 target chip; do not add browser fallback inference or present score as probability.
 - **Focused test:** `node --test frontend/workbench/cross-camera.test.mjs frontend/workbench/app.test.mjs` against the Codex response fixture from task 3(a).
 - **Acceptance:** canonical rank/ref preserved; fewer-than-K and `UNKNOWN` not padded or hidden; identity `UNCONFIRMED`; deterministic mode visible; selecting another observation invalidates the result.
 - **Blocking uncertainty:** depends on tasks 3(a) and 6.

@@ -1,5 +1,5 @@
 > 2026-11-19 註（D338，#631）：`frontend/workbench/demo-steps.office.json` 與 `frontend/workbench/` 已於 D268 下線、PR #575 移除。本文已封存，不重寫。
-> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+> 已封存（2026-10-27，D91），見 [封存索引](../ARCHIVE_20261027.md)。
 
 # Office Demo 腳本（草稿）
 

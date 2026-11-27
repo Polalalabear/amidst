@@ -1,6 +1,6 @@
 # 協調者交接（2026-10-27）
 
-- 本文接續 [2026-10-26 交接](COORDINATOR_HANDOFF_20261026.md)。新的協調者先讀本文，再讀 [任務板 #93](https://github.com/Polalalabear/amidst/issues/93)、[驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) 和 [進度導覽](../operations/Q1Q5_PROGRESS.md)。文件整理（D91）的計畫與清單在 [#263](https://github.com/Polalalabear/amidst/issues/263)；舊資料見[封存索引](../archive/ARCHIVE_20261027.md)，新規格見 [Q1–Q5 產品規格](../specs/Q1Q5_PRODUCT_SPEC.md)（兩者由 #263 的 S1、S4 提供，本 PR 寫成時可能尚未合入）。
+- 本文接續 [2026-10-26 交接](../history/COORDINATOR_HANDOFFS_20261025_20261127.md#h20261026)。新的協調者先讀本文，再讀 [任務板 #93](https://github.com/Polalalabear/amidst/issues/93)、[驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) 和 [進度導覽](../operations/Q1Q5_PROGRESS.md)。文件整理（D91）的計畫與清單在 [#263](https://github.com/Polalalabear/amidst/issues/263)；舊資料見[封存索引](../archive/ARCHIVE_20261027.md)，新規格見 [Q1–Q5 產品規格](../specs/Q1Q5_PRODUCT_SPEC.md)（兩者由 #263 的 S1、S4 提供，本 PR 寫成時可能尚未合入）。
 - 即時狀態以 GitHub 為準。本文只寫交接當下的快照、慣例和待辦；寫不確定的地方標 `UNKNOWN`。
 
 ## 1. 交接當下的狀態
@@ -101,7 +101,7 @@ S1 封存索引與檔頭（已開 [#264](https://github.com/Polalalabear/amidst/
 
 ## 8. 協調者慣例（使用者規定）
 
-沿用 [10/26 的慣例](COORDINATOR_HANDOFF_20261026.md#9-協調者慣例使用者規定)（含 [10/25 的慣例](COORDINATOR_HANDOFF_20261025.md#8-協調者慣例使用者規定)），加上今天新增的：
+沿用 [10/26 的慣例](../history/COORDINATOR_HANDOFFS_20261025_20261127.md#h20261026)（含 [10/25 的慣例](../history/COORDINATOR_HANDOFFS_20261025_20261127.md#h20261025)），加上今天新增的：
 
 - **畫面不做手機版**：workbench 與 demo 畫面只做桌面，不測也不修 375 px。
 - **168 條遠端分支 demo 後再整理**：現在不刪、不歸檔。
