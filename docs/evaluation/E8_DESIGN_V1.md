@@ -44,7 +44,7 @@ E8 要回答三件事：
 | E6 決策點（48 個，12 段，`actual_decision_points`） | `configs/evaluation/e6_scenarios_frozen_v1.json` | `5bab2766…b338` |
 | B1 b-log（兩部分的快照來源） | E3：`f4-658-20261122/runs-final-{9,665}/<case>/B1.k1.json`；E6：`e6-formal-run-20261127/b1/<case>/B1.k1.json` | E6 `b1/` 樹雜湊 `90920606…cb7e5cc`；E3 的打包時逐檔記入 `PACK_INFO.json` |
 | 凍結偵測與 RGB | E3：`e3-652-20261122`、`e3-reappearances-20261122`；E6：`e6-formal-det-20261127`（`e3_f4_run.load_case` 讀取時驗 SHA） | 逐檔驗證 |
-| 相機目錄 | `local/data/live-assets-20261115/cameras.catalog.json` | `3eba8572…`（與 B1 紀錄的值相同） |
+| 相機目錄 | `local/data/live-assets-20261115/cameras.catalog.json` | `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`（與 B1 紀錄的值相同） |
 | 場景脈絡 | `e3_f4_run.live_scene_context` | `3072cc5a…`（與 B1 b-log 相同；序列化後 19,589 字元） |
 | 評分器 | `src/amidst/evaluation/e3_scoring.py` | `acacce39…7d08`（釘選，不改） |
 | E7 逐 tick 請求／laya 答案 | `e7-colab-pack-pertick-20261127/requests/e3_16_segments.jsonl`／`e7-run-pertick-20261127/e7-outputs-pertick/` | `8568e4fa…8dee`／`2e23f37a…b3cb` |
@@ -69,20 +69,21 @@ E8 要回答三件事：
 | 新模組 | import 的既有函式（不複製） | 新寫的部分 |
 | --- | --- | --- |
 | `src/amidst/evaluation/e8_requests.py`（推論端；已完成） | `e7_decider_eval.DeciderRequest`、`assemble_ao_prompt`、`build_laya_state_and_questions`（L0 逐位元組照 E7）；`arms.reference_text`（L1 起的顏色查詢句）；`agent_service.Candidate`、`gate_of`（VLM 的閘門資訊）；`scene_context.sha256_of`、`serialize`（L3F）；`e3_f4_run.poly_dist`（覆蓋區距離） | 跨鏡頭合併、代號、3 種順序、依級遮蔽的 `e8_level_request_v1`、laya 精簡渲染、VLM 渲染、`parse_e8_answer`、KEEP 解析、底線策略 |
-| `scripts/evaluation/build_e8_colab_pack.py`（Mac） | `e3_f4_run.load_case`、`live_scene_context`、`CONFIG`；`build_e7_colab_pack.candidates_for_tick`、`variable_text`、`expected_for_tick`、`write_manifest`；`e7_scoring_bridge.write_colab_answer_table`、`_scan_forbidden_gt_fields`、`verify_colab_pack_pre_upload`；`arms.reject_forbidden`；`live_mode.tracker.Projector.ground`（地面投影，同 B1） | B1 快照抽取、KEEP 顯示對到候選、第二部分逐 tick 偵測、L4 畫面 |
-| `src/amidst/evaluation/e8_score.py`（Colab 評分格與 Mac；已完成第一部分與 H2） | `e6_verdict.single_dp_correct`、`full_track_dp_correct`、`sign_flip_p`、`sign_flip_p_two_sided`、`mcnemar_exact_p`、`majority`、`MIN_DP`、`MIN_FAMILIES`、`TAU_BLIND_S`，以及 H2 用的 `_group_family_units`、`_diffs`、`_shifted`；`agent_eval_scoring.metrics.holm_bonferroni`（一般 Holm；`e6_verdict._holm` 只做 2 個假設）、`cluster_bootstrap_ci`（家族群集 bootstrap）；`e3_f4_score.run_scores`（第二部分，Mac） | 3 種順序多數決、H1／S 檢定的組裝、+14.0 s 錯人秒容許值、選組、位置偏差、RANDOM 期望值 |
-| `src/amidst/evaluation/e8_handoff.py`（推論端） | `e3_f4_run.replay`、`chain_box`、`CONFIG`（B1 重現與閉迴路）；`live_mode.server.State` 的 `decider.step` 掛點；`e8_requests` | 觸發、套用、延遲 |
-| `scripts/evaluation/e8_score_run.py`（Mac 一條指令） | `e8_score`、`generate_unified_analysis`、`report/figures/build_figures.py` | CLI |
-| `notebooks/e8_colab_eval.ipynb` | E7 notebook 的格子結構、`e7_colab_runtime` 的 checkpoint、`e7_decider_eval.collect_hardware_provenance`、`resolve_hf_provenance`、`verify_manifest_sha256`、`build_laya_native_inference_fn`、`build_qwen_vl_inference_fn` | E8 的設定與流程 |
+| `scripts/evaluation/build_e8_colab_pack.py`（Mac；已完成） | `e3_f4_run.load_case`、`live_scene_context`、`CONFIG`；`build_e7_colab_pack.candidates_for_tick`、`variable_text`、`expected_for_tick`、`write_manifest`；`e7_scoring_bridge.write_colab_answer_table`、`_scan_forbidden_gt_fields`、`verify_colab_pack_pre_upload`；`arms.reject_forbidden`；`live_mode.tracker.Projector.ground`（地面投影，同 B1） | B1 快照抽取、KEEP 顯示對到候選、第二部分逐 tick 偵測、L4 畫面 |
+| `src/amidst/evaluation/e8_score.py`（Colab 評分格與 Mac；已完成） | `e6_verdict.single_dp_correct`、`full_track_dp_correct`、`sign_flip_p`、`sign_flip_p_two_sided`、`mcnemar_exact_p`、`majority`、`MIN_DP`、`MIN_FAMILIES`、`TAU_BLIND_S`，以及 H2 用的 `_group_family_units`、`_diffs`、`_shifted`；`agent_eval_scoring.metrics.holm_bonferroni`（一般 Holm；`e6_verdict._holm` 只做 2 個假設）、`cluster_bootstrap_ci`（家族群集 bootstrap）；`e3_f4_score.run_scores`（第二部分，Mac） | 3 種順序多數決、H1／S 檢定的組裝、+14.0 s 錯人秒容許值、選組、位置偏差、RANDOM 期望值、S3／S4、提早切對、§5.5 結論、`unified_section` |
+| `src/amidst/evaluation/e8_handoff.py`（推論端；已完成） | `e3_f4_run.replay`、`chain_box`、`CONFIG`（B1 重現與閉迴路）；`live_mode.server.State` 的 `decider.step` 掛點；`e8_requests` | 觸發、套用、延遲 |
+| `src/amidst/evaluation/e8_colab_run.py`（推論端；notebook 逐格呼叫） | `e7_colab_runtime.load_group_checkpoint`、`save_group_checkpoint`；`e8_requests`；`e8_handoff` | 分組、§6.3 的 4 h 規則（`projected_hours`）、可續跑的組、第二部分各組、SMOKE 替身 |
+| `scripts/evaluation/e8_score_run.py`（Mac 一條指令；已完成） | `e8_score`、`e3_f4_score.run_scores`、`generate_unified_analysis`、`report/figures/build_figures.py` | CLI：讀 run zip、用 GT 補判 OWN_BOX 與 TRUE_DEPARTURE、輸出結果與 `unified_e8_section.json` |
+| `notebooks/e8_colab_eval.ipynb`（已完成） | E7 notebook 的格子結構、`e7_colab_runtime` 的 checkpoint、`e7_decider_eval.collect_hardware_provenance`、`resolve_hf_provenance`、`verify_manifest_sha256`、`build_laya_native_inference_fn`、`build_qwen_vl_inference_fn` | E8 的設定與流程 |
 
 **小幅、只增不改的修改**（既有行為與測試不變）：
 
 - `e7_decider_eval.py`：laya／Qwen 推論函式加「直接吃已渲染輸入」的入口（目前 `_infer` 只吃 `DeciderRequest`）。
 - `scripts/evaluation/generate_unified_analysis.py`＋`configs/evaluation/unified_analysis_schema_v1.json`：加選填的 `e8` 區段（schema 頂層 `additionalProperties:false`）。
-- `report/figures/build_figures.py`、`FIGURES.md`、`manifest.json`：加 E8 圖（資訊階梯、位置偏差、閉迴路錯誤拆分、提早切對分佈）。
+- `report/figures/build_figures.py`、`FIGURES.md`：加 E8 圖 fig4–fig7（資訊階梯、位置偏差、閉迴路錯誤拆分、提早切對分佈），只在輸入有 `e8` 區段時才畫；`report/figures/manifest.json` 是 sample 輸入的產物，沒有 `e8`，所以不變。
 - `docs/evaluation/E7_COLAB_UPLOAD_PACK_SPEC_V1.md`：加 E8 包的章節。
 
-**新增文件**：本文件、`docs/evaluation/E7_LAYA_ANALYSIS_20261128.md`、`docs/operations/E8_REPRO_<日期>.md`。W2 離線腳本（`e8-offline-b` session）收進 PR 時另外說明位置。
+**新增文件**：本文件、`docs/evaluation/E7_LAYA_ANALYSIS_20261128.md`、`docs/operations/E8_REPRO_<日期>.md`。W2 離線腳本收在 `scripts/evaluation/e8_w2_offline_baselines.py`（`e8-offline-b` session 寫成，只改路徑），結果寫在 E7 分析文件 §4。
 
 **Issue 對應**：E8 不填 E6 的 `single_correct`；#765 的 R-N 版維持延後（核准的 Q3）。E7 分析補記到 #727 並連到 #767；本 issue 是 #732（E6 正式執行）的下一輪，範圍不重疊。
 
@@ -336,11 +337,11 @@ PACK_INFO.json、MANIFEST.sha256
 
 | 格 | 內容 |
 | --- | --- |
-| 0、1、1B、2、3、4 | 同 E7：說明、設定、clone 釘選 commit、安裝並檢查版本一致、硬體紀錄、解 zip 並驗 MANIFEST |
-| 5 | 載入 `e8_part1.jsonl`；GT 掃描；G5；laya 截斷稽核 |
-| 6 | 第一部分推論，以 (模型, 級, 順序) 為一組寫 checkpoint，可續跑；每個 Qwen 模型先量前 20 筆的時間（§6.3） |
+| 0、1、1B、2、3、4 | 同 E7：說明、設定（模型與 HF revision 釘選：laya `246177e5…`、Qwen-3B `66285546d2b821cf421d4f5eb2576359d3770cd3`、Qwen-7B `cc594898137f460bfe9f0759e9844b3ce807cfb5`）、clone 釘選 commit、安裝並檢查版本一致、硬體紀錄、解 zip 並驗 MANIFEST |
+| 5 | `e8_colab_run.load_pack`（G5）；每筆請求過 `arms.reject_forbidden` |
+| 6 | 第一部分推論（`run_group`），以 (模型, 級, 順序) 為一組寫 checkpoint，可續跑；每個 Qwen 模型先量前 20 筆的時間，`projected_hours` 超過 4 h 就套 §6.3 規則；laya 每筆記錄附截斷稽核 `laya_truncation`（V6） |
 | 7 | 第一部分評分（唯一可以讀標籤表的格）：總表、H1a–d、圖、選組 |
-| 8 | 第二部分：先跑 B1 重現閘門，再跑各閉迴路組，每組每段寫 checkpoint |
+| 8 | 第二部分：先跑 B1 重現閘門（`b1_gate`，任一段失敗就停），再跑 FIRST_RED、NEAREST_RED、各模型在選定級，最後選定模型的 MEASURED；每組寫一個 checkpoint（`run_part2_group`） |
 | 9 | 打包 `e8-run-<日期>.zip`（輸出、checkpoint、`RUN_NOTES.json`、偏離） |
 
 ### 6.3 預估執行時間（必改 3 重估；實測記在 RUN_NOTES）
@@ -365,10 +366,12 @@ E7 的 Qwen-3B 用 E7 格式（輸出上限 256 token），p50 是 5.4–6.0 s�
 ### 6.4 回 Mac 一條指令
 
 ```bash
-python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e8-run-<日期>.zip --out local/evidence/e8-run-<日期>/score
+python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e8-run-<日期>.zip \
+  --pack local/evidence/e8-pack-20261128/pack --mac-index local/evidence/e8-pack-20261128/mac_index.json \
+  --out local/evidence/e8-run-<日期>/score --unified
 ```
 
-這條指令會：用 GT 補判 OWN_BOX、判出 TRUE_DEPARTURE，產生第一部分分層表；產生第二部分 28 段 × 各組的指標，以及 H2、S3、S4；經 `generate_unified_analysis.py`（`e8` 區段）與 `report/figures/build_figures.py` 出圖；輸出 `E8_RESULTS_<日期>.json` 和 `.md`。重現指令寫在 `docs/operations/E8_REPRO_<日期>.md`。
+`--mac-index` 是打包時寫在包外的決策點索引，只在 Mac。這條指令會：用 GT 補判 OWN_BOX、判出 TRUE_DEPARTURE，產生第一部分分層表；產生第二部分 28 段 × 各組的指標，以及 H2、S3、S4；經 `generate_unified_analysis.py`（`e8` 區段）與 `report/figures/build_figures.py` 出圖；輸出 `E8_RESULTS_<日期>.json` 和 `.md`。重現指令寫在 `docs/operations/E8_REPRO_<日期>.md`。
 
 ## 7. 測試與驗證點
 
@@ -376,13 +379,14 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 
 | 測試檔 | 測什麼 |
 | --- | --- |
-| `tests/evaluation/test_e8_requests.py`（已完成，9 項） | 合併規則；3 種順序；各級欄位嚴格遮蔽；L0 與 E7 渲染相同；laya 選項文字；`parse_e8_answer`；KEEP 解析；底線策略；**重複定義掃描**（必改 1） |
-| `tests/evaluation/test_build_e8_colab_pack.py` | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
-| `tests/evaluation/test_e8_score.py`（已完成，5 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值 |
-| `tests/evaluation/test_e8_handoff.py` | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
+| `tests/evaluation/test_e8_requests.py`（11 項） | 合併規則；3 種順序；各級欄位嚴格遮蔽；L0 與 E7 渲染相同；laya 選項文字；`parse_e8_answer`；KEEP 解析；底線策略；模型接合與截斷；**重複定義掃描**（必改 1，含 `e8_colab_run`、`e8_score_run`） |
+| `tests/evaluation/test_build_e8_colab_pack.py`（6 項） | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
+| `tests/evaluation/test_e8_score.py`（6 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值；提早切對、§5.5 結論、union answerable、`unified_section` |
+| `tests/evaluation/test_e8_colab_run.py`（3 項） | 分組與 Qwen L0 只跑 p0 的規則；`projected_hours`；checkpoint 續跑與指紋不同時重跑；SMOKE 替身可解析 |
+| `tests/evaluation/test_e8_handoff.py`（5 項） | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
 | `test_e7_decider_eval.py`（加案例） | 已渲染輸入的入口；E7 的舊測試全部照舊通過 |
 | `test_aol_zero_latency_and_unified_analysis.py`、`tests/report/test_report_skeleton.py`（加案例） | `e8` 選填區段；沒有 E8 的舊輸入照舊；新圖在 headless 下可產生 |
-| GT 隔離 | E8 推論端程式碼不 import 評分端模組（字串掃描） |
+| GT 隔離 | E8 推論端程式碼（`e8_requests`、`e8_handoff`、`e8_colab_run`）不 import 評分端模組（AST 掃描） |
 
 ### 7.2 驗證點
 
@@ -393,7 +397,7 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | V3 | L0 請求和 E7 逐 tick 請求（`8568e4fa…`）在同一 tick 逐位元組相同（E3 68 點） | Mac |
 | V4 | KEEP 解析 100% 成功 | Mac |
 | V5 | `verify_colab_pack_pre_upload` PASS；所有請求通過 `_scan_forbidden_gt_fields` 和 `arms.reject_forbidden` | Mac |
-| V6 | laya 截斷稽核有產出 | Colab 第 5 格 |
+| V6 | laya 截斷稽核有產出 | Colab 第 6 格 |
 | V7 | SMOKE：本機 CPU、stub 決策器、E3-A1＋E6-S01，跑完整個 notebook，再跑完 Mac 一條指令 | Mac |
 | V8 | 探索：E8 的 L0 laya 答案和 E7 逐 tick 答案（`2e23f37a…`）的一致率 | Mac |
 

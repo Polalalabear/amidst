@@ -137,3 +137,24 @@ Each line is a JSON object with inference-only fields:
   }
 }
 ```
+
+## E8 pack (`e8_colab_pack_v1`, #780)
+
+E8 uses its own pack, builder and notebook; the E7 pack, its MANIFEST and notebook pin `a3c7e90d` are unchanged. The design is in [E8_DESIGN_V1.md](E8_DESIGN_V1.md) §6, and the run steps are in [E8_REPRO_20261128.md](../operations/E8_REPRO_20261128.md).
+
+- **Builder:** `scripts/evaluation/build_e8_colab_pack.py`, which writes `PACK_INFO.json`, `MANIFEST.sha256` and a Mac-only `mac_index.json` outside the pack. The zip and its `.zip.sha256` sidecar come from `e7_colab_runtime.make_pack_zip`.
+- **Notebook:** `notebooks/e8_colab_eval.ipynb`. It calls `src/amidst/evaluation/e8_colab_run.py` cell by cell; checkpoints are resumable per (model, level, order) group and per Part-2 group.
+- **Layout:**
+
+  | Path | Content |
+  | --- | --- |
+  | `requests/e8_part1.jsonl` | `e8_level_request_v1`; one row per decision point × level × order (116 × 7 × 3 = 2,436) |
+  | `part1/frames/<case>/<tick>/<cam>_<perm>.jpg` | L4 frames, upscaled 3× to 960×540 with option labels drawn on the Mac |
+  | `part1/ref/<case>.jpg` | seed reference crop |
+  | `part2/ticks/<case>.jsonl` | per-tick detections (box, score, HSV colours, ground point); no GT |
+  | `part2/b1_frozen/<case>.json` | frozen B1 rows, the expected values for the B1 reproduction gate |
+  | `part2/cases.json`, `part2/scene/<case>.json`, `part2/cameras.catalog.json` | case metadata, scene context, camera catalog |
+  | `scoring_only/answer_table.json` | Part-1 label-only table (D385/D392 allowlist), read only by notebook cell 7 |
+
+- **Pre-upload gate:** every request passes `_scan_forbidden_gt_fields` and `arms.reject_forbidden`; the GT box and a-log strings are absent; `verify_colab_pack_pre_upload` must PASS. On any failure the builder deletes the whole pack.
+- **Part-2 GT stays on the Mac:** TRUE_DEPARTURE, OWN_BOX and the Part-2 metrics are computed only by `scripts/evaluation/e8_score_run.py`.
