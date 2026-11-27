@@ -81,22 +81,8 @@ def baseline_records(requests: Iterable[dict]) -> list[dict]:
             if req['level'] != level:
                 continue
             ans = R.baseline_answer(policy, req)
-            out.append(record(req, policy, ans, None))
+            out.append(R.make_record(req, policy, ans, None))
     return out
-
-
-def record(req: dict, group: str, ans: dict | None, err: str | None, **extra) -> dict:
-    """One scored-ready record. ``first_option``: the chosen option is the first in this order (position bias, §5.4)."""
-    disp = R.display_of(ans, req)
-    first = None
-    if ans is not None and ans.get('answer') == 'SELECT':
-        if 'option' in ans and req.get('options'):
-            first = ans['option'] == req['options'][0]['key']
-        elif req.get('e7') and req['e7']['candidates']:
-            c0 = req['e7']['candidates'][0]
-            first = (ans.get('camera_id'), ans.get('detection_id')) == (c0['camera_id'], c0['detection_id'])
-    return {'request_id': req['request_id'], 'base_id': req['base_id'], 'case_id': req['case_id'], 'group': group, 'level': req['level'],
-            'perm': req['perm'], 'answer': ans and ans.get('answer'), 'error': err, 'display': disp, 'first_option': first, **extra}
 
 
 def cells(records: Iterable[dict], table: dict, regime_of: dict, own_box: dict | None = None) -> dict:
@@ -257,12 +243,13 @@ def random_expectation(requests: Iterable[dict], table: dict, regime_of: dict) -
 
 
 def summary(records: list[dict], requests: list[dict], table: dict, regime_of: dict, family_of: dict, *, own_box: dict | None = None,
-            h2: dict | None = None) -> dict[str, Any]:
+            h2: dict | None = None, s3: dict | None = None, s4: dict | None = None) -> dict[str, Any]:
     """Everything the Colab cell 7 / the Mac command reports for Part 1."""
     allrec = records + baseline_records(requests)
     cm = cells(allrec, table, regime_of, own_box)
     return {'schema': 'e8_part1_summary_v1', 'seed': SEED, 'accuracy': {f'{g}|{lv}': accuracy(c) for (g, lv), c in sorted(cm.items())},
-            'primary': primary_verdict(cm, family_of, h2), 'secondary': secondary_verdict(cm, family_of),
+            'primary': primary_verdict(cm, family_of, h2), 'secondary': secondary_verdict(cm, family_of, s3, s4),
+            'union_answerable': union_answerable(cm, table),
             'selection': select_groups(cm), 'position_bias': position_bias(allrec),
             'random_expectation': random_expectation(requests, table, regime_of), 'identity': 'UNCONFIRMED',
             'regimes': dict(sorted(_count(regime_of.values()).items()))}
@@ -275,5 +262,90 @@ def _count(vals) -> dict:
     return dict(out)
 
 
-__all__ = ['regime_from_label', 'regime_from_gt', 'judge', 'record', 'baseline_records', 'cells', 'accuracy', 'compare', 'h2_test',
-           'primary_verdict', 'secondary_verdict', 'select_groups', 'position_bias', 'random_expectation', 'summary']
+# ------------------------------------------------------------------------------------------------ Part 2 extras (design §3.6, §5.3)
+EARLY_WINDOW_TICKS = 15
+EARLY_MISS_TICKS = 16          # no CORRECT tick within 3 s -> 3.2 s
+
+
+def first_correct(classes: dict, tick: int) -> int:
+    return next((k - tick for k in range(tick, tick + EARLY_WINDOW_TICKS) if classes.get(k) == 'CORRECT'), EARLY_MISS_TICKS)
+
+
+def early_switch_s(classes_test: dict, classes_ref: dict, tick: int) -> float:
+    """Seconds the tested group reaches CORRECT earlier than the reference (positive = earlier)."""
+    return round((first_correct(classes_ref, tick) - first_correct(classes_test, tick)) * R.TICK_S, 3)
+
+
+def family_two_sided(items: list[tuple[str, float]]) -> dict:
+    fam = defaultdict(list)
+    for f, v in items:
+        fam[f].append(v)
+    x = [sum(v) / len(v) for _, v in sorted(fam.items())]
+    if not x:
+        return {'M': 0, 'n_dp': 0, 'p': 1.0, 'p_reverse': 1.0, 'diff': None}
+    p = V.sign_flip_p_two_sided(x, seed=SEED, n_perm=N_PERM)
+    vals = sorted(v for _, v in items)
+    return {'M': len(x), 'n_dp': len(items), 'p': p, 'p_reverse': p, 'diff': sum(vals) / len(vals), 'median': vals[len(vals) // 2],
+            'family_x': x}
+
+
+def s3_test(segments: list[dict], test: str = 'SELECTED', ref: str = 'B1') -> dict:
+    """S3: wrong-person seconds lower than B1 (two-sided family sign-flip on B1 - test; positive favours the test group)."""
+    by = {(r['group'], r['case_id']): r for r in segments}
+    items = [(r['family_id'], V._mean(by[(ref, r['case_id'])]['wrong_person_s']) - V._mean(r['wrong_person_s']))
+             for r in segments if r['group'] == test and (ref, r['case_id']) in by]
+    res = family_two_sided(items)
+    res['n_dp'] = max(res['n_dp'], V.MIN_DP)   # segment-level test: the decision-point threshold does not apply
+    return res
+
+
+def s4_test(items: list[tuple[str, float]]) -> dict:
+    """S4: early-switch seconds (median > 0); items = (family, seconds) over visible decision points."""
+    return family_two_sided(items)
+
+
+def conclusion(primary: dict, secondary: dict, *, union_answerable: float | None = None, first_option: dict | None = None) -> str:
+    """Design §5.5, in table order."""
+    h1 = any(primary.get(h, {}).get('status') == 'SUPPORTED' for h in H1)
+    h2 = primary.get('H2', {}).get('status') == 'SUPPORTED'
+    s2_agent = any(v.get('status') == 'SUPPORTED' and (v.get('diff') or 0) > 0 for k, v in secondary.items() if k.startswith('S2_'))
+    s2_rule = any(v.get('status') == 'SUPPORTED' and (v.get('diff') or 0) < 0 for k, v in secondary.items() if k.startswith('S2_'))
+    if h2 and h1 and s2_agent:
+        return 'AGENT_BETTER_THAN_RULE'
+    if h2 and h1:
+        return 'BEATS_COLOUR_HEURISTIC_CLOSED_LOOP_NOT_WORSE'
+    if h2:
+        return 'CLOSED_LOOP_NOT_WORSE_SINGLE_POINT_NOT_BETTER'
+    s2_flat = all(v.get('p_holm', 1) >= ALPHA and abs(v.get('diff') or 0) < 0.05 for k, v in secondary.items() if k.startswith('S2_'))
+    if s2_flat and union_answerable is not None and union_answerable < 0.80:
+        return 'INSUFFICIENT_INFORMATION'
+    if s2_rule and first_option and any(v is not None and v > 0.5 for v in first_option.values()):
+        return 'MODEL_TOO_SMALL'
+    return 'INCONCLUSIVE'
+
+
+def union_answerable(cellmap: dict, table: dict) -> float | None:
+    """Share of answerable decision points (detector misses, label UNCERTAIN, excluded) that any group/level answered correctly."""
+    keys = {k for c in cellmap.values() for k in c if table.get(k, {}).get('expected_answer') != 'UNCERTAIN'}
+    if not keys:
+        return None
+    ok = [k for k in keys if any(c.get(k, {}).get('majority') for c in cellmap.values())]
+    return len(ok) / len(keys)
+
+
+def unified_section(results: dict) -> dict:
+    """Compact ``e8`` section for unified_analysis_v1 (figures read only this)."""
+    p1 = results['part1']
+    return {'schema': 'e8_unified_v1', 'conclusion': results.get('conclusion'),
+            'accuracy': {k: v['majority_acc'] for k, v in p1['accuracy'].items()},
+            'accuracy_mean': {k: v['mean_acc'] for k, v in p1['accuracy'].items()},
+            'first_option_rate': p1['position_bias']['first_option_rate'],
+            'order_agreement': p1['position_bias']['order_agreement'],
+            'verdicts': {k: v.get('status') for k, v in {**p1['primary'], **p1['secondary']}.items() if isinstance(v, dict)},
+            'selection': p1['selection'], 'part2': results.get('part2', {}).get('per_group', {}),
+            'early_switch_s': results.get('part2', {}).get('early_switch_s', {}), 'identity_status': 'UNCONFIRMED'}
+
+
+__all__ = ['regime_from_label', 'regime_from_gt', 'judge', 'baseline_records', 'cells', 'accuracy', 'compare', 'h2_test',
+           'primary_verdict', 'secondary_verdict', 'select_groups', 'position_bias', 'random_expectation', 'summary',
+           'early_switch_s', 's3_test', 's4_test', 'conclusion', 'union_answerable', 'unified_section']

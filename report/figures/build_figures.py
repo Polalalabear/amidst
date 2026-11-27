@@ -399,6 +399,131 @@ def build_fig3_latency_breakdown(data: dict[str, Any], out_dir: Path) -> list[Pa
     return _save_fig(fig, out_dir, "fig3_latency_breakdown")
 
 
+# ---------------------------------------------------------------------------------------------- E8 (#780, optional)
+E8_LEVELS = ("L0", "L0c", "L1", "L2", "L3", "L4", "L3F")
+E8_MODELS = {"laya_text": "#7c3aed", "laya_typed": "#a855f7", "qwen3b": "#ea580c", "qwen7b": "#dc2626"}
+E8_BASELINES = {"FIRST|L0c": "FIRST", "RANDOM|L0c": "RANDOM", "B1|L0c": "B1 (KEEP)", "FIRST_RED|L1": "FIRST_RED",
+                "NEAREST_RED|L2": "NEAREST_RED"}
+
+
+def _e8_footer(fig: plt.Figure, e8: dict[str, Any]) -> None:
+    fig.text(0.5, 0.02, f"E8 (#780) conclusion: {e8.get('conclusion')} | Identity: {e8.get('identity_status')} | "
+             "Colab GPU latency != local demo latency", ha="center", va="center", fontsize=8.5, color=PALETTE["muted"])
+
+
+def build_fig4_e8_information_ladder(e8: dict[str, Any], out_dir: Path) -> list[Path]:
+    """Fig 4: Part-1 majority accuracy by information level per model, with the rule baselines as reference lines."""
+    acc = e8.get("accuracy") or {}
+    fig, ax = plt.subplots(figsize=(10.5, 5.0))
+    fig.subplots_adjust(bottom=0.2, right=0.78)
+    x = np.arange(len(E8_LEVELS))
+    for model, color in E8_MODELS.items():
+        ys = [acc.get(f"{model}|{lv}") for lv in E8_LEVELS]
+        pts = [(i, y) for i, y in enumerate(ys) if y is not None]
+        if pts:
+            ax.plot([p[0] for p in pts], [p[1] * 100 for p in pts], marker="o", color=color, label=model, linewidth=1.8)
+    styles = ("--", ":", "-.", (0, (5, 2)), (0, (1, 1)))
+    for (key, label), ls in zip(E8_BASELINES.items(), styles):
+        if acc.get(key) is not None:
+            ax.axhline(acc[key] * 100, color=PALETTE["rule"], linestyle=ls, linewidth=1.0, alpha=0.75, label=f"{label} ({key.split('|')[1]})")
+    ax.set_xticks(x)
+    ax.set_xticklabels(E8_LEVELS)
+    ax.set_xlabel("Information level")
+    ax.set_ylabel("Majority accuracy over orders p0/p1/p2 (%)")
+    ax.set_ylim(0, 100)
+    ax.grid(axis="y", color=PALETTE["grid"], linestyle="--", linewidth=0.8)
+    ax.set_axisbelow(True)
+    ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=8.5)
+    ax.set_title("E8 Part 1: Accuracy by Information Level (Models vs Rule Baselines)")
+    _e8_footer(fig, e8)
+    return _save_fig(fig, out_dir, "fig4_e8_information_ladder")
+
+
+def build_fig5_e8_position_bias(e8: dict[str, Any], out_dir: Path) -> list[Path]:
+    """Fig 5: first-option rate (mean over orders) and order agreement per group and level."""
+    fo = e8.get("first_option_rate") or {}
+    oa = e8.get("order_agreement") or {}
+    keys = sorted(oa)
+    mean_fo = []
+    for k in keys:
+        vals = [v for kk, v in fo.items() if kk.rsplit("|", 1)[0] == k and v is not None]
+        mean_fo.append(sum(vals) / len(vals) * 100 if vals else 0.0)
+    fig, axes = plt.subplots(1, 2, figsize=(12, max(4.0, 0.28 * len(keys) + 1.5)), sharey=True)
+    fig.subplots_adjust(wspace=0.08, bottom=0.12)
+    y = np.arange(len(keys))
+    axes[0].barh(y, mean_fo, color=PALETTE["api_aol"], alpha=0.85)
+    axes[0].set_title("First-option rate (mean of p0/p1/p2)")
+    axes[0].set_xlim(0, 100)
+    axes[0].set_xlabel("%")
+    axes[1].barh(y, [(oa[k] or 0) * 100 for k in keys], color=PALETTE["reference"], alpha=0.85)
+    axes[1].set_title("Answer agreement across the three orders")
+    axes[1].set_xlim(0, 100)
+    axes[1].set_xlabel("%")
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels(keys, fontsize=8)
+    axes[0].invert_yaxis()
+    for ax in axes:
+        ax.grid(axis="x", color=PALETTE["grid"], linestyle="--", linewidth=0.8)
+        ax.set_axisbelow(True)
+    fig.suptitle("E8 Part 1: Position Bias and Order Stability", fontsize=12, fontweight="bold")
+    _e8_footer(fig, e8)
+    return _save_fig(fig, out_dir, "fig5_e8_position_bias")
+
+
+def build_fig6_e8_part2_errors(e8: dict[str, Any], out_dir: Path) -> list[Path]:
+    """Fig 6: Part-2 closed-loop error seconds split by kind, with follow rate annotated."""
+    p2 = e8.get("part2") or {}
+    groups = list(p2)
+    parts = (("wrong_person_only_s", "Wrong person (same camera)", "#dc2626"), ("wrong_camera_s", "Wrong camera", "#f59e0b"),
+             ("false_lock_s", "Blind false lock", "#7c3aed"), ("lost_s", "Lost", "#94a3b8"))
+    fig, ax = plt.subplots(figsize=(max(8.0, 1.3 * len(groups) + 3), 5.2))
+    fig.subplots_adjust(bottom=0.32)
+    x = np.arange(len(groups))
+    bottom = np.zeros(len(groups))
+    for key, label, color in parts:
+        vals = np.array([float(p2[g].get(key) or 0.0) for g in groups])
+        ax.bar(x, vals, bottom=bottom, color=color, alpha=0.88, label=label, width=0.6)
+        bottom += vals
+    for i, g in enumerate(groups):
+        fr = p2[g].get("follow_rate")
+        ax.text(i, bottom[i] + max(bottom.max(), 1.0) * 0.02, f"follow {fr:.1%}" if fr is not None else "—", ha="center", fontsize=8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(groups, rotation=25, ha="right", fontsize=8.5)
+    ax.set_ylabel("Seconds (summed over cases)")
+    ax.set_ylim(0, max(bottom.max(), 1.0) * 1.18)
+    ax.grid(axis="y", color=PALETTE["grid"], linestyle="--", linewidth=0.8)
+    ax.set_axisbelow(True)
+    ax.legend(frameon=False, fontsize=8.5, loc="upper left")
+    ax.set_title("E8 Part 2: Closed-Loop Error Split by Group (lower is better)")
+    _e8_footer(fig, e8)
+    return _save_fig(fig, out_dir, "fig6_e8_part2_errors")
+
+
+def build_fig7_e8_early_switch(e8: dict[str, Any], out_dir: Path) -> list[Path]:
+    """Fig 7: seconds each Part-2 group reaches the correct target earlier than B1 (positive = earlier)."""
+    es = e8.get("early_switch_s") or {}
+    groups = [g for g in es if (es[g] or {}).get("values")]
+    fig, ax = plt.subplots(figsize=(max(7.0, 1.3 * len(groups) + 3), 4.8))
+    fig.subplots_adjust(bottom=0.3)
+    if groups:
+        ax.boxplot([es[g]["values"] for g in groups], widths=0.5, showfliers=False)
+        rng = np.random.default_rng(20261128)
+        for i, g in enumerate(groups, start=1):
+            vals = es[g]["values"]
+            ax.scatter(i + rng.uniform(-0.12, 0.12, len(vals)), vals, s=12, color=PALETTE["api_aol"], alpha=0.7, zorder=3)
+        ax.set_xticks(range(1, len(groups) + 1))
+        ax.set_xticklabels(groups, rotation=25, ha="right", fontsize=8.5)
+    else:
+        ax.text(0.5, 0.5, "No switch-timing data", ha="center", va="center", transform=ax.transAxes)
+    ax.axhline(0, color=PALETTE["muted"], linewidth=0.9)
+    ax.set_ylabel("Seconds earlier than B1 (positive = earlier)")
+    ax.grid(axis="y", color=PALETTE["grid"], linestyle="--", linewidth=0.8)
+    ax.set_axisbelow(True)
+    ax.set_title("E8 Part 2: Camera-Switch Timing vs B1")
+    _e8_footer(fig, e8)
+    return _save_fig(fig, out_dir, "fig7_e8_early_switch")
+
+
 def build_all_figures(input_path: Path, out_dir: Path) -> dict[str, Any]:
     if not input_path.is_file():
         raise FileNotFoundError(f"Input JSON not found: {input_path}")
@@ -412,6 +537,10 @@ def build_all_figures(input_path: Path, out_dir: Path) -> dict[str, Any]:
     generated_paths.extend(build_fig1_e3_e5_summary(data, out_dir))
     generated_paths.extend(build_fig2_five_way_comparison(data, out_dir))
     generated_paths.extend(build_fig3_latency_breakdown(data, out_dir))
+    if isinstance(data.get("e8"), dict):  # optional E8 (#780) figures, drawn only when the section is present
+        for build in (build_fig4_e8_information_ladder, build_fig5_e8_position_bias, build_fig6_e8_part2_errors,
+                      build_fig7_e8_early_switch):
+            generated_paths.extend(build(data["e8"], out_dir))
 
     try:
         rel_input = input_path.resolve().relative_to(Path(__file__).resolve().parents[2]).as_posix()

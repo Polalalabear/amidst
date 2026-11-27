@@ -82,3 +82,30 @@ def test_h2_noninferiority():
     assert h['p'] < 0.01
     segs_bad = [dict(s, wrong_person_s=s['wrong_person_s'] + (2.0 if s['group'] == 'SELECTED' else 0)) for s in segs]
     assert S.h2_test(segs_bad, dps)['p'] > 0.5
+
+
+def test_early_switch_conclusion_and_unified_section():
+    ref = {10: 'WRONG', 11: 'WRONG', 12: 'CORRECT'}
+    test = {10: 'CORRECT'}
+    assert S.first_correct(test, 10) == 0 and S.first_correct(ref, 10) == 2
+    assert S.early_switch_s(test, ref, 10) == round(2 * R.TICK_S, 3) and S.early_switch_s(ref, test, 10) < 0
+    sup = {'status': 'SUPPORTED'}
+    prim = {'H1a': sup, 'H2': sup}
+    assert S.conclusion(prim, {'S2_qwen7b_L2': {'status': 'SUPPORTED', 'diff': 0.1}}) == 'AGENT_BETTER_THAN_RULE'
+    assert S.conclusion(prim, {'S2_qwen7b_L2': {'status': 'INCONCLUSIVE', 'diff': 0.1}}) == 'BEATS_COLOUR_HEURISTIC_CLOSED_LOOP_NOT_WORSE'
+    assert S.conclusion({'H2': sup}, {}) == 'CLOSED_LOOP_NOT_WORSE_SINGLE_POINT_NOT_BETTER'
+    flat = {'S2_qwen7b_L2': {'p_holm': 0.5, 'diff': 0.0}}
+    assert S.conclusion({}, flat, union_answerable=0.7) == 'INSUFFICIENT_INFORMATION'
+    rule_wins = {'S2_qwen7b_L2': {'status': 'SUPPORTED', 'diff': -0.2, 'p_holm': 0.001}}
+    assert S.conclusion({}, rule_wins, first_option={'qwen7b|L2|p0': 0.9}) == 'MODEL_TOO_SMALL'
+    assert S.conclusion({}, rule_wins) == 'INCONCLUSIVE'
+    table = {'b0': {'expected_answer': 'SELECT'}, 'b1': {'expected_answer': 'UNCERTAIN'}, 'b2': {'expected_answer': 'KEEP'}}
+    cm = {('A', 'L1'): {'b0': {'majority': True}, 'b1': {'majority': False}, 'b2': {'majority': False}}}
+    assert S.union_answerable(cm, table) == 0.5
+    res = {'conclusion': 'INCONCLUSIVE', 'part1': {'accuracy': {'A|L1': {'majority_acc': .5, 'mean_acc': .4}},
+                                                   'position_bias': {'first_option_rate': {}, 'order_agreement': {}},
+                                                   'primary': {'H1a': {'status': 'EXPLORATORY'}, 'note': 'x'}, 'secondary': {},
+                                                   'selection': {'selected': None}},
+           'part2': {'per_group': {'B1': {'follow_rate': .7}}, 'early_switch_s': {}}}
+    sec = S.unified_section(res)
+    assert sec['schema'] == 'e8_unified_v1' and sec['verdicts'] == {'H1a': 'EXPLORATORY'} and sec['identity_status'] == 'UNCONFIRMED'

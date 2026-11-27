@@ -133,9 +133,11 @@ def test_no_duplicate_definitions():
     """Must-fix 1 (#780): E8 modules import existing functions; none redefines a name already defined in the reused modules."""
     reused = ['src/amidst/evaluation/e7_decider_eval.py', 'src/amidst/evaluation/e7_scoring_bridge.py', 'src/amidst/q1q5/agent_service.py',
               'src/amidst/live_mode/aopen/arms.py', 'scripts/evaluation/build_e7_colab_pack.py', 'scripts/evaluation/e3_f4_run.py',
-              'src/amidst/evaluation/e6_verdict.py', 'scripts/evaluation/e3_f4_score.py']
+              'src/amidst/evaluation/e6_verdict.py', 'scripts/evaluation/e3_f4_score.py', 'src/amidst/evaluation/e7_colab_runtime.py',
+              'scripts/evaluation/generate_unified_analysis.py']
     e8 = sorted(p for p in ['src/amidst/evaluation/e8_requests.py', 'src/amidst/evaluation/e8_score.py',
-                            'src/amidst/evaluation/e8_handoff.py', 'scripts/evaluation/build_e8_colab_pack.py'] if (ROOT / p).exists())
+                            'src/amidst/evaluation/e8_handoff.py', 'scripts/evaluation/build_e8_colab_pack.py',
+                            'src/amidst/evaluation/e8_colab_run.py', 'scripts/evaluation/e8_score_run.py'] if (ROOT / p).exists())
 
     def defs(p):
         tree = ast.parse((ROOT / p).read_text())
@@ -148,7 +150,7 @@ def test_no_duplicate_definitions():
 def test_inference_side_does_not_import_scoring():
     """Design §4.4 (D385/D417): inference-side E8 code never imports scoring modules."""
     banned = ('e3_scoring', 'e7_scoring_bridge', 'e6_verdict', 'e8_score', 'e3_f4_score')
-    for p in ('src/amidst/evaluation/e8_requests.py', 'src/amidst/evaluation/e8_handoff.py'):
+    for p in ('src/amidst/evaluation/e8_requests.py', 'src/amidst/evaluation/e8_handoff.py', 'src/amidst/evaluation/e8_colab_run.py'):
         if (ROOT / p).exists():
             tree = ast.parse((ROOT / p).read_text())
             mods = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}

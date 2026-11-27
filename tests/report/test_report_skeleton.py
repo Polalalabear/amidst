@@ -145,6 +145,30 @@ def test_build_figures_handles_populated_synthetic_input(tmp_path: Path) -> None
     for stem in EXPECTED_FIGURE_STEMS:
         assert (out_dir / f"{stem}.svg").is_file()
         assert (out_dir / f"{stem}.png").is_file()
+    assert not (out_dir / "fig4_e8_information_ladder.svg").exists()   # E8 figures only when the e8 section exists
+
+
+def test_build_figures_draws_e8_figures_when_section_present(tmp_path: Path) -> None:
+    data = json.loads(SAMPLE_INPUT.read_text(encoding="utf-8"))
+    data["e8"] = {
+        "schema": "e8_unified_v1", "conclusion": "INCONCLUSIVE", "identity_status": "UNCONFIRMED",
+        "accuracy": {"laya_typed|L0c": 0.4, "laya_typed|L1": 0.5, "qwen7b|L4": 0.6, "B1|L0c": 0.3, "NEAREST_RED|L2": 0.55},
+        "first_option_rate": {"qwen7b|L4|p0": 0.6, "qwen7b|L4|p1": 0.4}, "order_agreement": {"qwen7b|L4": 0.7},
+        "verdicts": {"H1a": "INCONCLUSIVE"},
+        "part2": {"B1": {"follow_rate": 0.75, "wrong_person_only_s": 8.0, "wrong_camera_s": 4.0, "false_lock_s": 0.0, "lost_s": 8.6}},
+        "early_switch_s": {"B1+qwen7b@L4": {"median_s": 0.2, "n": 3, "values": [-0.2, 0.2, 1.0]}},
+    }
+    inp = tmp_path / "with_e8.json"
+    inp.write_text(json.dumps(data), encoding="utf-8")
+    out_dir = tmp_path / "out"
+    proc = subprocess.run([sys.executable, str(BUILD_SCRIPT), "--input", str(inp), "--out-dir", str(out_dir)],
+                          capture_output=True, text=True, check=False)
+    assert proc.returncode == 0, proc.stderr
+    for stem in EXPECTED_FIGURE_STEMS + ("fig4_e8_information_ladder", "fig5_e8_position_bias", "fig6_e8_part2_errors",
+                                         "fig7_e8_early_switch"):
+        assert (out_dir / f"{stem}.svg").is_file() and (out_dir / f"{stem}.png").is_file()
+    manifest = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert len(manifest["figures"]) == 14
 
 
 @pytest.mark.parametrize(

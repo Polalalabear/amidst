@@ -401,6 +401,22 @@ def display_of(ans: dict | None, req: dict) -> dict:
     return {'kind': 'BOX', 'camera_id': ans['camera_id'], 'detection_id': ans['detection_id'], 'via': 'SELECT'}
 
 
+# ------------------------------------------------------------------------------------------------ records (no GT; scored by e8_score)
+def make_record(req: dict, group: str, ans: dict | None, err: str | None, **extra) -> dict:
+    """One scored-ready record. ``first_option``: the chosen option is the first in this order (position bias, §5.4)."""
+    disp = display_of(ans, req)
+    first = None
+    if ans is not None and ans.get('answer') == 'SELECT':
+        if 'option' in ans and req.get('options'):
+            first = ans['option'] == req['options'][0]['key']
+        elif req.get('e7') and req['e7']['candidates']:
+            c0 = req['e7']['candidates'][0]
+            first = (ans.get('camera_id'), ans.get('detection_id')) == (c0['camera_id'], c0['detection_id'])
+    return {'request_id': req['request_id'], 'base_id': req['base_id'], 'case_id': req['case_id'], 'group': group, 'level': req['level'],
+            'perm': req['perm'], 'answer': ans and ans.get('answer'), 'error': err, 'display': disp, 'first_option': first, **extra}
+
+
+
 # ------------------------------------------------------------------------------------------------ baseline policies (design §2.8)
 def baseline_answer(policy: str, req: dict) -> dict:
     """FIRST (L0c+), FIRST_RED (L1+), RANDOM, NEAREST_RED (L2+, no gate), B1 (=KEEP). Computed on the request's own option order."""

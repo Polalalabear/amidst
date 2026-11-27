@@ -70,6 +70,7 @@
               "e7_analysis",
               "e6_verdict",
               "aol_zero_latency",
+              "e8_results",
               "other"
             ]
           },
@@ -252,6 +253,15 @@
         "unique_decision_points": { "type": ["integer", "null"] },
         "skew_sensitivity_flag": { "type": ["boolean", "null"] },
         "provenance_source_id": { "type": ["string", "null"] }
+      }
+    },
+    "e8": {
+      "type": "object",
+      "description": "Optional E8 (#780) section written by scripts/evaluation/e8_score_run.py (schema e8_unified_v1); absent when E8 was not run.",
+      "required": ["schema", "conclusion", "accuracy", "first_option_rate", "verdicts", "part2", "early_switch_s", "identity_status"],
+      "properties": {
+        "schema": { "const": "e8_unified_v1" },
+        "identity_status": { "const": "UNCONFIRMED" }
       }
     },
     "target_tracking_672": {
