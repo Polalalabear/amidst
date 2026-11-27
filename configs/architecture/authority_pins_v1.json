@@ -688,6 +688,14 @@
       "sha256": "855a0f5d30a4ecd71fd84c2928855e10912112cb8288057fc1e92a4e9d15b54b",
       "status": "現行（交接快照）；連到 10-25、10-26 的連結改指向合併文件（D408）；登記不等於核准",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D409-DOCS-1",
+      "path": "AGENTS.md",
+      "ref": "claude/docs-bigcleanup-inventory-20261127@27c33afc816eba37529253f0aa60ca08170f3f76",
+      "sha256": "a8bb615aab07d63c0622424896d9ec1a5976e5da1bc563c65d05965dbcc9fc18",
+      "status": "現行；來源文件清單加整理總帳 CLEANUP_LEDGER.md（D409）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
   ],
   "authorized_changes": [
@@ -1145,6 +1153,13 @@
       "requires_commit": "54265f0387fa11fe07cec05fb69964384e4a97e8",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "連到已刪除的 10-25、10-26 交接的三個連結改指向 docs/history 合併文件錨點（D408，#756）；只改連結。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "a8bb615aab07d63c0622424896d9ec1a5976e5da1bc563c65d05965dbcc9fc18",
+      "requires_commit": "27c33afc816eba37529253f0aa60ca08170f3f76",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "來源文件清單加整理總帳連結（D409）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }
