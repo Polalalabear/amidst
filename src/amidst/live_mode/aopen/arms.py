@@ -108,17 +108,17 @@ class ArmConfig:
         return '\n\n'.join(parts)
 
 
-def reject_forbidden(obj, where='value'):
+def reject_forbidden(obj, where='value', *, text=True):
     """Recursively refuse scoring-side key names or text. ValueError, never silently dropped."""
     if isinstance(obj, dict):
         for k, v in obj.items():
             if _FORBIDDEN_KEY.search(str(k)):
                 raise ValueError(f'FORBIDDEN_KEY:{where}.{k}')
-            reject_forbidden(v, f'{where}.{k}')
+            reject_forbidden(v, f'{where}.{k}', text=text)
     elif isinstance(obj, (list, tuple)):
         for i, v in enumerate(obj):
-            reject_forbidden(v, f'{where}[{i}]')
-    elif isinstance(obj, str) and _FORBIDDEN_TEXT.search(obj):
+            reject_forbidden(v, f'{where}[{i}]', text=text)
+    elif text and isinstance(obj, str) and _FORBIDDEN_TEXT.search(obj):
         raise ValueError(f'FORBIDDEN_TEXT:{where}')
 
 
