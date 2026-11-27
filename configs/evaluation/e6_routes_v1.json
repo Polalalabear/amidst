@@ -1,6 +1,6 @@
 {
  "schema": "amidst.e6-routes.v1",
- "status": "DRAFT_DESIGN_PENDING_OPUS_REVIEW",
+ "status": "FROZEN_ROUTES_V1",
  "issue_ref": "#742",
  "decision_ref": "D396",
  "spec_ref": {
@@ -1372,7 +1372,7 @@
     0.5,
     0.9
    ],
-   "tail_s": 0,
+   "tail_s": 1.0,
    "target_steps": [
     [
      "hold",
@@ -1498,7 +1498,25 @@
     0.9
    ],
    "opening_camera": "CAM_W1",
-   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera"
+   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera",
+   "tail_note": "D399 freeze correction before any scoring: the last decision point (reappear at 27.2 s) needs tick+15 <= max_ticks in check_e6_data_separation.py (strict), so S12 records a 1.0 s tail (31.0 s, route and crowd trajectory unchanged)."
   }
- ]
+ ],
+ "frozen_by": "D399 (Opus APPROVE, PR #745 comment 7206630872); frozen before any recording",
+ "dp_tolerance_s": 3.0,
+ "dp_window_ticks": 15,
+ "actor_max_speed_mps": 2.1,
+ "detectors": {
+  "reappear": "T unseen by all 8 cameras for 3-10 s, then seen again: event at the first visible tick",
+  "handoff": "a camera that saw T for >= 2 s (11 ticks) stops seeing T while another camera still does; or T is unseen <= 1.5 s and returns in a camera set disjoint from before; events < 3 s apart merge to the first",
+  "cross": "T and the distractor seen by a common camera and <= 2.0 m: local minimum of the distance",
+  "split": "first tick after >= 2 s with distance <= 3.5 m (some <= 2.5 m) where the distance exceeds 3.5 m (both present, cameras may differ)",
+  "blind": "nearest start inside a blind interval such that the 3 s window [t, t+3) is entirely unseen",
+  "visible": "window at the planned time (no search)",
+  "placement": "each planned decision point takes the detector event of its kind nearest to t_plan; regime = GT-derived over the 15-tick window; planned TRUE_DEPARTURE is declared FULL_BLIND (D399 DC3)"
+ },
+ "detector_source": {
+  "path": "scripts/evaluation/e3_cases/e6_design_check.mjs",
+  "sha256": "938d9a7bd9a97a476cd274ee4e6f64cb97b637d823e935bd18dadf798d99c524"
+ }
 }

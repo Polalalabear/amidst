@@ -22,3 +22,5 @@ source/index/records/RGB descriptor/calibration/config/code/protocol SHA-256。
 舊 A2 沒有完整 candidate_list，**MISSING**，不能拿新結果或 GT 補成原請求。
 舊 AO 有候選清單、ask/applied tick 與 rows，可派生描述欄位，但缺完整逐階段
 原始事件時不得宣稱舊紀錄已符合本規格。
+
+正式 12 段的錄製前設計偏離（起點修正、`TRUE_DEPARTURE`→`FULL_BLIND`、S12 尾段）與關卡結果見 [E6_ROUTES_RECORDING_20261127.md](E6_ROUTES_RECORDING_20261127.md)。

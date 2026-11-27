@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {loadE6} from '../../../scripts/evaluation/e3_cases/e6_routes.mjs';
 import {E3_ROUTES} from '../../../scripts/evaluation/e3_cases/routes.mjs';
 import {REAPPEARANCE_ROUTES} from '../../../scripts/evaluation/e3_cases/reappearance_routes.mjs';
@@ -73,5 +74,15 @@ test('E6 routes: design check on the production crowd (every planned decision po
   for (const c of doc.cases) {
     const r = summarize(c, simulate(routes[c.case_id], env, c.case_id));
     assert.ok(r.all_ok, `${c.case_id}: ${JSON.stringify(r.decision_points.filter(d => !d.ok))}`);
+  }
+});
+
+test('E6 routes: frozen (D399) - detector source pinned, distractor speed <= 2.1 m/s, decision-point windows cannot overlap', () => {
+  assert.equal(doc.status, 'FROZEN_ROUTES_V1');
+  const sha = createHash('sha256').update(fs.readFileSync(path.join(root, doc.detector_source.path))).digest('hex');
+  assert.equal(sha, doc.detector_source.sha256, 'e6_design_check.mjs changed after the freeze');
+  for (const c of doc.cases) for (const a of c.actors) for (let i = 1; i < a.waypoints.length; i++) {
+    const [t0, x0, y0] = a.waypoints[i - 1], [t1, x1, y1] = a.waypoints[i];
+    if (t1 > t0) assert.ok(Math.hypot(x1 - x0, y1 - y0) / (t1 - t0) <= doc.actor_max_speed_mps + 1e-9, `${c.case_id} actor ${a.actor_id} segment ${i}`);
   }
 });
