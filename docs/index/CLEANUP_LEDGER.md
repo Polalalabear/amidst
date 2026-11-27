@@ -24,6 +24,8 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 
 | 日期 | 決策 | PR／commit | 動作 | 內容與證據 |
 | --- | --- | --- | --- | --- |
+| 2026-11-27 | D410（使用者指示） | — （GitHub issue 與標籤）；本總帳更新在 PR `claude/docs-cleanup-ledger-d410` | 更新 | 大整理第 2 步提前：關閉 #717（#723）、#718（#726）、#719（#724）、#710（#714）、#700（gate r5，pin `5727fc9a`）、#612（#623＋#714）、#729（#738）、#659（not planned，併入 #734），每個都留言寫明完成處並清掉狀態標籤。#720、#594、#633 核對後還有未完成項目，留言說明後保持開啟（§3.1.1）。標籤：#733 `ready`＋`in-progress` → `deferred`；#728 `ready` → `deferred`；#740 加 `deferred`（三者依 D407 延後）；#734 移除 `ready`；#732 `owner:codex` → `owner:claude`（D396）；#594 移除 `needs-claude-review`；#479 移除 `pull:ready`；#675 `blocked-user` → `blocked`（卡在 E6 選組，不是等使用者）。開著的 issue 29 → 21 |
+| 2026-11-27 | D410 | — | 更正 | 下一列（D409）的「本 PR」是 [#758](https://github.com/Polalalabear/amidst/pull/758)，merge `285ab8cb` |
 | 2026-11-27 | D409 | 本 PR | 新增 | 建立本總帳；§3 是全專案大整理的盤點（只讀，main `ba7f74f6`） |
 | 2026-11-27 | D408（使用者指示） | — （GitHub 標籤） | 更新 | 已關閉 issue 移除狀態標籤：`in-progress` 17 個（#577–#660）、`ready` 46 個、`blocked` 25 個、`needs-auth` 1 個；複查後四種都是 0 個。#742 的 `in-progress` 在同一天先移除 |
 | 2026-11-27 | D408 | [#757](https://github.com/Polalalabear/amidst/pull/757) `ba7f74f6`（issue #756） | 刪除＋搬移＋新增＋更新 | 刪 14 份舊交接（全文已併入合併文件）；搬 5 份 Office 文件、3 張截圖；新增 `COORDINATOR_HANDOFFS_20261025_20261127.md`、`CODE_DOC_MAP_INACTIVE.md`；`docs/README.md`、`CODE_DOC_MAP.md` 只留現行導覽；`ARCHIVE_20261027.md` 加 §7 對照；CLAUDE.md、20261027 交接的 pin 重新登記 |
@@ -37,23 +39,17 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 
 依據 #93 D408 第 6 點：目前的大工作（E6 結果、E7、報告）**完成後**才開始大整理，GitHub 和本機要一起更新。本節只盤點、不執行；數字取自 2026-11-27 的 `gh`、`git ls-files` 和 `du`。執行時照 §3.6 的順序做，做完一項就移到 §2。
 
-### 3.1 GitHub issue（開著的 29 個）
+### 3.1 GitHub issue（D409 盤點時開著 29 個；D410 關 8 個後是 21 個）
 
-#### 3.1.1 工作已合併、issue 還開著（可關閉候選）
+#### 3.1.1 工作已合併、issue 還開著
 
-| Issue | 已完成於 | 建議 |
+D410（2026-11-27）已關閉 8 個，留言寫明完成處，見 §2：#717、#718、#719、#710、#700、#612、#729、#659（#659 以 not planned 關閉，併入 #734）。下面是核對後**還不能關**的：
+
+| Issue | 已合併的部分 | 還缺什麼（D410 核對） |
 | --- | --- | --- |
-| #717 E6-1 答案表重算 | #723 `e202110b` | 留言指向 #723 後關閉 |
-| #718 E6 預登草稿 | #726 `017dd61a` | 同上；另外移除錯掛的 `ready`＋`in-progress` |
-| #719 F5 論文／README 收尾 | #724 `88102b91` | 同上 |
-| #720 8785 收尾 | #725 `018e1a5c`、#714 `5727fc9a`、#700 gate r5 | 同上 |
-| #700 換 pin gate | gate r5 全 PASS，pin `5727fc9a`（2026-11-27） | 同上 |
-| #710 前台 3D | #714 `5727fc9a` | 同上 |
-| #612 est_xy | #623 `f8b1a454`；3D 顯示由 #714 完成 | 確認 #605 需求已涵蓋後關閉 |
-| #594 8CAM run | #623；8CAM wall 在 gate r3–r5 都是 PASS | 確認「B-05／r005-8CAM 來源 UNKNOWN」已由 #686 收據解決後關閉 |
-| #633 LIVE 改成 workbench-v2 風格 | #705 `21d6f4c5`、#739 `a3311bcb`（LIVE 樣式收尾） | 確認還有沒有剩餘項目 |
-| #659 F5 論文定稿 | D386：併入 #734 | 以「superseded，併入 #734」關閉 |
-| #729 `local/` 盤點工具 | #738 `a90a7884`；Mac 端由 `cl-inventory-729-20261127` 代跑 | 關閉；後續問題已拆成 #740 |
+| #720 8785 收尾 | #725 `018e1a5c`、#714 `5727fc9a`、#700 gate r5；pin 已換到 `5727fc9a` | 第 3 項「換 pin 後重走 AC1–AC8、在 issue 貼結果表」沒有紀錄 |
+| #594 8CAM run | #623 `f8b1a454`；8CAM wall 在 gate r3–r5 都 PASS | B-05、r005 的 8CAM 核准來源仍是 UNKNOWN；#686 只把 B-05 標成 SCENE_CONTEXT_INCOMPLETE |
+| #633 LIVE 改成 workbench-v2 風格 | #705 `21d6f4c5`、#739 `a3311bcb` | Claude 後續：`frontend/workbench-v2/tokens-css-mirror.test.mjs` 鏡像契約退役、`frontend/live-mode/src/tokens.css` 鏡像退役（main `285ab8cb` 上兩個檔都還在） |
 | #721 E6-2 實作 | #743 `7dbb4ede`、#746 `037477d3` | **等 E6 結果 PR 合併**，由 E6 協調對話回填後關閉 |
 
 #### 3.1.2 等主線（E6／E7）
@@ -68,11 +64,8 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 - #93（任務板）、#674（更新紀錄）、#479（報告 epic）。#479 和 #734 的範圍重疊，大整理時決定是否把 #479 併進 #734。
 
 #### 3.1.5 開著的 issue 上不一致的標籤
-- `ready` 和 `in-progress` 同時掛著：#718、#733、#734。
-- `owner:codex`，但實際由 Claude 代做：#732（D396）。
-- `needs-claude-review` 和 `review:claude` 重複：#594、#612。
-- 舊標籤 `pull:ready`：#479。
-- `blocked-user`（#675）和 `blocked` 並存，兩種寫法要統一。
+
+D410 已全部修正，見 §2；複查後開著的 issue 上 `ready`＋`in-progress` 並存、`needs-claude-review`、`blocked-user`、`pull:ready` 都是 0 個。repo 裡 `needs-claude-review`、`blocked-user`、`pull:ready`、`pull:waiting` 這幾個標籤定義本身還在，要不要刪留到大整理決定。
 
 ### 3.2 PR
 開著的只有 #754（E6 結果紀錄骨架，Draft，等 E6 協調對話回填）。不需要整理。
@@ -133,7 +126,7 @@ tag 共 47 個（`archive/*`），保留。
 ### 3.6 建議執行順序（大工作完成後）
 
 1. **觸發條件**：E6 結果 PR（#754）合併、#732 回填完成、E7 分析完成、#734 報告數字補上。
-2. **GitHub**（Haiku 執行、協調者核對）：關閉 §3.1.1 的 issue，每個都留言寫明在哪裡完成；修正 §3.1.5 的標籤；#93 工作清單改為只列現行工作。
+2. **GitHub**（Haiku 執行、協調者核對）：~~關閉 §3.1.1 的 issue、修正 §3.1.5 的標籤~~（D410 提前做了，剩 §3.1.1 表中的 4 個）；#93 工作清單改為只列現行工作。
 3. **分支**：協調者寫好一條刪除指令（17 支已合併分支），使用者執行；`claude/docs-handoff-20261124` 先處理 `c37a0cc4`；archive 類的分支由使用者決定保留或改成 tag。
 4. **`local/`**：照 §3.4 的流程重新盤點、核對、決定，由使用者刪除。
 5. **文件**：照 §3.5，以 D408 的做法分批搬移，每批一個 PR，附對照表、pin 重新登記、連結檢查。
