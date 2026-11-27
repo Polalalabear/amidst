@@ -42,6 +42,15 @@ def test_check_min_versions_unchanged_runtime(monkeypatch):
         R.check_min_versions({"numpy": "2.5.0"})
 
 
+def test_check_min_versions_memory_vs_disk_mismatch_needs_restart(monkeypatch):
+    import types
+
+    monkeypatch.setattr(R.metadata, "version", lambda n: "2.3.0")
+    monkeypatch.setitem(R.sys.modules, "numpy", types.SimpleNamespace(__version__="2.1.3"))
+    with pytest.raises(RuntimeError, match="重啟"):
+        R.check_min_versions({"numpy": "2.0.0"})
+
+
 def _mk_pack(root: Path) -> None:
     (root / "requests").mkdir(parents=True)
     (root / "requests" / "r.jsonl").write_text("{}\n")

@@ -102,6 +102,10 @@ def check_min_versions(minimums: dict[str, str]) -> dict[str, str | None]:
         except metadata.PackageNotFoundError:
             v = None
         seen[name] = v
+        mod = sys.modules.get({"Pillow": "PIL"}.get(name, name))
+        mem = getattr(mod, "__version__", None) if mod is not None else None
+        if v is not None and mem is not None and _norm_version(mem) != _norm_version(v):
+            raise RuntimeError(f"STOP: {name} in memory {mem} != installed {v}. 重啟 runtime 後再 Run All (restart, then Run All).")
         if v is None or key(v) < key(floor):
             raise RuntimeError(f"STOP: {name}=={v} is below the required minimum {floor} (runtime is left unchanged on purpose).")
     return seen
