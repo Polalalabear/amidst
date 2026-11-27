@@ -1,12 +1,17 @@
-"""E6 arms replay (inference side only), ApiGuard dry-run estimate and the guarded paid K=1 diagnostic. #721, D377/D396/D398.
+"""E6 arms replay (inference side only), ApiGuard dry-run estimate and the guarded paid runs. #721, D377/D396/D398/D401.
 
 Dry-run (no network, no key, no ledger; builds the real requests with a local canned transport):
-  uv run python -B scripts/evaluation/e6_arms_run.py --root <E3 root> --cameras <catalog> --cases E3-A1 E3-B1 E3-C1 --k 1 --dry-run
-Paid (ONLY after the coordinator's approval in chat; explicit flags, otherwise refused):
-  uv run python -B scripts/evaluation/e6_arms_run.py --root <E3 root> --cameras <catalog> --cases E3-A1 E3-B1 E3-C1 --k 1 \
-      --paid --max-usd 10 --baseline-json local/evidence/api-usage/RECONCILIATION_20261124.json --out <abs>/local/evidence/e6-arms-k1-20261127
-Paid mode: only K=1 and the cases E3-A1/E3-B1/E3-C1 (prereg 2.1); a dry-run estimate runs first and must fit --max-usd and
-baseline(D375 actual total)+ledger rows+estimate <= cap(90); every call goes through ApiGuard (own ledger <out>/ledger).
+  uv run python -B scripts/evaluation/e6_arms_run.py --root <root> --cameras <catalog> --cases <ids> --k <k> --dry-run
+Two paid runs exist; everything else is refused (--paid and --max-usd are always required):
+  DIAGNOSTIC  K=1, cases E3-A1 E3-B1 E3-C1, --max-usd <= 10 (prereg 2.1).
+  FORMAL      K=3, all of E6-S01..E6-S12, --max-usd <= 32; needs E6_BATCH3_APPROVED=1 and the batch-3 freeze receipt
+              (BATCH3_FREEZE.json: --receipt, else $E6_FREEZE_DIR, else <evidence root>/e6-batch3-freeze-20261127), and --arms must be
+              exactly DEANCHOR + the receipt's SELECTED_AGENT (AO_ORIG runs through e5_run.py, not here).
+  uv run python -B scripts/evaluation/e6_arms_run.py --root <root> --cameras <catalog> --cases ... --arms ... --k 3 --paid \
+      --max-usd <usd> --baseline-json <RECONCILIATION_20261124.json> --out <dir> --extra-ledger <ledger dirs...>
+Order: dry-run estimate -> estimate <= --max-usd -> D375 cumulative check (baseline + new ledger rows in <out>/ledger and every
+--extra-ledger + estimate <= cap 90) -> only then a transport; every call goes through ApiGuard (own ledger <out>/ledger).
+Outputs: <out>/<case>/<ARM>.k<n>.json (atomic), PRECHECK.json, STATUS.json, MANIFEST.sha256.
 Never loads scoring inputs. Existing outputs are skipped, never overwritten. AO (original) is not run here.
 """
 from __future__ import annotations
@@ -149,21 +154,69 @@ def dry_run(a):
 PAID_CASES = ('E3-A1', 'E3-B1', 'E3-C1')
 PAID_K = 1
 MAX_PAID_USD = 10.0
+FORMAL_CASES = tuple(f'E6-S{i:02d}' for i in range(1, 13))
+FORMAL_K = 3
+MAX_FORMAL_USD = 32.0
+RECEIPT_KEYS = ('SELECTED_AGENT', 'code_commit_sha', 'prompt_and_config_sha256', 'params', 'formal_dry_run_estimate', 'scorer_sha256')
 CALLER = 'e6arms'
 
 
+def default_receipt(a):
+    """Batch-3 freeze receipt: --receipt, else $E6_FREEZE_DIR, else <evidence root>/e6-batch3-freeze-20261127 (evidence root = the
+    parent of the baseline file's api-usage folder)."""
+    if getattr(a, 'receipt', None):
+        return Path(a.receipt)
+    if os.environ.get('E6_FREEZE_DIR'):
+        return Path(os.environ['E6_FREEZE_DIR']) / 'BATCH3_FREEZE.json'
+    return Path(a.baseline_json).parent.parent / 'e6-batch3-freeze-20261127' / 'BATCH3_FREEZE.json'
+
+
+def check_formal_gate(a):
+    """Formal 12 segments: needs the approval env var AND the batch-3 freeze receipt, and exactly DEANCHOR + SELECTED_AGENT."""
+    if os.environ.get('E6_BATCH3_APPROVED') != '1':
+        raise SystemExit('FORMAL_NOT_APPROVED: E6_BATCH3_APPROVED=1 is required (batch-3 review + the user\'s approval, prereg 0.2)')
+    path = default_receipt(a)
+    if not path.is_file():
+        raise SystemExit(f'FORMAL_RECEIPT_MISSING: {path}')
+    raw = path.read_bytes()
+    try:
+        receipt = json.loads(raw)
+    except ValueError:
+        raise SystemExit('FORMAL_RECEIPT_UNREADABLE')
+    missing = [k for k in RECEIPT_KEYS if not isinstance(receipt, dict) or k not in receipt]
+    if missing:
+        raise SystemExit('FORMAL_RECEIPT_INCOMPLETE: missing ' + ', '.join(missing))
+    selected = receipt['SELECTED_AGENT']
+    if selected not in ARMS:
+        raise SystemExit('FORMAL_RECEIPT_BAD_SELECTED_AGENT')
+    need = {'DEANCHOR', selected}
+    if set(a.arms) != need or len(set(a.arms)) != len(a.arms):
+        raise SystemExit(f'FORMAL_ARMS_REFUSED: arms must be exactly {sorted(need)} (DEANCHOR + SELECTED_AGENT from the receipt)')
+    return {'path': str(path), 'sha256': hashlib.sha256(raw).hexdigest(), 'SELECTED_AGENT': selected,
+            'code_commit_sha': receipt['code_commit_sha']}
+
+
 def check_paid_request(a):
-    """Refuse everything except the registered diagnostic. Returns the validated max_usd."""
+    """Refuse everything except the two registered paid runs: the K=1 diagnostic (E3-A1/B1/C1, <= USD 10) and the formal K=3 run on
+    E6-S01..S12 (<= USD 32, batch-3 gate). Returns (max_usd, mode, receipt-or-None)."""
     if not a.paid:
         raise SystemExit('PAID_RUN_NOT_AUTHORIZED: paid runs need --paid and --max-usd after the coordinator\'s approval (D242)')
-    if a.k != PAID_K or not set(a.cases) <= set(PAID_CASES) or len(set(a.cases)) != len(a.cases):
-        raise SystemExit(f'PAID_COMBINATION_REFUSED: only K={PAID_K} and cases {", ".join(PAID_CASES)} (prereg 2.1)')
-    if a.max_usd is None or not math.isfinite(a.max_usd) or not 0 < a.max_usd <= MAX_PAID_USD:
-        raise SystemExit(f'PAID_BUDGET_REFUSED: --max-usd must be in (0, {MAX_PAID_USD}]')
+    cases = list(a.cases)
+    if len(set(cases)) != len(cases):
+        raise SystemExit('PAID_COMBINATION_REFUSED: duplicate cases')
+    if a.k == PAID_K and set(cases) <= set(PAID_CASES):
+        mode, cap = 'DIAGNOSTIC', MAX_PAID_USD
+    elif a.k == FORMAL_K and set(cases) == set(FORMAL_CASES):
+        mode, cap = 'FORMAL', MAX_FORMAL_USD
+    else:
+        raise SystemExit(f'PAID_COMBINATION_REFUSED: only K={PAID_K} on {", ".join(PAID_CASES)} (diagnostic) or K={FORMAL_K} on all of '
+                         f'{FORMAL_CASES[0]}..{FORMAL_CASES[-1]} (formal, batch-3 gate)')
+    if a.max_usd is None or not math.isfinite(a.max_usd) or not 0 < a.max_usd <= cap:
+        raise SystemExit(f'PAID_BUDGET_REFUSED: --max-usd must be in (0, {cap}] for the {mode.lower()} run')
     for key in ('out', 'baseline_json'):
         if getattr(a, key) is None:
             raise SystemExit('--' + key.replace('_', '-') + ' is required for a paid run')
-    return a.max_usd
+    return a.max_usd, mode, (check_formal_gate(a) if mode == 'FORMAL' else None)
 
 
 def ledger_total(usage_dir, since=None):
@@ -253,31 +306,31 @@ def finish(out, status, reason=None):
 def paid_run(a, transport=None, guard=None):
     """Guarded K=1 diagnostic. ``transport``/``guard`` are injectable for offline tests; production builds them via ApiGuard."""
     from amidst.live_mode.aopen.arms import reject_forbidden
-    max_usd = check_paid_request(a)
+    max_usd, mode, receipt = check_paid_request(a)
     est = estimate(a)
     print(json.dumps({'DRY_RUN_FIRST': est['est_total_usd_upper_bound'], 'max_usd': max_usd}), flush=True)
     out = Path(a.out)
     usage_dir = out / 'ledger'
     cum = cumulative_check(a.baseline_json, [usage_dir] + [Path(d) for d in (a.extra_ledger or [])], est['est_total_usd_upper_bound'], max_usd)
     out.mkdir(parents=True, exist_ok=True)
-    atomic_write_json(out / 'PRECHECK.json', {'schema_version': SCHEMA, 'cumulative': cum, 'estimate': est})
+    atomic_write_json(out / 'PRECHECK.json', {'schema_version': SCHEMA, 'mode': mode, 'receipt': receipt, 'cumulative': cum, 'estimate': est})
     if transport is None:
         transport, guard = guarded_transport(max_usd, usage_dir, 30.0)
     try:
         for cid in a.cases:
             case = frozen.load_case(a.root, cid)
             scene = frozen.live_scene_context(a.cameras, case['cameras'])
-            for arm in a.arms:
-                target = out / cid / f'{arm}.k1.json'
+            for arm, k in [(arm, k) for arm in a.arms for k in range(1, a.k + 1)]:
+                target = out / cid / f'{arm}.k{k}.json'
                 if target.exists():                       # final names are only ever created by atomic_write_json
-                    print('SKIP_EXISTS', cid, arm, flush=True)
+                    print('SKIP_EXISTS', cid, arm, k, flush=True)
                     continue
-                doc = replay(arm, case, a.cameras, scene, transport, k=1)
+                doc = replay(arm, case, a.cameras, scene, transport, k=k)
                 doc['config']['max_usd'] = max_usd
                 reject_forbidden(doc, f'{cid}.{arm}', text=False)       # keys only: model free text is data, not a key
                 atomic_write_json(target, doc)
                 calls = doc['calls']
-                print('RUN', cid, arm, 'ticks', len(doc['rows']), 'calls', len(calls), flush=True)
+                print('RUN', cid, arm, k, 'ticks', len(doc['rows']), 'calls', len(calls), flush=True)
                 if doc['stopped_early'] or any(c['fallback_reason'] == 'CALL_BUDGET_EXHAUSTED' for c in calls):
                     reason = 'CALL_BUDGET_EXHAUSTED: ' + json.dumps(doc['stopped_early'])
                     finish(out, 'STOPPED', reason)
@@ -302,6 +355,7 @@ def main(argv=None):
     parser.add_argument('--k', type=int, default=1)
     parser.add_argument('--max-usd', type=float)
     parser.add_argument('--extra-ledger', nargs='*', help='other ledger dirs whose rows after the baseline count toward the cap')
+    parser.add_argument('--receipt', type=Path, help='batch-3 freeze receipt (formal run; default derived, see default_receipt)')
     parser.add_argument('--paid', action='store_true')
     parser.add_argument('--dry-run', action='store_true')
     a = parser.parse_args(argv)

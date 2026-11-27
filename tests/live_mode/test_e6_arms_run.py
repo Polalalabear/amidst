@@ -285,3 +285,142 @@ def test_estimate_pads_prompt_with_the_largest_history():
     pads = {arm: R.worst_case_history_tokens(arm) for arm in R.ARMS}
     assert 0 < pads['DEANCHOR'] < pads['DEANCHOR_HIST'] < pads['DEANCHOR_HIST_SUM']
     assert pads['DEANCHOR_HIST'] > 8 * 60          # eight full entries, not an empty history
+
+
+# ---- formal K=3 run on E6-S01..S12 (batch-3 gate) ---------------------------------------------------------
+FORMAL = [f'E6-S{i:02d}' for i in range(1, 13)]
+
+
+def formal_args(tmp_path, **kw):
+    base = dict(k=3, cases=list(FORMAL), arms=['DEANCHOR', 'DEANCHOR_HIST'], max_usd=32.0, receipt=tmp_path / 'freeze' / 'BATCH3_FREEZE.json')
+    base.update(kw)
+    return args(tmp_path, **base)
+
+
+def write_receipt(tmp_path, **over):
+    doc = {'SELECTED_AGENT': 'DEANCHOR_HIST', 'code_commit_sha': 'a' * 40, 'prompt_and_config_sha256': 'b' * 64, 'params': {},
+           'formal_dry_run_estimate': {}, 'scorer_sha256': 'c' * 64}
+    doc.update(over)
+    (tmp_path / 'freeze').mkdir(exist_ok=True)
+    (tmp_path / 'freeze' / 'BATCH3_FREEZE.json').write_text(json.dumps(doc))
+
+
+@pytest.fixture
+def approved(monkeypatch):
+    monkeypatch.setenv('E6_BATCH3_APPROVED', '1')
+
+
+def test_formal_requires_approval_env(tmp_path, monkeypatch):
+    monkeypatch.delenv('E6_BATCH3_APPROVED', raising=False)
+    write_receipt(tmp_path)
+    with pytest.raises(SystemExit, match='FORMAL_NOT_APPROVED'):
+        R.check_paid_request(formal_args(tmp_path))
+    monkeypatch.setenv('E6_BATCH3_APPROVED', '0')
+    with pytest.raises(SystemExit, match='FORMAL_NOT_APPROVED'):
+        R.check_paid_request(formal_args(tmp_path))
+
+
+def test_formal_requires_receipt_with_all_keys(tmp_path, approved):
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_MISSING'):
+        R.check_paid_request(formal_args(tmp_path))
+    (tmp_path / 'freeze').mkdir()
+    (tmp_path / 'freeze' / 'BATCH3_FREEZE.json').write_text('not json')
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_UNREADABLE'):
+        R.check_paid_request(formal_args(tmp_path))
+    write_receipt(tmp_path)
+    doc = json.loads((tmp_path / 'freeze' / 'BATCH3_FREEZE.json').read_text())
+    del doc['scorer_sha256']
+    (tmp_path / 'freeze' / 'BATCH3_FREEZE.json').write_text(json.dumps(doc))
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_INCOMPLETE'):
+        R.check_paid_request(formal_args(tmp_path))
+    write_receipt(tmp_path, SELECTED_AGENT='AO_ORIG')
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_BAD_SELECTED_AGENT'):
+        R.check_paid_request(formal_args(tmp_path))
+
+
+def test_formal_default_receipt_location(tmp_path, approved, monkeypatch):
+    monkeypatch.delenv('E6_FREEZE_DIR', raising=False)
+    ev = tmp_path / 'evidence'
+    (ev / 'api-usage').mkdir(parents=True)
+    (ev / 'e6-batch3-freeze-20261127').mkdir()
+    (ev / 'e6-batch3-freeze-20261127' / 'BATCH3_FREEZE.json').write_text(
+        json.dumps({'SELECTED_AGENT': 'DEANCHOR', 'code_commit_sha': 'a', 'prompt_and_config_sha256': 'b', 'params': {},
+                    'formal_dry_run_estimate': {}, 'scorer_sha256': 'c'}))
+    a = formal_args(tmp_path, receipt=None, arms=['DEANCHOR'], baseline_json=ev / 'api-usage' / 'RECONCILIATION_20261124.json')
+    assert R.check_paid_request(a)[1] == 'FORMAL'
+    monkeypatch.setenv('E6_FREEZE_DIR', str(tmp_path / 'elsewhere'))
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_MISSING'):
+        R.check_paid_request(a)
+
+
+@pytest.mark.parametrize('arms', [['DEANCHOR'], ['DEANCHOR_HIST'], ['AO_ORIG', 'DEANCHOR'], ['DEANCHOR', 'DEANCHOR_HIST', 'DEANCHOR_HIST_SUM'],
+                                  ['DEANCHOR', 'DEANCHOR_HIST_SUM']])
+def test_formal_arms_must_be_deanchor_plus_selected(tmp_path, approved, arms):
+    write_receipt(tmp_path)                                     # SELECTED_AGENT = DEANCHOR_HIST
+    with pytest.raises((SystemExit, ValueError)):
+        R.check_paid_request(formal_args(tmp_path, arms=arms))
+
+
+def test_formal_deanchor_selected_means_deanchor_only(tmp_path, approved):
+    write_receipt(tmp_path, SELECTED_AGENT='DEANCHOR')
+    assert R.check_paid_request(formal_args(tmp_path, arms=['DEANCHOR']))[1] == 'FORMAL'
+    with pytest.raises(SystemExit, match='FORMAL_ARMS_REFUSED'):
+        R.check_paid_request(formal_args(tmp_path, arms=['DEANCHOR', 'DEANCHOR_HIST']))
+
+
+@pytest.mark.parametrize('kw,msg', [
+    ({'k': 1}, 'PAID_COMBINATION_REFUSED'),
+    ({'k': 2}, 'PAID_COMBINATION_REFUSED'),
+    ({'cases': FORMAL[:11]}, 'PAID_COMBINATION_REFUSED'),
+    ({'cases': FORMAL + ['E3-A1']}, 'PAID_COMBINATION_REFUSED'),
+    ({'cases': FORMAL[:-1] + ['E6-S01']}, 'PAID_COMBINATION_REFUSED'),
+    ({'max_usd': 32.01}, 'PAID_BUDGET_REFUSED'),
+    ({'max_usd': 0}, 'PAID_BUDGET_REFUSED'),
+    ({'paid': False}, 'PAID_RUN_NOT_AUTHORIZED'),
+])
+def test_formal_bad_requests(tmp_path, approved, kw, msg):
+    write_receipt(tmp_path)
+    with pytest.raises(SystemExit, match=msg):
+        R.check_paid_request(formal_args(tmp_path, **kw))
+
+
+def test_formal_ok_and_returns_receipt_info(tmp_path, approved):
+    write_receipt(tmp_path)
+    cap, mode, receipt = R.check_paid_request(formal_args(tmp_path))
+    assert (cap, mode) == (32.0, 'FORMAL') and receipt['SELECTED_AGENT'] == 'DEANCHOR_HIST'
+    assert receipt['sha256'] == hashlib.sha256((tmp_path / 'freeze' / 'BATCH3_FREEZE.json').read_bytes()).hexdigest()
+    assert R.check_paid_request(args(tmp_path))[1] == 'DIAGNOSTIC'          # diagnostic path unchanged
+
+
+def test_diagnostic_does_not_need_formal_gate(tmp_path, monkeypatch):
+    monkeypatch.delenv('E6_BATCH3_APPROVED', raising=False)
+    cap, mode, receipt = R.check_paid_request(args(tmp_path))
+    assert (cap, mode, receipt) == (10.0, 'DIAGNOSTIC', None)
+
+
+def test_formal_paid_run_writes_three_replicates_per_arm(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=20.0)
+    write_receipt(tmp_path)
+    a = formal_args(tmp_path)
+    R.paid_run(a, transport=lambda body: None)
+    out = tmp_path / 'out'
+    runs = sorted(p.relative_to(out).as_posix() for p in out.rglob('*.k?.json'))
+    assert len(runs) == 12 * 2 * 3 and 'E6-S12/DEANCHOR_HIST.k3.json' in runs and 'E6-S01/DEANCHOR.k1.json' in runs
+    assert json.loads((out / 'E6-S05' / 'DEANCHOR.k2.json').read_text())['k'] == 2
+    pre = json.loads((out / 'PRECHECK.json').read_text())
+    assert pre['mode'] == 'FORMAL' and pre['receipt']['SELECTED_AGENT'] == 'DEANCHOR_HIST'
+    assert json.loads((out / 'STATUS.json').read_text())['status'] == 'COMPLETE'
+
+
+def test_formal_estimate_over_32_or_cumulative_over_90_refused(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=33.0)
+    write_receipt(tmp_path)
+    with pytest.raises(SystemExit, match='ESTIMATE_OVER_MAX_USD'):
+        R.paid_run(formal_args(tmp_path), transport=lambda body: pytest.fail('no call'))
+    stub_env(monkeypatch, est=30.0)
+    led = tmp_path / 'ao-ledger'
+    led.mkdir()
+    (led / 'usage.jsonl').write_text(json.dumps({'ts': '2026-11-28T00:00:00Z', 'outcome': 'OK', 'est_cost_usd': 25.0}) + '\n')
+    a = formal_args(tmp_path, extra_ledger=[str(led)])
+    with pytest.raises(SystemExit, match='CUMULATIVE_OVER_CAP'):                 # 38.17 + 25 + 30 > 90
+        R.paid_run(a, transport=lambda body: pytest.fail('no call'))
