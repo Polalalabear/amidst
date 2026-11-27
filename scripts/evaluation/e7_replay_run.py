@@ -99,6 +99,7 @@ def main(argv=None):
     ap.add_argument('--baseline', type=Path, required=True, help='frozen E5 report.json (per_arm B1 / AO / AOL)')
     ap.add_argument('--source', nargs=2, action='append', required=True, metavar=('ROOT', 'CATALOG'))
     ap.add_argument('--out', type=Path, required=True)
+    ap.add_argument('--name', default='e7_replay_20261127.json')
     ap.add_argument('--parties', nargs='*', default=None, help='party ids to replay (default: all with parsed answers, i.e. qwen_vl)')
     a = ap.parse_args(argv)
 
@@ -147,7 +148,7 @@ def main(argv=None):
     for key, by_case in docs.items():
         out['arms'][key] = aggregate(by_case, cases)
     a.out.mkdir(parents=True, exist_ok=True)
-    jp = a.out / 'e7_replay_20261127.json'
+    jp = a.out / a.name
     jp.write_text(json.dumps(out, indent=1, ensure_ascii=False) + '\n')
     print('WROTE', jp, sha(jp.read_bytes()))
     return 0

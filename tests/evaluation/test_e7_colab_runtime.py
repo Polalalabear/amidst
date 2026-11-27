@@ -189,4 +189,6 @@ def test_notebook_pertick_switches_skip_scoring_and_cpu_and_unselected_parties(t
     assert env["E7_REPORT"] is None
     env["OUTPUT_DIR"] = tmp_path
     exec(compile(cells["e7-cell-8-export"], "c8", "exec"), env)
-    assert (tmp_path / "e7_raw_comparisons.json").is_file()
+    raw = json.loads((tmp_path / "e7_raw_comparisons.json").read_text())
+    assert raw
+    assert all(set(m["hardware_used"]) == {"accelerated", "unaccelerated"} for m in raw)

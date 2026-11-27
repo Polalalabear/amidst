@@ -257,12 +257,19 @@ _WEIGHT_SUFFIXES = (".safetensors", ".bin", ".pt")
 WEIGHTS_UNKNOWN = "UNKNOWN"
 
 
-def _hash_weight_files(paths: Any) -> dict[str, str]:
-    """SHA-256 of every weight shard (one entry per file name, so sharded models list every shard)."""
+def _hash_weight_files(paths: Any, base: Path | None = None) -> dict[str, str]:
+    """SHA-256 of every weight shard. Keyed by the path relative to the snapshot root when ``base`` is known (so
+    ``model.safetensors`` and ``typed-decisions/model.safetensors`` never collide), else by file name."""
     out: dict[str, str] = {}
-    for p in sorted({Path(x) for x in paths}, key=lambda q: q.name):
+    for p in sorted({Path(x) for x in paths}, key=lambda q: str(q)):
         if p.suffix in _WEIGHT_SUFFIXES and p.is_file():
-            out[p.name] = sha256_file(p)
+            key = p.name
+            if base is not None:
+                try:
+                    key = p.relative_to(base).as_posix()
+                except ValueError:
+                    key = p.name
+            out[key] = sha256_file(p)
     return out
 
 
@@ -304,7 +311,7 @@ def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: s
                         continue
                     if resolved_sha == "UNRESOLVED_OFFLINE" and rev.commit_hash:
                         resolved_sha = str(rev.commit_hash)
-                    weight_shas.update(_hash_weight_files(f.file_path for f in rev.files))
+                    weight_shas.update(_hash_weight_files((f.file_path for f in rev.files), getattr(rev, "snapshot_path", None)))
         except Exception as exc:  # noqa: BLE001
             errors.append(f"scan_cache_dir failed: {type(exc).__name__}: {exc}")
 
@@ -313,7 +320,7 @@ def resolve_hf_provenance(model_id: str, revision: str = "main", *, cache_dir: s
             snap = Path(snapshot_download(model_id, revision=revision, cache_dir=cache_dir, local_files_only=True))
             if resolved_sha == "UNRESOLVED_OFFLINE" and len(snap.name) == 40:
                 resolved_sha = snap.name
-            weight_shas.update(_hash_weight_files(snap.rglob("*")))
+            weight_shas.update(_hash_weight_files(snap.rglob("*"), snap))
         except Exception as exc:  # noqa: BLE001
             errors.append(f"snapshot_download(local_files_only) failed: {type(exc).__name__}: {exc}")
 
@@ -1216,7 +1223,7 @@ def run_acceleration_comparison(
     accelerated_label: str = "cuda_bf16",
     unaccelerated_label: str = "cpu",
     unaccelerated_sample_cap: int | None = 20,
-    hf_provenance: dict[str, Any] | None = None,
+    hf_provenance: dict[str, Any] | Callable[[], dict[str, Any]] | None = None,
     run_unaccelerated: bool = True,
 ) -> dict[str, Any]:
     """Run BOTH accelerated and unaccelerated passes for one decider and compute agreement/differences.
@@ -1232,6 +1239,8 @@ def run_acceleration_comparison(
 
     # Warm up model/device BEFORE timed decide() loops so load time does not pollute per-request latency / p95.
     acc_load_ms = decider.warmup(accelerated=True) if mode_reqs else 0.0
+    if callable(hf_provenance):  # resolved AFTER the weights are loaded/downloaded by warmup (cache is then complete)
+        hf_provenance = hf_provenance()
     acc_records = [decider.decide(r, accelerated=True) for r in mode_reqs]
     if not run_unaccelerated:
         unacc_reqs: list[DeciderRequest] = []

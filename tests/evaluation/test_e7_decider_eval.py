@@ -1001,3 +1001,42 @@ def test_768_unknown_with_reason_never_placeholder(monkeypatch):
     assert "not cached" in out["weights_unknown_reason"]
     assert "RECORD_AT_RUNTIME" not in json.dumps(out)
     assert E7.DeciderSpec.__dataclass_fields__["weights_sha256"].default == "UNKNOWN"
+
+
+def test_768_provenance_resolved_after_warmup_not_before():
+    """First model of a repo: cache is empty until warmup loads the weights. A callable is resolved AFTER warmup."""
+    state = {"cached": False}
+    reqs = _make_synthetic_requests()[:2]
+
+    def _infer(req, accelerated):
+        return json.dumps({"answer": "NOT_VISIBLE", "next_camera_ranking": ["CAM_EXT_CAR"]})
+
+    def _warm(accelerated):
+        state["cached"] = True  # weights downloaded/loaded here
+        return 1.0
+
+    _infer.warmup = _warm  # type: ignore[attr-defined]
+    decider = E7.QwenVLDecider(inference_fn=_infer)
+    res = E7.run_acceleration_comparison(
+        decider, reqs, run_unaccelerated=False,
+        hf_provenance=lambda: {"weight_files_sha256": {"m.safetensors": "x"} if state["cached"] else {}},
+    )
+    assert res["hf_provenance"]["weight_files_sha256"] == {"m.safetensors": "x"}
+    assert res["weights_sha256"] == {"m.safetensors": "x"} and res["weights_unknown_reason"] is None
+    assert res["unaccelerated"]["sample_size"] == 0 and res["decision_agreement_vs_unaccelerated"] is None
+
+
+def test_768_same_filename_in_two_subdirs_does_not_collide(tmp_path):
+    (tmp_path / "typed-decisions").mkdir()
+    (tmp_path / "model.safetensors").write_bytes(b"root")
+    (tmp_path / "typed-decisions" / "model.safetensors").write_bytes(b"typed")
+    out = E7._hash_weight_files(tmp_path.rglob("*"), tmp_path)
+    assert out == {"model.safetensors": hashlib.sha256(b"root").hexdigest(),
+                   "typed-decisions/model.safetensors": hashlib.sha256(b"typed").hexdigest()}
+
+
+def test_hardware_used_from_raw_comparison_shape_with_empty_unaccelerated_block():
+    m = _model_with(["cuda", "cuda"], [])
+    hu = E7S.build_hardware_used(m, _hw_fixture())
+    assert hu["accelerated"]["device"] == "cuda" and hu["accelerated"]["dtype"] == "bfloat16"
+    assert hu["unaccelerated"]["device"] == "UNKNOWN"
