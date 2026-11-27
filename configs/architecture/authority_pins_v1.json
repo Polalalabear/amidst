@@ -704,7 +704,24 @@
       "sha256": "3f90bf4514f76f4d9bfe3cb554d8ab58bd56702eefba350326ef9e86e704c6a5",
       "status": "現行；進度導覽補到 #774（D91-4，D411）；登記不等於核准",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/774"
+    },
+    {
+      "id": "D419-DOCS-1",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "claude/docs-handoff-20261128@b42d3ee8e0185ed79383102c3d0db438cc4bb83f",
+      "sha256": "6b3ab22d748a5b1426a98879b49d131afc3e6da44850d20220e4d5066c37b4b1",
+      "status": "現行；進度導覽補到 #783（D91-4，D416–D419）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D419-DOCS-2",
+      "path": "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+      "ref": "claude/docs-handoff-20261128@b42d3ee8e0185ed79383102c3d0db438cc4bb83f",
+      "sha256": "6e38f03b4984861328dd7cce2ba8da8ecced1acac36d6cf52945139f6b1ba5ca",
+      "status": "現行；AC7 條文加 D419（B-05 雜湊差異判定）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
+
   ],
   "authorized_changes": [
     {
@@ -1175,6 +1192,20 @@
       "requires_commit": "cbd3bc0c03a306e22cfc2ffe87f666453d63af68",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/774",
       "reason": "進度導覽補到 #774（D91-4，D411，#774）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "sha256": "6b3ab22d748a5b1426a98879b49d131afc3e6da44850d20220e4d5066c37b4b1",
+      "requires_commit": "b42d3ee8e0185ed79383102c3d0db438cc4bb83f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "進度導覽補到 #783（D91-4，D416–D419）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+      "sha256": "6e38f03b4984861328dd7cce2ba8da8ecced1acac36d6cf52945139f6b1ba5ca",
+      "requires_commit": "b42d3ee8e0185ed79383102c3d0db438cc4bb83f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "AC7 條文加 D419。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }
