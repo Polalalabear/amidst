@@ -199,10 +199,18 @@ def run(a, runner=default_runner) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     for cid in cases:
         prepare_root(recording, out, cid)
-    todo = [c for c in cases if not (out / 'indexes' / c).exists()]
+    todo = []
     for c in cases:
-        if c not in todo:
+        idx = out / 'indexes' / c
+        if (idx / 'production.json').is_file():          # index.py writes production.json last: only then is the case done
             print('SKIP_EXISTS', c, flush=True)
+            continue
+        if idx.exists():                                  # crashed mid-case: move aside (never delete); predictions/<case>.jsonl is its resume cache
+            aside = out / '_incomplete' / f'{c}.{dt.datetime.now(dt.timezone.utc):%Y%m%dT%H%M%SZ}'
+            aside.parent.mkdir(parents=True, exist_ok=True)
+            idx.rename(aside)
+            print('INCOMPLETE_INDEX_MOVED_ASIDE', c, '->', aside, flush=True)
+        todo.append(c)
     weights = Path(a.models) / 'rtdetr_r18vd_dec3_6x_coco_from_paddle.pth'
     weights_sha = sha_file(weights)
     if todo:

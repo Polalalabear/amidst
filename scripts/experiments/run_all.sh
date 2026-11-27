@@ -42,9 +42,11 @@ for arg in "$@"; do
   esac
 done
 
+E6_STEP=""
 run_step() {
   local label="$1"
   shift
+  E6_STEP="${label}"      # the ERR trap (armed in Stage 2) records which step failed, also for Stages 4-6
   echo "==> [${label}]"
   if [[ "$DRY_RUN" == "1" ]]; then
     echo "    [DRY-RUN] $*"
@@ -175,7 +177,6 @@ run_to_file() {
 
 e6_phase_has() { [[ "$E6_PHASE" == "all" || "$E6_PHASE" == "$1" ]]; }
 E6_FROZEN_SPEC="${E6_FROZEN_SPEC:-configs/evaluation/e6_scenarios_frozen_v1.json}"
-E6_STEP=""
 # Diagnostic scoring sources shared by select and verify-freeze (non-pool arms are information only).
 E6_SOURCES=(
   --source "${E3_ROOT}" "${E3_CATALOG}" "${E6_DIAG_OUT}"
@@ -250,7 +251,62 @@ for k in sys.argv[2].split("."): d=d[k]
 print(d)' "$1" "$2"
 }
 count_files() { find "$1" -name "$2" 2>/dev/null | wc -l | tr -d " "; }
-e6_complete() { [[ -f "$1/STATUS.json" ]] && grep -q '"COMPLETE"' "$1/STATUS.json"; }
+# A step is complete only when its output dir says so: STATUS.json status == COMPLETE, or MANIFEST.sha256 present and every listed file
+# verifies. A directory that merely exists (half-written, STOPPED, INCOMPLETE) is NOT complete and the step is redone.
+e6_complete() {   # dir
+  [[ -d "$1" ]] || return 1
+  "$PYTHON_BIN" -c '
+import hashlib, json, pathlib, sys
+d = pathlib.Path(sys.argv[1])
+try:
+    if json.loads((d / "STATUS.json").read_text()).get("status") == "COMPLETE":
+        sys.exit(0)
+except Exception:
+    pass
+m = d / "MANIFEST.sha256"
+try:
+    lines = [ln for ln in m.read_text().splitlines() if ln.strip()]
+    assert lines
+    for ln in lines:
+        h, rel = ln.split("  ", 1)
+        assert hashlib.sha256((d / rel).read_bytes()).hexdigest() == h
+except Exception:
+    sys.exit(1)
+sys.exit(0)' "$1"
+}
+# for steps whose script writes no STATUS.json of its own (b1, rn, ao_orig, detection root): atomic COMPLETE marker, only after the step succeeded
+e6_mark_complete() {   # dir
+  [[ "$DRY_RUN" == "1" ]] && return 0
+  mkdir -p "$1"
+  printf '{"status": "COMPLETE", "at": "%s"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$1/STATUS.json.tmp"
+  mv "$1/STATUS.json.tmp" "$1/STATUS.json"
+}
+# an incomplete output dir/file is renamed aside (never deleted) so a script that refuses existing output can redo the step
+e6_set_aside() {   # path
+  [[ -e "$1" ]] || return 0
+  local to="$1.incomplete-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  echo "    incomplete output moved aside: $1 -> ${to}"
+  mv "$1" "${to}"
+}
+# json files that do not parse (a crash mid-write) are renamed aside so a SKIP_EXISTS script redoes them
+e6_quarantine_bad_json() {   # dir
+  [[ -d "$1" ]] || return 0
+  "$PYTHON_BIN" -c '
+import json, pathlib, sys, time
+for f in sorted(pathlib.Path(sys.argv[1]).rglob("*.json")):
+    if f.name in ("STATUS.json",):
+        continue
+    try:
+        json.loads(f.read_text())
+    except Exception:
+        to = f.with_name(f.name + ".corrupt-" + time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
+        f.rename(to)
+        print("    corrupt output moved aside:", f, "->", to.name)' "$1"
+}
+e6_require_count() {   # dir pattern n label
+  local n; n="$(count_files "$1" "$2")"
+  [[ "$n" -ge "$3" ]] || { echo "INCOMPLETE_OUTPUT: $4 has $n of $3 files in $1" >&2; return 1; }
+}
 # ledgers whose rows count as new spend: diagnostic + Stage 1 ledger (required), plus every formal ledger that exists by now
 e6_refresh_ledgers() {
   E6_LEDGERS=("${E6_DIAG_OUT}/ledger")
@@ -268,40 +324,57 @@ case "$E6_PHASE" in none|diag|detect|select|formal|verdict|ablation|all) ;; *) e
 if e6_phase_has diag; then
   # 2a. B1 and AO_ORIG diagnostic records already exist (f4-658 runs-final-9, e5-20261123 runs-9): not rerun.
   # R-N is deterministic and free; e6_rule_neutral.py replays the old 16 corpora only (its output dir must not exist).
-  if [[ -d "${E6_RN_OLD}" ]]; then
-    echo "==> [Stage 2a: R-N old 16] exists, skipped: ${E6_RN_OLD}"
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_RN_OLD}"; then
+    echo "==> [Stage 2a: R-N old 16] complete (resume), skipped: ${E6_RN_OLD}"
   else
-    run_step "Stage 2a: R-N (0 USD, old 16 corpora)" \
+    [[ "$DRY_RUN" == "1" ]] || e6_set_aside "${E6_RN_OLD}"
+    e6_step "Stage 2a: R-N (0 USD, old 16 corpora)" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_rule_neutral.py --evidence "${EVIDENCE_ROOT}" \
         --cameras "${CAMERA_CATALOG}" --out "${E6_RN_OLD}"
+    e6_mark_complete "${E6_RN_OLD}"
   fi
   # Request sizes and the USD upper bound first (no network, no key); e6_arms_run.py repeats it before the paid run.
-  run_step "Stage 2a: diagnostic dry-run estimate (DEANCHOR/_HIST/_HIST_SUM, K=1)" \
+  e6_step "Stage 2a: diagnostic dry-run estimate (DEANCHOR/_HIST/_HIST_SUM, K=1)" \
     "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E3_ROOT}" --cameras "${CAMERA_CATALOG}" \
       --cases "${E6_DIAG_CASES[@]}" --k 1 --dry-run
   # Paid K=1 diagnostic (<= USD 10, ApiGuard, own ledger under ${E6_DIAG_OUT}/ledger); existing outputs are skipped.
   extra_ledger=()
   [[ -n "${AMIDST_API_USAGE_DIR}" ]] && extra_ledger=(--extra-ledger "${AMIDST_API_USAGE_DIR}")
-  run_step "Stage 2a: diagnostic paid run (K=1, 3 cases x 3 arms, <= USD 10)" \
-    "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E3_ROOT}" --cameras "${CAMERA_CATALOG}" \
-      --cases "${E6_DIAG_CASES[@]}" --k 1 --paid --max-usd 10 --baseline-json "${E6_RECON}" \
-      --out "${E6_DIAG_OUT}" ${extra_ledger[@]+"${extra_ledger[@]}"}
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_DIAG_OUT}"; then
+    echo "==> [Stage 2a: diagnostic paid run] complete (resume), skipped: ${E6_DIAG_OUT}"
+  else
+    e6_step "Stage 2a: diagnostic paid run (K=1, 3 cases x 3 arms, <= USD 10)" \
+      "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E3_ROOT}" --cameras "${CAMERA_CATALOG}" \
+        --cases "${E6_DIAG_CASES[@]}" --k 1 --paid --max-usd 10 --baseline-json "${E6_RECON}" \
+        --out "${E6_DIAG_OUT}" ${extra_ledger[@]+"${extra_ledger[@]}"}
+  fi
 fi
 
 if e6_phase_has detect; then
   # Zero-cost local detection (RT-DETR R18, MPS) on the frozen recording: the SAME producer and parameters as E3 (e3_cases/index.py),
   # output = RGB PNGs + detection index every group reads. Trial one segment first: ... e6_detect_formal.py ... --cases E6-S01
   # Needs torch 2.6.0 / torchvision 0.21.0 (E6_RUNTIME_DEPS on PYTHONPATH of the child). Stops when free disk < 5 GiB.
-  run_step "Stage 2-det: formal RGB + detection index (E3 pipeline, 0 USD, local)" \
-    "$PYTHON_BIN" -B scripts/evaluation/e6_detect_formal.py --recording "${E6_RECORD_ROOT}" --out "${E6_FORMAL_ROOT}" \
-      --models "${E6_MODELS}" --runtime-deps "${E6_RUNTIME_DEPS}" --reference-index "${E3_ROOT}/indexes/E3-A1/detection_index.json"
+  # Per case, e6_detect_formal.py treats indexes/<case> as done only when its production.json exists; an incomplete one is moved aside.
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_ROOT}"; then
+    echo "==> [Stage 2-det] complete (resume), skipped: ${E6_FORMAL_ROOT}"
+  else
+    e6_step "Stage 2-det: formal RGB + detection index (E3 pipeline, 0 USD, local)" \
+      "$PYTHON_BIN" -B scripts/evaluation/e6_detect_formal.py --recording "${E6_RECORD_ROOT}" --out "${E6_FORMAL_ROOT}" \
+        --models "${E6_MODELS}" --runtime-deps "${E6_RUNTIME_DEPS}" --reference-index "${E3_ROOT}/indexes/E3-A1/detection_index.json"
+    e6_mark_complete "${E6_FORMAL_ROOT}"
+  fi
 fi
 
 if e6_phase_has select; then
+  if [[ "$DRY_RUN" != "1" && -f "${E6_RECEIPT}" ]] && ! e6_complete "${E6_FREEZE_DIR}"; then
+    # a receipt without a verifying MANIFEST is a half-written one: the selection is a deterministic recomputation, so redo it
+    e6_set_aside "${E6_RECEIPT}"
+  fi
   if [[ -f "${E6_RECEIPT}" ]]; then
-    echo "==> [Stage 2b] frozen receipt exists, NOT re-selecting (prereg 0.2): ${E6_RECEIPT}"
+    echo "==> [Stage 2b] frozen receipt exists and verifies, NOT re-selecting (prereg 0.2): ${E6_RECEIPT}"
   else
     # Formal dry-run estimates (K=3) go into the receipt; they need the detection root above (frozen pixels + index), not any model output.
+    E6_STEP="Stage 2b"
     run_to_file "Stage 2b: formal dry-run estimate, e6_arms_run.py (K=3, all pool arms)" "${E6_FREEZE_DIR}/formal_arms_dryrun.json" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
         --cases "${E6_FORMAL_CASES[@]}" --k 3 --dry-run
@@ -310,7 +383,7 @@ if e6_phase_has select; then
         --out "${E6_FREEZE_DIR}/_unused_ao_out" --usage-dir "${E6_FREEZE_DIR}/_unused_ao_ledger" \
         --cases "${E6_FORMAL_CASES[@]}" --k 3 --mode offline --budget-usd 32 --dry-run
     # B1 / AO_ORIG / R-N records are shown for information only; the rule picks among the three DEANCHOR groups.
-    run_step "Stage 2b: select group (hard gate + ordered rule) and write the batch-3 freeze receipt" \
+    e6_step "Stage 2b: select group (hard gate + ordered rule) and write the batch-3 freeze receipt" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_select_arm.py select \
         "${E6_SOURCES[@]}" \
         --formal-estimate "${E6_FREEZE_DIR}/formal_arms_dryrun.json" --ao-estimate "${E6_FREEZE_DIR}/formal_ao_orig_dryrun.txt" \
@@ -367,25 +440,38 @@ if e6_phase_has formal; then
     ARMS_BUDGET="$(json_get "${E6_FREEZE_DIR}/formal_gate.json" agent_arms_budget_usd)"
   fi
   # Free groups first. B1 = the E3 replay script on the new recording's detection index (skips existing outputs).
-  e6_step "Stage 2c: B1 on the formal recording (0 USD, K=1)" \
-    "$PYTHON_BIN" -B scripts/evaluation/e3_f4_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
-      --out "${E6_FORMAL_OUT}/b1" --cases "${E6_FORMAL_CASES[@]}" --arms B1
-  # R-N (zero cost): same frozen detections, seed = first ACQUIRE of the B1 run above (nothing else crosses). Output dir must not exist.
-  if [[ -d "${E6_FORMAL_OUT}/rn" ]]; then
-    echo "==> [Stage 2c: R-N formal] exists, skipped: ${E6_FORMAL_OUT}/rn"
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_OUT}/b1"; then
+    echo "==> [Stage 2c: B1] complete (resume), skipped"
   else
+    [[ "$DRY_RUN" == "1" ]] || e6_quarantine_bad_json "${E6_FORMAL_OUT}/b1"
+    e6_step "Stage 2c: B1 on the formal recording (0 USD, K=1)" \
+      "$PYTHON_BIN" -B scripts/evaluation/e3_f4_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
+        --out "${E6_FORMAL_OUT}/b1" --cases "${E6_FORMAL_CASES[@]}" --arms B1
+    [[ "$DRY_RUN" == "1" ]] || e6_require_count "${E6_FORMAL_OUT}/b1" 'B1.k1.json' "${#E6_FORMAL_CASES[@]}" "B1"
+    e6_mark_complete "${E6_FORMAL_OUT}/b1"
+  fi
+  # R-N (zero cost): same frozen detections, seed = first ACQUIRE of the B1 run above (nothing else crosses). Output dir must not exist.
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_OUT}/rn"; then
+    echo "==> [Stage 2c: R-N formal] complete (resume), skipped"
+  else
+    [[ "$DRY_RUN" == "1" ]] || e6_set_aside "${E6_FORMAL_OUT}/rn"           # e6_rule_neutral.py refuses an existing output dir
     e6_step "Stage 2c: R-N on the formal recording (0 USD, RN_U + RN_N)" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_rule_neutral.py --root "${E6_FORMAL_ROOT}" --b1-runs "${E6_FORMAL_OUT}/b1" \
         --cases "${E6_FORMAL_CASES[@]}" --cameras "${CAMERA_CATALOG}" --out "${E6_FORMAL_OUT}/rn"
+    [[ "$DRY_RUN" == "1" ]] || e6_require_count "${E6_FORMAL_OUT}/rn" '*.json' $(( ${#E6_FORMAL_CASES[@]} * 2 )) "R-N"
+    e6_mark_complete "${E6_FORMAL_OUT}/rn"
   fi
   # Paid groups, K=3. AO_ORIG = the unchanged E5 A-open (e5_run.py, skips existing outputs); budget = the gate's USD upper bound.
-  if [[ "$DRY_RUN" != "1" && "$(count_files "${E6_FORMAL_OUT}/ao_orig" 'AO.k*.json')" -ge $(( ${#E6_FORMAL_CASES[@]} * 3 )) ]]; then
-    echo "==> [Stage 2c: AO_ORIG] all 36 runs exist (resume), skipped"
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_OUT}/ao_orig"; then
+    echo "==> [Stage 2c: AO_ORIG] complete (resume), skipped"
   else
+    [[ "$DRY_RUN" == "1" ]] || e6_quarantine_bad_json "${E6_FORMAL_OUT}/ao_orig"      # a truncated run file would otherwise count as SKIP_EXISTS
     e6_step "Stage 2c: AO_ORIG (K=3, paid, offline)" \
       "$PYTHON_BIN" -B scripts/evaluation/e5_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
         --out "${E6_FORMAL_OUT}/ao_orig" --usage-dir "${E6_FORMAL_OUT}/ledger-ao_orig" \
         --cases "${E6_FORMAL_CASES[@]}" --k 3 --mode offline --budget-usd "${AO_BUDGET}"
+    [[ "$DRY_RUN" == "1" ]] || e6_require_count "${E6_FORMAL_OUT}/ao_orig" 'AO.k*.json' $(( ${#E6_FORMAL_CASES[@]} * 3 )) "AO_ORIG"
+    e6_mark_complete "${E6_FORMAL_OUT}/ao_orig"
   fi
   e6_refresh_ledgers
   if e6_complete "${E6_FORMAL_OUT}/arms"; then
@@ -395,14 +481,16 @@ if e6_phase_has formal; then
       "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
         --cases "${E6_FORMAL_CASES[@]}" --arms "${AGENT_ARMS[@]}" --k 3 --paid --max-usd "${ARMS_BUDGET}" \
         --baseline-json "${E6_RECON}" --receipt "${E6_RECEIPT}" --out "${E6_FORMAL_OUT}/arms" --extra-ledger "${E6_LEDGERS[@]}"
+    [[ "$DRY_RUN" == "1" ]] || e6_complete "${E6_FORMAL_OUT}/arms" || { echo "INCOMPLETE_OUTPUT: arms STATUS is not COMPLETE" >&2; false; }
   fi
 fi
 
 if e6_phase_has verdict; then
   # 2d. Scoring and verdict (verdict_e6: prereg 3-4; GT is read here, on the scoring side only). Interface: PR #746 e6_verdict_run.py.
-  if [[ "$DRY_RUN" != "1" && -f "${E6_FORMAL_OUT}/verdict/verdict_e6.json" ]]; then
-    echo "==> [Stage 2d: verdict] exists (resume), skipped"
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_OUT}/verdict"; then
+    echo "==> [Stage 2d: verdict] complete (MANIFEST verifies; resume), skipped"
   else
+    [[ "$DRY_RUN" == "1" ]] || e6_set_aside "${E6_FORMAL_OUT}/verdict"        # e6_verdict_run.py refuses an existing verdict_e6.json
     e6_step "Stage 2d: verdict_e6 scoring (0 USD)" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_verdict_run.py --frozen-spec "${E6_FROZEN_SPEC}" --gt-root "${E6_RECORD_ROOT}" \
         --runs "${E6_FORMAL_OUT}/b1" "${E6_FORMAL_OUT}/ao_orig" "${E6_FORMAL_OUT}/arms" \
@@ -437,11 +525,9 @@ if e6_phase_has ablation; then
       echo "    [DRY-RUN] e6_arms_run.py --paid --k 3 --cases E6-S01..S12 --arms ${SELECTED_AGENT} --ablation ${ABL} --max-usd <estimate> --out ${ABL_OUT} --extra-ledger ..."
       continue
     fi
-    set +e
+    rc=0
     "$PYTHON_BIN" -B scripts/evaluation/e6_select_arm.py budget-check --estimate "${E6_FORMAL_OUT}/ablation-status/${ABL}.estimate.json" \
-      --base "${BASE_SPEND_USD}" --cap "${CAP_USD}" --out "${E6_FORMAL_OUT}/ablation-status/${ABL}.budget.json" --ledger "${E6_LEDGERS[@]}"
-    rc=$?
-    set -e
+      --base "${BASE_SPEND_USD}" --cap "${CAP_USD}" --out "${E6_FORMAL_OUT}/ablation-status/${ABL}.budget.json" --ledger "${E6_LEDGERS[@]}" || rc=$?
     if [[ $rc -eq 7 ]]; then
       printf '{"state": "BUDGET_SKIPPED"}\n' > "${ABL_MARK}"
       e6_status BUDGET_SKIPPED "Stage 2e: ${ABL}" "cumulative + dry-run upper bound > ${CAP_USD}"
@@ -454,18 +540,22 @@ if e6_phase_has ablation; then
       "$PYTHON_BIN" -B scripts/evaluation/e6_arms_run.py --root "${E6_FORMAL_ROOT}" --cameras "${CAMERA_CATALOG}" \
         --cases "${E6_FORMAL_CASES[@]}" --arms "${SELECTED_AGENT}" --k 3 --ablation "${ABL}" --paid \
         --max-usd "$(json_get "${E6_FORMAL_OUT}/ablation-status/${ABL}.budget.json" max_usd)" --baseline-json "${E6_RECON}" \
-        --receipt "${E6_RECEIPT}" --out "${ABL_OUT}" --extra-ledger "${E6_LEDGERS[@]}"
+        --receipt "${E6_RECEIPT}" --out "${ABL_OUT}" --extra-ledger "${E6_LEDGERS[@]}" || true
   done
   # Exploratory comparison (not in Holm): the same scorer on the ablation outputs that completed.
   ABL_RUNS=()
   for ABL in NO_IMAGE NO_SPATIAL; do e6_complete "${E6_FORMAL_OUT}/ablation-${ABL}" && ABL_RUNS+=("${E6_FORMAL_OUT}/ablation-${ABL}"); done
-  if [[ "$DRY_RUN" == "1" || ${#ABL_RUNS[@]} -gt 0 ]]; then
+  if [[ "$DRY_RUN" != "1" ]] && e6_complete "${E6_FORMAL_OUT}/verdict-exploratory"; then
+    echo "==> [Stage 2e: exploratory comparison] complete (resume), skipped"
+  elif [[ "$DRY_RUN" == "1" || ${#ABL_RUNS[@]} -gt 0 ]]; then
+    [[ "$DRY_RUN" == "1" ]] || e6_set_aside "${E6_FORMAL_OUT}/verdict-exploratory"
     e6_soft_step "Stage 2e: exploratory comparison (verdict_e6, ablation runs)" \
       "$PYTHON_BIN" -B scripts/evaluation/e6_verdict_run.py --frozen-spec "${E6_FROZEN_SPEC}" --gt-root "${E6_RECORD_ROOT}" \
         --runs "${E6_FORMAL_OUT}/b1" "${E6_FORMAL_OUT}/ao_orig" "${E6_FORMAL_OUT}/arms" --receipt "${E6_RECEIPT}" \
-        --ablation-runs ${ABL_RUNS[@]+"${ABL_RUNS[@]}"} --out "${E6_FORMAL_OUT}/verdict-exploratory"
+        --ablation-runs ${ABL_RUNS[@]+"${ABL_RUNS[@]}"} --out "${E6_FORMAL_OUT}/verdict-exploratory" || true
   fi
-  e6_status COMPLETE "Stage 2 (E6)" "all E6 phases finished"
+  e6_status COMPLETE "Stage 2 (E6)" "all E6 phases finished"   # soft failures, if any, stay listed as SOFT_FAILED in STATUS.json
+  E6_STEP=""
 fi
 
 # Stage 3: #672 Multi-target exploratory tracking

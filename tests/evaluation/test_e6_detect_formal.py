@@ -185,3 +185,15 @@ def test_isolation_violation_detected(tmp_path):
     (tmp_path / 'gt-boxes').mkdir()
     (tmp_path / 'E6-S01.a-log.json').write_text('{}')
     assert D.isolation_violations(tmp_path) == ['E6-S01.a-log.json', 'gt-boxes/'] or set(D.isolation_violations(tmp_path)) == {'E6-S01.a-log.json', 'gt-boxes/'}
+
+
+def test_incomplete_index_dir_is_moved_aside_and_redone(tmp_path):
+    rec = make_recording(tmp_path)
+    seen = []
+    base = fake_runner()
+    D.run(args(tmp_path, rec, cases=['E6-S01']), runner=lambda o, m, c, d, r: (seen.append(list(c)), base(o, m, c, d, r)))
+    (tmp_path / 'det/indexes/E6-S01/production.json').unlink()             # crash after write_index, before production.json
+    D.run(args(tmp_path, rec, cases=['E6-S01']), runner=lambda o, m, c, d, r: (seen.append(list(c)), base(o, m, c, d, r)))
+    assert seen == [['E6-S01'], ['E6-S01']]                                 # redone, not skipped
+    assert (tmp_path / 'det/indexes/E6-S01/production.json').is_file()
+    assert len(list((tmp_path / 'det/_incomplete').iterdir())) == 1          # kept, not deleted
