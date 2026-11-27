@@ -70,7 +70,7 @@ E8 要回答三件事：
 | --- | --- | --- |
 | `src/amidst/evaluation/e8_requests.py`（推論端；已完成） | `e7_decider_eval.DeciderRequest`、`assemble_ao_prompt`、`build_laya_state_and_questions`（L0 逐位元組照 E7）；`arms.reference_text`（L1 起的顏色查詢句）；`agent_service.Candidate`、`gate_of`（VLM 的閘門資訊）；`scene_context.sha256_of`、`serialize`（L3F）；`e3_f4_run.poly_dist`（覆蓋區距離） | 跨鏡頭合併、代號、3 種順序、依級遮蔽的 `e8_level_request_v1`、laya 精簡渲染、VLM 渲染、`parse_e8_answer`、KEEP 解析、底線策略 |
 | `scripts/evaluation/build_e8_colab_pack.py`（Mac） | `e3_f4_run.load_case`、`live_scene_context`、`CONFIG`；`build_e7_colab_pack.candidates_for_tick`、`variable_text`、`expected_for_tick`、`write_manifest`；`e7_scoring_bridge.write_colab_answer_table`、`_scan_forbidden_gt_fields`、`verify_colab_pack_pre_upload`；`arms.reject_forbidden`；`live_mode.tracker.Projector.ground`（地面投影，同 B1） | B1 快照抽取、KEEP 顯示對到候選、第二部分逐 tick 偵測、L4 畫面 |
-| `src/amidst/evaluation/e8_score.py`（Colab 評分格與 Mac） | `e6_verdict.single_dp_correct`、`full_track_dp_correct`、`sign_flip_p`、`sign_flip_p_two_sided`、`mcnemar_exact_p`、`majority`、`_ci`（bootstrap 區間）、`_holm`、`MIN_DP`、`MIN_FAMILIES`；`e3_f4_score.run_scores`（第二部分，Mac） | 3 種順序多數決、H1／S 檢定的組裝、選組、分層表 |
+| `src/amidst/evaluation/e8_score.py`（Colab 評分格與 Mac；已完成第一部分與 H2） | `e6_verdict.single_dp_correct`、`full_track_dp_correct`、`sign_flip_p`、`sign_flip_p_two_sided`、`mcnemar_exact_p`、`majority`、`MIN_DP`、`MIN_FAMILIES`、`TAU_BLIND_S`，以及 H2 用的 `_group_family_units`、`_diffs`、`_shifted`；`agent_eval_scoring.metrics.holm_bonferroni`（一般 Holm；`e6_verdict._holm` 只做 2 個假設）、`cluster_bootstrap_ci`（家族群集 bootstrap）；`e3_f4_score.run_scores`（第二部分，Mac） | 3 種順序多數決、H1／S 檢定的組裝、+14.0 s 錯人秒容許值、選組、位置偏差、RANDOM 期望值 |
 | `src/amidst/evaluation/e8_handoff.py`（推論端） | `e3_f4_run.replay`、`chain_box`、`CONFIG`（B1 重現與閉迴路）；`live_mode.server.State` 的 `decider.step` 掛點；`e8_requests` | 觸發、套用、延遲 |
 | `scripts/evaluation/e8_score_run.py`（Mac 一條指令） | `e8_score`、`generate_unified_analysis`、`report/figures/build_figures.py` | CLI |
 | `notebooks/e8_colab_eval.ipynb` | E7 notebook 的格子結構、`e7_colab_runtime` 的 checkpoint、`e7_decider_eval.collect_hardware_provenance`、`resolve_hf_provenance`、`verify_manifest_sha256`、`build_laya_native_inference_fn`、`build_qwen_vl_inference_fn` | E8 的設定與流程 |
@@ -259,7 +259,7 @@ B1 在 tick t 更新後，依序取第一個成立的條件：
 
 ### 5.1 判定用語
 
-用 `SUPPORTED`、`NOT_SUPPORTED`、`INCONCLUSIVE`、`EXPLORATORY`（同 E6）。「無法判斷」不等於「沒有差異」。門檻沿用 `e6_verdict`：N_dp ≥ 40 且 M ≥ 8，否則 `EXPLORATORY`。E8 是 N_dp = 116、M = 16。
+用 `SUPPORTED`、`NOT_SUPPORTED`、`INCONCLUSIVE`、`EXPLORATORY`（同 E6）。`SUPPORTED`＝Holm 拒絕虛無假設；`NOT_SUPPORTED`＝反方向單尾檢定 p ≤ α／m（Bonferroni）；其餘為 `INCONCLUSIVE`（`e8_score.status_of`）。「無法判斷」不等於「沒有差異」。門檻沿用 `e6_verdict`：N_dp ≥ 40 且 M ≥ 8，否則 `EXPLORATORY`。E8 是 N_dp = 116、M = 16。
 
 ### 5.2 主要假設（Holm，m = 5，單尾 α = 0.05）
 
@@ -274,9 +274,9 @@ B1 在 tick t 更新後，依序取第一個成立的條件：
 統計方法：
 
 - **獨立單位是劇本家族**（沿用 `e6_verdict`：E3 A–D 共 4 個、E6 12 個，M = 16），同家族先合併。
-- H1：家族層級配對差值做單尾 sign-flip。M > 12，所以用 `random.Random(20261128)` 翻轉 10,000 次（`e6_verdict.sign_flip_p`）。附家族群集 bootstrap 95% CI（B = 10,000）。點層級的精確 McNemar 只當描述。
+- H1：家族層級配對差值（各家族的多數決正確率差）做單尾 sign-flip。M > 12，所以用種子 20261128 翻轉 10,000 次（`e6_verdict.sign_flip_p(seed=20261128)`）。附家族群集 bootstrap 95% CI（`cluster_bootstrap_ci`，B = 10,000，種子 20261128）。點層級的精確 McNemar 只當描述。
 - H2：每個元件先平移容許值，再做單尾 sign-flip，p 取三者最大值。
-- Holm 用 `e6_verdict` 的同一套。
+- Holm 用 `agent_eval_scoring.metrics.holm_bonferroni`（一般 m；`e6_verdict._holm` 寫死 2 個假設）。H2 的家族單位與容許值平移沿用 `e6_verdict._group_family_units`、`_diffs`、`_shifted`（跟對率 +0.05、盲區誤鎖 5.0 s／M），錯人秒的容許值是 14.0 s／M。
 - **敏感度**：以段為單位（M = 28，核准版 v1 的做法）重算，只報告。
 
 ### 5.3 次要假設（Holm，m = 13，雙尾 α = 0.05）
@@ -377,7 +377,7 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | --- | --- |
 | `tests/evaluation/test_e8_requests.py`（已完成，9 項） | 合併規則；3 種順序；各級欄位嚴格遮蔽；L0 與 E7 渲染相同；laya 選項文字；`parse_e8_answer`；KEEP 解析；底線策略；**重複定義掃描**（必改 1） |
 | `tests/evaluation/test_build_e8_colab_pack.py` | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
-| `tests/evaluation/test_e8_score.py` | 多數決；`single_dp_correct` 對照；H1 的家族配對；選組與同分規則 |
+| `tests/evaluation/test_e8_score.py`（已完成，5 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值 |
 | `tests/evaluation/test_e8_handoff.py` | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
 | `test_e7_decider_eval.py`（加案例） | 已渲染輸入的入口；E7 的舊測試全部照舊通過 |
 | `test_aol_zero_latency_and_unified_analysis.py`、`tests/report/test_report_skeleton.py`（加案例） | `e8` 選填區段；沒有 E8 的舊輸入照舊；新圖在 headless 下可產生 |
