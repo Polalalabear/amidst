@@ -1,0 +1,16 @@
+{
+  "schema_version": "e6.arm-config.v1",
+  "issue_ref": "#721",
+  "decision_refs": ["D377", "D396"],
+  "status": "DRAFT_OFFLINE_ONLY_NO_PAID_CALL",
+  "model": "gpt-6.1-terra",
+  "shared": {"poll_s": 2.0, "min_interval_s": 1.0, "call_cap_factor": 1.5, "timeout_s": 30.0, "frame_size": [320, 180]},
+  "arms": {
+    "DEANCHOR": {"history": false, "summary": false, "one_factor": "no current tracking box, rule display, rule answer, gates or ranking-ordered frames; compare to seed reference every call"},
+    "DEANCHOR_HIST": {"history": true, "summary": false, "one_factor": "adds script-maintained HISTORY (SELF_ANSWER_UNVERIFIED / SYSTEM_OBSERVED)"},
+    "DEANCHOR_HIST_SUM": {"history": true, "summary": true, "one_factor": "adds model summary kept only if every sentence cites shown history ids"}
+  },
+  "history": {"max_entries": 8},
+  "summary": {"max_sentences": 3, "max_sentence_chars": 200, "on_validation_failure": "drop_whole_summary"},
+  "ao_orig_path": "unchanged: src/amidst/live_mode/aopen/decider.py"
+}
