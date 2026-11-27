@@ -5,7 +5,7 @@ The only producer is ``scripts/evaluation/e3_cases/index.py`` (E3 #652: wire rec
 RT-DETR R18 letterbox person index, upper-HSV colour, score floor 0.05). It is called unchanged. Nothing new is detected per arm later:
 B1, R-N, AO_ORIG and the E6 arms all read this one output.
 
-Isolation: the output root is a fresh folder that holds only APFS clones of ``<case>.replay1.wire.json`` and ``pixels/<case>/``
+Isolation: the output root is a fresh folder that holds only copies (APFS clone on macOS, reflink/plain copy elsewhere; the receipt records the modes) of ``<case>.replay1.wire.json`` and ``pixels/<case>/``
 from the recording (the recording folder itself is never written). Case/GT/a-log/scenario files are never copied, so the
 detector cannot see them. The frozen recording MANIFEST is verified for every cloned file first.
 
@@ -80,20 +80,44 @@ def verify_against_manifest(recording: Path, manifest: dict[str, str], files: li
             raise DetectionError(f'MANIFEST_SHA_MISMATCH: {rel}')
 
 
-def clone(src: Path, dst: Path, recursive=False) -> None:
+def clone(src: Path, dst: Path, recursive=False) -> str:
+    """Copy without duplicating blocks where the filesystem can: macOS ``cp -c`` (APFS clone) first, then GNU ``cp --reflink=auto``,
+    and finally a plain ``shutil`` copy. Returns the mode actually used ('apfs_clone' | 'reflink_auto' | 'copy'); bytes are identical in all."""
     dst.parent.mkdir(parents=True, exist_ok=True)
-    r = subprocess.run(['cp', '-c', *(['-R'] if recursive else []), str(src), str(dst)], capture_output=True)
-    if r.returncode:
-        raise DetectionError(f'CLONE_FAILED {src}: {r.stderr.decode()[:120]}')
+    flags = ['-R'] if recursive else []
+    attempts = []
+    if sys.platform == 'darwin':
+        attempts.append(('apfs_clone', ['cp', '-c', *flags]))
+    else:
+        attempts.append(('reflink_auto', ['cp', '--reflink=auto', *flags]))
+    for mode, cmd in attempts:
+        try:
+            r = subprocess.run([*cmd, str(src), str(dst)], capture_output=True)
+        except OSError:
+            continue
+        if r.returncode == 0:
+            return mode
+        if dst.exists():                      # a failed partial cp must not leave a half copy behind
+            shutil.rmtree(dst) if dst.is_dir() else dst.unlink()
+    try:
+        if recursive:
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
+    except OSError as exc:
+        raise DetectionError(f'COPY_FAILED {src}: {exc}') from exc
+    return 'copy'
 
 
-def prepare_root(recording: Path, out: Path, case_id: str) -> None:
-    """Clone only the wire receipt and the pixels directory of one case (never case/GT/a-log files)."""
+def prepare_root(recording: Path, out: Path, case_id: str) -> list[str]:
+    """Clone only the wire receipt and the pixels directory of one case (never case/GT/a-log files). Returns the copy modes used."""
+    modes = []
     wire = out / f'{case_id}.replay1.wire.json'
     if not wire.exists():
-        clone(recording / f'{case_id}.replay1.wire.json', wire)
+        modes.append(clone(recording / f'{case_id}.replay1.wire.json', wire))
     if not (out / 'pixels' / case_id).exists():
-        clone(recording / 'pixels' / case_id, out / 'pixels' / case_id, recursive=True)
+        modes.append(clone(recording / 'pixels' / case_id, out / 'pixels' / case_id, recursive=True))
+    return modes
 
 
 def isolation_violations(out: Path) -> list[str]:
@@ -146,7 +170,7 @@ def records_key_parity(new_records: Path, ref_records: Path) -> list[str]:
 
 
 def build_receipt(out: Path, cases: list[str], *, recording: Path, spec_sha: str, manifest_sha: str, weights_sha: str,
-                  device: str, commit: str, parity: dict, created=None) -> dict:
+                  device: str, commit: str, parity: dict, copy_modes: dict | None = None, created=None) -> dict:
     per_case = {}
     detector = None
     for cid in cases:
@@ -166,7 +190,7 @@ def build_receipt(out: Path, cases: list[str], *, recording: Path, spec_sha: str
             'recording_manifest_sha256': manifest_sha, 'frozen_spec_sha256': spec_sha,
             'detector': detector, 'weights_file_sha256_verified': weights_sha, 'device': device, 'code_commit_sha': commit,
             'code_sha256': {r: (sha_file(ROOT / r) if (ROOT / r).is_file() else 'UNKNOWN_FILE_ABSENT') for r in CODE_FILES},
-            'parity_with_e3': parity, 'cases': per_case,
+            'parity_with_e3': parity, 'input_copy_modes_this_run': copy_modes or {}, 'cases': per_case,
             'note': 'single producer = e3_cases/index.py; every group reads these PNGs and this index (no per-arm redetection)'}
 
 
@@ -197,8 +221,10 @@ def run(a, runner=default_runner) -> dict:
     for cid in cases:
         verify_against_manifest(recording, manifest, required_files(recording, cid))
     out.mkdir(parents=True, exist_ok=True)
+    copy_modes: dict[str, int] = {}
     for cid in cases:
-        prepare_root(recording, out, cid)
+        for m in prepare_root(recording, out, cid):
+            copy_modes[m] = copy_modes.get(m, 0) + 1
     todo = []
     for c in cases:
         idx = out / 'indexes' / c
@@ -231,7 +257,7 @@ def run(a, runner=default_runner) -> dict:
     if bad:
         raise DetectionError('ISOLATION_VIOLATION: ' + ', '.join(bad[:5]))
     receipt = build_receipt(out, cases, recording=recording, spec_sha=sha_file(spec_path), manifest_sha=sha_file(recording / 'MANIFEST.sha256'),
-                            weights_sha=weights_sha, device=a.device, commit=git_head(), parity=parity)
+                            weights_sha=weights_sha, device=a.device, commit=git_head(), parity=parity, copy_modes=copy_modes)
     (out / 'DETECTION_RECEIPT.json').write_text(json.dumps(receipt, indent=1, ensure_ascii=False, allow_nan=False) + '\n')
     return receipt
 

@@ -197,3 +197,72 @@ def test_incomplete_index_dir_is_moved_aside_and_redone(tmp_path):
     assert seen == [['E6-S01'], ['E6-S01']]                                 # redone, not skipped
     assert (tmp_path / 'det/indexes/E6-S01/production.json').is_file()
     assert len(list((tmp_path / 'det/_incomplete').iterdir())) == 1          # kept, not deleted
+
+
+# ---------------------------------------------------------------- portable copy (CI runs on Linux: no `cp -c`)
+def test_clone_uses_cp_c_only_on_macos_and_reflink_elsewhere(monkeypatch, tmp_path):
+    src = tmp_path / 's.bin'
+    src.write_bytes(b'abc')
+    seen = []
+
+    class R:
+        returncode = 0
+        stderr = b''
+
+    def fake_run(cmd, capture_output):
+        seen.append(cmd)
+        Path(cmd[-1]).write_bytes(Path(cmd[-2]).read_bytes())
+        return R()
+    monkeypatch.setattr(D.subprocess, 'run', fake_run)
+    monkeypatch.setattr(D.sys, 'platform', 'darwin')
+    assert D.clone(src, tmp_path / 'a.bin') == 'apfs_clone' and seen[-1][:2] == ['cp', '-c']
+    monkeypatch.setattr(D.sys, 'platform', 'linux')
+    assert D.clone(src, tmp_path / 'b.bin') == 'reflink_auto' and seen[-1][:2] == ['cp', '--reflink=auto']
+    assert (tmp_path / 'b.bin').read_bytes() == b'abc'
+
+
+def test_clone_falls_back_to_plain_copy_when_cp_fails_or_is_missing(monkeypatch, tmp_path):
+    (tmp_path / 'd').mkdir()
+    (tmp_path / 'd' / 'x.jpg').write_bytes(b'xyz')
+    src = tmp_path / 'f.json'
+    src.write_text('{}')
+
+    class Bad:
+        returncode = 1
+        stderr = b"cp: invalid option -- 'c'"
+    monkeypatch.setattr(D.subprocess, 'run', lambda cmd, capture_output: Bad())
+    assert D.clone(src, tmp_path / 'o/f.json') == 'copy' and (tmp_path / 'o/f.json').read_text() == '{}'
+    assert D.clone(tmp_path / 'd', tmp_path / 'o/d', recursive=True) == 'copy' and (tmp_path / 'o/d/x.jpg').read_bytes() == b'xyz'
+
+    def boom(cmd, capture_output):
+        raise FileNotFoundError('cp')
+    monkeypatch.setattr(D.subprocess, 'run', boom)
+    assert D.clone(src, tmp_path / 'o2/f.json') == 'copy'
+
+
+def test_clone_failure_in_cp_leaves_no_half_copy_and_total_failure_is_reported(monkeypatch, tmp_path):
+    src = tmp_path / 's'
+    src.mkdir()
+    (src / 'a').write_bytes(b'1')
+
+    class Bad:
+        returncode = 1
+        stderr = b'x'
+
+    def partial(cmd, capture_output):
+        Path(cmd[-1]).mkdir(parents=True)                     # cp died after creating the target dir
+        (Path(cmd[-1]) / 'half').write_bytes(b'?')
+        return Bad()
+    monkeypatch.setattr(D.subprocess, 'run', partial)
+    D.clone(src, tmp_path / 'out', recursive=True)
+    assert sorted(p.name for p in (tmp_path / 'out').iterdir()) == ['a']           # the half copy was removed before the fallback copy
+    with pytest.raises(D.DetectionError, match='COPY_FAILED'):
+        D.clone(tmp_path / 'missing', tmp_path / 'nope')
+
+
+def test_receipt_records_copy_modes(tmp_path, monkeypatch):
+    rec = make_recording(tmp_path)
+    monkeypatch.setattr(D, 'git_head', lambda: 'a' * 40)
+    monkeypatch.setattr(D.sys, 'platform', 'linux')
+    r = D.run(args(tmp_path, rec, cases=['E6-S01']), runner=fake_runner())
+    assert sum(r['input_copy_modes_this_run'].values()) == 2 and set(r['input_copy_modes_this_run']) <= {'reflink_auto', 'copy'}
