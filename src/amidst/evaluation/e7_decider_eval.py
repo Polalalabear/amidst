@@ -533,6 +533,19 @@ LAYA_INSTRUCTIONS = (
 )
 
 
+def laya_allow_patterns(checkpoint_subdir: str = "") -> list[str]:
+    """Files to download: the 3 audited .py files, the root config, and ONE checkpoint's files only."""
+    pre = f"{checkpoint_subdir.strip('/')}/" if checkpoint_subdir else ""
+    return [
+        *LAYA_AUDITED_PY_SHA256,
+        "config.json",
+        f"{pre}model.safetensors",
+        f"{pre}rl_agent_config.json",
+        f"{pre}encoder/*",
+        f"{pre}tokenizer/*",
+    ]
+
+
 def _sha256_file(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -629,12 +642,15 @@ def build_laya_native_inference_fn(
     device: str | None = None,
     use_acceleration: bool = True,
     snapshot_dir: str | None = None,
+    checkpoint_subdir: str = "",
 ) -> Callable[[DeciderRequest, bool], str]:
     """Laya native (ModernBERT encoder + decision head) inference via the audited ``rl_agent_api.RLAgent``.
 
     Executes ONLY the three audited .py files (SHA-256 verified) plus transformers; no ``pip install laya``
     and no ``trust_remote_code``. The encoder architecture config ships inside the pinned snapshot
-    (``encoder/``), so no separate ModernBERT download happens. Exposes ``.provenance`` and ``.option_counts``.
+    (``encoder/``), so no separate ModernBERT download happens. ``checkpoint_subdir=""`` loads the repo-root
+    English checkpoint (what ``laya.Agent("convaiinnovations/laya")`` loads per the README); only that
+    checkpoint's files plus the 3 audited .py files are downloaded (``allow_patterns``). Exposes ``.provenance`` and ``.option_counts``.
     """
     if not custom_code_audited or not audited_commit:
         raise CustomCodeAuditError(
@@ -659,7 +675,13 @@ def build_laya_native_inference_fn(
         else:
             from huggingface_hub import snapshot_download
 
-            snap = Path(snapshot_download(repo_id=model_id, revision=revision))
+            snap = Path(
+                snapshot_download(
+                    repo_id=model_id,
+                    revision=revision,
+                    allow_patterns=laya_allow_patterns(checkpoint_subdir),
+                )
+            )
         provenance["py_sha256"] = verify_laya_audited_files(snap)
         provenance["snapshot_sha256"] = snapshot_file_hashes(snap)
         sys.path.insert(0, str(snap))
@@ -672,7 +694,9 @@ def build_laya_native_inference_fn(
 
         use_cuda = bool(accelerated and use_acceleration and torch.cuda.is_available())
         target = device if device is not None else ("cuda" if use_cuda else "cpu")
-        cache["agent"] = api.RLAgent(str(snap), device=target)
+        model_dir = snap / checkpoint_subdir if checkpoint_subdir else snap
+        provenance["checkpoint_subdir"] = checkpoint_subdir or "(repo root, English)"
+        cache["agent"] = api.RLAgent(str(model_dir), device=target)
         return cache["agent"]
 
     def _warmup(accelerated: bool) -> float:

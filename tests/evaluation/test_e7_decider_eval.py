@@ -614,6 +614,14 @@ def test_laya_native_gate_and_sha_mismatch(tmp_path: Path):
     assert E7.LAYA_AUDITED_PY_SHA256["email_utils.py"].startswith("1b1c0a6e")
 
 
+def test_laya_allow_patterns_root_only_and_subdir():
+    root = E7.laya_allow_patterns()
+    assert {"rl_common.py", "rl_agent_api.py", "email_utils.py", "model.safetensors", "encoder/*", "tokenizer/*"} <= set(root)
+    assert not any(p.startswith(("typed-decisions", "multilingual", "assets", "eval")) for p in root)
+    sub = E7.laya_allow_patterns("typed-decisions")
+    assert "typed-decisions/model.safetensors" in sub and "model.safetensors" not in sub
+
+
 def test_laya_native_infer_with_stub_agent_records_option_counts(tmp_path: Path, monkeypatch):
     """Stub rl_agent_api whose hashes are patched in; no weights, no GPU, no download."""
     stub = tmp_path / "rl_agent_api.py"
@@ -630,6 +638,8 @@ def test_laya_native_infer_with_stub_agent_records_option_counts(tmp_path: Path,
     patched = {n: hashlib.sha256((tmp_path / n).read_bytes()).hexdigest() for n in E7.LAYA_AUDITED_PY_SHA256}
     monkeypatch.setattr(E7, "LAYA_AUDITED_PY_SHA256", patched)
     monkeypatch.setitem(__import__("sys").modules, "torch", type("T", (), {"cuda": type("C", (), {"is_available": staticmethod(lambda: False)})})())
+    monkeypatch.setitem(__import__("sys").modules, "rl_agent_api", None)  # monkeypatch restores/removes it on teardown
+    monkeypatch.delitem(__import__("sys").modules, "rl_agent_api")
     fn = E7.build_laya_native_inference_fn(
         custom_code_audited=True, audited_commit=E7.LAYA_AUDITED_COMMIT, snapshot_dir=str(tmp_path)
     )
@@ -641,5 +651,3 @@ def test_laya_native_infer_with_stub_agent_records_option_counts(tmp_path: Path,
     stats = fn.option_stats()
     assert stats["n"] == 1 and stats["over_20"] == 1  # 22 candidates + 3 fixed options > 20
     assert set(fn.provenance["py_sha256"]) == set(patched)
-    import sys as _sys
-    _sys.modules.pop("rl_agent_api", None)
