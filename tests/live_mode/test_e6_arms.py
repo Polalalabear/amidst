@@ -114,6 +114,16 @@ def test_request_has_reference_frames_candidates_and_no_rule_or_tracking(arm, fr
     assert 'rule_state' not in rec
 
 
+def test_prefix_mentions_only_fields_the_arm_has():
+    d = A.ArmConfig.of('DEANCHOR').extra()
+    assert 'PREVIOUS_ANSWER' in d and 'SELF_ANSWER_UNVERIFIED' in d
+    for word in ('SYSTEM_OBSERVED', 'HISTORY', 'summary', 'tracker kept'):
+        assert word not in d, word
+    h = A.ArmConfig.of('DEANCHOR_HIST').extra()
+    assert 'SYSTEM_OBSERVED' in h and 'HISTORY' in h and 'summary' not in h and 'PREVIOUS_ANSWER' not in h
+    assert '"summary"' in A.ArmConfig.of('DEANCHOR_HIST_SUM').extra()
+
+
 def test_static_prefix_is_e6_only_and_original_prompt_untouched():
     from amidst.q1q5 import agent_service as ag
     from amidst.live_mode.aopen.decider import E5_EXTRA
@@ -205,7 +215,8 @@ def test_deanchor_shows_only_previous_answer(frames):
     run_ticks(d, frames, range(0, 16))
     line = [ln for ln in user_text(bodies[-1]).splitlines() if ln.startswith('PREVIOUS_ANSWER=')][0]
     prev = json.loads(line.split('=', 1)[1])
-    assert set(prev) == {SELF, SYS} and set(prev[SYS]) == {'t_s'}
+    assert set(prev) == {SELF}
+    assert SYS not in json.dumps(prev) and 'SYSTEM_OBSERVED' not in user_text(bodies[-1]) and 'HISTORY' not in user_text(bodies[-1])
     assert prev[SELF]['answer'] == 'UNCERTAIN'          # latest answer only, not the earlier SELECT
     assert 'applied' not in line and 'followed' not in line and 'H1' not in line
 

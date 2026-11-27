@@ -138,7 +138,8 @@ def stub_env(monkeypatch, doc_extra=None, est=7.66):
     def fake_replay(arm, case, cams, scene, transport, k=1, **kw):
         doc = {'schema_version': R.SCHEMA, 'case_id': case['case_id'], 'arm': arm, 'k': k,
                'config': {}, 'rows': [{'tick': 0, 'tracking': {'state': 'LOST'}}],
-               'calls': [{'answer': 'UNCERTAIN', 'fallback_reason': None, 'request': {'body_sha256': 'ab' * 32}}], 'history': []}
+               'calls': [{'answer': 'UNCERTAIN', 'fallback_reason': None, 'request': {'body_sha256': 'ab' * 32}}], 'history': [],
+               'stopped_early': None}
         doc.update(doc_extra or {})
         return doc
     monkeypatch.setattr(R, 'replay', fake_replay)
@@ -150,7 +151,8 @@ def test_paid_run_outputs_manifest_and_no_scoring_fields(tmp_path, monkeypatch):
     n = R.paid_run(a, transport=lambda body: None)
     out = tmp_path / 'out'
     files = sorted(p.relative_to(out).as_posix() for p in out.rglob('*') if p.is_file())
-    assert 'PRECHECK.json' in files and 'MANIFEST.sha256' in files and 'E3-A1/DEANCHOR.k1.json' in files
+    assert {'PRECHECK.json', 'STATUS.json', 'MANIFEST.sha256'} <= set(files)
+    assert json.loads((out / 'STATUS.json').read_text())['status'] == 'COMPLETE' and 'E3-A1/DEANCHOR.k1.json' in files
     assert len([f for f in files if f.endswith('.k1.json')]) == 9
     manifest = (out / 'MANIFEST.sha256').read_text().splitlines()
     assert len(manifest) == n == len(files) - 1
@@ -191,3 +193,95 @@ def test_paid_run_refuses_over_cap_before_any_call(tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match='CUMULATIVE_OVER_CAP'):
         R.paid_run(a, transport=lambda body: calls.append(body))
     assert not calls and not list((tmp_path / 'out').rglob('*.k1.json'))
+
+
+# ---- atomic writes, status, stop on guard denial ---------------------------------------------------------
+def test_serialization_failure_leaves_no_half_file_and_marks_incomplete(tmp_path, monkeypatch):
+    stub_env(monkeypatch, doc_extra={'bad': {1, 2}})            # a set cannot be serialized
+    with pytest.raises(TypeError):
+        R.paid_run(args(tmp_path), transport=lambda body: None)
+    out = tmp_path / 'out'
+    assert not list(out.rglob('*.k1.json')) and not list(out.rglob('*.tmp'))
+    status = json.loads((out / 'STATUS.json').read_text())
+    assert status['status'] == 'INCOMPLETE' and 'TypeError' in status['reason']
+    assert 'STATUS.json' in (out / 'MANIFEST.sha256').read_text()
+
+
+def test_leftover_temp_file_is_not_a_skip_and_is_removed(tmp_path, monkeypatch):
+    stub_env(monkeypatch)
+    out = tmp_path / 'out'
+    (out / 'E3-A1').mkdir(parents=True)
+    (out / 'E3-A1' / 'DEANCHOR.k1.json.tmp').write_text('{"half"')
+    R.paid_run(args(tmp_path), transport=lambda body: None)
+    assert (out / 'E3-A1' / 'DEANCHOR.k1.json').exists() and not list(out.rglob('*.tmp'))
+    assert json.loads((out / 'E3-A1' / 'DEANCHOR.k1.json').read_text())['arm'] == 'DEANCHOR'
+    assert '.tmp' not in (out / 'MANIFEST.sha256').read_text()
+
+
+def test_unexpected_exception_still_writes_status_and_manifest(tmp_path, monkeypatch):
+    stub_env(monkeypatch)
+    n = {'i': 0}
+    real = R.replay
+
+    def boom(*a, **k):
+        n['i'] += 1
+        if n['i'] == 3:
+            raise RuntimeError('synthetic fault')
+        return real(*a, **k)
+    monkeypatch.setattr(R, 'replay', boom)
+    with pytest.raises(RuntimeError):
+        R.paid_run(args(tmp_path), transport=lambda body: None)
+    out = tmp_path / 'out'
+    assert json.loads((out / 'STATUS.json').read_text())['status'] == 'INCOMPLETE'
+    manifest = (out / 'MANIFEST.sha256').read_text()
+    assert 'E3-A1/DEANCHOR.k1.json' in manifest and 'E3-A1/DEANCHOR_HIST_SUM.k1.json' not in manifest
+
+
+def test_guard_denial_stops_the_run_with_reason(tmp_path, monkeypatch):
+    stub_env(monkeypatch)
+    real, seen = R.replay, []
+
+    def stopping(arm, case, *a, **k):
+        seen.append((case['case_id'], arm))
+        doc = real(arm, case, *a, **k)
+        doc['calls'][0]['fallback_reason'] = 'CALL_BUDGET_EXHAUSTED'
+        doc['stopped_early'] = {'tick': 4, 'reason': 'PermissionError:GUARD_DENIED:TOTAL_BUDGET'}
+        return doc
+    monkeypatch.setattr(R, 'replay', stopping)
+    with pytest.raises(SystemExit, match='CALL_BUDGET_EXHAUSTED'):
+        R.paid_run(args(tmp_path), transport=lambda body: None)
+    assert seen == [('E3-A1', 'DEANCHOR')]                       # nothing after the first denied arm
+    out = tmp_path / 'out'
+    st = json.loads((out / 'STATUS.json').read_text())
+    assert st['status'] == 'STOPPED' and 'TOTAL_BUDGET' in st['reason']
+    assert (out / 'E3-A1' / 'DEANCHOR.k1.json').exists() and (out / 'MANIFEST.sha256').exists()
+
+
+def test_replay_stops_immediately_when_guard_denies(tmp_path):
+    from PIL import Image
+    img = tmp_path / 'f.png'
+    Image.new('RGB', (320, 180), 'black').save(img)
+    det = {'A': [{'bbox': [10, 10, 30, 90], 'score': 0.5, 'color': 'red', 'est_xy': [1, 2]}]}
+    ticks = [(t, det, {'A': img}) for t in range(60)]
+    case = {'case_id': 'E3-A1', 'ticks': ticks, 'index_content_sha256': 'a', 'records_file_sha256': 'b', 'rgb_index_sha256': 'c'}
+    sidecar = SimpleNamespace(_infer_tracking=lambda tick, t, dets, x, size: {
+        'state': 'LOST', 'active_cam': 'A', 'est_xy': [1, 2], 'lost_ticks': 9, 'events': [{'type': 'ACQUIRE'}] if tick == 0 else []})
+
+    class Proj:
+        def ground(self, *a):
+            return [1, 2]
+    calls = []
+
+    def denied(body):
+        calls.append(1)
+        raise PermissionError('GUARD_DENIED:TOTAL_BUDGET')
+    doc = R.replay('DEANCHOR', case, tmp_path / 'cam.json', {'cameras': [{'camera_id': 'A'}]}, denied, sidecar=sidecar, projector=Proj())
+    assert len(calls) == 1 and doc['calls'][0]['fallback_reason'] == 'CALL_BUDGET_EXHAUSTED'
+    assert doc['stopped_early']['tick'] == 1 and 'GUARD_DENIED:TOTAL_BUDGET' in doc['stopped_early']['reason']
+    assert len(doc['rows']) == 1
+
+
+def test_estimate_pads_prompt_with_the_largest_history():
+    pads = {arm: R.worst_case_history_tokens(arm) for arm in R.ARMS}
+    assert 0 < pads['DEANCHOR'] < pads['DEANCHOR_HIST'] < pads['DEANCHOR_HIST_SUM']
+    assert pads['DEANCHOR_HIST'] > 8 * 60          # eight full entries, not an empty history

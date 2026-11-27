@@ -16,6 +16,7 @@ import copy
 import hashlib
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -26,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import e3_f4_run as frozen
 import e5_run
-from amidst.live_mode.aopen.arms import ARMS, ArmConfig, ArmDecider
+from amidst.live_mode.aopen.arms import ARMS, MAX_HISTORY, MAX_SENTENCE_CHARS, MAX_SENTENCES, ArmConfig, ArmDecider, HistoryLedger
 from amidst.live_mode.aopen.decider import MODEL
 from amidst.q1q5 import scene_context as sx
 
@@ -45,11 +46,14 @@ def replay(arm, case, catalog, scene, transport, *, k=1, poll_s=2.0, min_interva
     state = sidecar if sidecar is not None else e5_run.make_sidecar(catalog)
     proj = projector if projector is not None else Projector(load_cameras(str(catalog)))
     d = ArmDecider(arm, transport, scene, proj, poll_s=poll_s, min_interval_s=min_interval_s, call_cap=cap, timeout_s=timeout_s)
-    rows, t0, previous = [], time.monotonic(), None
+    rows, t0, previous, stopped = [], time.monotonic(), None, None
     for tick, frozen_dets, paths in ticks:
         if previous is not None and tick != previous + 1:
             raise ValueError('NONCONTIGUOUS_TICKS')
         previous = tick
+        if d.budget_exhausted:
+            stopped = {'tick': tick, 'reason': d.calls[-1].get('error') or d.calls[-1].get('fallback_reason')}
+            break
         dets = copy.deepcopy(frozen_dets)
         rule = state._infer_tracking(tick, tick * TICK_US / 1e6, dets, {}, SIZE)   # B1 sidecar: seed time only
         frames = {}
@@ -69,7 +73,7 @@ def replay(arm, case, catalog, scene, transport, *, k=1, poll_s=2.0, min_interva
             'inputs': {key: case[key] for key in ('index_content_sha256', 'records_file_sha256', 'rgb_index_sha256')},
             'scene_context_sha256': sx.sha256_of(scene), 'identity': 'UNCONFIRMED',
             'wall_s': round(time.monotonic() - t0, 3), 'rows': rows, 'calls': d.calls, 'history': d.ledger.entries,
-            'seed_tick': d.seed_tick, 'pending_at_end': d.pending is not None}
+            'seed_tick': d.seed_tick, 'pending_at_end': d.pending is not None, 'stopped_early': stopped}
 
 
 def canned_transport(body):
@@ -110,12 +114,30 @@ def estimate(a):
         per = report[arm]
         # Upper bound: every ask up to the segment cap is made (cap, not the observed canned-answer count).
         cap_calls = sum(v['call_cap'] for v in per.values()) * a.k
-        avg = round(sum(sizes[arm]) / len(sizes[arm])) if sizes[arm] else 0
+        # Prompt bound: observed mean of the canned run (answers all UNCERTAIN, short history) PLUS the largest possible history block.
+        pad = worst_case_history_tokens(arm)
+        avg = (round(sum(sizes[arm]) / len(sizes[arm])) if sizes[arm] else 0) + pad
         est = estimate_run(questions=cap_calls, model=MODEL, avg_prompt_tokens=avg, avg_output_tokens=OUTPUT_TOKENS[arm], prices=prices)
-        out['arms'][arm] = {'per_case': per, 'estimate_upper_bound': est}
+        out['arms'][arm] = {'per_case': per, 'history_padding_tokens': pad, 'estimate_upper_bound': est}
         total += est['est_total_usd'] or 0
     out['est_total_usd_upper_bound'] = round(total, 4)
     return out
+
+
+def worst_case_history_tokens(arm):
+    """Prompt tokens (chars/3, same heuristic) of the largest history block an arm can send: every call had a new answer,
+    the ledger is full (MAX_HISTORY entries, long ids, all fields set), plus a full summary for SUM. DEANCHOR: one answer."""
+    h = HistoryLedger()
+    for _ in range(MAX_HISTORY + 2):
+        h.add({'answer': 'SELECT', 'camera_id': 'CAM_EXT_CAR_LONG', 'detection_id': 'D99', 'box_xyxy': [319.55, 179.55, 319.95, 179.95],
+               'confidence': 'medium', 'next_camera_ranking': ['CAM_EXT_CAR_LONG'] * 3, 'applied': True,
+               'fallback_reason': 'CALL_BUDGET_EXHAUSTED', 'kind': 'LOST_EARLY', 'ask_tick': 99999}, 99999)
+        h.entries[-1]['SYSTEM_OBSERVED'].update(followed_ticks=99999, followed_s=19999.8)
+    cfg = ArmConfig.of(arm)
+    chars = len(json.dumps(h.previous(), sort_keys=True)) if cfg.history == 'previous' else len(json.dumps(h.view(), sort_keys=True))
+    if cfg.summary:
+        chars += len(json.dumps([{'text': 'x' * MAX_SENTENCE_CHARS, 'sources': [f'H{i}' for i in range(1, MAX_HISTORY + 1)]}] * MAX_SENTENCES))
+    return chars // 3 + 1
 
 
 def dry_run(a):
@@ -207,6 +229,27 @@ def write_manifest(out):
     return len(lines)
 
 
+def atomic_write_json(target, doc):
+    """Serialize first, write a temp file in the same folder, then os.replace: a final name is never a half-written file."""
+    text = json.dumps(doc, allow_nan=False)
+    target = Path(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    tmp = target.with_name(target.name + '.tmp')
+    with tmp.open('w') as stream:
+        stream.write(text)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(tmp, target)
+
+
+def finish(out, status, reason=None):
+    """STATUS.json (COMPLETE | STOPPED | INCOMPLETE) then MANIFEST.sha256; leftover temp files are removed, not listed."""
+    for tmp in Path(out).rglob('*.tmp'):
+        tmp.unlink()
+    atomic_write_json(Path(out) / 'STATUS.json', {'schema_version': SCHEMA, 'status': status, 'reason': reason})
+    return write_manifest(out)
+
+
 def paid_run(a, transport=None, guard=None):
     """Guarded K=1 diagnostic. ``transport``/``guard`` are injectable for offline tests; production builds them via ApiGuard."""
     from amidst.live_mode.aopen.arms import reject_forbidden
@@ -217,32 +260,37 @@ def paid_run(a, transport=None, guard=None):
     usage_dir = out / 'ledger'
     cum = cumulative_check(a.baseline_json, [usage_dir] + [Path(d) for d in (a.extra_ledger or [])], est['est_total_usd_upper_bound'], max_usd)
     out.mkdir(parents=True, exist_ok=True)
-    (out / 'PRECHECK.json').write_text(json.dumps({'schema_version': SCHEMA, 'cumulative': cum, 'estimate': est}, indent=1, sort_keys=True))
+    atomic_write_json(out / 'PRECHECK.json', {'schema_version': SCHEMA, 'cumulative': cum, 'estimate': est})
     if transport is None:
         transport, guard = guarded_transport(max_usd, usage_dir, 30.0)
-    for cid in a.cases:
-        case = frozen.load_case(a.root, cid)
-        scene = frozen.live_scene_context(a.cameras, case['cameras'])
-        for arm in a.arms:
-            target = out / cid / f'{arm}.k1.json'
-            if target.exists():
-                print('SKIP_EXISTS', cid, arm, flush=True)
-                continue
-            doc = replay(arm, case, a.cameras, scene, transport, k=1)
-            doc['config']['max_usd'] = max_usd
-            reject_forbidden(doc, f'{cid}.{arm}', text=False)       # keys only: model free text is data, not a key
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with target.open('x') as stream:
-                json.dump(doc, stream, allow_nan=False)
-            calls = doc['calls']
-            print('RUN', cid, arm, 'ticks', len(doc['rows']), 'calls', len(calls), flush=True)
-            if any(c['fallback_reason'] == 'CALL_BUDGET_EXHAUSTED' for c in calls):
-                write_manifest(out)
-                raise SystemExit('CALL_BUDGET_EXHAUSTED: output preserved; stop')
-            if calls and sum(c['fallback_reason'] in ('PROVIDER_TIMEOUT', 'PROVIDER_ERROR') for c in calls) / len(calls) > 0.1:
-                write_manifest(out)
-                raise SystemExit('PROVIDER_ERROR_RATE: output preserved as missing-data run; no retry')
-    return write_manifest(out)
+    try:
+        for cid in a.cases:
+            case = frozen.load_case(a.root, cid)
+            scene = frozen.live_scene_context(a.cameras, case['cameras'])
+            for arm in a.arms:
+                target = out / cid / f'{arm}.k1.json'
+                if target.exists():                       # final names are only ever created by atomic_write_json
+                    print('SKIP_EXISTS', cid, arm, flush=True)
+                    continue
+                doc = replay(arm, case, a.cameras, scene, transport, k=1)
+                doc['config']['max_usd'] = max_usd
+                reject_forbidden(doc, f'{cid}.{arm}', text=False)       # keys only: model free text is data, not a key
+                atomic_write_json(target, doc)
+                calls = doc['calls']
+                print('RUN', cid, arm, 'ticks', len(doc['rows']), 'calls', len(calls), flush=True)
+                if doc['stopped_early'] or any(c['fallback_reason'] == 'CALL_BUDGET_EXHAUSTED' for c in calls):
+                    reason = 'CALL_BUDGET_EXHAUSTED: ' + json.dumps(doc['stopped_early'])
+                    finish(out, 'STOPPED', reason)
+                    raise SystemExit(reason + ' (output preserved; stop)')
+                if calls and sum(c['fallback_reason'] in ('PROVIDER_TIMEOUT', 'PROVIDER_ERROR') for c in calls) / len(calls) > 0.1:
+                    finish(out, 'STOPPED', 'PROVIDER_ERROR_RATE')
+                    raise SystemExit('PROVIDER_ERROR_RATE: output preserved as missing-data run; no retry')
+    except SystemExit:
+        raise
+    except BaseException as exc:
+        finish(out, 'INCOMPLETE', type(exc).__name__ + ': ' + str(exc)[:200])
+        raise
+    return finish(out, 'COMPLETE')
 
 
 def main(argv=None):

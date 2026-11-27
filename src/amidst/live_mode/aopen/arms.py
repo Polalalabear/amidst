@@ -64,8 +64,13 @@ anyone chose that person earlier. Cameras are listed in a fixed order, not ranke
 If you cannot judge, answer UNCERTAIN or NOT_VISIBLE; do not guess.
 '''.strip()
 
+E6_PREV_EXTRA = '''
+PREVIOUS_ANSWER (when present) is your own latest earlier answer, kept by a script, under SELF_ANSWER_UNVERIFIED:
+it is NOT verified and may be wrong; never treat it as evidence about who the target is.
+'''.strip()
+
 E6_HIST_EXTRA = '''
-PREVIOUS_ANSWER / HISTORY (when present) is maintained by a script. Fields under SELF_ANSWER_UNVERIFIED are your own
+HISTORY (when present) is maintained by a script. Fields under SELF_ANSWER_UNVERIFIED are your own
 earlier answers: they are NOT verified and may be wrong; never treat them as evidence about who the target is. Fields
 under SYSTEM_OBSERVED are what the system measured (times, cameras, whether an answer was applied, how long the pixel
 tracker kept an overlapping box after it). SYSTEM_OBSERVED never confirms identity.
@@ -92,7 +97,7 @@ def reference_text(colour='red'):
 @dataclass(frozen=True)
 class ArmConfig:
     name: str
-    history: str      # 'none' | 'previous' (one SELF_ANSWER_UNVERIFIED entry) | 'full'
+    history: str      # 'previous' (one SELF_ANSWER_UNVERIFIED entry, nothing else) | 'full' (HISTORY with SYSTEM_OBSERVED)
     summary: bool
 
     @staticmethod
@@ -102,7 +107,7 @@ class ArmConfig:
         return ArmConfig(name, 'previous' if name == 'DEANCHOR' else 'full', name == 'DEANCHOR_HIST_SUM')
 
     def extra(self):
-        parts = [E6_EXTRA, E6_HIST_EXTRA]
+        parts = [E6_EXTRA, E6_PREV_EXTRA if self.history == 'previous' else E6_HIST_EXTRA]
         if self.summary:
             parts.append(E6_SUM_EXTRA)
         return '\n\n'.join(parts)
@@ -171,11 +176,10 @@ class HistoryLedger:
         return json.loads(json.dumps(self.entries[-MAX_HISTORY:]))
 
     def previous(self):
-        """DEANCHOR: only the latest answer, SELF_ANSWER_UNVERIFIED, plus when it was given."""
+        """DEANCHOR: only the latest answer, under SELF_ANSWER_UNVERIFIED. No SYSTEM_OBSERVED field (prereg 2.1, D398)."""
         if not self.entries:
             return None
-        e = self.entries[-1]
-        return {SYS: {'t_s': e[SYS]['t_s']}, SELF: json.loads(json.dumps(e[SELF]))}
+        return {SELF: json.loads(json.dumps(self.entries[-1][SELF]))}
 
     def ids(self):
         return {e['id'] for e in self.entries[-MAX_HISTORY:]}
