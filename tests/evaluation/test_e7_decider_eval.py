@@ -491,9 +491,9 @@ def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
     env["REQUESTS"] = _make_synthetic_requests()
     exec(compile("".join(cell6["source"]), "e7-cell-6-run-deciders", "exec"), env)
 
-    # Qwen (2 modes) and audited laya (text_only) ran cleanly; only diffusion_vlm is SKIPPED_UNAUDITED
-    assert len(env["RAW_COMPARISONS"]) == 3
-    assert {r["party_id"] for r in env["RAW_COMPARISONS"]} == {"qwen_vl", "laya_text"}
+    # Qwen (2 modes) and both audited laya parties (text_only) ran cleanly; only diffusion_vlm is SKIPPED_UNAUDITED
+    assert len(env["RAW_COMPARISONS"]) == 4
+    assert {r["party_id"] for r in env["RAW_COMPARISONS"]} == {"qwen_vl", "laya_text", "laya_typed"}
     skipped = env["SKIPPED_MODELS"]
     assert len(skipped) == 1
     assert {s["party_id"] for s in skipped} == {"diffusion_vlm"}
@@ -651,3 +651,39 @@ def test_laya_native_infer_with_stub_agent_records_option_counts(tmp_path: Path,
     stats = fn.option_stats()
     assert stats["n"] == 1 and stats["over_20"] == 1  # 22 candidates + 3 fixed options > 20
     assert set(fn.provenance["py_sha256"]) == set(patched)
+
+
+def test_two_laya_parties_build_own_inference_fns(tmp_path: Path, monkeypatch):
+    nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    cell1 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-1-config")
+    env: dict = {}
+    exec(compile("".join(cell1["source"]), "e7-cell-1-config", "exec"), env)
+    laya = {c["party_id"]: c for c in env["MODEL_CONFIGS"] if c["adapter"] == "LayaTextDecider"}
+    assert set(laya) == {"laya_text", "laya_typed"}
+    assert laya["laya_text"].get("checkpoint_subdir", "") == ""
+    assert laya["laya_typed"]["checkpoint_subdir"] == "typed-decisions"
+    for c in laya.values():
+        assert c["audited_commit"] == c["hf_revision"] == E7.LAYA_AUDITED_COMMIT and c["custom_code_audited"]
+
+    seen: dict[str, dict] = {}
+    real = E7.build_laya_native_inference_fn
+
+    def spy(*a, **kw):
+        fn = real(*a, **kw)
+        seen[kw["checkpoint_subdir"]] = kw
+        return fn
+
+    monkeypatch.setattr(E7, "build_laya_native_inference_fn", spy)
+    for c in laya.values():
+        d = E7.LayaTextDecider(
+            c["hf_repo_id"], c["hf_revision"], custom_code_audited=True, audited_commit=c["audited_commit"],
+            party_id=c["party_id"], checkpoint_subdir=c.get("checkpoint_subdir", ""),
+        )
+        assert d.spec.party_id == c["party_id"]
+        d.validate_custom_code_gate()
+        # builds lazily via predict path without downloading: construction only
+        fn = E7.build_laya_native_inference_fn(
+            audited_commit=c["audited_commit"], custom_code_audited=True, checkpoint_subdir=d.checkpoint_subdir
+        )
+        assert callable(fn)
+    assert set(seen) == {"", "typed-decisions"}

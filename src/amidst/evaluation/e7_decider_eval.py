@@ -886,10 +886,14 @@ class LayaTextDecider(BaseDeciderAdapter):
         custom_code_audited: bool = False,
         audited_commit: str | None = None,
         inference_fn: Callable[[DeciderRequest, bool], str] | None = None,
+        party_id: str = "laya_text",
+        label: str | None = None,
+        checkpoint_subdir: str = "",
     ):
+        self.checkpoint_subdir = checkpoint_subdir
         spec = DeciderSpec(
-            party_id="laya_text",
-            label="Laya Text-Only (Option Selector)",
+            party_id=party_id,
+            label=label or f"Laya Text-Only (Option Selector, {checkpoint_subdir or 'root English'} checkpoint)",
             category="local_option",
             hf_repo_id=hf_repo_id,
             hf_revision=hf_revision,
@@ -911,6 +915,7 @@ class LayaTextDecider(BaseDeciderAdapter):
                 self.spec.hf_revision,
                 custom_code_audited=self.spec.custom_code_audited,
                 audited_commit=self.spec.audited_commit,
+                checkpoint_subdir=self.checkpoint_subdir,
             )
         warmup_fn = getattr(self._inference_fn, "warmup", None)
         if callable(warmup_fn):
@@ -925,6 +930,7 @@ class LayaTextDecider(BaseDeciderAdapter):
                 self.spec.hf_revision,
                 custom_code_audited=self.spec.custom_code_audited,
                 audited_commit=self.spec.audited_commit,
+                checkpoint_subdir=self.checkpoint_subdir,
             )
         return self._inference_fn(req, accelerated)
 
