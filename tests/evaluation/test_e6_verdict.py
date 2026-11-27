@@ -299,3 +299,47 @@ def test_verdict_module_imports_only_the_standard_library():
         elif isinstance(node, ast.ImportFrom):
             mods.add((node.module or '').split('.')[0])
     assert mods <= {'__future__', 'itertools', 'math', 'random', 'collections'}, mods
+
+
+# ---- D403 ablation comparison (exploratory, not in Holm) ------------------------------------------------------------------------
+def ablated(segs, pts, group, d_wp=0.0, d_follow=0.0, bad_dp=False):
+    seg2 = [dict(r, group=group, wrong_person_s=r['wrong_person_s'] + d_wp, follow_rate=r['follow_rate'] + d_follow) for r in segs if r['group'] == SEL]
+    pts2 = [dict(r, group=group, full_track_correct=(False if bad_dp else r['full_track_correct'])) for r in pts if r['group'] == SEL]
+    return seg2, pts2
+
+
+def test_two_sided_sign_flip():
+    assert V.sign_flip_p_two_sided([1, 1, 1]) == 0.25 and V.sign_flip_p_two_sided([1, -1]) == 1.0 and V.sign_flip_p_two_sided([0.0] * 3) == 1.0
+    assert V.sign_flip_p_two_sided([-1.0] * 12) == 2 / 4096
+    x = [1.0] * 13
+    assert V.sign_flip_p_two_sided(x) == V.sign_flip_p_two_sided(x) and 0 < V.sign_flip_p_two_sided(x) < 0.01
+
+
+def test_ablation_comparison_is_exploratory_and_leaves_the_verdict_alone():
+    spec = {'B1': ref(), 'AO_ORIG': ref(), 'DEANCHOR': better(), SEL: better(wp=6.0)}
+    segs, pts = build(spec=spec)
+    base = V.verdict_e6(segs, pts, selected_agent=SEL)
+    s2, p2 = ablated(segs, pts, SEL + '+NO_IMAGE', d_wp=5.0, d_follow=-0.1, bad_dp=True)
+    s3, p3 = ablated(segs, pts, SEL + '+NO_SPATIAL')
+    out = V.verdict_e6(segs + s2 + s3, pts + p2 + p3, selected_agent=SEL)
+    assert out['hypotheses'] == base['hypotheses'] and out['must_report'] == base['must_report'] and out['status'] == base['status']
+    assert set(out['ablations']) == {SEL + '+NO_IMAGE', SEL + '+NO_SPATIAL'} and base['ablations'] == {}
+    ni = out['ablations'][SEL + '+NO_IMAGE']
+    assert ni['EXPLORATORY'] is True and ni['in_holm'] is False and ni['reference'] == SEL and ni['M'] == 12
+    d = ni['paired_difference_ablation_minus_selected']
+    assert d['wrong_person_s']['observed'] == pytest.approx(60.0) and d['wrong_person_s']['aggregate'] == 'sum over families'
+    assert d['wrong_person_s']['p_two_sided_uncorrected'] == pytest.approx(2 / 4096)
+    assert d['follow_rate']['observed'] == pytest.approx(-0.1) and d['follow_rate']['aggregate'] == 'mean over families'
+    assert d['full_track_dp_acc']['observed'] == pytest.approx(-1.0)
+    ns = out['ablations'][SEL + '+NO_SPATIAL']['paired_difference_ablation_minus_selected']
+    assert ns['wrong_person_s']['observed'] == 0 and ns['wrong_person_s']['p_two_sided_uncorrected'] == 1.0
+    md = V.render_markdown(dict(out, ablations_skipped=[{'root': 'r', 'status': 'BUDGET_SKIPPED', 'reason': 'x'}]))
+    assert 'Ablations (D403; EXPLORATORY' in md and 'BUDGET_SKIPPED' in md and 'NO_IMAGE' in md
+
+
+def test_ablation_family_mismatch_is_an_error():
+    spec = {'B1': ref(), 'AO_ORIG': ref(), 'DEANCHOR': better(), SEL: better()}
+    segs, pts = build(spec=spec)
+    s2, p2 = ablated(segs, pts, SEL + '+NO_IMAGE')
+    with pytest.raises(ValueError, match='FAMILY_MISMATCH_ABLATION'):
+        V.verdict_e6(segs + [r for r in s2 if r['family_id'] != 'E6-F02'], pts + [r for r in p2 if r['family_id'] != 'E6-F02'], selected_agent=SEL)

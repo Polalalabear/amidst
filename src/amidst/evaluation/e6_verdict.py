@@ -83,6 +83,21 @@ def _mean(v):
 
 
 # ---- statistics (standard library) --------------------------------------------------------------------------------------------
+def sign_flip_p_two_sided(x, *, seed=SEED, n_perm=N_PERM):
+    """Two-sided sign-flip p (|T(s)| >= |T_obs|); exact for M <= 12, else seeded Monte Carlo. Uncorrected; exploratory use only."""
+    m = len(x)
+    if m == 0:
+        raise ValueError('NO_FAMILIES')
+    t_obs = abs(sum(x))
+    tol = 1e-9 * max(1.0, sum(abs(v) for v in x))
+    if m <= 12:
+        return sum(abs(sum(s * v for s, v in zip(signs, x))) >= t_obs - tol
+                   for signs in itertools.product((1.0, -1.0), repeat=m)) / 2 ** m
+    rng = random.Random(seed)
+    hits = sum(abs(sum((v if rng.random() < 0.5 else -v) for v in x)) >= t_obs - tol for _ in range(n_perm))
+    return (1 + hits) / (n_perm + 1)
+
+
 def sign_flip_p(x, *, seed=SEED, n_perm=N_PERM):
     """One-sided p for H1: location > 0 under the symmetric null. Exact (all 2^M flips) for M <= 12, else Monte Carlo."""
     m = len(x)
@@ -306,6 +321,25 @@ def _holm(p_by_h, ok_by_h_level):
     return passed, {first: 1, second: 2}
 
 
+def ablation_comparison(units, selected, families):
+    """D403 exploratory paired comparison of each ablation group (``<selected>+<ABLATION>``) with the selected agent.
+    Differences are ablation - selected per family; p is the uncorrected two-sided sign-flip p. EXPLORATORY, never part of Holm."""
+    out = {}
+    for g in sorted(g for g in units if g.startswith(selected + '+')):
+        if set(units[g]) != set(units[selected]):
+            raise ValueError('FAMILY_MISMATCH_ABLATION:' + g)
+        d = _diffs(units, g, selected, families)
+        obs = _comp_stats(d)
+        names = {'C1': 'wrong_person_s', 'C2': 'follow_rate', 'C3': 'full_track_dp_acc', 'C4': 'blind_false_lock_s'}
+        raw = {'C1': d['wp'], 'C2': d['follow'], 'C3': d['dp'], 'C4': d['bfl']}
+        out[g] = {'EXPLORATORY': True, 'in_holm': False, 'reference': selected, 'M': len(families),
+                  'paired_difference_ablation_minus_selected': {
+                      names[c]: {'observed': obs[c], 'aggregate': 'sum over families' if c in ('C1', 'C4') else 'mean over families',
+                                 'p_two_sided_uncorrected': sign_flip_p_two_sided(raw[c]), 'family_differences': [round(v, 9) for v in raw[c]]}
+                      for c in COMPONENTS}}
+    return out
+
+
 def _group_report(units, families):
     rep = {}
     for g, fams in units.items():
@@ -390,6 +424,7 @@ def verdict_e6(segments, decision_points, *, selected_agent='DEANCHOR', n_boot=N
                            'tau_blind_s': tau_blind_s, 'min_dp': MIN_DP, 'min_families': MIN_FAMILIES, 'seed': seed, 'n_boot': n_boot},
             'hypotheses': hyp, 'SKEW_SENSITIVITY_FLAG': any(flagged.values()), 'skew_flag_components': flagged,
             'groups': _group_report(units, families), 'strata_full_track_dp_acc': strata, 'single_dp_acc': single, 'single_dp_mcnemar': mc,
+            'ablations': ablation_comparison(units, selected_agent, families),
             'must_report': p2_text,
             'notes': ['full_track_dp_acc is the only C3 endpoint; single_dp_acc and McNemar are separate diagnostics',
                       'bootstrap intervals are percentile approximations, sign-flip exactness needs the symmetric null (prereg 4.3)']}
@@ -425,6 +460,15 @@ def render_markdown(v):
     lines += ['', '## Single-point paired answer (separate diagnostic, not part of C3)', '']
     for g, x in sorted(v['single_dp_acc'].items()):
         lines.append(f"- {g}: n = {x['n']}, accuracy = {f(x['single_dp_acc'])}")
+    if v.get('ablations') or v.get('ablations_skipped'):
+        lines += ['', '## Ablations (D403; EXPLORATORY, uncorrected, not in Holm)', '']
+        for g, x in sorted((v.get('ablations') or {}).items()):
+            lines += [f"### {g} vs {x['reference']} (M = {x['M']})", '', '| metric | ablation - selected | aggregate | p (two-sided, uncorrected sign-flip) |', '|---|---|---|---|']
+            for name, y in x['paired_difference_ablation_minus_selected'].items():
+                lines.append(f"| {name} | {f(y['observed'])} | {y['aggregate']} | {f(y['p_two_sided_uncorrected'], 5)} |")
+            lines.append('')
+        for sk in v.get('ablations_skipped') or []:
+            lines.append(f"- skipped: {sk['root']} -> {sk['status']} ({sk['reason']})")
     lines += ['']
     lines += [f"- {n}" for n in v['notes']]
     return '\n'.join(lines) + '\n'

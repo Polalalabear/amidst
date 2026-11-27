@@ -21,6 +21,7 @@ from amidst.q1q5 import scene_context as sx
 from .decider import MODEL, AOpenDecider, sha
 
 ARMS = ('DEANCHOR', 'DEANCHOR_HIST', 'DEANCHOR_HIST_SUM')
+ABLATIONS = ('none', 'NO_IMAGE', 'NO_SPATIAL')     # D403: only applied to the receipt's SELECTED_AGENT
 SELF = 'SELF_ANSWER_UNVERIFIED'
 SYS = 'SYSTEM_OBSERVED'
 MAX_HISTORY = 8
@@ -83,13 +84,53 @@ discarded. Summaries are shown back to you only as unverified notes.
 '''.strip()
 
 
-def static_prefix(scene, extra):
-    return (E6_SYSTEM_TEXT + '\n\nSCENE_CONTEXT_SHA256=' + sx.sha256_of(scene) + '\nSCENE_CONTEXT=' + sx.serialize(scene)
-            + '\n\n' + E6_BASE + '\n\n' + extra)
+def check_ablation(ablation):
+    if ablation not in ABLATIONS:
+        raise ValueError('BAD_ABLATION')
+    return ablation
 
 
-def reference_text(colour='red'):
-    """Static track-layer text: the colour is the user's query condition, not a tracker label."""
+def strip_spatial(scene):
+    """NO_SPATIAL: keep only the camera ids. Drops regions/edges, camera graph and transitions, camera positions/yaw/FOV/footprints,
+    overlaps and any ground-plane geometry (so no camera or target plane coordinates reach the request)."""
+    return {'schema': scene.get('schema'), 'identity': 'UNCONFIRMED',
+            'cameras': [{'camera_id': c['camera_id']} for c in scene.get('cameras', [])]}
+
+
+# Static text per ablation: sentences that mention a removed field are removed or reworded (D403).
+E6_SYSTEM_TEXT_NO_IMAGE = E6_SYSTEM_TEXT.replace('looks most like the same person as the reference crop',
+                                                 'most likely is the person the user asks for')
+E6_SYSTEM_TEXT_NO_SPATIAL = (
+    'You are the decision component of a multi-camera tracker. You decide where one target person is NOW. '
+    'Identity can never be confirmed; you only say which detected person looks most like the same person as the reference crop. '
+    'The scene context below (JSON) lists the camera ids. '
+    'You may select ANY listed detection, or draw your own box when no listed box covers the person.')
+E6_BASE_NO_IMAGE = (E6_BASE.replace('All request frames are 320x180 pixels.', 'Box coordinates are in a 320x180 pixel frame.')
+                    .replace('you cannot judge from these frames', 'you cannot judge from these inputs')
+                    .replace('is in none of the shown frames', 'is none of the listed detections'))
+E6_BASE_NO_SPATIAL = E6_BASE.replace(' Scene edges do not certify physical traversal or collision safety.', '')
+E6_EXTRA_NO_IMAGE = '''
+E6 DE-ANCHOR RULES:
+Decide from the listed detections alone, as if you saw this situation for the first time. Never assume that a person is
+the target because you or anyone chose that person earlier. Cameras are listed in a fixed order, not ranked by earlier answers.
+If you cannot judge, answer UNCERTAIN or NOT_VISIBLE; do not guess.
+'''.strip()
+CAMERA_PROPS_SENTENCE = ' Camera properties are in the scene context.'
+
+
+def static_prefix(scene, extra, ablation='none'):
+    check_ablation(ablation)
+    system = {'none': E6_SYSTEM_TEXT, 'NO_IMAGE': E6_SYSTEM_TEXT_NO_IMAGE, 'NO_SPATIAL': E6_SYSTEM_TEXT_NO_SPATIAL}[ablation]
+    base = {'none': E6_BASE, 'NO_IMAGE': E6_BASE_NO_IMAGE, 'NO_SPATIAL': E6_BASE_NO_SPATIAL}[ablation]
+    if ablation == 'NO_SPATIAL':
+        scene = strip_spatial(scene)
+    return system + '\n\nSCENE_CONTEXT_SHA256=' + sx.sha256_of(scene) + '\nSCENE_CONTEXT=' + sx.serialize(scene) + '\n\n' + base + '\n\n' + extra
+
+
+def reference_text(colour='red', ablation='none'):
+    """Static track-layer text: the colour is the user's query condition, not a tracker label. NO_IMAGE: the query only."""
+    if ablation == 'NO_IMAGE':
+        return f'TARGET: the user\'s query is "a person wearing {colour}".'
     return (f'TARGET REFERENCE (crop taken when the user\'s query "a person wearing {colour}" was first matched). '
             'The reference crop follows.')
 
@@ -106,8 +147,8 @@ class ArmConfig:
             raise ValueError('BAD_ARM')
         return ArmConfig(name, 'previous' if name == 'DEANCHOR' else 'full', name == 'DEANCHOR_HIST_SUM')
 
-    def extra(self):
-        parts = [E6_EXTRA, E6_PREV_EXTRA if self.history == 'previous' else E6_HIST_EXTRA]
+    def extra(self, ablation='none'):
+        parts = [E6_EXTRA_NO_IMAGE if ablation == 'NO_IMAGE' else E6_EXTRA, E6_PREV_EXTRA if self.history == 'previous' else E6_HIST_EXTRA]
         if self.summary:
             parts.append(E6_SUM_EXTRA)
         return '\n\n'.join(parts)
@@ -206,13 +247,13 @@ def validate_summary(raw, shown_ids: Iterable[str]):
     return out
 
 
-def variable_text(arm: ArmConfig, t_s, cands, cams, history=None, notes=None, previous=None):
+def variable_text(arm: ArmConfig, t_s, cands, cams, history=None, notes=None, previous=None, ablation='none'):
     lines = [f'NOW t={t_s:.1f}s.',
              'DETECTIONS (person score>=0.15, CAM_ENTRY>=0.05; observations only):']
     for c in cands:
         lines.append(f'- {c.camera_id} {c.id}: {c.class_label} score {c.score:.2f} box '
                      f'[{c.box[0]:.0f},{c.box[1]:.0f},{c.box[2]:.0f},{c.box[3]:.0f}] colours {",".join(c.colors) or "none"}')
-    lines.append('CAMERAS THIS CALL (fixed order): ' + ', '.join(cams) + '. Camera properties are in the scene context.')
+    lines.append('CAMERAS THIS CALL (fixed order): ' + ', '.join(cams) + ('.' if ablation == 'NO_SPATIAL' else '.' + CAMERA_PROPS_SENTENCE))
     if arm.history == 'previous':
         lines.append('PREVIOUS_ANSWER=' + json.dumps(previous, sort_keys=True))
     elif arm.history == 'full':
@@ -225,8 +266,9 @@ def variable_text(arm: ArmConfig, t_s, cands, cams, history=None, notes=None, pr
 class ArmDecider(AOpenDecider):
     """AOpenDecider with E6 request construction. Application, neutral tracking and parsing are inherited unchanged."""
 
-    def __init__(self, arm, transport, scene, projector, **kw):
+    def __init__(self, arm, transport, scene, projector, *, ablation='none', **kw):
         self.arm = ArmConfig.of(arm)
+        self.ablation = check_ablation(ablation)
         self.ledger = HistoryLedger()
         self.notes = None
         self._raw_text = None
@@ -247,20 +289,24 @@ class ArmDecider(AOpenDecider):
                 colors = tuple(c for c in ('red', 'blue') if d.get('color') == c or d.get(c) in ('STRONG', 'WEAK'))
                 cands.append(ag.Candidate(cid, cam, tuple(d['bbox']), float(d['score']), 'person', colors))
                 boxes.append((cid, d['bbox']))
-            shots.append((cam, _jpeg(frames[cam], boxes)))
-        inp = ag.DecisionInput(self.scene, tick / 5, cands, seed_colors=('red',), reference_jpeg=self.reference, frames=shots)
+            shots.append((cam, _jpeg(frames[cam], boxes) if self.ablation != 'NO_IMAGE' else None))
+        no_img = self.ablation == 'NO_IMAGE'
+        scene = strip_spatial(self.scene) if self.ablation == 'NO_SPATIAL' else self.scene
+        inp = ag.DecisionInput(scene, tick / 5, cands, seed_colors=('red',), reference_jpeg=None if no_img else self.reference,
+                               frames=[] if no_img else shots)
         body = ag.build_body(MODEL, inp)
-        full_prefix = static_prefix(self.scene, self.arm.extra())
+        full_prefix = static_prefix(self.scene, self.arm.extra(self.ablation), self.ablation)
         body['input'][0]['content'][0]['text'] = full_prefix
-        body['input'][1]['content'][0]['text'] = reference_text('red')
+        body['input'][1]['content'][0]['text'] = reference_text('red', self.ablation)
         history = self.ledger.view() if self.arm.history == 'full' else None
         self._shown = {e['id'] for e in history} if history else set()
         previous = self.ledger.previous() if self.arm.history == 'previous' else None
         var = variable_text(self.arm, tick / 5, cands, [c for c, _ in shots], history,
-                            self.notes if self.arm.summary else None, previous)
+                            self.notes if self.arm.summary else None, previous, self.ablation)
         reject_forbidden(var, 'variable_text')
         body['input'][-1]['content'][0]['text'] = var
-        request = {'t_s': tick / 5, 'arm': self.arm.name, 'images': {c: sha(b) for c, b in shots}, 'reference': sha(self.reference),
+        request = {'t_s': tick / 5, 'arm': self.arm.name, 'ablation': self.ablation,
+                   'images': {} if no_img else {c: sha(b) for c, b in shots}, 'reference': None if no_img else sha(self.reference),
                    'candidates': len(cands), 'candidate_list': [
                        {'detection_id': c.id, 'camera_id': c.camera_id, 'box': list(c.box), 'score': c.score,
                         'class_label': c.class_label, 'colors': list(c.colors)} for c in cands],
@@ -273,6 +319,7 @@ class ArmDecider(AOpenDecider):
         super()._ask(tick, kind, frames, dets, rule_state)
         rec = self.calls[-1]
         rec['arm'] = self.arm.name
+        rec['ablation'] = self.ablation
         self.pending['shown'] = set(self._shown)
         self.pending['summary'] = None
         if self.arm.summary and rec['fallback_reason'] is None and self._raw_text:

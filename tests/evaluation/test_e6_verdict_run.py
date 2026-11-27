@@ -132,3 +132,45 @@ def test_arm_names_map_to_groups(tmp_path):
     got = C.collect_runs(runs, ['E6-S01'])
     assert set(got) == {('E6-S01', 'B1'), ('E6-S01', 'AO_ORIG'), ('E6-S01', 'DEANCHOR'), ('E6-S01', SEL)}
     assert [len(v) for k, v in sorted(got.items())] == [3, 3, 3, 1] or sorted(len(v) for v in got.values()) == [1, 3, 3, 3]
+
+
+def add_ablation_root(tmp_path, arm=SEL, ablation='NO_IMAGE', name='abl'):
+    spec = json.loads((tmp_path / 'frozen.json').read_text())
+    root = tmp_path / 'runs' / name
+    for c in spec['formal_cases']:
+        (root / c['case_id']).mkdir(parents=True, exist_ok=True)
+        for n in range(1, 4):
+            (root / c['case_id'] / f'{arm}+{ablation}.k{n}.json').write_text(
+                json.dumps({'arm': arm, 'ablation': ablation, 'k': n, 'case_id': c['case_id'], 'rows': [], 'calls': []}))
+    return root
+
+
+def test_cli_ablation_runs_are_exploratory_and_skipped_roots_are_listed(tmp_path, fake_scorer):
+    spec, gt, runs = build_world(tmp_path)
+    abl = add_ablation_root(tmp_path)
+    skipped = tmp_path / 'runs' / 'skip'
+    skipped.mkdir(parents=True)
+    (skipped / 'STATUS.json').write_text(json.dumps({'status': 'BUDGET_SKIPPED', 'reason': 'CUMULATIVE_OVER_CAP: x'}))
+    out = tmp_path / 'out'
+    C.main(argv(spec, gt, runs, out, '--selected-agent', SEL, '--ablation-runs', str(abl), str(skipped)))
+    v = json.loads((out / 'verdict_e6.json').read_text())
+    assert v['hypotheses']['P1']['verdict'] == 'SUPPORTED'                              # unchanged by the ablation
+    ab = v['ablations'][SEL + '+NO_IMAGE']
+    assert ab['EXPLORATORY'] and not ab['in_holm']
+    assert v['ablations_skipped'] == [{'root': str(skipped), 'status': 'BUDGET_SKIPPED', 'reason': 'CUMULATIVE_OVER_CAP: x'}]
+    assert 'Ablations (D403' in (out / 'VERDICT_E6.md').read_text()
+    assert SEL + '+NO_IMAGE' in v['groups'] and v['groups'][SEL + '+NO_IMAGE']['dp_n'] == 48
+
+
+def test_cli_without_ablation_runs_has_none(tmp_path, fake_scorer):
+    spec, gt, runs = build_world(tmp_path)
+    C.main(argv(spec, gt, runs, tmp_path / 'out', '--selected-agent', SEL))
+    v = json.loads((tmp_path / 'out' / 'verdict_e6.json').read_text())
+    assert v['ablations'] == {} and v['ablations_skipped'] == []
+
+
+def test_cli_ablation_must_be_on_the_selected_agent(tmp_path, fake_scorer):
+    spec, gt, runs = build_world(tmp_path)
+    abl = add_ablation_root(tmp_path, arm='DEANCHOR', name='wrong')
+    with pytest.raises(SystemExit, match='ABLATION_NOT_ON_SELECTED DEANCHOR\\+NO_IMAGE'):
+        C.main(argv(spec, gt, runs, tmp_path / 'o', '--selected-agent', SEL, '--ablation-runs', str(abl)))

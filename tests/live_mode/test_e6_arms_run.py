@@ -444,3 +444,79 @@ def test_formal_estimate_over_32_or_cumulative_over_90_refused(tmp_path, approve
     a = formal_args(tmp_path, extra_ledger=[str(led)])
     with pytest.raises(SystemExit, match='CUMULATIVE_OVER_CAP'):                 # 38.17 + 25 + 30 > 90
         R.paid_run(a, transport=lambda body: pytest.fail('no call'))
+
+
+# ---- D403 ablations on the receipt's SELECTED_AGENT --------------------------------------------------------------------------------
+def abl_args(tmp_path, ablation='NO_IMAGE', **kw):
+    kw.setdefault('arms', ['DEANCHOR_HIST'])
+    return formal_args(tmp_path, ablation=ablation, **kw)          # receipt SELECTED_AGENT = DEANCHOR_HIST
+
+
+def test_ablation_only_on_selected_agent_formal_k3(tmp_path, approved):
+    write_receipt(tmp_path)
+    assert R.check_paid_request(abl_args(tmp_path))[1] == 'FORMAL'
+    assert R.check_paid_request(abl_args(tmp_path, ablation='NO_SPATIAL'))[1] == 'FORMAL'
+    for arms in (['DEANCHOR'], ['DEANCHOR', 'DEANCHOR_HIST'], ['DEANCHOR_HIST_SUM']):
+        with pytest.raises(SystemExit, match='FORMAL_ARMS_REFUSED'):
+            R.check_paid_request(abl_args(tmp_path, arms=arms))
+    with pytest.raises(SystemExit, match='PAID_COMBINATION_REFUSED'):
+        R.check_paid_request(abl_args(tmp_path, k=1, cases=['E3-A1']))                      # diagnostic + ablation
+    with pytest.raises(SystemExit, match='PAID_COMBINATION_REFUSED'):
+        R.check_paid_request(abl_args(tmp_path, k=2))
+    with pytest.raises(SystemExit, match='PAID_COMBINATION_REFUSED'):
+        R.check_paid_request(abl_args(tmp_path, ablation='NO_AUDIO'))
+    write_receipt(tmp_path, SELECTED_AGENT='DEANCHOR')
+    assert R.check_paid_request(abl_args(tmp_path, arms=['DEANCHOR']))[1] == 'FORMAL'
+
+
+def test_ablation_run_files_and_precheck(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=5.0)
+    write_receipt(tmp_path)
+    R.paid_run(abl_args(tmp_path), transport=lambda body: None)
+    out = tmp_path / 'out'
+    runs = sorted(p.relative_to(out).as_posix() for p in out.rglob('*.k?.json'))
+    assert len(runs) == 12 * 3 and 'E6-S01/DEANCHOR_HIST+NO_IMAGE.k1.json' in runs and not [r for r in runs if r.startswith('E6-S01/DEANCHOR.')]
+    pre = json.loads((out / 'PRECHECK.json').read_text())
+    assert pre['ablation'] == 'NO_IMAGE' and pre['mode'] == 'FORMAL'
+    assert json.loads((out / 'STATUS.json').read_text())['status'] == 'COMPLETE'
+
+
+def test_ablation_over_budget_is_skipped_not_shrunk(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=30.0)
+    write_receipt(tmp_path)
+    a = abl_args(tmp_path, baseline={'actual_total_usd': 70.0})                              # 70 + 30 > 90
+    assert R.paid_run(a, transport=lambda body: pytest.fail('no paid call')) == 0
+    out = tmp_path / 'out'
+    st = json.loads((out / 'STATUS.json').read_text())
+    assert st['status'] == 'BUDGET_SKIPPED' and 'CUMULATIVE_OVER_CAP' in st['reason']
+    assert not list(out.rglob('*.k?.json')) and (out / 'MANIFEST.sha256').exists()
+    # estimate above --max-usd also skips (K and the segment list are never reduced)
+    stub_env(monkeypatch, est=33.0)
+    out2 = tmp_path / 'out2'
+    a2 = abl_args(tmp_path, out=out2)
+    assert R.paid_run(a2, transport=lambda body: pytest.fail('no paid call')) == 0
+    assert json.loads((out2 / 'STATUS.json').read_text())['status'] == 'BUDGET_SKIPPED'
+
+
+def test_ablation_rereads_the_ledgers_before_running(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=10.0)
+    write_receipt(tmp_path)
+    led = tmp_path / 'other-ledger'
+    led.mkdir()
+    a = abl_args(tmp_path, extra_ledger=[str(led)])
+    (led / 'usage.jsonl').write_text(json.dumps({'ts': '2026-11-28T00:00:00Z', 'outcome': 'OK', 'est_cost_usd': 45.0}) + '\n')   # 38.17 + 45 + 10 > 90
+    assert R.paid_run(a, transport=lambda body: pytest.fail('no paid call')) == 0
+    assert json.loads((tmp_path / 'out' / 'STATUS.json').read_text())['status'] == 'BUDGET_SKIPPED'
+
+
+def test_non_ablation_over_budget_still_raises(tmp_path, approved, monkeypatch):
+    stub_env(monkeypatch, est=30.0)
+    write_receipt(tmp_path)
+    with pytest.raises(SystemExit, match='CUMULATIVE_OVER_CAP'):
+        R.paid_run(formal_args(tmp_path, baseline={'actual_total_usd': 70.0}), transport=lambda body: None)
+
+
+def test_dry_run_prices_an_ablation_separately_without_images():
+    with_img = {'input': [{'content': [{'type': 'input_text', 'text': 'x' * 300}, {'type': 'input_image', 'image_url': 'u'}] * 9}]}
+    no_img = {'input': [{'content': [{'type': 'input_text', 'text': 'x' * 300}] * 9}]}
+    assert R.prompt_tokens(with_img) - R.prompt_tokens(no_img) == 9 * 1100

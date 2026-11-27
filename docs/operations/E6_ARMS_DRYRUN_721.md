@@ -85,3 +85,13 @@ uv run python -B scripts/evaluation/e6_verdict_run.py --frozen-spec configs/eval
 - 每段取 `e3_f4_score.run_scores` 的 primary 指標（錯人秒、`false_lock_s`＝盲區誤鎖秒、`lost_s`、跟對率、可見 tick）；固定決策點以凍結規格的 `gt_regime` 與決策 tick 起 15 tick（3.0 s）窗，依 §3.2 真值表判 `full_track_dp_acc`（K 次逐點多數決）。`single_dp_acc` 需要另外的 K=1 共用先驗快照執行，2c 不產生，故不計（`single_correct=None`，UNKNOWN）。
 - 輸出：`verdict_e6.json`（含 `data_quality`：各組呼叫數、provider 錯誤率）、`VERDICT_E6.md`、`scored_inputs.json`、`MANIFEST.sha256`。
 - 驗證：離線測試用假逐 run 評分（`tests/evaluation/test_e6_verdict_run.py`）；另以真實評分器與本機 12 段凍結 GT 檔做過管線冒煙（各組全 LOST 的合成 log → 跑通、INCONCLUSIVE，未提交）。
+
+## D403 消融（`--ablation none|NO_IMAGE|NO_SPATIAL`；**未執行**）
+
+- 只作用在凍結收據的 `SELECTED_AGENT`，正式 12 段、K=3；付費時 `--arms` 必須恰為該組（診斷模式、K≠3、其他組合一律 `PAID_COMBINATION_REFUSED`／`FORMAL_ARMS_REFUSED`）。輸出檔名 `<case>/<ARM>+<ABLATION>.k<n>.json`，log 記 `ablation`。
+- `NO_IMAGE`：請求不含任何影像（含種子參考截圖與每鏡頭畫面，`input_image` 與 `[frame …]` 標籤都沒有），變數文字、候選框、scene context、模型參數與 SELECTED 逐位元相同；靜態提示中提到影像的句子改寫或移除（`reference crop`、`TARGET REFERENCE`、`request frames`、`shown frames` 等），只留查詢條件 `a person wearing red`。
+- `NO_SPATIAL`：保留影像（逐位元相同）、鏡頭 id、畫面內框座標；scene context 只剩 `{schema, identity, cameras:[{camera_id}]}`（拿掉區域／邊／鏡頭轉移與排除對／鏡頭位置 yaw FOV 足跡／重疊／來源／靜態幾何），提示中描述這些欄位的句子與 `Camera properties are in the scene context.`、`Scene edges do not certify…` 一併移除。現行 E6 請求本來就沒有平面座標或 `last_known_xy`（測試確認不含 `est_xy`／`last_known`／`ground`）。
+- 預算：付費前重讀帳本（`<out>/ledger` 與 `--extra-ledger`），累計＋該消融上界 > 90（或上界 > `--max-usd`）→ 寫 `STATUS=BUDGET_SKIPPED`（附 PRECHECK、MANIFEST）並結束，**不縮 K、不縮段數**；非消融的 FORMAL 仍然 SystemExit。
+- dry-run 分開估價：`--dry-run --ablation NO_IMAGE`／`NO_SPATIAL` 各自輸出（輸出含 `ablation` 欄位）；NO_IMAGE 因沒有圖片，估價（1,100 tokens／張）明顯較低。
+- `e6_verdict_run.py --ablation-runs <root…>`：group 名 `<SELECTED>+<ABLATION>`；對 SELECTED 報家族層級配對差（消融−SELECTED：錯人秒與盲區誤鎖秒為加總、跟對率與決策點正確率為平均）與**未校正**雙側符號翻轉 p（M≤12 枚舉），一律標 `EXPLORATORY`、`in_holm=false`，不影響 P1／P2 判定（測試確認 hypotheses 逐欄相同）；`BUDGET_SKIPPED` 的根目錄列在 `ablations_skipped`；消融組別的基底不是 SELECTED 即 `ABLATION_NOT_ON_SELECTED`。
+- **注意（凍結順序）**：`arms.py` 在 #741 的 `PROMPT_FILES` 裡，本 PR 修改了它（`ablation='none'` 的請求位元組不變，測試鎖定 prefix／variable-text 的 SHA），所以批 3 凍結收據必須在本 PR 合併之後產生，否則 `FORMAL_PROMPT_SHA_MISMATCH`。

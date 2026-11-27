@@ -12,7 +12,9 @@ Two paid runs exist; everything else is refused (--paid and --max-usd are always
       --max-usd <usd> --baseline-json <RECONCILIATION_20261124.json> --out <dir> --extra-ledger <ledger dirs...>
 Order: dry-run estimate -> estimate <= --max-usd -> D375 cumulative check (baseline + new ledger rows in <out>/ledger and every
 --extra-ledger + estimate <= cap 90) -> only then a transport; every call goes through ApiGuard (own ledger <out>/ledger).
-Outputs: <out>/<case>/<ARM>.k<n>.json (atomic), PRECHECK.json, STATUS.json, MANIFEST.sha256.
+Outputs: <out>/<case>/<ARM>.k<n>.json (<ARM>+<ABLATION>.k<n>.json for an ablation; atomic), PRECHECK.json, STATUS.json, MANIFEST.sha256.
+--ablation NO_IMAGE|NO_SPATIAL (D403): formal K=3 on the receipt's SELECTED_AGENT only; priced separately (--dry-run --ablation X);
+if baseline + ledger + estimate > 90 (or the estimate exceeds --max-usd) STATUS=BUDGET_SKIPPED and nothing is run (K and segments never shrink).
 Never loads scoring inputs. Existing outputs are skipped, never overwritten. AO (original) is not run here.
 """
 from __future__ import annotations
@@ -33,7 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import e3_f4_run as frozen
 import e5_run
-from amidst.live_mode.aopen.arms import ARMS, MAX_HISTORY, MAX_SENTENCE_CHARS, MAX_SENTENCES, ArmConfig, ArmDecider, HistoryLedger
+from amidst.live_mode.aopen.arms import ABLATIONS, ARMS, MAX_HISTORY, MAX_SENTENCE_CHARS, MAX_SENTENCES, ArmConfig, ArmDecider, HistoryLedger
 from amidst.live_mode.aopen.decider import MODEL
 from amidst.q1q5 import scene_context as sx
 
@@ -42,7 +44,7 @@ SCHEMA = 'e6.arm-log.v1'
 OUTPUT_TOKENS = {'DEANCHOR': 300, 'DEANCHOR_HIST': 300, 'DEANCHOR_HIST_SUM': 450}
 
 
-def replay(arm, case, catalog, scene, transport, *, k=1, poll_s=2.0, min_interval_s=1.0, call_cap_factor=1.5,
+def replay(arm, case, catalog, scene, transport, *, k=1, ablation='none', poll_s=2.0, min_interval_s=1.0, call_cap_factor=1.5,
            timeout_s=30.0, sidecar=None, projector=None):
     from PIL import Image
     from amidst.live_mode.tracker import Projector, load_cameras
@@ -51,7 +53,7 @@ def replay(arm, case, catalog, scene, transport, *, k=1, poll_s=2.0, min_interva
     cap = math.ceil(duration / poll_s * call_cap_factor)
     state = sidecar if sidecar is not None else e5_run.make_sidecar(catalog)
     proj = projector if projector is not None else Projector(load_cameras(str(catalog)))
-    d = ArmDecider(arm, transport, scene, proj, poll_s=poll_s, min_interval_s=min_interval_s, call_cap=cap, timeout_s=timeout_s)
+    d = ArmDecider(arm, transport, scene, proj, ablation=ablation, poll_s=poll_s, min_interval_s=min_interval_s, call_cap=cap, timeout_s=timeout_s)
     rows, t0, previous, stopped = [], time.monotonic(), None, None
     for tick, frozen_dets, paths in ticks:
         if previous is not None and tick != previous + 1:
@@ -73,7 +75,7 @@ def replay(arm, case, catalog, scene, transport, *, k=1, poll_s=2.0, min_interva
         finally:
             for image in frames.values():
                 image.close()
-    return {'schema_version': SCHEMA, 'case_id': case['case_id'], 'arm': arm, 'k': k, 'tick_us': TICK_US, 'size': list(SIZE),
+    return {'schema_version': SCHEMA, 'case_id': case['case_id'], 'arm': arm, 'ablation': ablation, 'k': k, 'tick_us': TICK_US, 'size': list(SIZE),
             'config': {'poll_s': poll_s, 'min_interval_s': min_interval_s, 'call_cap_per_segment': cap,
                        'call_cap_factor': call_cap_factor, 'timeout_s': timeout_s, 'model': MODEL, 'mode': 'offline'},
             'inputs': {key: case[key] for key in ('index_content_sha256', 'records_file_sha256', 'rgb_index_sha256')},
@@ -110,11 +112,11 @@ def estimate(a):
             def spy(body, seen=seen):
                 seen.append(prompt_tokens(body))
                 return canned_transport(body)
-            doc = replay(arm, case, a.cameras, scene, spy, sidecar=e5_run.make_sidecar(a.cameras))
+            doc = replay(arm, case, a.cameras, scene, spy, sidecar=e5_run.make_sidecar(a.cameras), ablation=getattr(a, 'ablation', 'none'))
             sizes[arm] += seen
             report.setdefault(arm, {})[cid] = {'calls_per_replay': len(seen), 'avg_prompt_tokens': round(sum(seen) / len(seen)) if seen else 0,
                                                'call_cap': doc['config']['call_cap_per_segment']}
-    out = {'schema_version': SCHEMA, 'dry_run': True, 'model': MODEL, 'k': a.k, 'cases': a.cases, 'arms': {}}
+    out = {'schema_version': SCHEMA, 'dry_run': True, 'model': MODEL, 'k': a.k, 'cases': a.cases, 'ablation': getattr(a, 'ablation', 'none'), 'arms': {}}
     total = 0.0
     for arm in a.arms:
         per = report[arm]
@@ -197,9 +199,11 @@ def check_formal_gate(a):
              if not (ROOT / rel).is_file() or hashlib.sha256((ROOT / rel).read_bytes()).hexdigest() != want]
     if stale:
         raise SystemExit('FORMAL_PROMPT_SHA_MISMATCH: ' + ', '.join(sorted(stale)))
-    need = {'DEANCHOR', selected}
+    ablation = getattr(a, 'ablation', 'none')
+    need = {selected} if ablation != 'none' else {'DEANCHOR', selected}
     if set(a.arms) != need or len(set(a.arms)) != len(a.arms):
-        raise SystemExit(f'FORMAL_ARMS_REFUSED: arms must be exactly {sorted(need)} (DEANCHOR + SELECTED_AGENT from the receipt)')
+        raise SystemExit(f'FORMAL_ARMS_REFUSED: arms must be exactly {sorted(need)} '
+                         + ('(ablation: the receipt\'s SELECTED_AGENT only)' if ablation != 'none' else '(DEANCHOR + SELECTED_AGENT from the receipt)'))
     return {'path': str(path), 'sha256': hashlib.sha256(raw).hexdigest(), 'SELECTED_AGENT': selected,
             'code_commit_sha': receipt['code_commit_sha']}
 
@@ -210,9 +214,13 @@ def check_paid_request(a):
     if not a.paid:
         raise SystemExit('PAID_RUN_NOT_AUTHORIZED: paid runs need --paid and --max-usd after the coordinator\'s approval (D242)')
     cases = list(a.cases)
+    if getattr(a, 'ablation', 'none') not in ABLATIONS:
+        raise SystemExit('PAID_COMBINATION_REFUSED: bad --ablation')
     if len(set(cases)) != len(cases):
         raise SystemExit('PAID_COMBINATION_REFUSED: duplicate cases')
     if a.k == PAID_K and set(cases) <= set(PAID_CASES):
+        if getattr(a, 'ablation', 'none') != 'none':
+            raise SystemExit('PAID_COMBINATION_REFUSED: ablations run only on the formal 12 segments with K=3 (D403)')
         mode, cap = 'DIAGNOSTIC', MAX_PAID_USD
     elif a.k == FORMAL_K and set(cases) == set(FORMAL_CASES):
         mode, cap = 'FORMAL', MAX_FORMAL_USD
@@ -319,9 +327,19 @@ def paid_run(a, transport=None, guard=None):
     print(json.dumps({'DRY_RUN_FIRST': est['est_total_usd_upper_bound'], 'max_usd': max_usd}), flush=True)
     out = Path(a.out)
     usage_dir = out / 'ledger'
-    cum = cumulative_check(a.baseline_json, [usage_dir] + [Path(d) for d in (a.extra_ledger or [])], est['est_total_usd_upper_bound'], max_usd)
+    ablation = getattr(a, 'ablation', 'none')
     out.mkdir(parents=True, exist_ok=True)
-    atomic_write_json(out / 'PRECHECK.json', {'schema_version': SCHEMA, 'mode': mode, 'receipt': receipt, 'cumulative': cum, 'estimate': est})
+    try:
+        # the ledgers are re-read here, right before any paid call (D403)
+        cum = cumulative_check(a.baseline_json, [usage_dir] + [Path(d) for d in (a.extra_ledger or [])], est['est_total_usd_upper_bound'], max_usd)
+    except SystemExit as exc:
+        if ablation != 'none' and str(exc).startswith(('CUMULATIVE_OVER_CAP', 'ESTIMATE_OVER_MAX_USD')):
+            atomic_write_json(out / 'PRECHECK.json', {'schema_version': SCHEMA, 'mode': mode, 'ablation': ablation, 'receipt': receipt, 'estimate': est})
+            finish(out, 'BUDGET_SKIPPED', str(exc))            # never shrink K or the segment list: skip the whole ablation
+            print('BUDGET_SKIPPED', str(exc), flush=True)
+            return 0
+        raise
+    atomic_write_json(out / 'PRECHECK.json', {'schema_version': SCHEMA, 'mode': mode, 'ablation': ablation, 'receipt': receipt, 'cumulative': cum, 'estimate': est})
     if transport is None:
         transport, guard = guarded_transport(max_usd, usage_dir, 30.0)
     try:
@@ -329,11 +347,12 @@ def paid_run(a, transport=None, guard=None):
             case = frozen.load_case(a.root, cid)
             scene = frozen.live_scene_context(a.cameras, case['cameras'])
             for arm, k in [(arm, k) for arm in a.arms for k in range(1, a.k + 1)]:
-                target = out / cid / f'{arm}.k{k}.json'
+                tag = arm if ablation == 'none' else f'{arm}+{ablation}'
+                target = out / cid / f'{tag}.k{k}.json'
                 if target.exists():                       # final names are only ever created by atomic_write_json
                     print('SKIP_EXISTS', cid, arm, k, flush=True)
                     continue
-                doc = replay(arm, case, a.cameras, scene, transport, k=k)
+                doc = replay(arm, case, a.cameras, scene, transport, k=k, ablation=ablation)
                 doc['config']['max_usd'] = max_usd
                 reject_forbidden(doc, f'{cid}.{arm}', text=False)       # keys only: model free text is data, not a key
                 atomic_write_json(target, doc)
@@ -364,6 +383,8 @@ def main(argv=None):
     parser.add_argument('--max-usd', type=float)
     parser.add_argument('--extra-ledger', nargs='*', help='other ledger dirs whose rows after the baseline count toward the cap')
     parser.add_argument('--receipt', type=Path, help='batch-3 freeze receipt (formal run; default derived, see default_receipt)')
+    parser.add_argument('--ablation', choices=ABLATIONS, default='none',
+                        help='D403: NO_IMAGE / NO_SPATIAL variant of the receipt\'s SELECTED_AGENT (formal K=3 only)')
     parser.add_argument('--paid', action='store_true')
     parser.add_argument('--dry-run', action='store_true')
     a = parser.parse_args(argv)

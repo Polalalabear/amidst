@@ -54,7 +54,10 @@ def collect_runs(run_roots, cases):
                 doc = json.loads(f.read_text())
                 if not isinstance(doc, dict) or 'rows' not in doc or 'arm' not in doc:
                     continue
-                runs.setdefault((cid, ARM_TO_GROUP.get(doc['arm'], doc['arm'])), []).append(doc)
+                group = ARM_TO_GROUP.get(doc['arm'], doc['arm'])
+                if doc.get('ablation') not in (None, 'none'):
+                    group += '+' + doc['ablation']
+                runs.setdefault((cid, group), []).append(doc)
     return runs
 
 
@@ -113,6 +116,8 @@ def main(argv=None):
     ap.add_argument('--frozen-spec', type=Path, required=True)
     ap.add_argument('--gt-root', type=Path, required=True)
     ap.add_argument('--runs', type=Path, nargs='+', required=True)
+    ap.add_argument('--ablation-runs', type=Path, nargs='*', default=[],
+                    help='D403 ablation run roots (<ARM>+NO_IMAGE / <ARM>+NO_SPATIAL logs); exploratory comparison with the selected agent only')
     ap.add_argument('--selected-agent')
     ap.add_argument('--receipt', type=Path, help='BATCH3_FREEZE.json (SELECTED_AGENT is read from it)')
     ap.add_argument('--scorer', type=Path, default=ROOT / 'src/amidst/evaluation/e3_scoring.py')
@@ -127,9 +132,23 @@ def main(argv=None):
     S = F4.load_scorer(a.scorer)
     groups = sorted({'B1', 'AO_ORIG', 'DEANCHOR', selected})
     frozen = load_frozen(a.frozen_spec)
-    segments, points, quality = score(frozen, a.gt_root, a.runs, S, F4.run_scores, groups)
+    skipped, abl_roots, abl_groups = [], [], set()
+    case_ids = [c['case_id'] for c in frozen['formal_cases']]
+    for root in a.ablation_runs:
+        status_file = root / 'STATUS.json'
+        status = json.loads(status_file.read_text()) if status_file.is_file() else {}
+        if status.get('status') == 'BUDGET_SKIPPED':
+            skipped.append({'root': str(root), 'status': 'BUDGET_SKIPPED', 'reason': status.get('reason')})
+            continue
+        abl_roots.append(root)
+        abl_groups |= {g for (_, g) in collect_runs([root], case_ids) if '+' in g}
+    for g in abl_groups:
+        if g.split('+')[0] != selected:
+            raise SystemExit('ABLATION_NOT_ON_SELECTED ' + g)
+    segments, points, quality = score(frozen, a.gt_root, list(a.runs) + abl_roots, S, F4.run_scores, groups + sorted(abl_groups))
     verdict = V.verdict_e6(segments, points, selected_agent=selected)
     verdict['data_quality'] = quality
+    verdict['ablations_skipped'] = skipped
     verdict['frozen_spec_sha256'] = sha_bytes(a.frozen_spec.read_bytes())
     verdict['scorer_sha256'] = F4.SCORER_SHA
     out = a.out
