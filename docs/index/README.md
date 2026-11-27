@@ -1,5 +1,7 @@
 # docs/index — 程式碼↔文件對應索引
 
+> **整理總帳：[CLEANUP_LEDGER.md](CLEANUP_LEDGER.md)**（D409）。專案整理的盤點、刪除、搬移、更新、新增都只記在那一份；動手前先查。
+
 本資料夾存放 Amidst Q1–Q5 專案的**程式碼 ↔ 規格／文件 ↔ 索引**對應紀錄，以及每次檢索的紀錄，供之後：
 
 1. 更新主規格（`docs/specs/Q1Q5_PRODUCT_SPEC.md`）與對應文件；
@@ -10,7 +12,7 @@
 
 - **只記區段**（模組、檔案、文件章節名稱），不記行號；每項只寫「哪裡需要動、為什麼」，不寫修法細節。
 - **檢索紀錄只記錄，不修改**。依紀錄修改規格與文件時另開 issue／PR（例如 D338），並在下方「修改紀錄」追加一筆；檢索紀錄本身只追加補記，不改寫原文。標為「可刪候選」或「可模組化」的項目，刪除或合併都需要使用者授權後另開工作。
-- 每次檢索追加一份新的 `SWEEP_<D號>_<階段>_<日期>.md`，不覆寫舊紀錄。
+- 2026-11-27 起（D409），盤點與整理都記在 [CLEANUP_LEDGER.md](CLEANUP_LEDGER.md)：§2 加一列執行紀錄，§3 更新盤點，不再另開 `SWEEP_*` 檔。既有的 SWEEP 檔保留原樣。
 - 文件內不放絕對家目錄路徑。
 
 ## 類別標籤
@@ -28,6 +30,7 @@
 
 | 檔案 | 日期 | 範圍 | 狀態 |
 | --- | --- | --- | --- |
+| [CLEANUP_LEDGER.md](CLEANUP_LEDGER.md) | 2026-11-27 | 整理總帳（D409）：路徑對照、執行紀錄、全專案大整理盤點、待辦 | 現行；之後的整理都記在這裡 |
 | [SWEEP_D319_PASS1_20261119.md](SWEEP_D319_PASS1_20261119.md) | 2026-11-19 | D319 冗餘清理第一次檢索：src/、frontend/、scripts/、tests/、docs 各主要資料夾 | 已完成並經 Sonnet 全面核對修正（issue #626）；2026-11-19 補記 §2.3（D338） |
 
 ## 對應表
@@ -50,6 +53,7 @@
 | 2026-11-22 | D344／F1 [#660](https://github.com/Polalalabear/amidst/issues/660) | 新增 `E3_PREREGISTRATION_20261122.md`、`E3_SCORER_RECOMPUTE_20261122.md`；`CODE_DOC_MAP.md` 加 E3 統一評分器一列。W2 文件與假設文件 §0 的「IoU 準則 0.761、錯人 6.3 s」依重算結果待後續修正（本 PR 不改） | 本 PR |
 | 2026-11-24 | D377／[#722](https://github.com/Polalalabear/amidst/pull/722) | 新增 `E6_PLAN_20261124.md`；`CODE_DOC_MAP.md` 加 E3、F2、F3、E5、E6、ApiGuard 快取與 LIVE 對應；`AGENT_VS_RULE_HYPOTHESES_20261120.md` §0 加 E5 結果與 E6 指向；`docs/README.md`、AGENTS.md、CLAUDE.md 改指 20261124b 交接；`Q1Q5_PROGRESS.md` 補到 #722。根目錄 `README.md` 由 #719 更新，本次不動 | [#722](https://github.com/Polalalabear/amidst/pull/722) |
 | 2026-11-27 | D407 | `CODE_DOC_MAP.md` §1 的 E6 列拆成 E6 預登／R-N、路線與錄製、Agent 組、一次跑完四列，新增 E7、AO-L 延遲歸零與統一分析、報告資料夾、重現包四列，俯視圖 3D 補 #714；CLAUDE.md、AGENTS.md、`docs/README.md` 改指 `COORDINATOR_HANDOFF_20261127b.md`；`Q1Q5_PROGRESS.md` 補到 #755 | 本 PR（分支 `claude/docs-update-20261127`） |
+| 2026-11-27 | D408／D409 | D408（#757）：舊交接併成 `docs/history/COORDINATOR_HANDOFFS_20261025_20261127.md`，`CODE_DOC_MAP.md` 拆出 `CODE_DOC_MAP_INACTIVE.md`。D409：新增整理總帳 `CLEANUP_LEDGER.md`，之後的盤點與整理只記在那裡；AGENTS.md 來源文件清單加連結 | 本 PR（分支 `claude/docs-bigcleanup-inventory-20261127`） |
 | 2026-11-27 | D408／[#756](https://github.com/Polalalabear/amidst/issues/756) | 索引拆成現行與非現行：`CODE_DOC_MAP.md` 只留 §1、§2；§3、§4 原樣搬到新檔 `CODE_DOC_MAP_INACTIVE.md`；舊交接與 Office 文件搬移對照見 `docs/archive/ARCHIVE_20261027.md` §7 | 本 PR |
 
 ## 論文素材

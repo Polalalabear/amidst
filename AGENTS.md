@@ -42,6 +42,7 @@ This is an engineering demo, not identity, physical-safety, or formal research a
 - [Agent API wiring audit](docs/engineering/AGENT_API_WIRING_AUDIT_20261120.md) — every model call path, ApiGuard coverage; G7 fixed in #655 (`4f665d55`)
 - [E3 report (F4)](docs/operations/F4_E3_REPORT_658.md) — [#678](https://github.com/Polalalabear/amidst/pull/678) (`3c436357`): H1, H2 and H4 not supported for this dependent integration (D354)
 - [Code ↔ document map](docs/index/CODE_DOC_MAP.md) and [index](docs/index/README.md)
+- [Cleanup ledger](docs/index/CLEANUP_LEDGER.md) (D409) — the only record of inventories, deletions, moves and updates; check it before any cleanup or when a file, branch or asset seems missing
 
 ## Git workflow
 
