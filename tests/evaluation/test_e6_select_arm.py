@@ -15,6 +15,12 @@ sys.modules['e6_select_arm'] = M
 _spec.loader.exec_module(M)
 
 SHA = 'a' * 40
+PINNED = ('src/amidst/live_mode/aopen/decider.py', 'docs/evaluation/E6_PREREGISTRATION_DRAFT.md')
+
+
+@pytest.fixture(autouse=True)
+def pinned_files(monkeypatch):
+    monkeypatch.setattr(M, 'PROMPT_FILES', PINNED)       # arms.py only exists once #746 is on main
 
 
 def per_case(wp, fl, follow, calls=40, fmt=0, prov=0, viol=(), budget=0):
@@ -269,3 +275,97 @@ def test_gate_cli_require_ledger(tmp_path, capsys):
     assert M.main(base + ['--ledger', str(tmp_path / 'missing')]) == 0           # dry-run style
     (tmp_path / 'usage.jsonl').write_text('')
     assert M.main(base + ['--ledger', str(tmp_path), '--require-ledger']) == 0
+
+
+# ---------------------------------------------------------------- verify-freeze (D402 mechanical batch-3 gate) and budget-check
+def frozen_world(tmp_path, monkeypatch, selected_metrics=None):
+    """Select once (writes a real receipt) and return everything verify_freeze needs, with the same scored inputs."""
+    metrics = selected_metrics or {'DEANCHOR': (30, 5, .6), 'DEANCHOR_HIST': (10, 5, .6), 'DEANCHOR_HIST_SUM': (20, 5, .6)}
+    fake_sources(monkeypatch, metrics, tmp_path)
+    assert run_select(tmp_path) == 0
+    receipt = json.loads((tmp_path / 'freeze/BATCH3_FREEZE.json').read_text())
+    per = {n: {c: per_case(*v[:3]) | {'wrong_person_s': v[0] / 3, 'false_lock_s': v[1] / 3} for c in M.DIAG_CASES} for n, v in metrics.items()}
+    files = {str(tmp_path / f'{n}.k1.json'): 'f' * 64 for n in metrics}
+    kw = dict(sources=[('r', 'c', 'x')], scorer=Path('s'), agent_estimates={'AO_ORIG': 6.0, 'DEANCHOR': 2.4, 'DEANCHOR_HIST': 2.6, 'DEANCHOR_HIST_SUM': 2.7},
+              artifact_root=tmp_path, frozen_spec=tmp_path / 'spec.json', ledgers=[tmp_path], head=SHA, dirty=False, repo=ROOT,
+              score_fn=lambda sources, scorer: (per, files, 'b' * 64), separation=lambda r, s: (True, 'PASS'))
+    (tmp_path / 'usage.jsonl').write_text('')
+    return receipt, kw, per
+
+
+def test_verify_freeze_passes_when_everything_matches(tmp_path, monkeypatch):
+    receipt, kw, _ = frozen_world(tmp_path, monkeypatch)
+    r = M.verify_freeze(receipt, **kw)
+    assert r['ok'] and all(c['ok'] for c in r['checks'].values()), r['checks']
+    assert set(r['checks']) >= {'receipt_valid', 'selection_recomputed', 'metrics_equal', 'levels_equal', 'diagnostic_files_unchanged', 'scorer_sha',
+                                'prompt_and_config_sha', 'commit_matches_head', 'formal_separation', 'formal_dry_run_le_32_and_cumulative_le_90'}
+    assert r['gate']['groups'] == ['AO_ORIG', 'DEANCHOR', 'DEANCHOR_HIST'] and r['gate']['per_group_budget_usd']['AO_ORIG'] == 6.0
+
+
+@pytest.mark.parametrize('field', ['SELECTED_AGENT', 'metrics', 'levels', 'scorer_sha256', 'diagnostic_run_files_sha256', 'prompt_and_config_sha256', 'code_commit_sha'])
+def test_verify_freeze_fails_on_tampered_receipt_field(tmp_path, monkeypatch, field):
+    receipt, kw, _ = frozen_world(tmp_path, monkeypatch)
+    bad = json.loads(json.dumps(receipt))
+    if field == 'SELECTED_AGENT':
+        bad[field] = 'DEANCHOR'
+    elif field == 'metrics':
+        bad[field]['DEANCHOR']['wrong_person_s'] += 1
+    elif field == 'levels':
+        bad[field][0]['kept'] = ['DEANCHOR']
+    elif field == 'prompt_and_config_sha256':
+        bad[field][PINNED[0]] = '0' * 64
+    elif field == 'code_commit_sha':
+        bad[field] = 'c' * 40
+    else:
+        bad[field] = {'x': 'y'} if field.endswith('files_sha256') else 'e' * 64
+    r = M.verify_freeze(bad, **kw)
+    assert not r['ok']
+    failing = {n for n, c in r['checks'].items() if not c['ok']}
+    assert failing, field
+
+
+def test_verify_freeze_detects_changed_scores_dirty_tree_separation_and_budget(tmp_path, monkeypatch):
+    receipt, kw, per = frozen_world(tmp_path, monkeypatch)
+    changed = json.loads(json.dumps(per))
+    changed['DEANCHOR_HIST']['E3-A1']['wrong_person_s'] = 99.0
+    r = M.verify_freeze(receipt, **(kw | {'score_fn': lambda s, sc: (changed, {k: 'f' * 64 for k in []}, 'b' * 64)}))
+    assert not r['checks']['metrics_equal']['ok'] and not r['checks']['diagnostic_files_unchanged']['ok'] and not r['ok']
+    assert not M.verify_freeze(receipt, **(kw | {'dirty': True}))['checks']['commit_matches_head']['ok']
+    assert not M.verify_freeze(receipt, **(kw | {'separation': lambda r_, s_: (False, 'FORMAL_UNITS_BELOW_MIN')}))['checks']['formal_separation']['ok']
+    big = kw['agent_estimates'] | {'AO_ORIG': 40.0}
+    r = M.verify_freeze(receipt, **(kw | {'agent_estimates': big}))
+    assert not r['checks']['formal_dry_run_le_32_and_cumulative_le_90']['ok'] and r['gate'] is None
+    r = M.verify_freeze(receipt, **(kw | {'ledgers': [tmp_path / 'missing']}))
+    assert 'LEDGER_REQUIRED' in r['checks']['formal_dry_run_le_32_and_cumulative_le_90']['detail']
+
+
+def test_verify_freeze_runs_every_check_and_cli_exit_6(tmp_path, monkeypatch, capsys):
+    receipt, kw, _ = frozen_world(tmp_path, monkeypatch)
+    bad = dict(receipt, SELECTED_AGENT='DEANCHOR_HIST_SUM')
+    r = M.verify_freeze(bad, **kw)
+    assert len(r['checks']) >= 9 and not r['ok']                                   # no short-circuit: the record lists all
+    # CLI: missing receipt -> exit 6 and a record
+    rc = M.main(['verify-freeze', '--receipt', str(tmp_path / 'none.json'), '--source', 'r', 'c', 'x', '--artifact-root', str(tmp_path),
+                 '--frozen-spec', str(tmp_path / 'spec.json')])
+    assert rc == M.EXIT_BATCH3 == 6
+    rec = json.loads((tmp_path / 'VERIFY_FREEZE.json').read_text())
+    assert rec['ok'] is False and 'receipt_exists' in rec['checks']
+
+
+def test_select_refuses_freezing_when_prompt_file_absent(tmp_path, monkeypatch):
+    monkeypatch.setattr(M, 'PROMPT_FILES', PINNED + ('src/amidst/live_mode/aopen/arms_does_not_exist.py',))
+    fake_sources(monkeypatch, {'DEANCHOR': (30, 5, .6)}, tmp_path)
+    assert run_select(tmp_path) == 2 and not (tmp_path / 'freeze/BATCH3_FREEZE.json').exists()
+
+
+def test_budget_check_skips_when_cumulative_would_exceed_cap(tmp_path, capsys):
+    est = tmp_path / 'e.json'
+    est.write_text(json.dumps({'est_total_usd_upper_bound': 10.0}))
+    led = tmp_path / 'led'
+    led.mkdir()
+    (led / 'usage.jsonl').write_text(json.dumps({'est_cost_usd': 41.45 - 38.17}) + '\n')
+    base = ['budget-check', '--estimate', str(est), '--ledger', str(led)]
+    assert M.main(base) == 0                                               # 38.17 + 3.28 + 10 = 51.45
+    assert M.main(base + ['--cap', '51.44']) == M.EXIT_BUDGET_SKIP == 7
+    assert 'BUDGET_SKIPPED' in capsys.readouterr().out
+    assert M.main(['budget-check', '--estimate', str(est), '--ledger', str(tmp_path / 'nope')]) == M.EXIT_GATE      # missing ledger fails closed

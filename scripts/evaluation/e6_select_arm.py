@@ -192,7 +192,8 @@ def git_head(repo: Path) -> tuple[str, bool]:
     return sha, dirty
 
 
-def file_hashes(repo: Path, rels=PROMPT_FILES) -> dict:
+def file_hashes(repo: Path, rels=None) -> dict:
+    rels = PROMPT_FILES if rels is None else rels
     return {r: (sha_bytes((repo / r).read_bytes()) if (repo / r).is_file() else 'UNKNOWN_FILE_ABSENT') for r in rels}
 
 
@@ -221,6 +222,11 @@ def e5_dryrun_total(text: str) -> float:
     return round(total, 6)
 
 
+def receipt_metrics(metrics: dict) -> dict:
+    """Metrics as stored in the receipt (violation list reduced to a count); also used by verify-freeze to compare field by field."""
+    return {a: {k: v for k, v in m.items() if k != 'gt_violations'} | {'gt_violation_count': len(m['gt_violations'])} for a, m in metrics.items()}
+
+
 def build_receipt(*, selected, trace, ineligible, metrics, sources_sha, scorer_sha, commit, repo, formal_estimate, created=None, extra=None):
     return {'schema_version': SCHEMA, 'SELECTED_AGENT': selected, 'identity': 'UNCONFIRMED',
             'created_utc': created or dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -228,8 +234,7 @@ def build_receipt(*, selected, trace, ineligible, metrics, sources_sha, scorer_s
             'pool': list(POOL), 'diagnostic_cases': list(DIAG_CASES), 'k': 1,
             'tolerances': {'wrong_person_s': TIE_WP_S, 'blind_false_lock_s': TIE_FL_S, 'follow_rate': TIE_FOLLOW,
                            'format_return_max': FORMAT_RETURN_MAX, 'provider_error_max': PROVIDER_ERROR_MAX},
-            'metrics': {a: {k: v for k, v in m.items() if k != 'gt_violations'} | {'gt_violation_count': len(m['gt_violations'])}
-                        for a, m in metrics.items()},
+            'metrics': receipt_metrics(metrics),
             'ineligible': {a: r for a, r in ineligible.items() if r}, 'levels': trace,
             'code_commit_sha': commit, 'prompt_and_config_sha256': file_hashes(repo),
             'params': (extra or {}).get('params', {}), 'prompt_extra_sha256': (extra or {}).get('prompt_extra_sha256'),
@@ -337,6 +342,10 @@ def cmd_select(a) -> int:
                             sources_sha=files, scorer_sha=scorer_sha, commit=commit, repo=ROOT,
                             formal_estimate=formal_estimate, extra=extra) | {'worktree_dirty': dirty}
     validate_receipt(receipt)
+    absent = [k for k, v in receipt['prompt_and_config_sha256'].items() if v == 'UNKNOWN_FILE_ABSENT']
+    if absent:
+        print('PROMPT_FILES_ABSENT: cannot freeze without these files in this checkout: ' + ', '.join(absent), file=sys.stderr)
+        return 2
     out.mkdir(parents=True, exist_ok=True)
     with target.open('x') as f:
         json.dump(receipt, f, indent=1, ensure_ascii=False, allow_nan=False)
@@ -344,6 +353,114 @@ def cmd_select(a) -> int:
     (out / 'MANIFEST.sha256').write_text(f'{sha_bytes(target.read_bytes())}  BATCH3_FREEZE.json\n')
     print('SELECTED_AGENT', selected, 'receipt', target)
     return 0
+
+
+EXIT_BATCH3, EXIT_BUDGET_SKIP = 6, 7
+
+
+def norm(x):
+    return json.loads(json.dumps(x, default=list, sort_keys=True))
+
+
+def run_separation(artifact_root: Path, frozen_spec: Path) -> tuple[bool, str]:
+    """check_e6_data_separation.py --mode formal (physical artifacts), in-process."""
+    import contextlib
+    import io
+    mod = sys.modules.get('check_e6_data_separation') or _load('check_e6_data_separation', HERE / 'check_e6_data_separation.py')
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err), contextlib.redirect_stdout(err):
+        code = mod.main(['--mode', 'formal', '--artifact-root', str(artifact_root), '--spec', str(frozen_spec)])
+    return code == 0, (err.getvalue().strip().splitlines() or ['PASS'])[-1][:300]
+
+
+def verify_freeze(receipt: dict, *, sources, scorer: Path, agent_estimates: dict, artifact_root: Path, frozen_spec: Path, ledgers,
+                  base=BASE_SPEND_USD, cap=PROJECT_CAP_USD, head: str, dirty: bool, repo: Path = ROOT, require_ledger=True,
+                  score_fn=None, separation=None) -> dict:
+    """Mechanical batch-3 gate (D402). Every check runs (no short-circuit) so the record shows all failures. Returns
+    {'ok': bool, 'checks': {name: {'ok','detail'}}, 'gate': formal-gate figures or None}."""
+    checks: dict[str, dict] = {}
+    gate = None
+
+    def put(name, ok, detail=''):
+        checks[name] = {'ok': bool(ok), 'detail': detail}
+
+    try:
+        validate_receipt(receipt)
+        put('receipt_valid', True)
+    except ValueError as exc:
+        put('receipt_valid', False, str(exc))
+    try:
+        per, files, scorer_sha = (score_fn or score_sources)(sources, scorer)
+        metrics = {arm: aggregate_arm(arm, per[arm]) for arm in per if arm in POOL}
+        selected, trace, ineligible = choose(metrics)
+        put('diagnostic_files_unchanged', norm(files) == norm(receipt.get('diagnostic_run_files_sha256')), 'sha256 of every scored run file')
+        put('scorer_sha', scorer_sha == receipt.get('scorer_sha256'), scorer_sha[:12])
+        put('selection_recomputed', selected == receipt.get('SELECTED_AGENT'), f'recomputed={selected} receipt={receipt.get("SELECTED_AGENT")}')
+        put('metrics_equal', norm(receipt_metrics(metrics)) == norm(receipt.get('metrics')), 'per-arm metrics field by field')
+        put('levels_equal', norm(trace) == norm(receipt.get('levels')) and norm({a: r for a, r in ineligible.items() if r}) == norm(receipt.get('ineligible')),
+            'ordered-rule trace and ineligibility reasons')
+    except Exception as exc:  # fail closed, record why
+        for n in ('diagnostic_files_unchanged', 'scorer_sha', 'selection_recomputed', 'metrics_equal', 'levels_equal'):
+            put(n, False, f'{type(exc).__name__}: {str(exc)[:160]}')
+    pins = receipt.get('prompt_and_config_sha256') or {}
+    now = file_hashes(repo, tuple(pins) or None)
+    bad = sorted(k for k in set(pins) | set(now) if pins.get(k) != now.get(k) or now.get(k) == 'UNKNOWN_FILE_ABSENT')
+    put('prompt_and_config_sha', bool(pins) and not bad, 'stale/absent: ' + ', '.join(bad) if bad else f'{len(pins)} files equal')
+    put('commit_matches_head', receipt.get('code_commit_sha') == head and not dirty, f'receipt={str(receipt.get("code_commit_sha"))[:10]} head={head[:10]} dirty={dirty}')
+    try:
+        ok, msg = (separation or run_separation)(artifact_root, frozen_spec)
+        put('formal_separation', ok, msg)
+    except Exception as exc:
+        put('formal_separation', False, f'{type(exc).__name__}: {str(exc)[:160]}')
+    try:
+        gate = formal_gate(receipt, agent_estimates, base=base, cap=cap, new_ledger=ledger_new_usd(ledgers, require_ledger))
+        put('formal_dry_run_le_32_and_cumulative_le_90', True, f"formal={gate['formal_total_usd_upper_bound']} cumulative={gate['cumulative_usd_upper_bound']}")
+    except ValueError as exc:
+        put('formal_dry_run_le_32_and_cumulative_le_90', False, str(exc))
+    return {'ok': all(c['ok'] for c in checks.values()), 'checks': checks, 'gate': gate}
+
+
+def cmd_verify(a) -> int:
+    receipt_path = Path(a.receipt)
+    result = {'ok': False, 'checks': {'receipt_exists': {'ok': False, 'detail': str(receipt_path)}}, 'gate': None}
+    if receipt_path.is_file():
+        est = {}
+        if a.arms_estimate:
+            doc = json.loads(Path(a.arms_estimate).read_text())
+            est.update({k: float(v['estimate_upper_bound']['est_total_usd']) for k, v in (doc.get('arms') or {}).items()})
+        if a.ao_estimate:
+            est['AO_ORIG'] = e5_dryrun_total(Path(a.ao_estimate).read_text())
+        head, dirty = (a.code_commit, False) if a.code_commit else git_head(ROOT)
+        result = verify_freeze(json.loads(receipt_path.read_text()), sources=[tuple(s) for s in a.source], scorer=a.scorer, agent_estimates=est,
+                               artifact_root=a.artifact_root, frozen_spec=a.frozen_spec, ledgers=a.ledger or [], base=a.base, cap=a.cap,
+                               head=head, dirty=dirty, require_ledger=not a.no_require_ledger)
+    record = Path(a.record) if a.record else receipt_path.parent / 'VERIFY_FREEZE.json'
+    record.parent.mkdir(parents=True, exist_ok=True)
+    record.write_text(json.dumps({'schema_version': 'e6.verify-freeze.v1', 'checked_utc': dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                  **result}, indent=1, ensure_ascii=False, default=list) + '\n')
+    for name, c in result['checks'].items():
+        print(('PASS ' if c['ok'] else 'FAIL ') + name, '-', c['detail'])
+    if result['ok'] and result['gate'] and a.out:
+        Path(a.out).write_text(json.dumps(result['gate'], indent=1) + '\n')
+    print('BATCH3_GATE', 'PASS' if result['ok'] else 'FAIL')
+    return 0 if result['ok'] else EXIT_BATCH3
+
+
+def cmd_budget(a) -> int:
+    """Re-read the ledgers and decide whether one more paid step (dry-run upper bound) fits the project cap."""
+    est = estimate_total(json.loads(Path(a.estimate).read_text()))
+    try:
+        new = ledger_new_usd(a.ledger or [], True)
+    except ValueError as exc:
+        print('BUDGET_CHECK_FAIL', exc, file=sys.stderr)
+        return EXIT_GATE
+    cumulative = round(a.base + new + est, 6)
+    res = {'estimate_usd_upper_bound': est, 'new_ledger_usd': round(new, 6), 'base_usd': a.base, 'cumulative_usd_upper_bound': cumulative, 'cap_usd': a.cap,
+           'fits': cumulative <= a.cap + EPS, 'max_usd': math.ceil(est * 100 - 1e-9) / 100}
+    if a.out:
+        Path(a.out).write_text(json.dumps(res, indent=1) + '\n')
+    print('BUDGET_FITS' if res['fits'] else 'BUDGET_SKIPPED', json.dumps(res))
+    return 0 if res['fits'] else EXIT_BUDGET_SKIP
 
 
 def cmd_gate(a) -> int:
@@ -392,8 +509,29 @@ def main(argv=None) -> int:
     g.add_argument('--require-ledger', action='store_true', help='fail closed when a ledger is missing (run_all.sh --execute)')
     g.add_argument('--base', type=float, default=BASE_SPEND_USD)
     g.add_argument('--cap', type=float, default=PROJECT_CAP_USD)
+    v = sub.add_parser('verify-freeze', help='mechanical batch-3 gate (D402): recompute the selection, compare the receipt field by field, SHA/commit/separation/budget')
+    v.add_argument('--receipt', type=Path, required=True)
+    v.add_argument('--source', nargs=3, action='append', required=True, metavar=('ROOT', 'CATALOG', 'RUNS'))
+    v.add_argument('--scorer', type=Path, default=ROOT / 'src/amidst/evaluation/e3_scoring.py')
+    v.add_argument('--arms-estimate', type=Path)
+    v.add_argument('--ao-estimate', type=Path)
+    v.add_argument('--artifact-root', type=Path, required=True, help='frozen recording root (case/GT files) for check_e6_data_separation --mode formal')
+    v.add_argument('--frozen-spec', type=Path, required=True)
+    v.add_argument('--ledger', nargs='*')
+    v.add_argument('--no-require-ledger', action='store_true', help='dry-run only: tolerate missing ledgers')
+    v.add_argument('--base', type=float, default=BASE_SPEND_USD)
+    v.add_argument('--cap', type=float, default=PROJECT_CAP_USD)
+    v.add_argument('--code-commit', help='tests only; default git HEAD (tracked files must be clean)')
+    v.add_argument('--record', type=Path, help='default <receipt dir>/VERIFY_FREEZE.json')
+    v.add_argument('--out', type=Path, help='write the formal-gate figures (per-group ApiGuard budgets) for run_all.sh')
+    b = sub.add_parser('budget-check', help='fits one more paid step under the project cap? exit 7 = BUDGET_SKIPPED')
+    b.add_argument('--estimate', type=Path, required=True, help='e6_arms_run.py --dry-run JSON of that step')
+    b.add_argument('--ledger', nargs='*')
+    b.add_argument('--base', type=float, default=BASE_SPEND_USD)
+    b.add_argument('--cap', type=float, default=PROJECT_CAP_USD)
+    b.add_argument('--out', type=Path)
     a = ap.parse_args(argv)
-    return cmd_select(a) if a.cmd == 'select' else cmd_gate(a)
+    return {'select': cmd_select, 'formal-gate': cmd_gate, 'verify-freeze': cmd_verify, 'budget-check': cmd_budget}[a.cmd](a)
 
 
 if __name__ == '__main__':
