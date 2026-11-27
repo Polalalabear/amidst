@@ -2682,6 +2682,30 @@
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
+      "value": "e7_run_notes_v1",
+      "source_paths": [
+        "src/amidst/evaluation/e7_colab_runtime.py"
+      ],
+      "issue_ref": "#766",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e7_group_checkpoint_v1",
+      "source_paths": [
+        "src/amidst/evaluation/e7_colab_runtime.py"
+      ],
+      "issue_ref": "#766",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e7_replay_v1",
+      "source_paths": [
+        "scripts/evaluation/e7_replay_run.py"
+      ],
+      "issue_ref": "#767",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "e6.arm-config.v1",
       "source_paths": [
         "configs/evaluation/e6_arms_v1.json"

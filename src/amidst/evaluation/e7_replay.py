@@ -47,6 +47,25 @@ def snapshot_table(raw_comparison: dict[str, Any], requests: list[dict[str, Any]
     return out
 
 
+def _validate_recorded(parsed: dict[str, Any], cands: list[Any], size: tuple[int, int] = (320, 180)) -> str | None:
+    """E5 ``parse_answer`` checks that matter for delivery: SELECT must name a snapshot candidate (else ``_poll`` would raise
+    StopIteration); OWN_BOX needs a finite in-frame box. Returns the E5 fallback reason or None."""
+    ans = parsed.get("answer")
+    if ans == "SELECT":
+        if not any(c.camera_id == parsed.get("camera_id") and c.id == parsed.get("detection_id") for c in cands):
+            return "UNKNOWN_DETECTION"
+    elif ans == "OWN_BOX":
+        box = parsed.get("box_xyxy")
+        try:
+            ok = (isinstance(box, list) and len(box) == 4 and all(type(x) in (int, float) and math.isfinite(x) for x in box)
+                  and 0 <= box[0] < box[2] <= size[0] and 0 <= box[1] < box[3] <= size[1] and isinstance(parsed.get("camera_id"), str))
+        except OverflowError:
+            ok = False
+        if not ok:
+            return "BAD_OWN_BOX"
+    return None
+
+
 class ReplayAOpenDecider(AOpenDecider):
     def __init__(self, snapshots: dict[int, dict[str, Any]], scene, projector, *, chain_start: str = "snapshot", **kw):
         if chain_start not in CHAIN_STARTS:
@@ -89,6 +108,8 @@ class ReplayAOpenDecider(AOpenDecider):
             rec["fallback_reason"] = "PROVIDER_TIMEOUT"
         elif parsed is None:
             rec["fallback_reason"] = snap.get("fallback_reason") or "FORMAT_INVALID"  # no answer, still consumes latency
+        elif (err := _validate_recorded(parsed, cands)) is not None:
+            rec["fallback_reason"] = err  # replay never trusts the recorded answer: same checks as E5 parse_answer (SELECT / OWN_BOX)
         else:
             rec.update({k: parsed.get(k) for k in ("answer", "camera_id", "detection_id", "box_xyxy", "confidence", "reason")
                         if k in parsed})

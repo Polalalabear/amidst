@@ -246,6 +246,8 @@ def build_pertick_pack(out: Path, roots: list[Path], *, source_commit: str = 'UN
                 ticks, order = case_loader(root, cid)
                 rows += build_pertick_requests(cid, ticks, order)
                 case_ids.append(cid)
+        if not rows:
+            raise ValueError('PERTICK_PACK_EMPTY: no requests built (check --roots / --cases)')
         ids = [r['request_id'] for r in rows]
         if len(ids) != len(set(ids)):
             raise ValueError('DUPLICATE_REQUEST_ID')
