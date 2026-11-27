@@ -1,0 +1,1504 @@
+{
+ "schema": "amidst.e6-routes.v1",
+ "status": "DRAFT_DESIGN_PENDING_OPUS_REVIEW",
+ "issue_ref": "#742",
+ "decision_ref": "D396",
+ "spec_ref": {
+  "path": "configs/evaluation/e6_scenarios_spec_v1.json",
+  "sha256": "5eff6cb4cc260c9692e225fb8d7843e05bf2c7fd22ef711b3670f9bf0b074a83"
+ },
+ "engine": "LIVE_WEBGL_N6_GLB",
+ "coordinates": "Blender world meters (x east, y north), same frame as R004_SCENE_GEOMETRY_2D_V1.json",
+ "step_format": "[mode, arg]: walk/run [x,y] (1.2 / 2.5 m/s), hold seconds, until t_s (hold until simulation time)",
+ "waypoint_format": "[t_s, x, y] linear interpolation; actor absent outside first/last t",
+ "run_margin_s": 8,
+ "min_actor_birth_s": 2.0,
+ "role": "A_PRIVATE_PRODUCTION_PLAN_NO_SCORED_ANSWERS",
+ "cases": [
+  {
+   "case_id": "E6-S01",
+   "family_id": "E6-F01",
+   "start_xy": [
+    -11.0,
+    -2.0
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "hold",
+     2.0
+    ],
+    [
+     "walk",
+     [
+      -12.5,
+      -4.0
+     ]
+    ],
+    [
+     "until",
+     5.6
+    ],
+    [
+     "walk",
+     [
+      -10.5,
+      -3.2
+     ]
+    ],
+    [
+     "run",
+     [
+      -3.35,
+      -0.25
+     ]
+    ],
+    [
+     "run",
+     [
+      0.35,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      4.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      7.4,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -2.0
+     ]
+    ],
+    [
+     "until",
+     23
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      9.5,
+      1.3
+     ]
+    ],
+    [
+     "walk",
+     [
+      11.4,
+      1.3
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR_NEW_RED",
+     "kind": "NEW_ACTOR_RED_VEST_CROSS",
+     "waypoints": [
+      [
+       2.5,
+       2.0,
+       -1.35
+      ],
+      [
+       9.5,
+       2.0,
+       -1.35
+      ],
+      [
+       12.0,
+       3.4,
+       1.8
+      ],
+      [
+       14.0,
+       0.5,
+       1.8
+      ],
+      [
+       17.0,
+       -2.5,
+       0.5
+      ],
+      [
+       20.0,
+       -6.0,
+       0.5
+      ],
+      [
+       22.0,
+       -7.0,
+       0.5
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S01-DP1": "reappear",
+    "E6-S01-DP2": "cross",
+    "E6-S01-DP3": "visible",
+    "E6-S01-DP4": "handoff"
+   },
+   "spec_start_xy": [
+    -13.2,
+    -1.2
+   ],
+   "opening_camera": "CAM_EXT_CAR",
+   "start_adjustment": "spec start sees only ENTRY+W2 (not the planned CAM_EXT_CAR); nearest cell 1.9 m away seen by CAM_EXT_CAR+ENTRY"
+  },
+  {
+   "case_id": "E6-S02",
+   "family_id": "E6-F02",
+   "start_xy": [
+    -11.1,
+    4.2
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "walk",
+     [
+      -3.35,
+      -0.25
+     ]
+    ],
+    [
+     "walk",
+     [
+      0.35,
+      1.6
+     ]
+    ],
+    [
+     "walk",
+     [
+      3.5,
+      1.6
+     ]
+    ],
+    [
+     "run",
+     [
+      9.5,
+      1.3
+     ]
+    ],
+    [
+     "run",
+     [
+      11.4,
+      1.3
+     ]
+    ],
+    [
+     "run",
+     [
+      13.0,
+      1.0
+     ]
+    ],
+    [
+     "run",
+     [
+      13.75,
+      0.5
+     ]
+    ],
+    [
+     "until",
+     22.5
+    ],
+    [
+     "walk",
+     [
+      13.0,
+      1.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      12.0,
+      1.3
+     ]
+    ],
+    [
+     "walk",
+     [
+      10.0,
+      1.3
+     ]
+    ],
+    [
+     "until",
+     32
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR_NEW_RED",
+     "kind": "NEW_ACTOR_RED_CORR_W_MEET",
+     "waypoints": [
+      [
+       2.5,
+       2.0,
+       -1.35
+      ],
+      [
+       10.5,
+       2.0,
+       -1.35
+      ],
+      [
+       11.5,
+       2.2,
+       0.6
+      ],
+      [
+       13.0,
+       4.0,
+       0.6
+      ],
+      [
+       15.0,
+       8.0,
+       -0.3
+      ],
+      [
+       16.5,
+       8.0,
+       -1.5
+      ],
+      [
+       32.0,
+       8.0,
+       -1.5
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S02-DP1": "handoff",
+    "E6-S02-DP2": "split",
+    "E6-S02-DP3": "reappear",
+    "E6-S02-DP4": "visible"
+   },
+   "spec_start_xy": [
+    -12.5,
+    4.2
+   ],
+   "opening_camera": "CAM_EXT_CLEAR",
+   "start_adjustment": "spec start is blind to every camera (seed must be visible at t=0); nearest cell 1.4 m away seen by CAM_EXT_CLEAR"
+  },
+  {
+   "case_id": "E6-S03",
+   "family_id": "E6-F03",
+   "start_xy": [
+    7.0,
+    -2.2
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "hold",
+     2.0
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -4.0
+     ]
+    ],
+    [
+     "until",
+     10.2
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -1.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      9.5,
+      1.2
+     ]
+    ],
+    [
+     "walk",
+     [
+      11.4,
+      1.2
+     ]
+    ],
+    [
+     "until",
+     22.5
+    ],
+    [
+     "walk",
+     [
+      13.0,
+      1.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      14.3,
+      0.45
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR_NEW_RED",
+     "kind": "NEW_ACTOR_RED_PORTAL_SWAP",
+     "waypoints": [
+      [
+       2.5,
+       13.75,
+       0.5
+      ],
+      [
+       7.0,
+       13.75,
+       0.5
+      ],
+      [
+       8.5,
+       12.0,
+       2.0
+      ],
+      [
+       30.0,
+       12.0,
+       2.0
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S03-DP1": "blind",
+    "E6-S03-DP2": "reappear",
+    "E6-S03-DP3": "cross",
+    "E6-S03-DP4": "handoff"
+   },
+   "spec_start_xy": [
+    2.2,
+    -3.2
+   ],
+   "opening_camera": "CAM_R101_IN",
+   "start_adjustment": "spec start is outside every floor (WALK_R101 spans x 5..11); moved into R101 to a cell seen by CAM_R101_IN"
+  },
+  {
+   "case_id": "E6-S04",
+   "family_id": "E6-F04",
+   "start_xy": [
+    -1.1,
+    0.5
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "walk",
+     [
+      5.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -4.0
+     ]
+    ],
+    [
+     "until",
+     16.4
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -1.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      4.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      0.35,
+      0.8
+     ]
+    ],
+    [
+     "until",
+     31
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR_NEW_RED",
+     "kind": "NEW_ACTOR_RED_COUNTERFLOW",
+     "waypoints": [
+      [
+       2.2,
+       13.75,
+       0.5
+      ],
+      [
+       3.2,
+       12.5,
+       1.8
+      ],
+      [
+       8.2,
+       4.0,
+       1.8
+      ],
+      [
+       10.3,
+       0.5,
+       1.8
+      ],
+      [
+       13.0,
+       -2.8,
+       0.6
+      ],
+      [
+       14.0,
+       -3.35,
+       -0.25
+      ],
+      [
+       16.0,
+       -6.0,
+       -0.25
+      ],
+      [
+       31.0,
+       -9.0,
+       -0.25
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S04-DP1": "cross",
+    "E6-S04-DP2": "blind",
+    "E6-S04-DP3": "reappear",
+    "E6-S04-DP4": "visible"
+   },
+   "spec_start_xy": [
+    -3.0,
+    1.4
+   ],
+   "opening_camera": "CAM_W1",
+   "start_adjustment": "spec start is inside a wall clearance (x -3.0 beside the west wall); moved 2.1 m into the corridor, seen by CAM_W1+CAM_W2"
+  },
+  {
+   "case_id": "E6-S05",
+   "family_id": "E6-F05",
+   "start_xy": [
+    14.3,
+    0.45
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "hold",
+     0.5
+    ],
+    [
+     "walk",
+     [
+      16.2,
+      1.85
+     ]
+    ],
+    [
+     "until",
+     4.5
+    ],
+    [
+     "walk",
+     [
+      14.3,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      14.0,
+      1.1
+     ]
+    ],
+    [
+     "until",
+     11.3
+    ],
+    [
+     "walk",
+     [
+      15.8,
+      1.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.2,
+      1.85
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.2,
+      6.5
+     ]
+    ],
+    [
+     "until",
+     19.0
+    ],
+    [
+     "walk",
+     [
+      16.2,
+      4.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.2,
+      1.5
+     ]
+    ],
+    [
+     "until",
+     32
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR_NEW_RED",
+     "kind": "NEW_ACTOR_RED_SCREEN_LOOP",
+     "waypoints": [
+      [
+       2.5,
+       16.7,
+       13.3
+      ],
+      [
+       6.0,
+       17.0,
+       10.0
+      ],
+      [
+       9.0,
+       17.0,
+       6.0
+      ],
+      [
+       11.5,
+       17.0,
+       3.0
+      ],
+      [
+       13.5,
+       16.8,
+       1.0
+      ],
+      [
+       14.5,
+       16.8,
+       1.0
+      ],
+      [
+       16.0,
+       17.0,
+       2.0
+      ],
+      [
+       22.0,
+       17.0,
+       9.0
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S05-DP1": "blind",
+    "E6-S05-DP2": "reappear",
+    "E6-S05-DP3": "cross",
+    "E6-S05-DP4": "visible"
+   },
+   "spec_start_xy": [
+    12.2,
+    1.2
+   ],
+   "opening_camera": "CAM_BRANCH",
+   "start_adjustment": "spec start is seen only by CAM_W2; nearest cell 2.2 m east seen by CAM_BRANCH"
+  },
+  {
+   "case_id": "E6-S06",
+   "family_id": "E6-F06",
+   "start_xy": [
+    16.4,
+    9.2
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "walk",
+     [
+      16.0,
+      3.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      15.0,
+      1.1
+     ]
+    ],
+    [
+     "walk",
+     [
+      14.0,
+      1.1
+     ]
+    ],
+    [
+     "until",
+     12.0
+    ],
+    [
+     "walk",
+     [
+      14.6,
+      0.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      15.8,
+      1.0
+     ]
+    ],
+    [
+     "until",
+     17.0
+    ],
+    [
+     "walk",
+     [
+      13.0,
+      1.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      11.4,
+      1.3
+     ]
+    ],
+    [
+     "walk",
+     [
+      9.5,
+      1.3
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      5.0,
+      0.8
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "A",
+     "role": "SAME_COLOR_DISTRACTOR_NEW_RED",
+     "kind": "NEW_ACTOR_RED_NORTH_EXIT",
+     "waypoints": [
+      [
+       2.5,
+       15.8,
+       1.0
+      ],
+      [
+       4.2,
+       17.0,
+       3.0
+      ],
+      [
+       9.5,
+       17.0,
+       9.5
+      ],
+      [
+       14.0,
+       16.7,
+       13.0
+      ],
+      [
+       30.0,
+       16.7,
+       13.0
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S06-DP1": "cross",
+    "E6-S06-DP2": "reappear",
+    "E6-S06-DP3": "handoff",
+    "E6-S06-DP4": "visible"
+   },
+   "spec_start_xy": [
+    16.4,
+    9.2
+   ],
+   "opening_camera": "CAM_WIDE",
+   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera"
+  },
+  {
+   "case_id": "E6-S07",
+   "family_id": "E6-F07",
+   "start_xy": [
+    -7.2,
+    0.2
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "run",
+     [
+      -12.5,
+      -4.0
+     ]
+    ],
+    [
+     "until",
+     8.5
+    ],
+    [
+     "walk",
+     [
+      -3.35,
+      -0.25
+     ]
+    ],
+    [
+     "run",
+     [
+      0.35,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -2.0
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [
+    {
+     "actor_id": "C",
+     "role": "CONTROL_NON_RED",
+     "kind": "NON_RED_PEDESTRIAN",
+     "waypoints": [
+      [
+       2.5,
+       13.75,
+       0.5
+      ],
+      [
+       13.0,
+       13.75,
+       0.5
+      ],
+      [
+       14.1,
+       12.5,
+       1.8
+      ],
+      [
+       21.4,
+       4.0,
+       1.8
+      ],
+      [
+       24.3,
+       0.5,
+       1.8
+      ],
+      [
+       26.5,
+       -2.0,
+       0.6
+      ],
+      [
+       28.0,
+       -3.35,
+       -0.25
+      ],
+      [
+       30.0,
+       -6.0,
+       -0.25
+      ]
+     ]
+    }
+   ],
+   "dp_kinds": {
+    "E6-S07-DP1": "reappear",
+    "E6-S07-DP2": "handoff",
+    "E6-S07-DP3": "cross",
+    "E6-S07-DP4": "visible"
+   },
+   "spec_start_xy": [
+    -7.2,
+    0.2
+   ],
+   "opening_camera": "CAM_ENTRY",
+   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera"
+  },
+  {
+   "case_id": "E6-S08",
+   "family_id": "E6-F08",
+   "start_xy": [
+    8.4,
+    0.6
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "run",
+     [
+      9.5,
+      1.3
+     ]
+    ],
+    [
+     "run",
+     [
+      11.4,
+      1.3
+     ]
+    ],
+    [
+     "run",
+     [
+      13.0,
+      0.6
+     ]
+    ],
+    [
+     "until",
+     6.5
+    ],
+    [
+     "walk",
+     [
+      14.6,
+      0.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      15.8,
+      1.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.4,
+      4.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.4,
+      6.0
+     ]
+    ],
+    [
+     "until",
+     13.5
+    ],
+    [
+     "run",
+     [
+      16.7,
+      12.8
+     ]
+    ],
+    [
+     "until",
+     19.8
+    ],
+    [
+     "walk",
+     [
+      16.7,
+      11.2
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.4,
+      8.0
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [],
+   "dp_kinds": {
+    "E6-S08-DP1": "reappear",
+    "E6-S08-DP2": "handoff",
+    "E6-S08-DP3": "reappear",
+    "E6-S08-DP4": "visible"
+   },
+   "spec_start_xy": [
+    8.4,
+    0.6
+   ],
+   "opening_camera": "CAM_W2",
+   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera"
+  },
+  {
+   "case_id": "E6-S09",
+   "family_id": "E6-F09",
+   "start_xy": [
+    16.2,
+    4.8
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "hold",
+     2.0
+    ],
+    [
+     "walk",
+     [
+      15.4,
+      4.9
+     ]
+    ],
+    [
+     "until",
+     7.0
+    ],
+    [
+     "walk",
+     [
+      16.4,
+      6.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.4,
+      4.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      15.8,
+      1.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      14.0,
+      1.1
+     ]
+    ],
+    [
+     "until",
+     20.5
+    ],
+    [
+     "walk",
+     [
+      12.0,
+      1.3
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      5.0,
+      0.8
+     ]
+    ],
+    [
+     "until",
+     31
+    ]
+   ],
+   "actors": [],
+   "dp_kinds": {
+    "E6-S09-DP1": "reappear",
+    "E6-S09-DP2": "handoff",
+    "E6-S09-DP3": "reappear",
+    "E6-S09-DP4": "visible"
+   },
+   "spec_start_xy": [
+    16.2,
+    4.8
+   ],
+   "opening_camera": "CAM_WIDE",
+   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera"
+  },
+  {
+   "case_id": "E6-S10",
+   "family_id": "E6-F10",
+   "start_xy": [
+    9.5,
+    -2.2
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "walk",
+     [
+      8.0,
+      -0.8
+     ]
+    ],
+    [
+     "until",
+     6.0
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      4.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      2.0,
+      -1.35
+     ]
+    ],
+    [
+     "until",
+     19.0
+    ],
+    [
+     "walk",
+     [
+      0.5,
+      0.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      -1.4,
+      -0.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      -3.35,
+      -0.25
+     ]
+    ],
+    [
+     "run",
+     [
+      -6.0,
+      -1.5
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [],
+   "dp_kinds": {
+    "E6-S10-DP1": "handoff",
+    "E6-S10-DP2": "handoff",
+    "E6-S10-DP3": "reappear",
+    "E6-S10-DP4": "visible"
+   },
+   "spec_start_xy": [
+    0.8,
+    -4.6
+   ],
+   "opening_camera": "CAM_R101_IN",
+   "start_adjustment": "spec start is outside every floor and R101_IN does not see it; moved into R101 to a cell seen by CAM_R101_IN"
+  },
+  {
+   "case_id": "E6-S11",
+   "family_id": "E6-F11",
+   "start_xy": [
+    14.5,
+    1.17
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "hold",
+     2.0
+    ],
+    [
+     "walk",
+     [
+      14.0,
+      1.1
+     ]
+    ],
+    [
+     "until",
+     7.2
+    ],
+    [
+     "walk",
+     [
+      14.6,
+      0.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      15.8,
+      1.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.4,
+      5.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      16.7,
+      12.8
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [],
+   "dp_kinds": {
+    "E6-S11-DP1": "reappear",
+    "E6-S11-DP2": "handoff",
+    "E6-S11-DP3": "blind",
+    "E6-S11-DP4": "blind"
+   },
+   "spec_start_xy": [
+    14.2,
+    1.8
+   ],
+   "opening_camera": "CAM_BRANCH",
+   "start_adjustment": "spec start is blind to every camera; nearest cell 0.7 m away seen by CAM_BRANCH"
+  },
+  {
+   "case_id": "E6-S12",
+   "family_id": "E6-F12",
+   "start_xy": [
+    0.5,
+    0.9
+   ],
+   "tail_s": 0,
+   "target_steps": [
+    [
+     "hold",
+     2.0
+    ],
+    [
+     "walk",
+     [
+      2.0,
+      -1.35
+     ]
+    ],
+    [
+     "until",
+     6.5
+    ],
+    [
+     "walk",
+     [
+      1.0,
+      0.5
+     ]
+    ],
+    [
+     "run",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -1.0
+     ]
+    ],
+    [
+     "walk",
+     [
+      8.0,
+      -4.0
+     ]
+    ],
+    [
+     "until",
+     17.9
+    ],
+    [
+     "run",
+     [
+      8.0,
+      -2.8
+     ]
+    ],
+    [
+     "run",
+     [
+      8.0,
+      -0.5
+     ]
+    ],
+    [
+     "run",
+     [
+      8.0,
+      0.8
+     ]
+    ],
+    [
+     "run",
+     [
+      9.5,
+      1.3
+     ]
+    ],
+    [
+     "run",
+     [
+      11.4,
+      1.3
+     ]
+    ],
+    [
+     "run",
+     [
+      13.0,
+      0.6
+     ]
+    ],
+    [
+     "until",
+     26.0
+    ],
+    [
+     "walk",
+     [
+      14.6,
+      0.5
+     ]
+    ],
+    [
+     "walk",
+     [
+      15.8,
+      1.5
+     ]
+    ],
+    [
+     "until",
+     30
+    ]
+   ],
+   "actors": [],
+   "dp_kinds": {
+    "E6-S12-DP1": "reappear",
+    "E6-S12-DP2": "handoff",
+    "E6-S12-DP3": "reappear",
+    "E6-S12-DP4": "reappear"
+   },
+   "spec_start_xy": [
+    0.5,
+    0.9
+   ],
+   "opening_camera": "CAM_W1",
+   "start_adjustment": "none: spec start is on a floor, clear of walls and seen by the opening camera"
+  }
+ ]
+}

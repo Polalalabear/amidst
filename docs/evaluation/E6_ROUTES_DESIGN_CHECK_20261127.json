@@ -1,0 +1,1363 @@
+{
+  "schema": "amidst.e6-design-check.v1",
+  "role": "DESIGN_CHECK_NOT_GT_INPUT",
+  "results": [
+    {
+      "case_id": "E6-S01",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_EXT_CAR",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-2.8:CAM_ENTRY+CAM_EXT_CAR",
+        "2.8-3.2:CAM_EXT_CAR",
+        "3.2-6.6:-",
+        "6.6-8.6:CAM_EXT_CAR",
+        "8.6-9.4:CAM_ENTRY+CAM_EXT_CAR",
+        "9.4-10.0:CAM_ENTRY",
+        "10.0-10.4:CAM_ENTRY+CAM_W2",
+        "10.4-11.6:CAM_ENTRY+CAM_EXT_CLEAR+CAM_W2",
+        "11.6-12.4:CAM_EXT_CAR+CAM_EXT_CLEAR+CAM_W2",
+        "12.4-12.6:CAM_EXT_CAR+CAM_W2",
+        "12.6-12.8:CAM_W2",
+        "12.8-19.0:CAM_W1+CAM_W2",
+        "19.0-19.6:CAM_R101_IN+CAM_W1+CAM_W2",
+        "19.6-20.4:CAM_R101_IN+CAM_W2",
+        "20.4-24.8:CAM_R101_IN",
+        "24.8-25.6:CAM_R101_IN+CAM_W2",
+        "25.6-27.4:CAM_W1+CAM_W2",
+        "27.4-30.2:CAM_W2"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 3.2,
+          "end_s": 6.6000000000000005,
+          "duration_s": 3.4
+        }
+      ],
+      "distractor_first_visible_s": 10.2,
+      "closest_any": {
+        "d": 1,
+        "t": 13.8
+      },
+      "closest_co_visible": {
+        "d": 1,
+        "t": 13.8,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S01-DP1",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 6,
+          "realized_t_s": 6.6,
+          "delta_s": 0.6,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S01-DP2",
+          "type": "SIMILAR_CROSSING",
+          "kind": "cross",
+          "t_plan_s": 13,
+          "realized_t_s": 13.8,
+          "delta_s": 0.8,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S01-DP3",
+          "type": "POST_SPLIT_REACQUIRE",
+          "kind": "visible",
+          "t_plan_s": 20,
+          "realized_t_s": 20,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S01-DP4",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 25.5,
+          "realized_t_s": 25.6,
+          "delta_s": 0.1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          6.6
+        ],
+        "handoff": [
+          2.8,
+          9.4,
+          19.6,
+          25.6
+        ],
+        "cross": [
+          13.8
+        ],
+        "split": [
+          15.4
+        ]
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S02",
+      "duration_s": 32,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_EXT_CLEAR",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-2.0:CAM_EXT_CLEAR",
+        "2.0-3.8:CAM_EXT_CAR+CAM_EXT_CLEAR",
+        "3.8-6.2:CAM_ENTRY+CAM_EXT_CAR+CAM_EXT_CLEAR",
+        "6.2-7.0:CAM_ENTRY+CAM_EXT_CAR+CAM_EXT_CLEAR+CAM_W2",
+        "7.0-8.4:CAM_EXT_CAR+CAM_EXT_CLEAR+CAM_W2",
+        "8.4-9.8:CAM_EXT_CAR+CAM_W2",
+        "9.8-11.4:CAM_EXT_CAR+CAM_W1+CAM_W2",
+        "11.4-14.8:CAM_W1+CAM_W2",
+        "14.8-15.4:CAM_R101_IN+CAM_W1+CAM_W2",
+        "15.4-16.4:CAM_W1+CAM_W2",
+        "16.4-17.4:CAM_W2",
+        "17.4-23.4:-",
+        "23.4-25.8:CAM_W2",
+        "25.8-32.2:CAM_W1+CAM_W2"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 17.4,
+          "end_s": 23.4,
+          "duration_s": 6
+        }
+      ],
+      "distractor_first_visible_s": 11,
+      "closest_any": {
+        "d": 1.51,
+        "t": 13
+      },
+      "closest_co_visible": {
+        "d": 1.51,
+        "t": 13,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S02-DP1",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 7.5,
+          "realized_t_s": 7,
+          "delta_s": -0.5,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S02-DP2",
+          "type": "SIMILAR_PARALLEL_SPLIT",
+          "kind": "split",
+          "t_plan_s": 14,
+          "realized_t_s": 16.4,
+          "delta_s": 2.4,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S02-DP3",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 21.5,
+          "realized_t_s": 23.4,
+          "delta_s": 1.9,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S02-DP4",
+          "type": "DISTRACTOR_STILL_VISIBLE_KEEP_T",
+          "kind": "visible",
+          "t_plan_s": 27,
+          "realized_t_s": 27,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          23.4
+        ],
+        "handoff": [
+          7,
+          11.4,
+          16.4
+        ],
+        "cross": [
+          13,
+          14.2,
+          14.8,
+          15.2
+        ],
+        "split": [
+          16.4
+        ]
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S03",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_R101_IN",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-3.4:CAM_R101_IN",
+        "3.4-10.6:-",
+        "10.6-13.6:CAM_R101_IN",
+        "13.6-14.4:CAM_R101_IN+CAM_W2",
+        "14.4-14.6:CAM_W2",
+        "14.6-15.8:CAM_W1+CAM_W2",
+        "15.8-24.0:CAM_W2",
+        "24.0-25.0:-",
+        "25.0-30.2:CAM_BRANCH"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 3.4,
+          "end_s": 10.6,
+          "duration_s": 7.2
+        },
+        {
+          "start_s": 24,
+          "end_s": 25,
+          "duration_s": 1
+        }
+      ],
+      "distractor_first_visible_s": 7.8,
+      "closest_any": {
+        "d": 0.87,
+        "t": 23
+      },
+      "closest_co_visible": {
+        "d": 0.87,
+        "t": 23,
+        "cams": [
+          "CAM_W2"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S03-DP1",
+          "type": "PORTAL_EXIT_BLIND",
+          "kind": "blind",
+          "t_plan_s": 6.5,
+          "realized_t_s": 6.5,
+          "delta_s": 0,
+          "planned_regime": "FULL_BLIND",
+          "spec_regime": "FULL_BLIND",
+          "observed_regime": "FULL_BLIND",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S03-DP2",
+          "type": "BLIND_REAPPEAR_WITH_SIMILAR",
+          "kind": "reappear",
+          "t_plan_s": 12,
+          "realized_t_s": 10.6,
+          "delta_s": -1.4,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S03-DP3",
+          "type": "SIMILAR_CROSSING",
+          "kind": "cross",
+          "t_plan_s": 19,
+          "realized_t_s": 19,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S03-DP4",
+          "type": "CORNER_BRANCH_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 25,
+          "realized_t_s": 25,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          10.6
+        ],
+        "handoff": [
+          14.4,
+          25
+        ],
+        "cross": [
+          17.2,
+          17.4,
+          17.6,
+          17.8,
+          18,
+          18.2,
+          18.4,
+          18.6,
+          18.8,
+          19,
+          19.2,
+          19.4,
+          19.6,
+          19.8,
+          20,
+          20.2,
+          20.4,
+          20.6,
+          20.8,
+          21,
+          21.2,
+          21.4,
+          21.6,
+          21.8,
+          22,
+          22.2,
+          23
+        ],
+        "split": []
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S04",
+      "duration_s": 31,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_W1",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-6.8:CAM_W1+CAM_W2",
+        "6.8-7.6:CAM_R101_IN+CAM_W1+CAM_W2",
+        "7.6-8.4:CAM_R101_IN+CAM_W2",
+        "8.4-11.4:CAM_R101_IN",
+        "11.4-16.8:-",
+        "16.8-19.8:CAM_R101_IN",
+        "19.8-20.6:CAM_R101_IN+CAM_W2",
+        "20.6-21.4:CAM_R101_IN+CAM_W1+CAM_W2",
+        "21.4-31.2:CAM_W1+CAM_W2"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 11.4,
+          "end_s": 16.8,
+          "duration_s": 5.4
+        }
+      ],
+      "distractor_first_visible_s": 3,
+      "closest_any": {
+        "d": 1,
+        "t": 6.6
+      },
+      "closest_co_visible": {
+        "d": 1,
+        "t": 6.6,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S04-DP1",
+          "type": "SIMILAR_CROSSING",
+          "kind": "cross",
+          "t_plan_s": 6,
+          "realized_t_s": 6.6,
+          "delta_s": 0.6,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S04-DP2",
+          "type": "BLIND_ABSTAIN_DISTRACTOR_PRESENT",
+          "kind": "blind",
+          "t_plan_s": 13,
+          "realized_t_s": 13,
+          "delta_s": 0,
+          "planned_regime": "FULL_BLIND",
+          "spec_regime": "FULL_BLIND",
+          "observed_regime": "FULL_BLIND",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S04-DP3",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 19.5,
+          "realized_t_s": 16.8,
+          "delta_s": -2.7,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S04-DP4",
+          "type": "POST_REAPPEAR_STABILITY",
+          "kind": "visible",
+          "t_plan_s": 26,
+          "realized_t_s": 26,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          16.8
+        ],
+        "handoff": [
+          7.6,
+          21.4
+        ],
+        "cross": [
+          6.6
+        ],
+        "split": [
+          7.8
+        ]
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S05",
+      "duration_s": 32,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_BRANCH",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-1.6:CAM_BRANCH",
+        "1.6-5.4:CAM_BRANCH+CAM_WIDE",
+        "5.4-6.4:CAM_BRANCH",
+        "6.4-11.8:-",
+        "11.8-12.4:CAM_BRANCH",
+        "12.4-16.0:CAM_BRANCH+CAM_WIDE",
+        "16.0-20.4:CAM_WIDE",
+        "20.4-32.2:CAM_BRANCH+CAM_WIDE"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 6.4,
+          "end_s": 11.799999999999999,
+          "duration_s": 5.4
+        }
+      ],
+      "distractor_first_visible_s": 4.6,
+      "closest_any": {
+        "d": 0.8,
+        "t": 19.4
+      },
+      "closest_co_visible": {
+        "d": 0.8,
+        "t": 19.4,
+        "cams": [
+          "CAM_WIDE"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S05-DP1",
+          "type": "OCCLUSION_BLIND_WITH_SIMILAR",
+          "kind": "blind",
+          "t_plan_s": 7,
+          "realized_t_s": 7,
+          "delta_s": 0,
+          "planned_regime": "FULL_BLIND",
+          "spec_regime": "FULL_BLIND",
+          "observed_regime": "FULL_BLIND",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S05-DP2",
+          "type": "BRANCH_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 13.5,
+          "realized_t_s": 11.8,
+          "delta_s": -1.7,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S05-DP3",
+          "type": "SIMILAR_CROSSING",
+          "kind": "cross",
+          "t_plan_s": 20.5,
+          "realized_t_s": 19.4,
+          "delta_s": -1.1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S05-DP4",
+          "type": "POST_SPLIT_REACQUIRE",
+          "kind": "visible",
+          "t_plan_s": 26.5,
+          "realized_t_s": 26.5,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          11.8
+        ],
+        "handoff": [
+          5.4,
+          16
+        ],
+        "cross": [
+          13.2,
+          19.4
+        ],
+        "split": [
+          21
+        ]
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S06",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_WIDE",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-3.6:CAM_WIDE",
+        "3.6-6.4:CAM_BRANCH+CAM_WIDE",
+        "6.4-7.4:CAM_BRANCH",
+        "7.4-12.4:-",
+        "12.4-13.4:CAM_BRANCH",
+        "13.4-17.6:CAM_BRANCH+CAM_WIDE",
+        "17.6-18.2:CAM_BRANCH",
+        "18.2-19.4:-",
+        "19.4-21.8:CAM_W2",
+        "21.8-23.4:CAM_W1+CAM_W2",
+        "23.4-23.6:CAM_W2",
+        "23.6-23.8:CAM_R101_IN+CAM_W2",
+        "23.8-24.6:CAM_R101_IN+CAM_W1+CAM_W2",
+        "24.6-30.2:CAM_W1+CAM_W2"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 7.4,
+          "end_s": 12.399999999999999,
+          "duration_s": 5
+        },
+        {
+          "start_s": 18.2,
+          "end_s": 19.4,
+          "duration_s": 1.2
+        }
+      ],
+      "distractor_first_visible_s": 2.6,
+      "closest_any": {
+        "d": 0.98,
+        "t": 4.6
+      },
+      "closest_co_visible": {
+        "d": 0.98,
+        "t": 4.6,
+        "cams": [
+          "CAM_BRANCH",
+          "CAM_WIDE"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S06-DP1",
+          "type": "SIMILAR_CROSSING",
+          "kind": "cross",
+          "t_plan_s": 5.5,
+          "realized_t_s": 4.6,
+          "delta_s": -0.9,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S06-DP2",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 12.5,
+          "realized_t_s": 12.4,
+          "delta_s": -0.1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S06-DP3",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 19,
+          "realized_t_s": 17.6,
+          "delta_s": -1.4,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S06-DP4",
+          "type": "TRUE_DEPARTURE_OR_KEEP_T",
+          "kind": "visible",
+          "t_plan_s": 25,
+          "realized_t_s": 25,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          12.4
+        ],
+        "handoff": [
+          6.4,
+          17.6
+        ],
+        "cross": [
+          4.6
+        ],
+        "split": [
+          6.2
+        ]
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S07",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_ENTRY",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-0.4:CAM_ENTRY+CAM_EXT_CAR+CAM_EXT_CLEAR+CAM_W2",
+        "0.4-0.6:CAM_ENTRY+CAM_EXT_CAR+CAM_W2",
+        "0.6-1.2:CAM_ENTRY+CAM_W2",
+        "1.2-1.8:CAM_ENTRY+CAM_EXT_CAR",
+        "1.8-2.4:CAM_EXT_CAR",
+        "2.4-9.4:-",
+        "9.4-12.8:CAM_EXT_CAR",
+        "12.8-14.0:CAM_ENTRY+CAM_EXT_CAR",
+        "14.0-15.6:CAM_ENTRY",
+        "15.6-16.2:CAM_ENTRY+CAM_W2",
+        "16.2-19.0:CAM_ENTRY+CAM_EXT_CLEAR+CAM_W2",
+        "19.0-20.0:CAM_EXT_CAR+CAM_EXT_CLEAR+CAM_W2",
+        "20.0-20.2:CAM_EXT_CAR+CAM_W2",
+        "20.2-20.4:CAM_W2",
+        "20.4-26.6:CAM_W1+CAM_W2",
+        "26.6-27.2:CAM_R101_IN+CAM_W1+CAM_W2",
+        "27.2-28.0:CAM_R101_IN+CAM_W2",
+        "28.0-30.2:CAM_R101_IN"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 2.4,
+          "end_s": 9.399999999999999,
+          "duration_s": 7
+        }
+      ],
+      "distractor_first_visible_s": 13.8,
+      "closest_any": {
+        "d": 1.02,
+        "t": 22.6
+      },
+      "closest_co_visible": {
+        "d": 1.02,
+        "t": 22.6,
+        "cams": [
+          "CAM_W1",
+          "CAM_W2"
+        ]
+      },
+      "decision_points": [
+        {
+          "dp_id": "E6-S07-DP1",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 8,
+          "realized_t_s": 9.4,
+          "delta_s": 1.4,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S07-DP2",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 14.5,
+          "realized_t_s": 14,
+          "delta_s": -0.5,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S07-DP3",
+          "type": "NON_SIMILAR_CROSSING",
+          "kind": "cross",
+          "t_plan_s": 20.5,
+          "realized_t_s": 22.6,
+          "delta_s": 2.1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S07-DP4",
+          "type": "PORTAL_REACQUIRE",
+          "kind": "visible",
+          "t_plan_s": 25.5,
+          "realized_t_s": 25.5,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          9.4
+        ],
+        "handoff": [
+          14,
+          19,
+          27.2
+        ],
+        "cross": [
+          22.6
+        ],
+        "split": [
+          24.2
+        ]
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S08",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_W2",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-0.4:CAM_W2",
+        "0.4-0.8:CAM_W1+CAM_W2",
+        "0.8-2.0:CAM_W2",
+        "2.0-7.6:-",
+        "7.6-8.6:CAM_BRANCH",
+        "8.6-12.2:CAM_BRANCH+CAM_WIDE",
+        "12.2-15.8:CAM_WIDE",
+        "15.8-21.0:-",
+        "21.0-30.2:CAM_WIDE"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 2,
+          "end_s": 7.6000000000000005,
+          "duration_s": 5.6
+        },
+        {
+          "start_s": 15.8,
+          "end_s": 21,
+          "duration_s": 5.2
+        }
+      ],
+      "distractor_first_visible_s": null,
+      "closest_any": null,
+      "closest_co_visible": null,
+      "decision_points": [
+        {
+          "dp_id": "E6-S08-DP1",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 7,
+          "realized_t_s": 7.6,
+          "delta_s": 0.6,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S08-DP2",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 13.5,
+          "realized_t_s": 12.2,
+          "delta_s": -1.3,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S08-DP3",
+          "type": "SCREEN_OCCLUSION_RETURN",
+          "kind": "reappear",
+          "t_plan_s": 20,
+          "realized_t_s": 21,
+          "delta_s": 1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S08-DP4",
+          "type": "POST_RETURN_STABILITY",
+          "kind": "visible",
+          "t_plan_s": 25.5,
+          "realized_t_s": 25.5,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          7.6,
+          21
+        ],
+        "handoff": [
+          12.2
+        ],
+        "cross": [],
+        "split": []
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S09",
+      "duration_s": 31,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_WIDE",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-2.4:CAM_BRANCH+CAM_WIDE",
+        "2.4-2.6:CAM_BRANCH",
+        "2.6-7.4:-",
+        "7.4-7.6:CAM_BRANCH",
+        "7.6-8.0:CAM_BRANCH+CAM_WIDE",
+        "8.0-9.6:CAM_WIDE",
+        "9.6-13.0:CAM_BRANCH+CAM_WIDE",
+        "13.0-13.6:CAM_BRANCH",
+        "13.6-21.4:-",
+        "21.4-25.4:CAM_W2",
+        "25.4-25.8:CAM_R101_IN+CAM_W2",
+        "25.8-26.6:CAM_R101_IN+CAM_W1+CAM_W2",
+        "26.6-31.2:CAM_W1+CAM_W2"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 2.6,
+          "end_s": 7.4,
+          "duration_s": 4.8
+        },
+        {
+          "start_s": 13.6,
+          "end_s": 21.4,
+          "duration_s": 7.8
+        }
+      ],
+      "distractor_first_visible_s": null,
+      "closest_any": null,
+      "closest_co_visible": null,
+      "decision_points": [
+        {
+          "dp_id": "E6-S09-DP1",
+          "type": "SCREEN_OCCLUSION_RETURN",
+          "kind": "reappear",
+          "t_plan_s": 7.5,
+          "realized_t_s": 7.4,
+          "delta_s": -0.1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S09-DP2",
+          "type": "BRANCH_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 14,
+          "realized_t_s": 13,
+          "delta_s": -1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S09-DP3",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 20.5,
+          "realized_t_s": 21.4,
+          "delta_s": 0.9,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S09-DP4",
+          "type": "POST_RETURN_STABILITY",
+          "kind": "visible",
+          "t_plan_s": 26,
+          "realized_t_s": 26,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          7.4,
+          21.4
+        ],
+        "handoff": [
+          2.4,
+          13
+        ],
+        "cross": [],
+        "split": []
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S10",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_R101_IN",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-6.8:CAM_R101_IN",
+        "6.8-7.6:CAM_R101_IN+CAM_W2",
+        "7.6-8.4:CAM_R101_IN+CAM_W1+CAM_W2",
+        "8.4-12.0:CAM_W1+CAM_W2",
+        "12.0-12.2:CAM_W2",
+        "12.2-19.8:-",
+        "19.8-20.0:CAM_W2",
+        "20.0-22.0:CAM_W1+CAM_W2",
+        "22.0-22.6:CAM_W2",
+        "22.6-23.6:CAM_EXT_CLEAR+CAM_W2",
+        "23.6-24.2:CAM_EXT_CAR+CAM_EXT_CLEAR+CAM_W2",
+        "24.2-24.4:CAM_EXT_CLEAR+CAM_W2",
+        "24.4-24.6:CAM_ENTRY+CAM_EXT_CLEAR+CAM_W2",
+        "24.6-30.2:CAM_ENTRY+CAM_EXT_CLEAR"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 12.2,
+          "end_s": 19.8,
+          "duration_s": 7.6
+        }
+      ],
+      "distractor_first_visible_s": null,
+      "closest_any": null,
+      "closest_co_visible": null,
+      "decision_points": [
+        {
+          "dp_id": "E6-S10-DP1",
+          "type": "PORTAL_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 6.5,
+          "realized_t_s": 8.4,
+          "delta_s": 1.9,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S10-DP2",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 13,
+          "realized_t_s": 12,
+          "delta_s": -1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S10-DP3",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 19.5,
+          "realized_t_s": 19.8,
+          "delta_s": 0.3,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S10-DP4",
+          "type": "OUTDOOR_REACQUIRE",
+          "kind": "visible",
+          "t_plan_s": 25.5,
+          "realized_t_s": 25.5,
+          "delta_s": 0,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          19.8
+        ],
+        "handoff": [
+          8.4,
+          12,
+          24.6
+        ],
+        "cross": [],
+        "split": []
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S11",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_BRANCH",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-2.2:CAM_BRANCH",
+        "2.2-7.6:-",
+        "7.6-8.6:CAM_BRANCH",
+        "8.6-12.2:CAM_BRANCH+CAM_WIDE",
+        "12.2-17.6:CAM_WIDE",
+        "17.6-30.2:-"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 2.2,
+          "end_s": 7.6000000000000005,
+          "duration_s": 5.4
+        },
+        {
+          "start_s": 17.6,
+          "end_s": 30.2,
+          "duration_s": 12.6
+        }
+      ],
+      "distractor_first_visible_s": null,
+      "closest_any": null,
+      "closest_co_visible": null,
+      "decision_points": [
+        {
+          "dp_id": "E6-S11-DP1",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 7.5,
+          "realized_t_s": 7.6,
+          "delta_s": 0.1,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S11-DP2",
+          "type": "CAMERA_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 14,
+          "realized_t_s": 12.2,
+          "delta_s": -1.8,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S11-DP3",
+          "type": "TRUE_DEPARTURE_ABSTAIN",
+          "kind": "blind",
+          "t_plan_s": 20,
+          "realized_t_s": 20,
+          "delta_s": 0,
+          "planned_regime": "FULL_BLIND",
+          "spec_regime": "TRUE_DEPARTURE",
+          "observed_regime": "FULL_BLIND",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S11-DP4",
+          "type": "POST_DEPARTURE_ABSTAIN",
+          "kind": "blind",
+          "t_plan_s": 25,
+          "realized_t_s": 25,
+          "delta_s": 0,
+          "planned_regime": "FULL_BLIND",
+          "spec_regime": "TRUE_DEPARTURE",
+          "observed_regime": "FULL_BLIND",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          7.6
+        ],
+        "handoff": [
+          12.2
+        ],
+        "cross": [],
+        "split": []
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    },
+    {
+      "case_id": "E6-S12",
+      "duration_s": 30,
+      "complete": true,
+      "stalls": 0,
+      "stall_detail": [],
+      "spawn_adjusted": [],
+      "seed_clean_first_2s": true,
+      "visible_first_2s": true,
+      "opening_camera": "CAM_W1",
+      "opening_camera_sees_t0": true,
+      "t_camera_sequence": [
+        "0.0-3.6:CAM_W1+CAM_W2",
+        "3.6-7.2:-",
+        "7.2-7.4:CAM_W2",
+        "7.4-10.8:CAM_W1+CAM_W2",
+        "10.8-11.0:CAM_R101_IN+CAM_W1+CAM_W2",
+        "11.0-11.8:CAM_R101_IN+CAM_W2",
+        "11.8-14.8:CAM_R101_IN",
+        "14.8-18.2:-",
+        "18.2-19.6:CAM_R101_IN",
+        "19.6-20.0:CAM_R101_IN+CAM_W2",
+        "20.0-20.2:CAM_W2",
+        "20.2-20.8:CAM_W1+CAM_W2",
+        "20.8-22.0:CAM_W2",
+        "22.0-27.2:-",
+        "27.2-28.2:CAM_BRANCH",
+        "28.2-30.2:CAM_BRANCH+CAM_WIDE"
+      ],
+      "t_blind_intervals": [
+        {
+          "start_s": 3.6,
+          "end_s": 7.2,
+          "duration_s": 3.6
+        },
+        {
+          "start_s": 14.8,
+          "end_s": 18.2,
+          "duration_s": 3.4
+        },
+        {
+          "start_s": 22,
+          "end_s": 27.2,
+          "duration_s": 5.2
+        }
+      ],
+      "distractor_first_visible_s": null,
+      "closest_any": null,
+      "closest_co_visible": null,
+      "decision_points": [
+        {
+          "dp_id": "E6-S12-DP1",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 6.5,
+          "realized_t_s": 7.2,
+          "delta_s": 0.7,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S12-DP2",
+          "type": "PORTAL_HANDOFF",
+          "kind": "handoff",
+          "t_plan_s": 13,
+          "realized_t_s": 11,
+          "delta_s": -2,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S12-DP3",
+          "type": "BLIND_REAPPEAR",
+          "kind": "reappear",
+          "t_plan_s": 19.5,
+          "realized_t_s": 18.2,
+          "delta_s": -1.3,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        },
+        {
+          "dp_id": "E6-S12-DP4",
+          "type": "BRANCH_REACQUIRE",
+          "kind": "reappear",
+          "t_plan_s": 25.5,
+          "realized_t_s": 27.2,
+          "delta_s": 1.7,
+          "planned_regime": "VISIBLE",
+          "spec_regime": "VISIBLE",
+          "observed_regime": "VISIBLE",
+          "ok": true
+        }
+      ],
+      "events": {
+        "reappear": [
+          7.2,
+          18.2,
+          27.2
+        ],
+        "handoff": [
+          11
+        ],
+        "cross": [],
+        "split": []
+      },
+      "distinct_ticks": true,
+      "all_ok": true
+    }
+  ]
+}

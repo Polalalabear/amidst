@@ -12,7 +12,8 @@ if(!outArg||!assetsArg)throw new Error('usage: record.mjs OUT ASSETS [CASE_IDS..
 const out=path.resolve(outArg),assets=path.resolve(assetsArg),front=path.join(ROOT,'frontend/live-mode');
 const cases=wanted.length?wanted:read(path.join(out,'input-replay.json')).map(r=>r.case_id);
 let active=null;
-const sourceFiles={'/data/scenario.json':path.join(ROOT,'docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json'),
+// E6: E3_SCENARIO_JSON overrides the served scenario (E6 runs); unset keeps the E3 behaviour byte-for-byte.
+const sourceFiles={'/data/scenario.json':process.env.E3_SCENARIO_JSON?path.resolve(process.env.E3_SCENARIO_JSON):path.join(ROOT,'docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json'),
  '/data/geometry.json':path.join(ROOT,'docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json')};
 for(const name of ['scene.glb','character.glb','cameras.three.json'])sourceFiles['/data/'+name]=path.join(assets,name);
 function safeJoin(root,suffix){const p=path.resolve(root,suffix);return p.startsWith(root+path.sep)?p:null;}
