@@ -1,10 +1,10 @@
-> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+> 已封存（2026-10-27，D91），見 [封存索引](../ARCHIVE_20261027.md)。
 
 # Office 可驗證 Demo 計畫（目標 2026-11-01）
 
 > 狀態：2026-10-16 規劃文件，由使用者與 Claude Code 討論後整理。功能凍結 **2026-10-29**，報告 **2026-11-01**（12 分鐘，主流程 10 分鐘＋2 分鐘緩衝）。
-> 證據依據：[綠球診斷](../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)、[接地點 QA](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)、[管線地圖](../engineering/OFFICE_PIPELINE_MAP.md)、[MVP](OFFICE_DEMO_MVP.md)。
-> 本文件不改變 [DEVELOPMENT_RULES](../DEVELOPMENT_RULES.md)：GT 隔離、來源追溯、`MISSING`／`UNKNOWN` 分離與身分 `UNCONFIRMED` 全部照舊。
+> 證據依據：[綠球診斷](../../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)、[接地點 QA](../../engineering/OFFICE_CONTACT_SPATIAL_QA.md)、[管線地圖](../../engineering/OFFICE_PIPELINE_MAP.md)、[MVP](OFFICE_DEMO_MVP.md)。
+> 本文件不改變 [DEVELOPMENT_RULES](../../DEVELOPMENT_RULES.md)：GT 隔離、來源追溯、`MISSING`／`UNKNOWN` 分離與身分 `UNCONFIRMED` 全部照舊。
 
 ## 1. 專案定位（對外說法）
 
@@ -21,7 +21,7 @@
 
 | 工作 | 結果 | 證據 | 狀態 |
 | --- | --- | --- | --- |
-| 綠球跳動診斷 | 椅背遮住圓柱底部＋視線太斜（incidence 0.158–0.188），地板跳 1.7–2.0 m；不是分軌、太小或投影失敗 | [診斷](../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) | 已確認 |
+| 綠球跳動診斷 | 椅背遮住圓柱底部＋視線太斜（incidence 0.158–0.188），地板跳 1.7–2.0 m；不是分軌、太小或投影失敗 | [診斷](../../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) | 已確認 |
 | REAR 未偵測 | REAR 0.0–8.2 s 影格逐像素相同；路線刻意選擇「可見→盲區→可見」 | 同上 | 已確認 |
 | 單位 | 後端已轉公尺（z = 0.496 m） | 同上 | 已排除 |
 | 底部可見驗證 run＋perception v2（Codex） | 62 配對點平均誤差 0.155→0.097 m、最大 0.356→0.133 m；0 個 `SPEED_CAP` 跳點；47/50 時刻有位置。代價：Office 原 31 點在 v2 下全部被拒絕（多為 `LOW_INCIDENCE`） | Codex 報告 `CONTACT_CONTROL_VALIDATION_20261016.md`（Codex 本機 commit `bb3d282`，2026-10-16 尚未推送）；Claude 以其 CSV 獨立重算一致 | 完成，待推送 |
@@ -31,7 +31,7 @@
 ## 3. 方法：觀測 → 假設 → 檢索 → 驗證
 
 1. **觀測（RQ1）— 混合接地估計器。** 腳點可見：v2 地板投影，輸出點。腳點被擋：頭頂射線＋身高範圍（例 1.5–1.9 m），輸出射線上的**區間**；再以已知遮擋物幾何（腳必在遮擋物後方）與可走區域裁剪。輸出統一為「點或線段」。
-   - 不採「只用頭頂映射」：本攝影機配置下更差，見[診斷 §4](../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md#4-頭頂映射可行性分析)。
+   - 不採「只用頭頂映射」：本攝影機配置下更差，見[診斷 §4](../../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md#4-頭頂映射可行性分析)。
 2. **假設（RQ2）— 盲區物理推測曲線。** 輸入盲區兩端狀態、可走區域與門口標註、速度範圍（設定檔，非 GT）、**負證據**（盲區內所有攝影機皆未偵測 → 路徑須落在不可見地板）。在可走區域路徑網格上篩選 K 條代表路徑＋每時刻可能位置範圍。狀態 `INFERRED_HYPOTHESIS`，排序為合理程度而非機率；物理通行性仍 `UNKNOWN`。
 3. **檢索（RQ4）— 可能畫面。** 預算各攝影機地板可見範圍索引；以假設路徑的時空範圍求交集 → 「哪台、哪段」→ 調出影格。對應畫面沿用既有 `timeline`／畫面牆有界索引。
 4. **驗證（閉環）。** 檢索畫面中未偵測 → 新負證據 → 刪除假設 → 帶寬收斂。
@@ -150,4 +150,4 @@
 - 兩台攝影機時盲區只有兩端點；負證據與 RQ3 需多攝影機路線。
 - 走廊攝影機地板可見範圍、E1 場景攝影機配置、Agent 憑證現況：`UNKNOWN`。
 - 物理通行性、碰撞與身分：維持 `UNKNOWN`／`UNCONFIRMED`。
-- 錯誤處理與誤差回報的現況與缺口：見[管線地圖 §6](../engineering/OFFICE_PIPELINE_MAP.md#6-錯誤處理與誤差回報)。
+- 錯誤處理與誤差回報的現況與缺口：見[管線地圖 §6](../../engineering/OFFICE_PIPELINE_MAP.md#6-錯誤處理與誤差回報)。

@@ -99,4 +99,4 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -B /private/tmp/amidst
 
 ## 結論
 
-D1–D3 是**前端呈現設計**與 MVP 期望不符，可在不改後端的情況下以既有 `timeline` API（REPORTED 可用）修復，因此列為第一個實作任務。D4 需要 Codex 的 contract 決定才能完全修正；D5 是小型獨立前端修正；D6 依賴 Codex 的 target receipt 與 2D observation 資料。MVP 範圍與任務順序見 [`OFFICE_DEMO_MVP.md`](../agents/OFFICE_DEMO_MVP.md)、[`OFFICE_DEMO_TASKS.md`](../agents/OFFICE_DEMO_TASKS.md)。
+D1–D3 是**前端呈現設計**與 MVP 期望不符，可在不改後端的情況下以既有 `timeline` API（REPORTED 可用）修復，因此列為第一個實作任務。D4 需要 Codex 的 contract 決定才能完全修正；D5 是小型獨立前端修正；D6 依賴 Codex 的 target receipt 與 2D observation 資料。MVP 範圍與任務順序見 [`OFFICE_DEMO_MVP.md`](../archive/office/OFFICE_DEMO_MVP.md)、[`OFFICE_DEMO_TASKS.md`](../archive/office/OFFICE_DEMO_TASKS.md)。

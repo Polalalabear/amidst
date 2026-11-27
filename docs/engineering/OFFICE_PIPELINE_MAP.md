@@ -131,7 +131,7 @@ HTTP 錯誤回應的統一格式（`service.py`）：UNKNOWN，未閱讀。
 3. 工作台未顯示誤差大小，只有狀態顏色 → K3、K4。
 4. 沒有每個 run 的固定誤差報告 → K2 評估工具。
 
-任務編號見 [OFFICE_DEMO_TASKS.md](../agents/OFFICE_DEMO_TASKS.md) 與 [計畫](../agents/OFFICE_DEMO_PLAN_20261101.md)。
+任務編號見 [OFFICE_DEMO_TASKS.md](../archive/office/OFFICE_DEMO_TASKS.md) 與 [計畫](../archive/office/OFFICE_DEMO_PLAN_20261101.md)。
 
 ## 7. 範圍外／UNKNOWN
 

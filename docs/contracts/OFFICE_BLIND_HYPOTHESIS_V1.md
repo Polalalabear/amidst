@@ -9,7 +9,7 @@ Codex wires it into the backend (task 4, P0). Items marked **OPEN** need Codex
 confirmation; names not found in [OFFICE_DEMO_TARGET_V1](OFFICE_DEMO_TARGET_V1.md)
 or the [pipeline map](../engineering/OFFICE_PIPELINE_MAP.md) are `UNKNOWN`.
 
-Method: [plan §3.2](../agents/OFFICE_DEMO_PLAN_20261101.md#3-方法觀測--假設--檢索--驗證).
+Method: [plan §3.2](../archive/office/OFFICE_DEMO_PLAN_20261101.md#3-方法觀測--假設--檢索--驗證).
 Endpoint ground estimates: [interval observation v1](OFFICE_INTERVAL_OBSERVATION_V1.md).
 Negative evidence from retrieval: [frame retrieval v1](OFFICE_FRAME_RETRIEVAL_V1.md).
 
