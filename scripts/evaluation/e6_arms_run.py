@@ -4,7 +4,7 @@ Dry-run (no network, no key, no ledger; builds the real requests with a local ca
   uv run python -B scripts/evaluation/e6_arms_run.py --root <root> --cameras <catalog> --cases <ids> --k <k> --dry-run
 Two paid runs exist; everything else is refused (--paid and --max-usd are always required):
   DIAGNOSTIC  K=1, cases E3-A1 E3-B1 E3-C1, --max-usd <= 10 (prereg 2.1).
-  FORMAL      K=3, all of E6-S01..E6-S12, --max-usd <= 32; needs the batch-3 freeze receipt (D402: a mechanical gate, no env var;
+  FORMAL      K=3, all of E6-S01..E6-S12, --max-usd <= 45 (D404: raised from the preregistered 32 because the selected group needs three groups); needs the batch-3 freeze receipt (D402: a mechanical gate, no env var;
               BATCH3_FREEZE.json: --receipt, else $E6_FREEZE_DIR, else <evidence root>/e6-batch3-freeze-20261127) with a legal
               SELECTED_AGENT and prompt/config SHA-256 equal to this checkout; --arms must be exactly DEANCHOR + SELECTED_AGENT
               (AO_ORIG runs through e5_run.py, not here).
@@ -159,7 +159,7 @@ PAID_K = 1
 MAX_PAID_USD = 10.0
 FORMAL_CASES = tuple(f'E6-S{i:02d}' for i in range(1, 13))
 FORMAL_K = 3
-MAX_FORMAL_USD = 32.0
+MAX_FORMAL_USD = 45.0       # D404 (prereg 7.1 said 32; user-approved deviation, cumulative cap 90 unchanged)
 RECEIPT_KEYS = ('SELECTED_AGENT', 'code_commit_sha', 'prompt_and_config_sha256', 'params', 'formal_dry_run_estimate', 'scorer_sha256')
 CALLER = 'e6arms'
 
@@ -210,7 +210,7 @@ def check_formal_gate(a):
 
 def check_paid_request(a):
     """Refuse everything except the two registered paid runs: the K=1 diagnostic (E3-A1/B1/C1, <= USD 10) and the formal K=3 run on
-    E6-S01..S12 (<= USD 32, batch-3 gate). Returns (max_usd, mode, receipt-or-None)."""
+    E6-S01..S12 (<= USD 45 per D404, batch-3 gate). Returns (max_usd, mode, receipt-or-None)."""
     if not a.paid:
         raise SystemExit('PAID_RUN_NOT_AUTHORIZED: paid runs need --paid and --max-usd after the coordinator\'s approval (D242)')
     cases = list(a.cases)

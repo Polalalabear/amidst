@@ -200,10 +200,13 @@ def test_gate_passes_within_caps_and_reports_groups():
     assert r['cumulative_usd_upper_bound'] == round(38.17 + 11.0, 6)
 
 
-def test_gate_formal_cap_32_boundary():
-    assert M.formal_gate(receipt('DEANCHOR'), {'AO_ORIG': 20.0, 'DEANCHOR': 12.0})['formal_total_usd_upper_bound'] == 32.0
+def test_gate_formal_cap_45_boundary():                                      # D404: 32 -> 45
+    assert M.FORMAL_CAP_USD == 45.0
+    assert M.formal_gate(receipt('DEANCHOR'), {'AO_ORIG': 25.0, 'DEANCHOR': 20.0})['formal_total_usd_upper_bound'] == 45.0
     with pytest.raises(ValueError, match='FORMAL_OVER_CAP'):
-        M.formal_gate(receipt('DEANCHOR'), {'AO_ORIG': 20.0, 'DEANCHOR': 12.01})
+        M.formal_gate(receipt('DEANCHOR'), {'AO_ORIG': 25.0, 'DEANCHOR': 20.01})
+    # the observed E6 dry-run (AO_ORIG 8.68 + DEANCHOR 16.11 + HIST_SUM 18.95 = 43.74) now fits
+    assert M.formal_gate(receipt('DEANCHOR_HIST_SUM'), {'AO_ORIG': 8.6829, 'DEANCHOR': 16.1064, 'DEANCHOR_HIST_SUM': 18.9532})['formal_total_usd_upper_bound'] == 43.7425
 
 
 def test_gate_cumulative_cap_90_with_ledger():
@@ -298,7 +301,7 @@ def test_verify_freeze_passes_when_everything_matches(tmp_path, monkeypatch):
     r = M.verify_freeze(receipt, **kw)
     assert r['ok'] and all(c['ok'] for c in r['checks'].values()), r['checks']
     assert set(r['checks']) >= {'receipt_valid', 'selection_recomputed', 'metrics_equal', 'levels_equal', 'diagnostic_files_unchanged', 'scorer_sha',
-                                'prompt_and_config_sha', 'commit_matches_head', 'formal_separation', 'formal_dry_run_le_32_and_cumulative_le_90'}
+                                'prompt_and_config_sha', 'commit_matches_head', 'formal_separation', 'formal_dry_run_le_45_and_cumulative_le_90'}
     assert r['gate']['groups'] == ['AO_ORIG', 'DEANCHOR', 'DEANCHOR_HIST'] and r['gate']['per_group_budget_usd']['AO_ORIG'] == 6.0
 
 
@@ -332,11 +335,11 @@ def test_verify_freeze_detects_changed_scores_dirty_tree_separation_and_budget(t
     assert not r['checks']['metrics_equal']['ok'] and not r['checks']['diagnostic_files_unchanged']['ok'] and not r['ok']
     assert not M.verify_freeze(receipt, **(kw | {'dirty': True}))['checks']['commit_matches_head']['ok']
     assert not M.verify_freeze(receipt, **(kw | {'separation': lambda r_, s_: (False, 'FORMAL_UNITS_BELOW_MIN')}))['checks']['formal_separation']['ok']
-    big = kw['agent_estimates'] | {'AO_ORIG': 40.0}
+    big = kw['agent_estimates'] | {'AO_ORIG': 50.0}
     r = M.verify_freeze(receipt, **(kw | {'agent_estimates': big}))
-    assert not r['checks']['formal_dry_run_le_32_and_cumulative_le_90']['ok'] and r['gate'] is None
+    assert not r['checks']['formal_dry_run_le_45_and_cumulative_le_90']['ok'] and r['gate'] is None
     r = M.verify_freeze(receipt, **(kw | {'ledgers': [tmp_path / 'missing']}))
-    assert 'LEDGER_REQUIRED' in r['checks']['formal_dry_run_le_32_and_cumulative_le_90']['detail']
+    assert 'LEDGER_REQUIRED' in r['checks']['formal_dry_run_le_45_and_cumulative_le_90']['detail']
 
 
 def test_verify_freeze_runs_every_check_and_cli_exit_6(tmp_path, monkeypatch, capsys):
