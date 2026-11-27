@@ -1099,7 +1099,7 @@
       "sha256": "2f6216c3157591edb0d0b53f9b2fbf05fa851cf023675d70331d8fac0ab7115d",
       "requires_commit": "2edd32c5c8713d5b59ff38e6552a2aa067a82179",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
-      "reason": "進度導覽補到 #755（D91-4，D407）（PR #755，D407）。只改文件敘述，規則不變；登記不等於核准"
+      "reason": "進度導覽補到 #755（D91-4，PR #755，D407）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }
