@@ -479,7 +479,7 @@ def test_p1b_d392_gt_regime_rejected_and_strict_value_type_validation():
         E7S.validate_colab_answer_entry({"expected_answer": "SELECT", "tick": True}, key="R3")
 
 
-def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
+def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing(tmp_path: Path):
     """P2-1: Cell 6 records unaudited custom-code models as SKIPPED_UNAUDITED and completes Qwen runs."""
     nb = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
     cell1 = next(c for c in nb["cells"] if c.get("id") == "e7-cell-1-config")
@@ -489,6 +489,8 @@ def test_p2_1_notebook_cell6_skips_unaudited_models_without_crashing():
     exec(compile("".join(cell1["source"]), "e7-cell-1-config", "exec"), env)
     env["SMOKE_MODE"] = True
     env["REQUESTS"] = _make_synthetic_requests()
+    env["OUTPUT_DIR"] = tmp_path  # Cell 6 now writes per-group checkpoints (#766)
+    env["HARDWARE_PROVENANCE"] = {"git_commit": "UNKNOWN"}
     exec(compile("".join(cell6["source"]), "e7-cell-6-run-deciders", "exec"), env)
 
     # Qwen (2 modes) and both audited laya parties (text_only) ran cleanly; only diffusion_vlm is SKIPPED_UNAUDITED
