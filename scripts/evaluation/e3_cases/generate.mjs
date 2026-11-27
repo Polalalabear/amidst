@@ -22,7 +22,7 @@ export function setup(assets) {
 }
 export async function generate(route,caseId,env) {
  const {runs,world,cams}=env;
- const run=runs.find(r=>r.run_id===route.run_id+'-v2-4actor');
+ const run=route.run??runs.find(r=>r.run_id===route.run_id+'-v2-4actor');
  const make=()=>createCrowd(run,{actorId:'T',segments:world.segments});
  const crowd=make(),op=createScriptOperator(route);
  const bindings={scene_sha256:await hashBinding({run,segments:world.segments}),
