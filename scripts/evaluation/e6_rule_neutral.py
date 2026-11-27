@@ -37,7 +37,9 @@ class RuleNeutral:
         if no_candidate not in ("UNCERTAIN", "NOT_VISIBLE"):
             raise ValueError("BAD_NO_CANDIDATE")
         self.neutral = NeutralTracker(projector)
-        self.seed_tick, self.last_xy, self.last_xy_tick = seed_tick, list(seed_xy), seed_tick
+        # seed_tick None = B1 never acquired the target (D405): R-N never starts, same as an Agent group with seed_tick=None.
+        self.seed_tick = seed_tick
+        self.last_xy, self.last_xy_tick = (None if seed_xy is None else list(seed_xy)), seed_tick
         self.cap = math.ceil(duration_s / 2 * 1.5)
         self.no_candidate, self.calls, self.last_ask, self.pending = no_candidate, [], None, None
 
@@ -59,7 +61,9 @@ class RuleNeutral:
         if tr["est_xy"] is not None and self.neutral.status == "FOLLOWING":
             self.last_xy, self.last_xy_tick = list(tr["est_xy"]), tick
         kind = (
-            ask_kind(tick, self.last_ask, tr["state"] == "LOST") if tick >= self.seed_tick else None
+            ask_kind(tick, self.last_ask, tr["state"] == "LOST")
+            if self.seed_tick is not None and tick >= self.seed_tick
+            else None
         )
         if kind and len(self.calls) < self.cap:
             candidates = []
@@ -175,9 +179,19 @@ def observations(root, cid, source_hashes):
 
 
 def seed_from_b1(path):
-    """Only first ACQUIRE/time/position may cross this bridge; no selected box is returned."""
+    """Only first ACQUIRE/time/position may cross this bridge; no selected box is returned.
+    A B1 run without any ACQUIRE has no seed: tick/xy are None and ``status`` is NO_B1_ACQUIRE (D405)."""
     b1 = json.loads(path.read_text())
-    seed = next(r for r in b1["rows"] if any(e["type"] == "ACQUIRE" for e in r["events"]))
+    seed = next((r for r in b1["rows"] if any(e["type"] == "ACQUIRE" for e in r["events"])), None)
+    if seed is None:
+        return {
+            "tick": None,
+            "xy": None,
+            "status": "NO_B1_ACQUIRE",
+            "duration_s": len(b1["rows"]) / 5,
+            "b1_sha256": digest(path.read_bytes()),
+            "camera_catalog_sha256": b1["camera_catalog_sha256"],
+        }
     return {
         "tick": seed["tick"],
         "xy": seed["tracking"]["est_xy"],
@@ -193,41 +207,39 @@ def replay_case(projector, cameras, root, b1_runs, cid, out):
     if digest(cameras.read_bytes()) != seed["camera_catalog_sha256"]:
         raise ValueError("CALIBRATION_PIN")
     versions = {
-        arm: RuleNeutral(projector, seed["tick"], seed["xy"], seed["duration_s"], answer)
+        arm: RuleNeutral(projector, seed["tick"], seed["xy"], seed["duration_s"], answer)  # tick/xy None when B1 never acquired
         for arm, answer in [("RN_U", "UNCERTAIN"), ("RN_N", "NOT_VISIBLE")]
     }
     rows, hashes = {arm: [] for arm in versions}, {}
+    no_seed = seed.get("status") == "NO_B1_ACQUIRE"
     for tick, dets in observations(root, cid, hashes):
         for arm, decider in versions.items():
             rows[arm].append(decider.step(tick, dets))
     for arm, decider in versions.items():
         target = out / cid / f"{arm}.json"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(
-            json.dumps(
-                {
-                    "schema": "e6-rn.v1",
-                    "case_id": cid,
-                    "arm": arm,
-                    "k": 1,
-                    "tick_us": 200_000,
-                    "size": [320, 180],
-                    "seed": seed,
-                    "identity": "UNCONFIRMED",
-                    "paid_calls": 0,
-                    "call_cap": decider.cap,
-                    "calls": decider.calls,
-                    "rows": rows[arm],
-                    "sources": hashes,
-                    "code_sha256": digest(Path(__file__).read_bytes()),
-                    "protocol_sha256": digest(
-                        (ROOT / "docs/evaluation/E6_RN_FROZEN_20261124.md").read_bytes()
-                    ),
-                },
-                ensure_ascii=False,
-            )
-            + "\n"
-        )
+        doc = {
+            "schema": "e6-rn.v1",
+            "case_id": cid,
+            "arm": arm,
+            "k": 1,
+            "tick_us": 200_000,
+            "size": [320, 180],
+            "seed": seed,
+            "identity": "UNCONFIRMED",
+            "paid_calls": 0,
+            "call_cap": decider.cap,
+            "calls": decider.calls,
+            "rows": rows[arm],
+            "sources": hashes,
+            "code_sha256": digest(Path(__file__).read_bytes()),
+            "protocol_sha256": digest((ROOT / "docs/evaluation/E6_RN_FROZEN_20261124.md").read_bytes()),
+        }
+        if no_seed:  # D405: complete record, never started; only these documents carry the extra keys (seeded outputs stay byte-identical)
+            doc["seed_source"] = {k: seed[k] for k in ("b1_sha256", "camera_catalog_sha256", "duration_s")}
+            doc["seed"] = None
+            doc["seed_status"] = "NO_B1_ACQUIRE"
+        target.write_text(json.dumps(doc, ensure_ascii=False) + "\n")
         print(cid, arm, len(rows[arm]), len(decider.calls), flush=True)
 
 

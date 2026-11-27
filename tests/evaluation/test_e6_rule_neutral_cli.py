@@ -35,7 +35,7 @@ def sha(b):
     return hashlib.sha256(b).hexdigest()
 
 
-def build_recording(root: Path, cid: str, cameras: Path, b1_runs: Path, n=30):
+def build_recording(root: Path, cid: str, cameras: Path, b1_runs: Path, n=30, acquire=True):
     """indexes/rgb pinned like the E3 recordings; red walker in CAM_W1 for ticks 0-14 and 25-29, blue walker always in CAM_ENTRY."""
     (root / "indexes" / cid).mkdir(parents=True)
     (root / "rgb" / cid).mkdir(parents=True)
@@ -61,7 +61,8 @@ def build_recording(root: Path, cid: str, cameras: Path, b1_runs: Path, n=30):
     (root / "indexes" / cid / "detection_index.json").write_text(json.dumps({
         "records_ref": "detection_index.records.jsonl", "records_file_sha256": sha(rec_raw), "rgb_index_sha256": sha(rgb_raw)}))
     b1 = {"camera_catalog_sha256": sha(cameras.read_bytes()),
-          "rows": [{"tick": t, "events": [{"type": "ACQUIRE"}] if t == 0 else [], "tracking": {"est_xy": [2.0, 2.0]}} for t in range(n)]}
+          "rows": [{"tick": t, "events": [{"type": "ACQUIRE"}] if (t == 0 and acquire) else [],
+                    "tracking": {"est_xy": [2.0, 2.0]} if acquire else {"state": "NEEDS_PICK", "est_xy": None}} for t in range(n)]}
     (b1_runs / cid).mkdir(parents=True, exist_ok=True)
     (b1_runs / cid / "B1.k1.json").write_text(json.dumps(b1))
 
@@ -145,3 +146,34 @@ def test_argument_rules_and_pins(tmp_path, cameras):
         rn.main(["--root", str(root), "--b1-runs", str(b1), "--cameras", str(other), "--out", str(tmp_path / "pin")])
     with pytest.raises(ValueError, match="NO_CASES"):
         rn.main(["--root", str(tmp_path / "empty"), "--b1-runs", str(b1), "--cameras", str(cameras), "--out", str(tmp_path / "nc")])
+
+
+# ---------------------------------------------------------------- D405: B1 never acquired -> R-N never starts (same as an Agent group with seed_tick=None)
+def test_no_b1_acquire_gives_complete_unstarted_records_without_exception(tmp_path, cameras):
+    rn = load(ROOT / "scripts/evaluation/e6_rule_neutral.py", "rn_noseed")
+    root, b1 = tmp_path / "formal", tmp_path / "b1"
+    build_recording(root, "E6-S01", cameras, b1)                       # normal case
+    build_recording(root, "E6-S04", cameras, b1, acquire=False)        # B1 stayed in NEEDS_PICK, no ACQUIRE
+    run_module(rn, ["--root", str(root), "--b1-runs", str(b1), "--cameras", str(cameras), "--out", str(tmp_path / "out")])
+    for arm in ("RN_U", "RN_N"):
+        d = json.loads((tmp_path / "out/E6-S04" / f"{arm}.json").read_text())
+        assert d["seed"] is None and d["seed_status"] == "NO_B1_ACQUIRE" and set(d["seed_source"]) == {"b1_sha256", "camera_catalog_sha256", "duration_s"}
+        assert len(d["rows"]) == 30                                         # every tick has a row, nothing dropped
+        assert all(r["tracking"] == {"state": "LOST", "active_cam": None, "est_xy": None, "lost_ticks": 1, "box": None} for r in d["rows"])
+        assert all(r["decision_source"] == "NEUTRAL" for r in d["rows"]) and d["calls"] == [] and d["paid_calls"] == 0
+        assert d["identity"] == "UNCONFIRMED" and d["call_cap"] > 0
+        ok = json.loads((tmp_path / "out/E6-S01" / f"{arm}.json").read_text())
+        assert "seed_status" not in ok and ok["seed"]["tick"] == 0 and ok["calls"]      # seeded documents carry no new keys
+
+
+def test_seeded_outputs_stay_byte_identical_to_the_golden(tmp_path, cameras):
+    test_old_layout_matches_golden_from_pre_change_script(tmp_path, cameras)
+
+
+def test_ruleneutral_class_with_no_seed_never_asks(cameras):
+    rn = load(ROOT / "scripts/evaluation/e6_rule_neutral.py", "rn_noseed2")
+    d = rn.RuleNeutral(StubProjector(), None, None, 10, "UNCERTAIN")
+    for t in range(60):
+        row = d.step(t, {"CAM_W1": [{"bbox": [10, 10, 40, 100], "score": 0.9, "color": "red"}]})
+        assert row["tracking"]["state"] == "LOST"
+    assert d.calls == [] and d.last_xy is None
