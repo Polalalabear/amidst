@@ -4,9 +4,10 @@ Dry-run (no network, no key, no ledger; builds the real requests with a local ca
   uv run python -B scripts/evaluation/e6_arms_run.py --root <root> --cameras <catalog> --cases <ids> --k <k> --dry-run
 Two paid runs exist; everything else is refused (--paid and --max-usd are always required):
   DIAGNOSTIC  K=1, cases E3-A1 E3-B1 E3-C1, --max-usd <= 10 (prereg 2.1).
-  FORMAL      K=3, all of E6-S01..E6-S12, --max-usd <= 32; needs E6_BATCH3_APPROVED=1 and the batch-3 freeze receipt
-              (BATCH3_FREEZE.json: --receipt, else $E6_FREEZE_DIR, else <evidence root>/e6-batch3-freeze-20261127), and --arms must be
-              exactly DEANCHOR + the receipt's SELECTED_AGENT (AO_ORIG runs through e5_run.py, not here).
+  FORMAL      K=3, all of E6-S01..E6-S12, --max-usd <= 32; needs the batch-3 freeze receipt (D402: a mechanical gate, no env var;
+              BATCH3_FREEZE.json: --receipt, else $E6_FREEZE_DIR, else <evidence root>/e6-batch3-freeze-20261127) with a legal
+              SELECTED_AGENT and prompt/config SHA-256 equal to this checkout; --arms must be exactly DEANCHOR + SELECTED_AGENT
+              (AO_ORIG runs through e5_run.py, not here).
   uv run python -B scripts/evaluation/e6_arms_run.py --root <root> --cameras <catalog> --cases ... --arms ... --k 3 --paid \
       --max-usd <usd> --baseline-json <RECONCILIATION_20261124.json> --out <dir> --extra-ledger <ledger dirs...>
 Order: dry-run estimate -> estimate <= --max-usd -> D375 cumulative check (baseline + new ledger rows in <out>/ledger and every
@@ -172,9 +173,9 @@ def default_receipt(a):
 
 
 def check_formal_gate(a):
-    """Formal 12 segments: needs the approval env var AND the batch-3 freeze receipt, and exactly DEANCHOR + SELECTED_AGENT."""
-    if os.environ.get('E6_BATCH3_APPROVED') != '1':
-        raise SystemExit('FORMAL_NOT_APPROVED: E6_BATCH3_APPROVED=1 is required (batch-3 review + the user\'s approval, prereg 0.2)')
+    """Formal 12 segments (D402: batch 3 is a mechanical gate, the user approved in advance). Needs the freeze receipt (the full
+    `e6_select_arm.py verify-freeze` check is run by run_all.sh before this script), whose SELECTED_AGENT is legal, whose prompt/config
+    SHA-256 match the code in this checkout, and exactly DEANCHOR + SELECTED_AGENT."""
     path = default_receipt(a)
     if not path.is_file():
         raise SystemExit(f'FORMAL_RECEIPT_MISSING: {path}')
@@ -189,6 +190,13 @@ def check_formal_gate(a):
     selected = receipt['SELECTED_AGENT']
     if selected not in ARMS:
         raise SystemExit('FORMAL_RECEIPT_BAD_SELECTED_AGENT')
+    pins = receipt['prompt_and_config_sha256']
+    if not isinstance(pins, dict) or not pins:
+        raise SystemExit('FORMAL_RECEIPT_BAD_PROMPT_SHA: expected {path: sha256}')
+    stale = [rel for rel, want in pins.items()
+             if not (ROOT / rel).is_file() or hashlib.sha256((ROOT / rel).read_bytes()).hexdigest() != want]
+    if stale:
+        raise SystemExit('FORMAL_PROMPT_SHA_MISMATCH: ' + ', '.join(sorted(stale)))
     need = {'DEANCHOR', selected}
     if set(a.arms) != need or len(set(a.arms)) != len(a.arms):
         raise SystemExit(f'FORMAL_ARMS_REFUSED: arms must be exactly {sorted(need)} (DEANCHOR + SELECTED_AGENT from the receipt)')

@@ -297,8 +297,13 @@ def formal_args(tmp_path, **kw):
     return args(tmp_path, **base)
 
 
+def pins(*rels):
+    rels = rels or ('src/amidst/live_mode/aopen/arms.py', 'src/amidst/live_mode/aopen/decider.py', 'configs/evaluation/e6_arms_v1.json')
+    return {r: hashlib.sha256((R.ROOT / r).read_bytes()).hexdigest() for r in rels}
+
+
 def write_receipt(tmp_path, **over):
-    doc = {'SELECTED_AGENT': 'DEANCHOR_HIST', 'code_commit_sha': 'a' * 40, 'prompt_and_config_sha256': 'b' * 64, 'params': {},
+    doc = {'SELECTED_AGENT': 'DEANCHOR_HIST', 'code_commit_sha': 'a' * 40, 'prompt_and_config_sha256': pins(), 'params': {},
            'formal_dry_run_estimate': {}, 'scorer_sha256': 'c' * 64}
     doc.update(over)
     (tmp_path / 'freeze').mkdir(exist_ok=True)
@@ -307,16 +312,31 @@ def write_receipt(tmp_path, **over):
 
 @pytest.fixture
 def approved(monkeypatch):
-    monkeypatch.setenv('E6_BATCH3_APPROVED', '1')
+    monkeypatch.delenv('E6_BATCH3_APPROVED', raising=False)       # D402: no approval env var any more; the receipt is the gate
 
 
-def test_formal_requires_approval_env(tmp_path, monkeypatch):
-    monkeypatch.delenv('E6_BATCH3_APPROVED', raising=False)
+def test_formal_does_not_use_an_env_approval_variable(tmp_path, monkeypatch):
     write_receipt(tmp_path)
-    with pytest.raises(SystemExit, match='FORMAL_NOT_APPROVED'):
+    for value in (None, '0', '1'):
+        if value is None:
+            monkeypatch.delenv('E6_BATCH3_APPROVED', raising=False)
+        else:
+            monkeypatch.setenv('E6_BATCH3_APPROVED', value)
+        assert R.check_paid_request(formal_args(tmp_path))[1] == 'FORMAL'
+
+
+def test_formal_refuses_stale_or_malformed_prompt_pins(tmp_path, approved):
+    write_receipt(tmp_path, prompt_and_config_sha256={**pins(), 'src/amidst/live_mode/aopen/arms.py': '0' * 64})
+    with pytest.raises(SystemExit, match='FORMAL_PROMPT_SHA_MISMATCH.*arms.py'):
         R.check_paid_request(formal_args(tmp_path))
-    monkeypatch.setenv('E6_BATCH3_APPROVED', '0')
-    with pytest.raises(SystemExit, match='FORMAL_NOT_APPROVED'):
+    write_receipt(tmp_path, prompt_and_config_sha256={'no/such/file.py': 'UNKNOWN_FILE_ABSENT'})
+    with pytest.raises(SystemExit, match='FORMAL_PROMPT_SHA_MISMATCH'):
+        R.check_paid_request(formal_args(tmp_path))
+    write_receipt(tmp_path, prompt_and_config_sha256='b' * 64)
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_BAD_PROMPT_SHA'):
+        R.check_paid_request(formal_args(tmp_path))
+    write_receipt(tmp_path, prompt_and_config_sha256={})
+    with pytest.raises(SystemExit, match='FORMAL_RECEIPT_BAD_PROMPT_SHA'):
         R.check_paid_request(formal_args(tmp_path))
 
 
@@ -344,7 +364,7 @@ def test_formal_default_receipt_location(tmp_path, approved, monkeypatch):
     (ev / 'api-usage').mkdir(parents=True)
     (ev / 'e6-batch3-freeze-20261127').mkdir()
     (ev / 'e6-batch3-freeze-20261127' / 'BATCH3_FREEZE.json').write_text(
-        json.dumps({'SELECTED_AGENT': 'DEANCHOR', 'code_commit_sha': 'a', 'prompt_and_config_sha256': 'b', 'params': {},
+        json.dumps({'SELECTED_AGENT': 'DEANCHOR', 'code_commit_sha': 'a', 'prompt_and_config_sha256': pins(), 'params': {},
                     'formal_dry_run_estimate': {}, 'scorer_sha256': 'c'}))
     a = formal_args(tmp_path, receipt=None, arms=['DEANCHOR'], baseline_json=ev / 'api-usage' / 'RECONCILIATION_20261124.json')
     assert R.check_paid_request(a)[1] == 'FORMAL'

@@ -63,10 +63,25 @@ uv run python -B scripts/evaluation/e6_arms_run.py --root local/evidence/e3-652-
 ## 正式 12 段 K=3 付費路徑與 verdict（D401，#721 剩餘兩件；**未執行**）
 
 - `e6_arms_run.py` 的第二個付費模式 **FORMAL**：只接受 `--k 3` 與 `E6-S01`…`E6-S12` 全部 12 段（缺、多、重複都拒絕）、`--max-usd` ∈ (0, 32]。介面對齊 `run_all.sh` 2c：`--root <formal root> --cameras … --cases … --arms … --k 3 --paid --max-usd … --baseline-json … --out … --extra-ledger <ledger dirs…>`。
-- 閘門（任一不過即 SystemExit，不建 transport）：`E6_BATCH3_APPROVED=1`；批 3 凍結收據存在且有全部必要鍵（`SELECTED_AGENT`、`code_commit_sha`、`prompt_and_config_sha256`、`params`、`formal_dry_run_estimate`、`scorer_sha256`），路徑為 `--receipt`，否則 `$E6_FREEZE_DIR/BATCH3_FREEZE.json`，否則 `<evidence root>/e6-batch3-freeze-20261127/BATCH3_FREEZE.json`；`--arms` 必須恰好是 `DEANCHOR` ＋ 收據的 `SELECTED_AGENT`（AO_ORIG 由 `e5_run.py` 跑，不在此）。之後同診斷：估算 ≤ `--max-usd`、累計（38.17＋`<out>/ledger` 與 `--extra-ledger` 之新列＋估算）≤ 90，通過才付費。
+- 閘門（D402：批 3 改機械閘門、使用者事前同意，**不再用 `E6_BATCH3_APPROVED` 環境變數**；完整比對由 `e6_select_arm.py verify-freeze` 負責，本腳本只做下列檢查，任一不過即 SystemExit，不建 transport）：批 3 凍結收據存在且有全部必要鍵（`SELECTED_AGENT`、`code_commit_sha`、`prompt_and_config_sha256`、`params`、`formal_dry_run_estimate`、`scorer_sha256`），路徑為 `--receipt`，否則 `$E6_FREEZE_DIR/BATCH3_FREEZE.json`，否則 `<evidence root>/e6-batch3-freeze-20261127/BATCH3_FREEZE.json`；`SELECTED_AGENT` 合法；收據 `prompt_and_config_sha256`（`{路徑: sha256}`）中每個檔案的 SHA-256 都要等於目前 checkout 的檔案，否則 `FORMAL_PROMPT_SHA_MISMATCH`；`--arms` 必須恰好是 `DEANCHOR` ＋ 收據的 `SELECTED_AGENT`（AO_ORIG 由 `e5_run.py` 跑，不在此）。之後同診斷：估算 ≤ `--max-usd`、累計（38.17＋`<out>/ledger` 與 `--extra-ledger` 之新列＋估算）≤ 90，通過才付費。
 - 輸出 `<out>/<case>/<ARM>.k1.json`…`k3.json`，其餘（原子寫入、PRECHECK／STATUS／MANIFEST、guard 拒絕立即停）同診斷；PRECHECK 記 mode 與收據 SHA-256。
 - G6：`src/amidst/evaluation/e6_verdict.py` 的 `verdict_e6(segments, decision_points, selected_agent=…)`，只用標準庫，`e3_scoring.py` 未動（測試鎖 SHA-256）。
   - 輸入為評分端產出的逐段數字（`wrong_person_s`、`blind_false_lock_s`＝e3 `false_lock_s`、`lost_s`、`follow_rate`、`visible_ticks`）與逐決策點判分（`gt_regime`、`full_track_correct`、`single_correct`）；K 次重複可傳 list（秒數與跟對率取平均、決策點 K 多數決＝嚴格過半）。真值表輔助函式：`full_track_dp_correct`（§3.2 三情境）、`single_dp_correct`。
   - 以家族為單位彙整（秒數加總、跟對率按可見 tick 加權、決策點按點數）；N_dp ≥ 40 且 M ≥ 8，否則 `EXPLORATORY`（附 `verdict_if_formal`）。
   - P1＝DEANCHOR vs AO_ORIG，P2＝SELECTED_AGENT vs B1；C1–C4 IUT；元件 p＝家族層級符號翻轉（M ≤ 12 枚舉 2^M，否則 `random.Random(20261124)` 10000 次），p_h＝四者最大；伴隨 skew、配對 t（自寫不完全 beta，標準庫）、精確符號檢定與 `SKEW_SENSITIVITY_FLAG`（|skew| > 1 且 t 與翻轉在該假設的 Holm 門檻下結論不一致）；家族群集 bootstrap B=10000、seed 20261124，97.5%／95.0% 百分位區間；Holm 0.0125→0.025 正向（含 CI 邊界條件）與反向（四元件 Bonferroni）；否則 `INCONCLUSIVE`；P2 非 `SUPPORTED` 時 `must_report` 帶「改良後仍未證實優於現有規則」。另報分層（VISIBLE／FULL_BLIND＋TRUE_DEPARTURE）、`single_dp_acc` 與精確 McNemar（不併入 C3）、S5 較嚴盲區準則。
   - 測試（`tests/evaluation/test_e6_verdict.py`）涵蓋三情境真值表每個分支、多數決、符號翻轉精確值與 Monte Carlo、t 分布臨界值（2.593／11 df→0.0125、2.201→0.025）、Holm 閘門各分支、SUPPORTED／P2 INCONCLUSIVE／C4 與跟對率擋下／兩者 NOT_SUPPORTED／INCONCLUSIVE／EXPLORATORY（M<8、N_dp<40、邊界 M=8、N_dp=40）／偏態旗標／同家族合併／K 重複／輸入錯誤。
+
+### verdict CLI（`scripts/evaluation/e6_verdict_run.py`；D402，未執行於真實資料）
+
+`e6_verdict.py` 維持只用標準庫的純判定函式；讀 GT 與呼叫凍結評分器的部分放在評分端腳本（可以 import `e3_f4_score`／`e3_scoring`）：
+
+```
+uv run python -B scripts/evaluation/e6_verdict_run.py --frozen-spec configs/evaluation/e6_scenarios_frozen_v1.json \
+  --gt-root <錄製根> --runs <B1 輸出根> <AO_ORIG 輸出根> <arms 輸出根> \
+  (--selected-agent <組別> | --receipt BATCH3_FREEZE.json) --out <dir>
+```
+
+- `--runs` 接受任意個輸出根，每個根的 `<case>/*.json` 依 log 的 `arm` 分組（`AO`→`AO_ORIG`）；缺任何 case／組別即 `RUNS_MISSING` 停止；GT 檔以凍結規格的 `gt_sha256` 驗證（`GT_PIN_MISMATCH`），規格必須是 FROZEN；評分器為 SHA-256 `acacce39…` 的 `e3_scoring.py`（預設 `src/amidst/evaluation/e3_scoring.py`）。輸出目錄已有 `verdict_e6.json` 就拒絕。
+- 每段取 `e3_f4_score.run_scores` 的 primary 指標（錯人秒、`false_lock_s`＝盲區誤鎖秒、`lost_s`、跟對率、可見 tick）；固定決策點以凍結規格的 `gt_regime` 與決策 tick 起 15 tick（3.0 s）窗，依 §3.2 真值表判 `full_track_dp_acc`（K 次逐點多數決）。`single_dp_acc` 需要另外的 K=1 共用先驗快照執行，2c 不產生，故不計（`single_correct=None`，UNKNOWN）。
+- 輸出：`verdict_e6.json`（含 `data_quality`：各組呼叫數、provider 錯誤率）、`VERDICT_E6.md`、`scored_inputs.json`、`MANIFEST.sha256`。
+- 驗證：離線測試用假逐 run 評分（`tests/evaluation/test_e6_verdict_run.py`）；另以真實評分器與本機 12 段凍結 GT 檔做過管線冒煙（各組全 LOST 的合成 log → 跑通、INCONCLUSIVE，未提交）。

@@ -393,3 +393,38 @@ def verdict_e6(segments, decision_points, *, selected_agent='DEANCHOR', n_boot=N
             'must_report': p2_text,
             'notes': ['full_track_dp_acc is the only C3 endpoint; single_dp_acc and McNemar are separate diagnostics',
                       'bootstrap intervals are percentile approximations, sign-flip exactness needs the symmetric null (prereg 4.3)']}
+
+
+def render_markdown(v):
+    """Plain Markdown summary of a ``verdict_e6`` result (numbers only; no interpretation beyond the preregistered verdict words)."""
+    f = lambda x, n=3: 'n/a' if x is None else f'{x:.{n}f}'
+    lines = ['# E6 verdict', '', f"- status: **{v['status']}** (M = {v['M']} families, N_dp = {v['N_dp']}; thresholds: N_dp >= {MIN_DP}, M >= {MIN_FAMILIES})",
+             f"- selected agent group: {v['selected_agent']}; identity: {v['identity']}",
+             f"- SKEW_SENSITIVITY_FLAG: {v['SKEW_SENSITIVITY_FLAG']} {v['skew_flag_components']}"]
+    if v['must_report']:
+        lines.append(f"- **{v['must_report']}**")
+    lines += ['', '## Hypotheses (Holm 0.0125 / 0.025, one-sided)', '',
+              '| h | test vs reference | verdict | formal-if | p_h (IUT max) | p_negative | Holm rank |', '|---|---|---|---|---|---|---|']
+    for h, x in v['hypotheses'].items():
+        lines.append(f"| {h} | {x['test_group']} vs {x['reference_group']} | {x['verdict']} | {x['verdict_if_formal']} | {f(x['p_h'], 5)} | "
+                     f"{f(x['p_negative'], 5)} | {x['holm_rank']} |")
+    for h, x in v['hypotheses'].items():
+        lines += ['', f'### {h} components', '', '| comp | observed | p_flip | p_t | p_sign | skew | 97.5% CI | 95.0% CI |', '|---|---|---|---|---|---|---|---|']
+        for c in COMPONENTS:
+            y = x['components'][c]
+            lines.append(f"| {c} | {f(y['observed'])} | {f(y['p_flip'], 5)} | {f(y['p_t'], 5)} | {f(y['p_sign'], 5)} | {f(y['skew'], 2)} | "
+                         f"[{f(y['ci_97_5'][0])}, {f(y['ci_97_5'][1])}] | [{f(y['ci_95_0'][0])}, {f(y['ci_95_0'][1])}] |")
+    lines += ['', '## Groups (family-aggregated)', '', '| group | wrong-person s | blind false-lock s | lost s | follow rate | full-track dp acc | dp n |', '|---|---|---|---|---|---|---|']
+    for g, x in sorted(v['groups'].items()):
+        lines.append(f"| {g} | {f(x['wrong_person_s'], 1)} | {f(x['blind_false_lock_s'], 1)} | {f(x['lost_s'], 1)} | {f(x['follow_rate'])} | "
+                     f"{f(x['full_track_dp_acc'])} | {x['dp_n']} |")
+    lines += ['', '## Decision-point strata (full-track accuracy)', '', '| group | VISIBLE | FULL_BLIND + TRUE_DEPARTURE |', '|---|---|---|']
+    for g, x in sorted(v['strata_full_track_dp_acc'].items()):
+        a, b = x['VISIBLE'], x['FULL_BLIND+TRUE_DEPARTURE']
+        lines.append(f"| {g} | {f(a['full_track_dp_acc'])} (n={a['n']}) | {f(b['full_track_dp_acc'])} (n={b['n']}) |")
+    lines += ['', '## Single-point paired answer (separate diagnostic, not part of C3)', '']
+    for g, x in sorted(v['single_dp_acc'].items()):
+        lines.append(f"- {g}: n = {x['n']}, accuracy = {f(x['single_dp_acc'])}")
+    lines += ['']
+    lines += [f"- {n}" for n in v['notes']]
+    return '\n'.join(lines) + '\n'
