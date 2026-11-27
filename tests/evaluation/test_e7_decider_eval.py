@@ -715,3 +715,98 @@ def test_notebook_version_box_matches_config():
 
     # version banner + pin check in Cell 1B
     assert "rev-parse" in cell1b and "PINNED_GIT_COMMIT" in cell1b and "raise RuntimeError" in cell1b
+
+
+def _fake_torch(monkeypatch, cuda: bool = True):
+    import sys as _sys
+    import types
+
+    t = types.ModuleType("torch")
+    t.cuda = types.SimpleNamespace(is_available=lambda: cuda, is_bf16_supported=lambda: True)
+    t.bfloat16, t.float16, t.float32 = "torch.bfloat16", "torch.float16", "torch.float32"
+    monkeypatch.setitem(_sys.modules, "torch", t)
+
+
+def test_laya_agent_cached_per_device_and_sha_checked_once(tmp_path: Path, monkeypatch):
+    import sys as _sys
+
+    (tmp_path / "rl_agent_api.py").write_text(
+        "BUILT = []\n"
+        "class RLAgent:\n"
+        "    dtype = 'torch.bfloat16'\n"
+        "    def __init__(self, d, device=None):\n        BUILT.append(device)\n        self.device = device\n"
+        "    def system_one(self, state, questions):\n"
+        "        k = list(questions['pick']['criteria'])[0]\n"
+        "        return {'answers': {'pick': {'type': 'choice', 'choice': k, 'confidence': 0.5}}}\n",
+        encoding="utf-8",
+    )
+    for name in ("rl_common.py", "email_utils.py"):
+        (tmp_path / name).write_text("", encoding="utf-8")
+    patched = {n: hashlib.sha256((tmp_path / n).read_bytes()).hexdigest() for n in E7.LAYA_AUDITED_PY_SHA256}
+    monkeypatch.setattr(E7, "LAYA_AUDITED_PY_SHA256", patched)
+    calls = {"n": 0}
+    real_verify = E7.verify_laya_audited_files
+
+    def counting_verify(d):
+        calls["n"] += 1
+        return real_verify(d)
+
+    monkeypatch.setattr(E7, "verify_laya_audited_files", counting_verify)
+    _fake_torch(monkeypatch, cuda=True)
+    monkeypatch.delitem(_sys.modules, "rl_agent_api", raising=False)
+    monkeypatch.setitem(_sys.modules, "rl_agent_api", None)
+    monkeypatch.delitem(_sys.modules, "rl_agent_api")
+
+    fn = E7.build_laya_native_inference_fn(
+        custom_code_audited=True, audited_commit=E7.LAYA_AUDITED_COMMIT, snapshot_dir=str(tmp_path)
+    )
+    dec = E7.LayaTextDecider(custom_code_audited=True, audited_commit=E7.LAYA_AUDITED_COMMIT, inference_fn=fn)
+    req = _laya_req(2)
+    dec.warmup(accelerated=True)
+    acc = dec.decide(req, accelerated=True)
+    dec.warmup(accelerated=False)
+    unacc = dec.decide(req, accelerated=False)
+    dec.decide(req, accelerated=True)  # reuse cached cuda agent, no new build
+    built = _sys.modules["rl_agent_api"].BUILT
+    assert built == ["cuda", "cpu"]
+    assert calls["n"] == 1
+    assert acc["device"] == "cuda" and acc["dtype"] == "bfloat16"
+    assert unacc["device"] == "cpu" and unacc["dtype"] == "float32"
+
+
+def test_all_three_builders_record_device(monkeypatch):
+    import types
+
+    _fake_torch(monkeypatch, cuda=True)
+
+    class FakeModel:
+        dtype = "torch.bfloat16"
+
+        def to(self, d):
+            self.dev = d
+            return self
+
+        def eval(self):
+            pass
+
+    for name in ("qwen", "diffusion"):
+        rec = E7._runtime_info("cuda", FakeModel.dtype)
+        assert rec == {"device": "cuda", "dtype": "bfloat16"}
+    # decide() copies the inference fn's last_runtime into the record for every adapter type
+    for cls, kw in (
+        (E7.QwenVLDecider, {}),
+        (E7.DiffusionVLMDecider, {"custom_code_audited": True, "audited_commit": "abc"}),
+        (E7.LayaTextDecider, {"custom_code_audited": True, "audited_commit": "abc"}),
+    ):
+        def fn(req, acc):
+            fn.last_runtime = E7._runtime_info("cpu", "torch.float32")
+            return json.dumps({"answer": "NOT_VISIBLE"})
+
+        out = cls(inference_fn=fn, **kw).decide(_laya_req(1), accelerated=False)
+        assert out["device"] == "cpu" and out["dtype"] == "float32"
+        summ = E7._summarize_decisions([out], "cpu_fp32")
+        assert summ["devices"] == ["cpu/float32"]
+    import inspect
+
+    for b in (E7.build_qwen_vl_inference_fn, E7.build_laya_native_inference_fn, E7.build_diffusion_vlm_inference_fn):
+        assert "_runtime_info" in inspect.getsource(b)
