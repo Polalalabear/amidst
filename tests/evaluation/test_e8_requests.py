@@ -139,7 +139,7 @@ def test_no_duplicate_definitions():
 
     def defs(p):
         tree = ast.parse((ROOT / p).read_text())
-        return {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef)) and not n.name.startswith('_')}
+        return {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef)) and not n.name.startswith('_') and n.name != 'main'}  # main = CLI entry point
     existing = set().union(*(defs(p) for p in reused if (ROOT / p).exists()))
     for p in e8:
         assert not (defs(p) & existing), (p, defs(p) & existing)
