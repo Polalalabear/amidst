@@ -10,6 +10,16 @@ Defines the exact directory layout, `MANIFEST.sha256` format, pre-upload enforce
 - **Identity status:** `UNCONFIRMED`.
 - **No paid API calls** in Colab; Colab Pro compute cost is user-borne and recorded in hardware provenance.
 
+## Delivery format and Colab runtime (#766, notebook `2026-11-27-r2`)
+
+- **One zip.** Mac builds `e7-colab-pack.zip` from the pack folder with `python -m amidst.evaluation.e7_colab_runtime make-zip --pack-root <pack_root> --zip <zip>` (runs `verify-pack` first; stored without compression). The zip's SHA-256 goes to the sidecar `e7-colab-pack.zip.sha256` (`<hex>  <name>`) next to it, because `PACK_INFO.json` is inside the zip and cannot contain the zip's own digest. Upload both to `MyDrive/amidst/`.
+- **Colab side (CELL 4):** the zip is checked against the sidecar, extracted to local `/content/e7-colab-pack` (path traversal refused), then `MANIFEST.sha256` is verified on local disk (replaces reading 4252 small files from Drive). A pre-extracted pack at `PACK_ROOT` is still accepted. The zip SHA-256 is written to `RUN_NOTES.json`.
+- **Pinned runtime (Python 3.13):** `torch==2.7.1`, `torchvision==0.22.1` (matching pair, both with cp313 manylinux wheels on PyPI; torch ≥ 2.6 has Dynamo on 3.13), `transformers==4.53.3`, `huggingface_hub==0.33.4`, `safetensors==0.5.3`, `accelerate==1.8.1`. numpy / Pillow / matplotlib are **not** installed or downgraded; CELL 2 only checks minimums (numpy 2.0, Pillow 10, matplotlib 3.8). CELL 2 compares the on-disk version of each pin with the version already imported in memory and stops with "重啟 runtime 後再 Run All" if they differ.
+- **Resume (CELL 6):** after each (party, mode) group a checkpoint `OUTPUT_DIR/checkpoints/<party>__<mode>.json` is written atomically, with a fingerprint (git commit, scope, request count, smoke flag, CPU cap, pins). A rerun skips groups whose fingerprint matches and does not load a model whose modes are all done.
+- **Packaging (CELL 9):** `OUTPUT_DIR/e7-run-<date>/` and `.zip` with `e7_analysis_*`, PNG, checkpoints, `RUN_NOTES.json` (versions, deviations from `RUN_DEVIATIONS`, pack zip SHA-256, per-party HF provenance) and its own `MANIFEST.sha256`.
+- **Provenance (#768):** a model's `weight_files_sha256` lists every weight shard; if none can be hashed, `weights_sha256` is `"UNKNOWN"` with `weights_unknown_reason` (never `RECORD_AT_RUNTIME`). Qwen's `hf_revision` is the commit `66285546d2b821cf421d4f5eb2576359d3770cd3`.
+- Not verified until the user runs the notebook on a fresh L4 runtime (`SMOKE_MODE=True` and `False`, one Run All).
+
 ## Directory Layout
 
 ```text
