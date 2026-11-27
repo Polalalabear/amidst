@@ -2696,6 +2696,14 @@
       ],
       "issue_ref": "#721",
       "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "e6.verdict.v1",
+      "source_paths": [
+        "src/amidst/evaluation/e6_verdict.py"
+      ],
+      "issue_ref": "#721",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }

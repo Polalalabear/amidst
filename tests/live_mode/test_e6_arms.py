@@ -68,9 +68,9 @@ def user_text(body):
     return body['input'][-1]['content'][0]['text']
 
 
-def make(arm, *docs, bodies=None, **kw):
-    return ArmDecider(arm, transport(*docs, bodies=bodies), SCENE, Projection(), call_cap=kw.pop('call_cap', len(docs)),
-                      poll_s=1.0, min_interval_s=1.0, **kw)
+def make(arm, *docs, bodies=None, scene=None, ablation='none', **kw):
+    return ArmDecider(arm, transport(*docs, bodies=bodies), scene or SCENE, Projection(), call_cap=kw.pop('call_cap', len(docs)),
+                      poll_s=1.0, min_interval_s=1.0, ablation=ablation, **kw)
 
 
 # ---- configuration -----------------------------------------------------------------------------------
@@ -321,7 +321,7 @@ def test_ast_no_evaluation_imports_and_no_gt_identifiers(path):
 
 def test_signature_takes_only_observations():
     allowed = {'self', 'tick', 'dets', 'frames', 'rule_state', 'kind', 'arm', 'transport', 'scene', 'projector', 'kw', 'neutral_status',
-               'arm_cfg'}
+               'arm_cfg', 'ablation'}
     for fn in (ArmDecider.__init__, ArmDecider.build_input, ArmDecider.step, ArmDecider._ask, ArmDecider._poll):
         names = set(inspect.signature(fn).parameters)
         assert names <= allowed, (fn, names - allowed)
@@ -347,3 +347,107 @@ AO_DECIDER_SHA = '63fb81c7a7426de726ffdc00644cfd14a849bbda1894e61356b1fa7307ba60
 AO_NEUTRAL_SHA = '9754d50bdc9518868d3e21f7ea6ae5257fa51430fcb548f6961e1b4758874df3'
 AO_VARTEXT_SHA = '16c8666484839f60afc3a7946031ceab7d502df7d672f273d818d308b33bcb9c'
 AO_PREFIX_SHA = '3816b4ae347b787bf2ad5df2db72a1bf80d346d79bd26707f33a26416de3127f'
+
+
+# ---- D403 ablations (applied to the selected agent only) ------------------------------------------------------------------------
+RICH_SCENE = {'schema': 'amidst.scene.v1', 'identity': 'UNCONFIRMED', 'physical_walkability': 'UNKNOWN',
+              'regions': [{'id': 'R1', 'kind': 'corridor', 'floor': 'F1'}],
+              'region_edges': [{'id': 'E1', 'regions': ['R1', 'R2'], 'state': 'OPEN', 'traversability': 'UNKNOWN', 'via': None}],
+              'camera_transitions': [{'id': 'T1', 'from': 'A', 'to': 'B', 'disposition': 'TRANSITION', 'approval': 'DRAFT'}],
+              'excluded_camera_pairs': [{'from': 'A', 'to': 'C', 'reason': 'x'}],
+              'cameras': [{'camera_id': c, 'position_m': [1.5, 2.5, 3.5], 'yaw_deg': 12.5, 'fov_deg': 90.0, 'footprint': [[0, 0], [4, 4]]}
+                          for c in 'ABCD'],
+              'overlaps': [{'cameras': ['A', 'B'], 'overlap_area_m2': 3.0, 'overlap_iou': 0.2}], 'sources': {'a': 'b'}}
+SPATIAL_WORDS = ('position', 'yaw', 'fov', 'footprint', 'region', 'overlaps', 'overlap_', 'transition', 'topolog', 'traversal', 'adjacen', 'last_known',
+                 'est_xy', 'ground')
+
+
+def request_body(arm, ablation, frames, ticks=range(0, 3)):
+    bodies = []
+    d = make(arm, answer('UNCERTAIN'), bodies=bodies, scene=RICH_SCENE, ablation=ablation)
+    run_ticks(d, frames, ticks)
+    return bodies[0], d.calls[0]['request']
+
+
+def parts(body):
+    return [p for it in body['input'] for p in it['content']]
+
+
+def test_ablation_none_is_byte_identical_to_the_pre_ablation_request(frames):
+    gold = {'DEANCHOR': ('49b5bed08d9610c9ebaf12b4876e6ac87e7cffb2c9526b149b031383d4ecf89d', 'a4a012b3bba03b63df305518e36a24d1f6b2a6169793b1256f3d9b7b61f52a36'),
+            'DEANCHOR_HIST': ('abe31838c6af2438b04f5a54df70847cf9265b8e5ac5de8836407c17371f0141', 'e2381b848d68a3695592e9da34edeb60eed342ae400b93fbb2f2f0fe79b82fa3'),
+            'DEANCHOR_HIST_SUM': ('f5c6e58976113b574f793abb294644cb54d2623b29aafb9600938763c7dc9d40', 'e2381b848d68a3695592e9da34edeb60eed342ae400b93fbb2f2f0fe79b82fa3')}
+    for arm in ARMS:
+        bodies = []
+        d = make(arm, answer('UNCERTAIN'), bodies=bodies)               # default ablation, SCENE
+        run_ticks(d, frames, range(0, 3))
+        r = d.calls[0]['request']
+        assert (r['prefix_sha256'], hashlib.sha256(r['variable_text'].encode()).hexdigest()) == gold[arm]
+        assert r['ablation'] == 'none' and d.calls[0]['ablation'] == 'none'
+
+
+@pytest.mark.parametrize('arm', ARMS)
+def test_no_image_has_no_image_and_everything_else_is_the_selected_request(arm, frames):
+    base, rb = request_body(arm, 'none', frames)
+    abl, ra = request_body(arm, 'NO_IMAGE', frames)
+    assert any(p['type'] == 'input_image' for p in parts(base))
+    text = json.dumps(abl)
+    assert not [p for p in parts(abl) if p['type'] == 'input_image'] and 'data:image' not in text and 'image_url' not in text
+    assert ra['images'] == {} and ra['reference'] is None and ra['ablation'] == 'NO_IMAGE'
+    # same structured input: variable text, candidates, scene context, model parameters identical to the selected request
+    assert ra['variable_text'] == rb['variable_text'] and ra['candidate_list'] == rb['candidate_list']
+    assert user_text(abl) == user_text(base)
+    scene_line = lambda b: [ln for ln in b['input'][0]['content'][0]['text'].splitlines() if ln.startswith('SCENE_CONTEXT')]
+    assert scene_line(abl) == scene_line(base)
+    for k in ('model', 'max_output_tokens', 'text', 'prompt_cache_key'):
+        assert abl[k] == base[k]
+    # prompt sentences that mention the removed images are gone
+    prefix = abl['input'][0]['content'][0]['text'] + json.dumps(abl['input'][1])
+    for word in ('reference crop', 'TARGET REFERENCE', 'shown frames', 'these frames', 'request frames', 'frames alone', 'crop'):
+        assert word not in prefix, word
+    assert 'a person wearing red' in json.dumps(abl['input'][1])
+    assert '[frame' not in text
+
+
+@pytest.mark.parametrize('arm', ARMS)
+def test_no_spatial_keeps_images_and_drops_every_spatial_field(arm, frames):
+    base, rb = request_body(arm, 'none', frames)
+    abl, ra = request_body(arm, 'NO_SPATIAL', frames)
+    assert [p for p in parts(abl) if p['type'] == 'input_image'] == [p for p in parts(base) if p['type'] == 'input_image']
+    assert ra['images'] == rb['images'] and ra['reference'] == rb['reference'] and ra['candidate_list'] == rb['candidate_list']
+    prefix = abl['input'][0]['content'][0]['text']
+    ctx = json.loads(prefix.split('SCENE_CONTEXT=')[1].splitlines()[0])
+    assert set(ctx) == {'schema', 'identity', 'cameras'} and ctx['cameras'] == [{'camera_id': c} for c in 'ABCD']
+    low = (prefix + ra['variable_text']).lower()
+    for w in SPATIAL_WORDS:
+        assert w not in low, w
+    # the camera ids and the in-frame box coordinates stay
+    assert 'A D1' in ra['variable_text'] or '- A D1' in ra['variable_text'] or 'box [' in ra['variable_text']
+    assert ra['variable_text'] == rb['variable_text'].replace(' Camera properties are in the scene context.', '')
+    assert user_text(abl) == ra['variable_text']
+    assert 'physical traversal' not in prefix and 'Camera properties' not in user_text(abl)
+    # the selected request does mention them (so the test above is meaningful)
+    assert 'position_m' in base['input'][0]['content'][0]['text'] and 'region' in base['input'][0]['content'][0]['text']
+
+
+def test_ablation_variants_differ_only_where_expected(frames):
+    base, _ = request_body('DEANCHOR_HIST', 'none', frames)
+    ni, _ = request_body('DEANCHOR_HIST', 'NO_IMAGE', frames)
+    ns, _ = request_body('DEANCHOR_HIST', 'NO_SPATIAL', frames)
+    assert user_text(ni) == user_text(base) and ni['input'][-1]['content'][0] == base['input'][-1]['content'][0]
+    assert ns['input'][1] == base['input'][1]                                    # reference layer (text and image) untouched
+    assert len(parts(ns)) == len(parts(base))
+
+
+def test_bad_ablation_is_refused():
+    with pytest.raises(ValueError, match='BAD_ABLATION'):
+        make('DEANCHOR', ablation='NO_AUDIO')
+    with pytest.raises(ValueError, match='BAD_ABLATION'):
+        A.static_prefix(SCENE, 'x', 'bogus')
+
+
+def test_ablation_runs_still_ask_and_apply_like_the_selected_agent(frames):
+    for abl in ('NO_IMAGE', 'NO_SPATIAL'):
+        d = make('DEANCHOR_HIST', answer(), answer('UNCERTAIN'), scene=RICH_SCENE, ablation=abl)
+        run_ticks(d, frames, range(0, 14))
+        assert d.calls[0]['applied'] and d.calls[0]['ablation'] == abl and len(d.calls) == 2
