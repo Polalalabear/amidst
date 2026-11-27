@@ -20,6 +20,12 @@ Defines the exact directory layout, `MANIFEST.sha256` format, pre-upload enforce
 - **Provenance (#768):** a model's `weight_files_sha256` lists every weight shard; if none can be hashed, `weights_sha256` is `"UNKNOWN"` with `weights_unknown_reason` (never `RECORD_AT_RUNTIME`). Qwen's `hf_revision` is the commit `66285546d2b821cf421d4f5eb2576359d3770cd3`.
 - Not verified until the user runs the notebook on a fresh L4 runtime (`SMOKE_MODE=True` and `False`, one Run All).
 
+## Per-tick requests-only pack and real-latency replay (#767)
+
+- **Why:** E7 snapshots are every 10 ticks (2 s); E5 scores every tick. Qwen (~6 s/answer) is replayed on the Mac through the unchanged E5 AO-L machinery (`src/amidst/evaluation/e7_replay.py`, `scripts/evaluation/e7_replay_run.py`): the request starting at tick t uses the latest snapshot at or before t and its answer is delivered after that request's measured latency (`AOpenDecider` simlive `_poll`, `chain_box` IoU ≥ 0.3, `NeutralTracker`). Primary chain start = the snapshot tick (stricter); the ask-tick variant is a sensitivity column. Format fallbacks are "no answer" (they still occupy their latency). laya (~40 ms) is rerun on Colab GPU with one text_only request per tick, then replayed the same way (latency < 0.2 s: effective on the next tick).
+- **Pack:** `python scripts/evaluation/build_e7_colab_pack.py --pertick --roots <E3 roots> --out <pack>` writes only `requests/e3_16_segments.jsonl` (one text_only request per tick, no `image_paths`), `PACK_INFO.json`, `MANIFEST.sha256`. It reads NO GT, has NO `scoring_only/`, NO frames, NO baselines; `verify_requests_only_pack` rejects any answer table or GT file/key. Zip it with `python -m amidst.evaluation.e7_colab_runtime make-zip --requests-only ...`.
+- **Notebook settings for that run (CELL 1):** `PACK_ZIP` = the per-tick zip, `RUN_PARTIES = ["laya_text", "laya_typed"]`, `RUN_UNACCELERATED = False` (skips the CPU pass), `SCORE_ON_COLAB = False` (CELL 7 skipped; CELL 8 writes `e7_raw_comparisons.json`). Scoring stays on the Mac.
+
 ## Directory Layout
 
 ```text
