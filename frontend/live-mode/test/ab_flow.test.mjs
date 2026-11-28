@@ -270,8 +270,16 @@ test('B browser selects via frame, map and list, downloads receipts and clears o
     await waitText('#target-candidates', 'CAM_W2');
     assert.equal(await page.$eval('#candidate-frames', element => element.hidden), true);
     assert.match(await page.$eval('#h1v', element => element.textContent), /跟蹤中/);
-    const map = await (await page.$('#map')).boundingBox();
-    await page.mouse.click(map.x + (2 + 1) * (288 / 22), map.y + 288 - (1 + 1) * (288 / 22));
+    const mapClick = await page.$eval('#map', (canvas, [x, y]) => {
+      const rect = canvas.getBoundingClientRect();
+      // The fixture's 20 m square has 1 m of padding on each side.
+      const scale = Math.min(canvas.width, canvas.height) / 22;
+      const markerX = (x + 1) * scale;
+      const markerY = canvas.height - (y + 1) * scale;
+      return [rect.left + rect.width * (markerX / canvas.width),
+        rect.top + rect.height * (markerY / canvas.height)];
+    }, offered[0].est_xy);
+    await page.mouse.click(...mapClick);
     await page.waitForFunction(() => __log.actions.some(action => action.cand_id === 'map'));
     assert.equal(selected.cand_id, 'map');
 

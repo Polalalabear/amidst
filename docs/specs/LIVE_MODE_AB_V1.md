@@ -406,6 +406,12 @@ A 的 log 需要**每個 actor** 的 `gt_visible`，因為 B 可以選任何腳�
 | §7 離線對齊、`MISPICK`／`AMBIGUOUS_PICK`／`UNMATCHED`／`UNKNOWN`、分段、碰撞與延遲統計 | `tests/evaluation/test_live_ab_score.py`（新） |
 | §8.5 回報、§8.6 瀏覽器流程 | 最終 feature PR 的 LOCAL 量測 log／截圖＋已提交的 handoff 文件（**不是**單元測試冒充瀏覽器驗收） |
 
+`ab_flow.test.mjs` 的 B 無頭測試以合成影格及假端點驗證從影格、地圖與清單選取候選。地圖測試依 canvas 的實際顯示尺寸，把 marker 的內部像素轉成頁面點擊座標，再由真實滑鼠事件觸發選取。測試會核對 session 切換以及 B 收據的協定違規數為零。安裝 `frontend/live-mode` 的鎖定 Node 相依與 Chrome 後，可執行以下無頭測試：
+
+```sh
+HEADLESS=1 LIVE_AB_BROWSER=1 node --test frontend/live-mode/test/ab_flow.test.mjs frontend/live-mode/test/protocol.test.mjs
+```
+
 ### 8.1 功能（F）
 
 | 編號 | 條件 | 測試 |
