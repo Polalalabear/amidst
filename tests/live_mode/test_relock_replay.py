@@ -3,6 +3,7 @@
 import inspect
 import math
 import sys
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -136,6 +137,30 @@ def test_r5a_distinguishes_existing_and_new_wrong_recoveries_and_rejects_clock_m
     main[2]["t_capture"] += 1
     with pytest.raises(ValueError, match="MAIN_COMPARISON_CLOCK"):
         recovery_comparison(entries, [trace], {"one": rows}, {"one": main})
+
+
+def test_replay_safe_strips_scoring_fields_when_called_directly():
+    raw = raw_recording()
+    records = []
+    for tick, result in zip(raw["ticks"], raw["infer"], strict=True):
+        result["dets"]["cam"][0].update(gt_visible=True, depth=2.5)
+        records.append({
+            "t_capture_ms": tick["t_capture"],
+            "dets": result["dets"],
+            "gt_xy": result["gt_xy"],
+        })
+    original = deepcopy(records)
+    projector = SimpleNamespace(ground=lambda _cam, u, _v, *_args: [u / 10, 0])
+    graph = {"cameras": [{"camera_id": "cam"}], "transitions": []}
+    args = (["cam"], (100, 60), projector, graph)
+    relock = RelockConfig()
+
+    expected = replay_safe(observation_records(raw), *args, config=relock)
+    direct = replay_safe(records, *args, config=relock)
+
+    assert direct == expected
+    assert direct[0]["dets"]["cam"][0]["est_xy"] == [0.5, 0]
+    assert records == original
 
 
 def test_pool_report_scores_only_after_asks_and_uses_one_metre_oracle():
