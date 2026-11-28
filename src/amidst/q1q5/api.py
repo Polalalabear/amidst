@@ -17,6 +17,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
+from amidst.q1q5.clock_mapping import ClockMappingError
 from amidst.q1q5.query_alias import region_catalog
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
@@ -540,7 +541,12 @@ class QAPI:
             from amidst.q1q5 import nl_query_parse as nlp
             mode=payload.get('mode','RULES');check(mode in nlp.MODES,'FORBIDDEN_INFERENCE_INPUT')
             clients=self.nl_clients if self.nl_clients is not None else nlp.clients_from_environment()
-            try:return nlp.parse_nl_query(payload['text'],nlp.vocabulary_from_catalog(run.catalog),mode=mode,api=clients.get('API'),local=clients.get('LOCAL'))
+            mapping = run.bindings.clock if len(scope['run_ids']) == 1 else None
+            try:
+                return nlp.parse_nl_query(payload['text'], nlp.vocabulary_from_catalog(run.catalog), mode=mode,
+                                          api=clients.get('API'), local=clients.get('LOCAL'), clock_mapping=mapping)
+            except ClockMappingError as exc:
+                raise APIError(exc.code, 422) from None
             except ValueError:raise APIError('FORBIDDEN_INFERENCE_INPUT',422) from None
         if action=='q1_camera_search':
             parse_ref=None

@@ -111,6 +111,19 @@ def test_api_success_records_parser_and_cost():
     assert r['parser'] == 'API' and r['cost_usd'] == 0.0004 and r['location'] == ['R2'] and [t['parser'] for t in r['fallback_trail']] == ['API']
 
 
+def test_absolute_clock_requires_mapping_only_when_rules_produce_the_answer():
+    text = '找人 14:00:00 到 14:00:20'
+    for mode in ('RULES', 'LOCAL'):
+        with pytest.raises(nlp.ClockMappingError) as exc:
+            nlp.parse_nl_query(text, VOCAB, mode=mode)
+        assert exc.value.code == 'CLOCK_MAPPING_MISSING'
+    answer = dict(GOOD, time={'start': 3, 'end': 8})
+    for mode, client_key in [('API', 'api'), ('LOCAL', 'local')]:
+        client = Fake(mode, answer)
+        result = nlp.parse_nl_query(text, VOCAB, mode=mode, **{client_key: client})
+        assert result['parser'] == mode and result['time'] == answer['time'] and client.calls == 1
+
+
 def test_api_timeout_falls_to_local_then_rules():
     local = Fake('LOCAL', GOOD)
     r = run('API', api=Fake('API', error=nlp.NlClientError('TIMEOUT')), local=local)
