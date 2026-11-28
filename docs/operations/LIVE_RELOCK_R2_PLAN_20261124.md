@@ -55,3 +55,9 @@ R1 #608已合併 `cfbfe4e959cbc2abf0db5211026393b18786a40b`，#588 CLOSED。
 本次驗證：GitHub合併狀態／#93列、契約§4／§5／R-4／R-6與當前factory只讀核對；
 JSON僅新增欄位的一致性assert、git diff --check PASS。純文件／註記，未執行程式測試。
 Artifacts：NONE。未讀取大型媒體、未改原始資產、未做量測／重播／付費／部署。
+
+## 2026-11-28 驗證更新
+
+#739 已合併，提供預設關閉的 `--relock fallback` 與 R2 追蹤欄位。D273
+凍結重播、#676 藍衣回歸、未通過的 adaptive ENTRY 條件及重跑指令見
+[LIVE_R2_ENTRY_VALIDATION_20261128.md](LIVE_R2_ENTRY_VALIDATION_20261128.md)。
