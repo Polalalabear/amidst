@@ -27,6 +27,8 @@ import {placeName, nameTitle} from './place-names.mjs';
 import {agentSwitchView} from './agent-switch-model.mjs';
 import {mountSpotlight} from './nl-spotlight-view.mjs';
 import {mountUiScene3dPanel} from './ui-scene3d-panel.mjs';
+import {createTargetBoxSource, createBoxLayer} from './ui-target-box.mjs';
+import {mountReviewPanel} from './ui-review-panel.mjs';
 import {EVENTS, parseConfig, available, embedSrc, pageUrl, modeOf, B05B_RECORDING_ID} from './event-menu.mjs';
 
 // Same range the player uses (app.mjs playbackBounds); kept here so this module does not import the composition root.
@@ -70,6 +72,7 @@ export function mountUi(ctx) {
   const doc = host.ownerDocument;
   const el = (tag, text, cls, attrs) => { const n = doc.createElement(tag); if (text !== undefined && text !== null) n.textContent = text; if (cls) n.className = cls; if (attrs) for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); return n; };
   const svg = (tag, attrs = {}) => { const n = doc.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v)); return n; };
+  const boxSource = createTargetBoxSource({api: ctx.api, onUpdate: () => repaintBoxes()});   // #771: selected-detection boxes (source observations)
   const cfg = parseConfig(new URL(url).search);
   let settings = loadSettings(storage);
   // D139: presentation mode is on by default for the front desk; ?present=0 or the admin setting turns it off.
@@ -557,7 +560,7 @@ export function mountUi(ctx) {
       const stage = el('div', undefined, 'ui-stagebox'), img = el('img', undefined, 'ui-img ui-stage-img'); img.alt = '追蹤畫面';
       const note = el('div', undefined, 'ui-stage-empty'); const stamp = el('span', undefined, 'ui-stamp ui-mono'), sw = el('span', undefined, 'ui-stamp ui-stamp-right'), tag = el('span', undefined, 'ui-tag-obs ui-mono');
       const liveNote = el('span', undefined, 'ui-live-note'); liveNote.hidden = true;
-      stage.append(img, note, stamp, sw, tag, liveNote); Object.assign(trackParts, {img, note, stamp, sw, tag, stage, liveNote, shown: null, failed: false});
+      stage.append(img, note, stamp, sw, tag, liveNote); Object.assign(trackParts, {img, note, stamp, sw, tag, stage, liveNote, shown: null, failed: false, boxLayer: createBoxLayer({doc, container: stage, img})});
       trackParts.loader = createFrameLoader(fetchFrame, (url, w) => { trackParts.shown = url ? {cam: w.cam, t: w.t, url} : (trackParts.shown?.cam === w.cam ? trackParts.shown : null); trackParts.failed = !url; paintStage(); });
       main.append(stage);
     } else {
@@ -566,7 +569,7 @@ export function mountUi(ctx) {
         const tile = el('article', undefined, 'ui-multi-tile'), img = el('img', undefined, 'ui-img'); img.alt = `${cam.cameraId} 畫面`;
         const cap = el('div', undefined, 'ui-multi-cap'); cap.append(el('span', cameraName(cam.cameraId), 'ui-cam-name', {title: nameTitle(cam.cameraId)}), el('span', '', 'ui-chip ui-chip-neutral'));
         const empty = el('span', presentOn() ? (synthetic ? PLAIN.syntheticFrame : PLAIN.noFrame) : (synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得'), 'ui-media-note');
-        tile.append(img, empty, cap); grid.append(tile); const part = {tile, img, cap, empty};
+        tile.append(img, empty, cap); grid.append(tile); const part = {tile, img, cap, empty, boxLayer: createBoxLayer({doc, container: tile, img})};
         part.loader = createFrameLoader(fetchFrame, url => { if (url) { showFrameImage(img, url); img.hidden = false; empty.hidden = true; } else { img.hidden = true; img.removeAttribute('src'); delete img.dataset.want; empty.hidden = false; } });
         trackParts.multi.set(cam.cameraId, part);
       }
@@ -616,6 +619,12 @@ export function mountUi(ctx) {
     const fromTxt = kind === 'ON_CAMERA' && prev ? `↳ 從 ${prev.from_camera} 切換` : '';
     P.sw.textContent = fromTxt; P.sw.hidden = !fromTxt;
     P.tag.textContent = stateWord(chip.text); P.tag.dataset.tone = chip.tone; P.tag.hidden = !(observed && !!sh && sh.cam === cam);
+    P.boxLayer?.paint(kind === 'ON_CAMERA' && sh && sh.cam === cam ? boxSource.box(store.getState(), cam, sh.t) : null, {showDetail: !presentOn()});
+  }
+  // #771: a box response arrived (or a tile picture changed): redraw every box layer from the cache.
+  function repaintBoxes() {
+    paintStage();
+    for (const [cam, part] of trackParts.multi ?? []) part.boxLayer.paint(part.active && part.ft != null ? boxSource.box(store.getState(), cam, part.ft) : null, {showDetail: !presentOn()});
   }
   function updateCase2(s, resp, view) {
     if (!trackParts.built) return;
@@ -645,7 +654,7 @@ export function mountUi(ctx) {
       const isActive = cam.role === 'current';
       part.tile.dataset.active = String(isActive); part.tile.dataset.role = cam.role; part.tile.dataset.current = String(cam.cameraId === sp.cam);
       part.cap.lastChild.textContent = cam.badge; part.cap.lastChild.className = `ui-chip ${isActive ? 'ui-chip-observed' : cam.role === 'candidate' ? 'ui-chip-inferred' : 'ui-chip-neutral'}`;
-      const ft = frameTUs(s.activeRun, cam.cameraId, t), fk = `${ft}|${isActive}`; if (part.key === fk) continue; part.key = fk;
+      const ft = frameTUs(s.activeRun, cam.cameraId, t), fk = `${ft}|${isActive}`; part.active = isActive; part.ft = ft; part.boxLayer.paint(isActive ? boxSource.box(s, cam.cameraId, ft) : null, {showDetail: !presentOn()}); if (part.key === fk) continue; part.key = fk;
       part.loader.request({cam: cam.cameraId, t: ft, seg: isActive ? 'ON_CAMERA' : 'CANDIDATE'});
     }
     // camera timeline
@@ -930,6 +939,8 @@ export function mountUi(ctx) {
   }
   const spotlight = ctx.api?.nlParse ? mountSpotlight({host, store, api: ctx.api, getMode: () => settings.nlParser, apply: applyParsedQuery}) : null;
   if (spotlight) { searchBtn.addEventListener('click', () => spotlight.toggle()); disposers.push(() => spotlight.destroy()); } else searchBtn.hidden = true;
+  disposers.push(() => boxSource.destroy());
+  { const review = mountReviewPanel({doc, host, store, onSeek: tUs => { store.dispatch({type: 'PAUSE'}); store.dispatch({type: 'SET_T_US', tUs}); }}); disposers.push(() => review.destroy()); }   // #772: ?mode=review only
   return {
     get screen() { return screen; }, go, setQuery, applyParsedQuery, spotlight,
     get settings() { return settings; },

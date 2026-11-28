@@ -278,3 +278,14 @@ body[data-ui="v1"]:has(>#synthetic-api-banner) #ui-v1{top:32px}
 .ui-estimate-summary,.ui-scene3d-note{font-size:12px}.ui-plan-flat .ui-card-head:empty{display:none}
 .ui-plan-svg .ui-estimate-range{fill:var(--inferred);fill-opacity:.18;stroke:var(--inferred);stroke-width:.5;stroke-dasharray:2 2}
 .ui-plan-svg .ui-estimate-point{fill:var(--inferred)}.ui-plan-svg .ui-estimate-label{fill:var(--inferred);font:3px var(--sans)}
+/* #771 selected-detection box (source observation; presentation shows the box only) */
+.ui-target-box{position:absolute;border:2px solid var(--observed);border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.35);pointer-events:none}
+.ui-target-box-tag{position:absolute;left:0;bottom:100%;font-size:10px;background:var(--observed);color:var(--bg);padding:1px 4px;white-space:nowrap}
+.ui-multi-tile{position:relative}
+/* #772 review-mode decision view (?mode=review only) */
+.ui-review-panel{position:fixed;top:56px;right:0;bottom:0;width:380px;overflow:auto;background:var(--surface);border-left:1px solid var(--line);padding:12px;z-index:20;font-size:12px}
+.ui-review-panel h3{margin:0 0 8px;font-size:14px}
+.ui-review-row{border:1px solid var(--line);border-radius:6px;margin:6px 0;padding:4px 8px}
+.ui-review-row summary{cursor:pointer}
+.ui-review-fields{display:grid;grid-template-columns:96px 1fr;gap:2px 8px;margin:6px 0}
+.ui-review-fields dt{color:var(--muted,#888)}.ui-review-fields dd{margin:0;word-break:break-all}

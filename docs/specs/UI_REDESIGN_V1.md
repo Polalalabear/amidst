@@ -206,3 +206,8 @@ Anthropic 的專有字體不能用，改用外觀接近的開源字體（OFL）�
 | 字體 | 檔案放 repo | 本版用本機字體堆疊（Source Serif 4／Inter／Noto TC／JetBrains Mono，已安裝才會用，否則退回系統字體），不連外。把 OFL 字型檔放進 repo 是後續工作 |
 | 資料來源徽章 | 右上角半透明 | 同，標籤為 SYNTHETIC／REPLAY／LIVE，滑過去顯示說明；紅色大橫幅在前台移除 |
 | 舊畫面 | 取代 | `?ui=legacy` 仍可開舊工作台；新前台只經 `ctx.legacy`（app.mjs 的 LEGACY BRIDGE）接舊 DOM，之後清理只需刪那一塊與 index.html 的引擎 DOM |
+
+### 12.x 目標框與審核模式決策檢視（#771／#772，2026-11-28）
+
+- **目標框（#771）**：單畫面主畫面與多畫面的作用中鏡頭，在影格上疊「已選偵測框」。來源只有偵測索引的 source observation（`bbox_xyxy_px`），經 `POST /api/q_track_boxes`（`scripts/serve_demo_integration.py` 的 `Demo.track_boxes`）取得；追蹤回應本身與它的 `output_sha256` 不變。伺服器只回該 session 先前追蹤回應的 `sightings[].observation_ids` 內的觀測，其他一律 `FORBIDDEN_DATA_SCOPE`；回傳欄位只有 `observation_id／camera_id／timestamp_us／frame_ref／class_label／score／bbox_xyxy_px`，不含 GT、顏色或標註。前端 `ui-target-box.mjs` 只在畫面影格時間等於偵測時間時畫框（不內插、不外推），GAP／LOST／PENDING 不畫。展示模式只畫框；`?present=0`／review 另顯 `OBS · id · score`。框不代表身分，身分仍是 `UNCONFIRMED`。
+- **審核模式決策檢視（#772）**：`?mode=review` 時 `ui-review-panel.mjs` 在前台右側掛唯讀面板，內容全取自已載入的 `coreTrackResponse`（`association_audit`、`sightings`、`agent`、`provenance`）：到播放時間為止的每一步決策、決策來源、候選、證據觀測、fallback 原因；回應沒有的欄位標 UNKNOWN，不補造，GT 類欄位不顯示；點一列可跳到該來源時間。展示模式與 `?present=0` 不建 DOM。舊審核層（`#q-review-*`）在 v1 下被 `ui.css` 隱藏且讀的是 q1／q2／q3，不再作為 v1 的審核入口。

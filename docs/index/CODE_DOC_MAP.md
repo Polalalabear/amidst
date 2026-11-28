@@ -17,7 +17,7 @@
 | §2 兩層圖、候選排序 | 契約 §5；`configs/q1q5/graphs/r004/*_v3*.json` | `src/amidst/q1q5/graphs.py`、`attention_ranking.py`（DP4，`DP4_ATTENTION_RANKING_V1.md`） |
 | §3 schema | 契約 §2–§11；`configs/architecture/schema_registry_v1.json` | `src/amidst/q1q5/store.py` 等；`frontend/workbench-v2/q-validate.mjs` |
 | §4.1 後端 API | `Q_DEMO_API_BOOTSTRAP_V1.md`；規格 U-12（action 介面文件 `UNKNOWN`） | `src/amidst/q1q5/api.py`、`p1_workbench.py`；`scripts/serve_demo_integration.py`；`start_445_demo.command` |
-| §4.2 workbench-v2 | `UI_REDESIGN_V1.md`（§12 為準）、`WORKBENCH_V2_Q1Q5_DESIGN.md`、`DEMO_UI_SUPPORT_V1.md` | `frontend/workbench-v2/`（`app.mjs`、`ui-shell.mjs`、`ui-model.mjs`、`ui.css`、`monitor-room-model.mjs`、`live-entry.mjs`） |
+| §4.2 workbench-v2 | `UI_REDESIGN_V1.md`（§12 為準）、`WORKBENCH_V2_Q1Q5_DESIGN.md`、`DEMO_UI_SUPPORT_V1.md` | `frontend/workbench-v2/`（`app.mjs`、`ui-shell.mjs`、`ui-target-box.mjs`（#771 目標框）、`ui-review-panel.mjs`（#772 審核決策檢視）、`ui-model.mjs`、`ui.css`、`monitor-room-model.mjs`、`live-entry.mjs`） |
 | §4.2 8CAM run | `docs/operations/WORKBENCH_8CAM_D302_20261118.md`、`R004_EIGHT_CAMERA_DELIVERY_20261114.md` | `scripts/demo_eightcam.py`、`scripts/check_demo_dependencies.py` |
 | §4.2 俯視圖 2D／3D | D316；#613 | `frontend/workbench-v2/topdown-model.mjs`、`scene3d-model.mjs`、`scene3d-view.mjs`；`est_xy` 來源 #612（PR #623 已合併 `f8b1a454`）；新版前台 3D 與 display_estimate：#714（`5727fc9a`），`ui-scene3d-panel.mjs`、`docs/operations/WORKBENCH_3D_710_20261124.md` |
 | §4.3 Agent 與 fallback | 契約 §8.4；`AGENT_DECISION_V1.md`；`EPIC_D_AGENTIC_V1.md` | `src/amidst/q1q5/agent_decision.py`、`agent_tools.py`、`agent_wiring.py`、`agent_providers.py`、`agent_recording.py` |

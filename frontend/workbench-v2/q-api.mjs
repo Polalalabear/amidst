@@ -255,6 +255,16 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
       return {ok:true,data:freezeDeep(data)};
     }catch(error){return apiError(error.message);}
   }
+  // #771: source boxes of the detections a core tracking response named in its sightings (read-only; server refuses any other id).
+  async function trackBoxes(run,observation_ids) {
+    try {
+      if(source===FIXTURE_ORIGIN)return {ok:true,data:freezeDeep({observations:{}})};
+      const data=parseRaw(await raw('/api/q_track_boxes',{session_ref:session,scene_id:run.scene_id,run_id:run.run_id,observation_ids}));
+      need(data.schema_version==='q-demo.track-boxes.v1'&&data.provenance?.['g'+'t_read']===false&&data.identity_verdict==='UNCONFIRMED'&&data.resolved_scope?.scene_id===run.scene_id&&data.resolved_scope?.run_id===run.run_id,'BOX_SCOPE');
+      for(const [id,b] of Object.entries(data.observations)){need(b.observation_id===id&&Array.isArray(b.bbox_xyxy_px)&&b.bbox_xyxy_px.length===4&&b.bbox_xyxy_px.every(Number.isFinite)&&Number.isSafeInteger(b.timestamp_us),'OBSERVATION_PIN');}
+      noPrivate(data);return {ok:true,data:freezeDeep(data)};
+    }catch(error){return apiError(error.message);}
+  }
   async function mediaGrant(media_token) {
     try{need(source!==FIXTURE_ORIGIN,'FIXTURE_HAS_NO_RGB');const data=parseRaw(await raw('/api/q_media_grant',{session_ref:session,media_token}));const tile=data.tiles?.[0];need(tile?.status==='READY'&&/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(tile.media_url),'MEDIA_URL');return {ok:true,data:freezeDeep(data)};}
     catch(error){return apiError(error.message);}
@@ -268,6 +278,6 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
       return {ok:true,data:freezeDeep(data)};
     }catch(error){return apiError(error.message);}
   }
-  return Object.freeze({bootstrap,createSession,nlParse,query,coreSearch,coreTrack,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
+  return Object.freeze({bootstrap,createSession,nlParse,query,coreSearch,coreTrack,artifact,replay,frames,trackBoxes,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
     getSession:()=>session,getBootstrap:()=>bootstrapData,getOrigin:()=>origin,getRequests:()=>Object.freeze([...requests]),invalidate:()=>epoch.begin('query')});
 }
