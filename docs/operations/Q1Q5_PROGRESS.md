@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-11-28（D420 批次補列 #784–#790，並把 #770–#772 移到「已完成」；前一批 D416–D419：`gh` 重查 #773–#783 的開關狀態，新增 #775–#783；`main` `0374f762`）。資料來源：GitHub 上全部 PR 與 issue。
-本文涵蓋 **445 個 PR 與 329 個 issue，共 783 項**（編號 #1–#783 連續，無缺號），每項只列在一個主分類下。
+快照時間：2026-11-28（D420 批次補列 #784–#790，並把 #770–#772 移到「已完成」；前一批 D416–D419：`gh` 重查 #773–#783 的開關狀態，新增 #775–#783；`main` `f18304d7`）。資料來源：GitHub 上全部 PR 與 issue。
+本文涵蓋 **454 個 PR 與 336 個 issue，共 790 項**（編號 #1–#790 連續，無缺號），每項只列在一個主分類下。
 維護方式（D91-4）：本文的列由協調者批次補列，一般 PR／issue 不必各自更新，2026-11-10 起主線改為 `main`（D200），PR 的 base 一律是 `main`；`mainline/q1q5` 凍結，staging 已不再使用。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
@@ -27,8 +27,8 @@
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 51 | 0 | 0 | 0 | 51 |
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 62 | 0 | 0 | 0 | 62 |
 | [Line 2 複雜場景](#line-2-複雜場景) | 50 | 0 | 0 | 0 | 50 |
-| [流程：任務板、交接與文件](#流程任務板交接與文件) | 113 | 6 | 0 | 0 | 119 |
-| [Agent：WP／DP4 與評估](#agentwpdp4-與評估) | 95 | 10 | 3 | 0 | 108 |
+| [流程：任務板、交接與文件](#流程任務板交接與文件) | 114 | 5 | 0 | 0 | 119 |
+| [Agent：WP／DP4 與評估](#agentwpdp4-與評估) | 99 | 6 | 3 | 0 | 108 |
 | [即時模式（Live mode）](#即時模式live-mode) | 50 | 3 | 6 | 0 | 59 |
 | [4 人場景、8 鏡頭與 N6 素材（#516）](#4-人場景8-鏡頭與-n6-素材516) | 16 | 0 | 0 | 0 | 16 |
 | [Demo 整合、前台 UI 與 8785 更新（#445）](#demo-整合前台-ui-與-8785-更新445) | 49 | 0 | 1 | 0 | 50 |
@@ -36,7 +36,7 @@
 | [大掃除、CI 與可攜性（#486）](#大掃除ci-與可攜性486) | 31 | 1 | 2 | 0 | 34 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 38 | 0 | 0 | 0 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **758** | **20** | **12** | **0** | **790** |
+| **合計** | **763** | **15** | **12** | **0** | **790** |
 
 ## 最近改動（2026-10-23 起）
 
@@ -441,7 +441,7 @@
 
 ## 流程：任務板、交接與文件
 
-### 已完成（113）
+### 已完成（114）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -558,8 +558,9 @@
 | [#777](https://github.com/Polalalabear/amidst/pull/777) | PR | docs: 總帳 D411＋PROGRESS 補到 #774 | — | 已合併 `main`（2026-11-28，`0374f762`）；D411 文件同步 |
 | [#774](https://github.com/Polalalabear/amidst/issues/774) | Issue | D411 文件同步：整理總帳＋Q1Q5_PROGRESS 補到 #774 | — | 已完成（2026-11-28），隨 #777（`0374f762`）；owner:claude |
 | [#784](https://github.com/Polalalabear/amidst/pull/784) | PR | docs: 開工前先分析、用量與交接節奏規則 (D420) | — | 已合併 `main`（`9f03cfc4`） |
+| [#783](https://github.com/Polalalabear/amidst/pull/783) | PR | docs(handoff): 協調者交接 2026-11-28（D416／D417、E8 進行中） | — | 已合併 `main`（`dea59531`） |
 
-### 進行中（6）
+### 進行中（5）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -568,11 +569,10 @@
 | [#674](https://github.com/Polalalabear/amidst/issues/674) | Issue | 更新紀錄（append-only，所有更新的唯一紀錄） | — | append-only 更新紀錄 |
 | [#775](https://github.com/Polalalabear/amidst/issues/775) | Issue | 派工：Codex（2026-11-27 晚）— #773 → #770 → #735，先讀最新進度 | — | 進行中；owner:codex |
 | [#776](https://github.com/Polalalabear/amidst/issues/776) | Issue | 派工：Neon（2026-11-27 晚）— #734 E6 數字、互審 Codex PR，先讀最新進度 | — | 進行中；owner:neon |
-| [#783](https://github.com/Polalalabear/amidst/pull/783) | PR | docs(handoff): 協調者交接 2026-11-28（D416／D417、E8 進行中） | — | 開啟中；協調交接與本批 PROGRESS 補列 |
 
 ## Agent：WP／DP4 與評估
 
-### 已完成（95）
+### 已完成（99）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -671,18 +671,18 @@
 | [#754](https://github.com/Polalalabear/amidst/pull/754) | PR | docs(exp-run): E6 正式執行紀錄骨架與偏離列表（D407，#732） | — | 已合併 `main`（2026-11-27，`54df53d8`）；E6 結果紀錄；原備註：E6 結果紀錄骨架（D407）；Draft，數字待 2d 由 E6 協調對話回填 |
 | [#730](https://github.com/Polalalabear/amidst/issues/730) | Issue | 完整報告資料夾：海報、open-slide 簡報、圖片、PDF（D384） | — | 已完成關閉（2026-11-28），併入 #734；骨架 #736 已合併 |
 | [#779](https://github.com/Polalalabear/amidst/issues/779) | Issue | 海報修改（暫定）：放大架構／流程圖、縮減做法與評估、結論只留關鍵圖 | — | 關閉不處理（2026-11-28），併入 #734 |
+| [#766](https://github.com/Polalalabear/amidst/issues/766) | Issue | E7 notebook：配合 Colab Python 3.13 重定版本、一次 Run All、續跑與打包 | — | 已完成關閉（由 #769 `e17a0787` 完成） |
+| [#767](https://github.com/Polalalabear/amidst/issues/767) | Issue | E7 評分：照真實延遲重播（Qwen 重播、laya 逐 tick），與 E5 基準同規則比較 | — | 已完成關閉（關閉留言：已合併 `e17a0787`，PR #769） |
+| [#768](https://github.com/Polalalabear/amidst/issues/768) | Issue | E7 出處：補記 Qwen 權重 SHA-256，固定 hf_revision | — | 已完成關閉（由 #769 `e17a0787` 完成） |
+| [#769](https://github.com/Polalalabear/amidst/pull/769) | PR | E7 follow-ups: #768 provenance, #766 Colab py3.13 notebook (#767 pending) | — | 已合併 `main`（`e17a0787`，Sonnet 複審 APPROVE） |
 
-### 進行中（10）
+### 進行中（6）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#727](https://github.com/Polalalabear/amidst/issues/727) | Issue | E7 本地／Colab 決策器（laya、Qwen 類 VLM、擴散語言模型）延遲與決策評測（移機後） | — | E7：#737／#749／#751–#753 已合併；notebook 可從 GitHub main 在 Colab 一鍵跑（pin `594268b9`），使用者執行中 |
 | [#732](https://github.com/Polalalabear/amidst/issues/732) | Issue | FEAT-EXP-RUN：Mac 一鍵執行實驗與產出分析檔（渲染 12 段、API 組、Colab、評分） | — | FEAT-EXP-RUN：G1–G6 已合併（#741、#743、#745、#746、#748、#750）；E6 正式一次跑完執行中（D402–D406）；E6 結果紀錄 #754 已合併（`54df53d8`） |
 | [#734](https://github.com/Polalalabear/amidst/issues/734) | Issue | FEAT-REPORT：完整報告資料夾（海報、open-slide 簡報、圖、PDF） | — | FEAT-REPORT：骨架 #736 已合併；E6 數字等 #732 |
-| [#766](https://github.com/Polalalabear/amidst/issues/766) | Issue | E7 notebook：配合 Colab Python 3.13 重定版本、一次 Run All、續跑與打包 | — | 進行中（#769）；owner:claude |
-| [#767](https://github.com/Polalalabear/amidst/issues/767) | Issue | E7 評分：照真實延遲重播（Qwen 重播、laya 逐 tick），與 E5 基準同規則比較 | — | 進行中（#769 待）；owner:claude |
-| [#768](https://github.com/Polalalabear/amidst/issues/768) | Issue | E7 出處：補記 Qwen 權重 SHA-256，固定 hf_revision | — | 進行中（#769）；owner:claude |
-| [#769](https://github.com/Polalalabear/amidst/pull/769) | PR | E7 follow-ups: #768 provenance, #766 Colab py3.13 notebook (#767 pending) | — | Draft；E7 後續（#766、#768；#767 待） |
 | [#780](https://github.com/Polalalabear/amidst/issues/780) | Issue | E8：Agent 與規則公平對照（資訊逐級、交接點決策、一鍵 Colab） | — | 進行中；D417 Claude 主做；owner:claude |
 | [#785](https://github.com/Polalalabear/amidst/pull/785) | PR | E8: Agent vs rule fair comparison（#780） | — | 進行中（Draft PR，未合併） |
 | [#788](https://github.com/Polalalabear/amidst/pull/788) | PR | docs: E8 GPT 組設計與 ApiGuard dry-run（#781） | — | 進行中（Draft PR，未合併） |
