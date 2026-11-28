@@ -146,7 +146,8 @@ class State:
         a = self.args
         if a.advisor == "off":
             return None
-        if a.advisor == "agent":   # F3 (#657): agent_service decides; the rule gates of LiveDecider (red only, >=2 candidates) do not apply
+        # F3 (#657): agent_service uses its own candidate policy. LiveDecider filters by the session target_color.
+        if a.advisor == "agent":
             context = self._live_scene_context()
             return None if context is None else self._new_service_decider(context)   # None: see _scene_context_gate (#666 M3)
         if a.advisor_provider == "openai":

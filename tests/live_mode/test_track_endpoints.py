@@ -451,6 +451,35 @@ def test_agent_offline_request_uses_selected_target_and_applies_far_candidate(li
     assert result['advisor']['last']['applied']
 
 
+def test_blue_far_candidate_can_be_reselected_with_relock_fallback(live_server):
+    state, request, infer = live_server
+    state.args.relock = "fallback"
+    session = state.selection.session_id
+    start = {"color": "blue", "session_id": session}
+    request("/track/start", start)
+    blue = ("blue", "red")
+
+    initial = infer(0, (8,), colors=blue)["tracking"]
+    assert initial["target"]["color"] == "blue" and initial["active_cam"] == "left"
+    assert infer(1, (8,), colors=("red", "red"))["tracking"]["lost_ticks"] == 1
+
+    far = infer(47, (58,), colors=blue)
+    tracking = far["tracking"]
+    assert tracking["unseen_s"] == 23.5 and tracking["state"] == "NEEDS_CONFIRM"
+    assert len(tracking["confirm_candidates"]) == 1
+    assert tracking["confirm_candidates"][0]["dist_m"] == pytest.approx(5)
+    assert far["dets"]["left"][0]["reject_reason"] == "OUT_OF_GATE"
+
+    code, reselect = request("/track/start", {**start, "reselect": True})
+    assert code == 200 and reselect["mode"] == "NEEDS_PICK"
+    candidate, = reselect["candidates"]
+    code, picked = request("/track/pick", {"session_id": session, "cand_id": candidate["cand_id"]})
+    assert code == 200 and picked["picked"] == candidate
+    resumed = infer(48, (59,), colors=blue)["tracking"]
+    assert resumed["state"] == "TRACKING" and resumed["lost_ticks"] == 0
+    assert resumed["target"]["color"] == "blue" and resumed["est_xy"] != initial["est_xy"]
+
+
 def test_startup_agent_without_authorization_uses_rules(live_server, monkeypatch):
     state, _request, _infer = live_server
     from amidst.live_mode.server import State

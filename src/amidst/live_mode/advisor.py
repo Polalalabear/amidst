@@ -1,9 +1,9 @@
 """Image adjudication for live mode (docs/design/LIVE_MODE_LLM_DECISION_V1.md, sections 0A.4 and 0D).
 
-When the rule tracker faces more than one red person, or has lost the target while red people are in view, one
-camera frame with numbered boxes and a reference crop (the target at first lock) go to a vision model, which answers
-with a number or 0. The answer refers to people by track id (people.py), so it still means something when it comes
-back seconds later.
+When the rule tracker must disambiguate or has lost the target, the advisor uses candidates matching the session's
+selected target color. One camera frame with numbered boxes and a reference crop (the target at first lock) go to a
+vision model, which answers with a number or 0. The answer refers to people by track id (people.py), so it still
+means something when it comes back seconds later.
 
 What leaves the backend: two JPEGs made from camera pixels and the number of candidates. No coordinates, no actor
 ids, no scripted positions; the backend has none of those. A chosen candidate is an appearance hypothesis; identity
