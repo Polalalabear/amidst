@@ -720,8 +720,23 @@
       "sha256": "6e38f03b4984861328dd7cce2ba8da8ecced1acac36d6cf52945139f6b1ba5ca",
       "status": "現行；AC7 條文加 D419（B-05 雜湊差異判定）；登記不等於核准",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D420-DOCS-AGENTS",
+      "path": "AGENTS.md",
+      "ref": "claude/docs-rules-20261128@f2cb1dec382f9e57c70ea812f0533905c1cb4633",
+      "sha256": "58315bd203297c1389c9541ee6b3ddcd8ce3b0d38b7d9cb9540fddac0c0f85f1",
+      "status": "現行；Shared rules 加「開工前先分析」（D420）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D420-DOCS-CLAUDE",
+      "path": "CLAUDE.md",
+      "ref": "claude/docs-rules-20261128@f2cb1dec382f9e57c70ea812f0533905c1cb4633",
+      "sha256": "f7177918017b6161084f277721651b9401334abea7d487ccc055cc21a9e6351c",
+      "status": "現行；加「用量與交接節奏」小節（D420）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
     }
-
   ],
   "authorized_changes": [
     {
@@ -1206,6 +1221,20 @@
       "requires_commit": "b42d3ee8e0185ed79383102c3d0db438cc4bb83f",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "AC7 條文加 D419。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "58315bd203297c1389c9541ee6b3ddcd8ce3b0d38b7d9cb9540fddac0c0f85f1",
+      "requires_commit": "f2cb1dec382f9e57c70ea812f0533905c1cb4633",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "Shared rules 加開工前先分析規則（D420）。登記不等於核准"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "f7177918017b6161084f277721651b9401334abea7d487ccc055cc21a9e6351c",
+      "requires_commit": "f2cb1dec382f9e57c70ea812f0533905c1cb4633",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
+      "reason": "加用量與交接節奏小節（D420）。登記不等於核准"
     }
   ]
 }

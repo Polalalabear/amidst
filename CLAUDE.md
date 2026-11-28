@@ -28,6 +28,13 @@ The coordinator updates [`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q
 
 When the user asks for a handoff, the coordinator first lists all work, grouped by type, and for each item writes the expected output, the progress and what is blocking it. It then writes the handoff message and the handoff document (`docs/agents/COORDINATOR_HANDOFF_<date>.md`, committed to GitHub). The new coordinating conversation after the handoff replies in Traditional Chinese throughout (D255).
 
+### 用量與交接節奏（使用者 2026-11-28，D420）
+
+- context 達到 80% 就照上面的「Handoff」準備交接。
+- 五小時額度達到 95% 時，用排程在 `resetsAt` 後約 5 分鐘叫醒協調對話，目標是繼續工作。
+- 待使用者看的項目先擱著（狀態記在 issue 上），去認領其他能認領的 `ready` 工作，開子 session 去做，不要空等。
+- 每個子 session 的 brief 都要寫入 AGENTS.md 的「開工前先分析」規則（D420）：結構性問題先分析並對照專案目的，簡單工作檢查架構、設計、資料流、關卡判斷與最新進度；以實際程式碼為準，改了要同步文件。
+
 ## Choosing model and effort for sub-sessions
 
 The coordinating session plans, decides, writes briefs and reads reports. It does not do task work inline: opening branches, reviews, issue comments and result records go to sub-sessions. When it dispatches a task to a new Claude Code session, it sets `model` and `effort` on `start_session` from the table below. You can only choose a model at or below the coordinator's and an effort no higher than its own. Opus is for decisions: design and architecture changes, deletion and merge decisions, and formal acceptance. Sonnet does formal code review and technical verification. Haiku does simple routine tasks, inventory and retrieval. These settings do not apply to Codex tasks; the user picks Codex's model.
