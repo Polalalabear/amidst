@@ -170,18 +170,22 @@ GT 只在**所有重鎖運算完成之後**的離線評分用（`frontend/live-m
 | `v_walk_m_s` 為 UNKNOWN | `R(u)` 暫時用現行 `max_gate_m`（8.0 m），並在報告標「暫用，非量測值」；這是唯一一處暫時的上限，量到後取消 |
 | `tau_app` 為 UNKNOWN 或 0 | 所有外觀確認結果走 `NEEDS_CONFIRM`，不自動接回；ENTRY 案例就會以 `NEEDS_CONFIRM`（含正確候選）收尾，這仍然符合 §6 的 R-4 |
 
-### 4.6 重播與評分指令（Codex 在 PR 補完整參數並記錄實際輸出）
+### 4.6 重播與評分指令
+
+在獨立 clone 執行。`PYTHON` 指向已安裝專案相依的 Python。`FIXED_OBSERVATIONS` 指向 MANIFEST 所列、含 `*.t1raw.json` 的凍結輸入目錄，`LIVE_CAMERA_CATALOG` 指向與 camera graph v3 雜湊綁定的安全標定檔，`REPLAY_OUT` 指向尚未建立的輸出目錄。
 
 ```bash
-python scripts/live_mode/replay_relock.py \
-  --src C=<C 來源錄製資料夾，見 MANIFEST> \
-  --cameras <local/data/r004-build-v2-20261021/safe_static/cameras.json> \
-  --out <新的 LOCAL 輸出資料夾> \
+npm ci --prefix frontend/live-mode
+PYTHONPATH=src "$PYTHON" -B scripts/live_mode/replay_relock.py \
+  --src "C=$FIXED_OBSERVATIONS" \
+  --cameras "$LIVE_CAMERA_CATALOG" \
+  --out "$REPLAY_OUT" \
   --sweep-t-short 1,2,3,4,6,8,10
-node frontend/live-mode/measure/t1_analyze.mjs <上一步輸出資料夾下的各 *.t1.json>   # 離線評分（可用 GT）；實際參數以 PR 為準
 ```
 
-`replay_relock.py` 是新檔，輸入慣例沿用 `scripts/live_mode/replay_schedule.py`（只讀 `bbox`／`score`／`color`／`red_ratio`／`blue_ratio` 與 capture 時鐘；其餘欄位不傳進 tracker）。評分指令的確切參數：UNKNOWN，Codex 在 PR 的「Commands run」寫出實際值。輸出必須含 §4.2～§4.4 的表與 `N`，並把每份輸入的 SHA-256 記進報告。
+`observation_records()` 將原始錄製整理成 capture 時鐘與允許的 `bbox`、`score`、`color`、`red_ratio`、`blue_ratio`。`replay_safe()` 在建立每輪的 tracker 輸入時再次套同一份白名單，涵蓋直接呼叫；`est_xy` 由像素盒與安全標定重算。評分欄位只在此輪重播的所有決策完成後由 `score_replays()` 接回。
+
+Python runner 會呼叫 `t1_analyze.mjs`，傳入含 `*.t1raw.json` 的輸出子目錄與評分用 scenario JSON。評分器載入 `frontend/live-mode/measure/lib.mjs`，需安裝鎖定的 `puppeteer-core`。主收據 `relock.json` 記錄樣本數、輸入及標定 SHA-256、graph 綁定與 §4.2～§4.4 的量測結果。選用補充 ENTRY 資料時，另傳 `--entry-src "entry=$ENTRY_OBSERVATIONS"` 和原比較基準的 `--entry-main-rows "$MAIN_T1_ROWS"`。
 
 ### 4.7 速度預測與候選名單的重播驗收（不花錢）
 
