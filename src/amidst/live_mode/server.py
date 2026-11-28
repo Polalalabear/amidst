@@ -81,8 +81,11 @@ class State:
         self.registered_cameras = list(self.projector.cams)
         graph, self.graph_meta = load_graph(args.camera_graph, args.graph_sha256,
             hashlib.sha256(catalog_path(args.cameras).read_bytes()).hexdigest(), self.registered_cameras)
-        self.scheduler = CameraScheduler(graph, expand_every=args.expand_every, mode=args.schedule,
-                                        graph_sha256=self.graph_meta['graph_sha256'])
+        self.scheduler = CameraScheduler(
+            graph, expand_every=args.expand_every, mode=args.schedule,
+            graph_sha256=self.graph_meta["graph_sha256"],
+            cover_single_uncovered_camera=getattr(args, "relock", "off") == "fallback",
+        )
         self.args = args
         self.det = LiveDetector(Path(args.models), device=args.device, threads=args.threads,
                                 resize_mode=args.det_resize_mode)

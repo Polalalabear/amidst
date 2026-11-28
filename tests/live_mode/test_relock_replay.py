@@ -71,6 +71,22 @@ def test_replay_policy_has_no_scoring_inputs_and_is_repeatable():
     )
 
 
+def test_replay_records_supplement_only_in_trace_and_preserves_missing_observations():
+    records = observation_records(raw_recording())
+    records[1]["dets"]["entry"] = []
+    projector = SimpleNamespace(ground=lambda _cam, u, _v, *_args: [u / 10, 0])
+    graph = {"cameras": [{"camera_id": "cam"}], "transitions": []}
+    args = (records, ["cam", "entry"], (100, 60), projector, graph)
+    current = replay_safe(*args, mode="adaptive", config=RelockConfig())
+    supplemented = replay_safe(*args, mode="adaptive", config=RelockConfig(), cover_single_uncovered_camera=True)
+    assert current[1]["schedule"]["camera_ids"] == ["cam"]
+    assert supplemented[1]["schedule"] == dict(current[1]["schedule"], camera_ids=["cam", "entry"])
+    assert supplemented[1]["dets"]["entry"] == []
+    assert "entry" not in supplemented[2]["dets"]
+    assert supplemented[1]["trace"]["supplemented_camera_ids"] == ["entry"]
+    assert "supplemented_camera_ids" not in current[1]["trace"]
+
+
 def test_visible_failed_episode_starts_only_after_a_correct_track():
     labels = [
         "LOST",

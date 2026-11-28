@@ -63,6 +63,8 @@ ON_TARGET。adaptive-A4 tick62（50.6926s）同樣查全部8台，2個target-lik
 最近距前估計4.7028m，也在gate外。這是已有目標樣觀測卻未正確重鎖的tracker問題，
 不是把ENTRY加入graph即可解決；不在本PR偷改graph v4或放寬gate。新實跑仍需分列。
 
+後續 #789 在同一凍結來源的 relock fallback 重播中補到原本漏排的 ENTRY。D273 live 當時已在 `LOST_ALL` 掃到 ENTRY。補掃範圍、無頭 A→B 測試與延遲比較見 [#789 設計與驗證](../engineering/LIVE_ADAPTIVE_ENTRY_DESIGN_20261128.md)。
+
 ## 已做focused驗證與重現
 
 Python `tests/live_mode tests/operations/test_live_launcher.py`：67 passed；
