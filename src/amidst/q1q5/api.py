@@ -15,6 +15,7 @@ from collections import Counter, OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 
 from amidst.q1q5.clock_mapping import ClockMappingError
@@ -544,7 +545,8 @@ class QAPI:
             mapping = run.bindings.clock if len(scope['run_ids']) == 1 else None
             try:
                 return nlp.parse_nl_query(payload['text'], nlp.vocabulary_from_catalog(run.catalog), mode=mode,
-                                          api=clients.get('API'), local=clients.get('LOCAL'), clock_mapping=mapping)
+                                          api=clients.get('API'), local=clients.get('LOCAL'),
+                                          wall_window=partial(nlp.resolve_wall_window, mapping=mapping))
             except ClockMappingError as exc:
                 raise APIError(exc.code, 422) from None
             except ValueError:raise APIError('FORBIDDEN_INFERENCE_INPUT',422) from None

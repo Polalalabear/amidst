@@ -18,7 +18,6 @@ import time
 
 from amidst.q1q5 import agent_providers as ap
 from amidst.q1q5.agent_wiring import ad
-from amidst.q1q5.clock_mapping import ClockMapping, ClockMappingError, parse_wall_range
 from amidst.q1q5.q3_rules import GRAMMAR, TRACKING_VERBS, _terms
 
 logger = logging.getLogger(__name__)
@@ -122,7 +121,9 @@ def _seconds(token: str):
     return int(total) if float(total).is_integer() else total
 
 
-def _wall_window(tokens, mapping):
+def resolve_wall_window(tokens, *, mapping):
+    from amidst.q1q5.clock_mapping import ClockMappingError, parse_wall_range
+
     if len(tokens) != 2 or not all(_WALL_TOKEN.fullmatch(token) for token in tokens):
         raise ClockMappingError('TIME_EXPRESSION_INVALID', 'Use two wall-clock boundaries')
     if mapping is None:
@@ -137,8 +138,8 @@ def _wall_window(tokens, mapping):
     return {'start': start_us / 1_000_000, 'end': end_us / 1_000_000}
 
 
-def parse_rules(text: str, vocab: NlVocabulary, *, clock_mapping: ClockMapping | None = None) -> dict:
-    """Fixed-pattern parser. Only the supplied run declaration is used for wall times. Unknown pieces go to ``unrecognized``; nothing is guessed."""
+def parse_rules(text: str, vocab: NlVocabulary, *, wall_window: Callable[[list[str]], dict] | None = None) -> dict:
+    """Parse elapsed times and let the caller resolve wall times when it has run context."""
     text = str(text)
     mask = [False] * len(text)
 
@@ -162,8 +163,8 @@ def parse_rules(text: str, vocab: NlVocabulary, *, clock_mapping: ClockMapping |
     pieces = list(dict.fromkeys(p for p in rest.split() if p))
     window = None
     tokens = [match.group() for match in times]
-    if len(tokens) >= 2 and any(_WALL_TOKEN.fullmatch(token) for token in tokens):
-        window = _wall_window(tokens, clock_mapping)
+    if wall_window is not None and len(tokens) >= 2 and any(_WALL_TOKEN.fullmatch(token) for token in tokens):
+        window = wall_window(tokens)
     else:
         seconds = [_seconds(token) for token in tokens]
         if len(seconds) == 2 and all(s is not None for s in seconds) and seconds[0] < seconds[1] <= MAX_SECONDS:
@@ -347,7 +348,7 @@ def clients_from_environment(env: Mapping | None = None, guard=None) -> dict:
 
 # ---- orchestration ---------------------------------------------------------------------------------------------
 def parse_nl_query(text, vocab: NlVocabulary, *, mode: str = 'RULES', api=None, local=None, timeout_ms: int = DEFAULT_TIMEOUT_MS,
-                   clock: Callable[[], float] = time.monotonic, clock_mapping: ClockMapping | None = None) -> dict:
+                   clock: Callable[[], float] = time.monotonic, wall_window: Callable[[list[str]], dict] | None = None) -> dict:
     if not isinstance(text, str) or not text.strip() or len(text.strip()) > MAX_TEXT:
         raise ValueError('text must be 1..200 characters')
     if mode not in MODES:
@@ -384,7 +385,7 @@ def parse_nl_query(text, vocab: NlVocabulary, *, mode: str = 'RULES', api=None, 
             break
     if result is None:
         s = clock()
-        parsed = validate_parse(parse_rules(text, vocab, clock_mapping=clock_mapping), vocab)
+        parsed = validate_parse(parse_rules(text, vocab, wall_window=wall_window), vocab)
         trail.append({'parser': 'RULES', 'outcome': 'OK', 'latency_ms': round((clock() - s) * 1000.0, 3)})
         costs.append(0.0)
         result = ('RULES', parsed)

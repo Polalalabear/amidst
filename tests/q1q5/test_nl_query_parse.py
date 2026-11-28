@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import itertools
 import json
+from functools import partial
 
 import pytest
 
@@ -112,15 +113,19 @@ def test_api_success_records_parser_and_cost():
 
 
 def test_absolute_clock_requires_mapping_only_when_rules_produce_the_answer():
+    from amidst.q1q5.clock_mapping import ClockMappingError
+
     text = '找人 14:00:00 到 14:00:20'
+    assert nlp.parse_nl_query(text, VOCAB)['time'] == {'start': 50400, 'end': 50420}
+    wall_window = partial(nlp.resolve_wall_window, mapping=None)
     for mode in ('RULES', 'LOCAL'):
-        with pytest.raises(nlp.ClockMappingError) as exc:
-            nlp.parse_nl_query(text, VOCAB, mode=mode)
+        with pytest.raises(ClockMappingError) as exc:
+            nlp.parse_nl_query(text, VOCAB, mode=mode, wall_window=wall_window)
         assert exc.value.code == 'CLOCK_MAPPING_MISSING'
     answer = dict(GOOD, time={'start': 3, 'end': 8})
     for mode, client_key in [('API', 'api'), ('LOCAL', 'local')]:
         client = Fake(mode, answer)
-        result = nlp.parse_nl_query(text, VOCAB, mode=mode, **{client_key: client})
+        result = nlp.parse_nl_query(text, VOCAB, mode=mode, wall_window=wall_window, **{client_key: client})
         assert result['parser'] == mode and result['time'] == answer['time'] and client.calls == 1
 
 
