@@ -78,7 +78,7 @@ E8 要回答三件事：
 
 **小幅、只增不改的修改**（既有行為與測試不變）：
 
-- `e7_decider_eval.py`：laya／Qwen 推論函式加「直接吃已渲染輸入」的入口（目前 `_infer` 只吃 `DeciderRequest`）。
+- `e7_decider_eval.py`：laya／Qwen 推論函式加「直接吃已渲染輸入」的入口 `.raw`／`.agent`（原本 `_infer` 只吃 `DeciderRequest`）。這是本 PR 唯一改到的 E7 檔案，只做加法：把 Qwen 的生成步驟抽成 `_generate`，`_infer` 改呼叫它，行為不變（N2，#785 審查）。E7 notebook 釘在 `a3c7e90d`，clone 的是那個 commit 的程式，所以 E7 的包、MANIFEST 與結果不受影響。
 - `scripts/evaluation/generate_unified_analysis.py`＋`configs/evaluation/unified_analysis_schema_v1.json`：加選填的 `e8` 區段（schema 頂層 `additionalProperties:false`）。
 - `report/figures/build_figures.py`、`FIGURES.md`：加 E8 圖 fig4–fig7（資訊階梯、位置偏差、閉迴路錯誤拆分、提早切對分佈），只在輸入有 `e8` 區段時才畫；`report/figures/manifest.json` 是 sample 輸入的產物，沒有 `e8`，所以不變。
 - `docs/evaluation/E7_COLAB_UPLOAD_PACK_SPEC_V1.md`：加 E8 包的章節。
@@ -130,7 +130,7 @@ E8 要回答三件事：
 ### 2.4 候選與選項
 
 - **候選**：T 時刻所有 person 偵測（score ≥ 0.15，CAM_ENTRY ≥ 0.05，任何顏色），`detection_id` 依各鏡頭編成 D1…Dn（`build_e7_colab_pack.candidates_for_tick`）。
-- **跨鏡頭合併**（L0c 以上，`merge_options`）：不同鏡頭的框投影到地面（`Projector.ground(cam, (x0+x1)/2, y1, 320, 180)`）後相距 < 1.5 m，就合成一個選項；同一台鏡頭的框絕不合併。代表框取框高最大的成員（同 `Tracker.update` 的換鏡規則），顏色取聯集，投影失敗的框不合併。L0c 到 L4 的選項集合完全相同；L0 照 E7 原樣，不合併。
+- **跨鏡頭合併**（L0c 以上，`merge_options`）：不同鏡頭的框投影到地面（`Projector.ground(cam, (x0+x1)/2, y1, 320, 180)`）後相距 < 1.5 m，就合成一個選項；同一台鏡頭的框絕不合併。代表框取框高最大的成員（同 `Tracker.update` 的換鏡規則），顏色取聯集，投影失敗的框不合併。選項顯示的 `score` 是代表框（框高最大的成員）的偵測分數，可能低於同一人在另一台鏡頭的分數（N1）；它不是「這個人可信度低」的訊號，報告引用時要註明。L0c 到 L4 的選項集合完全相同；L0 照 E7 原樣，不合併。
 - **代號**：依當次順序給 A、B、C…；`KEEP`、`NOT_VISIBLE` 固定排在最後。
 - **3 種順序**（`permute`）：`p0` 標準順序（相機的凍結順序，再依 D 編號）；`p1` 反轉；`p2` 用 `random.Random(f"20261128|{base_id}")` 打亂。只打亂候選；標籤以 (鏡頭, D) 表示，不受順序影響。
 
@@ -315,6 +315,13 @@ B1 在 tick t 更新後，依序取第一個成立的條件：
 | G3 | KEEP 解析 100% 成功：B1 在 T 有顯示時都對得到候選（V4） | 停 |
 | G4 | 每格（模型 × 級）的格式退回率 ≤ 20% | 標 `FORMAT_INVALID`，照算錯，但不能用來支持 H1 |
 | G5 | 標籤表的 116 個 base id 都對得到請求 | 停 |
+| G6 | Mac 用 GT 分群重選的 SELECTED（模型, 級）有第二部分結果（#785 O2，採 A） | `e8_score_run.py` 以狀態 3 結束，結果 JSON 與 md 頂端寫 `SELECTED_GROUP_MISSING` 並列出缺的組；照 `E8_REPRO_20261128.md` §2.1 在 Colab 補跑後重評。不改用暫定組（那等於事後改預登） |
+
+### 5.7 限制（#785 審查 O1、O3，N1）
+
+- **第二部分的組別由第一部分的暫定分數挑選（O1）。** Colab 第 7 格只讀標籤表（D417 折衷：只有答案編號、沒有框），用它暫定每個模型的 k* 與 SELECTED，決定第二部分跑哪些組。標籤只影響「跑哪一組」，不進任何請求。Mac 用 GT 分群重選；兩者不同時由 G6 擋下。
+- **選組偏差（O3）。** SELECTED 是在同一批決策點上依第一部分準確率挑出，再用來檢定第二部分的 H2，因此偏向通過 H2。H2 在主族 Holm 只算一次、S3 在次族，方向也不同（非劣性對優越性），所以不另加校正。但結果會列出四個模型組各自的第二部分指標與 H2／S3／S4（未校正，標為敏感度，`sensitivity_model_groups`），結論只依 SELECTED。
+- **合併選項的分數（N1）**：見 §2.4。
 
 ## 6. Colab 包與 notebook
 
@@ -382,6 +389,7 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | `tests/evaluation/test_e8_requests.py`（11 項） | 合併規則；3 種順序；各級欄位嚴格遮蔽；L0 與 E7 渲染相同；laya 選項文字；`parse_e8_answer`；KEEP 解析；底線策略；模型接合與截斷；**重複定義掃描**（必改 1，含 `e8_colab_run`、`e8_score_run`） |
 | `tests/evaluation/test_build_e8_colab_pack.py`（6 項） | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
 | `tests/evaluation/test_e8_score.py`（6 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值；提早切對、§5.5 結論、union answerable、`unified_section` |
+| `tests/evaluation/test_e8_score_run.py`（3 項） | Mac 評分：SELECTED 缺第二部分結果時列出缺的（模型, 級, 延遲）並以狀態 3 結束、md 頂端警告與補跑指示（G6）；四個模型組的敏感度表；「限制」段 |
 | `tests/evaluation/test_e8_colab_run.py`（3 項） | 分組與 Qwen L0 只跑 p0 的規則；`projected_hours`；checkpoint 續跑與指紋不同時重跑；SMOKE 替身可解析 |
 | `tests/evaluation/test_e8_handoff.py`（5 項） | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
 | `test_e7_decider_eval.py`（加案例） | 已渲染輸入的入口；E7 的舊測試全部照舊通過 |

@@ -14,6 +14,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import re
 import sys
 import tempfile
 import zipfile
@@ -34,6 +35,37 @@ from amidst.evaluation.e3_scoring import judge_box  # noqa: E402
 
 TICK_US = 200_000
 SCORER = ROOT / 'src' / 'amidst' / 'evaluation' / 'e3_scoring.py'
+MODEL_GROUP = re.compile(r'^B1\+([a-z0-9_]+)@(L\w+)$')     # zero-latency model groups (MEASURED ends in '+MEASURED')
+EXIT_SELECTED_GROUP_MISSING = 3
+
+
+def part2_hypotheses(group: str, segments: list[dict], points: list[dict], classes: dict, dps: list[dict], regime_of: dict,
+                     family_of_case: dict) -> dict:
+    """H2 / S3 / S4 for one Part-2 group against B1 (rows relabelled SELECTED, as e8_score expects)."""
+    rows = [dict(r, group='SELECTED') for r in segments if r['group'] == group] + [r for r in segments if r['group'] == 'B1']
+    pts = [dict(p, group='SELECTED') for p in points if p['group'] == group] + [p for p in points if p['group'] == 'B1']
+    items = [(family_of_case[d['case_id']], S8.early_switch_s(classes[group][d['case_id']], classes['B1'][d['case_id']], d['tick']))
+             for d in dps if regime_of[d['base_id']] == 'VISIBLE']
+    return {'H2': S8.h2_test(rows, pts), 'S3': S8.s3_test(rows), 'S4': S8.s4_test(items)}
+
+
+def missing_selected(sel: dict | None, groups) -> list[dict]:
+    """O2 (#785, option A): the Mac-selected (model, level) must have Part-2 results; list what is missing."""
+    if not sel:
+        return []
+    base = f"B1+{sel['model']}@{sel['level']}"
+    return [{'model': sel['model'], 'level': sel['level'], 'latency': lat, 'group': g}
+            for lat, g in (('ZERO_LATENCY', base), ('MEASURED', base + '+MEASURED')) if g not in groups]
+
+
+def rerun_hint(missing: list[dict]) -> str:
+    """Colab re-run for the missing group: notebook and pin unchanged; one override cell between cells 7 and 8."""
+    if not missing:
+        return ''
+    m, lv = missing[0]['model'], missing[0]['level']
+    return (f'In Cell 1 set RUN_MODELS = ["{m}"] and RUN_PART2 = True; insert after Cell 7: '
+            f'SELECTION["per_model"]["{m}"] = {{"level": "{lv}"}}; SELECTION["selected"] = {{"model": "{m}", "level": "{lv}"}}; '
+            'then Run All (finished groups resume from checkpoints) and score the new e8-run zip.')
 
 
 def load_checkpoints(run: Path) -> tuple[list[dict], dict[str, dict]]:
@@ -128,21 +160,23 @@ def score(run: Path, pack: Path, mac_index: Path) -> dict:
     pre = S8.summary(records, reqs, table, regime_of, family_of, own_box=own_box_hits(records, actors))
     sel = pre['selection'].get('selected')
     h2 = s3 = s4 = None
-    early = {}
+    fam_case = {cid: m['family'] for cid, m in cases.items()}
     sel_group = f"B1+{sel['model']}@{sel['level']}" if sel else None
+    missing = missing_selected(sel, groups)
     if sel_group in groups:
-        rows = [dict(r, group='SELECTED') for r in segments if r['group'] == sel_group] + [r for r in segments if r['group'] == 'B1']
-        pts = [dict(p, group='SELECTED') for p in points if p['group'] == sel_group] + [p for p in points if p['group'] == 'B1']
-        h2 = S8.h2_test(rows, pts)
-        s3 = S8.s3_test(rows)
-        items = [(cases[d['case_id']]['family'], S8.early_switch_s(classes[sel_group][d['case_id']], classes['B1'][d['case_id']], d['tick']))
-                 for d in dps if regime_of[d['base_id']] == 'VISIBLE']
-        s4 = S8.s4_test(items)
-        for g in groups:
-            if g != 'B1':
-                vals = sorted(S8.early_switch_s(classes[g][d['case_id']], classes['B1'][d['case_id']], d['tick'])
-                              for d in dps if regime_of[d['base_id']] == 'VISIBLE')
-                early[g] = {'n': len(vals), 'median_s': vals[len(vals) // 2] if vals else None, 'values': vals}
+        hyp = part2_hypotheses(sel_group, segments, points, classes, dps, regime_of, fam_case)
+        h2, s3, s4 = hyp['H2'], hyp['S3'], hyp['S4']
+    early = {}
+    for g in groups:
+        if g != 'B1':
+            vals = sorted(S8.early_switch_s(classes[g][d['case_id']], classes['B1'][d['case_id']], d['tick'])
+                          for d in dps if regime_of[d['base_id']] == 'VISIBLE')
+            early[g] = {'n': len(vals), 'median_s': vals[len(vals) // 2] if vals else None, 'values': vals}
+    # O3 (#785): every zero-latency model group, reported as sensitivity only (uncorrected; not used by the conclusion)
+    sensitivity = {g: {'model': MODEL_GROUP.match(g).group(1), 'level': MODEL_GROUP.match(g).group(2), 'is_selected': g == sel_group,
+                       'role': 'SENSITIVITY_NOT_IN_CONCLUSION', 'metrics': per_group[g],
+                       **part2_hypotheses(g, segments, points, classes, dps, regime_of, fam_case)}
+                   for g in sorted(groups) if MODEL_GROUP.match(g)}
     p1 = S8.summary(records, reqs, table, regime_of, family_of, own_box=own_box_hits(records, actors), h2=h2, s3=s3, s4=s4)
     first = {k: v for k, v in p1['position_bias']['first_option_rate'].items() if k.split('|')[1] in ('L2', 'L3')}
     results = {'schema': 'e8_results_v1', 'generated_utc': dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -150,15 +184,37 @@ def score(run: Path, pack: Path, mac_index: Path) -> dict:
                'answer_table_sha256': hashlib.sha256((pack / 'scoring_only' / 'answer_table.json').read_bytes()).hexdigest(),
                'regime_counts': p1['regimes'], 'regime_mismatch_e6': regime_mismatch, 'part1': p1,
                'part2': {'per_group': per_group, 'selected_group': sel_group, 'H2': h2, 'S3': s3, 'S4': s4, 'early_switch_s': early,
-                         'decision_points': points},
-               'identity_status': 'UNCONFIRMED'}
+                         'sensitivity_model_groups': sensitivity, 'decision_points': points},
+               'limitations': LIMITATIONS, 'identity_status': 'UNCONFIRMED'}
     results['conclusion'] = S8.conclusion(p1['primary'], p1['secondary'], union_answerable=p1['union_answerable'], first_option=first)
+    if any(m['latency'] == 'ZERO_LATENCY' for m in missing):
+        results.update(status='SELECTED_GROUP_MISSING', conclusion='SELECTED_GROUP_MISSING', selected_group_missing=missing,
+                       rerun_hint=rerun_hint(missing))
+    else:
+        results['status'] = 'OK'
+        if missing:
+            results['selected_group_missing'] = missing      # MEASURED only: exploratory, the conclusion does not use it
     return results
+
+
+LIMITATIONS = [
+    'Part 2 groups are chosen from tentative Part-1 scores on Colab (label table only; O1, D417 trade-off); the Mac re-selects with '
+    'GT regimes and stops with SELECTED_GROUP_MISSING if that group was not run.',
+    'SELECTED is chosen from Part-1 accuracy on the same decision points that Part 2 tests, which biases it towards passing H2 '
+    '(selection bias, O3); all model groups are reported as uncorrected sensitivity, and only SELECTED enters the conclusion.',
+    'A merged option shows the detector score of its representative member (the tallest box, design §2.4), which can be lower '
+    'than another member\'s score in a different camera; it is not a low-confidence signal about the person (N1).',
+]
 
 
 def render_md(r: dict) -> str:
     p1, p2 = r['part1'], r['part2']
-    out = ['# E8 results', '', f"- conclusion: **{r['conclusion']}** (design §5.5)", f"- regimes: {r['regime_counts']}",
+    out = ['# E8 results', '']
+    if r.get('status') == 'SELECTED_GROUP_MISSING':
+        out += ['> **SELECTED_GROUP_MISSING** — the Mac-selected group has no Part-2 results, so H2 / S3 / S4 and the conclusion are '
+                'not available. Missing: ' + ', '.join(f"{m['model']} @ {m['level']} ({m['latency']})" for m in r['selected_group_missing']),
+                f"> Re-run: {r['rerun_hint']}", '']
+    out += [f"- conclusion: **{r['conclusion']}** (design §5.5)", f"- regimes: {r['regime_counts']}",
            f"- selected (Part 2 primary): {p2['selected_group']}", '', '## Part 1 accuracy (majority over 3 orders)', '',
            '| group / level | majority | mean | n | needs_mac |', '| --- | ---: | ---: | ---: | ---: |']
     for k, v in p1['accuracy'].items():
@@ -173,6 +229,12 @@ def render_md(r: dict) -> str:
     for g, v in p2['per_group'].items():
         out.append(f"| {g} | {v.get('follow_rate')} | {v.get('wrong_person_s')} | {v.get('wrong_camera_s')} | {v.get('lost_s')} | "
                    f"{v.get('false_lock_s')} | {int(v.get('dp_correct', 0))} / {v.get('dp_n')} | {int(v.get('asks', 0))} |")
+    out += ['', '## Part 2 sensitivity: every model group vs B1 (uncorrected; not in the conclusion)', '',
+            '| group | selected | follow | wrong person s | H2 p | S3 p | S4 median s |', '| --- | --- | ---: | ---: | ---: | ---: | ---: |']
+    for g, v in (p2.get('sensitivity_model_groups') or {}).items():
+        out.append(f"| {g} | {'yes' if v['is_selected'] else ''} | {v['metrics'].get('follow_rate')} | {v['metrics'].get('wrong_person_s')} | "
+                   f"{(v['H2'] or {}).get('p')} | {(v['S3'] or {}).get('p')} | {(v['S4'] or {}).get('median')} |")
+    out += ['', '## Limitations', ''] + [f'- {x}' for x in r.get('limitations', [])]
     out += ['', 'Identity stays UNCONFIRMED.', '']
     return '\n'.join(out)
 
@@ -207,6 +269,9 @@ def main(argv: list[str] | None = None) -> int:
         BF.build_all_figures(a.out / 'unified' / 'unified_analysis.json', a.out / 'figures')
     print(json.dumps({'conclusion': res['conclusion'], 'selected': res['part2']['selected_group'],
                       'primary': {k: v.get('status') for k, v in res['part1']['primary'].items() if isinstance(v, dict)}}, indent=1))
+    if res.get('status') == 'SELECTED_GROUP_MISSING':
+        print(f"SELECTED_GROUP_MISSING: {res['selected_group_missing']}\n{res['rerun_hint']}", file=sys.stderr)
+        return EXIT_SELECTED_GROUP_MISSING
     return 0
 
 

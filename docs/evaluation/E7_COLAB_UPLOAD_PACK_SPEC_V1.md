@@ -157,4 +157,5 @@ E8 uses its own pack, builder and notebook; the E7 pack, its MANIFEST and notebo
   | `scoring_only/answer_table.json` | Part-1 label-only table (D385/D392 allowlist), read only by notebook cell 7 |
 
 - **Pre-upload gate:** every request passes `_scan_forbidden_gt_fields` and `arms.reject_forbidden`; the GT box and a-log strings are absent; `verify_colab_pack_pre_upload` must PASS. On any failure the builder deletes the whole pack.
+- **Merged options (N1, #785 review):** from L0c up, boxes of one person in different cameras merge into one option. The option shows the box and detector `score` of its representative member, which is the tallest box, so the score can be lower than the same person's score in another camera. It is not a low-confidence signal about the person.
 - **Part-2 GT stays on the Mac:** TRUE_DEPARTURE, OWN_BOX and the Part-2 metrics are computed only by `scripts/evaluation/e8_score_run.py`.
