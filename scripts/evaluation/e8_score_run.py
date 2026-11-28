@@ -265,6 +265,9 @@ LIMITATIONS = [
     '(selection bias, O3); all model groups are reported as uncorrected sensitivity, and only SELECTED enters the conclusion.',
     'A merged option shows the detector score of its representative member (the tallest box, design §2.4), which can be lower '
     'than another member\'s score in a different camera; it is not a low-confidence signal about the person (N1).',
+    'Part 2 on Colab runs tracker.Projector.ground with a fixed left-to-right summation instead of numpy\'s BLAS order (D421, design '
+    '§6.3.2): the B1 b-logs were frozen on arm64 and x86 BLAS rounding moved est_xy by up to 3.6e-15 m with no discrete change; the '
+    'gate stays exact and every Part 2 group, rule and model, uses the same arithmetic.',
 ]
 
 
