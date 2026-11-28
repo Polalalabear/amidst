@@ -234,6 +234,22 @@ def test_unified_analysis_schema_and_source_preservation(tmp_path: Path):
     bad["identity_status"] = "CONFIRMED"
     assert UNIFIED.validate_against_schema(bad, schema)
 
+    # E8 (#780) is optional: absent by default, added (and schema-checked) only with --e8-results
+    assert "e8" not in doc and not any(src["source_id"] == "e8_results" for src in doc["sources"])
+    e8_path = tmp_path / "unified_e8_section.json"
+    e8_path.write_text(json.dumps({"schema": "e8_unified_v1", "conclusion": "INCONCLUSIVE", "accuracy": {}, "first_option_rate": {},
+                                   "verdicts": {"H1a": "EXPLORATORY"}, "part2": {}, "early_switch_s": {},
+                                   "identity_status": "UNCONFIRMED", "selection": {"selected": None}}), encoding="utf-8")
+    out_e8 = tmp_path / "out_e8"
+    assert UNIFIED.main(["--e5-report", str(e5_path), "--e8-results", str(e8_path), "--out-dir", str(out_e8), "--no-charts"]) == 0
+    doc8 = json.loads((out_e8 / "unified_analysis.json").read_text(encoding="utf-8"))
+    assert doc8["e8"]["conclusion"] == "INCONCLUSIVE" and UNIFIED.validate_against_schema(doc8, schema) == []
+    assert any(src["source_id"] == "e8_results" and src["status"] == "LOADED" for src in doc8["sources"])
+    assert "## E8 Information Ladder" in (out_e8 / "unified_analysis.md").read_text(encoding="utf-8")
+    bad8 = json.loads(json.dumps(doc8))
+    bad8["e8"]["identity_status"] = "CONFIRMED"
+    assert UNIFIED.validate_against_schema(bad8, schema)
+
 
 def test_run_all_stage1_budget_check_reads_apiguard_usage_jsonl_and_excludes_denied(tmp_path: Path):
     """P2-2: run_all.sh Stage 1 reads real ApiGuard usage.jsonl est_cost_usd, excludes DENIED, and enforces cap."""

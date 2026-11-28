@@ -159,6 +159,7 @@ def build_unified_analysis(
     is_official_benchmark: bool = False,
     hardware_note: str | None = None,
     dataset_scope: str = "e3_16_segments",
+    e8_results_path: Path | None = None,
 ) -> dict:
     sources: list[dict] = []
     e5_doc = None
@@ -195,6 +196,8 @@ def build_unified_analysis(
     e7_doc = _register_json("e7_analysis", "e7_analysis", e7_analysis_path)
     e6_doc = _register_json("e6_verdict", "e6_verdict", e6_verdict_path)
     t672_doc = _register_json("target_tracking_672", "other", target_672_path)
+    # E8 (#780) is optional: registered only when given, so documents without it are unchanged
+    e8_doc = _register_json("e8_results", "e8_results", e8_results_path) if e8_results_path is not None else None
 
     if answer_table_path is not None and answer_table_path.is_file():
         sources.append(
@@ -472,7 +475,7 @@ def build_unified_analysis(
             "Windows RTX 3060 is smoke-test only."
         )
 
-    return {
+    doc = {
         "schema_version": "unified_analysis_v1",
         "generated_at_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "git_commit": current_git_commit(),
@@ -510,6 +513,9 @@ def build_unified_analysis(
         "e6_verdict": e6_verdict,
         "target_tracking_672": target_tracking_672,
     }
+    if e8_doc is not None:
+        doc["e8"] = e8_doc
+    return doc
 
 
 def _fmt(v, digits: int = 3) -> str:
@@ -570,6 +576,18 @@ def render_markdown(doc: dict) -> str:
         "",
         f"- Status: `{doc['target_tracking_672']['status']}` (targets: `{len(doc['target_tracking_672']['targets'])}`)",
         "",
+    ]
+    if doc.get("e8"):
+        e8 = doc["e8"]
+        lines += [
+            "## E8 Information Ladder & Handoff (#780)",
+            "",
+            f"- Conclusion: `{e8.get('conclusion')}` (identity `{e8.get('identity_status')}`)",
+            f"- Selected group: `{(e8.get('selection') or {}).get('selected')}`",
+            "- Verdicts: " + ", ".join(f"`{k}` {v}" for k, v in sorted((e8.get('verdicts') or {}).items())),
+            "",
+        ]
+    lines += [
         "## Provenance Sources",
         "",
         "| Source ID | Kind | Status | Path | SHA-256 |",
@@ -632,6 +650,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--e7-analysis", type=Path, default=None, help="Optional path to E7 analysis JSON")
     parser.add_argument("--e6-verdict", type=Path, default=None, help="Optional path to E6 verdict JSON")
     parser.add_argument("--target-672", type=Path, default=None, help="Optional path to #672 target tracking JSON")
+    parser.add_argument("--e8-results", type=Path, default=None, help="Optional E8 unified section (unified_e8_section.json from e8_score_run.py)")
     parser.add_argument("--answer-table", type=Path, default=None, help="Optional path to E3 answer table summary/events file")
     parser.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA, help="Path to unified_analysis_schema_v1.json")
     parser.add_argument("--out-dir", type=Path, required=True, help="Output directory for unified_analysis.json, .md, and PNGs")
@@ -666,6 +685,7 @@ def main(argv: list[str] | None = None) -> int:
         platform=args.platform,
         is_official_benchmark=args.official_benchmark,
         dataset_scope=args.dataset_scope,
+        e8_results_path=args.e8_results,
     )
 
     schema = json.loads(args.schema.read_text(encoding="utf-8"))
