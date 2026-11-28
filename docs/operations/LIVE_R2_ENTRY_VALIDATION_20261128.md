@@ -58,3 +58,39 @@ Python 41 passed，Node 59 passed。R2 驗證獨立執行兩次，`summary.json`
 | `$AMIDST_ARTIFACTS/run/summary.json` | 12,667 bytes／1 | `768b1d2513b31e7d3a972954a63b252b879f5d5b4058686a64cbae292972ec30` | 以 `verify_relock_r2.py` 重建，含四份輸入及 graph 校驗值 |
 | `$AMIDST_ARTIFACTS/blue-recording.json` | 187,532 bytes／1 | `47f12976e07717ad160effef8a95706455bb7bf242db18f9e808c5e9d2a2a427` | 以 `live_blue_recording.mjs` 重建 |
 | `$AMIDST_ARTIFACTS/blue-gate.json` | 8,769 bytes／1 | `1585d809e50725633d30bd765addf66630cbacc3e04f77d33631feeae6fac833` | 以 `live_color_gate_diagnose.py` 重建 |
+
+要核對 #617 原 H1-1 檔案的兩次輸入重播，在同一 clone 使用下列指令。這段只進行模擬步進，沒有相機擷取或 detector。
+
+```sh
+node --input-type=module - "$EVIDENCE/cx617-main-20261120/a/browser.case.json" "$DATA/live-assets-20261115/cameras.three.json" <<'JS'
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {createCrowd} from './frontend/live-mode/src/crowd.mjs';
+import {buildN6Cameras} from './frontend/live-mode/src/n6.mjs';
+import {captureStride, createPlayback, hashBinding} from './frontend/live-mode/src/recording.mjs';
+import {Scene} from './frontend/live-mode/node_modules/three/build/three.module.js';
+const read = path => JSON.parse(fs.readFileSync(path));
+const source = read(process.argv[2]);
+const cameraSource = read(process.argv[3]);
+const geometry = read('docs/evaluation/R004_SCENE_GEOMETRY_2D_V1.json');
+const scenario = read('docs/evaluation/R004_A4B4_SCENARIO_V2_3_4ACTOR_DRAFT.json');
+const run = scenario.runs.find(r => r.run_id === source.run_id);
+const segments = geometry.clearance_segments;
+const scene = new Scene();
+const cams = buildN6Cameras(cameraSource, scene, source.config.w, source.config.h);
+scene.updateMatrixWorld(true);
+const bindings = {
+  scene_sha256: await hashBinding({run, segments}),
+  cameras_sha256: await hashBinding(Object.fromEntries(Object.entries(cams).map(([id, {camera}]) =>
+    [id, {world: camera.matrixWorld.toArray(), projection: camera.projectionMatrix.toArray()}]))),
+};
+assert.deepEqual(bindings, source.bindings);
+for (let i = 0; i < 2; i++) {
+  const crowd = createCrowd(run, {actorId: source.actor_id, segments, auto: !!source.config.auto, cfg: source.config.crowd, strict: false});
+  const playback = createPlayback(source, crowd, bindings);
+  while (!playback.done) playback.step();
+}
+console.log(JSON.stringify({recorded_case: source.case_id, repeats: 2, steps_per_replay: source.inputs.length,
+  logical_captures_per_replay: 1 + Math.floor(source.inputs.length / captureStride(source.config.fps)), bindings, exact_expected_snapshots: true}));
+JS
+```
