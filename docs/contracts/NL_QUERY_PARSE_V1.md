@@ -48,7 +48,7 @@ prompt; the models still must answer with canonical ids.
   `terra6.1` (`AMIDST_NL_OPENAI_MODEL`, default `astra6`). The key is read from `OPENAI_API_KEY` **on the server only**, at call time; it never
   appears in a response, a recording, a log or the front end. Uses the #526 transport/extraction helpers (`agent_providers`).
 * **LOCAL**: Ollama on loopback (`AMIDST_NL_OLLAMA_MODEL`, `AMIDST_NL_OLLAMA_ENDPOINT`, default `http://127.0.0.1:11434`), JSON-schema `format`.
-* **RULES**: `parse_rules(text, vocab)`, a pure function (no I/O, clock or model). Must work alone.
+* **RULES in Spotlight** interprets two fixed-width `HH:MM:SS` boundaries on the selected run’s declared date and timezone, then returns elapsed source seconds. `M:SS`, single-digit-hour `H:MM:SS` and duration units keep their elapsed meaning. A wall-clock range needs one declared clock. Mixed formats and midnight rollover are rejected. A wholly uncovered range reports `OUT_OF_RANGE`. A range beginning before source zero and ending inside or after the recording reports `TIME_SCOPE_PARTIAL` and can be entered in the wall-time form. The nonnegative elapsed format cannot represent its requested start. Standalone callers such as LIVE and the WP5 pack use elapsed parsing.
 
 A layer is skipped to the next one when: it is not configured (`NOT_CONFIGURED`), exceeds the timeout (`TIMEOUT`, default 2500 ms per
 remote layer), fails (`UNAVAILABLE`), or returns something that does not pass §2 validation (`SCHEMA_REJECTED`). Validation is
@@ -65,7 +65,7 @@ failures never break a parse. Tests use fake clients or recordings; no real API 
 
 The Spotlight bar (⌘K / magnifier, centered, blurred backdrop, Esc closes) shows the parsed fields as chips while typing (debounced, RULES
 locally via the same endpoint) and 「未辨識」 chips for `unrecognized`. Enter fills the existing query window (action → 查找/追蹤 window, location, class,
-colour, start/end) for the user to confirm or edit; no query is started by Enter. Settings key `nlParser`: `RULES` (default) | `API` | `LOCAL`.
+colour, start/end) and submits the selected query. A rejected wall-clock range shows its error in Spotlight and prevents submission. Settings key `nlParser`: `RULES` (default) | `API` | `LOCAL`.
 
 ## Paid-API guard (shared spend guard)
 

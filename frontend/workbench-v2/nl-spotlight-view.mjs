@@ -4,7 +4,12 @@
 import {PARSER_MODES, chipsFromParse, createSpotlight} from './nl-spotlight-model.mjs';
 
 const MODE_NAME = Object.fromEntries(PARSER_MODES);
-const ERRORS = Object.freeze({NO_RUN: '尚無來源，無法解析', NL_PARSE_REQUEST: '句子或來源不正確', NL_PARSE_SCHEMA: '伺服器回應格式不符', TIMEOUT: '伺服器沒有回應，請再試一次', FORBIDDEN_INFERENCE_INPUT: '句子不合規則（1–200 字）'});
+const ERRORS = Object.freeze({
+  TIME_EXPRESSION_INVALID: '請輸入同一天且結束晚於開始的兩個時鐘時間',
+  OUT_OF_RANGE: '查詢時間超出此資料記錄的時間範圍',
+  TIME_SCOPE_PARTIAL: '開始時間早於錄影起點，請在查詢表單指定完整時段',
+  CLOCK_MAPPING_MISSING: '請選擇一個有展示時鐘對應的來源',
+  NO_RUN: '尚無來源，無法解析', NL_PARSE_REQUEST: '句子或來源不正確', NL_PARSE_SCHEMA: '伺服器回應格式不符', TIMEOUT: '伺服器沒有回應，請再試一次', FORBIDDEN_INFERENCE_INPUT: '句子不合規則（1–200 字）'});
 export const PLACEHOLDER = '例如：追蹤紅衣的人 從西入口 0:10 到 0:30';
 
 export function mountSpotlight({host, store, api, getMode = () => 'RULES', apply, win = globalThis, debounceMs = 220, clientTimeoutMs = 10000}) {

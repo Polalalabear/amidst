@@ -97,6 +97,7 @@ def validate_parse(obj, vocab: NlVocabulary) -> dict:
 
 # ---- RULES (pure) ----------------------------------------------------------------------------------------------
 _TIME = re.compile(r'\d+:\d{2}(?::\d{2})?(?:\.\d+)?|\d+\s*分(?:\s*\d+\s*秒)?|\d+(?:\.\d+)?\s*秒')
+_WALL_TOKEN = re.compile(r'\d{2}:\d{2}:\d{2}(?:\.\d+)?')
 _FIND = ('查找', '查詢', '搜尋', '尋找', '找出', '找', '哪些鏡頭', '哪幾台', '哪台', '拍到')
 _TRACK = (*TRACKING_VERBS, '追')
 _FILLERS = tuple(sorted({*GRAMMAR, *_FIND, *_TRACK, '請', '一下', '出現', '看看', '查'}, key=len, reverse=True))
@@ -120,8 +121,25 @@ def _seconds(token: str):
     return int(total) if float(total).is_integer() else total
 
 
-def parse_rules(text: str, vocab: NlVocabulary) -> dict:
-    """Fixed-pattern parser. Pure: no I/O, no clock, no model. Unknown pieces go to ``unrecognized``; nothing is guessed."""
+def resolve_wall_window(tokens, *, mapping):
+    from amidst.q1q5.clock_mapping import ClockMappingError, parse_wall_range
+
+    if len(tokens) != 2 or not all(_WALL_TOKEN.fullmatch(token) for token in tokens):
+        raise ClockMappingError('TIME_EXPRESSION_INVALID', 'Use two wall-clock boundaries')
+    if mapping is None:
+        raise ClockMappingError('CLOCK_MAPPING_MISSING', 'Select one run with a declared clock')
+    start, end = parse_wall_range(mapping, *tokens)
+    start_us, end_us = mapping.wall_to_source(start), mapping.wall_to_source(end)
+    if end_us <= 0 or start_us >= mapping.duration_us:
+        raise ClockMappingError('OUT_OF_RANGE', 'Wall range falls outside the selected run')
+    if start_us < 0:
+        # The Spotlight wire format cannot represent a negative source offset.
+        raise ClockMappingError('TIME_SCOPE_PARTIAL', 'Wall range starts before source zero')
+    return {'start': start_us / 1_000_000, 'end': end_us / 1_000_000}
+
+
+def parse_rules(text: str, vocab: NlVocabulary, *, wall_window: Callable[[list[str]], dict] | None = None) -> dict:
+    """Parse elapsed times and let the caller resolve wall times when it has run context."""
     text = str(text)
     mask = [False] * len(text)
 
@@ -144,11 +162,15 @@ def parse_rules(text: str, vocab: NlVocabulary) -> dict:
         rest = rest.replace(phrase, ' ')
     pieces = list(dict.fromkeys(p for p in rest.split() if p))
     window = None
-    spans = [(m.group(), _seconds(m.group())) for m in times]
-    if len(spans) == 2 and all(s is not None and s <= MAX_SECONDS for _, s in spans) and spans[0][1] < spans[1][1]:
-        window = {'start': spans[0][1], 'end': spans[1][1]}
+    tokens = [match.group() for match in times]
+    if wall_window is not None and len(tokens) >= 2 and any(_WALL_TOKEN.fullmatch(token) for token in tokens):
+        window = wall_window(tokens)
     else:
-        pieces.extend(t for t, _ in spans)
+        seconds = [_seconds(token) for token in tokens]
+        if len(seconds) == 2 and all(s is not None for s in seconds) and seconds[0] < seconds[1] <= MAX_SECONDS:
+            window = {'start': seconds[0], 'end': seconds[1]}
+        else:
+            pieces.extend(tokens)
 
     def uniq(items):
         return list(dict.fromkeys(items))
@@ -326,7 +348,7 @@ def clients_from_environment(env: Mapping | None = None, guard=None) -> dict:
 
 # ---- orchestration ---------------------------------------------------------------------------------------------
 def parse_nl_query(text, vocab: NlVocabulary, *, mode: str = 'RULES', api=None, local=None, timeout_ms: int = DEFAULT_TIMEOUT_MS,
-                   clock: Callable[[], float] = time.monotonic) -> dict:
+                   clock: Callable[[], float] = time.monotonic, wall_window: Callable[[list[str]], dict] | None = None) -> dict:
     if not isinstance(text, str) or not text.strip() or len(text.strip()) > MAX_TEXT:
         raise ValueError('text must be 1..200 characters')
     if mode not in MODES:
@@ -363,7 +385,7 @@ def parse_nl_query(text, vocab: NlVocabulary, *, mode: str = 'RULES', api=None, 
             break
     if result is None:
         s = clock()
-        parsed = validate_parse(parse_rules(text, vocab), vocab)
+        parsed = validate_parse(parse_rules(text, vocab, wall_window=wall_window), vocab)
         trail.append({'parser': 'RULES', 'outcome': 'OK', 'latency_ms': round((clock() - s) * 1000.0, 3)})
         costs.append(0.0)
         result = ('RULES', parsed)

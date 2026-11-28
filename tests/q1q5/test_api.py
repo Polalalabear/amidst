@@ -209,6 +209,40 @@ def test_nl_query_parse_route_rules_default_and_fake_api_fallback():
         with pytest.raises(APIError):api.call('nl_query_parse',bad,authorize)
 
 
+@pytest.mark.parametrize(('literal', 'expected'), [
+    ('14:00:00 到 14:00:20', {'start': 0, 'end': 20}),
+    ('0:00 到 0:20', {'start': 0, 'end': 20}),
+    ('23:59:59 到 00:00:01', 'TIME_EXPRESSION_INVALID'),
+    ('14:01:00 到 14:01:20', 'OUT_OF_RANGE'),
+    ('13:59:20 到 13:59:40', 'OUT_OF_RANGE'),
+    ('13:59:59 到 14:00:20', 'TIME_SCOPE_PARTIAL'),
+    ('14:00:30 到 14:01:00', {'start': 30, 'end': 60}),
+    ('0:00 到 14:00:20', 'TIME_EXPRESSION_INVALID'),
+])
+def test_nl_rules_run_clock(literal, expected):
+    from amidst.q1q5.clock_mapping import ClockMapping
+
+    run = run_binding()
+    # Source zero is 14:00:00, but wall_origin denotes source second 5.
+    document = dict(run.bindings.clock.document, wall_origin='2026-11-01T14:00:05+08:00',
+                    t0_us=5_000_000, source_duration_us=50_000_000)
+    document['content_sha256'] = canonical_hash(document, exclude=('content_sha256',))
+    mapping = ClockMapping(document)
+    run = replace(run, bindings=replace(run.bindings, clock=mapping, clock_sha256=mapping.content_sha256))
+    api = QAPI([run], max_responses=128, max_media_refs=4096, nl_clients={})
+    request = {'session_ref': TOKEN, 'context': {'scene_id': run.catalog['scene_id'], 'run_ids': [mapping.run_id]},
+               'text': '哪些鏡頭拍到人 ' + literal, 'mode': 'RULES'}
+    if isinstance(expected, str):
+        with pytest.raises(APIError) as exc:
+            api.call('nl_query_parse', request, authorize)
+        assert exc.value.code == expected
+    else:
+        result = api.call('nl_query_parse', request, authorize)
+        assert result['parser'] == 'RULES' and result['cost_usd'] == 0
+        assert result['time'] == expected
+    assert not api.responses
+
+
 def test_q3_is_parser_only_and_client_executes_only_parsed_result():
     api,run=api_fixture();q={'schema_version':'q-demo.q3-parse-request.v1','session_ref':TOKEN,'text':'車13:00:00到13:00:01','locale':'zh-TW',
         'context':{'scene_id':run.catalog['scene_id'],'run_ids':[run.catalog['run_id']],'clock_mapping_sha256':run.bindings.clock_sha256},'parser_mode':'RULE_ONLY'}
