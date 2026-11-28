@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from PIL import Image
@@ -21,7 +21,9 @@ CAMERAS = ("left", "right")
 
 
 @pytest.fixture
-def live_server(monkeypatch, tmp_path):
+def live_server(monkeypatch, tmp_path, request):
+    relock = getattr(request, "param", "off")
+    camera_ids = CAMERAS + ("entry",) if relock == "fallback" else CAMERAS
     catalog = tmp_path / "cameras.json"
     catalog.write_text('{"cameras": []}')
     # Top-down, ten pixels per metre. Both cameras see the same ground coordinates.
@@ -30,7 +32,7 @@ def live_server(monkeypatch, tmp_path):
         "fx": 100, "fy": 100, "cx": 0, "cy": 0, "width": 96, "height": 60,
     }
     monkeypatch.setattr(live, "load_cameras", lambda _: [
-        dict(calibration, camera_id=cam) for cam in CAMERAS
+        dict(calibration, camera_id=cam) for cam in camera_ids
     ])
     graph = {"cameras": [{"camera_id": cam} for cam in CAMERAS], "transitions": []}
     monkeypatch.setattr(live, "load_graph", lambda *_: (graph, {"graph_sha256": "a" * 64}))
@@ -44,13 +46,13 @@ def live_server(monkeypatch, tmp_path):
         cameras=str(catalog), camera_graph=None, graph_sha256=None, expand_every=1,
         schedule="adaptive", models=tmp_path, device="cpu", threads=1, det_resize_mode="letterbox",
         assets=tmp_path, advisor="off", advisor_provider="fake", gate_m=3.0, gate_growth=0,
-        max_gate=8, det_width=96, det_height=60, camera_min_scores={}, min_score=0.15,
+        max_gate=8, det_width=96, det_height=60, camera_min_scores={}, min_score=0.15, relock=relock,
     ))
     backend = ThreadingHTTPServer(("127.0.0.1", 0), live.make_handler(state))
     thread = threading.Thread(target=backend.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True)
     thread.start()
 
-    def request(path, req=None, *, raw=None, headers=None):
+    def http_request(path, req=None, *, raw=None, headers=None):
         method = "GET" if req is None and raw is None else "POST"
         data = json.dumps(req).encode() if raw is None and req is not None else raw
         conn = HTTPConnection("127.0.0.1", backend.server_port, timeout=3)
@@ -67,22 +69,25 @@ def live_server(monkeypatch, tmp_path):
         Image.new("RGB", (96, 60), color).save(data, format="JPEG")
         jpeg[color] = data.getvalue()
 
-    def infer(tick, left=(), colors=("red", "red"), path="/infer", *, status=200):
+    def infer(tick, left=(), colors=("red", "red"), path="/infer", *, status=200,
+              frame_ids=None, available=None):
         boxes[:] = [
             {"bbox": [x, 0, x + 10, 30], "score": 0.9, "actor_id": "never-serialized"}
             for x in left
         ]
-        frames = [(cam, jpeg[color]) for cam, color in zip(CAMERAS, colors)]
+        frame_colors = dict(zip(camera_ids, colors, strict=True))
+        requested = camera_ids if frame_ids is None else frame_ids
+        frames = [(cam, jpeg[frame_colors[cam]]) for cam in requested]
         header = json.dumps({
-            "tick": tick, "t_capture_ms": 500 * tick, "available_cameras": list(CAMERAS),
+            "tick": tick, "t_capture_ms": 500 * tick, "available_cameras": list(camera_ids if available is None else available),
             "frames": [{"cam": cam, "bytes": len(data)} for cam, data in frames],
         }).encode()
-        code, body = request(path, raw=struct.pack("<I", len(header)) + header + b"".join(data for _, data in frames))
+        code, body = http_request(path, raw=struct.pack("<I", len(header)) + header + b"".join(data for _, data in frames))
         assert code == status, body
         return body
 
     try:
-        yield state, request, infer
+        yield state, http_request, infer
     finally:
         backend.shutdown()
         backend.server_close()
@@ -128,6 +133,41 @@ def test_idle_preview_is_read_only_and_start_with_no_infer_autolocks_once(live_s
         409, {"error": "TRACK_MODE_CONFLICT"}
     )
     assert state.tracker.est is None
+
+
+@pytest.mark.parametrize("live_server", ["fallback"], indirect=True)
+def test_fallback_next_plan_sends_uncovered_jpeg_and_keeps_missing_frames_unknown(live_server):
+    state, request, infer = live_server
+    assert request("/track/start", {"color": "red", "session_id": state.selection.session_id})[0] == 200
+    colors = ("red", "blue", "blue")
+    available = ["entry", "unregistered", "left", "entry", "right"]
+    # A registered camera that is not advertised does not enter the next plan.
+    hidden = infer(0, (8,), colors=colors, frame_ids=["left", "right"], available=["left", "right"])
+    assert hidden["tracking"]["active_cam"] == "left"
+    assert hidden["schedule"]["next_camera_ids"] == ["left"]
+
+    first = infer(1, (8,), colors=colors, frame_ids=["left"], available=available)
+    assert first["schedule"]["camera_ids"] == ["left"]
+    assert "entry" not in first["dets"]
+    assert first["schedule"]["next_camera_ids"] == ["entry", "left"]
+
+    with patch.object(state.det, "detect", wraps=state.det.detect) as detect:
+        second = infer(2, (), colors=colors, frame_ids=first["schedule"]["next_camera_ids"], available=available)
+        images, = detect.call_args.args
+        blue, red = (image.getpixel((0, 0)) for image in images)
+        assert blue[2] > 240 and red[0] > 240
+        assert second["schedule"] == dict(first["schedule"], camera_ids=["entry", "left"])
+        assert second["dets"] == {"entry": [], "left": []}
+        assert second["tracking"]["lost_ticks"] == 1
+        detect.reset_mock()
+
+        missing = infer(3, (), colors=colors, frame_ids=["left"], available=available)
+        missing_images, = detect.call_args.args
+        assert len(missing_images) == 1 and missing_images[0].getpixel((0, 0))[0] > 240
+        assert missing["schedule"]["lost_rounds"] == 1 and missing["schedule"]["reason"] == "LOST_EXPAND"
+        assert missing["schedule"]["camera_ids"] == ["left"]
+        assert missing["schedule"]["next_camera_ids"] == ["entry", "left", "right"]
+        assert missing["dets"] == {"left": []}
 
 
 def test_non_monotonic_infer_leaves_tracking_and_scheduler_untouched(live_server):

@@ -45,15 +45,19 @@ def observation_records(recording):
     ]
 
 
-def replay_safe(records, cameras, size, projector, graph, mode="all", config=None):
+def replay_safe(
+    records, cameras, size, projector, graph, mode="all", config=None, *, cover_single_uncovered_camera=False
+):
     """Policy inputs are only the selected observation fields and capture clocks."""
     tracker = Tracker(projector, gate_m=GATE, relock=config)
-    scheduler = CameraScheduler(graph, mode=mode, expand_every=1)
+    scheduler = CameraScheduler(graph, mode=mode, expand_every=1,
+                                cover_single_uncovered_camera=cover_single_uncovered_camera)
     reference = RelockPolicy(RelockConfig())
     result = []
     for i, row in enumerate(records):
         t = row["t_capture_ms"] / 1000
-        plan = scheduler.plan(tracker.active, tracker.lost, cameras, t_s=t)
+        schedule_trace = {}
+        plan = scheduler.plan(tracker.active, tracker.lost, cameras, t_s=t, trace=schedule_trace)
         dets = {
             c: [{key: d[key] for key in OBSERVATION_KEYS if key in d} for d in row["dets"][c]]
             for c in plan["camera_ids"]
@@ -70,6 +74,7 @@ def replay_safe(records, cameras, size, projector, graph, mode="all", config=Non
         ]
         representatives = [g[0] for g in group_observations(all_red, 1.5)]
         trace = {
+            **schedule_trace,
             "unseen_s": t - previous_t if previous_t is not None else None,
             "reference": reference.reference,
             "groups": [

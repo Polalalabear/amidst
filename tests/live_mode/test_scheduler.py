@@ -45,6 +45,50 @@ def test_unknown_graph_scope_search_and_explicit_camera_subset_do_not_invent_edg
     assert s.plan("B", 0, ["B", "D"])["camera_ids"] == ["B"]
 
 
+@pytest.mark.parametrize(
+    ("lost", "reason", "radius"), [(0, "ACTIVE_NEIGHBORS", 1), (1, "LOST_EXPAND", 2)]
+)
+def test_adaptive_supplements_one_available_uncovered_camera(lost, reason, radius):
+    available = ["ENTRY", "C", "B", "ENTRY", "B", "E"]
+    scheduler = CameraScheduler(graph(), cover_single_uncovered_camera=True)
+    trace = {}
+    plan = scheduler.plan("B", lost, available, trace=trace)
+    assert plan == {
+        "mode": "adaptive", "camera_ids": ["ENTRY", "C", "B"], "reason": reason,
+        "lost_rounds": lost, "radius": radius, "graph_sha256": None,
+    }
+    assert trace == {"supplemented_camera_ids": ["ENTRY"]}
+    assert "ENTRY" not in scheduler.adj
+
+
+def test_adaptive_does_not_supplement_zero_or_two_available_uncovered_cameras():
+    scheduler = CameraScheduler(graph(), cover_single_uncovered_camera=True)
+    for available in (["B", "E"], ["B", "E", "ENTRY", "OUTSIDE"]):
+        trace = {}
+        assert scheduler.plan("B", 0, available, trace=trace)["camera_ids"] == ["B"]
+        assert trace == {}
+    # One recent uncovered camera does not make a second eligible for supplementation.
+    scheduler.observe({"ENTRY": [{"color": "red"}]}, 1.0)
+    available = ["B", "E", "ENTRY", "OUTSIDE"]
+    assert scheduler.plan("B", 0, available, t_s=1.5)["camera_ids"] == ["B", "ENTRY"]
+    assert scheduler.plan("B", 0, ["B", "E"], t_s=1.5)["camera_ids"] == ["B"]
+
+
+def test_all_and_default_off_keep_existing_schedule_bytes():
+    available = ["ENTRY", "C", "B", "ENTRY", "A", "E"]
+    default = CameraScheduler(graph())
+    off = CameraScheduler(graph(), cover_single_uncovered_camera=False)
+    expected = dict(mode="adaptive", camera_ids=["C", "B", "A"], reason="ACTIVE_NEIGHBORS",
+                    lost_rounds=0, radius=1, graph_sha256=None)
+    assert json.dumps(default.plan("B", 0, available)) == json.dumps(off.plan("B", 0, available)) == json.dumps(expected)
+    expected.update(mode="all", camera_ids=["ENTRY", "C", "B", "A", "E"], reason="ALL_CAMERAS")
+    for enabled in (False, True):
+        trace = {}
+        all_cameras = CameraScheduler(graph(), mode="all", cover_single_uncovered_camera=enabled)
+        assert json.dumps(all_cameras.plan("B", 0, available, trace=trace)) == json.dumps(expected)
+        assert trace == {}
+
+
 def test_graph_load_is_hash_and_camera_catalog_bound(tmp_path):
     import hashlib
 
@@ -61,7 +105,8 @@ def test_graph_load_is_hash_and_camera_catalog_bound(tmp_path):
         load_graph(p, digest, "b" * 64, list("ABCDE"))
 
 
-def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations():
+@pytest.mark.parametrize("cover", [False, True])
+def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations(cover):
     import io
     import threading
     from types import SimpleNamespace
@@ -72,8 +117,8 @@ def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations
 
     state = object.__new__(State)
     state.selection = TrackSelection()
-    state.registered_cameras = list("ABCDE")
-    state.scheduler = CameraScheduler(graph(), expand_every=1)
+    state.registered_cameras = [*list("ABCDE"), "ENTRY", "SPARE"]
+    state.scheduler = CameraScheduler(graph(), expand_every=1, cover_single_uncovered_camera=cover)
     state.args = SimpleNamespace(
         det_width=320, det_height=180, min_score=0.35, camera_min_scores={}
     )
@@ -97,10 +142,15 @@ def test_server_does_not_infer_unselected_images_or_fabricate_empty_observations
     buf = io.BytesIO()
     Image.new("RGB", (320, 180)).save(buf, format="JPEG")
     result = state.infer(
-        {"tick": 1, "available_cameras": list("ABCDE")}, {c: buf.getvalue() for c in "ABCDE"}, True
+        {"tick": 1, "available_cameras": [*list("ABCDE"), "ENTRY", "UNREGISTERED"]},
+        {c: buf.getvalue() for c in [*state.registered_cameras, "UNREGISTERED"]},
+        True,
     )
-    assert sizes == [3] and list(result["dets"]) == list("ABC")
-    assert result["schedule"]["next_camera_ids"] == list("CDE")
+    # The unregistered ID does not count as a second eligible graph omission.
+    supplemented = ["ENTRY"] if cover else []
+    assert sizes == [3 + len(supplemented)]
+    assert list(result["dets"]) == list("ABC") + supplemented
+    assert result["schedule"]["next_camera_ids"] == list("CDE") + supplemented
 
 
 def test_recent_pixel_red_camera_survives_active_neighborhood_switch_then_expires():

@@ -51,6 +51,7 @@ class CameraScheduler:
         graph_sha256=None,
         recent_candidate_s=DEFAULT_RECENT_CANDIDATE_S,
         target_color="red",
+        cover_single_uncovered_camera=False,
         **legacy,
     ):
         # Preserve the existing replay entry point without editing frozen B1 callers.
@@ -66,6 +67,7 @@ class CameraScheduler:
         if target_color not in ("red", "blue"):
             raise ValueError("INVALID_TARGET_COLOR")
         self.target_color = target_color
+        self.cover_single_uncovered_camera = cover_single_uncovered_camera
         self.reset()
         self.adj = {c["camera_id"]: set() for c in graph["cameras"]}
         for edge in graph["transitions"]:
@@ -113,7 +115,7 @@ class CameraScheduler:
                 if any(row.get("color") == self.target_color for row in rows):
                     self._recent_candidates[cam] = t_s
 
-    def plan(self, active, lost_rounds, available, *, t_s=None):
+    def plan(self, active, lost_rounds, available, *, t_s=None, trace=None):
         self._advance(t_s)
         available = list(dict.fromkeys(available))
         lost_rounds = max(0, int(lost_rounds))
@@ -138,6 +140,13 @@ class CameraScheduler:
                 selected.update(front)
             # Candidate coverage supplements graph adjacency without inventing topology.
             selected.update(self._recent_candidates)
+            if self.cover_single_uncovered_camera:
+                uncovered = [camera for camera in available if camera not in self.adj]
+                if len(uncovered) == 1:
+                    camera, = uncovered
+                    if trace is not None and camera not in selected:
+                        trace["supplemented_camera_ids"] = uncovered
+                    selected.add(camera)
             reason = "LOST_EXPAND" if radius > 1 else "ACTIVE_NEIGHBORS"
         return {
             "mode": self.mode,
