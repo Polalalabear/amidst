@@ -35,7 +35,7 @@
 
 ## 重跑
 
-在獨立 clone 以既有唯讀 Python 與 Node 相依執行。`EVIDENCE`／`DATA` 指定專案的 LOCAL 根，`AMIDST_ARTIFACTS` 指定輸出根。使用新輸出路徑。
+在獨立 clone 以既有唯讀 Python 環境執行。先執行 `npm ci --prefix frontend/live-mode` 安裝鎖定的 Node 相依。R2 評分由 `t1_analyze.mjs` 匯入 `frontend/live-mode/measure/lib.mjs`，因此需要 `puppeteer-core`。`EVIDENCE`／`DATA` 指定專案的 LOCAL 根，`AMIDST_ARTIFACTS` 指定輸出根。使用新輸出路徑。
 
 ```sh
 node --test frontend/live-mode/test/recording.test.mjs frontend/live-mode/test/protocol.test.mjs frontend/live-mode/test/hud.test.mjs
@@ -55,7 +55,7 @@ Python 41 passed，Node 59 passed。R2 驗證獨立執行兩次，`summary.json`
 | `local/evidence/cx617-main-20261120/a/browser.case.json` | 152,561 bytes／1 | `9aace10a7b99114f48958d1576b7c6549543a3085baf0b560d516e9402e8fe09` | 歷史錄製，位元組無法重建 |
 | `local/evidence/cx552-d-20261118/MANIFEST.json` | 13,559 bytes，涵蓋 80 檔 | `803e6e09ade8ab128f9e7387e42cf568127858832335892389aff7348f507090` | 歷史凍結來源，D273 文件說明可重跑範圍 |
 | `local/data/live-assets-20261115/cameras.catalog.json` | 12,793 bytes／1 | `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f` | 凍結校正，直接讀取 |
-| `$AMIDST_ARTIFACTS/run/summary.json` | 12,667 bytes／1 | `768b1d2513b31e7d3a972954a63b252b879f5d5b4058686a64cbae292972ec30` | 以 `verify_relock_r2.py` 重建，含四份輸入及 graph 校驗值 |
+| `$AMIDST_ARTIFACTS/run/summary.json` | 12,667 bytes／1 | `768b1d2513b31e7d3a972954a63b252b879f5d5b4058686a64cbae292972ec30` | 以 `verify_relock_r2.py` 重建，評分段需 `puppeteer-core`（見「重跑」），含四份輸入及 graph 校驗值 |
 | `$AMIDST_ARTIFACTS/blue-recording.json` | 187,532 bytes／1 | `47f12976e07717ad160effef8a95706455bb7bf242db18f9e808c5e9d2a2a427` | 以 `live_blue_recording.mjs` 重建 |
 | `$AMIDST_ARTIFACTS/blue-gate.json` | 8,769 bytes／1 | `1585d809e50725633d30bd765addf66630cbacc3e04f77d33631feeae6fac833` | 以 `live_color_gate_diagnose.py` 重建 |
 
