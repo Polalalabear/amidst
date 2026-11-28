@@ -736,6 +736,22 @@
       "sha256": "f7177918017b6161084f277721651b9401334abea7d487ccc055cc21a9e6351c",
       "status": "現行；加「用量與交接節奏」小節（D420）",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93"
+    },
+    {
+      "id": "D771-DOCS-1",
+      "path": "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+      "ref": "claude/feat-demo-ac@452194dce7ce7116375c7c25f2c666901ca07a6f",
+      "sha256": "419dcdfdb192d7ff0c7d35e04a400c76323c8589771cb72e9940ad51977c7f6e",
+      "status": "現行；AC3／AC6 判定寫入目標框（#771）與 v1 審核決策檢視（#772）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/771"
+    },
+    {
+      "id": "D771-DOCS-2",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "claude/feat-demo-ac@452194dce7ce7116375c7c25f2c666901ca07a6f",
+      "sha256": "614bef82554bfee8abf28dd3d9ffa0d47fe21b503fab4f96f7539441e9531331",
+      "status": "現行；加 q_track_boxes 唯讀端點說明（#771）；登記不等於核准",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/771"
     }
   ],
   "authorized_changes": [
@@ -1235,6 +1251,20 @@
       "requires_commit": "f2cb1dec382f9e57c70ea812f0533905c1cb4633",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/93",
       "reason": "加用量與交接節奏小節（D420）。登記不等於核准"
+    },
+    {
+      "path": "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+      "sha256": "419dcdfdb192d7ff0c7d35e04a400c76323c8589771cb72e9940ad51977c7f6e",
+      "requires_commit": "452194dce7ce7116375c7c25f2c666901ca07a6f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/771",
+      "reason": "AC3／AC6 判定寫入目標框（#771）與 v1 審核決策檢視（#772）。只改文件敘述，規則不變；登記不等於核准"
+    },
+    {
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "sha256": "614bef82554bfee8abf28dd3d9ffa0d47fe21b503fab4f96f7539441e9531331",
+      "requires_commit": "452194dce7ce7116375c7c25f2c666901ca07a6f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/771",
+      "reason": "加 q_track_boxes 唯讀端點說明（#771）。只改文件敘述，規則不變；登記不等於核准"
     }
   ]
 }

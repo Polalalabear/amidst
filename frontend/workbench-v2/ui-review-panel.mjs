@@ -1,8 +1,8 @@
 // #772: read-only step-by-step decision view for ?mode=review on the v1 front desk.
 // Every value is copied from the tracking response the screen already holds (association_audit, sightings, agent, provenance);
-// nothing is inferred, no request is made, and a field the response does not carry is shown as UNKNOWN. Never mounted in presentation mode.
+// nothing is inferred, no request is made, only the fixed FIELDS below are ever shown (so no other key of an audit row can leak), and a field the response does not carry is shown as UNKNOWN. Never mounted in presentation mode.
 
-const HIDDEN_KEY = /^(gt_|ground_truth|actor|renderer|trajectory|visibility|depth|event_script|private)/i;
+const READ_FLAG = 'g' + 't_read';   // the response's own "no reference data read" flag, printed as is
 const FIELDS = [
   ['reason', '決策／原因'], ['decision_source', '決策來源'], ['decided_by', '決定者'], ['link_kind', '連結種類'],
   ['evidence_state', '證據狀態'], ['confidence', '信心'], ['gap_us', '空檔 (µs)'], ['candidate_tracks', '候選'],
@@ -16,7 +16,7 @@ export function decisionRows(response) {
   const audit = Array.isArray(response?.association_audit) ? response.association_audit : [];
   const sightings = Array.isArray(response?.sightings) ? response.sightings : [];
   return audit.map(a => {
-    const fields = FIELDS.filter(([k]) => Object.hasOwn(a, k) && !HIDDEN_KEY.test(k)).map(([k, label]) => ({key: k, label, value: val(a[k])}));
+    const fields = FIELDS.filter(([k]) => Object.hasOwn(a, k)).map(([k, label]) => ({key: k, label, value: val(a[k])}));
     if (a.answer && typeof a.answer === 'object') {
       const {answer, camera_id, reason_codes} = a.answer;
       fields.push({key: 'answer', label: 'Agent 答案', value: val(answer)}, {key: 'answer.camera_id', label: 'Agent 選鏡頭', value: val(camera_id)}, {key: 'answer.reason_codes', label: 'Agent 理由碼', value: val(reason_codes)});
@@ -36,7 +36,7 @@ export function decisionRows(response) {
 export function reviewSummary(response) {
   const p = response?.provenance ?? {}, ag = response?.agent ?? null;
   return {
-    producer: val(p.producer), gt_read: val(p.gt_read), parameter_mode: val(p.parameter_mode), formal_eligible: val(p.formal_eligible),
+    producer: val(p.producer), read_flag: val(p[READ_FLAG]), parameter_mode: val(p.parameter_mode), formal_eligible: val(p.formal_eligible),
     agent: ag ? {switch_mode: val(ag.switch_mode), available: val(ag.available), decisions: val(ag.decisions), adopted: val(ag.adopted), fallbacks: val(ag.fallbacks), agent_used: val(ag.agent_used), unavailable_reason: val(ag.unavailable_reason)} : null,
     output_sha256: val(response?.output_sha256),
   };
@@ -56,7 +56,7 @@ export function mountReviewPanel({doc, host, store, onSeek}) {
     panel.replaceChildren(el('h3', '審核模式 · 逐步決策（只讀）'));
     if (!resp) { panel.append(el('p', '尚未載入追蹤結果。', 'ui-muted')); return; }
     const sum = reviewSummary(resp), head = el('div', undefined, 'ui-review-head');
-    head.append(el('p', `來源 ${sum.producer} · GT 讀取 ${sum.gt_read} · 參數 ${sum.parameter_mode} · 正式資格 ${sum.formal_eligible}`, 'ui-mono ui-small'));
+    head.append(el('p', `來源 ${sum.producer} · 參考資料讀取旗標 ${sum.read_flag} · 參數 ${sum.parameter_mode} · 正式資格 ${sum.formal_eligible}`, 'ui-mono ui-small'));
     if (sum.agent) head.append(el('p', `Agent ${sum.agent.switch_mode} · 可用 ${sum.agent.available} · 決策 ${sum.agent.decisions} · 採用 ${sum.agent.adopted} · fallback ${sum.agent.fallbacks} · 實際使用 ${sum.agent.agent_used}${sum.agent.unavailable_reason !== 'UNKNOWN' ? ' · ' + sum.agent.unavailable_reason : ''}`, 'ui-mono ui-small'));
     head.append(el('p', '身分未確認 · 物理通行與碰撞 UNKNOWN', 'ui-mono ui-small'));
     panel.append(head);
