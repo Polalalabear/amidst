@@ -250,6 +250,7 @@ class Demo(P1):
         self.api = QAPI(runs, max_responses=512, max_media_refs=4096, rgb_api=self.rgb,
                         camera_display_positions=self.positions, track_estimator=self.estimate)
         self.scenes = {r.catalog['scene_id'] for r in runs}
+        self.shown_obs = {}
 
     @staticmethod
     def load_eightcam(eightcam, graphs):
@@ -393,6 +394,8 @@ class Demo(P1):
             token = secrets.token_urlsafe(32); self.sessions[token] = self.scenes
             return {'session_ref': token, 'role': payload['role']}
         key = payload.get('scene_id'), payload.get('run_id')
+        if action == 'q_track_boxes':
+            return self.track_boxes(payload)
         if action == 'q_core_track' and key in self.core_track_keys:
             from amidst.q1q5.service_core_track import core_track
             _safe_request(payload); self.authorize(payload['session_ref'], key[0])
@@ -401,6 +404,7 @@ class Demo(P1):
             doc = core_track(payload, run, decider=decider, unavailable_reason=why,
                              demo_default=key[1] in {s['run_id'] for s in RUN_SPECS.values()},
                              display_positions=self.positions.get(key))
+            self.remember_obs(payload['session_ref'], key, doc)
             return self.with_estimate(key, doc)
         if action != 'q_core_track' or key not in self.cross:
             if action == 'q_core_track':
@@ -443,7 +447,34 @@ class Demo(P1):
             'max_area_ratio': 12, 'same_camera_merge_gap_us': 600_000}
         if doc['single_view'] and doc['single_view'][-1]['kind'] in {'GAP', 'LOST'}:
             doc['blind'] = _blind_for_track(run, doc['sightings'], stamp, self.positions[key])
+        self.remember_obs(payload['session_ref'], key, doc)
         return self.with_estimate(key, doc)
+
+    def track_boxes(self, payload):
+        """#771: read-only source boxes for the detections a tracking response already named (its sightings), nothing else.
+
+        The track response itself is untouched (its output_sha256 is pinned by AC7 / the gate). Boxes come from the pinned detection
+        index through the same reader as ``q2_artifact`` (``QAPI._summary``); no GT, annotation or renderer data is read."""
+        require(set(payload) == {'session_ref', 'scene_id', 'run_id', 'observation_ids'}, 'FORBIDDEN_INFERENCE_INPUT')
+        token, key, ids = payload['session_ref'], (payload['scene_id'], payload['run_id']), payload['observation_ids']
+        require(isinstance(token, str) and key in self.api.runs, 'FORBIDDEN_DATA_SCOPE')
+        self.authorize(token, key[0])
+        require(isinstance(ids, list) and 0 < len(ids) <= 128 and len(set(ids)) == len(ids)
+                and all(isinstance(x, str) and x for x in ids), 'FORBIDDEN_INFERENCE_INPUT')
+        require(set(ids) <= getattr(self, 'shown_obs', {}).get((token,) + key, frozenset()), 'FORBIDDEN_DATA_SCOPE')
+        run, boxes = self.api.runs[key], {}
+        for oid in ids:
+            o = self.api._summary(run, oid)
+            boxes[oid] = {k: o[k] for k in ('observation_id', 'camera_id', 'timestamp_us', 'frame_ref', 'class_label', 'score', 'bbox_xyxy_px')}
+        return {'schema_version': 'q-demo.track-boxes.v1', 'resolved_scope': {'scene_id': key[0], 'run_id': key[1]},
+                'detection_index_sha256': run.bindings.index_sha256, 'evidence_state': 'OBSERVED', 'observations': boxes,
+                'identity_verdict': 'UNCONFIRMED', 'provenance': {'gt_read': False, 'producer': 'demo-detection-index-boxes'}}
+
+    def remember_obs(self, token, key, doc):
+        """#771: remember which observations this session's tracking responses named (track_boxes serves only those)."""
+        seen = {oid for s in doc.get('sightings', []) for oid in s.get('observation_ids', [])}
+        shown = self.__dict__.setdefault('shown_obs', {})   # lazily: some tests build Demo without __init__
+        shown[(token,) + key] = shown.get((token,) + key, frozenset()) | frozenset(seen)
 
     def with_estimate(self, key, doc):
         run = self.api.runs[key]
