@@ -403,6 +403,26 @@ E7 的 Qwen-3B 用 E7 格式（輸出上限 256 token），p50 是 5.4–6.0 s�
 - 第 7 格的選組讀所有輪的 checkpoint；Mac 端照 G6 用全部模型重選。
 - `e8_score_run.py --run` 可以給幾個 zip，同名的 checkpoint 以後面的為準；只給最後一輪的 zip 也得到相同結果。
 
+### 6.3.2 第二部分的投影算術（B1 閘門在 Colab 停下，2026-11-28）
+
+2026-11-28 使用者在 Colab 跑到第 8 格時，B1 重現閘門（G1／V2）停下：28 段裡只有 3 段一致。
+
+**根因**：`tracker.Projector.ground` 用 numpy 的 `M[:3, :3] @ d_cam` 把畫面上的腳點投到地面。這個 3×3 乘法走平台的 BLAS，各平台的加總順序和 FMA 用法不同。B1 b-log 是在 Mac（arm64）上凍結的，Colab 是 x86_64，兩邊的 `est_xy` 會差在最後一個位元，而閘門逐欄完全比對 `tracking`。
+
+**在 Mac 上重現**（完整 pack）：
+- 只把這一步的加總順序反過來（或改成 x86 BLAS 式的 FMA 累加），數學不變，閘門就從 28/28 掉到 2/28。
+- 過的那 2 段是 E6-S04、E6-S07，兩段全程都是 `NEEDS_PICK`、沒有 `est_xy`，正好對上 Colab 通過的那幾段。
+- 照從左到右的順序用純 Python 浮點數算，閘門 28/28，而且 34,247 次投影和 Mac numpy 的結果逐位元相同。
+
+**修正**（只改 notebook，pin `62981f08` 不變；不跳過、不放寬閘門）：
+- 第 8 格在跑閘門前，把 `tracker.Projector.ground` 換成 `ground_ieee`：數學相同，加總順序固定為從左到右，全用 Python 浮點數。IEEE-754 在每種 CPU 上對它的結果都相同。
+- 用 Rosetta 跑 x86_64 的 CPython，抽 685 次投影，結果和 arm64 逐位元相同。
+- 閘門和第二部分的每一組都用這個算術；第一部分不做投影（請求在打包時已算好），所以不受影響。
+- 換用的事記成偏離，寫在 `RUN_DEVIATIONS`，並在 `RUN_NOTES.projector_arithmetic` 記 `ieee_left_to_right`。
+- 測試：`tests/evaluation/test_e8_notebook_projector.py`。
+
+**算不算 G1 的偏離**：G1 本身照預登執行，28/28 完全一致，標準沒有改。這是「環境差異導致重現失敗，以 notebook 固定算術修正」，要在結果的偏離裡寫明：換用的事、根因，以及 Mac 上的等價證據（第一次在 Colab 停下的紀錄也保留）。
+
 ### 6.4 回 Mac 一條指令
 
 ```bash
@@ -423,6 +443,7 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | `tests/evaluation/test_build_e8_colab_pack.py`（6 項） | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
 | `tests/evaluation/test_e8_score.py`（7 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值；提早切對、§5.5 結論、union answerable、`unified_section`；兩個模型對同一 request_id 答 OWN_BOX 時各自保留 |
 | `tests/evaluation/test_e8_score_run.py`（6 項） | Mac 評分：SELECTED 缺第二部分結果時列出缺的（模型, 級, 延遲）並以狀態 3 結束、md 頂端警告與補跑指示（G6）；四個模型組的敏感度表；「限制」段；OWN_BOX 補判以模型區分；`RUN_NOTES` 的 GPU 偏離依輪分開；兩輪的 checkpoint 合併後不重複計算，缺的第一部分組列出 |
+| `tests/evaluation/test_e8_notebook_projector.py`（3 項） | 第 8 格的 `ground_ieee` 和 `tracker.Projector.ground` 數學相同，且逐位元等於固定順序的參考算式；換用在 `b1_gate` 之前並記成偏離；`b1_reproduced` 仍逐位元比對（差 1 ulp 就失敗） |
 | `tests/evaluation/test_e8_notebook_memory.py`（5 項） | notebook 第 6 格的 `with_backend`／`release_backend`：Qwen 與 laya builder `cache` 裡的模型在用完後被釋放（weakref 失效），工作丟例外時也釋放；provenance 不受影響；釋放後 GPU 仍佔用超過上限就停下；模組層級沒有 `raw`／`fn`／`ask`／`audit` |
 | `tests/evaluation/test_e8_colab_run.py`（3 項） | 分組與 Qwen L0 只跑 p0 的規則；`projected_hours`；checkpoint 續跑與指紋不同時重跑；SMOKE 替身可解析 |
 | `tests/evaluation/test_e8_handoff.py`（5 項） | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
