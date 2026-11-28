@@ -24,6 +24,7 @@ D91 時期（2026-10-27）的封存是**原地加檔頭、不搬**，清單在 [
 
 | 日期 | 決策 | PR／commit | 動作 | 內容與證據 |
 | --- | --- | --- | --- | --- |
+| 2026-11-28 | D409、D420 | [#799](https://github.com/Polalalabear/amidst/issues/799) 的 Draft PR | 唯讀盤點 | §3.7 記錄文件、程式碼、本機資產與針對性測試。264 項資產，18 個初步候選尚待用途核對，5,650,440,038 邏輯 bytes 同內容副本。 |
 | 2026-11-27 | D411 | [#764](https://github.com/Polalalabear/amidst/pull/764) `c96196cb`；本總帳 PR `claude/docs-ledger-progress-d411` | 新增＋更新 | #720 換 pin 後 AC1–AC8（子 session ac720-acceptance，Sonnet，零付費、無頭）：AC8 通過、AC6 未通過、AC5 RULE_ONLY 通過（Agent 未驗證）、其餘部分通過；紀錄 `docs/operations/AC1_AC8_PIN_5727FC9A_20261127.md`，LOCAL `local/evidence/ac-720-20261127/`（`SHA256SUMS` SHA-256 `5e53b7d9171764f7c59a75af5a3e1b0a770bf84fc5e67bbb01f7102c3e5ebb04`）。#720 關閉；後續 issue #770（AC2 絕對時鐘解析）、#771（AC3／AC4 目標框）、#772（AC6 審核面板）、#773（AC7 B-05 hash）。#93 本文：8785 收尾、LIVE 第二段、est_xy＋8CAM 三列改寫，新增 #762、#770–#773 五列 |
 | 2026-11-27 | D411 | [#761](https://github.com/Polalalabear/amidst/pull/761) `16a35980` | 更新 | #633 tokens 鏡像部分退役：`ab_flow.test.mjs`、`ab_menu.test.mjs`、`n6_ceiling_compare.mjs` 改讀正本 `frontend/workbench-v2/tokens.css`；鏡像 `frontend/live-mode/src/tokens.css` **保留**，因為 E3 凍結錄製器 `scripts/evaluation/e3_cases/record.mjs` 從 `frontend/live-mode/src/` 讀它，而 `record.mjs` 的 SHA 釘在 `configs/evaluation/e3_reappearances_v1.json`；`tokens-css-mirror.test.mjs` 改寫理由並加來源檢查。要刪鏡像，得等 E3 凍結解除或重新登記。#633 關閉 |
 | 2026-11-27 | D411 | — （GitHub issue） | 更新＋新增 | #594 關閉（D302 只要求加一個 8CAM run，A4-1-8CAM、B4-1-8CAM 已由 #623 交付）；B-05、r005 8CAM 沒有素材，另開 #762（`owner:codex`、`deferred`） |
@@ -128,6 +129,61 @@ tag 共 47 個（`archive/*`），保留。
 4. **`local/`**：照 §3.4 的流程重新盤點、核對、決定，由使用者刪除。
 5. **文件**：照 §3.5，以 D408 的做法分批搬移，每批一個 PR，附對照表、pin 重新登記、連結檢查。
 6. **收尾**：更新 PROGRESS、CODE_DOC_MAP、README 和交接文件，並在 #93 記決策、在 #674 追加一則。
+
+### 3.7 文件、程式碼與本機資產唯讀盤點（2026-11-28）
+
+`main` 基線為 `7dbd2ac084600a86b03710cb9eedd6647667c078`。依使用者指示完成盤點與現行基線的針對性測試。#794、#796、#798 當時待 Claude 審查，跳過其後續變更。#781 等 #785 合併。零付費，未執行模型推論或瀏覽器互動。 [#799](https://github.com/Polalalabear/amidst/issues/799)
+
+#### 本機資產
+
+現行工具在 `local/` 找到 264 項、301,609 筆檔案項目、13,201,742,587 邏輯 bytes。13 個頂層資產包有保護標記，GitHub 與 Git 分支引用查詢均完成，輸出未截斷。 [盤點工具](../../scripts/inventory_local_assets.py)
+
+| 工具分類 | 項目 | 檔案項目 | 邏輯 bytes |
+| --- | ---: | ---: | ---: |
+| `KEEP` | 188 | 282,067 | 12,844,429,853 |
+| `DELETABLE_CANDIDATE` | 49 | 1,063 | 100,028,742 |
+| `UNCERTAIN` | 27 | 18,479 | 257,283,992 |
+
+- 補查 76 個工具未判為 `KEEP` 的項目，涵蓋 799 份 issue／PR 本文、4,386 則留言、`origin/main` 與 6 個開啟 PR 的精確 head。49 個初步候選中，31 個有額外名稱線索（54,752,000 bytes），18 個在兩次掃描皆無命中（45,276,742 bytes，仍待核對）。名稱線索包括可能無關的一般檔名，並逐項列於候選複查表。 [#740](https://github.com/Polalalabear/amidst/issues/740)
+- 已人工確認三個原列候選的用途。`e8-smoke-20261128` 對應 E8 smoke 的 Colab 包，`e6-rn-old16-20261127` 是 E6 R-N 預設輸入，`e7-colab-pack-pertick-20261127` 是 E8 仍引用的逐 tick 請求包。 [E8 重現文件](https://github.com/Polalalabear/amidst/blob/f6f70f7cb361da6009893a5f40af0e1ddadf2649/docs/operations/E8_REPRO_20261128.md#L124) [E6 腳本](https://github.com/Polalalabear/amidst/blob/f6f70f7cb361da6009893a5f40af0e1ddadf2649/scripts/experiments/run_all.sh#L154) [E8 設計](https://github.com/Polalalabear/amidst/blob/f6f70f7cb361da6009893a5f40af0e1ddadf2649/docs/evaluation/E8_DESIGN_V1.md#L50-L67)
+- 逐檔 SHA-256 掃描涵蓋 301,607 個一般檔案路徑，略過 138 個 symlink 及兩個 FIFO。一個執行中的 gateway 狀態 JSON 在讀取時變動，已跳過雜湊。找到 2,052 組 hardlink（合計 2,052 個額外名稱），另有 20,566 組跨 inode 同內容檔案（18,028 組跨資產包），合計 231,882 個額外 inode、5,650,440,038 邏輯 bytes。PNG／JPEG 約占這個量的 91.5%，不少是不同時間點或資產包所需的影格。磁碟可回收位元組未量測，原始資產、路徑與收據皆未更動。
+
+#### 程式碼
+
+掃描 3,189 個 tracked 路徑。全檔相同的 Git blob 有 41 組（含非程式檔）。1,554 個程式／介面檔案與 3 份 notebook 的 22 個程式碼 cell 納入掃描。Python AST 找到 72 組相同函式，跨檔正規化文字則找到 241 組重複區塊（Python 226、JavaScript 4、HTML 11）。兩種偵測可命中同一段，語意重複仍需核對呼叫點。
+
+| 檢視項目 | 目前判定 |
+| --- | --- |
+| Workbench v2 `hms`、`windowText` 與三個顯示文字常數 | 兩套現行實作在 182 組輸入和 3 個常數對照均一致，屬顯示層重複。 [track-map](../../frontend/workbench-v2/track-map-model.mjs) [topdown](../../frontend/workbench-v2/topdown-model.mjs) |
+| Workbench v2 `playbackBounds` | app 組合 Q1、Q2、core 等資料，UI shell 僅處理 core track 路徑，保留各自呼叫範圍。 [app](../../frontend/workbench-v2/app.mjs) [UI shell](../../frontend/workbench-v2/ui-shell.mjs) |
+| 暴力配對與索引式相機關聯 | 重複區塊最多 106 行，測試亦有 268 行相同，兩套入口和候選配對的驗證條件有差異。 [association](../../src/amidst/engineering/association.py) [local association](../../src/amidst/engineering/local_association.py) [tests](../../tests/engineering/test_local_association.py) |
+| 資料包 `frozen_scan_view` | 38 行 AST 相同。獨立 verifier 依契約只用 Python 標準函式庫，因此保留獨立入口。 [verifier](../../scripts/check_handoff_pack.py) [資料包](../../src/amidst/q1q5/team_eval_pack.py) |
+| 歷史 Blender 素材版面和 r004 稽核腳本 | 版面有 141 行重複，r004 腳本共用型態的軌跡檢查約 47 行。兩邊各有獨立入口，這次只有查讀。 [association media](../../src/amidst/workbench/blender_association_media.py) [physical media](../../src/amidst/workbench/blender_physical_media.py) [四人稽核](../../scripts/audit_r004_4actor.py) [自然步行稽核](../../scripts/audit_r004_natural_walk_endpoints.py) |
+
+#### 文件與驗證
+
+- 核對 419 個 tracked Markdown 路徑，其中 291 份現行、125 份歷史、3 個指向受版控正本的 symlink。2,056 個 repo 相對連結中，現行文件 11 筆找不到目標，集中在人工審核 README 的 10 個本機預覽，均未出現在 checkout 且在忽略規則內。歷史文件 22 筆缺相對目標。189 個可解析的本機 Markdown 片段中，有 14 筆歷史來源連結未被近似錨點解析器匹配。外部網址只核對派工相關 issue／PR。 [人工審核 README](../../human_review/README.md) [忽略規則](../../human_review/.gitignore)
+- `Q1Q5_PROGRESS.md` 在基線是 #783 的快照。協調 PR #791 的 guard 報 `AUTHORITY_CHANGED`／`AUTHORITY_DRIFT`，狀態與 pin 由原負責線處理。這次的文件變更只有本總帳。 [進度總表](../operations/Q1Q5_PROGRESS.md) [#791 的 CI](https://github.com/Polalalabear/amidst/actions/runs/46111463020/job/140875711560)
+- 基線的資產盤點與 relock 回放測試 10 項通過，Workbench track-map 與 topdown 測試 28 項通過。顯示函式對照另驗 `hms` 13 組、`windowText` 169 組和常數 3 項。這次無瀏覽器或即時端點測試。
+
+#### LOCAL 證據與重建
+
+| 位置 | 內容 | 大小 | 檔案數 | SHA-256 | 可重建 |
+| --- | --- | ---: | ---: | --- | --- |
+| `$AMIDST_ARTIFACTS/cx799-project-audit-20261128/` | `local-inventory.json`、`local-exact-duplicates.json`、`local-candidate-crossrefs.json`、`local-candidate-review.md`、`tracked-code-redundancy.json`、`tracked-doc-links.json`、三支掃描器與候選名稱輸入 | 40,524,876 bytes | 11（含 MANIFEST） | `MANIFEST.sha256` 的 SHA-256 `bf8aba6e9d7e61e2d89c64fa1c89fd795b8e4a5c62de4877f53e6440ffb12792` | 同一基線和資產可重跑。LOCAL 檔案與 GitHub 留言會變動，盤點是時間快照。 |
+
+在 scratch clone 固定到上述 commit，`AMIDST_LOCAL` 指向唯讀掃描輸入，`AMIDST_ARTIFACTS` 設為證據上層目錄。`PYTHON` 使用有專案 pytest 相依的 Python 環境。`origin/main` 與開啟 PR 的參照須保留當時的 head。候選複查表可對照 `local-candidate-crossrefs.json` 的來源欄位。
+
+```sh
+EVIDENCE_DIR="$AMIDST_ARTIFACTS/cx799-project-audit-20261128"
+"$PYTHON" -B scripts/inventory_local_assets.py --repo . --local-root "$AMIDST_LOCAL" --include-github --include-git-branches --json-out "$EVIDENCE_DIR/local-inventory.json"
+"$PYTHON" -B "$EVIDENCE_DIR/audit_local_duplicates.py" "$AMIDST_LOCAL" > "$EVIDENCE_DIR/local-exact-duplicates.json"
+"$PYTHON" -B "$EVIDENCE_DIR/audit_local_candidate_refs.py" "$EVIDENCE_DIR" Polalalabear/amidst
+"$PYTHON" -B "$EVIDENCE_DIR/audit_tracked_sources.py" . "$EVIDENCE_DIR"
+PYTHONPATH=src "$PYTHON" -B -m pytest -q -o addopts= -p no:cacheprovider tests/operations/test_inventory_local_assets.py tests/live_mode/test_relock_replay.py
+node --test frontend/workbench-v2/track-map.test.mjs frontend/workbench-v2/topdown.test.mjs
+```
+
 
 ## 4. 待辦（不屬於 §3 大整理、已經知道要做的）
 
