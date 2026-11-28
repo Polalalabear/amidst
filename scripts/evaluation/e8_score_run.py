@@ -1,6 +1,6 @@
 """E8 Mac scoring, one command (#780; design E8_DESIGN_V1.md §6.4). Final numbers; reads GT on the Mac only.
 
-  python scripts/evaluation/e8_score_run.py --run <e8-run-*.zip | dir> --pack <e8-colab-pack dir> --mac-index <mac_index.json> --out <dir>
+  python scripts/evaluation/e8_score_run.py --run <e8-run-*.zip | dir> [<round-2 zip> ...] --pack <e8-colab-pack dir> --mac-index <mac_index.json> --out <dir>
 
 Part 1: GT regime per decision point (TRUE_DEPARTURE / FULL_BLIND / VISIBLE from the a-log; E6 cross-checked with the frozen
 gt_regime), OWN_BOX answers judged with e3_scoring.judge_box, then e8_score.summary (H1, S1, S2, selection, position bias).
@@ -30,6 +30,7 @@ import e3_f4_score as F4  # noqa: E402
 from e6_verdict_run import window_ticks  # noqa: E402
 
 from amidst.evaluation import e6_verdict as V  # noqa: E402
+from amidst.evaluation import e8_colab_run as RUN_PLAN  # noqa: E402  (constants only: MODEL_LEVELS)
 from amidst.evaluation import e8_score as S8  # noqa: E402
 from amidst.evaluation.e3_scoring import judge_box  # noqa: E402
 
@@ -68,14 +69,24 @@ def rerun_hint(missing: list[dict]) -> str:
             'then Run All (finished groups resume from checkpoints) and score the new e8-run zip.')
 
 
-def load_checkpoints(run: Path) -> tuple[list[dict], dict[str, dict]]:
-    """-> (part-1 records, {group: part-2 result}) from the packaged run's checkpoints/ folder."""
-    cps = next((p for p in [run / 'checkpoints', *run.glob('*/checkpoints')] if p.is_dir()), None)
-    if cps is None:
-        raise SystemExit(f'NO_CHECKPOINTS in {run}')
+def load_checkpoints(runs) -> tuple[list[dict], dict[str, dict]]:
+    """-> (part-1 records, {group: part-2 result}) from one or more run folders (each round's zip, or one merged folder).
+
+    A later round's zip also carries the earlier rounds' checkpoints (package_run copies the whole checkpoints/ folder), so groups are
+    de-duplicated by checkpoint file name (``<party>__<mode>.json``); the last run given wins.
+    """
+    runs = [Path(r) for r in (runs if isinstance(runs, (list, tuple)) else [runs])]
+    files = {}
+    for run in runs:
+        dirs = [p for p in [run / 'checkpoints', *sorted(run.glob('*/checkpoints'))] if p.is_dir()]
+        for d in dirs:
+            for f in sorted(d.glob('*.json')):
+                files[f.name] = f
+    if not files:
+        raise SystemExit(f'NO_CHECKPOINTS in {[str(r) for r in runs]}')
     recs, part2 = [], {}
-    for f in sorted(cps.glob('*.json')):
-        doc = json.loads(f.read_text())
+    for name in sorted(files):
+        doc = json.loads(files[name].read_text())
         res = doc['result']
         if doc['mode'].startswith('part2_'):
             part2[f"{res['group']}|{res['latency']}"] = res
@@ -104,26 +115,54 @@ def own_box_hits(records: list[dict], actors_by_case: dict) -> dict:
     return out
 
 
-def run_deviations(run: Path) -> tuple[list[str], dict]:
-    """Deviations for the results: the notebook's own list plus the GPU actually used (design §6.3 planned an A100)."""
-    notes_path = next(iter(sorted(Path(run).glob('**/RUN_NOTES.json'))), None)
-    if notes_path is None:
+def run_deviations(runs) -> tuple[list[str], dict]:
+    """Deviations for the results, per round: the notebook's own list plus the GPU actually used (design §6.3 planned an A100).
+
+    Reads every RUN_NOTES*.json in the run folders (a round's own RUN_NOTES.json and the RUN_NOTES_<label>.json copies of earlier
+    rounds), de-duplicated by content. Returns (deviations, {round label: hardware summary}).
+    """
+    runs = [Path(r) for r in (runs if isinstance(runs, (list, tuple)) else [runs])]
+    seen, rounds = set(), {}
+    for run in runs:
+        for f in sorted(run.glob('**/RUN_NOTES*.json')):
+            raw = f.read_bytes()
+            h = hashlib.sha256(raw).hexdigest()
+            if h in seen:
+                continue
+            seen.add(h)
+            notes = json.loads(raw)
+            label = notes.get('run_label') or (f.parent.name if f.name == 'RUN_NOTES.json' else f.stem.replace('RUN_NOTES_', ''))
+            while label in rounds:
+                label += "'"
+            rounds[label] = notes
+    if not rounds:
         return ['RUN_NOTES_MISSING: GPU and notebook deviations unknown'], {}
-    notes = json.loads(notes_path.read_text())
-    hw = notes.get('hardware') or {}
-    gpu = str(hw.get('gpu_name') or 'UNKNOWN')
-    info = {'gpu_name': gpu, 'gpu_vram_mb': hw.get('gpu_vram_mb'), 'accelerated_dtype': hw.get('actual_accelerated_dtype'),
-            'runtime_env': hw.get('runtime_env'), 'smoke_mode': notes.get('smoke_mode'), 'git_commit': notes.get('git_commit'),
-            'qwen_l0_p0_only': notes.get('qwen_l0_p0_only'), 'projected_hours': notes.get('projected_hours')}
-    out = [f'notebook: {d}' for d in notes.get('deviations') or []]
-    if 'A100' not in gpu:
-        out.append(f'GPU: ran on {gpu} (VRAM {hw.get("gpu_vram_mb")} MB, dtype {hw.get("actual_accelerated_dtype")}) instead of the planned '
-                   'A100 (design §6.3); latencies, the 4 h projection and whether Qwen L0 was cut to p0 reflect this GPU. Answers use '
-                   'greedy decoding, but outputs are not guaranteed bit-identical across GPUs.')
+    out, info = [], {}
+    for label, notes in sorted(rounds.items()):
+        hw = notes.get('hardware') or {}
+        gpu = str(hw.get('gpu_name') or 'UNKNOWN')
+        info[label] = {'gpu_name': gpu, 'gpu_vram_mb': hw.get('gpu_vram_mb'), 'accelerated_dtype': hw.get('actual_accelerated_dtype'),
+                       'runtime_env': hw.get('runtime_env'), 'smoke_mode': notes.get('smoke_mode'), 'git_commit': notes.get('git_commit'),
+                       'round_models': notes.get('round_models'), 'qwen_l0_p0_only': notes.get('qwen_l0_p0_only'),
+                       'projected_hours': notes.get('projected_hours'), 'oom_skipped': notes.get('oom_skipped'),
+                       'memory_log': notes.get('memory_log')}
+        out += [d if str(d).startswith('[') else f'[{label}] notebook: {d}' for d in notes.get('deviations') or []]
+        if 'A100' not in gpu:
+            out.append(f'[{label}] GPU: ran on {gpu} (VRAM {hw.get("gpu_vram_mb")} MB, dtype {hw.get("actual_accelerated_dtype")}) instead of '
+                       'the planned A100 (design §6.3); latencies, the 4 h projection and whether Qwen L0 was cut to p0 reflect this GPU. '
+                       'Answers use greedy decoding, but outputs are not guaranteed bit-identical across GPUs.')
     return out, info
 
 
-def score(run: Path, pack: Path, mac_index: Path) -> dict:
+def missing_part1_cells(records: list[dict]) -> list[dict]:
+    """(model, level, perm) groups of the design that have no records (4 h rule, an OOM skip, or a round not run)."""
+    have = {(r['group'], r['level'], r['perm']) for r in records}
+    return [{'model': m, 'level': lv, 'perm': p} for m, levels in RUN_PLAN.MODEL_LEVELS.items() for lv in levels for p in ('p0', 'p1', 'p2')
+            if (m, lv, p) not in have]
+
+
+def score(run, pack: Path, mac_index: Path) -> dict:
+    """``run``: one run folder or a list of them (one per round)."""
     idx = json.loads(mac_index.read_text())
     reqs = [json.loads(x) for x in (pack / 'requests' / 'e8_part1.jsonl').read_text().splitlines() if x.strip()]
     table = json.loads((pack / 'scoring_only' / 'answer_table.json').read_text())
@@ -207,6 +246,7 @@ def score(run: Path, pack: Path, mac_index: Path) -> dict:
                          'sensitivity_model_groups': sensitivity, 'decision_points': points},
                'limitations': LIMITATIONS, 'identity_status': 'UNCONFIRMED'}
     results['run_deviations'], results['run_hardware'] = run_deviations(run)
+    results['part1_missing_groups'] = missing_part1_cells(records)
     results['conclusion'] = S8.conclusion(p1['primary'], p1['secondary'], union_answerable=p1['union_answerable'], first_option=first)
     if any(m['latency'] == 'ZERO_LATENCY' for m in missing):
         results.update(status='SELECTED_GROUP_MISSING', conclusion='SELECTED_GROUP_MISSING', selected_group_missing=missing,
@@ -237,6 +277,12 @@ def render_md(r: dict) -> str:
                 f"> Re-run: {r['rerun_hint']}", '']
     if r.get('run_deviations'):
         out += ['## Run deviations', ''] + [f'- {d}' for d in r['run_deviations']] + ['']
+    if r.get('part1_missing_groups'):
+        miss = defaultdict(list)
+        for m in r['part1_missing_groups']:
+            miss[(m['model'], m['level'])].append(m['perm'])
+        out += ['## Part 1 groups without records (4 h rule, OOM skip, or a round not run)', '',
+                ', '.join(f"{k[0]} {k[1]} ({'/'.join(v)})" for k, v in sorted(miss.items())), '']
     out += [f"- conclusion: **{r['conclusion']}** (design §5.5)", f"- regimes: {r['regime_counts']}",
            f"- selected (Part 2 primary): {p2['selected_group']}", '', '## Part 1 accuracy (majority over 3 orders)', '',
            '| group / level | majority | mean | n | needs_mac |', '| --- | ---: | ---: | ---: | ---: |']
@@ -264,19 +310,22 @@ def render_md(r: dict) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--run', type=Path, required=True, help='e8-run-<date>.zip or its extracted folder')
+    ap.add_argument('--run', type=Path, required=True, nargs='+',
+                    help='e8-run-*.zip or extracted folders; give every round (e.g. r1 and r2 zips), later ones win on duplicates')
     ap.add_argument('--pack', type=Path, required=True)
     ap.add_argument('--mac-index', type=Path, required=True)
     ap.add_argument('--out', type=Path, required=True)
     ap.add_argument('--unified', action='store_true', help='also write unified_analysis.json (e8 section) and the report figures')
     a = ap.parse_args(argv)
     with tempfile.TemporaryDirectory() as tmp:
-        run = a.run
-        if run.suffix == '.zip':
-            with zipfile.ZipFile(run) as zf:
-                zf.extractall(tmp)
-            run = Path(tmp)
-        res = score(run, a.pack, a.mac_index)
+        runs = []
+        for i, run in enumerate(a.run):
+            if run.suffix == '.zip':
+                with zipfile.ZipFile(run) as zf:
+                    zf.extractall(Path(tmp) / f'run{i}')
+                run = Path(tmp) / f'run{i}'
+            runs.append(run)
+        res = score(runs, a.pack, a.mac_index)
     a.out.mkdir(parents=True, exist_ok=True)
     tag = dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d')
     (a.out / f'E8_RESULTS_{tag}.json').write_text(json.dumps(res, indent=1, sort_keys=True, allow_nan=False, default=str) + '\n')

@@ -346,10 +346,10 @@ PACK_INFO.json、MANIFEST.sha256
 | --- | --- |
 | 0、1、1B、2、3、4 | 同 E7：說明、設定（模型與 HF revision 釘選：laya `246177e5…`、Qwen-3B `66285546d2b821cf421d4f5eb2576359d3770cd3`、Qwen-7B `cc594898137f460bfe9f0759e9844b3ce807cfb5`）、clone 釘選 commit、安裝並檢查版本一致、硬體紀錄、解 zip 並驗 MANIFEST |
 | 5 | `e8_colab_run.load_pack`（G5）；每筆請求過 `arms.reject_forbidden` |
-| 6 | 第一部分推論（`run_group`），以 (模型, 級, 順序) 為一組寫 checkpoint，可續跑；每個 Qwen 模型先量前 20 筆的時間，`projected_hours` 超過 4 h 就套 §6.3 規則；laya 每筆記錄附截斷稽核 `laya_truncation`（V6） |
-| 7 | 第一部分評分（唯一可以讀標籤表的格）：總表、H1a–d、圖、選組 |
-| 8 | 第二部分：先跑 B1 重現閘門（`b1_gate`，任一段失敗就停），再跑 FIRST_RED、NEAREST_RED、各模型在選定級，最後選定模型的 MEASURED；每組寫一個 checkpoint（`run_part2_group`） |
-| 9 | 打包 `e8-run-<日期>.zip`（輸出、checkpoint、`RUN_NOTES.json`、偏離） |
+| 6 | 第一部分推論（`run_group`），以 (模型, 級, 順序) 為一組寫 checkpoint，可續跑；只跑本輪的模型（`RUN_MODELS`），一次只有一個模型在 GPU 上（`with_backend`，§6.3.1）；每個 Qwen 模型先量前 20 筆的時間，本輪剩下的工作預估超過 4 h 就套 §6.3 規則；laya 每筆記錄附截斷稽核 `laya_truncation`（V6） |
+| 7 | 第一部分評分（唯一可以讀標籤表的格）：總表、H1a–d、圖、選組；選組讀所有輪的第一部分 checkpoint |
+| 8 | 第二部分：先跑 B1 重現閘門（`b1_gate`，任一段失敗就停），再跑 FIRST_RED、NEAREST_RED、本輪各模型在選定級，最後選定模型的 MEASURED；每組寫一個 checkpoint（`run_part2_group`），已有 checkpoint 的組不載入模型 |
+| 9 | 打包 `e8-run-<日期>-<RUN_LABEL>.zip`（輸出、所有輪的 checkpoint、`RUN_NOTES.json` 與前幾輪的 `RUN_NOTES_<輪>.json`、`e8_l0_rule.json`、偏離、`memory_log`） |
 
 ### 6.3 預估執行時間（必改 3 重估；實測記在 RUN_NOTES）
 
@@ -370,6 +370,39 @@ E7 的 Qwen-3B 用 E7 格式（輸出上限 256 token），p50 是 5.4–6.0 s�
 
 **4 h 規則（預登）**：notebook 第 6 格量完每個 Qwen 模型的前 20 筆後，用實測中位數重算整本的預估時間。A100 上預估超過 4 h，就把 Qwen 的 L0 減為只跑 `p0`（3B、7B 各少 232 筆，約省 50–60 min），寫進 `RUN_NOTES.json` 的偏離。Qwen L0 不在主要假設內，所以這樣減不影響 H1／H2；L0 的順序偏差只用 laya 量。依目前估計，這條規則很可能會觸發。SMOKE 後在本機也會記錄 stub 的時間，但 CPU 時間不能代表 GPU。**GPU 不是 A100 時**（例如 L4），照常執行，4 h 規則用這張 GPU 的實測時間判斷；`RUN_NOTES.json` 記下 GPU 型號，`e8_score_run.py` 把它寫進結果的 `run_deviations`。
 
+### 6.3.1 GPU 記憶體與分輪（L4，2026-11-28）
+
+2026-11-28 使用者在 Colab L4（22 GB）上跑，第 6 格量完 Qwen-3B、載入 7B 時 OOM。原因是舊版 notebook 的 `free(fn)` 只刪掉函式裡的區域名稱，模組層級的 `raw`、`fn`、`ask`、`audit` 和 builder closure 裡的 `cache`（processor、模型）都還留著 3B。
+
+**釋放**（只改 notebook，pin `62981f08` 不變）：
+- 每個模型只在 `with_backend(cfg, phase, work)` 裡載入；模組層級不留任何指向模型的名稱。
+- 用完由 `release_backend` 清掉 `model_caches(fn)` 找到的 `cache` dict（`build_qwen_vl_inference_fn` 的 processor 與 `(processor, model, device)`；laya 的 API 模組與 RLAgent），再 `gc.collect()`、`torch.cuda.empty_cache()`。
+- 釋放後 `torch.cuda.memory_allocated` 超過 `MEM_RELEASE_MAX_GIB`（1 GiB）就停下。每次的峰值和釋放後的用量記進 `RUN_NOTES.memory_log`。
+- OOM 的例外在 `except` 區塊外才清快取，這樣 traceback 裡的張量已經放掉。
+- `tests/evaluation/test_e8_notebook_memory.py` 用真的 builder closure 測這一段（§7.1）。
+
+**7B 在 22 GB 上的估計**（transformers 4.53.3、bf16）：
+- 權重：8.29B 參數，約 15.4 GiB。
+- 文字級（L0–L3）：一張參考圖加少量文字，活化值不到 1 GiB，預估峰值約 16.5 GiB，放得下。
+- L4：一筆請求有 8 張圖（7 張 960×540 的畫格加參考裁切），合計約 18.3k 個視覺 patch。Qwen2.5-VL 的視覺注意力對所有圖的 patch 建一個完整的 4D mask，約 1.3 GiB。
+  - SDPA 用 memory-efficient kernel 時，峰值約 17–18 GiB，放得下。
+  - 退回 math kernel 時，注意力分數本身就約 10.7 GiB，會 OOM。
+  - 用哪個 kernel 由執行期決定，所以 L4 **不確定**。
+- L3F：一張參考圖加完整的 `scene_context` 文字，輸入比 L3 長，但沒有多張圖，預估放得下。為了保險也列入退路。
+
+**退路（預先寫定，不臨時改設計）**：
+- `OOM_FALLBACK_LEVELS = ("L4", "L3F")`。在這兩級 OOM 時，該模型的該級本輪跳過，記偏離 `[<輪>] OOM on <GPU>: <模型> <級> skipped`，列在 `RUN_NOTES.oom_skipped`。
+- 可以用 A100 另跑一輪補上：同一個 `OUTPUT_DIR`，`RUN_MODELS = ["qwen7b"]`。
+- 沒補上的話，S1（qwen7b L4−L3）記為 MISSING，評分列在 `part1_missing_groups`。H1 用 L2／L3，選組只在有紀錄的級之間選，所以都不受影響。
+- 在其他級或載入時 OOM，notebook 停下，回報協調者。
+
+**分輪**（REPRO §1.1）：
+- 同一個 `OUTPUT_DIR` 可以分幾輪跑，每輪設不同的 `RUN_LABEL`，例如 L4 上第一輪跑 laya 兩版和 3B，第二輪跑 7B。
+- fingerprint 各輪相同，checkpoint 檔名不重疊，所以各輪互相續跑、不互擋。
+- 4 h 規則每輪只算本輪的模型和還沒做的組，依模型記在 `e8_l0_rule.json`，之後各輪沿用。
+- 第 7 格的選組讀所有輪的 checkpoint；Mac 端照 G6 用全部模型重選。
+- `e8_score_run.py --run` 可以給幾個 zip，同名的 checkpoint 以後面的為準；只給最後一輪的 zip 也得到相同結果。
+
 ### 6.4 回 Mac 一條指令
 
 ```bash
@@ -389,7 +422,8 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | `tests/evaluation/test_e8_requests.py`（11 項） | 合併規則；3 種順序；各級欄位嚴格遮蔽；L0 與 E7 渲染相同；laya 選項文字；`parse_e8_answer`；KEEP 解析；底線策略；模型接合與截斷；**重複定義掃描**（必改 1，含 `e8_colab_run`、`e8_score_run`） |
 | `tests/evaluation/test_build_e8_colab_pack.py`（6 項） | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
 | `tests/evaluation/test_e8_score.py`（7 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值；提早切對、§5.5 結論、union answerable、`unified_section`；兩個模型對同一 request_id 答 OWN_BOX 時各自保留 |
-| `tests/evaluation/test_e8_score_run.py`（5 項） | Mac 評分：SELECTED 缺第二部分結果時列出缺的（模型, 級, 延遲）並以狀態 3 結束、md 頂端警告與補跑指示（G6）；四個模型組的敏感度表；「限制」段；OWN_BOX 補判以模型區分；`RUN_NOTES` 的 GPU 偏離 |
+| `tests/evaluation/test_e8_score_run.py`（6 項） | Mac 評分：SELECTED 缺第二部分結果時列出缺的（模型, 級, 延遲）並以狀態 3 結束、md 頂端警告與補跑指示（G6）；四個模型組的敏感度表；「限制」段；OWN_BOX 補判以模型區分；`RUN_NOTES` 的 GPU 偏離依輪分開；兩輪的 checkpoint 合併後不重複計算，缺的第一部分組列出 |
+| `tests/evaluation/test_e8_notebook_memory.py`（5 項） | notebook 第 6 格的 `with_backend`／`release_backend`：Qwen 與 laya builder `cache` 裡的模型在用完後被釋放（weakref 失效），工作丟例外時也釋放；provenance 不受影響；釋放後 GPU 仍佔用超過上限就停下；模組層級沒有 `raw`／`fn`／`ask`／`audit` |
 | `tests/evaluation/test_e8_colab_run.py`（3 項） | 分組與 Qwen L0 只跑 p0 的規則；`projected_hours`；checkpoint 續跑與指紋不同時重跑；SMOKE 替身可解析 |
 | `tests/evaluation/test_e8_handoff.py`（5 項） | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
 | `test_e7_decider_eval.py`（加案例） | 已渲染輸入的入口；E7 的舊測試全部照舊通過 |

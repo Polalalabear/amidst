@@ -79,15 +79,38 @@ def test_own_box_hits_keyed_per_model(monkeypatch):
     assert hits == {('qwen3b', 'L0', 'p0', 'E3-X1|t5|L0|p0'): True, ('qwen7b', 'L0', 'p0', 'E3-X1|t5|L0|p0'): False}
 
 
-def test_run_deviations_records_the_gpu(tmp_path):
+def test_run_deviations_records_the_gpu_per_round(tmp_path):
     (tmp_path / 'r').mkdir()
     assert SR.run_deviations(tmp_path / 'r')[0] == ['RUN_NOTES_MISSING: GPU and notebook deviations unknown']
-    notes = {'deviations': ['4h rule: projected 4.6 h > 4.0 h on this GPU; Qwen L0 runs p0 only (design §6.3)'],
-             'hardware': {'gpu_name': 'NVIDIA L4', 'gpu_vram_mb': 23034, 'actual_accelerated_dtype': 'bf16'}, 'qwen_l0_p0_only': True}
-    (tmp_path / 'r' / 'RUN_NOTES.json').write_text(json.dumps(notes))
+    r1 = {'run_label': 'r1', 'deviations': ['[r1] 4h rule: projected 4.6 h > 4.0 h on NVIDIA L4 for this round; qwen3b L0 runs p0 only'],
+          'hardware': {'gpu_name': 'NVIDIA L4', 'gpu_vram_mb': 23034, 'actual_accelerated_dtype': 'bf16'}, 'qwen_l0_p0_only': {'qwen3b': True}}
+    old = {'deviations': ['4h rule: old notebook wording'], 'hardware': {'gpu_name': 'NVIDIA A100-SXM4-40GB'}}
+    (tmp_path / 'r' / 'RUN_NOTES.json').write_text(json.dumps(r1))
+    (tmp_path / 'r' / 'RUN_NOTES_r1.json').write_text(json.dumps(r1))                       # same notes twice -> counted once
+    (tmp_path / 'r' / 'e8-run-20261128').mkdir()
+    (tmp_path / 'r' / 'e8-run-20261128' / 'RUN_NOTES.json').write_text(json.dumps(old))     # an old-notebook round, labelled by folder
     devs, info = SR.run_deviations(tmp_path / 'r')
-    assert devs[0].startswith('notebook: 4h rule') and 'NVIDIA L4' in devs[1] and 'A100' in devs[1]
-    assert info['gpu_name'] == 'NVIDIA L4' and info['qwen_l0_p0_only'] is True
-    notes['hardware']['gpu_name'] = 'NVIDIA A100-SXM4-40GB'
-    (tmp_path / 'r' / 'RUN_NOTES.json').write_text(json.dumps(notes))
-    assert len(SR.run_deviations(tmp_path / 'r')[0]) == 1
+    assert sorted(info) == ['e8-run-20261128', 'r1']
+    assert info['r1']['gpu_name'] == 'NVIDIA L4' and info['r1']['qwen_l0_p0_only'] == {'qwen3b': True}
+    assert sum('NVIDIA L4' in d and 'A100' in d and d.startswith('[r1] GPU') for d in devs) == 1
+    assert '[e8-run-20261128] notebook: 4h rule: old notebook wording' in devs and devs.count(r1['deviations'][0]) == 1
+    assert not any(d.startswith('[e8-run-20261128] GPU') for d in devs)                     # A100: no GPU deviation
+
+
+def test_two_rounds_checkpoints_are_merged_without_double_counting(tmp_path):
+    def cp(d, party, mode, res):
+        (d / 'checkpoints').mkdir(parents=True, exist_ok=True)
+        (d / 'checkpoints' / f'{party}__{mode}.json').write_text(json.dumps({'party_id': party, 'mode': mode, 'result': res}))
+    rec = lambda g: {'group': g, 'level': 'L2', 'perm': 'p0', 'request_id': 'x|L2|p0'}  # noqa: E731
+    r1, r2 = tmp_path / 'r1' / 'e8-run-20261128-r1', tmp_path / 'r2' / 'e8-run-20261128-r2'
+    cp(r1, 'qwen3b', 'L2_p0', {'records': [rec('qwen3b')]})
+    cp(r1, 'B1+FIRST_RED', 'part2_ZERO_LATENCY', {'group': 'B1+FIRST_RED', 'latency': 'ZERO_LATENCY', 'blogs': {}})
+    for party, mode, res in (('qwen3b', 'L2_p0', {'records': [rec('qwen3b')]}),          # round 2 zip also carries round 1's checkpoints
+                             ('qwen7b', 'L2_p0', {'records': [rec('qwen7b')]}),
+                             ('B1+FIRST_RED', 'part2_ZERO_LATENCY', {'group': 'B1+FIRST_RED', 'latency': 'ZERO_LATENCY', 'blogs': {}})):
+        cp(r2, party, mode, res)
+    for runs in ([tmp_path / 'r1', tmp_path / 'r2'], [tmp_path / 'r2']):
+        recs, part2 = SR.load_checkpoints(runs)
+        assert sorted(r['group'] for r in recs) == ['qwen3b', 'qwen7b'] and list(part2) == ['B1+FIRST_RED|ZERO_LATENCY']
+    miss = SR.missing_part1_cells(recs)
+    assert {'model': 'qwen7b', 'level': 'L4', 'perm': 'p0'} in miss and {'model': 'qwen7b', 'level': 'L2', 'perm': 'p0'} not in miss
