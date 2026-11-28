@@ -91,6 +91,7 @@ def gt_actors(gt_root: Path, cid: str) -> tuple[dict, dict]:
 
 
 def own_box_hits(records: list[dict], actors_by_case: dict) -> dict:
+    """{(group, level, perm, request_id): hit} for OWN_BOX answers, judged against the GT box on the Mac."""
     out = {}
     for r in records:
         d = r['display']
@@ -99,8 +100,27 @@ def own_box_hits(records: list[dict], actors_by_case: dict) -> dict:
         a = actors_by_case[r['case_id']].get(int(r['base_id'].rsplit('|t', 1)[1]))
         body = ((a or {}).get('gt_boxes') or {}).get(d.get('camera_id'))
         vis = d.get('camera_id') in ((a or {}).get('gt_visible') or [])
-        out[r['request_id']] = bool(vis and body and d.get('box_xyxy') and judge_box(d['box_xyxy'], body, E7.SIZE)['primary'])
+        out[S8.own_box_key(r)] = bool(vis and body and d.get('box_xyxy') and judge_box(d['box_xyxy'], body, E7.SIZE)['primary'])
     return out
+
+
+def run_deviations(run: Path) -> tuple[list[str], dict]:
+    """Deviations for the results: the notebook's own list plus the GPU actually used (design §6.3 planned an A100)."""
+    notes_path = next(iter(sorted(Path(run).glob('**/RUN_NOTES.json'))), None)
+    if notes_path is None:
+        return ['RUN_NOTES_MISSING: GPU and notebook deviations unknown'], {}
+    notes = json.loads(notes_path.read_text())
+    hw = notes.get('hardware') or {}
+    gpu = str(hw.get('gpu_name') or 'UNKNOWN')
+    info = {'gpu_name': gpu, 'gpu_vram_mb': hw.get('gpu_vram_mb'), 'accelerated_dtype': hw.get('actual_accelerated_dtype'),
+            'runtime_env': hw.get('runtime_env'), 'smoke_mode': notes.get('smoke_mode'), 'git_commit': notes.get('git_commit'),
+            'qwen_l0_p0_only': notes.get('qwen_l0_p0_only'), 'projected_hours': notes.get('projected_hours')}
+    out = [f'notebook: {d}' for d in notes.get('deviations') or []]
+    if 'A100' not in gpu:
+        out.append(f'GPU: ran on {gpu} (VRAM {hw.get("gpu_vram_mb")} MB, dtype {hw.get("actual_accelerated_dtype")}) instead of the planned '
+                   'A100 (design §6.3); latencies, the 4 h projection and whether Qwen L0 was cut to p0 reflect this GPU. Answers use '
+                   'greedy decoding, but outputs are not guaranteed bit-identical across GPUs.')
+    return out, info
 
 
 def score(run: Path, pack: Path, mac_index: Path) -> dict:
@@ -186,6 +206,7 @@ def score(run: Path, pack: Path, mac_index: Path) -> dict:
                'part2': {'per_group': per_group, 'selected_group': sel_group, 'H2': h2, 'S3': s3, 'S4': s4, 'early_switch_s': early,
                          'sensitivity_model_groups': sensitivity, 'decision_points': points},
                'limitations': LIMITATIONS, 'identity_status': 'UNCONFIRMED'}
+    results['run_deviations'], results['run_hardware'] = run_deviations(run)
     results['conclusion'] = S8.conclusion(p1['primary'], p1['secondary'], union_answerable=p1['union_answerable'], first_option=first)
     if any(m['latency'] == 'ZERO_LATENCY' for m in missing):
         results.update(status='SELECTED_GROUP_MISSING', conclusion='SELECTED_GROUP_MISSING', selected_group_missing=missing,
@@ -214,6 +235,8 @@ def render_md(r: dict) -> str:
         out += ['> **SELECTED_GROUP_MISSING** — the Mac-selected group has no Part-2 results, so H2 / S3 / S4 and the conclusion are '
                 'not available. Missing: ' + ', '.join(f"{m['model']} @ {m['level']} ({m['latency']})" for m in r['selected_group_missing']),
                 f"> Re-run: {r['rerun_hint']}", '']
+    if r.get('run_deviations'):
+        out += ['## Run deviations', ''] + [f'- {d}' for d in r['run_deviations']] + ['']
     out += [f"- conclusion: **{r['conclusion']}** (design §5.5)", f"- regimes: {r['regime_counts']}",
            f"- selected (Part 2 primary): {p2['selected_group']}", '', '## Part 1 accuracy (majority over 3 orders)', '',
            '| group / level | majority | mean | n | needs_mac |', '| --- | ---: | ---: | ---: | ---: |']

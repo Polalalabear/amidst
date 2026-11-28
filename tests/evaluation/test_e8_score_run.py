@@ -66,3 +66,28 @@ def test_main_exits_nonzero_and_flags_top_of_outputs(tmp_path, monkeypatch, caps
             assert 'SELECTED_GROUP_MISSING' in capsys.readouterr().err
         else:
             assert '> **SELECTED_GROUP_MISSING**' not in md and doc['status'] == 'OK'
+
+
+def test_own_box_hits_keyed_per_model(monkeypatch):
+    """#785: the Mac OWN_BOX judgement must not overwrite one model's answer with another's for the same request id."""
+    monkeypatch.setattr(SR, 'judge_box', lambda box, body, size: {'primary': box[0] < 50})
+    actors = {'E3-X1': {5: {'gt_visible': ['CAM_A'], 'gt_boxes': {'CAM_A': [0, 0, 10, 40]}}}}
+    recs = [{'request_id': 'E3-X1|t5|L0|p0', 'base_id': 'E3-X1|t5', 'case_id': 'E3-X1', 'group': g, 'level': 'L0', 'perm': 'p0',
+             'display': {'kind': 'NEEDS_MAC', 'camera_id': 'CAM_A', 'box_xyxy': box}}
+            for g, box in (('qwen3b', [0, 0, 10, 40]), ('qwen7b', [100, 0, 110, 40]))]
+    hits = SR.own_box_hits(recs, actors)
+    assert hits == {('qwen3b', 'L0', 'p0', 'E3-X1|t5|L0|p0'): True, ('qwen7b', 'L0', 'p0', 'E3-X1|t5|L0|p0'): False}
+
+
+def test_run_deviations_records_the_gpu(tmp_path):
+    (tmp_path / 'r').mkdir()
+    assert SR.run_deviations(tmp_path / 'r')[0] == ['RUN_NOTES_MISSING: GPU and notebook deviations unknown']
+    notes = {'deviations': ['4h rule: projected 4.6 h > 4.0 h on this GPU; Qwen L0 runs p0 only (design §6.3)'],
+             'hardware': {'gpu_name': 'NVIDIA L4', 'gpu_vram_mb': 23034, 'actual_accelerated_dtype': 'bf16'}, 'qwen_l0_p0_only': True}
+    (tmp_path / 'r' / 'RUN_NOTES.json').write_text(json.dumps(notes))
+    devs, info = SR.run_deviations(tmp_path / 'r')
+    assert devs[0].startswith('notebook: 4h rule') and 'NVIDIA L4' in devs[1] and 'A100' in devs[1]
+    assert info['gpu_name'] == 'NVIDIA L4' and info['qwen_l0_p0_only'] is True
+    notes['hardware']['gpu_name'] = 'NVIDIA A100-SXM4-40GB'
+    (tmp_path / 'r' / 'RUN_NOTES.json').write_text(json.dumps(notes))
+    assert len(SR.run_deviations(tmp_path / 'r')[0]) == 1

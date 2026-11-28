@@ -85,12 +85,17 @@ def baseline_records(requests: Iterable[dict]) -> list[dict]:
     return out
 
 
+def own_box_key(r: dict) -> tuple[str, str, str, str]:
+    """Unique key of one answer: every model / group answers the same request ids, so the request id alone collides (#785)."""
+    return (r['group'], r['level'], r['perm'], r['request_id'])
+
+
 def cells(records: Iterable[dict], table: dict, regime_of: dict, own_box: dict | None = None) -> dict:
     """{(group, level): {base_id: {'perms': {perm: bool|None}, 'majority': bool|None}}}. None = unresolved OWN_BOX."""
     out: dict = defaultdict(dict)
     for r in records:
         b = r['base_id']
-        c = judge(r['display'], table[b], regime_of[b], (own_box or {}).get(r['request_id']))
+        c = judge(r['display'], table[b], regime_of[b], (own_box or {}).get(own_box_key(r)))
         out[(r['group'], r['level'])].setdefault(b, {'perms': {}})['perms'][r['perm']] = c
     for cell in out.values():
         for v in cell.values():
@@ -346,6 +351,6 @@ def unified_section(results: dict) -> dict:
             'early_switch_s': results.get('part2', {}).get('early_switch_s', {}), 'identity_status': 'UNCONFIRMED'}
 
 
-__all__ = ['regime_from_label', 'regime_from_gt', 'judge', 'baseline_records', 'cells', 'accuracy', 'compare', 'h2_test',
+__all__ = ['own_box_key', 'regime_from_label', 'regime_from_gt', 'judge', 'baseline_records', 'cells', 'accuracy', 'compare', 'h2_test',
            'primary_verdict', 'secondary_verdict', 'select_groups', 'position_bias', 'random_expectation', 'summary',
            'early_switch_s', 's3_test', 's4_test', 'conclusion', 'union_answerable', 'unified_section']

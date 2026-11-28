@@ -109,3 +109,16 @@ def test_early_switch_conclusion_and_unified_section():
            'part2': {'per_group': {'B1': {'follow_rate': .7}}, 'early_switch_s': {}}}
     sec = S.unified_section(res)
     assert sec['schema'] == 'e8_unified_v1' and sec['verdicts'] == {'H1a': 'EXPLORATORY'} and sec['identity_status'] == 'UNCONFIRMED'
+
+
+def test_own_box_kept_per_model_for_the_same_request_id():
+    """#785: two models answer OWN_BOX on the same request id with different GT outcomes; both must be kept."""
+    r = req('E3-X1', 5, 'L0c', 'p0')
+    disp = {'kind': 'NEEDS_MAC', 'camera_id': 'CAM_A', 'box_xyxy': [0, 0, 10, 40]}
+    recs = [{'request_id': r['request_id'], 'base_id': r['base_id'], 'case_id': 'E3-X1', 'group': g, 'level': 'L0c', 'perm': 'p0',
+             'display': disp} for g in ('qwen3b', 'qwen7b')]
+    own = {S.own_box_key(recs[0]): True, S.own_box_key(recs[1]): False}
+    assert len(own) == 2
+    cm = S.cells(recs, {'E3-X1|t5': ENTRY}, {'E3-X1|t5': 'VISIBLE'}, own)
+    assert cm[('qwen3b', 'L0c')]['E3-X1|t5']['perms']['p0'] is True
+    assert cm[('qwen7b', 'L0c')]['E3-X1|t5']['perms']['p0'] is False

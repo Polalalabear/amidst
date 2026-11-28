@@ -73,7 +73,7 @@ E8 要回答三件事：
 | `src/amidst/evaluation/e8_score.py`（Colab 評分格與 Mac；已完成） | `e6_verdict.single_dp_correct`、`full_track_dp_correct`、`sign_flip_p`、`sign_flip_p_two_sided`、`mcnemar_exact_p`、`majority`、`MIN_DP`、`MIN_FAMILIES`、`TAU_BLIND_S`，以及 H2 用的 `_group_family_units`、`_diffs`、`_shifted`；`agent_eval_scoring.metrics.holm_bonferroni`（一般 Holm；`e6_verdict._holm` 只做 2 個假設）、`cluster_bootstrap_ci`（家族群集 bootstrap）；`e3_f4_score.run_scores`（第二部分，Mac） | 3 種順序多數決、H1／S 檢定的組裝、+14.0 s 錯人秒容許值、選組、位置偏差、RANDOM 期望值、S3／S4、提早切對、§5.5 結論、`unified_section` |
 | `src/amidst/evaluation/e8_handoff.py`（推論端；已完成） | `e3_f4_run.replay`、`chain_box`、`CONFIG`（B1 重現與閉迴路）；`live_mode.server.State` 的 `decider.step` 掛點；`e8_requests` | 觸發、套用、延遲 |
 | `src/amidst/evaluation/e8_colab_run.py`（推論端；notebook 逐格呼叫） | `e7_colab_runtime.load_group_checkpoint`、`save_group_checkpoint`；`e8_requests`；`e8_handoff` | 分組、§6.3 的 4 h 規則（`projected_hours`）、可續跑的組、第二部分各組、SMOKE 替身 |
-| `scripts/evaluation/e8_score_run.py`（Mac 一條指令；已完成） | `e8_score`、`e3_f4_score.run_scores`、`generate_unified_analysis`、`report/figures/build_figures.py` | CLI：讀 run zip、用 GT 補判 OWN_BOX 與 TRUE_DEPARTURE、輸出結果與 `unified_e8_section.json` |
+| `scripts/evaluation/e8_score_run.py`（Mac 一條指令；已完成） | `e8_score`、`e3_f4_score.run_scores`、`generate_unified_analysis`、`report/figures/build_figures.py` | CLI：讀 run zip、用 GT 補判 OWN_BOX（鍵為（模型, 級, 順序, request_id），`e8_score.own_box_key`）與 TRUE_DEPARTURE、讀 `RUN_NOTES.json` 寫偏離（含 GPU）、輸出結果與 `unified_e8_section.json` |
 | `notebooks/e8_colab_eval.ipynb`（已完成） | E7 notebook 的格子結構、`e7_colab_runtime` 的 checkpoint、`e7_decider_eval.collect_hardware_provenance`、`resolve_hf_provenance`、`verify_manifest_sha256`、`build_laya_native_inference_fn`、`build_qwen_vl_inference_fn` | E8 的設定與流程 |
 
 **小幅、只增不改的修改**（既有行為與測試不變）：
@@ -368,7 +368,7 @@ E7 的 Qwen-3B 用 E7 格式（輸出上限 256 token），p50 是 5.4–6.0 s�
 | 第二部分（2 個規則組＋4 個模型組＋1 個 MEASURED） | 約 400–1,400 次觸發／組 | 同上 | 約 45–75 min |
 | **合計** | | | **約 3.7–4.9 h** |
 
-**4 h 規則（預登）**：notebook 第 6 格量完每個 Qwen 模型的前 20 筆後，用實測中位數重算整本的預估時間。A100 上預估超過 4 h，就把 Qwen 的 L0 減為只跑 `p0`（3B、7B 各少 232 筆，約省 50–60 min），寫進 `RUN_NOTES.json` 的偏離。Qwen L0 不在主要假設內，所以這樣減不影響 H1／H2；L0 的順序偏差只用 laya 量。依目前估計，這條規則很可能會觸發。SMOKE 後在本機也會記錄 stub 的時間，但 CPU 時間不能代表 GPU。
+**4 h 規則（預登）**：notebook 第 6 格量完每個 Qwen 模型的前 20 筆後，用實測中位數重算整本的預估時間。A100 上預估超過 4 h，就把 Qwen 的 L0 減為只跑 `p0`（3B、7B 各少 232 筆，約省 50–60 min），寫進 `RUN_NOTES.json` 的偏離。Qwen L0 不在主要假設內，所以這樣減不影響 H1／H2；L0 的順序偏差只用 laya 量。依目前估計，這條規則很可能會觸發。SMOKE 後在本機也會記錄 stub 的時間，但 CPU 時間不能代表 GPU。**GPU 不是 A100 時**（例如 L4），照常執行，4 h 規則用這張 GPU 的實測時間判斷；`RUN_NOTES.json` 記下 GPU 型號，`e8_score_run.py` 把它寫進結果的 `run_deviations`。
 
 ### 6.4 回 Mac 一條指令
 
@@ -388,8 +388,8 @@ python scripts/evaluation/e8_score_run.py --run local/evidence/e8-run-<日期>/e
 | --- | --- |
 | `tests/evaluation/test_e8_requests.py`（11 項） | 合併規則；3 種順序；各級欄位嚴格遮蔽；L0 與 E7 渲染相同；laya 選項文字；`parse_e8_answer`；KEEP 解析；底線策略；模型接合與截斷；**重複定義掃描**（必改 1，含 `e8_colab_run`、`e8_score_run`） |
 | `tests/evaluation/test_build_e8_colab_pack.py`（6 項） | 快照欄位只有 §2.2 規定的那些；KEEP 對到候選；假 GT 進不了任何請求；閘門失敗時整包刪除；3 種順序可重現；標籤表不受順序影響 |
-| `tests/evaluation/test_e8_score.py`（6 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值；提早切對、§5.5 結論、union answerable、`unified_section` |
-| `tests/evaluation/test_e8_score_run.py`（3 項） | Mac 評分：SELECTED 缺第二部分結果時列出缺的（模型, 級, 延遲）並以狀態 3 結束、md 頂端警告與補跑指示（G6）；四個模型組的敏感度表；「限制」段 |
+| `tests/evaluation/test_e8_score.py`（7 項） | 判分真值表；多數決與底線組；H1 的家族配對與狀態；選組與同分規則；H2 的容許值；提早切對、§5.5 結論、union answerable、`unified_section`；兩個模型對同一 request_id 答 OWN_BOX 時各自保留 |
+| `tests/evaluation/test_e8_score_run.py`（5 項） | Mac 評分：SELECTED 缺第二部分結果時列出缺的（模型, 級, 延遲）並以狀態 3 結束、md 頂端警告與補跑指示（G6）；四個模型組的敏感度表；「限制」段；OWN_BOX 補判以模型區分；`RUN_NOTES` 的 GPU 偏離 |
 | `tests/evaluation/test_e8_colab_run.py`（3 項） | 分組與 Qwen L0 只跑 p0 的規則；`projected_hours`；checkpoint 續跑與指紋不同時重跑；SMOKE 替身可解析 |
 | `tests/evaluation/test_e8_handoff.py`（5 項） | 觸發條件與間隔；SELECT／NOT_VISIBLE／無效回答的套用；MEASURED 的 chain 與 EXPIRED；不掛決策器時和 `e3_f4_run.replay` 一致 |
 | `test_e7_decider_eval.py`（加案例） | 已渲染輸入的入口；E7 的舊測試全部照舊通過 |
